@@ -6,7 +6,7 @@ export default class DrumMachine {
   clock: Clock;
   basePath: string;
   instruments: Record<string, string>;
-  pattern: Record<string, { hits: string[]; velocities: number[] }>; // Include velocities
+  pattern: Record<string, { hits: string[]; velocities: number[] }>;
   readyCount: number = 0;
   totalCount: number = 0;
   audioContext: AudioContext;
@@ -16,7 +16,7 @@ export default class DrumMachine {
     clock: Clock;
     basePath: string;
     instruments: Record<string, string>;
-    pattern: Record<string, { hits: string[]; velocities: number[] }>; // Pass velocities
+    pattern: Record<string, { hits: string[]; velocities: number[] }>;
     audioContext: AudioContext;
   }) {
     this.drums = {};
@@ -42,16 +42,9 @@ export default class DrumMachine {
 
   private loaded() {
     this.readyCount++;
-
-    if (this.readyCount === this.totalCount) {
-      console.log("everything is loaded");
-      this.clock.add(this.play.bind(this));
-    }
   }
 
   private play(_now: number, beat: number) {
-    if (!this.isPlaying) return; // Stop playing if isPlaying is false
-
     for (const instrument in this.pattern) {
       const currentPattern = this.pattern[instrument];
       const hitType = currentPattern.hits[beat];
@@ -64,8 +57,10 @@ export default class DrumMachine {
   }
 
   startPlayback() {
-    this.isPlaying = true;
-    this.clock.add(this.play.bind(this));
+    console.log("startPlayback");
+    if (this.readyCount === this.totalCount) {
+      this.clock.add(this.play.bind(this));
+    }
   }
 
   stopPlayback() {
