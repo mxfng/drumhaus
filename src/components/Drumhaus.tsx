@@ -1,135 +1,39 @@
 "use client";
 
-import Clock from "@/lib/v0/clock";
-import DrumMachine from "@/lib/v0/drumMachine";
-import { Box, Button, Center, Heading } from "@chakra-ui/react";
+import { Button, Text } from "@chakra-ui/react";
+import { useState } from "react";
 
-const Drumhaus = () => {
-  const createDrumMachine = () => {
-    const audioContext = new window.AudioContext();
+export const Drumhaus = () => {
+  const [steps, setSteps] = useState([0, 0, 0, 0]);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [playing, setPlaying] = useState(false);
 
-    const clock = new Clock({
-      numberOfBeats: 16,
-      tempo: 120 * 4,
-      audioContext: audioContext,
-    });
+  const handlePlayPress = () => {
+    if (!playing) {
+      setCurrentStep(-1);
+      setPlaying(true);
 
-    return new DrumMachine({
-      clock,
-      basePath: "https://s3-us-west-2.amazonaws.com/demo-aud-samp/samples/",
-      instruments: {
-        kick: "BD_Blofeld_001.wav",
-        snare: "SD_Blofeld_06.wav",
-        hat: "HH_Blofeld_001.wav",
-        openHat: "Clap_Blofeld_2.wav",
-      },
-      pattern: defaultPattern,
-      audioContext: audioContext,
-    });
+      // start clock
+      // clock.start()
+      // tickEvent = this.clock.callbackAtTime(
+      //  handleTick.bind(this),
+      //  this.context.currentTime
+      // ).repeat(0.47);
+    } else {
+      setPlaying(false);
+      // stop the clock
+      // clock.stop()
+      // tickEvent.clear()
+      // tickEvent = null
+    }
   };
-
-  let drumMachine: DrumMachine;
 
   return (
     <>
-      <Center h="100vh">
-        <Box w="fit-content">
-          <Heading>Drumhaus</Heading>
-          <Button onClick={() => (drumMachine = createDrumMachine())}>
-            Create
-          </Button>
-          <Button onClick={() => drumMachine.startPlayback()}>Play</Button>
-        </Box>
-      </Center>
+      <Text>{`Current Step: ${currentStep % steps.length}`}</Text>
+      <Button className="play-button" onClick={() => handlePlayPress()}>
+        {playing ? "Stop" : "Play"}
+      </Button>
     </>
   );
 };
-
-const defaultPattern = {
-  kick: {
-    hits: [
-      "x",
-      " ",
-      " ",
-      " ",
-      "x",
-      " ",
-      " ",
-      " ",
-      "x",
-      " ",
-      " ",
-      " ",
-      "x",
-      " ",
-      " ",
-      " ",
-    ],
-    velocities: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  },
-  snare: {
-    hits: [
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      "x",
-      " ",
-      " ",
-      " ",
-      "x",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-    ],
-    velocities: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  },
-  hat: {
-    hits: [
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-      "x",
-    ],
-    velocities: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  },
-  openHat: {
-    hits: [
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-      " ",
-    ],
-    velocities: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  },
-};
-
-export default Drumhaus;
