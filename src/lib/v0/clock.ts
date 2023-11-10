@@ -24,6 +24,11 @@ export default class Clock {
     this._tick();
   }
 
+  startClock() {
+    console.log("startClock");
+    this._tick();
+  }
+
   add(fn: (now: number, beat: number, bar: number) => void) {
     this.handlers.push(fn);
   }

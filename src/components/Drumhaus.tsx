@@ -1,7 +1,7 @@
 "use client";
 
-import Clock from "@/lib/clock";
-import DrumMachine from "@/lib/drumMachine";
+import Clock from "@/lib/v0/clock";
+import DrumMachine from "@/lib/v0/drumMachine";
 import { Box, Button, Center, Heading } from "@chakra-ui/react";
 
 const Drumhaus = () => {
@@ -24,23 +24,21 @@ const Drumhaus = () => {
         openHat: "Clap_Blofeld_2.wav",
       },
       pattern: defaultPattern,
-      audioContext,
+      audioContext: audioContext,
     });
   };
+
+  let drumMachine: DrumMachine;
 
   return (
     <>
       <Center h="100vh">
         <Box w="fit-content">
           <Heading>Drumhaus</Heading>
-          <Button
-            onClick={() => {
-              const drumMachine = createDrumMachine();
-              drumMachine.startPlayback();
-            }}
-          >
-            Play
+          <Button onClick={() => (drumMachine = createDrumMachine())}>
+            Create
           </Button>
+          <Button onClick={() => drumMachine.startPlayback()}>Play</Button>
         </Box>
       </Center>
     </>
@@ -76,11 +74,11 @@ const defaultPattern = {
       " ",
       " ",
       " ",
+      "x",
       " ",
       " ",
       " ",
-      " ",
-      " ",
+      "x",
       " ",
       " ",
       " ",
