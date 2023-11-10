@@ -1,6 +1,5 @@
-import DrumhausFailedTest from "@/components/Drumhaus";
-import { sample } from "@/lib/v0/sample";
+import { Drumhaus } from "@/components/Drumhaus";
 
 export default function Home() {
-  return <DrumhausFailedTest />;
+  return <Drumhaus />;
 }
