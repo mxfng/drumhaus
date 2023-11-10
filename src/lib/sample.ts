@@ -1,5 +1,4 @@
-"use client";
-
+// Triggers a sample
 export function sample() {
   // Update the path to your sample in the public folder
   const audioFileUrl = "/samples/909_kick.wav";
