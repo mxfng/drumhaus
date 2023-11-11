@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import * as Tone from "tone/build/esm/index";
 
-export const useTransport = (sampler: Tone.Sampler | null) => {
+// When the sampler object loads, enable the play button
+export const useTransportOnPlay = (
+  sampler: React.RefObject<Tone.Sampler | null>
+) => {
   useEffect(() => {
     const handlePlayClick = async () => {
       if (Tone.Transport.state === "started") {
