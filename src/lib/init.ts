@@ -4,7 +4,14 @@ import * as Tone from "tone/build/esm/index";
 // __Initialization__
 // Define initial sample URLs
 const samples: { name: string; url: string }[] = [
-  { name: "Kick", url: "909_kick.wav" },
+  { name: "Kick", url: "kick/debug_kick.wav" },
+  { name: "Kick2", url: "kick2/debug_kick2.wav" },
+  { name: "Snare", url: "snare/debug_snare.wav" },
+  { name: "Clap", url: "clap/debug_clap.wav" },
+  { name: "Hat", url: "hat/debug_hat.wav" },
+  { name: "OHat", url: "ohat/debug_ohat.wav" },
+  { name: "Bell", url: "bell/debug_bell.wav" },
+  { name: "Crash", url: "cymbal/debug_crash.wav" },
 ];
 
 // Create initial Drumhaus sampler objects
