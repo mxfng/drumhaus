@@ -17,13 +17,12 @@
     "next": "14.0.2",
     "react": "^18",
     "react-dom": "^18",
-    "waaclock": "^0.5.4"
+    "tone": "^14.8.49"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@types/waaclock": "^0.5.2",
     "eslint": "^8",
     "eslint-config-next": "14.0.2",
     "typescript": "^5"
