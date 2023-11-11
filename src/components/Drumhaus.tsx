@@ -2,7 +2,7 @@
 
 import * as init from "@/lib/init";
 import { DHSampler, SlotData } from "@/types/types";
-import { Box, Button, Center, Grid, Heading } from "@chakra-ui/react";
+import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Slot } from "./Slot";
@@ -48,31 +48,32 @@ const Drumhaus = () => {
   // Set Transport to Play Button
 
   return (
-    <>
-      <Center h="100vh">
-        <Box w="700px" h="500px" bg="silver">
-          <Heading id="logo" variant="logo">
-            drumhaus
-          </Heading>
-          <Grid templateColumns="repeat(8, 1fr)">
-            {slots.map((slotData) => (
-              <Slot key={slotData.id} data={slotData} />
-            ))}
-            {/* {samples.map((sample) => (
-              <GridItem key={sample.id} colSpan={{ base: 4, lg: 8 }}>
-                <Center bg="gray" p={4}>
-                  <Button onClick={() => playSample(sample)}>
-                    {sample.id}
-                  </Button>
-                </Center>
-              </GridItem>
-            ))} */}
-          </Grid>
+    <Box
+      id="Drumhaus"
+      className="drumhaus"
+      bg="silver"
+      h="100vh"
+      overflow="hidden"
+    >
+      <Heading
+        id="logo"
+        variant="logo"
+        as="h1"
+        fontSize={100}
+        color="darkorange"
+      >
+        drumhaus
+      </Heading>
+      <Grid key="slots" templateColumns="repeat(8, 1fr)">
+        {slots.map((slotData, i) => (
+          <GridItem key={`gridItem-${slotData.id}`} position="relative">
+            <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
+          </GridItem>
+        ))}
+      </Grid>
 
-          <Button id="playButton">Play</Button>
-        </Box>
-      </Center>
-    </>
+      <Button id="playButton">Play</Button>
+    </Box>
   );
 };
 
