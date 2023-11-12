@@ -11,7 +11,7 @@ const samples: { name: string; url: string }[] = [
   { name: "Hat", url: "hat/debug_hat.wav" },
   { name: "OHat", url: "ohat/debug_ohat.wav" },
   { name: "Bell", url: "bell/debug_bell.wav" },
-  { name: "Crash", url: "cymbal/debug_crash.wav" },
+  { name: "Crash", url: "crash/debug_crash.wav" },
 ];
 
 // Create initial Drumhaus sampler objects
