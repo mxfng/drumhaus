@@ -169,7 +169,9 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
               originY: 0.5,
               position: "absolute",
               zIndex: 2,
-              // border: "1px solid red", // debug
+              border: "1px solid red", // debug
+              backgroundColor: "#002345",
+              opacity: 0.2,
             }}
           >
             <Center h="100%" w="100%">
@@ -179,7 +181,7 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
                 w={`${size}px`}
                 position="absolute"
                 pointerEvents="none"
-                // outline="1px solid green" // debug
+                outline="1px solid green" // debug
               >
                 <Box
                   w={`${size / 4}px`}
