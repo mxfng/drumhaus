@@ -32,6 +32,9 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
         </Text>
         <Button onClick={() => playSample()} m={2} />
         <Knob size={80} />
+        <Knob size={80} />
+        <Knob size={40} />
+        <Knob size={40} />
       </Box>
 
       {/* Divider Line */}
