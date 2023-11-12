@@ -20,11 +20,12 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
   const [previousInterpolatedMouseY, setPreviousInterpolatedMouseY] =
     useState(0);
 
+  // For when user holds shift
+  const [previousFineInterpolatedMouseY, setPreviousFineInterpolatedMouseY] =
+    useState(0);
+
   // Track hitbox size for knob
   const [hitboxSize, setHitboxSize] = useState(`${size}px`);
-
-  // Track rotation sensitivity threshold
-  const [sensitivity, setSensitivity] = useState(200); // px drag distance to 100%
 
   // Create a motion value to transform against for rotation animation
   const mouseYMotion = useMotionValue(0);
@@ -32,9 +33,14 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
   // Create a ref to track the knob div
   const knobRef = useRef<HTMLDivElement>(null);
 
+  // Dev parameters
+  const [sensitivity, setSensitivity] = useState(150);
+
+  const [sensitivityAdjuster, setSensitivityAdjuster] = useState(1);
+
   const interpolatedMouseY = Math.max(
     0,
-    Math.min(mouseDown.y - mouse.y + previousInterpolatedMouseY, 100)
+    Math.min(mouseDown.y - mouse.y + previousInterpolatedMouseY, sensitivity)
   );
 
   // Handler for mouse down events
@@ -42,26 +48,28 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
     setIsMouseDown(true);
     setMouseDown({ x: event.clientX, y: event.clientY });
     setMouse({ x: event.clientX, y: event.clientY });
-    console.log("mouse down");
+
+    // Debugging
+    // console.log("mouse down");
   };
 
   // Handler for mouse up events
-  const handleMouseUp = () => {
+  const handleMouseUp = (event: React.MouseEvent<HTMLDivElement>) => {
     setIsMouseDown(false);
+    setMouseDown({ x: event.clientX, y: event.clientY });
+    setMouse({ x: event.clientX, y: event.clientY });
     setHitboxSize(`${size}px`);
 
     // Save interpolated transform value state
     setPreviousInterpolatedMouseY(interpolatedMouseY);
 
     // Debugging
-    console.log("mouse up");
+    // console.log("mouse up");
   };
 
   // Handler for mouse move events
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (isMouseDown) {
-      console.log("mouse moving while down");
-
       // Grab current mouse values
       setMouse({ x: event.clientX, y: event.clientY });
 
@@ -77,18 +85,58 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
       // console.log(`mouse: ${mouse.x}, ${mouse.y}`);
       // console.log(`interp Y: ${interpolatedMouseY}`);
       // console.log(`hitbox: ${newHitboxSize}`);
+      // console.log("mouse moving while down");
     }
   };
 
   // Check when mouse leaves client window
   const handleMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
-    handleMouseUp();
+    //handleMouseUp();
+    setIsMouseDown(false);
+    setMouse({ x: event.clientX, y: event.clientY });
+    setHitboxSize(`${size}px`);
+
+    // Save interpolated transform value state
+    setPreviousInterpolatedMouseY(interpolatedMouseY);
+
+    // Debugging
+    // console.log("mouse up");
   };
 
-  //
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  // Reduce the sensitivity when shift key is pressed
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        console.log("shift pressed");
+        setPreviousInterpolatedMouseY(interpolatedMouseY); // issue here
+        setIsShiftPressed(true);
+        setSensitivity(250);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === "Shift") {
+        console.log("shift released");
+        setPreviousInterpolatedMouseY(interpolatedMouseY); // issue here
+        setIsShiftPressed(true);
+        setSensitivity(150);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      // Clean up the event listeners when the component unmounts
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
   // Apply interpolated mouse Y value to framer motion transform function
-  const rotation = useTransform(mouseYMotion, [0, 100], [-180, 0]);
+  const rotation = useTransform(mouseYMotion, [0, sensitivity], [-180, 0]);
 
   // Cleanup on unmount or whenever mouse is up
   useEffect(() => {
@@ -121,7 +169,7 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
               originY: 0.5,
               position: "absolute",
               zIndex: 2,
-              border: "1px solid red", // debug
+              // border: "1px solid red", // debug
             }}
           >
             <Center h="100%" w="100%">
@@ -131,7 +179,7 @@ export const Knob: React.FC<KnobProps> = ({ size }) => {
                 w={`${size}px`}
                 position="absolute"
                 pointerEvents="none"
-                outline="1px solid green" // debug
+                // outline="1px solid green" // debug
               >
                 <Box
                   w={`${size / 4}px`}
