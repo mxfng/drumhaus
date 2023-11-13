@@ -31,10 +31,10 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           {data.sampler.url}
         </Text>
         <Button onClick={() => playSample()} m={2} />
-        <Knob size={80} />
-        <Knob size={80} />
-        <Knob size={40} />
-        <Knob size={40} />
+        <Knob key={`knob1-${data.name}`} size={60} />
+        <Knob key={`knob2-${data.name}`} size={60} />
+        <Knob key={`knob3-${data.name}`} size={40} />
+        <Knob key={`knob4-${data.name}`} size={40} />
       </Box>
 
       {/* Divider Line */}
