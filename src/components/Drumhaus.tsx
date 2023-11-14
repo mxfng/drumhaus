@@ -33,8 +33,9 @@ const Drumhaus = () => {
 
   // Drumhaus Main Control States
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [bpm, setBpm] = useState(120);
+  const [bpm, setBpm] = useState(70);
   const [swing, setSwing] = useState(0);
+  const [step, setStep] = useState(0);
 
   // BPM
   useEffect(() => {
@@ -46,7 +47,24 @@ const Drumhaus = () => {
     Tone.Transport.swing = swing;
   }, [swing]);
 
+  const numberOfSteps = 16;
+
+  const stepDuration = 1 / (bpm / 60) / 4;
+
+  const steps = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0];
+
   // Set Transport to Play Button
+  const togglePlayback = async () => {
+    await Tone.start();
+
+    if (isPlaying) {
+      setIsPlaying(false);
+      Tone.Transport.stop();
+    } else {
+      setIsPlaying(true);
+      Tone.Transport.start();
+    }
+  };
 
   return (
     <Box
@@ -55,8 +73,8 @@ const Drumhaus = () => {
       bg="silver"
       w="100%"
       h="100%"
-      p={10}
       position="relative"
+      style={{ userSelect: "none" }}
     >
       <Heading
         id="logo"
@@ -68,7 +86,11 @@ const Drumhaus = () => {
       >
         drumhaus
       </Heading>
+      <Box w="100%" h="8px" bg="gray" />
       <Instruments slots={slots} />
+      <Box h="100px">
+        <Button onClick={() => togglePlayback()}>PLAY</Button>
+      </Box>
       <Sequencer />
     </Box>
   );
