@@ -4,6 +4,7 @@ import { SlotData } from "@/types/types";
 import { Box, Button, Heading, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob } from "./Knob";
+import { useEffect, useState } from "react";
 
 type SlotParams = {
   data: SlotData;
@@ -14,10 +15,28 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
     data.sampler.sampler.triggerAttack("C2");
   };
 
+  // Control volume
+  const [volume, setVolume] = useState(90); // 0-100
+
+  useEffect(() => {
+    const newVolumeValue = transformKnobValue(volume, [-30, 0]);
+    data.sampler.sampler.volume.value = newVolumeValue;
+  }, [volume]);
+
+  // Transform knob values (0-100) to any Tone.js parameter range [min, max]
+  const transformKnobValue = (
+    input: number,
+    range: [number, number]
+  ): number => {
+    const [newRangeMin, newRangeMax] = range;
+    const scalingFactor = (newRangeMax - newRangeMin) / 100;
+    return scalingFactor * input + newRangeMin;
+  };
+
   return (
     <>
-      <Box key={`Slot-${data.name}`} p={4}>
-        <Heading className="slot" as="h2" p={2}>
+      <Box w="100%" key={`Slot-${data.name}`} p={4}>
+        <Heading className="slot" as="h2">
           {data.name}
         </Heading>
         <Text
@@ -26,15 +45,17 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           css={{
             fontFamily: `'Pixelify Sans Variable', sans-serif`,
           }}
-          p={2}
         >
           {data.sampler.url}
         </Text>
         <Button onClick={() => playSample()} m={2} />
-        <Knob key={`knob1-${data.name}`} size={60} />
-        <Knob key={`knob2-${data.name}`} size={60} />
-        <Knob key={`knob3-${data.name}`} size={40} />
-        <Knob key={`knob4-${data.name}`} size={40} />
+        <Knob
+          key={`knob1-${data.name}`}
+          size={60}
+          knobValue={volume}
+          setKnobValue={setVolume}
+        />
+        <Text>{volume}</Text>
       </Box>
 
       {/* Divider Line */}
