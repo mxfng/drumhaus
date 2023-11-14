@@ -17,7 +17,7 @@ export const Sequencer: React.FC<any> = ({
 
   const sequencerRef = useRef<HTMLDivElement | null>(null);
 
-  const gap = 8;
+  const gap = 12;
 
   // Resize sequence boxes to parent width
   useEffect(() => {
@@ -108,10 +108,10 @@ export const Sequencer: React.FC<any> = ({
             colSpan={1}
             w="100%"
             h={`${calculateHeight()}px`}
-            bg="darkorange"
+            bg={sequence[node] ? "darkorange" : "transparent"}
             opacity={sequence[node] ? 1 : 0.5}
             outline={
-              step == node ? "4px solid darkorange" : "1px solid darkorange"
+              step == node ? "4px solid darkorange" : "4px solid darkorange"
             }
             borderRadius={`${calculateHeight() / 4}px 0 ${
               calculateHeight() / 4

@@ -98,19 +98,24 @@ const Drumhaus = () => {
         slot={slot}
         setSlot={setSlot}
       />
+      <Box w="100%" h="2px" bg="gray" />
       <Box h="100px">
         <Button onClick={() => togglePlay()}>
           {isPlaying ? "PAUSE" : "PLAY"}
         </Button>
       </Box>
-      <Sequencer
-        sequence={currentSequence}
-        setSequence={setCurrentSequence}
-        sequences={sequences}
-        setSequences={setSequences}
-        slot={slot}
-        step={step}
-      />
+      <Box w="100%" h="2px" bg="gray" />
+      <Box p={8}>
+        <Sequencer
+          sequence={currentSequence}
+          setSequence={setCurrentSequence}
+          sequences={sequences}
+          setSequences={setSequences}
+          slot={slot}
+          step={step}
+        />
+      </Box>
+      <Box w="100%" h="8px" bg="gray" />
     </Box>
   );
 };
