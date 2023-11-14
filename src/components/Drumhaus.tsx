@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
 import { Instruments } from "./Instruments";
+import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 
 const Drumhaus = () => {
   // Provide state array of Drumhaus samplers
@@ -112,18 +113,19 @@ const Drumhaus = () => {
       position="relative"
       style={{ userSelect: "none" }}
     >
-      <Heading
-        id="logo"
-        variant="logo"
-        as="h1"
-        fontSize={100}
-        color="darkorange"
-        fontFamily="Mandala"
-        boxShadow="0 8px 8px rgba(0, 0, 0, 0.2)"
-      >
-        drumhaus
-      </Heading>
-      <Box w="100%" h="8px" bg="gray" />
+      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)" my={4}>
+        <Heading
+          id="logo"
+          variant="logo"
+          as="h1"
+          fontSize={100}
+          color="darkorange"
+          fontFamily="Mandala"
+        >
+          drumhaus
+        </Heading>
+      </Box>
+
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <Instruments
           slots={slots}
@@ -134,18 +136,6 @@ const Drumhaus = () => {
         />
       </Box>
 
-      {/* <Box w="100%" h="2px" bg="gray" /> */}
-
-      <Box p={8} boxShadow="8px 8px 8px rgba(0, 0, 0, 0.2)">
-        <Sequencer
-          sequence={currentSequence}
-          setSequence={setCurrentSequence}
-          sequences={sequences}
-          setSequences={setSequences}
-          slot={slot}
-          step={step}
-        />
-      </Box>
       <Box h="180px" w="100%">
         <Grid templateColumns="repeat(5,1rem)" w="100%" h="100%" p={4}>
           <GridItem colSpan={1} h="100%" w="fit-content">
@@ -155,15 +145,29 @@ const Drumhaus = () => {
                 w="140px"
                 onClick={() => togglePlay()}
                 boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+                bg="gray"
               >
-                {isPlaying ? "PAUSE" : "PLAY"}
+                {isPlaying ? (
+                  <IoPauseSharp size={50} color="darkorange" />
+                ) : (
+                  <IoPlaySharp size={50} color="darkorange" />
+                )}
               </Button>
             </Center>
           </GridItem>
         </Grid>
       </Box>
-      <Box w="100%" h="2px" bg="gray" />
-      <Box w="100%" h="8px" bg="gray" />
+
+      <Box p={8} boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
+        <Sequencer
+          sequence={currentSequence}
+          setSequence={setCurrentSequence}
+          sequences={sequences}
+          setSequences={setSequences}
+          slot={slot}
+          step={step}
+        />
+      </Box>
     </Box>
   );
 };
