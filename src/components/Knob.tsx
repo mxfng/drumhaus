@@ -18,7 +18,6 @@ export const Knob: React.FC<KnobProps> = ({
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDown, setMouseDown] = useState({ x: 0, y: 0 });
   const maxKnobValue = 100;
-  const [sensitivityRatio, setSensitivityRatio] = useState(2);
 
   const mouseYMotion = useMotionValue(knobValue);
   const rotation = useTransform(mouseYMotion, [0, maxKnobValue], [-225, 45]);
@@ -105,15 +104,6 @@ export const Knob: React.FC<KnobProps> = ({
               }}
             >
               <Center h="100%" w="100%">
-                <Box
-                  className="knob-body"
-                  w={`${size}px`}
-                  h={`${size}px`}
-                  bg="gray"
-                  position="absolute"
-                  left={0}
-                  borderRadius="full"
-                />
                 <Center
                   className="knob-tick"
                   h={`${size}px`}
@@ -132,6 +122,15 @@ export const Knob: React.FC<KnobProps> = ({
                 </Center>
               </Center>
             </motion.div>
+            <Box
+              className="knob-body"
+              w={`${size}px`}
+              h={`${size}px`}
+              bg="gray"
+              position="relative"
+              borderRadius="full"
+              boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+            />
           </Center>
         </Box>
       </Center>
