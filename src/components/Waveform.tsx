@@ -59,7 +59,7 @@ const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile, width }) => {
             ctx.lineTo(x, y);
           }
 
-          ctx.strokeStyle = "orange";
+          ctx.strokeStyle = "gray";
           ctx.stroke();
         }
 

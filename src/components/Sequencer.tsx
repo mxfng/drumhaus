@@ -129,7 +129,7 @@ export const Sequencer: React.FC<any> = ({
               my={4}
               h="4px"
               w="100%"
-              opacity={node == step ? 0.8 : 0.2}
+              opacity={node == step ? 1 : 0.2}
               bg={node == step ? "darkorange" : "gray"}
             />
           </GridItem>
