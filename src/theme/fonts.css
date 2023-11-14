@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'Mandala';
+  src: url('/fonts/Mandala.ttf.woff') format('woff'),
+      url('/fonts/Mandala.ttf.svg#Mandala') format('svg'),
+      url('/fonts/Mandala.ttf.eot'),
+      url('/fonts/Mandala.ttf.eot?#iefix') format('embedded-opentype');
+  font-weight: normal;
+  font-style: normal;
+}

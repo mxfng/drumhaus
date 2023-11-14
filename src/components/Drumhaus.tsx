@@ -64,6 +64,7 @@ const Drumhaus = () => {
         as="h1"
         fontSize={100}
         color="darkorange"
+        fontFamily="Mandala"
       >
         drumhaus
       </Heading>
