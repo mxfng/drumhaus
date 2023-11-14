@@ -5,6 +5,8 @@ import { Box, Button, Heading, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob } from "./Knob";
 import { useEffect, useState } from "react";
+import WaveformVisualizer from "./Waveform";
+import Waveform from "./Waveform";
 
 type SlotParams = {
   data: SlotData;
@@ -49,6 +51,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           {data.sampler.url}
         </Text>
         <Button onClick={() => playSample()} m={2} />
+        <Waveform audioFile={data.sampler.url} />
         <Knob
           key={`knob1-${data.name}`}
           size={60}
