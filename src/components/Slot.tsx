@@ -50,8 +50,10 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
         >
           {data.sampler.url}
         </Text>
-        <Button onClick={() => playSample()} m={2} />
-        <Waveform audioFile={data.sampler.url} />
+        <Button w="100%" h="60px" onClick={() => playSample()} m={2}>
+          <Waveform audioFile={data.sampler.url} />
+        </Button>
+
         <Knob
           key={`knob1-${data.name}`}
           size={60}
