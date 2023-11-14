@@ -2,8 +2,8 @@
 
 import * as init from "@/lib/init";
 import { DHSampler, SlotData } from "@/types/types";
-import { Box, Button, Heading } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
 import { Instruments } from "./Instruments";
@@ -57,6 +57,38 @@ const Drumhaus = () => {
     sequences[slot]
   );
 
+  const seqRef = useRef<Tone.Sequence | null>(null);
+
+  // Drumhaus core step clock
+  useEffect(() => {
+    if (isPlaying) {
+      seqRef.current = new Tone.Sequence(
+        (time, step: number) => {
+          console.log(step);
+          for (let row = 0; row < sequences.length; row++) {
+            const value = sequences[row][step];
+            if (value) {
+              slots[row].sampler.sampler.triggerRelease("C2");
+              slots[row].sampler.sampler.triggerAttack("C2", time);
+            }
+
+            setStep(step);
+          }
+        },
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        "16n"
+      ).start(0);
+    }
+
+    return () => {
+      seqRef.current?.dispose();
+    };
+  }, [slots, sequences, isPlaying]);
+
+  useEffect(() => {
+    console.log(step);
+  }, [step]);
+
   const togglePlay = async () => {
     await Tone.start();
     console.log("Tone is ready");
@@ -92,21 +124,19 @@ const Drumhaus = () => {
         drumhaus
       </Heading>
       <Box w="100%" h="8px" bg="gray" />
-      <Instruments
-        slots={slots}
-        sequences={sequences}
-        setCurrentSequence={setCurrentSequence}
-        slot={slot}
-        setSlot={setSlot}
-      />
-      <Box w="100%" h="2px" bg="gray" />
-      <Box h="100px">
-        <Button onClick={() => togglePlay()}>
-          {isPlaying ? "PAUSE" : "PLAY"}
-        </Button>
+      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
+        <Instruments
+          slots={slots}
+          sequences={sequences}
+          setCurrentSequence={setCurrentSequence}
+          slot={slot}
+          setSlot={setSlot}
+        />
       </Box>
-      <Box w="100%" h="2px" bg="gray" />
-      <Box p={8} boxShadow="0 8px 8px rgba(0, 0, 0, 0.2)">
+
+      {/* <Box w="100%" h="2px" bg="gray" /> */}
+
+      <Box p={8} boxShadow="8px 8px 8px rgba(0, 0, 0, 0.2)">
         <Sequencer
           sequence={currentSequence}
           setSequence={setCurrentSequence}
@@ -116,6 +146,23 @@ const Drumhaus = () => {
           step={step}
         />
       </Box>
+      <Box h="180px" w="100%">
+        <Grid templateColumns="repeat(5,1rem)" w="100%" h="100%" p={4}>
+          <GridItem colSpan={1} h="100%" w="fit-content">
+            <Center w="100%" h="100%">
+              <Button
+                h="140px"
+                w="140px"
+                onClick={() => togglePlay()}
+                boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+              >
+                {isPlaying ? "PAUSE" : "PLAY"}
+              </Button>
+            </Center>
+          </GridItem>
+        </Grid>
+      </Box>
+      <Box w="100%" h="2px" bg="gray" />
       <Box w="100%" h="8px" bg="gray" />
     </Box>
   );

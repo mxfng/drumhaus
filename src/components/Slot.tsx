@@ -32,7 +32,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
     data.sampler.sampler.attack = newAttackValue;
-  }, [attack, data.sampler.sampler.attack]);
+  }, [attack, data.sampler.sampler.attack, data.sampler.sampler]);
 
   // Control volume
   useEffect(() => {
@@ -77,7 +77,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
     };
 
     updateSampleDuration();
-  }, [data.sampler.sampler]);
+  }, [data.sampler.sampler, data.sampler.url]);
 
   // Transform knob values (0-100) to any Tone.js parameter range [min, max]
   const transformKnobValue = (

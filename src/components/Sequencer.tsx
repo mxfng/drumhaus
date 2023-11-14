@@ -101,23 +101,38 @@ export const Sequencer: React.FC<any> = ({
         gap={`${gap}px`}
       >
         {Array.from({ length: 16 }, (_, index) => index).map((node) => (
-          <GridItem
-            key={`sequenceNode${node}`}
-            onMouseDown={() => handleMouseDown(node, sequence[node])}
-            onMouseEnter={() => handleMouseEnter(node, sequence[node])}
-            colSpan={1}
-            w="100%"
-            h={`${calculateHeight()}px`}
-            bg={sequence[node] ? "darkorange" : "transparent"}
-            transition="all 0.2s ease"
-            opacity={sequence[node] ? 1 : 0.5}
-            outline={
-              step == node ? "4px solid darkorange" : "4px solid darkorange"
-            }
-            borderRadius={`${calculateHeight() / 4}px 0 ${
-              calculateHeight() / 4
-            }px 0`}
-          ></GridItem>
+          <GridItem key={`sequenceNodeGridItem${node}`} colSpan={1}>
+            <Box
+              key={`sequenceNodeBeatMarker${node}`}
+              my={4}
+              h="4px"
+              w="100%"
+              opacity={0.4}
+              bg={[0, 4, 8, 12].includes(node) ? "gray" : "transparent"}
+            />
+            <Box
+              key={`sequenceNode${node}`}
+              onMouseDown={() => handleMouseDown(node, sequence[node])}
+              onMouseEnter={() => handleMouseEnter(node, sequence[node])}
+              w="100%"
+              h={`${calculateHeight()}px`}
+              bg={sequence[node] ? "darkorange" : "transparent"}
+              transition="all 0.2s ease"
+              opacity={sequence[node] ? 1 : 0.5}
+              outline="4px solid darkorange"
+              borderRadius={`${calculateHeight() / 4}px 0 ${
+                calculateHeight() / 4
+              }px 0`}
+            />
+            <Box
+              key={`sequenceNodeStepIndicator${node}`}
+              my={4}
+              h="4px"
+              w="100%"
+              opacity={node == step ? 0.8 : 0.2}
+              bg={node == step ? "darkorange" : "gray"}
+            />
+          </GridItem>
         ))}
       </Grid>
     </Box>
