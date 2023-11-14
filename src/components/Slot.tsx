@@ -1,12 +1,20 @@
 "use client";
 
 import { SlotData } from "@/types/types";
-import { Box, Button, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Grid,
+  GridItem,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob } from "./Knob";
 import { useEffect, useRef, useState } from "react";
-import WaveformVisualizer from "./Waveform";
 import Waveform from "./Waveform";
+import * as Tone from "tone/build/esm/index";
 
 type SlotParams = {
   data: SlotData;
@@ -15,7 +23,8 @@ type SlotParams = {
 export const Slot: React.FC<SlotParams> = ({ data }) => {
   const [volume, setVolume] = useState(90); // 0-100
   const [attack, setAttack] = useState(0);
-  const [release, setRelease] = useState(0);
+  const [release, setRelease] = useState(100);
+  const [sampleDuration, setSampleDuration] = useState(0);
 
   const [waveWidth, setWaveWidth] = useState<number>(100);
 
@@ -23,23 +32,17 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
     data.sampler.sampler.attack = newAttackValue;
-  });
-
-  // Control attack
-  useEffect(() => {
-    const newReleaseValue = transformKnobValue(release, [0, 1]);
-    data.sampler.sampler.release = newReleaseValue;
-  });
+  }, [attack, data.sampler.sampler.attack]);
 
   // Control volume
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
     data.sampler.sampler.volume.value = newVolumeValue;
-  }, [volume]);
+  }, [volume, data.sampler.sampler.volume]);
 
+  // Resize audio waveform to button size
   useEffect(() => {
     const handleResize = () => {
-      // Get the width of the button ID
       if (waveButtonRef.current) {
         setWaveWidth(waveButtonRef.current.clientWidth);
       }
@@ -52,6 +55,29 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Fetch sample duration
+  useEffect(() => {
+    const fetchAudioDuration = async () => {
+      try {
+        const buffer = await Tone.Buffer.fromUrl(
+          `/samples/${data.sampler.url}`
+        );
+        const durationInSeconds = buffer.duration;
+        return durationInSeconds;
+      } catch (error) {
+        console.error("Error fetching or decoding audio data:", error);
+        return 0;
+      }
+    };
+
+    const updateSampleDuration = async () => {
+      const duration = await fetchAudioDuration();
+      setSampleDuration(duration);
+    };
+
+    updateSampleDuration();
+  }, [data.sampler.sampler]);
 
   // Transform knob values (0-100) to any Tone.js parameter range [min, max]
   const transformKnobValue = (
@@ -66,7 +92,11 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
 
   const playSample = () => {
-    data.sampler.sampler.triggerAttack("C2");
+    data.sampler.sampler.triggerRelease("C2");
+    data.sampler.sampler.triggerAttackRelease(
+      "C2",
+      transformKnobValue(release, [0.0001, sampleDuration])
+    );
   };
 
   return (
@@ -103,7 +133,9 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               knobValue={attack}
               setKnobValue={setAttack}
             />
-            <Text>Attack: {attack}</Text>
+            <Center>
+              <Text>ATTACK</Text>
+            </Center>
           </GridItem>
           <GridItem>
             <Knob
@@ -112,8 +144,11 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               knobValue={release}
               setKnobValue={setRelease}
             />
-            <Text>Release: {release}</Text>
+            <Center>
+              <Text>RELEASE</Text>
+            </Center>
           </GridItem>
+          <GridItem />
           <GridItem>
             <Knob
               key={`knob-${data.name}-volume`}
@@ -121,7 +156,9 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               knobValue={volume}
               setKnobValue={setVolume}
             />
-            <Text>Volume: {volume}</Text>
+            <Center>
+              <Text>VOLUME</Text>
+            </Center>
           </GridItem>
         </Grid>
       </Box>
