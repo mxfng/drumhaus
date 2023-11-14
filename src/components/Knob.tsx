@@ -133,6 +133,52 @@ export const Knob: React.FC<KnobProps> = ({
               borderRadius="full"
               boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
             />
+            <motion.div
+              className="knob-dot-min-transform"
+              style={{
+                rotate: -180,
+                width: `${size}px`,
+                height: `${size}px`,
+                originX: 0.5,
+                originY: 0.5,
+                position: "absolute",
+              }}
+            >
+              <Box
+                className="knob-dot-min"
+                w={`4px`}
+                h={`4px`}
+                bg="gray"
+                position="absolute"
+                borderRadius="full"
+                opacity={0.3}
+                right={0}
+                boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+              />
+            </motion.div>
+            <motion.div
+              className="knob-dot-max-transform"
+              style={{
+                rotate: 90,
+                width: `${size}px`,
+                height: `${size}px`,
+                originX: 0.5,
+                originY: 0.5,
+                position: "absolute",
+              }}
+            >
+              <Box
+                className="knob-dot-max"
+                w={`4px`}
+                h={`4px`}
+                bg="gray"
+                position="absolute"
+                borderRadius="full"
+                opacity={0.3}
+                right={0}
+                boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+              />
+            </motion.div>
           </Center>
         </Box>
       </Center>

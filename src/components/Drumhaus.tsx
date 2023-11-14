@@ -68,7 +68,7 @@ const Drumhaus = () => {
           for (let row = 0; row < sequences.length; row++) {
             const value = sequences[row][step];
             if (value) {
-              slots[row].sampler.sampler.triggerRelease("C2");
+              slots[row].sampler.sampler.triggerRelease("C2", time);
               slots[row].sampler.sampler.triggerAttack("C2", time);
             }
 
@@ -84,10 +84,6 @@ const Drumhaus = () => {
       seqRef.current?.dispose();
     };
   }, [slots, sequences, isPlaying]);
-
-  useEffect(() => {
-    console.log(step);
-  }, [step]);
 
   const togglePlay = async () => {
     await Tone.start();
