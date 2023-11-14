@@ -47,7 +47,7 @@ export const Sequencer: React.FC<any> = ({ sequence, setSequence, step }) => {
   };
 
   const handleMouseEnter = (node: number, nodeState: boolean) => {
-    if (isMouseDown && nodeState == !writeState) {
+    if (isMouseDown && nodeState !== writeState) {
       toggleStep(node);
     }
   };
