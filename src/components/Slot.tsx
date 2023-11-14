@@ -119,7 +119,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           w="100%"
           h="60px"
           onClick={() => playSample()}
-          bg="rgba(255, 255, 255, 0.1)"
+          bg="transparent"
         >
           <Waveform audioFile={data.sampler.url} width={waveWidth} />
         </Button>
