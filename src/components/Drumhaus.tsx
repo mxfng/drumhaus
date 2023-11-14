@@ -2,11 +2,11 @@
 
 import * as init from "@/lib/init";
 import { DHSampler, SlotData } from "@/types/types";
-import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
-import { createRef, useEffect, useRef, useState } from "react";
+import { Box, Button, Heading } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import * as Tone from "tone/build/esm/index";
-import { Slot } from "./Slot";
 import { Sequencer } from "./Sequencer";
+import { Instruments } from "./Instruments";
 
 const Drumhaus = () => {
   // Provide state array of Drumhaus samplers
@@ -55,7 +55,8 @@ const Drumhaus = () => {
       bg="silver"
       w="100%"
       h="100%"
-      outline="1px solid red"
+      p={10}
+      position="relative"
     >
       <Heading
         id="logo"
@@ -66,13 +67,7 @@ const Drumhaus = () => {
       >
         drumhaus
       </Heading>
-      <Grid key="slots" templateColumns="repeat(8, 1fr)">
-        {slots.map((slotData, i) => (
-          <GridItem key={`gridItem-${slotData.id}`} position="relative">
-            <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
-          </GridItem>
-        ))}
-      </Grid>
+      <Instruments slots={slots} />
       <Button id="playButton">Play</Button>
       <Sequencer />
     </Box>
