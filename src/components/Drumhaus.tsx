@@ -15,6 +15,8 @@ const Drumhaus = () => {
 
   // Provide state arrays of slot paramters
   const [volumes, setVolumes] = useState<number[]>(init._volumes);
+  const [attacks, setAttacks] = useState<number[]>(init._attacks);
+  const [releases, setReleases] = useState<number[]>(init._releases);
   const [solos, setSolos] = useState<boolean[]>(init._solos);
   const [mutes, setMutes] = useState<boolean[]>(init._mutes);
 
@@ -27,6 +29,8 @@ const Drumhaus = () => {
       name: dhSampler.name,
       sampler: dhSampler,
       volume: volumes[id],
+      attack: attacks[id],
+      release: releases[id],
       solo: solos[id],
       mute: mutes[id],
     };
@@ -68,6 +72,10 @@ const Drumhaus = () => {
           for (let row = 0; row < sequences.length; row++) {
             const value = sequences[row][step];
             if (value) {
+              // Mute OHat on Hat hits
+              if (row == 4) {
+                slots[5].sampler.sampler.triggerRelease("C2", time);
+              }
               slots[row].sampler.sampler.triggerRelease("C2", time);
               slots[row].sampler.sampler.triggerAttack("C2", time);
             }
