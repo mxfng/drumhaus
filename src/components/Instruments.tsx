@@ -60,8 +60,10 @@ export const Instruments: React.FC<InstrumentsProps> = ({
           key={`gridItem-${slotData.id}`}
           w={`${calculateWidth}`}
           overflow="hidden"
-          onClick={() => toggleCurrentSequence(index)}
-          bg={slot == index ? "white" : "transparent"}
+          onMouseDown={() => toggleCurrentSequence(index)}
+          transition="all 0.5s ease"
+          bg={slot == index ? "rgba(255, 255, 255, 0.2)" : "transparent"}
+          opacity={slot == index ? 1 : 0.8}
         >
           <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
         </GridItem>
