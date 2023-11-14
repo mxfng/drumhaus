@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Center } from "@chakra-ui/react";
+import { Box, Center, Text } from "@chakra-ui/react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 
@@ -8,12 +8,14 @@ type KnobProps = {
   size: number;
   knobValue: number;
   setKnobValue: (newState: number) => void;
+  knobTitle?: string;
 };
 
 export const Knob: React.FC<KnobProps> = ({
   size,
   knobValue,
   setKnobValue,
+  knobTitle,
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDown, setMouseDown] = useState({ x: 0, y: 0 });
@@ -133,6 +135,11 @@ export const Knob: React.FC<KnobProps> = ({
             />
           </Center>
         </Box>
+      </Center>
+      <Center>
+        <Text fontSize={12} color="gray" my={-3}>
+          {isMouseDown ? knobValue : knobTitle}
+        </Text>
       </Center>
     </>
   );

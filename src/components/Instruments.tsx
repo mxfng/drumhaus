@@ -63,7 +63,10 @@ export const Instruments: React.FC<InstrumentsProps> = ({
           onMouseDown={() => toggleCurrentSequence(index)}
           transition="all 0.5s ease"
           bg={slot == index ? "rgba(255, 255, 255, 0.2)" : "transparent"}
-          opacity={slot == index ? 1 : 0.8}
+          opacity={slot == index ? 1 : 0.7}
+          _hover={{
+            opacity: 1,
+          }}
         >
           <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
         </GridItem>

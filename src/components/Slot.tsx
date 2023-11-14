@@ -131,10 +131,8 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               size={60}
               knobValue={attack}
               setKnobValue={setAttack}
+              knobTitle="ATTACK"
             />
-            <Center>
-              <Text>ATTACK</Text>
-            </Center>
           </GridItem>
           <GridItem>
             <Knob
@@ -142,10 +140,8 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               size={60}
               knobValue={release}
               setKnobValue={setRelease}
+              knobTitle="RELEASE"
             />
-            <Center>
-              <Text>RELEASE</Text>
-            </Center>
           </GridItem>
           <GridItem />
           <GridItem>
@@ -154,10 +150,8 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}
+              knobTitle="VOLUME"
             />
-            <Center>
-              <Text>VOLUME</Text>
-            </Center>
           </GridItem>
         </Grid>
       </Box>
