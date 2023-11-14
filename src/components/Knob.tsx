@@ -38,17 +38,6 @@ export const Knob: React.FC<KnobProps> = ({
     // console.log(`mouseDown: ${mouseDown.x}, ${mouseDown.y}`);
   };
 
-  const handleMouseMove = (ev: MouseEvent) => {
-    if (isMouseDown) {
-      mouseYMotion.set(getNewKnobValue(ev.clientY));
-      setKnobValue(getNewKnobValue(ev.clientY));
-
-      // Debugging
-      // console.log(`interp Y: ${getKnobValue(ev.clientY)}`);
-      // console.log("mouse moving while down");
-    }
-  };
-
   const handleMouseUp = () => {
     setIsMouseDown(false);
 
@@ -57,6 +46,17 @@ export const Knob: React.FC<KnobProps> = ({
   };
 
   useEffect(() => {
+    const handleMouseMove = (ev: MouseEvent) => {
+      if (isMouseDown) {
+        mouseYMotion.set(getNewKnobValue(ev.clientY));
+        setKnobValue(getNewKnobValue(ev.clientY));
+
+        // Debugging
+        // console.log(`interp Y: ${getKnobValue(ev.clientY)}`);
+        // console.log("mouse moving while down");
+      }
+    };
+
     if (isMouseDown) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
