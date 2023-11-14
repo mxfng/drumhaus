@@ -41,7 +41,7 @@ export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
     >
       {slots.map((slotData) => (
         <GridItem
-          colSpan={{ base: 2, lg: 1 }}
+          colSpan={{ base: 2, xl: 1 }}
           key={`gridItem-${slotData.id}`}
           w={`${calculateWidth}`}
           overflow="hidden"
