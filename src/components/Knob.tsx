@@ -30,16 +30,6 @@ export const Knob: React.FC<KnobProps> = ({
     );
   };
 
-  const getNewSensitiveKnobValue = (clientY: number) => {
-    return Math.max(
-      0,
-      Math.min(
-        (mouseDown.y - clientY + knobValue) / sensitivityRatio,
-        maxKnobValue * sensitivityRatio
-      )
-    );
-  };
-
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     setIsMouseDown(true);
     setMouseDown({ x: event.clientX, y: event.clientY });
@@ -60,7 +50,7 @@ export const Knob: React.FC<KnobProps> = ({
     }
   };
 
-  const handleMouseUp = (ev: MouseEvent) => {
+  const handleMouseUp = () => {
     setIsMouseDown(false);
 
     // Debugging
