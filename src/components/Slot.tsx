@@ -67,7 +67,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
             fontFamily: `'Pixelify Sans Variable', sans-serif`,
           }}
         >
-          {data.sampler.url}
+          {data.sampler.url.split("/").pop()}
         </Text>
         <Button
           ref={waveButtonRef}
