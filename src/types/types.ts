@@ -17,8 +17,8 @@ export type SlotData = {
   sampler: DHSampler; // The Tone.js sampler associated witht the slot
 
   // Envelope
-  // attack: number; // The envelope applied to the beginning of the sample. 0-1
-  // release: number; // The envelope applied to the end of the envelope. 0-1
+  attack: number; // The envelope applied to the beginning of the sample. 0-1
+  release: number; // The envelope applied to the end of the envelope. 0-1
   // curve: string; // The shape of the attack/release curve. Either "linear" or "exponential"
 
   // Compressor / Dynamics

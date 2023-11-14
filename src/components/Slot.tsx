@@ -21,9 +21,9 @@ type SlotParams = {
 };
 
 export const Slot: React.FC<SlotParams> = ({ data }) => {
-  const [volume, setVolume] = useState(90); // 0-100
-  const [attack, setAttack] = useState(0);
-  const [release, setRelease] = useState(100);
+  const [volume, setVolume] = useState(data.volume); // 0-100
+  const [attack, setAttack] = useState(data.attack);
+  const [release, setRelease] = useState(data.release);
   const [sampleDuration, setSampleDuration] = useState(0);
 
   const [waveWidth, setWaveWidth] = useState<number>(100);
