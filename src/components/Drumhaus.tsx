@@ -69,7 +69,6 @@ const Drumhaus = () => {
         drumhaus
       </Heading>
       <Instruments slots={slots} />
-      <Button id="playButton">Play</Button>
       <Sequencer />
     </Box>
   );
