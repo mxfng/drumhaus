@@ -123,6 +123,9 @@ export const Sequencer: React.FC<any> = ({
               borderRadius={`${calculateHeight() / 4}px 0 ${
                 calculateHeight() / 4
               }px 0`}
+              _hover={{
+                background: "darkorange",
+              }}
             />
             <Box
               key={`sequenceNodeStepIndicator${node}`}

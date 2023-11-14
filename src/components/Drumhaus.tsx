@@ -65,7 +65,6 @@ const Drumhaus = () => {
     if (isPlaying) {
       seqRef.current = new Tone.Sequence(
         (time, step: number) => {
-          console.log(step);
           for (let row = 0; row < sequences.length; row++) {
             const value = sequences[row][step];
             if (value) {
@@ -92,7 +91,6 @@ const Drumhaus = () => {
 
   const togglePlay = async () => {
     await Tone.start();
-    console.log("Tone is ready");
 
     if (!isPlaying) {
       setIsPlaying(true);
@@ -109,6 +107,7 @@ const Drumhaus = () => {
       className="drumhaus"
       bg="silver"
       w="100%"
+      minW={900}
       h="100%"
       position="relative"
       style={{ userSelect: "none" }}
