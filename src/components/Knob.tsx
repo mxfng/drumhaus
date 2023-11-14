@@ -80,59 +80,61 @@ export const Knob: React.FC<KnobProps> = ({
 
   return (
     <>
-      <Box
-        key="knob-mask"
-        w={`${size + 10}px`}
-        h={`${size + 10}px`}
-        m={2}
-        // outline="1px solid blue"
-        position="relative"
-      >
-        <Center w="100%" h="100%">
-          <motion.div
-            className="knob-hitbox"
-            onMouseDown={handleMouseDown}
-            style={{
-              rotate: rotation,
-              width: `${size}px`,
-              height: `${size}px`,
-              originX: 0.5,
-              originY: 0.5,
-              position: "absolute",
-              zIndex: 2,
-              borderRadius: size,
-            }}
-          >
-            <Center h="100%" w="100%">
-              <Box
-                className="knob-body"
-                w={`${size}px`}
-                h={`${size}px`}
-                bg="gray"
-                position="absolute"
-                left={0}
-                borderRadius="full"
-              />
-              <Center
-                className="knob-tick"
-                h={`${size}px`}
-                w={`${size}px`}
-                position="absolute"
-                pointerEvents="none"
-                zIndex={3}
-              >
+      <Center>
+        <Box
+          key="knob-mask"
+          w={`${size + 10}px`}
+          h={`${size + 10}px`}
+          m={2}
+          // outline="1px solid blue"
+          position="relative"
+        >
+          <Center w="100%" h="100%">
+            <motion.div
+              className="knob-hitbox"
+              onMouseDown={handleMouseDown}
+              style={{
+                rotate: rotation,
+                width: `${size}px`,
+                height: `${size}px`,
+                originX: 0.5,
+                originY: 0.5,
+                position: "absolute",
+                zIndex: 2,
+                borderRadius: size,
+              }}
+            >
+              <Center h="100%" w="100%">
                 <Box
-                  w={`${size / 4}px`}
-                  h={`${Math.floor(size / 12)}px`}
-                  bg="darkorange"
+                  className="knob-body"
+                  w={`${size}px`}
+                  h={`${size}px`}
+                  bg="gray"
                   position="absolute"
-                  right={0}
+                  left={0}
+                  borderRadius="full"
                 />
+                <Center
+                  className="knob-tick"
+                  h={`${size}px`}
+                  w={`${size}px`}
+                  position="absolute"
+                  pointerEvents="none"
+                  zIndex={3}
+                >
+                  <Box
+                    w={`${size / 4}px`}
+                    h={`${Math.floor(size / 12)}px`}
+                    bg="darkorange"
+                    position="absolute"
+                    right={0}
+                  />
+                </Center>
               </Center>
-            </Center>
-          </motion.div>
-        </Center>
-      </Box>
+            </motion.div>
+          </Center>
+        </Box>
+      </Center>
     </>
   );
 };

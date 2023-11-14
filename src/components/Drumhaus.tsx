@@ -95,6 +95,7 @@ const Drumhaus = () => {
         slots={slots}
         sequences={sequences}
         setCurrentSequence={setCurrentSequence}
+        slot={slot}
         setSlot={setSlot}
       />
       <Box h="100px">
