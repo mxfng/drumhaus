@@ -47,17 +47,27 @@ const Drumhaus = () => {
     Tone.Transport.swing = swing;
   }, [swing]);
 
-  const [sequences, setSequences] = useState(
+  const [slot, setSlot] = useState<number>(0);
+
+  const [sequences, setSequences] = useState<boolean[][]>(
     Array(8).fill(Array(16).fill(false))
   );
 
-  const [currentSequence, setCurrentSequence] = useState(sequences[0]);
+  const [currentSequence, setCurrentSequence] = useState<boolean[]>(
+    sequences[slot]
+  );
 
   const togglePlay = async () => {
     await Tone.start();
     console.log("Tone is ready");
 
-    Tone.Transport.start();
+    if (!isPlaying) {
+      setIsPlaying(true);
+      Tone.Transport.start();
+    } else {
+      setIsPlaying(false);
+      Tone.Transport.stop();
+    }
   };
 
   return (
@@ -81,13 +91,23 @@ const Drumhaus = () => {
         drumhaus
       </Heading>
       <Box w="100%" h="8px" bg="gray" />
-      <Instruments slots={slots} />
+      <Instruments
+        slots={slots}
+        sequences={sequences}
+        setCurrentSequence={setCurrentSequence}
+        setSlot={setSlot}
+      />
       <Box h="100px">
-        <Button onClick={() => togglePlay()}>PLAY</Button>
+        <Button onClick={() => togglePlay()}>
+          {isPlaying ? "PAUSE" : "PLAY"}
+        </Button>
       </Box>
       <Sequencer
         sequence={currentSequence}
         setSequence={setCurrentSequence}
+        sequences={sequences}
+        setSequences={setSequences}
+        slot={slot}
         step={step}
       />
     </Box>

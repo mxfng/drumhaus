@@ -5,9 +5,17 @@ import { useEffect, useRef, useState } from "react";
 
 type InstrumentsProps = {
   slots: SlotData[];
+  sequences: boolean[][];
+  setCurrentSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
+  setSlot: React.Dispatch<React.SetStateAction<number>>;
 };
 
-export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
+export const Instruments: React.FC<InstrumentsProps> = ({
+  slots,
+  sequences,
+  setCurrentSequence,
+  setSlot,
+}) => {
   const [parentWidth, setParentWidth] = useState<number>(0);
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
@@ -32,6 +40,11 @@ export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
     return parentWidth / 8 - gap;
   };
 
+  const toggleCurrentSequence = (node: number) => {
+    setCurrentSequence(sequences[node]);
+    setSlot(node);
+  };
+
   return (
     <Grid
       ref={instrumentsRef}
@@ -39,12 +52,13 @@ export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
       w="100%"
       templateColumns="repeat(8, 1fr)"
     >
-      {slots.map((slotData) => (
+      {slots.map((slotData, index) => (
         <GridItem
           colSpan={{ base: 2, xl: 1 }}
           key={`gridItem-${slotData.id}`}
           w={`${calculateWidth}`}
           overflow="hidden"
+          onClick={() => toggleCurrentSequence(index)}
         >
           <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
         </GridItem>

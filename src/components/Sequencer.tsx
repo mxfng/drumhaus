@@ -3,7 +3,14 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
-export const Sequencer: React.FC<any> = ({ sequence, setSequence, step }) => {
+export const Sequencer: React.FC<any> = ({
+  sequence,
+  setSequence,
+  sequences,
+  setSequences,
+  slot,
+  step,
+}) => {
   const [parentWidth, setParentWidth] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [writeState, setWriteState] = useState<boolean>(true);
@@ -36,6 +43,14 @@ export const Sequencer: React.FC<any> = ({ sequence, setSequence, step }) => {
     setSequence((prevSequence: boolean[]) => {
       const newSequence = [...prevSequence];
       newSequence[index] = !newSequence[index];
+
+      // Is this a bad pattern? Because it works
+      setSequences((prevSequences: boolean[][]) => {
+        const newSequences = [...prevSequences];
+        newSequences[slot] = newSequence;
+        return newSequences;
+      });
+
       return newSequence;
     });
   };
