@@ -145,7 +145,7 @@ const Drumhaus = () => {
                 w="140px"
                 onClick={() => togglePlay()}
                 boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
-                bg="gray"
+                bg="silver"
               >
                 {isPlaying ? (
                   <IoPauseSharp size={50} color="darkorange" />
