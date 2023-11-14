@@ -3,7 +3,7 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
-export const Sequencer: React.FC = () => {
+export const Sequencer: React.FC<any> = ({ sequence, setSequence, step }) => {
   const [parentWidth, setParentWidth] = useState<number>(0);
   const sequencerRef = useRef<HTMLDivElement | null>(null);
 
@@ -28,6 +28,14 @@ export const Sequencer: React.FC = () => {
     return parentWidth / 16 - gap;
   };
 
+  const toggleStep = (index: number) => {
+    setSequence((prevSequence: boolean[]) => {
+      const newSequence = [...prevSequence];
+      newSequence[index] = !newSequence[index];
+      return newSequence;
+    });
+  };
+
   return (
     <Box w="100%" ref={sequencerRef}>
       <Grid
@@ -39,11 +47,14 @@ export const Sequencer: React.FC = () => {
         {Array.from({ length: 16 }, (_, index) => index).map((node) => (
           <GridItem
             key={`sequenceNode${node}`}
+            onClick={() => toggleStep(node)}
             colSpan={1}
             w="100%"
             h={`${calculateHeight()}px`}
-            bg="darkorange"
-            outline="1px solid darkorange"
+            bg={sequence[node] ? "darkorange" : "gray"}
+            outline={
+              step == node ? "4px solid darkorange" : "1px solid darkorange"
+            }
             borderRadius={`${calculateHeight() / 4}px 0 ${
               calculateHeight() / 4
             }px 0`}
