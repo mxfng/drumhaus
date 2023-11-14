@@ -47,7 +47,11 @@ const Drumhaus = () => {
     Tone.Transport.swing = swing;
   }, [swing]);
 
-  const [sequence, setSequence] = useState(Array(16).fill(false));
+  const [sequences, setSequences] = useState(
+    Array(8).fill(Array(16).fill(false))
+  );
+
+  const [currentSequence, setCurrentSequence] = useState(sequences[0]);
 
   const togglePlay = async () => {
     await Tone.start();
@@ -81,7 +85,11 @@ const Drumhaus = () => {
       <Box h="100px">
         <Button onClick={() => togglePlay()}>PLAY</Button>
       </Box>
-      <Sequencer sequence={sequence} setSequence={setSequence} step={step} />
+      <Sequencer
+        sequence={currentSequence}
+        setSequence={setCurrentSequence}
+        step={step}
+      />
     </Box>
   );
 };
