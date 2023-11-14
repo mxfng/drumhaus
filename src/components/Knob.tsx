@@ -95,7 +95,7 @@ export const Knob: React.FC<KnobProps> = ({
         w={`${size + 10}px`}
         h={`${size + 10}px`}
         m={2}
-        outline="1px solid blue"
+        // outline="1px solid blue"
         position="relative"
       >
         <Center w="100%" h="100%">
@@ -134,7 +134,7 @@ export const Knob: React.FC<KnobProps> = ({
                 <Box
                   w={`${size / 4}px`}
                   h={`${Math.floor(size / 12)}px`}
-                  bg="orangered"
+                  bg="darkorange"
                   position="absolute"
                   right={0}
                 />
