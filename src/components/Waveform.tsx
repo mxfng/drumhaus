@@ -4,9 +4,10 @@ import React, { useEffect, useRef } from "react";
 
 interface AmplitudeVisualizerProps {
   audioFile: string;
+  width: number;
 }
 
-const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile }) => {
+const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile, width }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -15,7 +16,7 @@ const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile }) => {
 
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
-    const canvasWidth = 100;
+    const canvasWidth = width;
     const canvasHeight = 50;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
@@ -58,14 +59,14 @@ const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile }) => {
             ctx.lineTo(x, y);
           }
 
-          ctx.strokeStyle = "#00ff00";
+          ctx.strokeStyle = "orange";
           ctx.stroke();
         }
 
         // Call the drawAmplitudeGraphic function to draw the static graphic
         drawAmplitudeGraphic();
       });
-  }, [audioFile]);
+  }, [audioFile, width]);
 
   return <canvas ref={canvasRef} />;
 };

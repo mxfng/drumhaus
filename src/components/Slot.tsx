@@ -4,7 +4,7 @@ import { SlotData } from "@/types/types";
 import { Box, Button, Heading, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob } from "./Knob";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WaveformVisualizer from "./Waveform";
 import Waveform from "./Waveform";
 
@@ -13,17 +13,36 @@ type SlotParams = {
 };
 
 export const Slot: React.FC<SlotParams> = ({ data }) => {
+  const [volume, setVolume] = useState(90); // 0-100
+  const [waveWidth, setWaveWidth] = useState<number>(100);
+
+  const waveButtonRef = useRef<HTMLButtonElement>(null);
+
   const playSample = () => {
     data.sampler.sampler.triggerAttack("C2");
   };
 
   // Control volume
-  const [volume, setVolume] = useState(90); // 0-100
-
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
     data.sampler.sampler.volume.value = newVolumeValue;
   }, [volume]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Get the width of the button ID
+      if (waveButtonRef.current) {
+        setWaveWidth(waveButtonRef.current.clientWidth);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Transform knob values (0-100) to any Tone.js parameter range [min, max]
   const transformKnobValue = (
@@ -50,8 +69,15 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
         >
           {data.sampler.url}
         </Text>
-        <Button w="100%" h="60px" onClick={() => playSample()} m={2}>
-          <Waveform audioFile={data.sampler.url} />
+        <Button
+          ref={waveButtonRef}
+          w="100%"
+          h="60px"
+          onClick={() => playSample()}
+          m={2}
+          bg="gray"
+        >
+          <Waveform audioFile={data.sampler.url} width={waveWidth} />
         </Button>
 
         <Knob

@@ -21,7 +21,7 @@ export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Initial sizing
+    handleResize();
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -41,9 +41,10 @@ export const Instruments: React.FC<InstrumentsProps> = ({ slots }) => {
     >
       {slots.map((slotData) => (
         <GridItem
-          colSpan={{ base: 2, md: 1 }}
+          colSpan={{ base: 2, lg: 1 }}
           key={`gridItem-${slotData.id}`}
           w={`${calculateWidth}`}
+          overflow="hidden"
         >
           <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
         </GridItem>
