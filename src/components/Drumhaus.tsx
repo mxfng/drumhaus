@@ -47,23 +47,13 @@ const Drumhaus = () => {
     Tone.Transport.swing = swing;
   }, [swing]);
 
-  const numberOfSteps = 16;
+  const [sequence, setSequence] = useState(Array(16).fill(false));
 
-  const stepDuration = 1 / (bpm / 60) / 4;
-
-  const steps = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0];
-
-  // Set Transport to Play Button
-  const togglePlayback = async () => {
+  const togglePlay = async () => {
     await Tone.start();
+    console.log("Tone is ready");
 
-    if (isPlaying) {
-      setIsPlaying(false);
-      Tone.Transport.stop();
-    } else {
-      setIsPlaying(true);
-      Tone.Transport.start();
-    }
+    Tone.Transport.start();
   };
 
   return (
@@ -89,9 +79,9 @@ const Drumhaus = () => {
       <Box w="100%" h="8px" bg="gray" />
       <Instruments slots={slots} />
       <Box h="100px">
-        <Button onClick={() => togglePlayback()}>PLAY</Button>
+        <Button onClick={() => togglePlay()}>PLAY</Button>
       </Box>
-      <Sequencer />
+      <Sequencer sequence={sequence} setSequence={setSequence} step={step} />
     </Box>
   );
 };
