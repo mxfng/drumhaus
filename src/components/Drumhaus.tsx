@@ -87,6 +87,7 @@ const Drumhaus = () => {
         fontSize={100}
         color="darkorange"
         fontFamily="Mandala"
+        boxShadow="0 8px 8px rgba(0, 0, 0, 0.2)"
       >
         drumhaus
       </Heading>
@@ -105,7 +106,7 @@ const Drumhaus = () => {
         </Button>
       </Box>
       <Box w="100%" h="2px" bg="gray" />
-      <Box p={8}>
+      <Box p={8} boxShadow="0 8px 8px rgba(0, 0, 0, 0.2)">
         <Sequencer
           sequence={currentSequence}
           setSequence={setCurrentSequence}

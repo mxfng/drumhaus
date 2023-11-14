@@ -109,6 +109,7 @@ export const Sequencer: React.FC<any> = ({
             w="100%"
             h={`${calculateHeight()}px`}
             bg={sequence[node] ? "darkorange" : "transparent"}
+            transition="all 0.2s ease"
             opacity={sequence[node] ? 1 : 0.5}
             outline={
               step == node ? "4px solid darkorange" : "4px solid darkorange"
