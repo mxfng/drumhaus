@@ -179,7 +179,7 @@ const Drumhaus = () => {
           </Center>
         </GridItem>
 
-        <GridItem colSpan={1}>
+        <GridItem colSpan={1} w="100%">
           <TransportControl
             bpm={bpm}
             setBpm={setBpm}
