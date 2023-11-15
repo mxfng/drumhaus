@@ -1,7 +1,15 @@
 "use client";
 
 import { Sample } from "@/types/types";
-import { Box, Button, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Grid,
+  GridItem,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
@@ -142,9 +150,12 @@ export const Slot: React.FC<SlotParams> = ({
   return (
     <>
       <Box w="100%" key={`Slot-${sample.name}`} p={4}>
-        <Heading className="slot" as="h2">
-          {sample.name}
-        </Heading>
+        <Flex>
+          <Text pr={2} color="darkorange" fontWeight={900}>
+            {sample.id + 1}
+          </Text>
+          <Text>{sample.name}</Text>
+        </Flex>
         <Text
           key={`filename-${sample.name}`}
           className="filename"
@@ -191,6 +202,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobTitle="FILTER"
             />
           </GridItem>
+          <GridItem></GridItem>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-volume`}
