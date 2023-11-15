@@ -36,6 +36,6 @@ export const _dhSamplers: DHSampler[] = samples.map((sample) => {
 // Create initial arrays of slot parameters
 export const _volumes = [90, 90, 90, 90, 90, 90, 90, 70];
 export const _attacks = [0, 0, 0, 0, 0, 0, 0, 0];
-export const _releases = [1, 1, 1, 1, 1, 1, 1, 1];
+export const _releases = [100, 100, 100, 100, 100, 100, 100, 100];
 export const _solos = [false];
 export const _mutes = [false];

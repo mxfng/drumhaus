@@ -96,14 +96,34 @@ const Drumhaus = () => {
   const togglePlay = async () => {
     await Tone.start();
 
-    if (!isPlaying) {
-      setIsPlaying(true);
-      Tone.Transport.start();
-    } else {
-      setIsPlaying(false);
-      Tone.Transport.stop();
+    setIsPlaying((prevIsPlaying) => {
+      const newIsPlaying = !prevIsPlaying;
+
+      if (newIsPlaying) {
+        Tone.Transport.start();
+      } else {
+        Tone.Transport.stop();
+      }
+
+      return newIsPlaying;
+    });
+  };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    // Check if the pressed key is the space bar
+    if (event.key === " ") {
+      togglePlay();
     }
   };
+
+  // Attach the event listener when the component mounts
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    // Remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <Box
@@ -149,6 +169,7 @@ const Drumhaus = () => {
                 onClick={() => togglePlay()}
                 boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
                 bg="silver"
+                outline="none"
               >
                 {isPlaying ? (
                   <IoPauseSharp size={50} color="darkorange" />

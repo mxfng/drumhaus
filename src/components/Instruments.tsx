@@ -62,7 +62,8 @@ export const Instruments: React.FC<InstrumentsProps> = ({
           overflow="hidden"
           onMouseDown={() => toggleCurrentSequence(index)}
           transition="all 0.5s ease"
-          bg={slot == index ? "rgba(255, 255, 255, 0.2)" : "transparent"}
+          bg={slot == index ? "rgba(255, 255, 255, 0.05)" : "transparent"}
+          boxShadow={slot == index ? "0 4px 4px rgba(0, 0, 0, 0.1)" : ""}
           opacity={slot == index ? 1 : 0.7}
           _hover={{
             opacity: 1,
