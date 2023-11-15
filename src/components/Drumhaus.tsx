@@ -106,6 +106,7 @@ const Drumhaus = () => {
 
   useEffect(() => {
     const newSwing = transformKnobValue(swing, [0, 0.5]);
+    Tone.Transport.swingSubdivision = "16n";
     Tone.Transport.swing = newSwing;
   }, [swing]);
 
