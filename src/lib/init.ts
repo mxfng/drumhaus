@@ -1,4 +1,4 @@
-import { DHSampler } from "@/types/types";
+import { Sample } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__
@@ -15,7 +15,7 @@ const samples: { name: string; url: string }[] = [
 ];
 
 // Create initial Drumhaus sampler objects
-export const _dhSamplers: DHSampler[] = samples.map((sample) => {
+export const _samples: Sample[] = samples.map((sample) => {
   const sampler = new Tone.Sampler({
     urls: {
       ["C2"]: sample.url,

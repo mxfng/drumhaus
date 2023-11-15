@@ -12,11 +12,10 @@ import { TransportControl } from "./TransportControl";
 import { transformKnobValue } from "./Knob";
 
 const Drumhaus = () => {
-  const slots: SlotData[] = init._dhSamplers.map((dhSampler, id) => {
+  const slots: SlotData[] = init._samples.map((sample, id) => {
     return {
       id: id,
-      name: dhSampler.name,
-      sampler: dhSampler,
+      sample: sample,
       volume: init._volumes[id],
       attack: init._attacks[id],
       release: init._releases[id],
@@ -43,12 +42,12 @@ const Drumhaus = () => {
       toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
           function triggerSample(row: number) {
-            slots[row].sampler.sampler.triggerRelease("C2", time);
-            slots[row].sampler.sampler.triggerAttack("C2", time);
+            slots[row].sample.sampler.triggerRelease("C2", time);
+            slots[row].sample.sampler.triggerAttack("C2", time);
           }
 
           function muteOHatOnHat(row: number) {
-            if (row == 4) slots[5].sampler.sampler.triggerRelease("C2", time);
+            if (row == 4) slots[5].sample.sampler.triggerRelease("C2", time);
           }
 
           for (let row = 0; row < sequences.length; row++) {
