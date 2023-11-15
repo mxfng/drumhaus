@@ -10,6 +10,7 @@ import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { Knob, transformKnobValue } from "./Knob";
+import { SequencerControl } from "./SequencerControl";
 
 const Drumhaus = () => {
   const samples: Sample[] = init._samples;
@@ -170,7 +171,7 @@ const Drumhaus = () => {
         />
       </Box>
 
-      <Grid templateColumns="repeat(5, 1fr)" p={4}>
+      <Grid templateColumns="repeat(4, 1fr)" p={4} w="100%">
         <GridItem colSpan={1} h="160px" w="160px">
           <Center w="100%" h="100%">
             <Button
@@ -188,6 +189,10 @@ const Drumhaus = () => {
               )}
             </Button>
           </Center>
+        </GridItem>
+
+        <GridItem colSpan={1}>
+          <SequencerControl />
         </GridItem>
 
         <GridItem colSpan={1} w="100%">
