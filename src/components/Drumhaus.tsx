@@ -11,7 +11,6 @@ import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { transformKnobValue } from "./Knob";
 
-const EMPTY_SEQUENCES = Array(8).fill(Array(16).fill(false));
 const Drumhaus = () => {
   const slots: SlotData[] = init._dhSamplers.map((dhSampler, id) => {
     return {
@@ -29,31 +28,35 @@ const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [slotIndex, setSlotIndex] = useState<number>(0);
-  const [sequences, setSequences] = useState<boolean[][]>(EMPTY_SEQUENCES);
+
+  const [sequences, setSequences] = useState<boolean[][]>(init._sequences);
   const [currentSequence, setCurrentSequence] = useState<boolean[]>(
-    sequences[slotIndex]
+    init._sequences[slotIndex]
   );
-  const [bpm, setBpm] = useState(70);
-  const [swing, setSwing] = useState(0);
+  const [bpm, setBpm] = useState(init._bpm);
+  const [swing, setSwing] = useState(init._swing);
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
 
-  // Drumhaus core step clock
   useEffect(() => {
     if (isPlaying) {
       toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
+          function triggerSample(row: number) {
+            slots[row].sampler.sampler.triggerRelease("C2", time);
+            slots[row].sampler.sampler.triggerAttack("C2", time);
+          }
+
+          function muteOHatOnHat(row: number) {
+            if (row == 4) slots[5].sampler.sampler.triggerRelease("C2", time);
+          }
+
           for (let row = 0; row < sequences.length; row++) {
             const value = sequences[row][step];
             if (value) {
-              // Mute OHat on Hat hits
-              if (row == 4) {
-                slots[5].sampler.sampler.triggerRelease("C2", time);
-              }
-              slots[row].sampler.sampler.triggerRelease("C2", time);
-              slots[row].sampler.sampler.triggerAttack("C2", time);
+              muteOHatOnHat(row);
+              triggerSample(row);
             }
-
             setStepIndex(step);
           }
         },
