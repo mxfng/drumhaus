@@ -2,7 +2,7 @@
 
 import { Box, Center, Text } from "@chakra-ui/react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type KnobProps = {
   size: number;

@@ -112,15 +112,15 @@ const Drumhaus = () => {
     });
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    // Check if the pressed key is the space bar
-    if (event.key === " ") {
-      togglePlay();
-    }
-  };
-
   // Attach the event listener when the component mounts
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if the pressed key is the space bar
+      if (event.key === " ") {
+        togglePlay();
+      }
+    };
+
     document.addEventListener("keydown", handleKeyDown);
     // Remove the event listener when the component unmounts
     return () => {
@@ -197,6 +197,7 @@ const Drumhaus = () => {
           setSequences={setSequences}
           slot={slot}
           step={step}
+          isPlaying={isPlaying}
         />
       </Box>
     </Box>
