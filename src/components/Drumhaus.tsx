@@ -9,7 +9,7 @@ import { Sequencer } from "./Sequencer";
 import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
-import { transformKnobValue } from "./Knob";
+import { Knob, transformKnobValue } from "./Knob";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 const Drumhaus = () => {
@@ -27,6 +27,7 @@ const Drumhaus = () => {
   );
   const [bpm, setBpm] = useState(init._bpm);
   const [swing, setSwing] = useState(init._swing);
+  const [masterVolume, setMasterVolume] = useState(init._masterVolume);
 
   // Slots - prop drilling (consider Redux in the future)
   const [attacks, setAttacks] = useState<number[]>(init._attacks);
@@ -95,6 +96,11 @@ const Drumhaus = () => {
     const newSwing = transformKnobValue(swing, [0, 0.5]);
     Tone.Transport.swing = newSwing;
   }, [swing]);
+
+  useEffect(() => {
+    const newMasterVolume = transformKnobValue(masterVolume, [-30, 4]);
+    Tone.Destination.volume.value = newMasterVolume;
+  }, [masterVolume]);
 
   const togglePlay = async () => {
     await Tone.start();
@@ -171,6 +177,16 @@ const Drumhaus = () => {
             setBpm={setBpm}
             swing={swing}
             setSwing={setSwing}
+          />
+        </GridItem>
+        <GridItem colSpan={1} w="100%">
+          <Knob
+            size={140}
+            knobValue={masterVolume}
+            setKnobValue={setMasterVolume}
+            knobTitle="MASTER VOLUME"
+            knobTransformRange={[-30, 4]}
+            knobUnits="dB"
           />
         </GridItem>
       </Grid>
