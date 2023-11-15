@@ -31,7 +31,7 @@ const Drumhaus = () => {
   // Slots - prop drilling (consider Redux in the future)
   const [attacks, setAttacks] = useState<number[]>(init._attacks);
   const [releases, setReleases] = useState<number[]>(init._releases);
-  const [filters, setFilters] = useState<number[]>(init._releases);
+  const [filters, setFilters] = useState<number[]>(init._filters);
   const [volumes, setVolumes] = useState<number[]>(init._volumes);
   const sampleDurations = samples.map((sample) => {
     return useSampleDuration(sample.sampler, sample.url);

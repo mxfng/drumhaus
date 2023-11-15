@@ -16,6 +16,8 @@ const samples: { name: string; url: string }[] = [
 
 // Create initial Drumhaus sampler objects
 export const _samples: Sample[] = samples.map((sample, id) => {
+  const filter = new Tone.Filter(0, "highpass");
+
   const sampler = new Tone.Sampler({
     urls: {
       ["C2"]: sample.url,
@@ -24,13 +26,14 @@ export const _samples: Sample[] = samples.map((sample, id) => {
     onload: () => {
       console.log(`DHSampler created for ${sample.name}`);
     },
-  }).toDestination();
+  }).chain(filter, Tone.Destination);
 
   return {
     id: id,
     name: sample.name,
     url: sample.url,
     sampler: sampler,
+    filter: filter,
   };
 });
 
@@ -40,8 +43,9 @@ export const _swing = 0;
 export const _sequences = Array(8).fill(Array(16).fill(false));
 
 // Create initial arrays of slot parameters
-export const _volumes = [90, 90, 90, 90, 90, 90, 90, 70];
 export const _attacks = [0, 0, 0, 0, 0, 0, 0, 0];
 export const _releases = [100, 100, 100, 100, 100, 100, 100, 100];
+export const _filters = [50, 50, 50, 50, 50, 50, 50, 50];
+export const _volumes = [90, 90, 90, 90, 90, 90, 90, 70];
 export const _solos = [false];
 export const _mutes = [false];

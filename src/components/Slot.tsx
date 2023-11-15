@@ -7,6 +7,7 @@ import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
+import { KnobFilter, transformKnobFilterValue } from "./KnobFilter";
 
 type SlotParams = {
   sample: Sample;
@@ -43,6 +44,17 @@ export const Slot: React.FC<SlotParams> = ({
     const newAttackValue = transformKnobValue(attack, [0, 1]);
     sample.sampler.attack = newAttackValue;
   }, [attack, sample.sampler.attack, sample.sampler]);
+
+  useEffect(() => {
+    sample.filter.type = filter <= 49 ? "lowpass" : "highpass";
+    sample.filter.frequency.value = transformKnobFilterValue(filter);
+  }, [
+    filter,
+    sample.filter,
+    sample.filter.frequency.value,
+    sample.filter.type,
+    sample.sampler,
+  ]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
@@ -156,7 +168,7 @@ export const Slot: React.FC<SlotParams> = ({
             />
           </GridItem>
           <GridItem>
-            <Knob
+            <KnobFilter
               key={`knob-${sample.id}-filter`}
               size={60}
               knobValue={filter}
