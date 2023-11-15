@@ -1,7 +1,7 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { SlotData } from "@/types/types";
+import { Sample } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
@@ -13,31 +13,27 @@ import { transformKnobValue } from "./Knob";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 const Drumhaus = () => {
-  const slots: SlotData[] = init._samples.map((sample, id) => {
-    return {
-      id: id,
-      sample: sample,
-      volume: init._volumes[id],
-      attack: init._attacks[id],
-      release: init._releases[id],
-      solo: init._solos[id],
-      mute: init._mutes[id],
-    };
-  });
+  const samples: Sample[] = init._samples;
 
+  // Static
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [slotIndex, setSlotIndex] = useState<number>(0);
 
+  // Global
   const [sequences, setSequences] = useState<boolean[][]>(init._sequences);
   const [currentSequence, setCurrentSequence] = useState<boolean[]>(
     init._sequences[slotIndex]
   );
   const [bpm, setBpm] = useState(init._bpm);
   const [swing, setSwing] = useState(init._swing);
+
+  // Slots - prop drilling (consider Redux in the future)
+  const [attacks, setAttacks] = useState<number[]>(init._attacks);
   const [releases, setReleases] = useState<number[]>(init._releases);
-  const sampleDurations = slots.map((slot) => {
-    return useSampleDuration(slot.sample.sampler, slot.sample.url);
+  const [volumes, setVolumes] = useState<number[]>(init._volumes);
+  const sampleDurations = samples.map((sample) => {
+    return useSampleDuration(sample.sampler, sample.url);
   });
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
@@ -47,8 +43,8 @@ const Drumhaus = () => {
       toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
           function triggerSample(row: number) {
-            slots[row].sample.sampler.triggerRelease("C2", time);
-            slots[row].sample.sampler.triggerAttackRelease(
+            samples[row].sampler.triggerRelease("C2", time);
+            samples[row].sampler.triggerAttackRelease(
               "C2",
               transformKnobValue(releases[row], [0.0001, sampleDurations[row]]),
               time
@@ -56,7 +52,7 @@ const Drumhaus = () => {
           }
 
           function muteOHatOnHat(row: number) {
-            if (row == 4) slots[5].sample.sampler.triggerRelease("C2", time);
+            if (row == 4) samples[5].sampler.triggerRelease("C2", time);
           }
 
           for (let row = 0; row < sequences.length; row++) {
@@ -76,7 +72,7 @@ const Drumhaus = () => {
     return () => {
       toneSequence.current?.dispose();
     };
-  }, [slots, sequences, isPlaying, sampleDurations]);
+  }, [samples, sequences, isPlaying, sampleDurations, releases]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -132,12 +128,17 @@ const Drumhaus = () => {
 
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <SlotsGrid
-          slots={slots}
+          samples={samples}
           sequences={sequences}
           setCurrentSequence={setCurrentSequence}
           slotIndex={slotIndex}
           setSlotIndex={setSlotIndex}
+          attacks={attacks}
+          setAttacks={setAttacks}
+          releases={releases}
           setReleases={setReleases}
+          volumes={volumes}
+          setVolumes={setVolumes}
         />
       </Box>
 

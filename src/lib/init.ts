@@ -15,7 +15,7 @@ const samples: { name: string; url: string }[] = [
 ];
 
 // Create initial Drumhaus sampler objects
-export const _samples: Sample[] = samples.map((sample) => {
+export const _samples: Sample[] = samples.map((sample, id) => {
   const sampler = new Tone.Sampler({
     urls: {
       ["C2"]: sample.url,
@@ -27,6 +27,7 @@ export const _samples: Sample[] = samples.map((sample) => {
   }).toDestination();
 
   return {
+    id: id,
     name: sample.name,
     url: sample.url,
     sampler: sampler,
