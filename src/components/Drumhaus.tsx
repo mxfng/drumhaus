@@ -10,6 +10,7 @@ import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { transformKnobValue } from "./Knob";
+import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 const Drumhaus = () => {
   const slots: SlotData[] = init._samples.map((sample, id) => {
@@ -34,6 +35,10 @@ const Drumhaus = () => {
   );
   const [bpm, setBpm] = useState(init._bpm);
   const [swing, setSwing] = useState(init._swing);
+  const [releases, setReleases] = useState<number[]>(init._releases);
+  const sampleDurations = slots.map((slot) => {
+    return useSampleDuration(slot.sample.sampler, slot.sample.url);
+  });
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
 
@@ -43,7 +48,11 @@ const Drumhaus = () => {
         (time, step: number) => {
           function triggerSample(row: number) {
             slots[row].sample.sampler.triggerRelease("C2", time);
-            slots[row].sample.sampler.triggerAttack("C2", time);
+            slots[row].sample.sampler.triggerAttackRelease(
+              "C2",
+              transformKnobValue(releases[row], [0.0001, sampleDurations[row]]),
+              time
+            );
           }
 
           function muteOHatOnHat(row: number) {
@@ -67,7 +76,7 @@ const Drumhaus = () => {
     return () => {
       toneSequence.current?.dispose();
     };
-  }, [slots, sequences, isPlaying]);
+  }, [slots, sequences, isPlaying, sampleDurations]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -128,6 +137,7 @@ const Drumhaus = () => {
           setCurrentSequence={setCurrentSequence}
           slotIndex={slotIndex}
           setSlotIndex={setSlotIndex}
+          setReleases={setReleases}
         />
       </Box>
 
