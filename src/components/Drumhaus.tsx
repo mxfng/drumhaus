@@ -1,76 +1,47 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { DHSampler, SlotData } from "@/types/types";
+import { SlotData } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
-import { Instruments } from "./Instruments";
+import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { transformKnobValue } from "./Knob";
 
+const EMPTY_SEQUENCES = Array(8).fill(Array(16).fill(false));
 const Drumhaus = () => {
-  // Provide state array of Drumhaus samplers
-  const [dhSamplers, setDhSamplers] = useState<DHSampler[]>(init._dhSamplers);
-
-  // Provide state arrays of slot paramters
-  const [volumes, setVolumes] = useState<number[]>(init._volumes);
-  const [attacks, setAttacks] = useState<number[]>(init._attacks);
-  const [releases, setReleases] = useState<number[]>(init._releases);
-  const [solos, setSolos] = useState<boolean[]>(init._solos);
-  const [mutes, setMutes] = useState<boolean[]>(init._mutes);
-
-  // Create Slot objects
-  // Drumhaus has 8 slots
-  // Slots contain sampler and params to update the sampler
-  const slots: SlotData[] = dhSamplers.map((dhSampler, id) => {
+  const slots: SlotData[] = init._dhSamplers.map((dhSampler, id) => {
     return {
       id: id,
       name: dhSampler.name,
       sampler: dhSampler,
-      volume: volumes[id],
-      attack: attacks[id],
-      release: releases[id],
-      solo: solos[id],
-      mute: mutes[id],
+      volume: init._volumes[id],
+      attack: init._attacks[id],
+      release: init._releases[id],
+      solo: init._solos[id],
+      mute: init._mutes[id],
     };
   });
 
-  // Drumhaus Main Control States
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [slotIndex, setSlotIndex] = useState<number>(0);
+  const [sequences, setSequences] = useState<boolean[][]>(EMPTY_SEQUENCES);
+  const [currentSequence, setCurrentSequence] = useState<boolean[]>(
+    sequences[slotIndex]
+  );
   const [bpm, setBpm] = useState(70);
   const [swing, setSwing] = useState(0);
-  const [step, setStep] = useState(0);
 
-  // BPM
-  useEffect(() => {
-    Tone.Transport.bpm.value = bpm;
-  }, [bpm]);
-
-  // Swing
-  useEffect(() => {
-    const newSwing = transformKnobValue(swing, [0, 0.5]);
-    Tone.Transport.swing = newSwing;
-  }, [swing]);
-
-  const [slot, setSlot] = useState<number>(0);
-
-  const [sequences, setSequences] = useState<boolean[][]>(
-    Array(8).fill(Array(16).fill(false))
-  );
-
-  const [currentSequence, setCurrentSequence] = useState<boolean[]>(
-    sequences[slot]
-  );
-
-  const seqRef = useRef<Tone.Sequence | null>(null);
+  const toneSequence = useRef<Tone.Sequence | null>(null);
 
   // Drumhaus core step clock
   useEffect(() => {
     if (isPlaying) {
-      seqRef.current = new Tone.Sequence(
+      toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
           for (let row = 0; row < sequences.length; row++) {
             const value = sequences[row][step];
@@ -83,7 +54,7 @@ const Drumhaus = () => {
               slots[row].sampler.sampler.triggerAttack("C2", time);
             }
 
-            setStep(step);
+            setStepIndex(step);
           }
         },
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -92,41 +63,40 @@ const Drumhaus = () => {
     }
 
     return () => {
-      seqRef.current?.dispose();
+      toneSequence.current?.dispose();
     };
   }, [slots, sequences, isPlaying]);
+
+  useEffect(() => {
+    const playViaSpacebar = (event: KeyboardEvent) => {
+      if (event.key === " ") togglePlay();
+    };
+
+    document.addEventListener("keydown", playViaSpacebar);
+
+    return () => {
+      document.removeEventListener("keydown", playViaSpacebar);
+    };
+  }, []);
+
+  useEffect(() => {
+    Tone.Transport.bpm.value = bpm;
+  }, [bpm]);
+
+  useEffect(() => {
+    const newSwing = transformKnobValue(swing, [0, 0.5]);
+    Tone.Transport.swing = newSwing;
+  }, [swing]);
 
   const togglePlay = async () => {
     await Tone.start();
 
     setIsPlaying((prevIsPlaying) => {
-      const newIsPlaying = !prevIsPlaying;
-
-      if (newIsPlaying) {
-        Tone.Transport.start();
-      } else {
-        Tone.Transport.stop();
-      }
-
-      return newIsPlaying;
+      if (!prevIsPlaying) Tone.Transport.start();
+      else Tone.Transport.stop();
+      return !prevIsPlaying;
     });
   };
-
-  // Attach the event listener when the component mounts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Check if the pressed key is the space bar
-      if (event.key === " ") {
-        togglePlay();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    // Remove the event listener when the component unmounts
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   return (
     <Box
@@ -150,12 +120,12 @@ const Drumhaus = () => {
       </Box>
 
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
-        <Instruments
+        <SlotsGrid
           slots={slots}
           sequences={sequences}
           setCurrentSequence={setCurrentSequence}
-          slot={slot}
-          setSlot={setSlot}
+          slotIndex={slotIndex}
+          setSlotIndex={setSlotIndex}
         />
       </Box>
 
@@ -195,8 +165,8 @@ const Drumhaus = () => {
           setSequence={setCurrentSequence}
           sequences={sequences}
           setSequences={setSequences}
-          slot={slot}
-          step={step}
+          slot={slotIndex}
+          step={stepIndex}
           isPlaying={isPlaying}
         />
       </Box>

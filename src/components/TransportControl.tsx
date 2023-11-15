@@ -5,6 +5,11 @@ import { Knob } from "./Knob";
 import { useEffect, useRef, useState } from "react";
 import { IoTriangleSharp } from "react-icons/io5";
 
+// Constants
+const MIN_BPM = 1;
+const MAX_BPM = 300;
+const HOLD_INTERVAL = 130;
+
 type TransportControlProps = {
   bpm: number;
   setBpm: React.Dispatch<React.SetStateAction<number>>;
@@ -37,24 +42,19 @@ export const TransportControl: React.FC<TransportControlProps> = ({
   const handleBlur = () => setBpm(bpmInputValue);
 
   // Handle the form submission logic with inputValue when the Enter key is pressed
-  // This does not work well
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") setBpm(bpmInputValue);
-  };
+  // This does not work
+  // const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  //   if (event.key === "Enter") setBpm(bpmInputValue);
+  // };
 
   // Handle mouse hold on BPM buttons
   useEffect(() => {
-    const handleBpmDown = () => {
+    const updateBpm = (modifier: number) => {
       setBpmInputValue((prevBpmInputValue) => {
-        const newBpmInputValue = Math.max(prevBpmInputValue - 1, 1);
-        setBpm(newBpmInputValue);
-        return newBpmInputValue;
-      });
-    };
-
-    const handleBpmUp = () => {
-      setBpmInputValue((prevBpmInputValue) => {
-        const newBpmInputValue = Math.min(prevBpmInputValue + 1, 300);
+        const newBpmInputValue = Math.min(
+          Math.max(prevBpmInputValue + modifier, MIN_BPM),
+          MAX_BPM
+        );
         setBpm(newBpmInputValue);
         return newBpmInputValue;
       });
@@ -65,13 +65,13 @@ export const TransportControl: React.FC<TransportControlProps> = ({
     const downButton = downButtonRef.current;
 
     const handleUpButtonMouseDown = () => {
-      handleBpmUp();
-      intervalId = setInterval(() => handleBpmUp(), 130);
+      updateBpm(1);
+      intervalId = setInterval(() => updateBpm(1), HOLD_INTERVAL);
     };
 
     const handleDownButtonMouseDown = () => {
-      handleBpmDown();
-      intervalId = setInterval(() => handleBpmDown(), 130);
+      updateBpm(-1);
+      intervalId = setInterval(() => updateBpm(-1), HOLD_INTERVAL);
     };
 
     const handleMouseUp = () => {
@@ -122,9 +122,9 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     value={bpmInputValue}
                     onChange={handleBpmChange}
                     onBlur={handleBlur}
-                    onKeyDown={handleKeyDown}
+                    // onKeyDown={handleKeyDown}
                     border="0px solid transparent"
-                    focusBorderColor="transparent" // Set the focus border color to transparent
+                    focusBorderColor="transparent"
                     _focus={{
                       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2) inset",
                     }}
