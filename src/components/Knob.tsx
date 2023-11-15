@@ -23,6 +23,8 @@ export const transformKnobValue = (
   return scalingFactor * input + newRangeMin;
 };
 
+const MAX_KNOB_VALUE = 100;
+
 export const Knob: React.FC<KnobProps> = ({
   size,
   knobValue,
@@ -32,57 +34,29 @@ export const Knob: React.FC<KnobProps> = ({
   knobUnits = "",
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
-  const [mouseDown, setMouseDown] = useState({ x: 0, y: 0 });
-  const maxKnobValue = 100;
+  const [mouseDownY, setMouseDownY] = useState({ x: 0, y: 0 });
 
-  const mouseYMotion = useMotionValue(knobValue);
-  const rotation = useTransform(mouseYMotion, [0, maxKnobValue], [-225, 45]);
-
-  const getNewKnobValue = (clientY: number) => {
-    return Math.max(
-      0,
-      Math.min(mouseDown.y - clientY + knobValue, maxKnobValue)
-    );
-  };
-
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setIsMouseDown(true);
-    setMouseDown({ x: event.clientX, y: event.clientY });
-
-    // Debugging
-    // console.log("mouse down");
-    // console.log(`mouseDown: ${mouseDown.x}, ${mouseDown.y}`);
-  };
-
-  const handleMouseUp = () => {
-    setIsMouseDown(false);
-
-    // Debugging
-    // console.log("mouse up");
-  };
+  const mouseY = useMotionValue(knobValue);
+  const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
 
   useEffect(() => {
-    const handleMouseMove = (ev: MouseEvent) => {
+    const setValueOnMouseMove = (ev: MouseEvent) => {
       if (isMouseDown) {
-        mouseYMotion.set(getNewKnobValue(ev.clientY));
+        mouseY.set(getNewKnobValue(ev.clientY));
         setKnobValue(getNewKnobValue(ev.clientY));
-
-        // Debugging
-        // console.log(`interp Y: ${getKnobValue(ev.clientY)}`);
-        // console.log("mouse moving while down");
       }
     };
 
     if (isMouseDown) {
-      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mousemove", setValueOnMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
     } else {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", setValueOnMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", setValueOnMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isMouseDown]);
@@ -93,6 +67,22 @@ export const Knob: React.FC<KnobProps> = ({
     };
   }, []);
 
+  const getNewKnobValue = (clientY: number) => {
+    return Math.max(
+      0,
+      Math.min(mouseDownY.y - clientY + knobValue, MAX_KNOB_VALUE)
+    );
+  };
+
+  const captureMouseDownY = (event: React.MouseEvent<HTMLDivElement>) => {
+    setIsMouseDown(true);
+    setMouseDownY({ x: event.clientX, y: event.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsMouseDown(false);
+  };
+
   return (
     <>
       <Box>
@@ -102,13 +92,12 @@ export const Knob: React.FC<KnobProps> = ({
             w={`${size + 10}px`}
             h={`${size + 10}px`}
             m={2}
-            // outline="1px solid blue"
             position="relative"
           >
             <Center w="100%" h="100%">
               <motion.div
                 className="knob-hitbox"
-                onMouseDown={handleMouseDown}
+                onMouseDown={captureMouseDownY}
                 style={{
                   rotate: rotation,
                   width: `${size}px`,

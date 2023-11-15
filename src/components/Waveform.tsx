@@ -2,22 +2,24 @@
 
 import React, { useEffect, useRef } from "react";
 
-interface AmplitudeVisualizerProps {
+interface WaveformProps {
   audioFile: string;
   width: number;
 }
 
-const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile, width }) => {
+const WAVEFORM_COLOR = "gray";
+
+const Waveform: React.FC<WaveformProps> = ({ audioFile, width }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const offlineContext = new OfflineAudioContext(2, 44100 * 40, 44100);
     const source = offlineContext.createBufferSource();
-
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const canvasWidth = width;
     const canvasHeight = 50;
+
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
@@ -34,20 +36,19 @@ const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile, width }) => {
       .then((renderedBuffer) => {
         const amplitudeData = renderedBuffer.getChannelData(0);
 
-        // Function to draw the amplitude graphic with silence removal
-        function drawAmplitudeGraphic() {
-          const threshold = 0.01; // Adjust this threshold based on your needs
-          let endIdx = amplitudeData.length - 1;
+        function draw() {
+          const silenceThreshold = 0.01;
+          let endIndex = amplitudeData.length - 1;
 
           // Find the index of the last non-silent sample
-          for (let i = amplitudeData.length - 1; i >= 0; i--) {
-            if (Math.abs(amplitudeData[i]) > threshold) {
-              endIdx = i;
+          for (let index = amplitudeData.length - 1; index >= 0; index--) {
+            if (Math.abs(amplitudeData[index]) > silenceThreshold) {
+              endIndex = index;
               break;
             }
           }
 
-          const trimmedData = amplitudeData.slice(0, endIdx);
+          const trimmedData = amplitudeData.slice(0, endIndex);
 
           ctx.clearRect(0, 0, canvasWidth, canvasHeight);
           ctx.beginPath();
@@ -59,12 +60,12 @@ const Waveform: React.FC<AmplitudeVisualizerProps> = ({ audioFile, width }) => {
             ctx.lineTo(x, y);
           }
 
-          ctx.strokeStyle = "gray";
+          ctx.strokeStyle = WAVEFORM_COLOR;
           ctx.stroke();
         }
 
         // Call the drawAmplitudeGraphic function to draw the static graphic
-        drawAmplitudeGraphic();
+        draw();
       });
   }, [audioFile, width]);
 

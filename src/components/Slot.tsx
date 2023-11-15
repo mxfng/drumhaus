@@ -17,40 +17,36 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   const [attack, setAttack] = useState(data.attack);
   const [release, setRelease] = useState(data.release);
   const [sampleDuration, setSampleDuration] = useState(0);
-
   const [waveWidth, setWaveWidth] = useState<number>(100);
+  const waveButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Control attack
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
     data.sampler.sampler.attack = newAttackValue;
   }, [attack, data.sampler.sampler.attack, data.sampler.sampler]);
 
-  // Control volume
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
     data.sampler.sampler.volume.value = newVolumeValue;
   }, [volume, data.sampler.sampler.volume]);
 
-  // Resize audio waveform to button size
   useEffect(() => {
-    const handleResize = () => {
+    const maintainWaveformSize = () => {
       if (waveButtonRef.current) {
         setWaveWidth(waveButtonRef.current.clientWidth);
       }
     };
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+    window.addEventListener("resize", maintainWaveformSize);
+    maintainWaveformSize();
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("resize", maintainWaveformSize);
     };
   }, []);
 
-  // Fetch sample duration
   useEffect(() => {
-    const fetchAudioDuration = async () => {
+    const fetchSampleDuration = async () => {
       try {
         const buffer = await Tone.Buffer.fromUrl(
           `/samples/${data.sampler.url}`
@@ -64,14 +60,12 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
     };
 
     const updateSampleDuration = async () => {
-      const duration = await fetchAudioDuration();
+      const duration = await fetchSampleDuration();
       setSampleDuration(duration);
     };
 
     updateSampleDuration();
   }, [data.sampler.sampler, data.sampler.url]);
-
-  const waveButtonRef = useRef<HTMLButtonElement>(null);
 
   const playSample = () => {
     data.sampler.sampler.triggerRelease("C2");
