@@ -6,10 +6,10 @@ import React, { useEffect, useRef, useState } from "react";
 export const Sequencer: React.FC<any> = ({
   sequence,
   setSequence,
-  sequences,
   setSequences,
   slot,
   step,
+  isPlaying,
 }) => {
   const [parentWidth, setParentWidth] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -126,14 +126,15 @@ export const Sequencer: React.FC<any> = ({
               _hover={{
                 background: "darkorange",
               }}
+              transform="0.2s ease"
             />
             <Box
               key={`sequenceNodeStepIndicator${node}`}
               my={4}
               h="4px"
               w="100%"
-              opacity={node == step ? 1 : 0.2}
-              bg={node == step ? "darkorange" : "gray"}
+              opacity={node == step && isPlaying ? 1 : 0.2}
+              bg={node == step && isPlaying ? "darkorange" : "gray"}
             />
           </GridItem>
         ))}

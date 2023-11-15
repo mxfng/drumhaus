@@ -33,88 +33,64 @@ export const TransportControl: React.FC<TransportControlProps> = ({
     }
   };
 
-  const handleBlur = () => {
-    // Handle the form submission logic with inputValue when the input loses focus
-    setBpm(bpmInputValue);
-  };
+  // Handle the form submission logic with inputValue when the input loses focus
+  const handleBlur = () => setBpm(bpmInputValue);
 
+  // Handle the form submission logic with inputValue when the Enter key is pressed
+  // This does not work well
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    // Handle the form submission logic with inputValue when the Enter key is pressed
-    if (event.key === "Enter") {
-      setBpm(bpmInputValue);
-    }
-  };
-
-  const handleBpmUp = () => {
-    setBpmInputValue((prevBpmInputValue) => {
-      const newBpmInputValue = prevBpmInputValue + 1;
-      const validBpmInputValue = Math.min(newBpmInputValue, 300);
-
-      setBpm(validBpmInputValue);
-
-      return validBpmInputValue;
-    });
-  };
-
-  const handleBpmDown = () => {
-    setBpmInputValue((prevBpmInputValue) => {
-      const newBpmInputValue = prevBpmInputValue - 1;
-      const validBpmInputValue = Math.max(newBpmInputValue, 1);
-
-      setBpm(validBpmInputValue);
-
-      return validBpmInputValue;
-    });
+    if (event.key === "Enter") setBpm(bpmInputValue);
   };
 
   // Handle mouse hold on BPM buttons
   useEffect(() => {
+    const handleBpmDown = () => {
+      setBpmInputValue((prevBpmInputValue) => {
+        const newBpmInputValue = Math.max(prevBpmInputValue - 1, 1);
+        setBpm(newBpmInputValue);
+        return newBpmInputValue;
+      });
+    };
+
+    const handleBpmUp = () => {
+      setBpmInputValue((prevBpmInputValue) => {
+        const newBpmInputValue = Math.min(prevBpmInputValue + 1, 300);
+        setBpm(newBpmInputValue);
+        return newBpmInputValue;
+      });
+    };
+
     let intervalId: NodeJS.Timeout;
+    const upButton = upButtonRef.current;
+    const downButton = downButtonRef.current;
 
     const upBHandleMouseDown = () => {
-      intervalId = setInterval(() => {
-        handleBpmUp();
-      }, 100);
+      handleBpmUp();
+      intervalId = setInterval(() => handleBpmUp(), 130);
     };
 
     const downBHandleMouseDown = () => {
-      intervalId = setInterval(() => {
-        handleBpmDown();
-      }, 100);
+      handleBpmDown();
+      intervalId = setInterval(() => handleBpmDown(), 130);
     };
 
     const handleMouseUp = () => {
       clearInterval(intervalId);
     };
 
-    if (upButtonRef.current) {
-      upButtonRef.current.addEventListener("mousedown", upBHandleMouseDown);
-    }
-
-    if (downButtonRef.current) {
-      downButtonRef.current.addEventListener("mousedown", downBHandleMouseDown);
-    }
-
+    if (upButton) upButton.addEventListener("mousedown", upBHandleMouseDown);
+    if (downButton)
+      downButton.addEventListener("mousedown", downBHandleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      if (upButtonRef.current) {
-        upButtonRef.current.removeEventListener(
-          "mousedown",
-          upBHandleMouseDown
-        );
-      }
-
-      if (downButtonRef.current) {
-        downButtonRef.current.removeEventListener(
-          "mousedown",
-          downBHandleMouseDown
-        );
-      }
-
+      if (upButton)
+        upButton.removeEventListener("mousedown", upBHandleMouseDown);
+      if (downButton)
+        downButton.removeEventListener("mousedown", downBHandleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, []);
+  }, [setBpm]);
 
   return (
     <>
@@ -163,7 +139,6 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     position="absolute"
                     top={-3}
                     right={-3}
-                    onClick={handleBpmUp}
                     ref={upButtonRef}
                   >
                     <IoTriangleSharp color="gray" />
@@ -176,7 +151,6 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     position="absolute"
                     right={-3}
                     bottom={-3}
-                    onClick={handleBpmDown}
                     ref={downButtonRef}
                   >
                     <IoTriangleSharp
