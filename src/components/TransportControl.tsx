@@ -64,12 +64,12 @@ export const TransportControl: React.FC<TransportControlProps> = ({
     const upButton = upButtonRef.current;
     const downButton = downButtonRef.current;
 
-    const upBHandleMouseDown = () => {
+    const handleUpButtonMouseDown = () => {
       handleBpmUp();
       intervalId = setInterval(() => handleBpmUp(), 130);
     };
 
-    const downBHandleMouseDown = () => {
+    const handleDownButtonMouseDown = () => {
       handleBpmDown();
       intervalId = setInterval(() => handleBpmDown(), 130);
     };
@@ -78,16 +78,17 @@ export const TransportControl: React.FC<TransportControlProps> = ({
       clearInterval(intervalId);
     };
 
-    if (upButton) upButton.addEventListener("mousedown", upBHandleMouseDown);
+    if (upButton)
+      upButton.addEventListener("mousedown", handleUpButtonMouseDown);
     if (downButton)
-      downButton.addEventListener("mousedown", downBHandleMouseDown);
+      downButton.addEventListener("mousedown", handleDownButtonMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       if (upButton)
-        upButton.removeEventListener("mousedown", upBHandleMouseDown);
+        upButton.removeEventListener("mousedown", handleUpButtonMouseDown);
       if (downButton)
-        downButton.removeEventListener("mousedown", downBHandleMouseDown);
+        downButton.removeEventListener("mousedown", handleDownButtonMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [setBpm]);
