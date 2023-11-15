@@ -89,7 +89,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
 
   return (
     <>
-      <Center h="100%" px={6}>
+      <Center h="100%" px={4}>
         <Flex>
           <Center>
             <Box
@@ -156,7 +156,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                 </Flex>
                 <Center position="absolute" left={-1} bottom={-6}>
                   <Text fontSize={12} color="gray" my={-3}>
-                    BPM
+                    TEMPO
                   </Text>
                 </Center>
               </Center>
