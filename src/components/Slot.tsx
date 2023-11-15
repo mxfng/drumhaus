@@ -1,15 +1,7 @@
 "use client";
 
 import { SlotData } from "@/types/types";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Heading,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
@@ -98,9 +90,8 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
         <Text
           key={`filename-${data.name}`}
           className="filename"
-          css={{
-            fontFamily: `'Pixelify Sans Variable', sans-serif`,
-          }}
+          fontFamily={`'Pixelify Sans Variable', sans-serif`}
+          color="gray"
         >
           {data.sampler.url.split("/").pop()}
         </Text>
