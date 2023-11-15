@@ -100,12 +100,18 @@ export const Sequencer: React.FC<any> = ({
           (node) => (
             <GridItem key={`sequenceNodeGridItem${node}`} colSpan={1}>
               <Box
-                key={`sequenceNodeBeatMarker${node}`}
-                my={4}
+                key={`sequenceNodeStepIndicator${node}`}
+                mb={4}
                 h="4px"
                 w="100%"
-                opacity={0.4}
-                bg={[0, 4, 8, 12].includes(node) ? "gray" : "transparent"}
+                opacity={
+                  node == step && isPlaying
+                    ? 1
+                    : [0, 4, 8, 12].includes(node)
+                    ? 0.6
+                    : 0.2
+                }
+                bg={node == step && isPlaying ? "darkorange" : "gray"}
               />
               <Box
                 key={`sequenceNode${node}`}
@@ -124,14 +130,6 @@ export const Sequencer: React.FC<any> = ({
                   background: "darkorange",
                 }}
                 transform="0.2s ease"
-              />
-              <Box
-                key={`sequenceNodeStepIndicator${node}`}
-                my={4}
-                h="4px"
-                w="100%"
-                opacity={node == step && isPlaying ? 1 : 0.2}
-                bg={node == step && isPlaying ? "darkorange" : "gray"}
               />
             </GridItem>
           )
