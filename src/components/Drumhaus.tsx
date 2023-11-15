@@ -33,6 +33,7 @@ const Drumhaus = () => {
   const [releases, setReleases] = useState<number[]>(init._releases);
   const [filters, setFilters] = useState<number[]>(init._filters);
   const [volumes, setVolumes] = useState<number[]>(init._volumes);
+  const [pans, setPans] = useState<number[]>(init._pans);
   const [durations, setDurations] = useState<number[]>([
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -160,6 +161,8 @@ const Drumhaus = () => {
           setFilters={setFilters}
           volumes={volumes}
           setVolumes={setVolumes}
+          pans={pans}
+          setPans={setPans}
           setDurations={setDurations}
         />
       </Box>

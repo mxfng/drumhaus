@@ -1,15 +1,7 @@
 "use client";
 
 import { Sample } from "@/types/types";
-import {
-  Box,
-  Button,
-  Flex,
-  Grid,
-  GridItem,
-  Heading,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, GridItem, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
@@ -28,6 +20,8 @@ type SlotParams = {
   setFilters: React.Dispatch<React.SetStateAction<number[]>>;
   volumes: number[];
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
+  pans: number[];
+  setPans: React.Dispatch<React.SetStateAction<number[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -41,11 +35,14 @@ export const Slot: React.FC<SlotParams> = ({
   setFilters,
   volumes,
   setVolumes,
+  pans,
+  setPans,
   setDurations,
 }) => {
   const [attack, setAttack] = useState(attacks[sample.id]);
   const [release, setRelease] = useState(releases[sample.id]);
   const [filter, setFilter] = useState(filters[sample.id]); // 0-100
+  const [pan, setPan] = useState(pans[sample.id]);
   const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +63,11 @@ export const Slot: React.FC<SlotParams> = ({
     sample.filter.type,
     sample.sampler,
   ]);
+
+  useEffect(() => {
+    const newPanValue = transformKnobValue(pan, [-1, 1]);
+    sample.panner.pan.value = newPanValue;
+  }, [pan, sample.panner.pan]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-46, 4]);
@@ -101,6 +103,16 @@ export const Slot: React.FC<SlotParams> = ({
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, sample.id]);
+
+  useEffect(() => {
+    setPans((prevPans) => {
+      const newPans = [...prevPans];
+      newPans[sample.id] = pan;
+      return newPans;
+    });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pan, sample.id]);
 
   useEffect(() => {
     setVolumes((prevVolumes) => {
@@ -202,7 +214,16 @@ export const Slot: React.FC<SlotParams> = ({
               knobTitle="FILTER"
             />
           </GridItem>
-          <GridItem></GridItem>
+          <GridItem>
+            <Knob
+              key={`knob-${sample.id}-pans`}
+              size={60}
+              knobValue={pan}
+              setKnobValue={setPan}
+              knobTitle="PAN"
+              knobTransformRange={[-100, 100]}
+            />
+          </GridItem>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-volume`}

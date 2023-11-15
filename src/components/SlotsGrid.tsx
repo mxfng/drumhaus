@@ -17,6 +17,8 @@ type SlotsGridProps = {
   setFilters: React.Dispatch<React.SetStateAction<number[]>>;
   volumes: number[];
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
+  pans: number[];
+  setPans: React.Dispatch<React.SetStateAction<number[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -37,6 +39,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   setFilters,
   volumes,
   setVolumes,
+  pans,
+  setPans,
   setDurations,
 }) => {
   const [parentW, setParentW] = useState<number>(0);
@@ -99,6 +103,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             setFilters={setFilters}
             volumes={volumes}
             setVolumes={setVolumes}
+            pans={pans}
+            setPans={setPans}
             setDurations={setDurations}
           />
         </GridItem>

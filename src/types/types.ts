@@ -7,4 +7,5 @@ export type Sample = {
   sampler: Tone.Sampler;
   envelope: Tone.AmplitudeEnvelope;
   filter: Tone.Filter;
+  panner: Tone.Panner;
 };
