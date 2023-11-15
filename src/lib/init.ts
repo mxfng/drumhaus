@@ -18,7 +18,7 @@ const samples: { name: string; url: string }[] = [
 export const _samples: Sample[] = samples.map((sample, id) => {
   const filter = new Tone.Filter(0, "highpass");
 
-  const envelope = new Tone.AmplitudeEnvelope(0, 0, 1, 0);
+  const envelope = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
 
   const sampler = new Tone.Sampler({
     urls: {
