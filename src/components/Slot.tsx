@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
-import { Knob } from "./Knob";
+import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import * as Tone from "tone/build/esm/index";
@@ -78,16 +78,6 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
 
     updateSampleDuration();
   }, [data.sampler.sampler, data.sampler.url]);
-
-  // Transform knob values (0-100) to any Tone.js parameter range [min, max]
-  const transformKnobValue = (
-    input: number,
-    range: [number, number]
-  ): number => {
-    const [newRangeMin, newRangeMax] = range;
-    const scalingFactor = (newRangeMax - newRangeMin) / 100;
-    return scalingFactor * input + newRangeMin;
-  };
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
 
