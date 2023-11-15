@@ -16,9 +16,9 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   const [volume, setVolume] = useState(data.volume); // 0-100
   const [attack, setAttack] = useState(data.attack);
   const [release, setRelease] = useState(data.release);
-  const [sampleDuration, setSampleDuration] = useState(0);
-  const [waveWidth, setWaveWidth] = useState<number>(100);
+  const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
+  const [sampleDuration, setSampleDuration] = useState(0);
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
@@ -126,6 +126,8 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
               knobValue={volume}
               setKnobValue={setVolume}
               knobTitle="VOLUME"
+              knobTransformRange={[-30, 0]}
+              knobUnits="dB"
             />
           </GridItem>
         </Grid>
