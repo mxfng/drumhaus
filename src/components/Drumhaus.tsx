@@ -133,6 +133,7 @@ const Drumhaus = () => {
       minW={900}
       maxW={1538}
       style={{ userSelect: "none" }}
+      borderRadius="12px"
     >
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)" my={4}>
         <Heading
@@ -142,6 +143,7 @@ const Drumhaus = () => {
           fontSize={100}
           color="darkorange"
           fontFamily="Mandala"
+          px={6}
         >
           drumhaus
         </Heading>

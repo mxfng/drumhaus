@@ -166,7 +166,7 @@ export const Slot: React.FC<SlotParams> = ({
           <Text pr={2} color="darkorange" fontWeight={900}>
             {sample.id + 1}
           </Text>
-          <Text>{sample.name}</Text>
+          <Text fontWeight={600}>{sample.name}</Text>
         </Flex>
         <Text
           key={`filename-${sample.name}`}
@@ -197,15 +197,6 @@ export const Slot: React.FC<SlotParams> = ({
             />
           </GridItem>
           <GridItem>
-            <Knob
-              key={`knob-${sample.id}-release`}
-              size={60}
-              knobValue={release}
-              setKnobValue={setRelease}
-              knobTitle="RELEASE"
-            />
-          </GridItem>
-          <GridItem>
             <KnobFilter
               key={`knob-${sample.id}-filter`}
               size={60}
@@ -216,6 +207,16 @@ export const Slot: React.FC<SlotParams> = ({
           </GridItem>
           <GridItem>
             <Knob
+              key={`knob-${sample.id}-release`}
+              size={60}
+              knobValue={release}
+              setKnobValue={setRelease}
+              knobTitle="RELEASE"
+            />
+          </GridItem>
+
+          <GridItem>
+            <Knob
               key={`knob-${sample.id}-pans`}
               size={60}
               knobValue={pan}
@@ -224,6 +225,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobTransformRange={[-100, 100]}
             />
           </GridItem>
+          <GridItem></GridItem>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-volume`}
