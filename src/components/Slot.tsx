@@ -10,9 +10,10 @@ import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 type SlotParams = {
   data: SlotData;
+  setReleases: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
-export const Slot: React.FC<SlotParams> = ({ data }) => {
+export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
   const [volume, setVolume] = useState(data.volume); // 0-100
   const [attack, setAttack] = useState(data.attack);
   const [release, setRelease] = useState(data.release);
@@ -47,6 +48,14 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
       window.removeEventListener("resize", maintainWaveformSize);
     };
   }, []);
+
+  useEffect(() => {
+    setReleases((prevReleases) => {
+      const newReleases = [...prevReleases];
+      newReleases[data.id] = release;
+      return newReleases;
+    });
+  }, [release, data.id]);
 
   const playSample = () => {
     data.sample.sampler.triggerRelease("C2");

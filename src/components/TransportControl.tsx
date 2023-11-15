@@ -41,12 +41,6 @@ export const TransportControl: React.FC<TransportControlProps> = ({
   // Handle the form submission logic with inputValue when the input loses focus
   const handleBlur = () => setBpm(bpmInputValue);
 
-  // Handle the form submission logic with inputValue when the Enter key is pressed
-  // This does not work
-  // const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (event.key === "Enter") setBpm(bpmInputValue);
-  // };
-
   // Handle mouse hold on BPM buttons
   useEffect(() => {
     const updateBpm = (modifier: number) => {

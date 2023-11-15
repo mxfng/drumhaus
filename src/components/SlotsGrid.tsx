@@ -6,9 +6,10 @@ import { useEffect, useRef, useState } from "react";
 type SlotsGridProps = {
   slots: SlotData[];
   sequences: boolean[][];
-  setCurrentSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
+  setCurrentSequence: (prevCurrentSequence: boolean[]) => void;
   slotIndex: number;
   setSlotIndex: (prevSlot: number) => void;
+  setReleases: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 const SLOTS_GAP = 2;
@@ -20,6 +21,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   setCurrentSequence,
   slotIndex,
   setSlotIndex,
+  setReleases,
 }) => {
   const [parentW, setParentW] = useState<number>(0);
   const slotsRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +72,11 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             opacity: 1,
           }}
         >
-          <Slot key={`DHSlot-${slotData.id}`} data={slotData} />
+          <Slot
+            key={`DHSlot-${slotData.id}`}
+            data={slotData}
+            setReleases={setReleases}
+          />
         </GridItem>
       ))}
     </Grid>
