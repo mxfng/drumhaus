@@ -9,6 +9,8 @@ type KnobProps = {
   knobValue: number;
   setKnobValue: (newState: number) => void;
   knobTitle?: string;
+  knobTransformRange?: [number, number];
+  knobUnits?: string;
 };
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
@@ -26,6 +28,8 @@ export const Knob: React.FC<KnobProps> = ({
   knobValue,
   setKnobValue,
   knobTitle,
+  knobTransformRange = [0, 100],
+  knobUnits = "",
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDown, setMouseDown] = useState({ x: 0, y: 0 });
@@ -195,7 +199,12 @@ export const Knob: React.FC<KnobProps> = ({
         </Center>
         <Center>
           <Text fontSize={12} color="gray" my={-3}>
-            {isMouseDown ? knobValue : knobTitle}
+            {isMouseDown
+              ? `${transformKnobValue(
+                  knobValue,
+                  knobTransformRange
+                )} ${knobUnits}`
+              : knobTitle}
           </Text>
         </Center>
       </Box>
