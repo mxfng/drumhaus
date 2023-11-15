@@ -10,7 +10,6 @@ import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { Knob, transformKnobValue } from "./Knob";
-import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 const Drumhaus = () => {
   const samples: Sample[] = init._samples;
@@ -34,9 +33,9 @@ const Drumhaus = () => {
   const [releases, setReleases] = useState<number[]>(init._releases);
   const [filters, setFilters] = useState<number[]>(init._filters);
   const [volumes, setVolumes] = useState<number[]>(init._volumes);
-  const sampleDurations = samples.map((sample) => {
-    return useSampleDuration(sample.sampler, sample.url);
-  });
+  const [durations, setDurations] = useState<number[]>([
+    0, 0, 0, 0, 0, 0, 0, 0,
+  ]);
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
 
@@ -46,15 +45,25 @@ const Drumhaus = () => {
         (time, step: number) => {
           function triggerSample(row: number) {
             samples[row].sampler.triggerRelease("C2", time);
-            samples[row].sampler.triggerAttackRelease(
-              "C2",
-              transformKnobValue(releases[row], [0.0001, sampleDurations[row]]),
-              time
-            );
+            if (samples[row].name !== "OHat") {
+              samples[row].sampler.triggerRelease("C2", time);
+              samples[row].envelope.triggerAttack(time);
+              samples[row].envelope.triggerRelease(
+                time + transformKnobValue(releases[row], [0, 1])
+              );
+              samples[row].sampler.triggerAttack("C2", time);
+            } else {
+              triggerOHat();
+            }
           }
 
           function muteOHatOnHat(row: number) {
             if (row == 4) samples[5].sampler.triggerRelease("C2", time);
+          }
+
+          function triggerOHat() {
+            samples[5].envelope.triggerAttack(time);
+            samples[5].sampler.triggerAttack("C2", time);
           }
 
           for (let row = 0; row < sequences.length; row++) {
@@ -74,7 +83,9 @@ const Drumhaus = () => {
     return () => {
       toneSequence.current?.dispose();
     };
-  }, [samples, sequences, isPlaying, sampleDurations, releases]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sequences, isPlaying]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -98,7 +109,7 @@ const Drumhaus = () => {
   }, [swing]);
 
   useEffect(() => {
-    const newMasterVolume = transformKnobValue(masterVolume, [-30, 4]);
+    const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
     Tone.Destination.volume.value = newMasterVolume;
   }, [masterVolume]);
 
@@ -118,6 +129,7 @@ const Drumhaus = () => {
       className="drumhaus"
       bg="silver"
       minW={900}
+      maxW={1538}
       style={{ userSelect: "none" }}
     >
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)" my={4}>
@@ -148,6 +160,7 @@ const Drumhaus = () => {
           setFilters={setFilters}
           volumes={volumes}
           setVolumes={setVolumes}
+          setDurations={setDurations}
         />
       </Box>
 
@@ -185,7 +198,7 @@ const Drumhaus = () => {
             knobValue={masterVolume}
             setKnobValue={setMasterVolume}
             knobTitle="MASTER VOLUME"
-            knobTransformRange={[-30, 4]}
+            knobTransformRange={[-46, 4]}
             knobUnits="dB"
           />
         </GridItem>

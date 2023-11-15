@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { KnobFilter, transformKnobFilterValue } from "./KnobFilter";
+import * as Tone from "tone/build/esm/index";
 
 type SlotParams = {
   sample: Sample;
@@ -19,6 +20,7 @@ type SlotParams = {
   setFilters: React.Dispatch<React.SetStateAction<number[]>>;
   volumes: number[];
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
+  setDurations: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 export const Slot: React.FC<SlotParams> = ({
@@ -31,6 +33,7 @@ export const Slot: React.FC<SlotParams> = ({
   setFilters,
   volumes,
   setVolumes,
+  setDurations,
 }) => {
   const [attack, setAttack] = useState(attacks[sample.id]);
   const [release, setRelease] = useState(releases[sample.id]);
@@ -41,9 +44,9 @@ export const Slot: React.FC<SlotParams> = ({
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
   useEffect(() => {
-    const newAttackValue = transformKnobValue(attack, [0, 1]);
-    sample.sampler.attack = newAttackValue;
-  }, [attack, sample.sampler.attack, sample.sampler]);
+    const newAttackValue = transformKnobValue(attack, [0, 0.5]);
+    sample.envelope.attack = newAttackValue;
+  }, [attack, sample.envelope.attack, sample.envelope]);
 
   useEffect(() => {
     sample.filter.type = filter <= 49 ? "lowpass" : "highpass";
@@ -57,7 +60,7 @@ export const Slot: React.FC<SlotParams> = ({
   ]);
 
   useEffect(() => {
-    const newVolumeValue = transformKnobValue(volume, [-30, 0]);
+    const newVolumeValue = transformKnobValue(volume, [-46, 4]);
     sample.sampler.volume.value = newVolumeValue;
   }, [volume, sample.sampler.volume]);
 
@@ -116,12 +119,22 @@ export const Slot: React.FC<SlotParams> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume, sample.id]);
 
+  useEffect(() => {
+    setDurations((prevDurations) => {
+      const newDurations = [...prevDurations];
+      newDurations[sample.id] = sampleDuration;
+      return newDurations;
+    });
+  }, [sampleDuration]);
+
   const playSample = () => {
-    sample.sampler.triggerRelease("C2");
-    sample.sampler.triggerAttackRelease(
-      "C2",
-      transformKnobValue(release, [0.0001, sampleDuration])
+    const time = Tone.now();
+    sample.sampler.triggerRelease("C2", time);
+    sample.envelope.triggerAttack(time);
+    sample.envelope.triggerRelease(
+      time + transformKnobValue(release, [0, sampleDuration])
     );
+    sample.sampler.triggerAttack("C2", time);
   };
 
   return (
@@ -183,7 +196,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobValue={volume}
               setKnobValue={setVolume}
               knobTitle="VOLUME"
-              knobTransformRange={[-30, 0]}
+              knobTransformRange={[-46, 4]}
               knobUnits="dB"
             />
           </GridItem>
