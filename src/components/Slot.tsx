@@ -44,7 +44,7 @@ export const Slot: React.FC<SlotParams> = ({
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
   useEffect(() => {
-    const newAttackValue = transformKnobValue(attack, [0, 0.5]);
+    const newAttackValue = transformKnobValue(attack, [0, 0.1]);
     sample.envelope.attack = newAttackValue;
   }, [attack, sample.envelope.attack, sample.envelope]);
 
@@ -63,21 +63,6 @@ export const Slot: React.FC<SlotParams> = ({
     const newVolumeValue = transformKnobValue(volume, [-46, 4]);
     sample.sampler.volume.value = newVolumeValue;
   }, [volume, sample.sampler.volume]);
-
-  useEffect(() => {
-    const maintainWaveformSize = () => {
-      if (waveButtonRef.current) {
-        setWaveWidth(waveButtonRef.current.clientWidth);
-      }
-    };
-
-    window.addEventListener("resize", maintainWaveformSize);
-    maintainWaveformSize();
-
-    return () => {
-      window.removeEventListener("resize", maintainWaveformSize);
-    };
-  }, []);
 
   useEffect(() => {
     setAttacks((prevAttacks) => {
@@ -125,7 +110,24 @@ export const Slot: React.FC<SlotParams> = ({
       newDurations[sample.id] = sampleDuration;
       return newDurations;
     });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sampleDuration]);
+
+  useEffect(() => {
+    const maintainWaveformSize = () => {
+      if (waveButtonRef.current) {
+        setWaveWidth(waveButtonRef.current.clientWidth);
+      }
+    };
+
+    window.addEventListener("resize", maintainWaveformSize);
+    maintainWaveformSize();
+
+    return () => {
+      window.removeEventListener("resize", maintainWaveformSize);
+    };
+  }, []);
 
   const playSample = () => {
     const time = Tone.now();
