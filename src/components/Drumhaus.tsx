@@ -49,7 +49,7 @@ const Drumhaus = () => {
               samples[row].sampler.triggerRelease("C2", time);
               samples[row].envelope.triggerAttack(time);
               samples[row].envelope.triggerRelease(
-                time + transformKnobValue(releases[row], [0, 1])
+                time + transformKnobValue(releases[row], [0, durations[row]])
               );
               samples[row].sampler.triggerAttack("C2", time);
             } else {
@@ -85,7 +85,7 @@ const Drumhaus = () => {
     };
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying]);
+  }, [sequences, isPlaying, releases]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
