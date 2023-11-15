@@ -1,27 +1,37 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { Slot } from "./Slot";
-import { SlotData } from "@/types/types";
+import { Sample } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
 
 type SlotsGridProps = {
-  slots: SlotData[];
+  samples: Sample[];
   sequences: boolean[][];
   setCurrentSequence: (prevCurrentSequence: boolean[]) => void;
   slotIndex: number;
   setSlotIndex: (prevSlot: number) => void;
+  attacks: number[];
+  setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
+  releases: number[];
   setReleases: React.Dispatch<React.SetStateAction<number[]>>;
+  volumes: number[];
+  setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 const SLOTS_GAP = 2;
 const NO_OF_SLOTS = 8;
 
 export const SlotsGrid: React.FC<SlotsGridProps> = ({
-  slots,
+  samples,
   sequences,
   setCurrentSequence,
   slotIndex,
   setSlotIndex,
+  attacks,
+  setAttacks,
+  releases,
   setReleases,
+  volumes,
+  setVolumes,
 }) => {
   const [parentW, setParentW] = useState<number>(0);
   const slotsRef = useRef<HTMLDivElement | null>(null);
@@ -57,10 +67,10 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
       w="100%"
       templateColumns={`repeat(${NO_OF_SLOTS}, 1fr)`}
     >
-      {slots.map((slotData, index) => (
+      {samples.map((sample, index) => (
         <GridItem
           colSpan={{ base: 2, xl: 1 }}
-          key={`gridItem-${slotData.id}`}
+          key={`gridItem-${sample.id}`}
           w={`${slotW}`}
           overflow="hidden"
           onMouseDown={() => toggleCurrentSequence(index)}
@@ -73,9 +83,14 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
           }}
         >
           <Slot
-            key={`DHSlot-${slotData.id}`}
-            data={slotData}
+            key={`DHSlot-${sample.id}`}
+            sample={sample}
+            attacks={attacks}
+            setAttacks={setAttacks}
+            releases={releases}
             setReleases={setReleases}
+            volumes={volumes}
+            setVolumes={setVolumes}
           />
         </GridItem>
       ))}

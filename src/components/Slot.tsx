@@ -1,6 +1,6 @@
 "use client";
 
-import { SlotData } from "@/types/types";
+import { Sample } from "@/types/types";
 import { Box, Button, Grid, GridItem, Heading, Text } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
@@ -9,30 +9,40 @@ import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 type SlotParams = {
-  data: SlotData;
+  sample: Sample;
+  attacks: number[];
+  setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
+  releases: number[];
   setReleases: React.Dispatch<React.SetStateAction<number[]>>;
+  volumes: number[];
+  setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
-export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
-  const [volume, setVolume] = useState(data.volume); // 0-100
-  const [attack, setAttack] = useState(data.attack);
-  const [release, setRelease] = useState(data.release);
+export const Slot: React.FC<SlotParams> = ({
+  sample,
+  attacks,
+  setAttacks,
+  releases,
+  setReleases,
+  volumes,
+  setVolumes,
+}) => {
+  const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
+  const [attack, setAttack] = useState(attacks[sample.id]);
+  const [release, setRelease] = useState(releases[sample.id]);
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleDuration = useSampleDuration(
-    data.sample.sampler,
-    data.sample.url
-  );
+  const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
-    data.sample.sampler.attack = newAttackValue;
-  }, [attack, data.sample.sampler.attack, data.sample.sampler]);
+    sample.sampler.attack = newAttackValue;
+  }, [attack, sample.sampler.attack, sample.sampler]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
-    data.sample.sampler.volume.value = newVolumeValue;
-  }, [volume, data.sample.sampler.volume]);
+    sample.sampler.volume.value = newVolumeValue;
+  }, [volume, sample.sampler.volume]);
 
   useEffect(() => {
     const maintainWaveformSize = () => {
@@ -50,16 +60,38 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
   }, []);
 
   useEffect(() => {
+    setAttacks((prevAttacks) => {
+      const newAttacks = [...prevAttacks];
+      newAttacks[sample.id] = attack;
+      return newAttacks;
+    });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attack, sample.id]);
+
+  useEffect(() => {
     setReleases((prevReleases) => {
       const newReleases = [...prevReleases];
-      newReleases[data.id] = release;
+      newReleases[sample.id] = release;
       return newReleases;
     });
-  }, [release, data.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [release, sample.id]);
+
+  useEffect(() => {
+    setVolumes((prevVolumes) => {
+      const newVolumes = [...prevVolumes];
+      newVolumes[sample.id] = volume;
+      return newVolumes;
+    });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volume, sample.id]);
 
   const playSample = () => {
-    data.sample.sampler.triggerRelease("C2");
-    data.sample.sampler.triggerAttackRelease(
+    sample.sampler.triggerRelease("C2");
+    sample.sampler.triggerAttackRelease(
       "C2",
       transformKnobValue(release, [0.0001, sampleDuration])
     );
@@ -67,17 +99,17 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
 
   return (
     <>
-      <Box w="100%" key={`Slot-${data.sample.name}`} p={4}>
+      <Box w="100%" key={`Slot-${sample.name}`} p={4}>
         <Heading className="slot" as="h2">
-          {data.sample.name}
+          {sample.name}
         </Heading>
         <Text
-          key={`filename-${data.sample.name}`}
+          key={`filename-${sample.name}`}
           className="filename"
           fontFamily={`'Pixelify Sans Variable', sans-serif`}
           color="gray"
         >
-          {data.sample.url.split("/").pop()}
+          {sample.url.split("/").pop()}
         </Text>
         <Button
           ref={waveButtonRef}
@@ -86,13 +118,13 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
           onMouseDown={() => playSample()}
           bg="transparent"
         >
-          <Waveform audioFile={data.sample.url} width={waveWidth} />
+          <Waveform audioFile={sample.url} width={waveWidth} />
         </Button>
 
         <Grid templateColumns="repeat(2, 1fr)">
           <GridItem>
             <Knob
-              key={`knob-${data.id}-attack`}
+              key={`knob-${sample.id}-attack`}
               size={60}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -101,7 +133,7 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${data.id}-release`}
+              key={`knob-${sample.id}-release`}
               size={60}
               knobValue={release}
               setKnobValue={setRelease}
@@ -111,7 +143,7 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
           <GridItem />
           <GridItem>
             <Knob
-              key={`knob-${data.id}-volume`}
+              key={`knob-${sample.id}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}
@@ -124,9 +156,9 @@ export const Slot: React.FC<SlotParams> = ({ data, setReleases }) => {
       </Box>
 
       {/* Divider Line */}
-      {data.id > 0 ? (
+      {sample.id > 0 ? (
         <Box
-          key={`line-${data.id}`}
+          key={`line-${sample.id}`}
           bg="gray"
           w="2px"
           h="100%"

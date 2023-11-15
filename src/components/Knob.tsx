@@ -63,6 +63,8 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("mousemove", setValueOnMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMouseDown]);
 
   useEffect(() => {
