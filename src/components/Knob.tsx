@@ -186,10 +186,13 @@ export const Knob: React.FC<KnobProps> = ({
         <Center>
           <Text fontSize={12} color="gray" my={-3}>
             {isMouseDown
-              ? `${transformKnobValue(
-                  knobValue,
-                  knobTransformRange
-                )} ${knobUnits}`
+              ? `${
+                  knobUnits
+                    ? transformKnobValue(knobValue, knobTransformRange).toFixed(
+                        1
+                      )
+                    : transformKnobValue(knobValue, knobTransformRange)
+                } ${knobUnits}`
               : knobTitle}
           </Text>
         </Center>
