@@ -14,6 +14,8 @@ type SlotParams = {
   setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
   releases: number[];
   setReleases: React.Dispatch<React.SetStateAction<number[]>>;
+  filters: number[];
+  setFilters: React.Dispatch<React.SetStateAction<number[]>>;
   volumes: number[];
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
 };
@@ -24,12 +26,15 @@ export const Slot: React.FC<SlotParams> = ({
   setAttacks,
   releases,
   setReleases,
+  filters,
+  setFilters,
   volumes,
   setVolumes,
 }) => {
-  const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
   const [attack, setAttack] = useState(attacks[sample.id]);
   const [release, setRelease] = useState(releases[sample.id]);
+  const [filter, setFilter] = useState(filters[sample.id]); // 0-100
+  const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
@@ -78,6 +83,16 @@ export const Slot: React.FC<SlotParams> = ({
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [release, sample.id]);
+
+  useEffect(() => {
+    setFilters((prevFilters) => {
+      const newFilters = [...prevFilters];
+      newFilters[sample.id] = filter;
+      return newFilters;
+    });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, sample.id]);
 
   useEffect(() => {
     setVolumes((prevVolumes) => {
@@ -140,7 +155,15 @@ export const Slot: React.FC<SlotParams> = ({
               knobTitle="RELEASE"
             />
           </GridItem>
-          <GridItem />
+          <GridItem>
+            <Knob
+              key={`knob-${sample.id}-filter`}
+              size={60}
+              knobValue={filter}
+              setKnobValue={setFilter}
+              knobTitle="FILTER"
+            />
+          </GridItem>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-volume`}

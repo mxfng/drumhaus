@@ -13,6 +13,8 @@ type SlotsGridProps = {
   setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
   releases: number[];
   setReleases: React.Dispatch<React.SetStateAction<number[]>>;
+  filters: number[];
+  setFilters: React.Dispatch<React.SetStateAction<number[]>>;
   volumes: number[];
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
 };
@@ -30,6 +32,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   setAttacks,
   releases,
   setReleases,
+  filters,
+  setFilters,
   volumes,
   setVolumes,
 }) => {
@@ -89,6 +93,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             setAttacks={setAttacks}
             releases={releases}
             setReleases={setReleases}
+            filters={filters}
+            setFilters={setFilters}
             volumes={volumes}
             setVolumes={setVolumes}
           />
