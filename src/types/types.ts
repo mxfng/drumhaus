@@ -9,3 +9,5 @@ export type Sample = {
   filter: Tone.Filter;
   panner: Tone.Panner;
 };
+
+export type Sequences = [boolean[], number[]][][];

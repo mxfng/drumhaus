@@ -1,11 +1,12 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { Slot } from "./Slot";
-import { Sample } from "@/types/types";
+import { Sample, Sequences } from "@/types/types";
 import { useEffect, useRef, useState } from "react";
 
 type SlotsGridProps = {
   samples: Sample[];
-  sequences: boolean[][];
+  sequences: Sequences;
+  variation: number;
   setCurrentSequence: (prevCurrentSequence: boolean[]) => void;
   slotIndex: number;
   setSlotIndex: (prevSlot: number) => void;
@@ -28,6 +29,7 @@ const NO_OF_SLOTS = 8;
 export const SlotsGrid: React.FC<SlotsGridProps> = ({
   samples,
   sequences,
+  variation,
   setCurrentSequence,
   slotIndex,
   setSlotIndex,
@@ -66,7 +68,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   };
 
   const toggleCurrentSequence = (node: number) => {
-    setCurrentSequence(sequences[node]);
+    setCurrentSequence(sequences[node][variation][0]);
     setSlotIndex(node);
   };
 
