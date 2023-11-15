@@ -40,6 +40,7 @@ export const _samples: Sample[] = samples.map((sample, id) => {
 // Create initial global parameters
 export const _bpm = 100;
 export const _swing = 0;
+export const _masterVolume = 90;
 export const _sequences = Array(8).fill(Array(16).fill(false));
 
 // Create initial arrays of slot parameters
