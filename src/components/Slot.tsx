@@ -6,7 +6,7 @@ import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
-import * as Tone from "tone/build/esm/index";
+import { useSampleDuration } from "@/hooks/useSampleDuration";
 
 type SlotParams = {
   data: SlotData;
@@ -18,17 +18,20 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
   const [release, setRelease] = useState(data.release);
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const [sampleDuration, setSampleDuration] = useState(0);
+  const sampleDuration = useSampleDuration(
+    data.sample.sampler,
+    data.sample.url
+  );
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 1]);
-    data.sampler.sampler.attack = newAttackValue;
-  }, [attack, data.sampler.sampler.attack, data.sampler.sampler]);
+    data.sample.sampler.attack = newAttackValue;
+  }, [attack, data.sample.sampler.attack, data.sample.sampler]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-30, 0]);
-    data.sampler.sampler.volume.value = newVolumeValue;
-  }, [volume, data.sampler.sampler.volume]);
+    data.sample.sampler.volume.value = newVolumeValue;
+  }, [volume, data.sample.sampler.volume]);
 
   useEffect(() => {
     const maintainWaveformSize = () => {
@@ -45,31 +48,9 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchSampleDuration = async () => {
-      try {
-        const buffer = await Tone.Buffer.fromUrl(
-          `/samples/${data.sampler.url}`
-        );
-        const durationInSeconds = buffer.duration;
-        return durationInSeconds;
-      } catch (error) {
-        console.error("Error fetching or decoding audio data:", error);
-        return 0;
-      }
-    };
-
-    const updateSampleDuration = async () => {
-      const duration = await fetchSampleDuration();
-      setSampleDuration(duration);
-    };
-
-    updateSampleDuration();
-  }, [data.sampler.sampler, data.sampler.url]);
-
   const playSample = () => {
-    data.sampler.sampler.triggerRelease("C2");
-    data.sampler.sampler.triggerAttackRelease(
+    data.sample.sampler.triggerRelease("C2");
+    data.sample.sampler.triggerAttackRelease(
       "C2",
       transformKnobValue(release, [0.0001, sampleDuration])
     );
@@ -77,17 +58,17 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
 
   return (
     <>
-      <Box w="100%" key={`Slot-${data.name}`} p={4}>
+      <Box w="100%" key={`Slot-${data.sample.name}`} p={4}>
         <Heading className="slot" as="h2">
-          {data.name}
+          {data.sample.name}
         </Heading>
         <Text
-          key={`filename-${data.name}`}
+          key={`filename-${data.sample.name}`}
           className="filename"
           fontFamily={`'Pixelify Sans Variable', sans-serif`}
           color="gray"
         >
-          {data.sampler.url.split("/").pop()}
+          {data.sample.url.split("/").pop()}
         </Text>
         <Button
           ref={waveButtonRef}
@@ -96,13 +77,13 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           onMouseDown={() => playSample()}
           bg="transparent"
         >
-          <Waveform audioFile={data.sampler.url} width={waveWidth} />
+          <Waveform audioFile={data.sample.url} width={waveWidth} />
         </Button>
 
         <Grid templateColumns="repeat(2, 1fr)">
           <GridItem>
             <Knob
-              key={`knob-${data.name}-attack`}
+              key={`knob-${data.id}-attack`}
               size={60}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -111,7 +92,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${data.name}-release`}
+              key={`knob-${data.id}-release`}
               size={60}
               knobValue={release}
               setKnobValue={setRelease}
@@ -121,7 +102,7 @@ export const Slot: React.FC<SlotParams> = ({ data }) => {
           <GridItem />
           <GridItem>
             <Knob
-              key={`knob-${data.name}-volume`}
+              key={`knob-${data.id}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}
