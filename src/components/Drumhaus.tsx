@@ -8,6 +8,8 @@ import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
 import { Instruments } from "./Instruments";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
+import { TransportControl } from "./TransportControl";
+import { transformKnobValue } from "./Knob";
 
 const Drumhaus = () => {
   // Provide state array of Drumhaus samplers
@@ -49,7 +51,8 @@ const Drumhaus = () => {
 
   // Swing
   useEffect(() => {
-    Tone.Transport.swing = swing;
+    const newSwing = transformKnobValue(swing, [0, 0.5]);
+    Tone.Transport.swing = newSwing;
   }, [swing]);
 
   const [slot, setSlot] = useState<number>(0);
@@ -130,10 +133,7 @@ const Drumhaus = () => {
       id="Drumhaus"
       className="drumhaus"
       bg="silver"
-      w="100%"
       minW={900}
-      h="100%"
-      position="relative"
       style={{ userSelect: "none" }}
     >
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)" my={4}>
@@ -159,28 +159,35 @@ const Drumhaus = () => {
         />
       </Box>
 
-      <Box h="180px" w="100%">
-        <Grid templateColumns="repeat(5,1rem)" w="100%" h="100%" p={4}>
-          <GridItem colSpan={1} h="100%" w="fit-content">
-            <Center w="100%" h="100%">
-              <Button
-                h="140px"
-                w="140px"
-                onClick={() => togglePlay()}
-                boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
-                bg="silver"
-                outline="none"
-              >
-                {isPlaying ? (
-                  <IoPauseSharp size={50} color="darkorange" />
-                ) : (
-                  <IoPlaySharp size={50} color="darkorange" />
-                )}
-              </Button>
-            </Center>
-          </GridItem>
-        </Grid>
-      </Box>
+      <Grid templateColumns="repeat(5, 1fr)" p={4}>
+        <GridItem colSpan={1} h="160px" w="160px">
+          <Center w="100%" h="100%">
+            <Button
+              h="140px"
+              w="140px"
+              onClick={() => togglePlay()}
+              boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+              bg="silver"
+              outline="none"
+            >
+              {isPlaying ? (
+                <IoPauseSharp size={50} color="darkorange" />
+              ) : (
+                <IoPlaySharp size={50} color="darkorange" />
+              )}
+            </Button>
+          </Center>
+        </GridItem>
+
+        <GridItem colSpan={1}>
+          <TransportControl
+            bpm={bpm}
+            setBpm={setBpm}
+            swing={swing}
+            setSwing={setSwing}
+          />
+        </GridItem>
+      </Grid>
 
       <Box p={8} boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <Sequencer
