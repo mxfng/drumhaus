@@ -1,7 +1,7 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { Sample } from "@/types/types";
+import { Sample, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
@@ -15,15 +15,16 @@ import { SequencerControl } from "./SequencerControl";
 const Drumhaus = () => {
   const samples: Sample[] = init._samples;
 
-  // Static
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [stepIndex, setStepIndex] = useState(0);
-  const [slotIndex, setSlotIndex] = useState<number>(0);
+  const [stepIndex, setStepIndex] = useState(0); // 0 - 15
+  const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
+  const [variation, setVariation] = useState<number>(0); // A = 0, B = 1
 
   // Global
-  const [sequences, setSequences] = useState<boolean[][]>(init._sequences);
+  const [sequences, setSequences] = useState<Sequences>(init._sequences);
+
   const [currentSequence, setCurrentSequence] = useState<boolean[]>(
-    init._sequences[slotIndex]
+    init._sequences[slotIndex][variation][0]
   );
   const [bpm, setBpm] = useState(init._bpm);
   const [swing, setSwing] = useState(init._swing);
@@ -45,34 +46,35 @@ const Drumhaus = () => {
     if (isPlaying) {
       toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
-          function triggerSample(row: number) {
-            samples[row].sampler.triggerRelease("C2", time);
-            if (samples[row].name !== "OHat") {
-              samples[row].sampler.triggerRelease("C2", time);
-              samples[row].envelope.triggerAttack(time);
-              samples[row].envelope.triggerRelease(
-                time + transformKnobValue(releases[row], [0, durations[row]])
+          function triggerSample(slot: number, velocity: number) {
+            samples[slot].sampler.triggerRelease("C2", time);
+            if (samples[slot].name !== "OHat") {
+              samples[slot].sampler.triggerRelease("C2", time);
+              samples[slot].envelope.triggerAttack(time);
+              samples[slot].envelope.triggerRelease(
+                time + transformKnobValue(releases[slot], [0, durations[slot]])
               );
-              samples[row].sampler.triggerAttack("C2", time);
+              samples[slot].sampler.triggerAttack("C2", time, velocity);
             } else {
-              triggerOHat();
+              triggerOHat(velocity);
             }
           }
 
-          function muteOHatOnHat(row: number) {
-            if (row == 4) samples[5].sampler.triggerRelease("C2", time);
+          function muteOHatOnHat(slot: number) {
+            if (slot == 4) samples[5].sampler.triggerRelease("C2", time);
           }
 
-          function triggerOHat() {
+          function triggerOHat(velocity: number) {
             samples[5].envelope.triggerAttack(time);
-            samples[5].sampler.triggerAttack("C2", time);
+            samples[5].sampler.triggerAttack("C2", time, velocity);
           }
 
-          for (let row = 0; row < sequences.length; row++) {
-            const value = sequences[row][step];
-            if (value) {
-              muteOHatOnHat(row);
-              triggerSample(row);
+          for (let slot = 0; slot < sequences.length; slot++) {
+            const hit: boolean = sequences[slot][variation][0][step];
+            if (hit) {
+              const velocity: number = sequences[slot][variation][1][step];
+              muteOHatOnHat(slot);
+              triggerSample(slot, velocity);
             }
             setStepIndex(step);
           }
@@ -153,6 +155,7 @@ const Drumhaus = () => {
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <SlotsGrid
           samples={samples}
+          variation={variation}
           sequences={sequences}
           setCurrentSequence={setCurrentSequence}
           slotIndex={slotIndex}
@@ -220,6 +223,7 @@ const Drumhaus = () => {
           sequence={currentSequence}
           setSequence={setCurrentSequence}
           sequences={sequences}
+          variation={variation}
           setSequences={setSequences}
           slot={slotIndex}
           step={stepIndex}

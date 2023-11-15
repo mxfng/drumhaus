@@ -1,5 +1,6 @@
 "use client";
 
+import { Sequences } from "@/types/types";
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -8,6 +9,7 @@ const NUM_OF_STEPS = 16;
 
 export const Sequencer: React.FC<any> = ({
   sequence,
+  variation,
   setSequence,
   setSequences,
   slot,
@@ -62,9 +64,9 @@ export const Sequencer: React.FC<any> = ({
       const newSequence = [...prevSequence];
       newSequence[index] = !newSequence[index];
 
-      setSequences((prevSequences: boolean[][]) => {
+      setSequences((prevSequences: Sequences) => {
         const newSequences = [...prevSequences];
-        newSequences[slot] = newSequence;
+        newSequences[slot][variation][0] = newSequence;
         return newSequences;
       });
 

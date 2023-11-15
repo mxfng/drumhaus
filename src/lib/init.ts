@@ -1,4 +1,4 @@
-import { Sample } from "@/types/types";
+import { Sample, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__
@@ -45,8 +45,41 @@ export const _samples: Sample[] = samples.map((sample, id) => {
 export const _bpm = 100;
 export const _swing = 0;
 export const _masterVolume = 90;
-export const _sequences = Array(8).fill(Array(16).fill(false));
-export const _sequencesB = Array(8).fill(Array(16).fill(false));
+export const _sequences: Sequences = Array.from({ length: 8 }, () =>
+  Array.from({ length: 2 }, () => [
+    Array.from({ length: 16 }, () => false),
+    Array.from({ length: 16 }, () => 1),
+  ])
+);
+
+// Sequences data structure
+// sequences[slot][aOrB][sequencesOrVelocities][step]
+// where aOrB represents A as 0 and B as 1
+// where sequencesOrVelocities represents sequences as 0 and velocities as 1
+//
+// [ // sequences
+//   [ // slot
+//     [ // variation
+//       [false, false, false, ..., false],  // hits
+//       [1, 1, 1, ..., 1]                   // velocities
+//     ],
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ]
+//   ],
+//   [
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ],
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ]
+//   ],
+//   // ... (repeated 6 more times)
+// ]
 
 // Create initial arrays of slot parameters
 export const _attacks = [0, 0, 0, 0, 0, 0, 0, 0];
