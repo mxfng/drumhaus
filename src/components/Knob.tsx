@@ -42,8 +42,12 @@ export const Knob: React.FC<KnobProps> = ({
   useEffect(() => {
     const setValueOnMouseMove = (ev: MouseEvent) => {
       if (isMouseDown) {
-        mouseY.set(getNewKnobValue(ev.clientY));
-        setKnobValue(getNewKnobValue(ev.clientY));
+        const newKnobValue = Math.max(
+          0,
+          Math.min(mouseDownY.y - ev.clientY + knobValue, MAX_KNOB_VALUE)
+        );
+        mouseY.set(newKnobValue);
+        setKnobValue(newKnobValue);
       }
     };
 
@@ -66,13 +70,6 @@ export const Knob: React.FC<KnobProps> = ({
       setIsMouseDown(false);
     };
   }, []);
-
-  const getNewKnobValue = (clientY: number) => {
-    return Math.max(
-      0,
-      Math.min(mouseDownY.y - clientY + knobValue, MAX_KNOB_VALUE)
-    );
-  };
 
   const captureMouseDownY = (event: React.MouseEvent<HTMLDivElement>) => {
     setIsMouseDown(true);
