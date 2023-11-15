@@ -193,7 +193,9 @@ export const Knob: React.FC<KnobProps> = ({
                     ? transformKnobValue(knobValue, knobTransformRange).toFixed(
                         1
                       )
-                    : transformKnobValue(knobValue, knobTransformRange)
+                    : transformKnobValue(knobValue, knobTransformRange).toFixed(
+                        0
+                      )
                 } ${knobUnits}`
               : knobTitle}
           </Text>
