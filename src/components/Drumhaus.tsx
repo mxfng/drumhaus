@@ -19,7 +19,7 @@ const Drumhaus = () => {
   const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [variation, setVariation] = useState<number>(0); // A = 0, B = 1
-  const [chain, setChain] = useState<number>(3); // A = 0, B = 1, AB = 2, AAAB = 3
+  const [chain, setChain] = useState<number>(0); // A = 0, B = 1, AB = 2, AAAB = 3
 
   // Global
   const [sequences, setSequences] = useState<Sequences>(init._sequences);
