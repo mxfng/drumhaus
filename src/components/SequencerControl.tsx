@@ -8,9 +8,23 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-type SequencerControlProps = {};
+type SequencerControlProps = {
+  variation: number;
+  setVariation: React.Dispatch<React.SetStateAction<number>>;
+};
 
-export const SequencerControl: React.FC<SequencerControlProps> = () => {
+export const SequencerControl: React.FC<SequencerControlProps> = ({
+  variation,
+  setVariation,
+}) => {
+  const toggleVariationToA = () => {
+    setVariation(0);
+  };
+
+  const toggleVariationToB = () => {
+    setVariation(1);
+  };
+
   return (
     <>
       <Center h="100%" w="100%" p={4}>
@@ -40,7 +54,8 @@ export const SequencerControl: React.FC<SequencerControlProps> = () => {
                     w="30px"
                     bg="transparent"
                     borderRadius="8px 0 0 8px"
-                    color="gray"
+                    color={variation == 0 ? "darkorange" : "gray"}
+                    onClick={toggleVariationToA}
                   >
                     A
                   </Button>
@@ -49,7 +64,8 @@ export const SequencerControl: React.FC<SequencerControlProps> = () => {
                     w="30px"
                     bg="transparent"
                     borderRadius="0 8px 8px 0"
-                    color="gray"
+                    color={variation == 1 ? "darkorange" : "gray"}
+                    onClick={toggleVariationToB}
                   >
                     B
                   </Button>

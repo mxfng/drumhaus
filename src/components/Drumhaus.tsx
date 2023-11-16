@@ -89,7 +89,7 @@ const Drumhaus = () => {
     };
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying, releases]);
+  }, [sequences, isPlaying, releases, variation]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -117,6 +117,13 @@ const Drumhaus = () => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
     Tone.Destination.volume.value = newMasterVolume;
   }, [masterVolume]);
+
+  useEffect(() => {
+    const newCurrentSequence: boolean[] = sequences[slotIndex][variation][0];
+    setCurrentSequence(newCurrentSequence);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variation]);
 
   const togglePlay = async () => {
     await Tone.start();
@@ -195,7 +202,7 @@ const Drumhaus = () => {
         </GridItem>
 
         <GridItem colSpan={1}>
-          <SequencerControl />
+          <SequencerControl variation={variation} setVariation={setVariation} />
         </GridItem>
 
         <GridItem colSpan={1} w="100%">
