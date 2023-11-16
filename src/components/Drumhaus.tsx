@@ -19,6 +19,7 @@ const Drumhaus = () => {
   const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [variation, setVariation] = useState<number>(0); // A = 0, B = 1
+  const [chain, setChain] = useState<number>(3); // A = 0, B = 1, AB = 2, AAAB = 3
 
   // Global
   const [sequences, setSequences] = useState<Sequences>(init._sequences);
@@ -43,6 +44,9 @@ const Drumhaus = () => {
   const toneSequence = useRef<Tone.Sequence | null>(null);
 
   useEffect(() => {
+    let bar = 0;
+    let chainVariation = 0;
+
     if (isPlaying) {
       toneSequence.current = new Tone.Sequence(
         (time, step: number) => {
@@ -69,14 +73,55 @@ const Drumhaus = () => {
             samples[5].sampler.triggerAttack("C2", time, velocity);
           }
 
+          setVariationByChainAndBar();
+
           for (let slot = 0; slot < sequences.length; slot++) {
-            const hit: boolean = sequences[slot][variation][0][step];
+            const hit: boolean = sequences[slot][chainVariation][0][step];
             if (hit) {
-              const velocity: number = sequences[slot][variation][1][step];
+              const velocity: number = sequences[slot][chainVariation][1][step];
               muteOHatOnHat(slot);
               triggerSample(slot, velocity);
             }
-            setStepIndex(step);
+          }
+
+          setStepIndex(step);
+          setBarByChain();
+
+          // For current chain, reset bar counter
+          function setBarByChain() {
+            if (step === 15) {
+              if (
+                chain < 2 ||
+                (chain === 2 && bar === 1) ||
+                (chain === 3 && bar === 3)
+              ) {
+                bar = 0;
+              } else {
+                bar++;
+              }
+            }
+          }
+
+          // Set the chain variation depending on the bar
+          function setVariationByChainAndBar() {
+            if (step === 0) {
+              switch (chain) {
+                case 0:
+                  chainVariation = 0;
+                  break;
+                case 1:
+                  chainVariation = 1;
+                  break;
+                case 2:
+                  chainVariation = bar === 0 ? 0 : 1;
+                  break;
+                case 3:
+                  chainVariation = bar === 3 ? 1 : 0;
+                  break;
+                default:
+                  chainVariation = 0;
+              }
+            }
           }
         },
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -89,7 +134,7 @@ const Drumhaus = () => {
     };
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying, releases, variation]);
+  }, [sequences, isPlaying, releases, chain]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -202,7 +247,12 @@ const Drumhaus = () => {
         </GridItem>
 
         <GridItem colSpan={1}>
-          <SequencerControl variation={variation} setVariation={setVariation} />
+          <SequencerControl
+            variation={variation}
+            setVariation={setVariation}
+            chain={chain}
+            setChain={setChain}
+          />
         </GridItem>
 
         <GridItem colSpan={1} w="100%">

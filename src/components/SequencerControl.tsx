@@ -11,20 +11,16 @@ import {
 type SequencerControlProps = {
   variation: number;
   setVariation: React.Dispatch<React.SetStateAction<number>>;
+  chain: number;
+  setChain: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export const SequencerControl: React.FC<SequencerControlProps> = ({
   variation,
   setVariation,
+  chain,
+  setChain,
 }) => {
-  const toggleVariationToA = () => {
-    setVariation(0);
-  };
-
-  const toggleVariationToB = () => {
-    setVariation(1);
-  };
-
   return (
     <>
       <Center h="100%" w="100%" p={4}>
@@ -55,7 +51,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     bg="transparent"
                     borderRadius="8px 0 0 8px"
                     color={variation == 0 ? "darkorange" : "gray"}
-                    onClick={toggleVariationToA}
+                    onClick={() => setVariation(0)}
                   >
                     A
                   </Button>
@@ -65,7 +61,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     bg="transparent"
                     borderRadius="0 8px 8px 0"
                     color={variation == 1 ? "darkorange" : "gray"}
-                    onClick={toggleVariationToB}
+                    onClick={() => setVariation(1)}
                   >
                     B
                   </Button>
@@ -93,8 +89,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     w="40px"
                     bg="transparent"
                     borderRadius="8px 0 0 8px"
-                    color="gray"
+                    color={chain == 0 ? "darkorange" : "gray"}
                     fontSize={12}
+                    onClick={() => setChain(0)}
                   >
                     A
                   </Button>
@@ -103,8 +100,20 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     w="40px"
                     bg="transparent"
                     borderRadius="0 0 0 0"
-                    color="gray"
+                    color={chain == 1 ? "darkorange" : "gray"}
                     fontSize={12}
+                    onClick={() => setChain(1)}
+                  >
+                    B
+                  </Button>
+                  <Button
+                    h="30px"
+                    w="40px"
+                    bg="transparent"
+                    borderRadius="0 0 0 0"
+                    color={chain == 2 ? "darkorange" : "gray"}
+                    fontSize={12}
+                    onClick={() => setChain(2)}
                   >
                     AB
                   </Button>
@@ -113,8 +122,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     w="40px"
                     bg="transparent"
                     borderRadius="0 8px 8px 0"
-                    color="gray"
+                    color={chain == 3 ? "darkorange" : "gray"}
                     fontSize={12}
+                    onClick={() => setChain(3)}
                   >
                     AAAB
                   </Button>
