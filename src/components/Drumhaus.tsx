@@ -1,7 +1,7 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { Sample, Sequences } from "@/types/types";
+import { Preset, Sample, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
@@ -13,35 +13,71 @@ import { Knob, transformKnobValue } from "./Knob";
 import { SequencerControl } from "./SequencerControl";
 
 const Drumhaus = () => {
-  const samples: Sample[] = init._samples;
-
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
-  const [variation, setVariation] = useState<number>(0); // A = 0, B = 1
-  const [chain, setChain] = useState<number>(0); // A = 0, B = 1, AB = 2, AAAB = 3
 
   // Global
-  const [sequences, setSequences] = useState<Sequences>(init._sequences);
+  const [preset, setPreset] = useState<Preset>({
+    _samples: init._samples,
+    _bpm: init._bpm,
+    _swing: init._swing,
+    _masterVolume: init._masterVolume,
+    _sequences: init._sequences,
+    _attacks: init._attacks,
+    _releases: init._releases,
+    _filters: init._filters,
+    _volumes: init._volumes,
+    _pans: init._pans,
+    _solos: init._solos,
+    _mutes: init._mutes,
+    _variation: init._variation,
+    _chain: init._chain,
+  });
 
+  const [samples, setSamples] = useState<Sample[]>(preset._samples);
+  const [sequences, setSequences] = useState<Sequences>(preset._sequences);
+  const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
+  const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
   const [currentSequence, setCurrentSequence] = useState<boolean[]>(
-    init._sequences[slotIndex][variation][0]
+    preset._sequences[slotIndex][variation][0]
   );
-  const [bpm, setBpm] = useState(init._bpm);
-  const [swing, setSwing] = useState(init._swing);
-  const [masterVolume, setMasterVolume] = useState(init._masterVolume);
+  const [bpm, setBpm] = useState(preset._bpm);
+  const [swing, setSwing] = useState(preset._swing);
+  const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
   // Slots - prop drilling (consider Redux in the future)
-  const [attacks, setAttacks] = useState<number[]>(init._attacks);
-  const [releases, setReleases] = useState<number[]>(init._releases);
-  const [filters, setFilters] = useState<number[]>(init._filters);
-  const [volumes, setVolumes] = useState<number[]>(init._volumes);
-  const [pans, setPans] = useState<number[]>(init._pans);
+  const [attacks, setAttacks] = useState<number[]>(preset._attacks);
+  const [releases, setReleases] = useState<number[]>(preset._releases);
+  const [filters, setFilters] = useState<number[]>(preset._filters);
+  const [volumes, setVolumes] = useState<number[]>(preset._volumes);
+  const [pans, setPans] = useState<number[]>(preset._pans);
   const [durations, setDurations] = useState<number[]>([
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
+
+  useEffect(() => {
+    function setPreset(_preset: Preset) {
+      setSamples(_preset._samples);
+      setSequences(_preset._sequences);
+      setCurrentSequence(_preset._sequences[slotIndex][variation][0]);
+      setBpm(_preset._bpm);
+      setSwing(_preset._swing);
+      setMasterVolume(_preset._masterVolume);
+      setAttacks(_preset._attacks);
+      setReleases(_preset._releases);
+      setFilters(_preset._filters);
+      setVolumes(_preset._volumes);
+      setPans(_preset._pans);
+      setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
+      setVariation(_preset._variation);
+      setChain(_preset._chain);
+    }
+
+    setPreset(preset);
+  }, [preset]);
 
   useEffect(() => {
     let bar = 0;

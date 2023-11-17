@@ -166,7 +166,9 @@ export const Slot: React.FC<SlotParams> = ({
           <Text pr={2} color="darkorange" fontWeight={900}>
             {sample.id + 1}
           </Text>
-          <Text fontWeight={600}>{sample.name}</Text>
+          <Text fontWeight={600} color="black">
+            {sample.name}
+          </Text>
         </Flex>
         <Text
           key={`filename-${sample.name}`}
@@ -239,19 +241,6 @@ export const Slot: React.FC<SlotParams> = ({
           </GridItem>
         </Grid>
       </Box>
-
-      {/* Divider Line */}
-      {sample.id > 0 ? (
-        <Box
-          key={`line-${sample.id}`}
-          bg="gray"
-          w="2px"
-          h="100%"
-          position="absolute"
-          left={0}
-          top={0}
-        />
-      ) : null}
     </>
   );
 };

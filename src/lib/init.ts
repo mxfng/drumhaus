@@ -1,4 +1,4 @@
-import { Sample, Sequences } from "@/types/types";
+import { Preset, Sample, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__
@@ -89,3 +89,5 @@ export const _volumes = [92, 92, 92, 92, 92, 92, 92, 70];
 export const _pans = [50, 50, 50, 50, 50, 50, 50, 50];
 export const _solos = [false];
 export const _mutes = [false];
+export const _variation = 0;
+export const _chain = 0;

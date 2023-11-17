@@ -11,3 +11,20 @@ export type Sample = {
 };
 
 export type Sequences = [boolean[], number[]][][];
+
+export type Preset = {
+  _samples: Sample[];
+  _bpm: number;
+  _swing: number;
+  _masterVolume: number;
+  _sequences: Sequences;
+  _attacks: number[];
+  _releases: number[];
+  _filters: number[];
+  _volumes: number[];
+  _pans: number[];
+  _solos: boolean[];
+  _mutes: boolean[];
+  _variation: number;
+  _chain: number;
+};
