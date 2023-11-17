@@ -82,7 +82,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
       {samples.map((sample, index) => (
         <GridItem
           colSpan={{ base: 2, xl: 1 }}
-          key={`gridItem-${sample.id}`}
+          key={`gridItem-${index}`}
           w={`${slotW}`}
           overflow="hidden"
           onMouseDown={() => toggleCurrentSequence(index)}
@@ -95,7 +95,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
           }}
         >
           <Slot
-            key={`DHSlot-${sample.id}`}
+            key={`DHSlot-${index}`}
             sample={sample}
             attacks={attacks}
             setAttacks={setAttacks}
