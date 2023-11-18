@@ -15,13 +15,13 @@ export const MasterCompressor: React.FC<MasterCompressorProps> = ({
   setRatio,
 }) => {
   return (
-    <Box h="100%" w="120px">
+    <Box h="100%" w="130px">
       <Grid templateColumns="repeat(2, 1fr)">
         <GridItem position="relative">
           <Text
             transform="rotate(-90deg)"
             position="absolute"
-            left={-5}
+            left={-1}
             bottom="70px"
             color="gray"
             fontSize={12}
