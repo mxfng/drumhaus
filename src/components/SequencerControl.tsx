@@ -40,17 +40,22 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
   setSequences,
 }) => {
   const [copiedSequence, setCopiedSequence] = useState<boolean[] | undefined>();
+  const [copiedVelocities, setCopiedVelocities] = useState<
+    number[] | undefined
+  >();
 
   const copySequence = () => {
     setCopiedSequence(currentSequence);
+    setCopiedVelocities(sequences[slot][variation][1]);
   };
 
   const pasteSequence = () => {
-    if (copiedSequence) {
+    if (copiedSequence && copiedVelocities) {
       setCurrentSequence(copiedSequence);
       setSequences((prevSequences) => {
         const newSequences = [...prevSequences];
         newSequences[slot][variation][0] = copiedSequence;
+        newSequences[slot][variation][1] = copiedVelocities;
         return newSequences;
       });
     }
@@ -58,10 +63,12 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
 
   const clearSequence = () => {
     const clearedSequence = Array(16).fill(false);
+    const clearedVelocities = Array(16).fill(1);
     setCurrentSequence(clearedSequence);
     setSequences((prevSequences) => {
       const newSequences = [...prevSequences];
       newSequences[slot][variation][0] = clearedSequence;
+      newSequences[slot][variation][1] = clearedVelocities;
       return newSequences;
     });
   };
@@ -71,10 +78,14 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
       { length: 16 },
       () => Math.random() < 0.5
     );
+    const randomVelocities: number[] = Array.from({ length: 16 }, () =>
+      Math.random()
+    );
     setCurrentSequence(randomSequence);
     setSequences((prevSequences) => {
       const newSequences = [...prevSequences];
       newSequences[slot][variation][0] = randomSequence;
+      newSequences[slot][variation][1] = randomVelocities;
       return newSequences;
     });
   };
