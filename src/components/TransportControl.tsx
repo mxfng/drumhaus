@@ -49,7 +49,6 @@ export const TransportControl: React.FC<TransportControlProps> = ({
           Math.max(prevBpmInputValue + modifier, MIN_BPM),
           MAX_BPM
         );
-        setBpm(newBpmInputValue);
         return newBpmInputValue;
       });
     };
@@ -86,6 +85,10 @@ export const TransportControl: React.FC<TransportControlProps> = ({
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [setBpm]);
+
+  useEffect(() => {
+    setBpm(bpmInputValue);
+  }, [bpmInputValue, setBpm]);
 
   return (
     <>
