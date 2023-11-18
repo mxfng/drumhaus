@@ -156,22 +156,32 @@ export const Slot: React.FC<SlotParams> = ({
 
   useEffect(() => {
     setAttack(attacks[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
   useEffect(() => {
     setRelease(releases[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
   useEffect(() => {
     setFilter(filters[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
   useEffect(() => {
     setPan(pans[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
   useEffect(() => {
     setVolume(volumes[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
   useEffect(() => {

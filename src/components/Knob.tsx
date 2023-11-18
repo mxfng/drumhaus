@@ -58,6 +58,8 @@ export const Knob: React.FC<KnobProps> = ({
 
   useEffect(() => {
     mouseY.set(knobValue);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knobValue]);
 
   useEffect(() => {
