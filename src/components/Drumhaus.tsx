@@ -26,6 +26,7 @@ const Drumhaus = () => {
 
   // Global
   const [preset, setPreset] = useState<Preset>({
+    name: "init",
     _samples: init._samples,
     _bpm: init._bpm,
     _swing: init._swing,
