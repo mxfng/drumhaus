@@ -70,6 +70,10 @@ export const KnobFilter: React.FC<KnobProps> = ({
   }, [isMouseDown]);
 
   useEffect(() => {
+    mouseY.set(knobValue);
+  }, [knobValue]);
+
+  useEffect(() => {
     return () => {
       setIsMouseDown(false);
     };
