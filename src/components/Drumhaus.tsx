@@ -1,7 +1,7 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { Preset, Sample, Sequences } from "@/types/types";
+import { Preset, Sample, SampleData, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
@@ -27,7 +27,7 @@ const Drumhaus = () => {
   // Global
   const [preset, setPreset] = useState<Preset>({
     name: "init",
-    _samples: init._samples,
+    _samples: init._sampleData,
     _bpm: init._bpm,
     _swing: init._swing,
     _lowPass: init._lowPass,
@@ -49,7 +49,8 @@ const Drumhaus = () => {
     _chain: init._chain,
   });
 
-  const [samples, setSamples] = useState<Sample[]>(preset._samples);
+  const [samples, setSamples] = useState<Sample[]>(init._samples);
+  const [sampleData, setSampleData] = useState<SampleData[]>(preset._samples);
   const [sequences, setSequences] = useState<Sequences>(preset._sequences);
   const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
   const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
@@ -80,10 +81,15 @@ const Drumhaus = () => {
   ]);
 
   const toneSequence = useRef<Tone.Sequence | null>(null);
+  const toneLPFilter = useRef<Tone.Filter>();
+  const toneHPFilter = useRef<Tone.Filter>();
+  const tonePhaser = useRef<Tone.Phaser>();
+  const toneReverb = useRef<Tone.Reverb>();
+  const toneCompressor = useRef<Tone.Compressor>();
 
   useEffect(() => {
     function setPreset(_preset: Preset) {
-      setSamples(_preset._samples);
+      setSampleData(_preset._samples);
       setSequences(_preset._sequences);
       setCurrentSequence(_preset._sequences[0][0][0]);
       setBpm(_preset._bpm);
@@ -107,6 +113,11 @@ const Drumhaus = () => {
 
     setPreset(preset);
   }, [preset]);
+
+  useEffect(() => {
+    const newSamples = init.createSamples(sampleData);
+    setSamples(newSamples);
+  }, [sampleData]);
 
   useEffect(() => {
     let bar = 0;
@@ -205,7 +216,7 @@ const Drumhaus = () => {
     };
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying, releases, chain, mutes, solos]);
+  }, [sequences, isPlaying, releases, chain, mutes, solos, samples]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -228,12 +239,6 @@ const Drumhaus = () => {
     Tone.Transport.swingSubdivision = "16n";
     Tone.Transport.swing = newSwing;
   }, [swing]);
-
-  const toneLPFilter = useRef<Tone.Filter>();
-  const toneHPFilter = useRef<Tone.Filter>();
-  const tonePhaser = useRef<Tone.Phaser>();
-  const toneReverb = useRef<Tone.Reverb>();
-  const toneCompressor = useRef<Tone.Compressor>();
 
   useEffect(() => {
     setMasterChain();
@@ -291,21 +296,21 @@ const Drumhaus = () => {
     if (toneLPFilter.current) {
       toneLPFilter.current.frequency.value = newLowPass;
     }
-  }, [lowPass]);
+  }, [lowPass, samples]);
 
   useEffect(() => {
     const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
     if (toneHPFilter.current) {
       toneHPFilter.current.frequency.value = newHiPass;
     }
-  }, [hiPass]);
+  }, [hiPass, samples]);
 
   useEffect(() => {
     const newPhaserWet = transformKnobValue(phaser, [0, 1]);
     if (tonePhaser.current) {
       tonePhaser.current.wet.value = newPhaserWet;
     }
-  }, [phaser]);
+  }, [phaser, samples]);
 
   useEffect(() => {
     const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
@@ -314,21 +319,21 @@ const Drumhaus = () => {
       toneReverb.current.wet.value = newReverbWet;
       toneReverb.current.decay = newReverbDecay;
     }
-  }, [reverb]);
+  }, [reverb, samples]);
 
   useEffect(() => {
     const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
     if (toneCompressor.current) {
       toneCompressor.current.threshold.value = newCompThreshold;
     }
-  }, [compThreshold]);
+  }, [compThreshold, samples]);
 
   useEffect(() => {
     const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
     if (toneCompressor.current) {
       toneCompressor.current.ratio.value = newCompRatio;
     }
-  }, [compRatio]);
+  }, [compRatio, samples]);
 
   useEffect(() => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);

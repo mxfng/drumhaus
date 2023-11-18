@@ -1,5 +1,10 @@
 import * as Tone from "tone/build/esm/index";
 
+export type SampleData = {
+  name: string;
+  url: string;
+};
+
 export type Sample = {
   id: number; // index of the slot
   name: string; // The sample name
@@ -10,11 +15,16 @@ export type Sample = {
   panner: Tone.Panner;
 };
 
+export type SampleShell = {
+  name: string;
+  url: string;
+};
+
 export type Sequences = [boolean[], number[]][][];
 
 export type Preset = {
   name: string;
-  _samples: Sample[];
+  _samples: SampleShell[];
   _bpm: number;
   _swing: number;
   _lowPass: number;

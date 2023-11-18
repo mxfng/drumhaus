@@ -70,7 +70,7 @@ export const Slot: React.FC<SlotParams> = ({
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
     sample.envelope.attack = newAttackValue;
-  }, [attack, sample.envelope.attack, sample.envelope]);
+  }, [attack, sample.envelope.attack, sample.envelope, sample]);
 
   useEffect(() => {
     sample.filter.type = filter <= 49 ? "lowpass" : "highpass";
@@ -81,17 +81,18 @@ export const Slot: React.FC<SlotParams> = ({
     sample.filter.frequency.value,
     sample.filter.type,
     sample.sampler,
+    sample,
   ]);
 
   useEffect(() => {
     const newPanValue = transformKnobValue(pan, [-1, 1]);
     sample.panner.pan.value = newPanValue;
-  }, [pan, sample.panner.pan]);
+  }, [pan, sample.panner.pan, sample]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-46, 4]);
     sample.sampler.volume.value = newVolumeValue;
-  }, [volume, sample.sampler.volume]);
+  }, [volume, sample.sampler.volume, sample]);
 
   useEffect(() => {
     setAttacks((prevAttacks) => {
@@ -101,7 +102,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, sample.id]);
+  }, [attack, sample.id, sample]);
 
   useEffect(() => {
     setReleases((prevReleases) => {
@@ -111,7 +112,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [release, sample.id]);
+  }, [release, sample.id, sample]);
 
   useEffect(() => {
     setFilters((prevFilters) => {
@@ -121,7 +122,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, sample.id]);
+  }, [filter, sample.id, sample]);
 
   useEffect(() => {
     setPans((prevPans) => {
@@ -131,7 +132,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pan, sample.id]);
+  }, [pan, sample.id, sample]);
 
   useEffect(() => {
     setVolumes((prevVolumes) => {
@@ -141,7 +142,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [volume, sample.id]);
+  }, [volume, sample.id, sample]);
 
   useEffect(() => {
     setDurations((prevDurations) => {
@@ -151,7 +152,7 @@ export const Slot: React.FC<SlotParams> = ({
     });
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sampleDuration]);
+  }, [sampleDuration, sample]);
 
   useEffect(() => {
     const maintainWaveformSize = () => {

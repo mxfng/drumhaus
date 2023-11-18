@@ -1,5 +1,8 @@
+"use client";
+
 import { Preset, Sample } from "@/types/types";
-import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
+import { Box, Button, Grid, GridItem, Text } from "@chakra-ui/react";
+import { useState } from "react";
 
 type PresetControlProps = {
   preset: Preset;
@@ -14,6 +17,48 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   samples,
   setSamples,
 }) => {
+  const exportToJson = () => {
+    const jsonPreset = JSON.stringify(preset);
+    const blob = new Blob([jsonPreset], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = "state.json";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(url);
+  };
+
+  const loadFromJson = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".json";
+    fileInput.onchange = (e) =>
+      handleFileChange((e.target as HTMLInputElement).files?.[0]);
+
+    fileInput.click();
+  };
+
+  const handleFileChange = (file: File | null | undefined) => {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonContent = JSON.parse(e.target?.result as string);
+        // Assuming jsonContent is a valid Preset object
+        setPreset(jsonContent);
+        // You may need to handle samples loading if they are part of your preset
+        // setSamples(jsonContent.samples);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
   return (
     <Box
       h="100%"
@@ -45,6 +90,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               >
                 {preset.name}
               </Text>
+            </GridItem>
+            <GridItem>
+              <Button onClick={exportToJson}>JSONify Me!</Button>
+              <Button onClick={loadFromJson}>Load The JSON Back In!</Button>
             </GridItem>
           </Grid>
         </Box>
