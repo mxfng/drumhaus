@@ -66,7 +66,6 @@ export const Slot: React.FC<SlotParams> = ({
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
-  const [isBrowsing, setIsBrowsing] = useState(false);
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
@@ -197,8 +196,8 @@ export const Slot: React.FC<SlotParams> = ({
 
   return (
     <>
-      <Box w="100%" key={`Slot-${sample.name}`} p={4} position="relative">
-        <Flex>
+      <Box w="100%" key={`Slot-${sample.name}`} py={4} position="relative">
+        <Flex px={4}>
           <Text pr={2} color="darkorange" fontWeight={900}>
             {sample.id + 1}
           </Text>
@@ -211,20 +210,24 @@ export const Slot: React.FC<SlotParams> = ({
           className="filename"
           fontFamily={`'Pixelify Sans Variable', sans-serif`}
           color="gray"
+          px={4}
+          py={2}
         >
           {sample.url.split("/").pop()}
         </Text>
-        <Button
-          ref={waveButtonRef}
-          w="100%"
-          h="60px"
-          onMouseDown={() => playSample()}
-          bg="transparent"
-        >
-          <Waveform audioFile={sample.url} width={waveWidth} />
-        </Button>
+        <Box px={4}>
+          <Button
+            ref={waveButtonRef}
+            w="100%"
+            h="60px"
+            onMouseDown={() => playSample()}
+            bg="transparent"
+          >
+            <Waveform audioFile={sample.url} width={waveWidth} />
+          </Button>
+        </Box>
 
-        <Grid templateColumns="repeat(2, 1fr)">
+        <Grid templateColumns="repeat(2, 1fr)" p={1}>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-attack`}
@@ -263,7 +266,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobTransformRange={[-100, 100]}
             />
           </GridItem>
-          <GridItem>
+          <GridItem w="100%">
             <Center h="100%" w="100%">
               <Flex boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)" borderRadius="8px">
                 <Button

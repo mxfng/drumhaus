@@ -360,6 +360,7 @@ const Drumhaus = () => {
       h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
+      boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
     >
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <Heading
