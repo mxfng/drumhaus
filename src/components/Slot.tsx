@@ -155,6 +155,26 @@ export const Slot: React.FC<SlotParams> = ({
   }, [sampleDuration, sample]);
 
   useEffect(() => {
+    setAttack(attacks[sample.id]);
+  }, [attacks]);
+
+  useEffect(() => {
+    setRelease(releases[sample.id]);
+  }, [releases]);
+
+  useEffect(() => {
+    setFilter(filters[sample.id]);
+  }, [filters]);
+
+  useEffect(() => {
+    setPan(pans[sample.id]);
+  }, [pans]);
+
+  useEffect(() => {
+    setVolume(volumes[sample.id]);
+  }, [volumes]);
+
+  useEffect(() => {
     const maintainWaveformSize = () => {
       if (waveButtonRef.current) {
         setWaveWidth(waveButtonRef.current.clientWidth);

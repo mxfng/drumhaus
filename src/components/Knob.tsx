@@ -57,6 +57,10 @@ export const Knob: React.FC<KnobProps> = ({
   const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
 
   useEffect(() => {
+    mouseY.set(knobValue);
+  }, [knobValue]);
+
+  useEffect(() => {
     const setValueOnMouseMove = (ev: MouseEvent) => {
       if (isMouseDown) {
         const newKnobValue = Math.max(

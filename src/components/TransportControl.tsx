@@ -90,6 +90,10 @@ export const TransportControl: React.FC<TransportControlProps> = ({
     setBpm(bpmInputValue);
   }, [bpmInputValue, setBpm]);
 
+  useEffect(() => {
+    setBpmInputValue(bpm);
+  }, [bpm]);
+
   return (
     <>
       <Center h="100%" px={4} w="250px">
