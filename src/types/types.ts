@@ -20,6 +20,8 @@ export type Preset = {
   _hiPass: number;
   _phaser: number;
   _reverb: number;
+  _compThreshold: number;
+  _compRatio: number;
   _masterVolume: number;
   _sequences: Sequences;
   _attacks: number[];
