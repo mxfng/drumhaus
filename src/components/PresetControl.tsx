@@ -1,8 +1,9 @@
 "use client";
 
 import { Preset, Sample } from "@/types/types";
-import { Box, Button, Grid, GridItem, Text } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+import { MdOutlineSaveAlt } from "react-icons/md";
+import { FaFolderOpen } from "react-icons/fa";
 
 type PresetControlProps = {
   preset: Preset;
@@ -91,9 +92,23 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 {preset.name}
               </Text>
             </GridItem>
-            <GridItem>
-              <Button onClick={exportToJson}>JSONify Me!</Button>
-              <Button onClick={loadFromJson}>Load The JSON Back In!</Button>
+            <GridItem colSpan={4} w="100%">
+              <Grid templateColumns="repeat(3,1fr)" w="100%">
+                <GridItem>
+                  <Center>
+                    <Button bg="transparent" onClick={exportToJson}>
+                      <MdOutlineSaveAlt />
+                    </Button>
+                  </Center>
+                </GridItem>
+                <GridItem>
+                  <Center>
+                    <Button bg="transparent" onClick={loadFromJson}>
+                      <FaFolderOpen />
+                    </Button>
+                  </Center>
+                </GridItem>
+              </Grid>
             </GridItem>
           </Grid>
         </Box>

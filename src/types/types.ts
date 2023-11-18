@@ -20,11 +20,16 @@ export type SampleShell = {
   url: string;
 };
 
+export type Kit = {
+  name: string;
+  samples: SampleShell[];
+};
+
 export type Sequences = [boolean[], number[]][][];
 
 export type Preset = {
   name: string;
-  _samples: SampleShell[];
+  _kit: Kit;
   _bpm: number;
   _swing: number;
   _lowPass: number;

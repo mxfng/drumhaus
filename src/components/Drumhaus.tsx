@@ -1,8 +1,16 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { Preset, Sample, SampleData, Sequences } from "@/types/types";
-import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
+import { Kit, Preset, Sample, SampleData, Sequences } from "@/types/types";
+import {
+  Box,
+  Button,
+  Center,
+  Grid,
+  GridItem,
+  Heading,
+  filter,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
@@ -27,7 +35,7 @@ const Drumhaus = () => {
   // Global
   const [preset, setPreset] = useState<Preset>({
     name: "init",
-    _samples: init._sampleData,
+    _kit: init._kit,
     _bpm: init._bpm,
     _swing: init._swing,
     _lowPass: init._lowPass,
@@ -50,7 +58,7 @@ const Drumhaus = () => {
   });
 
   const [samples, setSamples] = useState<Sample[]>(init._samples);
-  const [sampleData, setSampleData] = useState<SampleData[]>(preset._samples);
+  const [kit, setKit] = useState<Kit>(preset._kit);
   const [sequences, setSequences] = useState<Sequences>(preset._sequences);
   const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
   const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
@@ -88,8 +96,8 @@ const Drumhaus = () => {
   const toneCompressor = useRef<Tone.Compressor>();
 
   useEffect(() => {
-    function setPreset(_preset: Preset) {
-      setSampleData(_preset._samples);
+    function setFromPreset(_preset: Preset) {
+      setKit(_preset._kit);
       setSequences(_preset._sequences);
       setCurrentSequence(_preset._sequences[0][0][0]);
       setBpm(_preset._bpm);
@@ -111,13 +119,59 @@ const Drumhaus = () => {
       setChain(_preset._chain);
     }
 
-    setPreset(preset);
+    setFromPreset(preset);
   }, [preset]);
 
+  // useEffect(() => {
+  //   setPreset({
+  //     name: "init",
+  //     _kit: kit,
+  //     _bpm: bpm,
+  //     _swing: swing,
+  //     _lowPass: lowPass,
+  //     _hiPass: hiPass,
+  //     _phaser: phaser,
+  //     _reverb: reverb,
+  //     _compThreshold: compThreshold,
+  //     _compRatio: compRatio,
+  //     _masterVolume: masterVolume,
+  //     _sequences: sequences,
+  //     _attacks: attacks,
+  //     _releases: releases,
+  //     _filters: filters,
+  //     _volumes: volumes,
+  //     _pans: pans,
+  //     _solos: solos,
+  //     _mutes: mutes,
+  //     _variation: 0,
+  //     _chain: chain,
+  //   });
+  // }, [
+  //   kit,
+  //   bpm,
+  //   swing,
+  //   lowPass,
+  //   hiPass,
+  //   phaser,
+  //   reverb,
+  //   compThreshold,
+  //   compRatio,
+  //   masterVolume,
+  //   sequences,
+  //   attacks,
+  //   releases,
+  //   filters,
+  //   volumes,
+  //   pans,
+  //   solos,
+  //   mutes,
+  //   chain,
+  // ]);
+
   useEffect(() => {
-    const newSamples = init.createSamples(sampleData);
+    const newSamples = init.createSamples(kit.samples);
     setSamples(newSamples);
-  }, [sampleData]);
+  }, [kit]);
 
   useEffect(() => {
     let bar = 0;
