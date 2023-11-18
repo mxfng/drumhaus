@@ -28,7 +28,7 @@ export const _samples: Sample[] = samples.map((sample, id) => {
     onload: () => {
       console.log(`DHSampler created for ${sample.name}`);
     },
-  }).chain(envelope, filter, panner, Tone.Destination);
+  });
 
   return {
     id: id,
@@ -44,6 +44,10 @@ export const _samples: Sample[] = samples.map((sample, id) => {
 // Create initial global parameters
 export const _bpm = 100;
 export const _swing = 0;
+export const _lowPass = 100;
+export const _hiPass = 0;
+export const _phaser = 0;
+export const _reverb = 0;
 export const _masterVolume = 90;
 export const _sequences: Sequences = Array.from({ length: 8 }, () =>
   Array.from({ length: 2 }, () => [
