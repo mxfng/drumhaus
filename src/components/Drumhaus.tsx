@@ -71,6 +71,8 @@ const Drumhaus = () => {
   const [filters, setFilters] = useState<number[]>(preset._filters);
   const [volumes, setVolumes] = useState<number[]>(preset._volumes);
   const [pans, setPans] = useState<number[]>(preset._pans);
+  const [mutes, setMutes] = useState<boolean[]>(preset._mutes);
+  const [solos, setSolos] = useState<boolean[]>(preset._solos);
   const [durations, setDurations] = useState<number[]>([
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -134,11 +136,19 @@ const Drumhaus = () => {
             samples[5].sampler.triggerAttack("C2", time, velocity);
           }
 
+          const hasSolos = (solos: boolean[]) =>
+            solos.some((value) => value === true);
+
           setVariationByChainAndBar();
+
+          const anySolos = hasSolos(solos);
 
           for (let slot = 0; slot < sequences.length; slot++) {
             const hit: boolean = sequences[slot][chainVariation][0][step];
-            if (hit) {
+            const isSolo = solos[slot];
+            if (anySolos && !isSolo) {
+              continue;
+            } else if (hit && !mutes[slot]) {
               const velocity: number = sequences[slot][chainVariation][1][step];
               muteOHatOnHat(slot);
               triggerSample(slot, velocity);
@@ -193,7 +203,7 @@ const Drumhaus = () => {
     };
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying, releases, chain]);
+  }, [sequences, isPlaying, releases, chain, mutes, solos]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -382,6 +392,10 @@ const Drumhaus = () => {
           setVolumes={setVolumes}
           pans={pans}
           setPans={setPans}
+          mutes={mutes}
+          setMutes={setMutes}
+          solos={solos}
+          setSolos={setSolos}
           setDurations={setDurations}
         />
       </Box>
