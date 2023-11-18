@@ -66,6 +66,7 @@ export const Slot: React.FC<SlotParams> = ({
   const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
+  const [isBrowsing, setIsBrowsing] = useState(false);
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
@@ -196,7 +197,7 @@ export const Slot: React.FC<SlotParams> = ({
 
   return (
     <>
-      <Box w="100%" key={`Slot-${sample.name}`} p={4}>
+      <Box w="100%" key={`Slot-${sample.name}`} p={4} position="relative">
         <Flex>
           <Text pr={2} color="darkorange" fontWeight={900}>
             {sample.id + 1}
