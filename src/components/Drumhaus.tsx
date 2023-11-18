@@ -9,10 +9,13 @@ import { Sequencer } from "./Sequencer";
 import { SlotsGrid } from "./SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
-import { Knob, transformKnobValue } from "./Knob";
+import {
+  Knob,
+  transformKnobValue,
+  transformKnobValueExponential,
+} from "./Knob";
 import { SequencerControl } from "./SequencerControl";
 import { MasterFX } from "./MasterFX";
-import { transformKnobValueExponential } from "./KnobExponential";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);

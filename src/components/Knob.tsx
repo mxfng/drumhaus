@@ -11,6 +11,7 @@ type KnobProps = {
   knobTitle?: string;
   knobTransformRange?: [number, number];
   knobUnits?: string;
+  exponential?: boolean;
 };
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
@@ -23,6 +24,21 @@ export const transformKnobValue = (
   return scalingFactor * input + newRangeMin;
 };
 
+export const transformKnobValueExponential = (
+  input: number,
+  range: [number, number]
+): number => {
+  const inputMin = 0;
+  const inputMax = MAX_KNOB_VALUE;
+  const [outputMin, outputMax] = range;
+
+  const normalizedInput = (input - inputMin) / (inputMax - inputMin);
+  const exponentialValue = Math.pow(normalizedInput, 2);
+  const mappedValue = outputMin + exponentialValue * (outputMax - outputMin);
+
+  return mappedValue;
+};
+
 const MAX_KNOB_VALUE = 100;
 
 export const Knob: React.FC<KnobProps> = ({
@@ -32,6 +48,7 @@ export const Knob: React.FC<KnobProps> = ({
   knobTitle,
   knobTransformRange = [0, MAX_KNOB_VALUE],
   knobUnits = "",
+  exponential = false,
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDownY, setMouseDownY] = useState({ x: 0, y: 0 });
@@ -188,15 +205,29 @@ export const Knob: React.FC<KnobProps> = ({
         <Center>
           <Text fontSize={12} color="gray" my={-3}>
             {isMouseDown
-              ? `${
-                  knobUnits
-                    ? transformKnobValue(knobValue, knobTransformRange).toFixed(
-                        1
-                      )
-                    : transformKnobValue(knobValue, knobTransformRange).toFixed(
-                        0
-                      )
-                } ${knobUnits}`
+              ? exponential
+                ? `${
+                    knobUnits
+                      ? transformKnobValueExponential(
+                          knobValue,
+                          knobTransformRange
+                        ).toFixed(1)
+                      : transformKnobValueExponential(
+                          knobValue,
+                          knobTransformRange
+                        ).toFixed(0)
+                  } ${knobUnits}`
+                : `${
+                    knobUnits
+                      ? transformKnobValue(
+                          knobValue,
+                          knobTransformRange
+                        ).toFixed(1)
+                      : transformKnobValue(
+                          knobValue,
+                          knobTransformRange
+                        ).toFixed(0)
+                  } ${knobUnits}`
               : knobTitle}
           </Text>
         </Center>
