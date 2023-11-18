@@ -13,6 +13,7 @@ export type Sample = {
 export type Sequences = [boolean[], number[]][][];
 
 export type Preset = {
+  name: string;
   _samples: Sample[];
   _bpm: number;
   _swing: number;
