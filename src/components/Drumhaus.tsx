@@ -16,6 +16,7 @@ import {
 } from "./Knob";
 import { SequencerControl } from "./SequencerControl";
 import { MasterFX } from "./MasterFX";
+import { MasterCompressor } from "./MasterCompressor";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -31,6 +32,8 @@ const Drumhaus = () => {
     _hiPass: init._hiPass,
     _phaser: init._phaser,
     _reverb: init._reverb,
+    _compThreshold: init._compThreshold,
+    _compRatio: init._compRatio,
     _masterVolume: init._masterVolume,
     _sequences: init._sequences,
     _attacks: init._attacks,
@@ -58,6 +61,8 @@ const Drumhaus = () => {
   const [hiPass, setHiPass] = useState(preset._hiPass);
   const [phaser, setPhaser] = useState(preset._phaser);
   const [reverb, setReverb] = useState(preset._reverb);
+  const [compThreshold, setCompThreshold] = useState(preset._compThreshold);
+  const [compRatio, setCompRatio] = useState(preset._compRatio);
   const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
   // Slots - prop drilling (consider Redux in the future)
@@ -79,6 +84,12 @@ const Drumhaus = () => {
       setCurrentSequence(_preset._sequences[0][0][0]);
       setBpm(_preset._bpm);
       setSwing(_preset._swing);
+      setLowPass(_preset._lowPass);
+      setHiPass(_preset._hiPass);
+      setPhaser(_preset._phaser);
+      setReverb(_preset._reverb);
+      setCompThreshold(_preset._compThreshold);
+      setCompRatio(_preset._compRatio);
       setMasterVolume(_preset._masterVolume);
       setAttacks(_preset._attacks);
       setReleases(_preset._releases);
@@ -137,7 +148,6 @@ const Drumhaus = () => {
           setStepIndex(step);
           setBarByChain();
 
-          // For current chain, reset bar counter
           function setBarByChain() {
             if (step === 15) {
               if (
@@ -152,7 +162,6 @@ const Drumhaus = () => {
             }
           }
 
-          // Set the chain variation depending on the bar
           function setVariationByChainAndBar() {
             if (step === 0) {
               switch (chain) {
@@ -212,6 +221,7 @@ const Drumhaus = () => {
   const toneHPFilter = useRef<Tone.Filter>();
   const tonePhaser = useRef<Tone.Phaser>();
   const toneReverb = useRef<Tone.Reverb>();
+  const toneCompressor = useRef<Tone.Compressor>();
 
   useEffect(() => {
     setMasterChain();
@@ -219,6 +229,9 @@ const Drumhaus = () => {
     return () => {
       toneLPFilter.current?.dispose();
       toneHPFilter.current?.dispose();
+      tonePhaser.current?.dispose();
+      toneReverb.current?.dispose();
+      toneCompressor.current?.dispose();
     };
 
     function setMasterChain() {
@@ -230,12 +243,19 @@ const Drumhaus = () => {
         baseFrequency: 1000,
       });
       toneReverb.current = new Tone.Reverb(1);
+      toneCompressor.current = new Tone.Compressor({
+        threshold: 0,
+        ratio: 1,
+        attack: 0.5,
+        release: 1,
+      });
 
       if (
         toneLPFilter.current &&
         toneHPFilter.current &&
         tonePhaser.current &&
-        toneReverb.current
+        toneReverb.current &&
+        toneCompressor.current
       ) {
         samples.forEach((sample) => {
           sample.sampler.chain(
@@ -246,6 +266,7 @@ const Drumhaus = () => {
             toneHPFilter.current!!,
             tonePhaser.current!!,
             toneReverb.current!!,
+            toneCompressor.current!!,
             Tone.Destination
           );
         });
@@ -282,6 +303,20 @@ const Drumhaus = () => {
       toneReverb.current.decay = newReverbDecay;
     }
   }, [reverb]);
+
+  useEffect(() => {
+    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
+    if (toneCompressor.current) {
+      toneCompressor.current.threshold.value = newCompThreshold;
+    }
+  }, [compThreshold]);
+
+  useEffect(() => {
+    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
+    if (toneCompressor.current) {
+      toneCompressor.current.ratio.value = newCompRatio;
+    }
+  }, [compRatio]);
 
   useEffect(() => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
@@ -351,7 +386,7 @@ const Drumhaus = () => {
         />
       </Box>
 
-      <Grid templateColumns="repeat(5, 1fr)" p={4} w="100%">
+      <Grid templateColumns="repeat(7, 1fr)" px={4} py={6} w="100%">
         <GridItem colSpan={1} w="160px">
           <Center w="100%" h="100%">
             <Button
@@ -384,7 +419,6 @@ const Drumhaus = () => {
             setSequences={setSequences}
           />
         </GridItem>
-
         <GridItem colSpan={1}>
           <TransportControl
             bpm={bpm}
@@ -393,6 +427,7 @@ const Drumhaus = () => {
             setSwing={setSwing}
           />
         </GridItem>
+        <GridItem bg="tomato" w="300px"></GridItem>
         <GridItem colSpan={1} w={120}>
           <MasterFX
             lowPass={lowPass}
@@ -403,6 +438,14 @@ const Drumhaus = () => {
             setPhaser={setPhaser}
             reverb={reverb}
             setReverb={setReverb}
+          />
+        </GridItem>
+        <GridItem colSpan={1}>
+          <MasterCompressor
+            threshold={compThreshold}
+            setThreshold={setCompThreshold}
+            ratio={compRatio}
+            setRatio={setCompRatio}
           />
         </GridItem>
         <GridItem colSpan={1} w={140}>

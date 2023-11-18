@@ -92,11 +92,11 @@ export const TransportControl: React.FC<TransportControlProps> = ({
 
   return (
     <>
-      <Center h="100%" px={4}>
+      <Center h="100%" px={4} w="250px">
         <Flex>
           <Center>
             <Box
-              w="200px"
+              w="150px"
               h="70px"
               borderRadius="8px"
               p={3}
@@ -108,7 +108,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     fontFamily={`'Pixelify Sans Variable', sans-serif`}
                     fontSize={40}
                     color="gray"
-                    w="148px"
+                    w="98px"
                     h="100%"
                     boxShadow="0 4px 8px rgba(0, 0, 0, 0.2) inset"
                     position="absolute"
