@@ -1,3 +1,6 @@
+"use client";
+
+import { Sequences } from "@/types/types";
 import {
   Box,
   Button,
@@ -7,12 +10,18 @@ import {
   GridItem,
   Text,
 } from "@chakra-ui/react";
+import { useState } from "react";
 
 type SequencerControlProps = {
   variation: number;
   setVariation: React.Dispatch<React.SetStateAction<number>>;
   chain: number;
   setChain: React.Dispatch<React.SetStateAction<number>>;
+  currentSequence: boolean[];
+  setCurrentSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
+  slot: number;
+  sequences: Sequences;
+  setSequences: React.Dispatch<React.SetStateAction<Sequences>>;
 };
 
 export const SequencerControl: React.FC<SequencerControlProps> = ({
@@ -20,23 +29,68 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
   setVariation,
   chain,
   setChain,
+  currentSequence,
+  setCurrentSequence,
+  slot,
+  sequences,
+  setSequences,
 }) => {
+  const [copiedSequence, setCopiedSequence] = useState<boolean[] | undefined>();
+
+  const copySequence = () => {
+    setCopiedSequence(currentSequence);
+  };
+
+  const pasteSequence = () => {
+    if (copiedSequence) {
+      setCurrentSequence(copiedSequence);
+      setSequences((prevSequences) => {
+        const newSequences = [...prevSequences];
+        newSequences[slot][variation][0] = copiedSequence;
+        return newSequences;
+      });
+    }
+  };
+
+  const clearSequence = () => {
+    const clearedSequence = Array(16).fill(false);
+    setCurrentSequence(clearedSequence);
+    setSequences((prevSequences) => {
+      const newSequences = [...prevSequences];
+      newSequences[slot][variation][0] = clearedSequence;
+      return newSequences;
+    });
+  };
+
+  const randomSequence = () => {
+    const randomSequence: boolean[] = Array.from(
+      { length: 16 },
+      () => Math.random() < 0.5
+    );
+    setCurrentSequence(randomSequence);
+    setSequences((prevSequences) => {
+      const newSequences = [...prevSequences];
+      newSequences[slot][variation][0] = randomSequence;
+      return newSequences;
+    });
+  };
+
   return (
     <>
-      <Center h="100%" w="100%" p={4}>
+      <Center h="100%" w="280px" px={4}>
         <Box>
-          <Text fontSize={12} color="gray" mx={3} pb={4}>
+          <Text fontSize={12} color="gray" pb={4}>
             SEQUENCER
           </Text>
-          <Grid templateColumns="repeat(3,1fr)">
-            <GridItem colSpan={1} position="relative">
+          <Grid templateColumns="repeat(3,1fr)" pb={8}>
+            <GridItem colSpan={1} position="relative" pr={2}>
               <Text
                 fontSize={12}
                 color="gray"
                 my={-3}
                 position="absolute"
                 bottom={-3}
-                left={3}
+                left={1}
               >
                 SHOW
               </Text>
@@ -75,7 +129,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 my={-3}
                 position="absolute"
                 bottom={-3}
-                left={0}
+                left={1}
               >
                 CHAIN
               </Text>
@@ -130,6 +184,84 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                   </Button>
                 </Flex>
               </Center>
+            </GridItem>
+          </Grid>
+          <Grid templateColumns="repeat(4, 1fr)" gap={2} pb={4}>
+            <GridItem position="relative">
+              <Button
+                w="100%"
+                h="26px"
+                bg="transparent"
+                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                onClick={copySequence}
+              />
+              <Text
+                fontSize={12}
+                color="gray"
+                my={-3}
+                position="absolute"
+                bottom={-3}
+                left={1}
+              >
+                COPY
+              </Text>
+            </GridItem>
+            <GridItem position="relative">
+              <Button
+                w="100%"
+                h="26px"
+                bg="transparent"
+                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                onClick={pasteSequence}
+              />
+              <Text
+                fontSize={12}
+                color="gray"
+                my={-3}
+                position="absolute"
+                bottom={-3}
+                left={1}
+              >
+                PASTE
+              </Text>
+            </GridItem>
+            <GridItem position="relative">
+              <Button
+                w="100%"
+                h="26px"
+                bg="transparent"
+                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                onClick={clearSequence}
+              />
+              <Text
+                fontSize={12}
+                color="gray"
+                my={-3}
+                position="absolute"
+                bottom={-3}
+                left={1}
+              >
+                CLEAR
+              </Text>
+            </GridItem>
+            <GridItem position="relative">
+              <Button
+                w="100%"
+                h="26px"
+                bg="transparent"
+                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                onClick={randomSequence}
+              />
+              <Text
+                fontSize={12}
+                color="gray"
+                my={-3}
+                position="absolute"
+                bottom={-3}
+                left={1}
+              >
+                RAND
+              </Text>
             </GridItem>
           </Grid>
         </Box>

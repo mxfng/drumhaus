@@ -288,6 +288,11 @@ const Drumhaus = () => {
             setVariation={setVariation}
             chain={chain}
             setChain={setChain}
+            currentSequence={currentSequence}
+            setCurrentSequence={setCurrentSequence}
+            slot={slotIndex}
+            sequences={sequences}
+            setSequences={setSequences}
           />
         </GridItem>
 
@@ -316,8 +321,8 @@ const Drumhaus = () => {
           sequence={currentSequence}
           setSequence={setCurrentSequence}
           sequences={sequences}
-          variation={variation}
           setSequences={setSequences}
+          variation={variation}
           slot={slotIndex}
           step={stepIndex}
           isPlaying={isPlaying}
