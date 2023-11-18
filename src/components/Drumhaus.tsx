@@ -17,6 +17,7 @@ import {
 import { SequencerControl } from "./SequencerControl";
 import { MasterFX } from "./MasterFX";
 import { MasterCompressor } from "./MasterCompressor";
+import { PresetControl } from "./PresetControl";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -435,6 +436,7 @@ const Drumhaus = () => {
             setSequences={setSequences}
           />
         </GridItem>
+
         <GridItem colSpan={1}>
           <TransportControl
             bpm={bpm}
@@ -443,7 +445,16 @@ const Drumhaus = () => {
             setSwing={setSwing}
           />
         </GridItem>
-        <GridItem bg="tomato" w="300px"></GridItem>
+
+        <GridItem w="380px" pl={0} pr={6}>
+          <PresetControl
+            preset={preset}
+            setPreset={setPreset}
+            samples={samples}
+            setSamples={setSamples}
+          />
+        </GridItem>
+
         <GridItem colSpan={1} w={120}>
           <MasterFX
             lowPass={lowPass}
@@ -456,6 +467,7 @@ const Drumhaus = () => {
             setReverb={setReverb}
           />
         </GridItem>
+
         <GridItem colSpan={1}>
           <MasterCompressor
             threshold={compThreshold}
@@ -464,6 +476,7 @@ const Drumhaus = () => {
             setRatio={setCompRatio}
           />
         </GridItem>
+
         <GridItem colSpan={1} w={140}>
           <Knob
             size={140}
