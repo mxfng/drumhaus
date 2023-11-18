@@ -357,6 +357,7 @@ const Drumhaus = () => {
       bg="silver"
       minW={1538}
       w={1538}
+      h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
     >
