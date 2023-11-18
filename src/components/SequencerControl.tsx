@@ -11,6 +11,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { FaDice } from "react-icons/fa";
+import { IoCopySharp } from "react-icons/io5";
+import { IoBrushSharp } from "react-icons/io5";
+import { BsFillEraserFill } from "react-icons/bs";
 
 type SequencerControlProps = {
   variation: number;
@@ -194,7 +198,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 bg="transparent"
                 boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
                 onClick={copySequence}
-              />
+              >
+                <IoCopySharp color="gray" />
+              </Button>
               <Text
                 fontSize={12}
                 color="gray"
@@ -213,7 +219,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 bg="transparent"
                 boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
                 onClick={pasteSequence}
-              />
+              >
+                <IoBrushSharp color="gray" />
+              </Button>
               <Text
                 fontSize={12}
                 color="gray"
@@ -232,7 +240,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 bg="transparent"
                 boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
                 onClick={clearSequence}
-              />
+              >
+                <BsFillEraserFill color="gray" />
+              </Button>
               <Text
                 fontSize={12}
                 color="gray"
@@ -251,7 +261,9 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 bg="transparent"
                 boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
                 onClick={randomSequence}
-              />
+              >
+                <FaDice color="gray" />
+              </Button>
               <Text
                 fontSize={12}
                 color="gray"
