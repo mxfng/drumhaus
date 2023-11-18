@@ -1,6 +1,6 @@
 "use client";
 
-import { Preset, Sample } from "@/types/types";
+import { Kit, Preset, Sample, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
@@ -8,18 +8,76 @@ import { FaFolderOpen } from "react-icons/fa";
 type PresetControlProps = {
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
-  samples: Sample[];
-  setSamples: React.Dispatch<React.SetStateAction<Sample[]>>;
+  kit: Kit;
+  bpm: number;
+  swing: number;
+  lowPass: number;
+  hiPass: number;
+  phaser: number;
+  reverb: number;
+  compThreshold: number;
+  compRatio: number;
+  masterVolume: number;
+  sequences: Sequences;
+  attacks: number[];
+  releases: number[];
+  filters: number[];
+  volumes: number[];
+  pans: number[];
+  solos: boolean[];
+  mutes: boolean[];
+  chain: number;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
   preset,
   setPreset,
-  samples,
-  setSamples,
+  kit,
+  bpm,
+  swing,
+  lowPass,
+  hiPass,
+  phaser,
+  reverb,
+  compThreshold,
+  compRatio,
+  masterVolume,
+  sequences,
+  attacks,
+  releases,
+  filters,
+  volumes,
+  pans,
+  solos,
+  mutes,
+  chain,
 }) => {
   const exportToJson = () => {
-    const jsonPreset = JSON.stringify(preset);
+    const customName: string = "testPreset";
+    const presetToSave: Preset = {
+      name: customName,
+      _kit: kit,
+      _bpm: bpm,
+      _swing: swing,
+      _lowPass: lowPass,
+      _hiPass: hiPass,
+      _phaser: phaser,
+      _reverb: reverb,
+      _compThreshold: compThreshold,
+      _compRatio: compRatio,
+      _masterVolume: masterVolume,
+      _sequences: sequences,
+      _attacks: attacks,
+      _releases: releases,
+      _filters: filters,
+      _volumes: volumes,
+      _pans: pans,
+      _solos: solos,
+      _mutes: mutes,
+      _variation: 0,
+      _chain: chain,
+    };
+    const jsonPreset = JSON.stringify(presetToSave);
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");

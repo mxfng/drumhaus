@@ -1,16 +1,8 @@
 "use client";
 
 import * as init from "@/lib/init";
-import { Kit, Preset, Sample, SampleData, Sequences } from "@/types/types";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Heading,
-  filter,
-} from "@chakra-ui/react";
+import { Kit, Preset, Sample, Sequences } from "@/types/types";
+import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
@@ -115,58 +107,12 @@ const Drumhaus = () => {
       setVolumes(_preset._volumes);
       setPans(_preset._pans);
       setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
-      setVariation(_preset._variation);
+      setVariation(0);
       setChain(_preset._chain);
     }
 
     setFromPreset(preset);
   }, [preset]);
-
-  // useEffect(() => {
-  //   setPreset({
-  //     name: "init",
-  //     _kit: kit,
-  //     _bpm: bpm,
-  //     _swing: swing,
-  //     _lowPass: lowPass,
-  //     _hiPass: hiPass,
-  //     _phaser: phaser,
-  //     _reverb: reverb,
-  //     _compThreshold: compThreshold,
-  //     _compRatio: compRatio,
-  //     _masterVolume: masterVolume,
-  //     _sequences: sequences,
-  //     _attacks: attacks,
-  //     _releases: releases,
-  //     _filters: filters,
-  //     _volumes: volumes,
-  //     _pans: pans,
-  //     _solos: solos,
-  //     _mutes: mutes,
-  //     _variation: 0,
-  //     _chain: chain,
-  //   });
-  // }, [
-  //   kit,
-  //   bpm,
-  //   swing,
-  //   lowPass,
-  //   hiPass,
-  //   phaser,
-  //   reverb,
-  //   compThreshold,
-  //   compRatio,
-  //   masterVolume,
-  //   sequences,
-  //   attacks,
-  //   releases,
-  //   filters,
-  //   volumes,
-  //   pans,
-  //   solos,
-  //   mutes,
-  //   chain,
-  // ]);
 
   useEffect(() => {
     const newSamples = init.createSamples(kit.samples);
@@ -510,8 +456,25 @@ const Drumhaus = () => {
           <PresetControl
             preset={preset}
             setPreset={setPreset}
-            samples={samples}
-            setSamples={setSamples}
+            kit={kit}
+            bpm={bpm}
+            swing={swing}
+            lowPass={lowPass}
+            hiPass={hiPass}
+            phaser={phaser}
+            reverb={reverb}
+            compThreshold={compThreshold}
+            compRatio={compRatio}
+            masterVolume={masterVolume}
+            sequences={sequences}
+            attacks={attacks}
+            releases={releases}
+            filters={filters}
+            volumes={volumes}
+            pans={pans}
+            solos={solos}
+            mutes={mutes}
+            chain={chain}
           />
         </GridItem>
 
