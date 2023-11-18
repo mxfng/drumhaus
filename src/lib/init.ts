@@ -1,4 +1,4 @@
-import { Sample, SampleData, Sequences } from "@/types/types";
+import { Kit, Sample, SampleData, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__
@@ -13,6 +13,11 @@ export const _sampleData: SampleData[] = [
   { name: "Bell", url: "bell/debug_bell.wav" },
   { name: "Crash", url: "crash/debug_crash.wav" },
 ];
+
+export const _kit: Kit = {
+  name: "debug",
+  samples: _sampleData,
+};
 
 export const createSamples = (samples: SampleData[]) => {
   return samples.map((sample, id) => {
