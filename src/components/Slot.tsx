@@ -1,7 +1,15 @@
 "use client";
 
 import { Sample } from "@/types/types";
-import { Box, Button, Flex, Grid, GridItem, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Grid,
+  GridItem,
+  Text,
+} from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import { Knob, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
@@ -9,6 +17,9 @@ import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { KnobFilter, transformKnobFilterValue } from "./KnobFilter";
 import * as Tone from "tone/build/esm/index";
+import { MdHeadphones } from "react-icons/md";
+import { ImVolumeMute } from "react-icons/im";
+import { ImVolumeMute2 } from "react-icons/im";
 
 type SlotParams = {
   sample: Sample;
@@ -22,6 +33,10 @@ type SlotParams = {
   setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
   pans: number[];
   setPans: React.Dispatch<React.SetStateAction<number[]>>;
+  mutes: boolean[];
+  setMutes: React.Dispatch<React.SetStateAction<boolean[]>>;
+  solos: boolean[];
+  setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
@@ -37,6 +52,10 @@ export const Slot: React.FC<SlotParams> = ({
   setVolumes,
   pans,
   setPans,
+  mutes,
+  setMutes,
+  solos,
+  setSolos,
   setDurations,
 }) => {
   const [attack, setAttack] = useState(attacks[sample.id]);
@@ -149,6 +168,22 @@ export const Slot: React.FC<SlotParams> = ({
     };
   }, []);
 
+  const toggleMute = (slot: number) => {
+    setMutes((prevMutes) => {
+      const newMutes = [...prevMutes];
+      newMutes[slot] = !newMutes[slot];
+      return newMutes;
+    });
+  };
+
+  const toggleSolo = (slot: number) => {
+    setSolos((prevSolos) => {
+      const newSolos = [...prevSolos];
+      newSolos[slot] = !newSolos[slot];
+      return newSolos;
+    });
+  };
+
   const playSample = () => {
     const time = Tone.now();
     sample.sampler.triggerRelease("C2", time);
@@ -227,7 +262,38 @@ export const Slot: React.FC<SlotParams> = ({
               knobTransformRange={[-100, 100]}
             />
           </GridItem>
-          <GridItem></GridItem>
+          <GridItem>
+            <Center h="100%" w="100%">
+              <Flex boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)" borderRadius="8px">
+                <Button
+                  h="30px"
+                  w="30px"
+                  bg="transparent"
+                  borderRadius="8px 0 0 8px"
+                  p="0px"
+                  onClick={() => toggleMute(sample.id)}
+                >
+                  {mutes[sample.id] ? (
+                    <ImVolumeMute2 color="gray" />
+                  ) : (
+                    <ImVolumeMute color="gray" />
+                  )}
+                </Button>
+                <Button
+                  h="30px"
+                  w="30px"
+                  bg="transparent"
+                  borderRadius="0 8px 8px 0"
+                  p="0px"
+                  onClick={() => toggleSolo(sample.id)}
+                >
+                  <MdHeadphones
+                    color={solos[sample.id] ? "darkorange" : "gray"}
+                  />
+                </Button>
+              </Flex>
+            </Center>
+          </GridItem>
           <GridItem>
             <Knob
               key={`knob-${sample.id}-volume`}
