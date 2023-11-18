@@ -62,7 +62,7 @@ const Drumhaus = () => {
     function setPreset(_preset: Preset) {
       setSamples(_preset._samples);
       setSequences(_preset._sequences);
-      setCurrentSequence(_preset._sequences[slotIndex][variation][0]);
+      setCurrentSequence(_preset._sequences[0][0][0]);
       setBpm(_preset._bpm);
       setSwing(_preset._swing);
       setMasterVolume(_preset._masterVolume);
@@ -221,12 +221,12 @@ const Drumhaus = () => {
       id="Drumhaus"
       className="drumhaus"
       bg="silver"
-      minW={900}
-      maxW={1538}
+      minW={1538}
+      w={1538}
       style={{ userSelect: "none" }}
       borderRadius="12px"
     >
-      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)" my={4}>
+      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
         <Heading
           id="logo"
           variant="logo"

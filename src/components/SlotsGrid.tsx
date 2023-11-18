@@ -81,7 +81,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
     >
       {samples.map((sample, index) => (
         <GridItem
-          colSpan={{ base: 2, xl: 1 }}
+          colSpan={1}
           key={`gridItem-${index}`}
           w={`${slotW}`}
           overflow="hidden"
