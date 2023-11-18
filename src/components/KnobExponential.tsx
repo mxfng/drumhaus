@@ -13,19 +13,24 @@ type KnobProps = {
   knobUnits?: string;
 };
 
-// Transform knob values (0-100) to any Tone.js parameter range [min, max]
-export const transformKnobValue = (
+export const transformKnobValueExponential = (
   input: number,
   range: [number, number]
 ): number => {
-  const [newRangeMin, newRangeMax] = range;
-  const scalingFactor = (newRangeMax - newRangeMin) / MAX_KNOB_VALUE;
-  return scalingFactor * input + newRangeMin;
+  const inputMin = 0;
+  const inputMax = MAX_KNOB_VALUE;
+  const [outputMin, outputMax] = range;
+
+  const normalizedInput = (input - inputMin) / (inputMax - inputMin);
+  const exponentialValue = Math.pow(normalizedInput, 2);
+  const mappedValue = outputMin + exponentialValue * (outputMax - outputMin);
+
+  return mappedValue;
 };
 
 const MAX_KNOB_VALUE = 100;
 
-export const Knob: React.FC<KnobProps> = ({
+export const KnobExponential: React.FC<KnobProps> = ({
   size,
   knobValue,
   setKnobValue,
@@ -190,12 +195,14 @@ export const Knob: React.FC<KnobProps> = ({
             {isMouseDown
               ? `${
                   knobUnits
-                    ? transformKnobValue(knobValue, knobTransformRange).toFixed(
-                        1
-                      )
-                    : transformKnobValue(knobValue, knobTransformRange).toFixed(
-                        0
-                      )
+                    ? transformKnobValueExponential(
+                        knobValue,
+                        knobTransformRange
+                      ).toFixed(1)
+                    : transformKnobValueExponential(
+                        knobValue,
+                        knobTransformRange
+                      ).toFixed(0)
                 } ${knobUnits}`
               : knobTitle}
           </Text>

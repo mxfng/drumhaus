@@ -16,6 +16,10 @@ export type Preset = {
   _samples: Sample[];
   _bpm: number;
   _swing: number;
+  _lowPass: number;
+  _hiPass: number;
+  _phaser: number;
+  _reverb: number;
   _masterVolume: number;
   _sequences: Sequences;
   _attacks: number[];

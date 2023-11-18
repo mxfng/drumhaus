@@ -11,6 +11,8 @@ import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
 import { TransportControl } from "./TransportControl";
 import { Knob, transformKnobValue } from "./Knob";
 import { SequencerControl } from "./SequencerControl";
+import { MasterFX } from "./MasterFX";
+import { transformKnobValueExponential } from "./KnobExponential";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -22,6 +24,10 @@ const Drumhaus = () => {
     _samples: init._samples,
     _bpm: init._bpm,
     _swing: init._swing,
+    _lowPass: init._lowPass,
+    _hiPass: init._hiPass,
+    _phaser: init._phaser,
+    _reverb: init._reverb,
     _masterVolume: init._masterVolume,
     _sequences: init._sequences,
     _attacks: init._attacks,
@@ -42,8 +48,13 @@ const Drumhaus = () => {
   const [currentSequence, setCurrentSequence] = useState<boolean[]>(
     preset._sequences[slotIndex][variation][0]
   );
+
   const [bpm, setBpm] = useState(preset._bpm);
   const [swing, setSwing] = useState(preset._swing);
+  const [lowPass, setLowPass] = useState(preset._lowPass);
+  const [hiPass, setHiPass] = useState(preset._hiPass);
+  const [phaser, setPhaser] = useState(preset._phaser);
+  const [reverb, setReverb] = useState(preset._reverb);
   const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
   // Slots - prop drilling (consider Redux in the future)
@@ -194,6 +205,81 @@ const Drumhaus = () => {
     Tone.Transport.swing = newSwing;
   }, [swing]);
 
+  const toneLPFilter = useRef<Tone.Filter>();
+  const toneHPFilter = useRef<Tone.Filter>();
+  const tonePhaser = useRef<Tone.Phaser>();
+  const toneReverb = useRef<Tone.Reverb>();
+
+  useEffect(() => {
+    setMasterChain();
+
+    return () => {
+      toneLPFilter.current?.dispose();
+      toneHPFilter.current?.dispose();
+    };
+
+    function setMasterChain() {
+      toneLPFilter.current = new Tone.Filter(15000, "lowpass");
+      toneHPFilter.current = new Tone.Filter(0, "highpass");
+      tonePhaser.current = new Tone.Phaser({
+        frequency: 5,
+        octaves: 4,
+        baseFrequency: 1000,
+      });
+      toneReverb.current = new Tone.Reverb(1);
+
+      if (
+        toneLPFilter.current &&
+        toneHPFilter.current &&
+        tonePhaser.current &&
+        toneReverb.current
+      ) {
+        samples.forEach((sample) => {
+          sample.sampler.chain(
+            sample.envelope,
+            sample.filter,
+            sample.panner,
+            toneLPFilter.current!!,
+            toneHPFilter.current!!,
+            tonePhaser.current!!,
+            toneReverb.current!!,
+            Tone.Destination
+          );
+        });
+      }
+    }
+  }, [samples]);
+
+  useEffect(() => {
+    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
+    if (toneLPFilter.current) {
+      toneLPFilter.current.frequency.value = newLowPass;
+    }
+  }, [lowPass]);
+
+  useEffect(() => {
+    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
+    if (toneHPFilter.current) {
+      toneHPFilter.current.frequency.value = newHiPass;
+    }
+  }, [hiPass]);
+
+  useEffect(() => {
+    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
+    if (tonePhaser.current) {
+      tonePhaser.current.wet.value = newPhaserWet;
+    }
+  }, [phaser]);
+
+  useEffect(() => {
+    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
+    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
+    if (toneReverb.current) {
+      toneReverb.current.wet.value = newReverbWet;
+      toneReverb.current.decay = newReverbDecay;
+    }
+  }, [reverb]);
+
   useEffect(() => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
     Tone.Destination.volume.value = newMasterVolume;
@@ -262,8 +348,8 @@ const Drumhaus = () => {
         />
       </Box>
 
-      <Grid templateColumns="repeat(4, 1fr)" p={4} w="100%">
-        <GridItem colSpan={1} h="160px" w="160px">
+      <Grid templateColumns="repeat(5, 1fr)" p={4} w="100%">
+        <GridItem colSpan={1} w="160px">
           <Center w="100%" h="100%">
             <Button
               h="140px"
@@ -296,7 +382,7 @@ const Drumhaus = () => {
           />
         </GridItem>
 
-        <GridItem colSpan={1} w="100%">
+        <GridItem colSpan={1}>
           <TransportControl
             bpm={bpm}
             setBpm={setBpm}
@@ -304,7 +390,19 @@ const Drumhaus = () => {
             setSwing={setSwing}
           />
         </GridItem>
-        <GridItem colSpan={1} w="100%">
+        <GridItem colSpan={1} w={120}>
+          <MasterFX
+            lowPass={lowPass}
+            setLowPass={setLowPass}
+            hiPass={hiPass}
+            setHiPass={setHiPass}
+            phaser={phaser}
+            setPhaser={setPhaser}
+            reverb={reverb}
+            setReverb={setReverb}
+          />
+        </GridItem>
+        <GridItem colSpan={1} w={140}>
           <Knob
             size={140}
             knobValue={masterVolume}
