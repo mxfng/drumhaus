@@ -1,4 +1,4 @@
-import { Preset, Sample, Sequences } from "@/types/types";
+import { Sample, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__

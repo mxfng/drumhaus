@@ -3,6 +3,7 @@
 import { Box, Center, Text } from "@chakra-ui/react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
+import { transformKnobValueExponential } from "./Knob";
 
 type KnobProps = {
   size: number;
@@ -17,13 +18,12 @@ type KnobProps = {
 // Transform knob values (0-100) to Hz
 export const transformKnobFilterValue = (
   input: number,
-  rangeLow: [number, number] = [80, 6000],
-  rangeHigh: [number, number] = [0, 8000]
+  rangeLow: [number, number] = [0, 15000],
+  rangeHigh: [number, number] = [0, 15000]
 ): number => {
   const [min, max] = input <= 49 ? rangeLow : rangeHigh;
   const newInput = ((input <= 49 ? input : input - 50) / 49) * 100;
-  const scalingFactor = (max - min) / 100;
-  return scalingFactor * newInput + min;
+  return transformKnobValueExponential(newInput, [min, max]);
 };
 
 const MAX_KNOB_VALUE = 100;

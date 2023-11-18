@@ -1,6 +1,5 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import { Knob } from "./Knob";
-import { KnobExponential } from "./KnobExponential";
 
 type MasterFXProps = {
   lowPass: number;
@@ -27,13 +26,14 @@ export const MasterFX: React.FC<MasterFXProps> = ({
     <Box>
       <Grid templateColumns="repeat(2, 1fr)">
         <GridItem>
-          <KnobExponential
+          <Knob
             size={60}
             knobValue={lowPass}
             setKnobValue={setLowPass}
             knobTitle="LP FILTER"
             knobTransformRange={[0, 15000]}
             knobUnits="Hz"
+            exponential={true}
           />
         </GridItem>
         <GridItem>
@@ -45,13 +45,14 @@ export const MasterFX: React.FC<MasterFXProps> = ({
           />
         </GridItem>
         <GridItem>
-          <KnobExponential
+          <Knob
             size={60}
             knobValue={hiPass}
             setKnobValue={setHiPass}
             knobTitle="HP FILTER"
             knobTransformRange={[0, 15000]}
             knobUnits="Hz"
+            exponential={true}
           />
         </GridItem>
         <GridItem>
