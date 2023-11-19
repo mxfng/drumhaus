@@ -122,15 +122,7 @@ const Drumhaus = () => {
       setCurrentSequence(_preset._sequences[0][0][0]);
       setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
       setVariation(0);
-
       setKit(_preset._kit);
-      setAttacks(_preset._kit._attacks);
-      setReleases(_preset._kit._releases);
-      setFilters(_preset._kit._filters);
-      setPans(_preset._kit._pans);
-      setVolumes(_preset._kit._volumes);
-      setSolos(_preset._kit._solos);
-      setMutes(_preset._kit._mutes);
       setSequences(_preset._sequences);
       setBpm(_preset._bpm);
       setSwing(_preset._swing);
@@ -150,6 +142,13 @@ const Drumhaus = () => {
   useEffect(() => {
     const newSamples = init.createSamples(kit.samples);
     setSamples(newSamples);
+    setAttacks(kit._attacks);
+    setReleases(kit._releases);
+    setFilters(kit._filters);
+    setPans(kit._pans);
+    setVolumes(kit._volumes);
+    setSolos(kit._solos);
+    setMutes(kit._mutes);
   }, [kit]);
 
   useEffect(() => {
@@ -430,6 +429,7 @@ const Drumhaus = () => {
             preset={preset}
             setPreset={setPreset}
             kit={kit}
+            setKit={setKit}
             bpm={bpm}
             swing={swing}
             lowPass={lowPass}

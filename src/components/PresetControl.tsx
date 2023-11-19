@@ -11,6 +11,7 @@ type PresetControlProps = {
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   kit: Kit;
+  setKit: React.Dispatch<React.SetStateAction<Kit>>;
   bpm: number;
   swing: number;
   lowPass: number;
