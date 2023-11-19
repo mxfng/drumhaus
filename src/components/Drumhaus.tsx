@@ -399,13 +399,34 @@ const Drumhaus = () => {
         >
           drumhaus
         </Text>
+        <Text
+          color="gray"
+          position="absolute"
+          left={520}
+          bottom={9}
+          opacity={0.5}
+        >
+          Browser Controlled
+        </Text>
+        <Text
+          color="gray"
+          position="absolute"
+          left={520}
+          bottom={4}
+          opacity={0.5}
+        >
+          Rhythmic Groove Machine
+        </Text>
         <SignatureLogo
           width={80}
           fill="#B09374"
           position="absolute"
           right={6}
           top={9}
-          opacity={0.5}
+          opacity={0.2}
+          as="a"
+          href="https://www.maxfung.net/"
+          target="_blank"
         />
       </Box>
 
