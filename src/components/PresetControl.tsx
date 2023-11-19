@@ -158,6 +158,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               color="gray"
               position="absolute"
               w="312px"
+              cursor="pointer"
             ></Select>
 
             <Box
@@ -215,6 +216,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               position="absolute"
               w="312px"
               overflow="hidden"
+              cursor="pointer"
             ></Select>
 
             <Box

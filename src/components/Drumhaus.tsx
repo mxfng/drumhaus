@@ -27,6 +27,7 @@ import { MasterFX } from "./MasterFX";
 import { MasterCompressor } from "./MasterCompressor";
 import { PresetControl } from "./PresetControl";
 import { DrumhausLogo } from "./svg/DrumhausLogo";
+import { SignatureLogo } from "./svg/SignatureLogo";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -398,6 +399,14 @@ const Drumhaus = () => {
         >
           drumhaus
         </Text>
+        <SignatureLogo
+          width={80}
+          fill="#B09374"
+          position="absolute"
+          right={6}
+          top={9}
+          opacity={0.5}
+        />
       </Box>
 
       <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
