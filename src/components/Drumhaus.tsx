@@ -2,7 +2,15 @@
 
 import * as init from "@/lib/init";
 import { Kit, Preset, Sample, Sequences } from "@/types/types";
-import { Box, Button, Center, Grid, GridItem, Heading } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Grid,
+  GridItem,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
@@ -362,20 +370,29 @@ const Drumhaus = () => {
       h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
-      boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+      boxShadow="0 8px 16px rgba(0, 0, 0, 0.2)"
+      mx="auto"
+      overflow="hidden"
     >
-      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
-        <Heading
+      <Box
+        h="120px"
+        boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+        position="relative"
+      >
+        <Text
           id="logo"
           variant="logo"
-          as="h1"
           fontSize={100}
           color="darkorange"
           fontFamily="Mandala"
           px={6}
+          position="absolute"
+          top={-4}
+          left={0}
+          fontWeight={900}
         >
           drumhaus
-        </Heading>
+        </Text>
       </Box>
 
       <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
