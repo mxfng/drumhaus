@@ -14,6 +14,7 @@ const theme = extendTheme({
     gray: "#B09374", // text colors
     silver: "#F7F1EA", // background
     darksilver: "#d4cdc5", // lowlight background
+    silver2: "#E8E3DD",
     darkorange: "#ff7b00", // highlight orange
   },
 });

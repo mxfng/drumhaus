@@ -154,13 +154,12 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 onMouseEnter={() => toggleStepOnMouseOver(node, sequence[node])}
                 w="100%"
                 h={`${calculateStepsHeight()}px`}
-                bg={sequence[node] ? "darkorange" : "transparent"}
+                bg={sequence[node] ? "darkorange" : "gray"}
                 transition="all 0.2s ease"
-                opacity={sequence[node] ? 1 : 0.5}
-                outline="4px solid darkorange"
-                borderRadius={`${calculateStepsHeight() / 4}px 0 ${
+                opacity={sequence[node] ? 1 : 0.2}
+                borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
-                }px 0`}
+                }px`}
                 _hover={{
                   background: "darkorange",
                 }}
@@ -183,20 +182,28 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   "& p": {
                     opacity: 1,
                   },
+                  "& .text": {
+                    filter: "blur(0px)",
+                  },
                 }}
+                borderRadius="200px 0 200px 0"
               >
                 <Box
                   bg="darkorange"
                   h="100%"
                   w={`${sequences[slot][variation][1][node] * 100}%`}
                   position="absolute"
+                  borderRadius="200px 0 200px 0"
+                  filter="blur(2px)"
                 />
                 <Center position="absolute" h="100%" w="100%">
                   <Text
+                    className="text"
                     color="white"
                     fontFamily={`'Pixelify Sans Variable', sans-serif`}
                     opacity={0}
                     transition="0.5s ease"
+                    filter="blur(2px)"
                   >
                     {(sequences[slot][variation][1][node] * 100).toFixed(0)}
                   </Text>
