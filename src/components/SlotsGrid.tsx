@@ -80,12 +80,24 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
     setSlotIndex(node);
   };
 
+  const waveColors = [
+    "#213062",
+    "#e9902f",
+    "#d72529",
+    "#27991a",
+    "#213062",
+    "#e9902f",
+    "#d72529",
+    "#27991a",
+  ];
+
   return (
     <Grid
       ref={slotsRef}
       key="slots"
       w="100%"
       templateColumns={`repeat(${NO_OF_SLOTS}, 1fr)`}
+      boxShadow="0 4px 4px rgba(176, 147, 116, 0.3)"
     >
       {samples.map((sample, index) => (
         <GridItem
@@ -96,13 +108,13 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
           onMouseDown={() => toggleCurrentSequence(index)}
           transition="all 0.5s ease"
           bg={slotIndex == index ? "rgba(255, 255, 255, 0.05)" : "transparent"}
-          boxShadow={slotIndex == index ? "0 4px 4px rgba(0, 0, 0, 0.1)" : ""}
-          opacity={slotIndex == index ? 1 : 0.7}
+          // opacity={slotIndex == index ? 1 : 0.7}
           _hover={{
             opacity: 1,
           }}
         >
           <Slot
+            color={waveColors[index]}
             key={`DHSlot-${index}`}
             sample={sample}
             attacks={attacks}
@@ -120,6 +132,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             solos={solos}
             setSolos={setSolos}
             setDurations={setDurations}
+            bg={slotIndex == index ? "#F7F1EA" : "#E8E3DD"}
           />
         </GridItem>
       ))}

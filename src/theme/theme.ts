@@ -13,6 +13,7 @@ const theme = extendTheme({
     brown: "#000000", // slot titles
     gray: "#B09374", // text colors
     silver: "#F7F1EA", // background
+    darksilver: "#d4cdc5", // lowlight background
     darkorange: "#ff7b00", // highlight orange
   },
 });

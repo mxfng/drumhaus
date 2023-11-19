@@ -119,7 +119,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     w="30px"
                     bg="transparent"
                     borderRadius="8px 0 0 8px"
-                    color={variation == 0 ? "darkorange" : "gray"}
+                    color={variation == 0 ? "darkorange" : "#B09374"}
                     onClick={() => setVariation(0)}
                   >
                     A
@@ -129,7 +129,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                     w="30px"
                     bg="transparent"
                     borderRadius="0 8px 8px 0"
-                    color={variation == 1 ? "darkorange" : "gray"}
+                    color={variation == 1 ? "darkorange" : "#B09374"}
                     onClick={() => setVariation(1)}
                   >
                     B
@@ -210,7 +210,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={copySequence}
               >
-                <IoCopySharp color="gray" />
+                <IoCopySharp color="#B09374" />
               </Button>
               <Text
                 fontSize={12}
@@ -231,7 +231,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={pasteSequence}
               >
-                <IoBrushSharp color="gray" />
+                <IoBrushSharp color="#B09374" />
               </Button>
               <Text
                 fontSize={12}
@@ -252,7 +252,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={clearSequence}
               >
-                <BsFillEraserFill color="gray" />
+                <BsFillEraserFill color="#B09374" />
               </Button>
               <Text
                 fontSize={12}
@@ -273,7 +273,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={randomSequence}
               >
-                <FaDice color="gray" />
+                <FaDice color="#B09374" />
               </Button>
               <Text
                 fontSize={12}

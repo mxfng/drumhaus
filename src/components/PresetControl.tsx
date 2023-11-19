@@ -179,10 +179,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             >
               <Box>
                 <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                  <IoMdArrowDropdown className="icon" color="gray" />
+                  <IoMdArrowDropdown className="icon" color="#B09374" />
                 </Box>
                 <Box h="50%">
-                  <IoMdArrowDropdown className="icon" color="gray" />
+                  <IoMdArrowDropdown className="icon" color="#B09374" />
                 </Box>
               </Box>
             </Button>
@@ -251,7 +251,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 },
               }}
             >
-              <MdOutlineSaveAlt className="icon" color="gray" />
+              <MdOutlineSaveAlt className="icon" color="#B09374" />
             </Button>
 
             <Button
@@ -267,7 +267,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 },
               }}
             >
-              <FaFolderOpen className="icon" color="gray" />
+              <FaFolderOpen className="icon" color="#B09374" />
             </Button>
             <Button
               bg="transparent"
@@ -283,7 +283,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             >
               <IoShareSharp
                 className="icon"
-                fill="gray"
+                fill="#B09374"
                 transition="all 0.2s ease"
               />
             </Button>
