@@ -57,9 +57,7 @@ export const Knob: React.FC<KnobProps> = ({
   const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
 
   useEffect(() => {
-    // This is causing twitching in the knob on regular use,
-    // but works relatively ok
-    // Needed to update knob rotation on loading kits/presets
+    // hacky
     if (!isMouseDown) {
       mouseY.set(knobValue);
     }
