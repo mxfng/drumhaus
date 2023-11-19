@@ -58,7 +58,20 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const customName: string = "testPreset";
     const presetToSave: Preset = {
       name: customName,
-      _kit: kit,
+      _kit: {
+        name: kit.name,
+        samples: kit.samples,
+        _attacks: attacks,
+        _releases: releases,
+        _filters: filters,
+        _pans: pans,
+        _volumes: volumes,
+        _mutes: mutes,
+        _solos: solos,
+      },
+      _sequences: sequences,
+      _variation: 0,
+      _chain: chain,
       _bpm: bpm,
       _swing: swing,
       _lowPass: lowPass,
@@ -68,16 +81,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _compThreshold: compThreshold,
       _compRatio: compRatio,
       _masterVolume: masterVolume,
-      _sequences: sequences,
-      _attacks: attacks,
-      _releases: releases,
-      _filters: filters,
-      _volumes: volumes,
-      _pans: pans,
-      _solos: solos,
-      _mutes: mutes,
-      _variation: 0,
-      _chain: chain,
     };
     const jsonPreset = JSON.stringify(presetToSave);
     const blob = new Blob([jsonPreset], { type: "application/json" });

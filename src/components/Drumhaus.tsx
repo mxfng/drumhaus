@@ -38,13 +38,6 @@ const Drumhaus = () => {
     _compRatio: init._compRatio,
     _masterVolume: init._masterVolume,
     _sequences: init._sequences,
-    _attacks: init._attacks,
-    _releases: init._releases,
-    _filters: init._filters,
-    _volumes: init._volumes,
-    _pans: init._pans,
-    _solos: init._solos,
-    _mutes: init._mutes,
     _variation: init._variation,
     _chain: init._chain,
   });
@@ -69,13 +62,13 @@ const Drumhaus = () => {
   const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
   // Slots - prop drilling (consider Redux in the future)
-  const [attacks, setAttacks] = useState<number[]>(preset._attacks);
-  const [releases, setReleases] = useState<number[]>(preset._releases);
-  const [filters, setFilters] = useState<number[]>(preset._filters);
-  const [volumes, setVolumes] = useState<number[]>(preset._volumes);
-  const [pans, setPans] = useState<number[]>(preset._pans);
-  const [mutes, setMutes] = useState<boolean[]>(preset._mutes);
-  const [solos, setSolos] = useState<boolean[]>(preset._solos);
+  const [attacks, setAttacks] = useState<number[]>(kit._attacks);
+  const [releases, setReleases] = useState<number[]>(kit._releases);
+  const [filters, setFilters] = useState<number[]>(kit._filters);
+  const [volumes, setVolumes] = useState<number[]>(kit._volumes);
+  const [pans, setPans] = useState<number[]>(kit._pans);
+  const [mutes, setMutes] = useState<boolean[]>(kit._mutes);
+  const [solos, setSolos] = useState<boolean[]>(kit._solos);
   const [durations, setDurations] = useState<number[]>([
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -101,11 +94,6 @@ const Drumhaus = () => {
       setCompThreshold(_preset._compThreshold);
       setCompRatio(_preset._compRatio);
       setMasterVolume(_preset._masterVolume);
-      setAttacks(_preset._attacks);
-      setReleases(_preset._releases);
-      setFilters(_preset._filters);
-      setVolumes(_preset._volumes);
-      setPans(_preset._pans);
       setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
       setVariation(0);
       setChain(_preset._chain);
