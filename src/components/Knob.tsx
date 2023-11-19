@@ -112,7 +112,7 @@ export const Knob: React.FC<KnobProps> = ({
 
   return (
     <>
-      <Box>
+      <Box h={`${size + 30}px`}>
         <Center>
           <Box
             key="knob-mask"
