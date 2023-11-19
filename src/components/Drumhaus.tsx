@@ -372,6 +372,7 @@ const Drumhaus = () => {
       m="auto"
       position="absolute"
       inset={0}
+      overflow="clip"
     >
       <Box
         h="120px"
