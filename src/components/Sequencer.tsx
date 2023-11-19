@@ -35,21 +35,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
   const sequencerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const resizeStepBoxes = () => {
-      if (sequencerRef.current) {
-        setParentWidth(sequencerRef.current.offsetWidth);
-      }
-    };
-
-    window.addEventListener("resize", resizeStepBoxes);
-    resizeStepBoxes(); // Initial sizing
-
-    return () => {
-      window.removeEventListener("resize", resizeStepBoxes);
-    };
-  }, []);
-
-  useEffect(() => {
     if (isMouseDown) {
       window.addEventListener("mouseup", handleMouseUp);
     } else {
@@ -68,7 +53,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
   }, []);
 
   const calculateStepsHeight = () => {
-    return parentWidth / NUM_OF_STEPS - STEP_BOXES_GAP;
+    return 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
   };
 
   const toggleStep = (index: number) => {
