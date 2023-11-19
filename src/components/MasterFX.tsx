@@ -34,6 +34,7 @@ export const MasterFX: React.FC<MasterFXProps> = ({
             bottom="70px"
             color="gray"
             fontSize={12}
+            opacity={0.5}
           >
             MASTER FX
           </Text>

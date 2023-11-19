@@ -25,6 +25,7 @@ export const MasterCompressor: React.FC<MasterCompressorProps> = ({
             bottom="70px"
             color="gray"
             fontSize={12}
+            opacity={0.5}
           >
             COMPRESSOR
           </Text>
