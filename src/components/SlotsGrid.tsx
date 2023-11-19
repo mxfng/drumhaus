@@ -97,7 +97,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
       key="slots"
       w="100%"
       templateColumns={`repeat(${NO_OF_SLOTS}, 1fr)`}
-      boxShadow="0 4px 4px rgba(176, 147, 116, 0.3)"
+      boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
     >
       {samples.map((sample, index) => (
         <GridItem

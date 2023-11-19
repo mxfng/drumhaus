@@ -26,6 +26,7 @@ import { SequencerControl } from "./SequencerControl";
 import { MasterFX } from "./MasterFX";
 import { MasterCompressor } from "./MasterCompressor";
 import { PresetControl } from "./PresetControl";
+import { DrumhausLogo } from "./svg/DrumhausLogo";
 
 const Drumhaus = () => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -377,6 +378,9 @@ const Drumhaus = () => {
         boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
         position="relative"
       >
+        <Box zIndex={999} position="absolute" left={0} top="17px">
+          <DrumhausLogo size={100} color="#ff7b00" />
+        </Box>
         <Text
           id="logo"
           variant="logo"
@@ -386,7 +390,7 @@ const Drumhaus = () => {
           px={6}
           position="absolute"
           top={-4}
-          left={0}
+          left={14}
           fontWeight={900}
         >
           drumhaus
