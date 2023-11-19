@@ -8,8 +8,10 @@ const Drumhaus = dynamic(() => import("../components/Drumhaus"), {
 
 export default function Home() {
   return (
-    <Flex w="100%" h="100vh" align="center">
-      <Drumhaus />
-    </Flex>
+    <Box w="100%" h="100%">
+      <Box w="100%" h="100vh" minW={1538} minH={1000} position="relative">
+        <Drumhaus />
+      </Box>
+    </Box>
   );
 }

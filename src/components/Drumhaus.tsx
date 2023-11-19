@@ -362,17 +362,15 @@ const Drumhaus = () => {
 
   return (
     <Box
-      id="Drumhaus"
-      className="drumhaus"
       bg="silver"
-      minW={1538}
       w={1538}
       h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
       boxShadow="0 8px 16px rgba(0, 0, 0, 0.2)"
-      mx="auto"
-      overflow="hidden"
+      m="auto"
+      position="absolute"
+      inset={0}
     >
       <Box
         h="120px"
