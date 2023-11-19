@@ -14,10 +14,67 @@ export const _sampleData: SampleData[] = [
   { name: "Crash", url: "crash/debug_crash.wav" },
 ];
 
+// Define initial kit
 export const _kit: Kit = {
   name: "debug",
   samples: _sampleData,
+  _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
+  _releases: [10, 10, 10, 10, 10, 100, 40, 100],
+  _filters: [50, 50, 50, 50, 50, 50, 50, 50],
+  _volumes: [92, 92, 92, 92, 92, 92, 92, 70],
+  _pans: [50, 50, 50, 50, 50, 50, 50, 50],
+  _solos: [false, false, false, false, false, false, false, false],
+  _mutes: [false, false, false, false, false, false, false, false],
 };
+
+// Create sequencer objects
+// sequences[slot][aOrB][sequencesOrVelocities][step]
+// where aOrB represents A as 0 and B as 1
+// where sequencesOrVelocities represents sequences as 0 and velocities as 1
+//
+// [ // sequences
+//   [ // slot
+//     [ // variation
+//       [false, false, false, ..., false],  // hits
+//       [1, 1, 1, ..., 1]                   // velocities
+//     ],
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ]
+//   ],
+//   [
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ],
+//     [
+//       [false, false, false, ..., false],
+//       [1, 1, 1, ..., 1]
+//     ]
+//   ],
+//   // ... (repeated 6 more times)
+// ]
+
+export const _sequences: Sequences = Array.from({ length: 8 }, () =>
+  Array.from({ length: 2 }, () => [
+    Array.from({ length: 16 }, () => false),
+    Array.from({ length: 16 }, () => 1),
+  ])
+);
+export const _variation = 0;
+export const _chain = 0;
+
+// Create global parameters
+export const _bpm = 100;
+export const _swing = 0;
+export const _lowPass = 100;
+export const _hiPass = 0;
+export const _phaser = 0;
+export const _reverb = 0;
+export const _compThreshold = 100;
+export const _compRatio = 0;
+export const _masterVolume = 90;
 
 export const createSamples = (samples: SampleData[]) => {
   return samples.map((sample, id) => {
@@ -49,60 +106,3 @@ export const createSamples = (samples: SampleData[]) => {
 
 // Create initial Drumhaus sampler objects
 export const _samples: Sample[] = createSamples(_sampleData);
-
-// Create initial global parameters
-export const _bpm = 100;
-export const _swing = 0;
-export const _lowPass = 100;
-export const _hiPass = 0;
-export const _phaser = 0;
-export const _reverb = 0;
-export const _compThreshold = 100;
-export const _compRatio = 0;
-export const _masterVolume = 90;
-export const _sequences: Sequences = Array.from({ length: 8 }, () =>
-  Array.from({ length: 2 }, () => [
-    Array.from({ length: 16 }, () => false),
-    Array.from({ length: 16 }, () => 1),
-  ])
-);
-
-// Sequences data structure
-// sequences[slot][aOrB][sequencesOrVelocities][step]
-// where aOrB represents A as 0 and B as 1
-// where sequencesOrVelocities represents sequences as 0 and velocities as 1
-//
-// [ // sequences
-//   [ // slot
-//     [ // variation
-//       [false, false, false, ..., false],  // hits
-//       [1, 1, 1, ..., 1]                   // velocities
-//     ],
-//     [
-//       [false, false, false, ..., false],
-//       [1, 1, 1, ..., 1]
-//     ]
-//   ],
-//   [
-//     [
-//       [false, false, false, ..., false],
-//       [1, 1, 1, ..., 1]
-//     ],
-//     [
-//       [false, false, false, ..., false],
-//       [1, 1, 1, ..., 1]
-//     ]
-//   ],
-//   // ... (repeated 6 more times)
-// ]
-
-// Create initial arrays of slot parameters
-export const _attacks = [0, 0, 0, 0, 0, 0, 0, 0];
-export const _releases = [10, 10, 10, 10, 10, 100, 40, 100];
-export const _filters = [50, 50, 50, 50, 50, 50, 50, 50];
-export const _volumes = [92, 92, 92, 92, 92, 92, 92, 70];
-export const _pans = [50, 50, 50, 50, 50, 50, 50, 50];
-export const _solos = [false, false, false, false, false, false, false, false];
-export const _mutes = [false, false, false, false, false, false, false, false];
-export const _variation = 0;
-export const _chain = 0;

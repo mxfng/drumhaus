@@ -23,6 +23,13 @@ export type SampleShell = {
 export type Kit = {
   name: string;
   samples: SampleShell[];
+  _attacks: number[];
+  _releases: number[];
+  _filters: number[];
+  _volumes: number[];
+  _pans: number[];
+  _solos: boolean[];
+  _mutes: boolean[];
 };
 
 export type Sequences = [boolean[], number[]][][];
@@ -30,6 +37,9 @@ export type Sequences = [boolean[], number[]][][];
 export type Preset = {
   name: string;
   _kit: Kit;
+  _sequences: Sequences;
+  _variation: number;
+  _chain: number;
   _bpm: number;
   _swing: number;
   _lowPass: number;
@@ -39,14 +49,4 @@ export type Preset = {
   _compThreshold: number;
   _compRatio: number;
   _masterVolume: number;
-  _sequences: Sequences;
-  _attacks: number[];
-  _releases: number[];
-  _filters: number[];
-  _volumes: number[];
-  _pans: number[];
-  _solos: boolean[];
-  _mutes: boolean[];
-  _variation: number;
-  _chain: number;
 };
