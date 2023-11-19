@@ -91,6 +91,11 @@ const Drumhaus = () => {
 
   useEffect(() => {
     function setFromPreset(_preset: Preset) {
+      setSlotIndex(0);
+      setCurrentSequence(_preset._sequences[0][0][0]);
+      setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
+      setVariation(0);
+
       setKit(_preset._kit);
       setAttacks(_preset._kit._attacks);
       setReleases(_preset._kit._releases);
@@ -100,7 +105,6 @@ const Drumhaus = () => {
       setSolos(_preset._kit._solos);
       setMutes(_preset._kit._mutes);
       setSequences(_preset._sequences);
-      setCurrentSequence(_preset._sequences[0][0][0]);
       setBpm(_preset._bpm);
       setSwing(_preset._swing);
       setLowPass(_preset._lowPass);
@@ -110,8 +114,6 @@ const Drumhaus = () => {
       setCompThreshold(_preset._compThreshold);
       setCompRatio(_preset._compRatio);
       setMasterVolume(_preset._masterVolume);
-      setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
-      setVariation(0);
       setChain(_preset._chain);
     }
 
