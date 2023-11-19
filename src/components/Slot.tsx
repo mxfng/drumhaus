@@ -22,9 +22,7 @@ import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
 
 type SlotParams = {
-  colorBg?: string;
-  colorHeading?: string;
-  colorText?: string;
+  color?: string;
   sample: Sample;
   attacks: number[];
   setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
@@ -44,9 +42,7 @@ type SlotParams = {
 };
 
 export const Slot: React.FC<SlotParams> = ({
-  colorBg = "#F7F1EA",
-  colorHeading = "#000000",
-  colorText = "#B09374",
+  color = "#ff7b00",
   sample,
   attacks,
   setAttacks,
@@ -246,7 +242,7 @@ export const Slot: React.FC<SlotParams> = ({
           key={`filename-${sample.name}`}
           className="filename"
           fontFamily={`'Pixelify Sans Variable', sans-serif`}
-          color={colorText}
+          color="#B09374"
           px={4}
           py={2}
         >
@@ -260,7 +256,7 @@ export const Slot: React.FC<SlotParams> = ({
             onMouseDown={() => playSample()}
             bg="transparent"
           >
-            <Waveform audioFile={sample.url} width={waveWidth} />
+            <Waveform audioFile={sample.url} width={waveWidth} color={color} />
           </Button>
         </Box>
 
@@ -318,9 +314,9 @@ export const Slot: React.FC<SlotParams> = ({
                   onClick={() => toggleMute(sample.id)}
                 >
                   {mutes[sample.id] ? (
-                    <ImVolumeMute2 color={colorText} />
+                    <ImVolumeMute2 color="#B09374" />
                   ) : (
-                    <ImVolumeMute color={colorText} />
+                    <ImVolumeMute color="#B09374" />
                   )}
                 </Button>
                 <Button
@@ -332,7 +328,7 @@ export const Slot: React.FC<SlotParams> = ({
                   onClick={() => toggleSolo(sample.id)}
                 >
                   <MdHeadphones
-                    color={solos[sample.id] ? "darkorange" : colorText}
+                    color={solos[sample.id] ? "darkorange" : "B09374"}
                   />
                 </Button>
               </Flex>
