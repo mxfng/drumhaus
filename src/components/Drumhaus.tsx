@@ -2,16 +2,8 @@
 
 import * as init from "@/lib/init";
 import { Kit, Preset, Sample, Sequences } from "@/types/types";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Heading,
-  Text,
-} from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
 import { SlotsGrid } from "./SlotsGrid";
@@ -28,13 +20,9 @@ import { MasterCompressor } from "./MasterCompressor";
 import { PresetControl } from "./PresetControl";
 import { DrumhausLogo } from "./svg/DrumhausLogo";
 import { SignatureLogo } from "./svg/SignatureLogo";
+import makeGoodMusic from "@/lib/makeGoodMusic";
 
 const Drumhaus = () => {
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [stepIndex, setStepIndex] = useState(0); // 0 - 15
-  const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
-
-  // Global
   const [preset, setPreset] = useState<Preset>({
     name: "init",
     _kit: init._kit,
@@ -51,7 +39,10 @@ const Drumhaus = () => {
     _variation: init._variation,
     _chain: init._chain,
   });
-
+  // g l o b a l
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [stepIndex, setStepIndex] = useState(0); // 0 - 15
+  const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [samples, setSamples] = useState<Sample[]>(init._samples);
   const [kit, setKit] = useState<Kit>(preset._kit);
   const [sequences, setSequences] = useState<Sequences>(preset._sequences);
@@ -61,6 +52,7 @@ const Drumhaus = () => {
     preset._sequences[slotIndex][variation][0]
   );
 
+  // m a s t e r   c o n t r o l s
   const [bpm, setBpm] = useState(preset._bpm);
   const [swing, setSwing] = useState(preset._swing);
   const [lowPass, setLowPass] = useState(preset._lowPass);
@@ -71,7 +63,7 @@ const Drumhaus = () => {
   const [compRatio, setCompRatio] = useState(preset._compRatio);
   const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
-  // Slots - prop drilling (consider Redux in the future)
+  // s l o t s
   const [attacks, setAttacks] = useState<number[]>(kit._attacks);
   const [releases, setReleases] = useState<number[]>(kit._releases);
   const [filters, setFilters] = useState<number[]>(kit._filters);
@@ -83,12 +75,46 @@ const Drumhaus = () => {
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
 
+  // r e f s
   const toneSequence = useRef<Tone.Sequence | null>(null);
   const toneLPFilter = useRef<Tone.Filter>();
   const toneHPFilter = useRef<Tone.Filter>();
   const tonePhaser = useRef<Tone.Phaser>();
   const toneReverb = useRef<Tone.Reverb>();
   const toneCompressor = useRef<Tone.Compressor>();
+  const bar = useRef<number>(0);
+  const chainVariation = useRef<number>(0);
+
+  // m e m o i z a t i o n
+  const sequencesCache = useMemo(() => sequences, [sequences]);
+  const releasesCache = useMemo(() => releases, [releases]);
+  const chainCache = useMemo(() => chain, [chain]);
+  const mutesCache = useMemo(() => mutes, [mutes]);
+  const solosCache = useMemo(() => solos, [solos]);
+  const samplesCache = useMemo(() => samples, [samples]);
+
+  // m a k e   g o o d   m u s i c
+  useEffect(() => {
+    if (isPlaying) {
+      makeGoodMusic(
+        toneSequence,
+        samplesCache,
+        releasesCache,
+        durations,
+        chainCache,
+        bar,
+        chainVariation,
+        solosCache,
+        sequencesCache,
+        mutesCache,
+        setStepIndex
+      );
+    }
+
+    return () => {
+      toneSequence.current?.dispose();
+    };
+  }, [isPlaying, releases, chain, mutes, solos, samples]);
 
   useEffect(() => {
     function setFromPreset(_preset: Preset) {
@@ -125,105 +151,6 @@ const Drumhaus = () => {
     const newSamples = init.createSamples(kit.samples);
     setSamples(newSamples);
   }, [kit]);
-
-  useEffect(() => {
-    let bar = 0;
-    let chainVariation = 0;
-
-    if (isPlaying) {
-      toneSequence.current = new Tone.Sequence(
-        (time, step: number) => {
-          function triggerSample(slot: number, velocity: number) {
-            samples[slot].sampler.triggerRelease("C2", time);
-            if (samples[slot].name !== "OHat") {
-              samples[slot].sampler.triggerRelease("C2", time);
-              samples[slot].envelope.triggerAttack(time);
-              samples[slot].envelope.triggerRelease(
-                time + transformKnobValue(releases[slot], [0, durations[slot]])
-              );
-              samples[slot].sampler.triggerAttack("C2", time, velocity);
-            } else {
-              triggerOHat(velocity);
-            }
-          }
-
-          function muteOHatOnHat(slot: number) {
-            if (slot == 4) samples[5].sampler.triggerRelease("C2", time);
-          }
-
-          function triggerOHat(velocity: number) {
-            samples[5].envelope.triggerAttack(time);
-            samples[5].sampler.triggerAttack("C2", time, velocity);
-          }
-
-          const hasSolos = (solos: boolean[]) =>
-            solos.some((value) => value === true);
-
-          setVariationByChainAndBar();
-
-          const anySolos = hasSolos(solos);
-
-          for (let slot = 0; slot < sequences.length; slot++) {
-            const hit: boolean = sequences[slot][chainVariation][0][step];
-            const isSolo = solos[slot];
-            if (anySolos && !isSolo) {
-              continue;
-            } else if (hit && !mutes[slot]) {
-              const velocity: number = sequences[slot][chainVariation][1][step];
-              muteOHatOnHat(slot);
-              triggerSample(slot, velocity);
-            }
-          }
-
-          setStepIndex(step);
-          setBarByChain();
-
-          function setBarByChain() {
-            if (step === 15) {
-              if (
-                chain < 2 ||
-                (chain === 2 && bar === 1) ||
-                (chain === 3 && bar === 3)
-              ) {
-                bar = 0;
-              } else {
-                bar++;
-              }
-            }
-          }
-
-          function setVariationByChainAndBar() {
-            if (step === 0) {
-              switch (chain) {
-                case 0:
-                  chainVariation = 0;
-                  break;
-                case 1:
-                  chainVariation = 1;
-                  break;
-                case 2:
-                  chainVariation = bar === 0 ? 0 : 1;
-                  break;
-                case 3:
-                  chainVariation = bar === 3 ? 1 : 0;
-                  break;
-                default:
-                  chainVariation = 0;
-              }
-            }
-          }
-        },
-        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        "16n"
-      ).start(0);
-    }
-
-    return () => {
-      toneSequence.current?.dispose();
-    };
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sequences, isPlaying, releases, chain, mutes, solos, samples]);
 
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
