@@ -94,7 +94,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
     <>
       <Center h="100%" w="280px" px={4}>
         <Box>
-          <Text fontSize={12} color="gray" pb={4}>
+          <Text fontSize={12} color="gray" pb={4} opacity={0.5}>
             SEQUENCER
           </Text>
           <Grid templateColumns="repeat(3,1fr)" pb={8}>

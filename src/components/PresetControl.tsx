@@ -55,7 +55,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   chain,
 }) => {
   const exportToJson = () => {
-    const customName: string = "custom";
+    const customName: string = prompt("Enter a custom name:") || "custom";
     const presetToSave: Preset = {
       name: customName,
       _kit: {
@@ -87,7 +87,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
     downloadLink.href = url;
-    downloadLink.download = "state.json";
+    downloadLink.download = `${customName}.dh`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -97,7 +97,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const loadFromJson = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
-    fileInput.accept = ".json";
+    fileInput.accept = ".dh";
     fileInput.onchange = (e) =>
       handleFileChange((e.target as HTMLInputElement).files?.[0]);
 
@@ -214,6 +214,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               color="gray"
               position="absolute"
               w="312px"
+              overflow="hidden"
             ></Select>
 
             <Box
@@ -223,6 +224,17 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               right={4}
               top={2}
               bg="silver"
+              pointerEvents="none"
+            />
+
+            <Box
+              position="absolute"
+              h="25px"
+              w="138px"
+              right={2}
+              top={2}
+              bg="linear-gradient(90deg, rgba(24,24,24,0) 0%, silver 8%)"
+              borderRadius="0px 8px 8px 0"
               pointerEvents="none"
             />
 
