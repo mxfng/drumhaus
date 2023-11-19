@@ -154,11 +154,12 @@ export const Knob: React.FC<KnobProps> = ({
                     zIndex={3}
                   >
                     <Box
-                      w={`${size / 4}px`}
+                      w={`${size / 5}px`}
                       h={`${Math.floor(size / 12)}px`}
                       bg="darkorange"
                       position="absolute"
                       right={0}
+                      boxShadow="0 2px 3px rgba(176, 147, 116, 0.2) inset"
                     />
                   </Center>
                 </Center>

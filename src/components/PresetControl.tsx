@@ -125,12 +125,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   return (
     <Center h="100%">
-      <Box
-        w="100%"
-        boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
-        borderRadius="8px"
-        p={3}
-      >
+      <Box w="100%" className="neumorphicExtraTall" borderRadius="8px" p={3}>
         <Box
           w="100%"
           borderRadius="8px"
@@ -168,6 +163,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               right={4}
               top={2}
               bg="silver"
+              filter="blur(2px)"
               pointerEvents="none"
             />
 
@@ -226,6 +222,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               right={4}
               top={2}
               bg="silver"
+              filter="blur(5px)"
               pointerEvents="none"
             />
 
@@ -236,6 +233,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               right={2}
               top={2}
               bg="linear-gradient(90deg, rgba(24,24,24,0) 0%, #F7F1EA 8%)"
+              filter="blur(5px)"
               borderRadius="0px 8px 8px 0"
               pointerEvents="none"
             />
