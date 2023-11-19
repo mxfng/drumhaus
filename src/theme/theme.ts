@@ -9,6 +9,12 @@ const theme = extendTheme({
       },
     },
   },
+  colors: {
+    brown: "#000000", // slot titles
+    gray: "#B09374", // text colors
+    silver: "#F7F1EA", // background
+    darkorange: "#ff7b00", // highlight orange
+  },
 });
 
 export default theme;

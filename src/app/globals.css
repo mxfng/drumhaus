@@ -6,7 +6,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: silver
+  background: #F7F1EA;
 }
 
 a {

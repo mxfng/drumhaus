@@ -367,14 +367,14 @@ const Drumhaus = () => {
       h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
-      boxShadow="0 8px 16px rgba(0, 0, 0, 0.2)"
+      boxShadow="0 8px 16px rgba(176, 147, 116, 0.6)"
       m="auto"
       position="absolute"
       inset={0}
     >
       <Box
         h="120px"
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+        boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
         position="relative"
       >
         <Text
@@ -393,7 +393,7 @@ const Drumhaus = () => {
         </Text>
       </Box>
 
-      <Box boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
+      <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
         <SlotsGrid
           samples={samples}
           variation={variation}
@@ -426,7 +426,7 @@ const Drumhaus = () => {
               h="140px"
               w="140px"
               onClick={() => togglePlay()}
-              boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+              boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
               bg="silver"
               outline="none"
             >
@@ -522,7 +522,7 @@ const Drumhaus = () => {
         </GridItem>
       </Grid>
 
-      <Box p={8} boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)">
+      <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
         <Sequencer
           sequence={currentSequence}
           setSequence={setCurrentSequence}

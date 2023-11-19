@@ -7,7 +7,7 @@ interface WaveformProps {
   width: number;
 }
 
-const WAVEFORM_COLOR = "gray";
+const WAVEFORM_COLOR = "#B09374";
 
 const Waveform: React.FC<WaveformProps> = ({ audioFile, width }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

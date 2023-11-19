@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 
 type KnobProps = {
+  color?: string;
   size: number;
   knobValue: number;
   setKnobValue: (newState: number) => void;
@@ -42,6 +43,7 @@ export const transformKnobValueExponential = (
 const MAX_KNOB_VALUE = 100;
 
 export const Knob: React.FC<KnobProps> = ({
+  color = "#F7F1EA",
   size,
   knobValue,
   setKnobValue,
@@ -157,10 +159,10 @@ export const Knob: React.FC<KnobProps> = ({
                 className="knob-body"
                 w={`${size}px`}
                 h={`${size}px`}
-                bg="silver"
+                bg={color}
                 position="relative"
                 borderRadius="full"
-                boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
               />
               <motion.div
                 className="knob-dot-min-transform"
@@ -182,7 +184,7 @@ export const Knob: React.FC<KnobProps> = ({
                   borderRadius="full"
                   opacity={0.3}
                   right={0}
-                  boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
                 />
               </motion.div>
               <motion.div
@@ -205,7 +207,7 @@ export const Knob: React.FC<KnobProps> = ({
                   borderRadius="full"
                   opacity={0.3}
                   right={0}
-                  boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
                 />
               </motion.div>
             </Center>

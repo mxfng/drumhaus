@@ -143,7 +143,7 @@ export const KnobFilter: React.FC<KnobProps> = ({
                 bg="silver"
                 position="relative"
                 borderRadius="full"
-                boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
               />
               <motion.div
                 className="knob-dot-min-transform"
@@ -165,7 +165,7 @@ export const KnobFilter: React.FC<KnobProps> = ({
                   borderRadius="full"
                   opacity={0.3}
                   right={0}
-                  boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
                 />
               </motion.div>
               <motion.div
@@ -188,7 +188,7 @@ export const KnobFilter: React.FC<KnobProps> = ({
                   borderRadius="full"
                   opacity={0.3}
                   right={0}
-                  boxShadow="0 4px 12px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
                 />
               </motion.div>
             </Center>

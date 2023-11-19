@@ -104,7 +104,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
               h="70px"
               borderRadius="8px"
               p={3}
-              boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+              boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
             >
               <Center h="100%" position="relative" zIndex={3}>
                 <Flex h="100%">
@@ -114,7 +114,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     color="gray"
                     w="98px"
                     h="100%"
-                    boxShadow="0 4px 8px rgba(0, 0, 0, 0.2) inset"
+                    boxShadow="0 4px 8px rgba(176, 147, 116, 0.6) inset"
                     position="absolute"
                     left={0}
                     borderRadius="8px 0 0 8px"
@@ -127,7 +127,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     border="0px solid transparent"
                     focusBorderColor="transparent"
                     _focus={{
-                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2) inset",
+                      boxShadow: "0 4px 8px rgba(176, 147, 116, 0.6) inset",
                     }}
                     onFocus={(e) => e.target.select()}
                     _selection={{ background: "rgba(255, 140, 0, 0.5)" }}
