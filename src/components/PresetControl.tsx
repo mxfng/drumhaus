@@ -55,7 +55,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   chain,
 }) => {
   const exportToJson = () => {
-    const customName: string = "testPreset";
+    const customName: string = "custom";
     const presetToSave: Preset = {
       name: customName,
       _kit: {

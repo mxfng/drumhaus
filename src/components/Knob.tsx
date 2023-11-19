@@ -60,7 +60,9 @@ export const Knob: React.FC<KnobProps> = ({
     // This is causing twitching in the knob on regular use,
     // but works relatively ok
     // Needed to update knob rotation on loading kits/presets
-    mouseY.set(knobValue);
+    if (!isMouseDown) {
+      mouseY.set(knobValue);
+    }
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knobValue]);
