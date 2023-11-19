@@ -6,7 +6,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F7F1EA;
+  background: #E8E3DD;
 }
 
 a {
@@ -15,14 +15,41 @@ a {
 }
 
 .neumorphic {
-  box-shadow: 6px 6px 12px rgba(176, 147, 116, 0.6), -6px -6px 12px rgba(251, 245, 255, 1);
+  box-shadow: 3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3);
 }
 
 .neumorphicTall {
-  box-shadow: 10px 10px 25px rgba(176, 147, 116, 0.6), -30px -30px 60px rgba(251, 245, 255, 1);
+  box-shadow: 10px 12px 18px rgba(176, 147, 116, 0.5), -10px -20px 20px rgba(251, 245, 255, 0.3);
+}
+
+.neumorphicExtraTall {
+  box-shadow: 20px 20px 50px rgba(176, 147, 116, 0.5), -30px -30px 60px rgba(251, 245, 255, 0.4);
+}
+
+.neumorphicRaised {
+  box-shadow: 3px 3px 6px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3);
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
+}
+
+.raised {
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
+}
+
+.raisedInside {
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(251, 245, 255, 0.3));
+}
+
+.neumorphicMediumRaised {
+  box-shadow: 6px 6px 9px rgba(176, 147, 116, 0.5), -10px -10px 24px rgba(251, 245, 255, 0.2);
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
 }
 
 .neumorphicTallRaised {
-  box-shadow: 10px 10px 25px rgba(176, 147, 116, 0.6), -30px -30px 60px rgba(251, 245, 255, 1);
+  box-shadow: 12px 12px 18px rgba(176, 147, 116, 0.5), -16px -16px 24px rgba(251, 245, 255, 0.3);
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
+}
+
+.neumorphicExtraTallRaised {
+  box-shadow: 20px 20px 50px rgba(176, 147, 116, 0.5), -30px -30px 60px rgba(251, 245, 255, 0.4);
   background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
 }

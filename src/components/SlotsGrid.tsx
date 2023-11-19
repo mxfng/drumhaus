@@ -103,15 +103,9 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
         <GridItem
           colSpan={1}
           key={`gridItem-${index}`}
-          w={`${slotW}`}
-          overflow="hidden"
+          w={`193px`}
           onMouseDown={() => toggleCurrentSequence(index)}
           transition="all 0.5s ease"
-          bg={slotIndex == index ? "rgba(255, 255, 255, 0.05)" : "transparent"}
-          // opacity={slotIndex == index ? 1 : 0.7}
-          _hover={{
-            opacity: 1,
-          }}
         >
           <Slot
             color={waveColors[index]}

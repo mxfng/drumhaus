@@ -298,7 +298,7 @@ const Drumhaus = () => {
       h={1000}
       style={{ userSelect: "none" }}
       borderRadius="12px"
-      boxShadow="0 8px 16px rgba(176, 147, 116, 0.6)"
+      className="neumorphicExtraTall"
       m="auto"
       position="absolute"
       inset={0}
@@ -331,7 +331,7 @@ const Drumhaus = () => {
           position="absolute"
           left={520}
           bottom={9}
-          opacity={0.5}
+          opacity={0.7}
         >
           Browser Controlled
         </Text>
@@ -340,7 +340,7 @@ const Drumhaus = () => {
           position="absolute"
           left={520}
           bottom={4}
-          opacity={0.5}
+          opacity={0.7}
         >
           Rhythmic Groove Machine
         </Text>
@@ -349,8 +349,8 @@ const Drumhaus = () => {
           fill="#B09374"
           position="absolute"
           right={6}
-          top={9}
-          opacity={0.2}
+          top={14}
+          opacity={0.5}
           as="a"
           href="https://www.maxfung.net/"
           target="_blank"
@@ -390,14 +390,13 @@ const Drumhaus = () => {
               h="140px"
               w="140px"
               onClick={() => togglePlay()}
-              boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
-              bg="silver"
+              className="neumorphicTallRaised"
               outline="none"
             >
               {isPlaying ? (
-                <IoPauseSharp size={50} color="darkorange" />
+                <IoPauseSharp size={50} color="#ff7b00" />
               ) : (
-                <IoPlaySharp size={50} color="darkorange" />
+                <IoPlaySharp size={50} color="#B09374" />
               )}
             </Button>
           </Center>

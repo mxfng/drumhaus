@@ -237,6 +237,11 @@ export const Slot: React.FC<SlotParams> = ({
         position="relative"
         transition="all 0.5s ease-in-out"
         mt={2}
+        _hover={{
+          "& .wavebutton": {
+            opacity: 1,
+          },
+        }}
         {...props}
       >
         <Flex px={4}>
@@ -264,6 +269,8 @@ export const Slot: React.FC<SlotParams> = ({
             h="60px"
             onMouseDown={() => playSample()}
             bg="transparent"
+            opacity={0.8}
+            className="wavebutton"
           >
             <Waveform audioFile={sample.url} width={waveWidth} />
           </Button>
@@ -323,6 +330,7 @@ export const Slot: React.FC<SlotParams> = ({
                   borderRadius="8px 0 0 8px"
                   p="0px"
                   onClick={() => toggleMute(sample.id)}
+                  className="raised"
                 >
                   {mutes[sample.id] ? (
                     <ImVolumeMute2 color="#B09374" />
@@ -337,6 +345,7 @@ export const Slot: React.FC<SlotParams> = ({
                   borderRadius="0 8px 8px 0"
                   p="0px"
                   onClick={() => toggleSolo(sample.id)}
+                  className="raised"
                 >
                   <MdHeadphones
                     color={solos[sample.id] ? "darkorange" : "B09374"}

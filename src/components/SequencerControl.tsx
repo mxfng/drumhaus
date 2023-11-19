@@ -110,14 +110,11 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 SHOW
               </Text>
               <Center>
-                <Flex
-                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
-                  borderRadius="8px"
-                >
+                <Flex className="neumorphic" borderRadius="8px">
                   <Button
                     h="30px"
                     w="30px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="8px 0 0 8px"
                     color={variation == 0 ? "darkorange" : "#B09374"}
                     onClick={() => setVariation(0)}
@@ -127,7 +124,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                   <Button
                     h="30px"
                     w="30px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="0 8px 8px 0"
                     color={variation == 1 ? "darkorange" : "#B09374"}
                     onClick={() => setVariation(1)}
@@ -149,14 +146,11 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 CHAIN
               </Text>
               <Center>
-                <Flex
-                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
-                  borderRadius="8px"
-                >
+                <Flex className="neumorphic" borderRadius="8px">
                   <Button
                     h="30px"
                     w="40px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="8px 0 0 8px"
                     color={chain == 0 ? "darkorange" : "gray"}
                     fontSize={12}
@@ -167,7 +161,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                   <Button
                     h="30px"
                     w="40px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="0 0 0 0"
                     color={chain == 1 ? "darkorange" : "gray"}
                     fontSize={12}
@@ -178,7 +172,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                   <Button
                     h="30px"
                     w="40px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="0 0 0 0"
                     color={chain == 2 ? "darkorange" : "gray"}
                     fontSize={12}
@@ -189,7 +183,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                   <Button
                     h="30px"
                     w="40px"
-                    bg="transparent"
+                    className="raised"
                     borderRadius="0 8px 8px 0"
                     color={chain == 3 ? "darkorange" : "gray"}
                     fontSize={12}
@@ -207,7 +201,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                className="neumorphicRaised"
                 onClick={copySequence}
               >
                 <IoCopySharp color="#B09374" />
@@ -228,7 +222,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                className="neumorphicRaised"
                 onClick={pasteSequence}
               >
                 <IoBrushSharp color="#B09374" />
@@ -249,7 +243,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                className="neumorphicRaised"
                 onClick={clearSequence}
               >
                 <BsFillEraserFill color="#B09374" />
@@ -270,7 +264,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                className="neumorphicRaised"
                 onClick={randomSequence}
               >
                 <FaDice color="#B09374" />
