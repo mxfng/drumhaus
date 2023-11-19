@@ -281,11 +281,16 @@ const Drumhaus = () => {
   }, [variation]);
 
   const togglePlay = async () => {
-    await Tone.start();
+    if (Tone.context.state !== "running") {
+      await Tone.start();
+    }
 
     setIsPlaying((prevIsPlaying) => {
-      if (!prevIsPlaying) Tone.Transport.start();
-      else Tone.Transport.stop();
+      if (!prevIsPlaying) {
+        Tone.Transport.start();
+      } else {
+        Tone.Transport.stop();
+      }
       return !prevIsPlaying;
     });
   };
