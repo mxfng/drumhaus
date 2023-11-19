@@ -13,6 +13,7 @@ type KnobProps = {
   knobTransformRange?: [number, number];
   knobUnits?: string;
   exponential?: boolean;
+  filter?: boolean;
 };
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
@@ -23,6 +24,16 @@ export const transformKnobValue = (
   const [newRangeMin, newRangeMax] = range;
   const scalingFactor = (newRangeMax - newRangeMin) / MAX_KNOB_VALUE;
   return scalingFactor * input + newRangeMin;
+};
+
+export const transformKnobFilterValue = (
+  input: number,
+  rangeLow: [number, number] = [0, 15000],
+  rangeHigh: [number, number] = [0, 15000]
+): number => {
+  const [min, max] = input <= 49 ? rangeLow : rangeHigh;
+  const newInput = ((input <= 49 ? input : input - 50) / 49) * 100;
+  return transformKnobValueExponential(newInput, [min, max]);
 };
 
 export const transformKnobValueExponential = (
@@ -43,7 +54,6 @@ export const transformKnobValueExponential = (
 const MAX_KNOB_VALUE = 100;
 
 export const Knob: React.FC<KnobProps> = ({
-  color = "#F7F1EA",
   size,
   knobValue,
   setKnobValue,
@@ -51,6 +61,7 @@ export const Knob: React.FC<KnobProps> = ({
   knobTransformRange = [0, MAX_KNOB_VALUE],
   knobUnits = "",
   exponential = false,
+  filter = false,
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDownY, setMouseDownY] = useState({ x: 0, y: 0 });
@@ -59,12 +70,10 @@ export const Knob: React.FC<KnobProps> = ({
   const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
 
   useEffect(() => {
-    // hacky
+    // hacky way to set knob from presets and kits
     if (!isMouseDown) {
       mouseY.set(knobValue);
     }
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knobValue]);
 
   useEffect(() => {
@@ -91,7 +100,6 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("mousemove", setValueOnMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-    // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMouseDown]);
 
@@ -156,13 +164,11 @@ export const Knob: React.FC<KnobProps> = ({
                 </Center>
               </motion.div>
               <Box
-                className="knob-body"
                 w={`${size}px`}
                 h={`${size}px`}
-                bg={color}
                 position="relative"
                 borderRadius="full"
-                boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
+                className="neumorphicTallRaised"
               />
               <motion.div
                 className="knob-dot-min-transform"
@@ -184,7 +190,6 @@ export const Knob: React.FC<KnobProps> = ({
                   borderRadius="full"
                   opacity={0.3}
                   right={0}
-                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
                 />
               </motion.div>
               <motion.div
@@ -216,7 +221,11 @@ export const Knob: React.FC<KnobProps> = ({
         <Center>
           <Text fontSize={12} color="gray" my={-3}>
             {isMouseDown
-              ? exponential
+              ? filter
+                ? `${transformKnobFilterValue(knobValue).toFixed(
+                    0
+                  )} ${knobUnits} ${knobValue <= 49 ? "LP" : "HP"}`
+                : exponential
                 ? `${
                     knobUnits
                       ? transformKnobValueExponential(

@@ -13,3 +13,16 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.neumorphic {
+  box-shadow: 6px 6px 12px rgba(176, 147, 116, 0.6), -6px -6px 12px rgba(251, 245, 255, 1);
+}
+
+.neumorphicTall {
+  box-shadow: 10px 10px 25px rgba(176, 147, 116, 0.6), -30px -30px 60px rgba(251, 245, 255, 1);
+}
+
+.neumorphicTallRaised {
+  box-shadow: 10px 10px 25px rgba(176, 147, 116, 0.6), -30px -30px 60px rgba(251, 245, 255, 1);
+  background: linear-gradient(160deg, rgba(251, 245, 255, 1), rgba(239, 228, 217, 1));
+}

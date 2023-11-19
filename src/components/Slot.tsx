@@ -281,12 +281,14 @@ export const Slot: React.FC<SlotParams> = ({
             />
           </GridItem>
           <GridItem>
-            <KnobFilter
+            <Knob
               key={`knob-${sample.id}-filter`}
               size={50}
               knobValue={filter}
               setKnobValue={setFilter}
               knobTitle="FILTER"
+              filter={true}
+              exponential={true}
             />
           </GridItem>
           <GridItem>
