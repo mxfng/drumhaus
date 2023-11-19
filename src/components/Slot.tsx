@@ -11,11 +11,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
-import { Knob, transformKnobValue } from "./Knob";
+import { Knob, transformKnobFilterValue, transformKnobValue } from "./Knob";
 import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
-import { KnobFilter, transformKnobFilterValue } from "./KnobFilter";
 import * as Tone from "tone/build/esm/index";
 import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
