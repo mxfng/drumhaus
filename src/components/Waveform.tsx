@@ -5,11 +5,14 @@ import React, { useEffect, useRef } from "react";
 interface WaveformProps {
   audioFile: string;
   width: number;
+  color?: string;
 }
 
-const WAVEFORM_COLOR = "#B09374";
-
-const Waveform: React.FC<WaveformProps> = ({ audioFile, width }) => {
+const Waveform: React.FC<WaveformProps> = ({
+  audioFile,
+  width,
+  color = "#ff7b00",
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
@@ -60,7 +63,7 @@ const Waveform: React.FC<WaveformProps> = ({ audioFile, width }) => {
             ctx.lineTo(x, y);
           }
 
-          ctx.strokeStyle = WAVEFORM_COLOR;
+          ctx.strokeStyle = color;
           ctx.stroke();
         }
 
