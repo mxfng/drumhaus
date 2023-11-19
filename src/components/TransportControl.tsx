@@ -143,7 +143,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     right={-3}
                     ref={upButtonRef}
                   >
-                    <IoTriangleSharp color="gray" />
+                    <IoTriangleSharp color="#B09374" />
                   </Button>
                   <Button
                     w="20px"
@@ -156,7 +156,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     ref={downButtonRef}
                   >
                     <IoTriangleSharp
-                      color="gray"
+                      color="#B09374"
                       style={{ transform: "rotate(180deg)" }}
                     />
                   </Button>

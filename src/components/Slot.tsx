@@ -39,6 +39,7 @@ type SlotParams = {
   solos: boolean[];
   setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
+  bg?: string;
 };
 
 export const Slot: React.FC<SlotParams> = ({
@@ -59,6 +60,7 @@ export const Slot: React.FC<SlotParams> = ({
   solos,
   setSolos,
   setDurations,
+  ...props
 }) => {
   const [attack, setAttack] = useState(attacks[sample.id]);
   const [release, setRelease] = useState(releases[sample.id]);
@@ -229,9 +231,17 @@ export const Slot: React.FC<SlotParams> = ({
 
   return (
     <>
-      <Box w="100%" key={`Slot-${sample.name}`} py={4} position="relative">
+      <Box
+        w="100%"
+        key={`Slot-${sample.name}`}
+        py={4}
+        position="relative"
+        transition="all 0.5s ease-in-out"
+        mt={2}
+        {...props}
+      >
         <Flex px={4}>
-          <Text pr={2} color="darkorange" fontWeight={900}>
+          <Text pr={2} color={color} fontWeight={900}>
             {sample.id + 1}
           </Text>
           <Text fontWeight={600} color="brown">
@@ -256,7 +266,7 @@ export const Slot: React.FC<SlotParams> = ({
             onMouseDown={() => playSample()}
             bg="transparent"
           >
-            <Waveform audioFile={sample.url} width={waveWidth} color={color} />
+            <Waveform audioFile={sample.url} width={waveWidth} />
           </Button>
         </Box>
 
