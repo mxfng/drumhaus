@@ -22,6 +22,9 @@ import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
 
 type SlotParams = {
+  colorBg?: string;
+  colorHeading?: string;
+  colorText?: string;
   sample: Sample;
   attacks: number[];
   setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
@@ -41,6 +44,9 @@ type SlotParams = {
 };
 
 export const Slot: React.FC<SlotParams> = ({
+  colorBg = "#F7F1EA",
+  colorHeading = "#000000",
+  colorText = "#B09374",
   sample,
   attacks,
   setAttacks,
@@ -232,7 +238,7 @@ export const Slot: React.FC<SlotParams> = ({
           <Text pr={2} color="darkorange" fontWeight={900}>
             {sample.id + 1}
           </Text>
-          <Text fontWeight={600} color="black">
+          <Text fontWeight={600} color="brown">
             {sample.name}
           </Text>
         </Flex>
@@ -240,7 +246,7 @@ export const Slot: React.FC<SlotParams> = ({
           key={`filename-${sample.name}`}
           className="filename"
           fontFamily={`'Pixelify Sans Variable', sans-serif`}
-          color="gray"
+          color={colorText}
           px={4}
           py={2}
         >
@@ -262,7 +268,7 @@ export const Slot: React.FC<SlotParams> = ({
           <GridItem>
             <Knob
               key={`knob-${sample.id}-attack`}
-              size={60}
+              size={50}
               knobValue={attack}
               setKnobValue={setAttack}
               knobTitle="ATTACK"
@@ -271,7 +277,7 @@ export const Slot: React.FC<SlotParams> = ({
           <GridItem>
             <KnobFilter
               key={`knob-${sample.id}-filter`}
-              size={60}
+              size={50}
               knobValue={filter}
               setKnobValue={setFilter}
               knobTitle="FILTER"
@@ -280,7 +286,7 @@ export const Slot: React.FC<SlotParams> = ({
           <GridItem>
             <Knob
               key={`knob-${sample.id}-release`}
-              size={60}
+              size={50}
               knobValue={release}
               setKnobValue={setRelease}
               knobTitle="RELEASE"
@@ -290,7 +296,7 @@ export const Slot: React.FC<SlotParams> = ({
           <GridItem>
             <Knob
               key={`knob-${sample.id}-pans`}
-              size={60}
+              size={50}
               knobValue={pan}
               setKnobValue={setPan}
               knobTitle="PAN"
@@ -299,7 +305,10 @@ export const Slot: React.FC<SlotParams> = ({
           </GridItem>
           <GridItem w="100%">
             <Center h="100%" w="100%">
-              <Flex boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)" borderRadius="8px">
+              <Flex
+                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                borderRadius="8px"
+              >
                 <Button
                   h="30px"
                   w="30px"
@@ -309,9 +318,9 @@ export const Slot: React.FC<SlotParams> = ({
                   onClick={() => toggleMute(sample.id)}
                 >
                   {mutes[sample.id] ? (
-                    <ImVolumeMute2 color="gray" />
+                    <ImVolumeMute2 color={colorText} />
                   ) : (
-                    <ImVolumeMute color="gray" />
+                    <ImVolumeMute color={colorText} />
                   )}
                 </Button>
                 <Button
@@ -323,7 +332,7 @@ export const Slot: React.FC<SlotParams> = ({
                   onClick={() => toggleSolo(sample.id)}
                 >
                   <MdHeadphones
-                    color={solos[sample.id] ? "darkorange" : "gray"}
+                    color={solos[sample.id] ? "darkorange" : colorText}
                   />
                 </Button>
               </Flex>

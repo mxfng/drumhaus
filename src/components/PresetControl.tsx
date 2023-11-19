@@ -127,14 +127,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     <Center h="100%">
       <Box
         w="100%"
-        boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+        boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
         borderRadius="8px"
         p={3}
       >
         <Box
           w="100%"
           borderRadius="8px"
-          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2) inset"
+          boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
           _hover={{
             "& .icon": {
               fill: "darkorange",
@@ -196,7 +196,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         <Box
           w="100%"
           borderRadius="8px"
-          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2) inset"
+          boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
         >
           <Box
             id="preset"
@@ -233,7 +233,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               w="138px"
               right={2}
               top={2}
-              bg="linear-gradient(90deg, rgba(24,24,24,0) 0%, silver 8%)"
+              bg="linear-gradient(90deg, rgba(24,24,24,0) 0%, #F7F1EA 8%)"
               borderRadius="0px 8px 8px 0"
               pointerEvents="none"
             />

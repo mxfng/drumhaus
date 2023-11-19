@@ -111,7 +111,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
               </Text>
               <Center>
                 <Flex
-                  boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                   borderRadius="8px"
                 >
                   <Button
@@ -150,7 +150,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
               </Text>
               <Center>
                 <Flex
-                  boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                   borderRadius="8px"
                 >
                   <Button
@@ -207,7 +207,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={copySequence}
               >
                 <IoCopySharp color="gray" />
@@ -228,7 +228,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={pasteSequence}
               >
                 <IoBrushSharp color="gray" />
@@ -249,7 +249,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={clearSequence}
               >
                 <BsFillEraserFill color="gray" />
@@ -270,7 +270,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 w="100%"
                 h="26px"
                 bg="transparent"
-                boxShadow="0 2px 4px rgba(0, 0, 0, 0.2)"
+                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 onClick={randomSequence}
               >
                 <FaDice color="gray" />
