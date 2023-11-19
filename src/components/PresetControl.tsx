@@ -1,9 +1,11 @@
 "use client";
 
-import { Kit, Preset, Sample, Sequences } from "@/types/types";
-import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+import { Kit, Preset, Sequences } from "@/types/types";
+import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
+import { IoShareSharp } from "react-icons/io5";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 type PresetControlProps = {
   preset: Preset;
@@ -119,58 +121,164 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   return (
-    <Box
-      h="100%"
-      w="100%"
-      boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
-      borderRadius="8px"
-      p={3}
-    >
+    <Center h="100%">
       <Box
         w="100%"
-        h="100%"
-        borderRadius="4px"
-        boxShadow="0 2px 8px rgba(0, 0, 0, 0.2) inset"
+        boxShadow="0 4px 8px rgba(0, 0, 0, 0.2)"
+        borderRadius="8px"
+        p={3}
       >
-        <Box id="mainMenu" p={4}>
-          <Grid templateColumns="repeat(4, 1fr)" h="100%" w="100%">
-            <GridItem colSpan={1}>
-              <Text
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="black"
-              >
-                Preset:
-              </Text>
-            </GridItem>
-            <GridItem colSpan={3}>
-              <Text
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="black"
-              >
-                {preset.name}
-              </Text>
-            </GridItem>
-            <GridItem colSpan={4} w="100%">
-              <Grid templateColumns="repeat(3,1fr)" w="100%">
-                <GridItem>
-                  <Center>
-                    <Button bg="transparent" onClick={exportToJson}>
-                      <MdOutlineSaveAlt />
-                    </Button>
-                  </Center>
-                </GridItem>
-                <GridItem>
-                  <Center>
-                    <Button bg="transparent" onClick={loadFromJson}>
-                      <FaFolderOpen />
-                    </Button>
-                  </Center>
-                </GridItem>
-              </Grid>
-            </GridItem>
-          </Grid>
+        <Box
+          w="100%"
+          borderRadius="8px"
+          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2) inset"
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+          }}
+        >
+          <Box
+            h="40px"
+            w="100%"
+            id="kit"
+            px={4}
+            py={2}
+            mb={4}
+            position="relative"
+          >
+            <Select
+              variant="unstyled"
+              placeholder={`${preset._kit.name}.dhkit`}
+              fontFamily={`'Pixelify Sans Variable', sans-serif`}
+              color="gray"
+              position="absolute"
+              w="312px"
+            ></Select>
+
+            <Box
+              position="absolute"
+              h="23px"
+              w="15px"
+              right={4}
+              top={2}
+              bg="silver"
+              pointerEvents="none"
+            />
+
+            <Button
+              bg="transparent"
+              position="absolute"
+              right={0}
+              top={0}
+              pointerEvents="none"
+            >
+              <Box>
+                <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                  <IoMdArrowDropdown className="icon" color="gray" />
+                </Box>
+                <Box h="50%">
+                  <IoMdArrowDropdown className="icon" color="gray" />
+                </Box>
+              </Box>
+            </Button>
+          </Box>
         </Box>
+
+        <Text fontSize={12} color="gray" my={-3}>
+          KIT
+        </Text>
+
+        <Box
+          w="100%"
+          borderRadius="8px"
+          boxShadow="0 2px 8px rgba(0, 0, 0, 0.2) inset"
+        >
+          <Box
+            id="preset"
+            h="40px"
+            px={4}
+            py={2}
+            mt={4}
+            mb={4}
+            position="relative"
+          >
+            <Select
+              variant="unstyled"
+              placeholder={`${preset.name}.dh`}
+              fontFamily={`'Pixelify Sans Variable', sans-serif`}
+              color="gray"
+              position="absolute"
+              w="312px"
+            ></Select>
+
+            <Box
+              position="absolute"
+              h="23px"
+              w="15px"
+              right={4}
+              top={2}
+              bg="silver"
+              pointerEvents="none"
+            />
+
+            <Button
+              bg="transparent"
+              onClick={exportToJson}
+              position="absolute"
+              right="96px"
+              top={0}
+              _hover={{
+                "& .icon": {
+                  fill: "darkorange",
+                  transition: "all 0.2s ease",
+                },
+              }}
+            >
+              <MdOutlineSaveAlt className="icon" color="gray" />
+            </Button>
+
+            <Button
+              bg="transparent"
+              onClick={loadFromJson}
+              position="absolute"
+              right="48px"
+              top={0}
+              _hover={{
+                "& .icon": {
+                  fill: "darkorange",
+                  transition: "all 0.2s ease",
+                },
+              }}
+            >
+              <FaFolderOpen className="icon" color="gray" />
+            </Button>
+            <Button
+              bg="transparent"
+              position="absolute"
+              right={0}
+              top={0}
+              _hover={{
+                "& .icon": {
+                  fill: "darkorange",
+                  transition: "all 0.2s ease",
+                },
+              }}
+            >
+              <IoShareSharp
+                className="icon"
+                fill="gray"
+                transition="all 0.2s ease"
+              />
+            </Button>
+          </Box>
+        </Box>
+
+        <Text fontSize={12} color="gray" my={-3} mb={-1}>
+          PRESET
+        </Text>
       </Box>
-    </Box>
+    </Center>
   );
 };
