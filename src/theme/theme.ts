@@ -2,13 +2,6 @@ import { extendTheme } from "@chakra-ui/react";
 import "../theme/fonts.css";
 
 const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        bg: "red",
-      },
-    },
-  },
   colors: {
     brown: "#000000", // slot titles
     gray: "#B09374", // text colors
@@ -16,6 +9,7 @@ const theme = extendTheme({
     darksilver: "#d4cdc5", // lowlight background
     silver2: "#E8E3DD",
     darkorange: "#ff7b00", // highlight orange
+    darkorangehover: "#f5b67a",
   },
 });
 

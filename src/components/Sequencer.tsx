@@ -154,16 +154,24 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 onMouseEnter={() => toggleStepOnMouseOver(node, sequence[node])}
                 w="100%"
                 h={`${calculateStepsHeight()}px`}
-                bg={sequence[node] ? "darkorange" : "gray"}
-                transition="all 0.2s ease"
-                opacity={sequence[node] ? 1 : 0.2}
+                bg={sequence[node] ? "darkorange" : "#E8E3DD"}
+                transition="all 0.3s ease"
+                opacity={sequence[node] ? 1 : 1}
                 borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
                 }px`}
                 _hover={{
-                  background: "darkorange",
+                  background: sequence[node] ? "darkorange" : "darkorangehover",
+                  transition: "all 0.3s ease",
+                  boxShadow: sequence[node]
+                    ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
+                    : "0 4px 8px rgba(176, 147, 116, 1) inset",
                 }}
-                transform="0.2s ease"
+                boxShadow={
+                  sequence[node]
+                    ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
+                    : "0 4px 8px rgba(176, 147, 116, 1) inset"
+                }
               />
               <Box
                 key={`sequenceNodeVelocity${node}`}
@@ -199,7 +207,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 <Center position="absolute" h="100%" w="100%">
                   <Text
                     className="text"
-                    color="white"
+                    color="brown"
                     fontFamily={`'Pixelify Sans Variable', sans-serif`}
                     opacity={0}
                     transition="0.5s ease"
