@@ -11,7 +11,11 @@ import {
   Text,
 } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
-import { Knob, transformKnobFilterValue, transformKnobValue } from "./Knob";
+import {
+  Knob,
+  transformKnobFilterValue,
+  transformKnobValue,
+} from "../common/Knob";
 import { useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";

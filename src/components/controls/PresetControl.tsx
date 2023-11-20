@@ -1,6 +1,7 @@
 "use client";
 
-import * as init from "@/lib/init";
+import * as init from "@/lib/presets";
+import * as kits from "@/lib/kits";
 import { Kit, Preset, Sequences } from "@/types/types";
 import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
@@ -8,6 +9,7 @@ import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
+import { useState } from "react";
 
 type PresetControlProps = {
   preset: Preset;
@@ -40,6 +42,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   preset,
   setPreset,
   kit,
+  setKit,
   bpm,
   swing,
   lowPass,
@@ -61,6 +64,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   isPlaying,
   togglePlay,
 }) => {
+  const [selectedKit, setSelectedKit] = useState<string>(kit.name);
+
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
     const presetToSave: Preset = {
@@ -118,10 +123,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     reader.onload = (e) => {
       try {
         const jsonContent = JSON.parse(e.target?.result as string);
-        // Assuming jsonContent is a valid Preset object
         setPreset(jsonContent);
-        // You may need to handle samples loading if they are part of your preset
-        // setSamples(jsonContent.samples);
       } catch (error) {
         console.error("Error parsing JSON:", error);
       }
@@ -141,10 +143,62 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     if (isConfirmed) {
       setPreset(() => {
-        return init.createPreset();
+        return init.init();
       });
+      setSelectedKit(kit.name);
     }
   };
+
+  const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isPlaying) {
+      togglePlay();
+    }
+
+    const selectedKitName = event.target.value;
+    const kitOption = drumKits.find((kit) => kit.name === selectedKitName);
+
+    if (kitOption) {
+      setKit(kitOption.kit);
+      setSelectedKit(kitOption.name);
+    }
+  };
+
+  const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if (isPlaying) {
+      togglePlay();
+    }
+
+    const selectedPresetName = event.target.value;
+    // const presetOption =
+  };
+
+  interface DrumKitOption {
+    name: string;
+    kit: Kit;
+  }
+
+  const drumKits: DrumKitOption[] = [
+    {
+      name: `debug.dhkit`,
+      kit: kits.debug(),
+    },
+    {
+      name: "option2.dhkit",
+      kit: kits.debug2(),
+    },
+  ];
+
+  interface PresetOption {
+    name: string;
+    preset: Preset;
+  }
+
+  const presets: PresetOption[] = [
+    {
+      name: "init.dh",
+      preset: init.init(),
+    },
+  ];
 
   return (
     <Center h="100%">
@@ -178,13 +232,20 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           >
             <Select
               variant="unstyled"
-              placeholder={`${preset._kit.name}.dhkit`}
+              value={selectedKit}
               fontFamily={`'Pixelify Sans Variable', sans-serif`}
               color="gray"
               position="absolute"
               w="312px"
               cursor="pointer"
-            ></Select>
+              onChange={handleKitChange}
+            >
+              {drumKits.map((kit) => (
+                <option key={kit.name} value={kit.name}>
+                  {kit.name}
+                </option>
+              ))}
+            </Select>
 
             <Box
               position="absolute"
