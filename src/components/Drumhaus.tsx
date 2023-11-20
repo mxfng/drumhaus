@@ -1,6 +1,6 @@
 "use client";
 
-import * as init from "@/lib/presets";
+import * as init from "@/lib/presets/init";
 import { Kit, Preset, Sample, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
