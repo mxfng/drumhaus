@@ -10,6 +10,7 @@ import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useState } from "react";
+import { isEqual } from "lodash";
 
 const kitOptions: Kit[] = [kits.debug(), kits.debug2()];
 
@@ -71,6 +72,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
   const [selectedPreset, setSelectedPreset] = useState<string>(preset.name);
   const [presetOptions, setPresetOptions] = useState<Preset[]>(_presetOptions);
+  const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
 
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
@@ -134,6 +136,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       try {
         const jsonContent = JSON.parse(e.target?.result as string);
         setPreset(jsonContent);
+        setCleanPreset(jsonContent);
         setSelectedPreset(jsonContent.name);
         setSelectedKit(jsonContent._kit.name);
         setPresetOptions((prevOptions) => [...prevOptions, jsonContent]);
@@ -155,10 +158,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     );
 
     if (isConfirmed) {
-      setPreset(() => {
-        return presets.init();
-      });
+      setPreset(presets.init());
+      setCleanPreset(presets.init());
       setSelectedKit(kit.name);
+      setSelectedPreset(presets.init().name);
     }
   };
 
@@ -181,15 +184,47 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       togglePlay();
     }
 
-    const selectedPresetName = event.target.value;
-    const presetOption = presetOptions.find(
-      (preset) => preset.name === selectedPresetName
-    );
+    // Deep equality check between current states and cached preset states
+    const cp = cleanPreset;
+    const changesMade =
+      kit.name !== cp._kit.name ||
+      !attacks.every((v, i) => v == cp._kit._attacks[i]) ||
+      !releases.every((v, i) => v == cp._kit._releases[i]) ||
+      !filters.every((v, i) => v == cp._kit._filters[i]) ||
+      !volumes.every((v, i) => v == cp._kit._volumes[i]) ||
+      !pans.every((v, i) => v == cp._kit._pans[i]) ||
+      !releases.every((v, i) => v == cp._kit._releases[i]) ||
+      bpm !== cp._bpm ||
+      swing !== cp._swing ||
+      lowPass !== cp._lowPass ||
+      hiPass !== cp._hiPass ||
+      phaser !== cp._phaser ||
+      reverb !== cp._reverb ||
+      compThreshold !== cp._compThreshold ||
+      compRatio !== cp._compRatio ||
+      masterVolume !== cp._masterVolume ||
+      sequences !== cp._sequences ||
+      chain !== cp._chain;
 
-    if (presetOption) {
-      setPreset(presetOption);
-      setSelectedPreset(presetOption.name);
-      setSelectedKit(presetOption._kit.name);
+    let isConfirmed = true;
+    if (changesMade) {
+      isConfirmed = window.confirm(
+        "Are you sure you want to switch to a new preset? You will lose any unsaved work on the current preset."
+      );
+    }
+
+    if (isConfirmed) {
+      const selectedPresetName = event.target.value;
+      const presetOption = presetOptions.find(
+        (preset) => preset.name === selectedPresetName
+      );
+
+      if (presetOption) {
+        setPreset(presetOption);
+        setCleanPreset(presetOption);
+        setSelectedPreset(presetOption.name);
+        setSelectedKit(presetOption._kit.name);
+      }
     }
   };
 
