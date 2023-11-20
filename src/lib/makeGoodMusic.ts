@@ -44,8 +44,8 @@ export default function makeGoodMusic(
         if (step === 15) {
           if (
             currentChain < 2 ||
-            (currentChain === 2 && currentBar.current === 1) ||
-            (currentChain === 3 && currentBar.current === 3)
+            (currentChain === 2 && currentBar.current > 0) ||
+            (currentChain === 3 && currentBar.current > 2)
           ) {
             currentBar.current = 0;
           } else {
