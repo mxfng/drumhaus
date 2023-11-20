@@ -1,4 +1,4 @@
-import { Kit, Sample, SampleData, Sequences } from "@/types/types";
+import { Kit, Preset, Sample, SampleData, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
 // __Initialization__
@@ -15,7 +15,7 @@ export const _sampleData: SampleData[] = [
 ];
 
 // Define initial kit
-export const _kit: Kit = {
+export const _kit = (): Kit => ({
   name: "debug",
   samples: _sampleData,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
@@ -25,7 +25,7 @@ export const _kit: Kit = {
   _pans: [50, 50, 50, 50, 50, 50, 50, 50],
   _solos: [false, false, false, false, false, false, false, false],
   _mutes: [false, false, false, false, false, false, false, false],
-};
+});
 
 // Create sequencer objects
 // sequences[slot][aOrB][sequencesOrVelocities][step]
@@ -56,25 +56,26 @@ export const _kit: Kit = {
 //   // ... (repeated 6 more times)
 // ]
 
-export const _sequences: Sequences = Array.from({ length: 8 }, () =>
-  Array.from({ length: 2 }, () => [
-    Array.from({ length: 16 }, () => false),
-    Array.from({ length: 16 }, () => 1),
-  ])
-);
-export const _variation = 0;
-export const _chain = 0;
+export const _sequences = (): Sequences =>
+  Array.from({ length: 8 }, () =>
+    Array.from({ length: 2 }, () => [
+      Array.from({ length: 16 }, () => false),
+      Array.from({ length: 16 }, () => 1),
+    ])
+  );
+export const _variation = () => 0;
+export const _chain = () => 0;
 
 // Create global parameters
-export const _bpm = 100;
-export const _swing = 0;
-export const _lowPass = 100;
-export const _hiPass = 0;
-export const _phaser = 0;
-export const _reverb = 0;
-export const _compThreshold = 100;
-export const _compRatio = 0;
-export const _masterVolume = 90;
+export const _bpm = () => 100;
+export const _swing = () => 0;
+export const _lowPass = () => 100;
+export const _hiPass = () => 0;
+export const _phaser = () => 0;
+export const _reverb = () => 0;
+export const _compThreshold = () => 100;
+export const _compRatio = () => 0;
+export const _masterVolume = () => 90;
 
 export const createSamples = (samples: SampleData[]) => {
   return samples.map((sample, id) => {
@@ -106,3 +107,20 @@ export const createSamples = (samples: SampleData[]) => {
 
 // Create initial Drumhaus sampler objects
 export const _samples: Sample[] = createSamples(_sampleData);
+
+export const createPreset = (): Preset => ({
+  name: "init",
+  _kit: _kit(),
+  _bpm: _bpm(),
+  _swing: _swing(),
+  _lowPass: _lowPass(),
+  _hiPass: _hiPass(),
+  _phaser: _phaser(),
+  _reverb: _reverb(),
+  _compThreshold: _compThreshold(),
+  _compRatio: _compRatio(),
+  _masterVolume: _masterVolume(),
+  _sequences: _sequences(),
+  _variation: _variation(),
+  _chain: _chain(),
+});

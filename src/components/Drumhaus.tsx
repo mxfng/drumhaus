@@ -23,28 +23,14 @@ import { SignatureLogo } from "./svg/SignatureLogo";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 
 const Drumhaus = () => {
-  const [preset, setPreset] = useState<Preset>({
-    name: "init",
-    _kit: init._kit,
-    _bpm: init._bpm,
-    _swing: init._swing,
-    _lowPass: init._lowPass,
-    _hiPass: init._hiPass,
-    _phaser: init._phaser,
-    _reverb: init._reverb,
-    _compThreshold: init._compThreshold,
-    _compRatio: init._compRatio,
-    _masterVolume: init._masterVolume,
-    _sequences: init._sequences,
-    _variation: init._variation,
-    _chain: init._chain,
-  });
+  const [preset, setPreset] = useState<Preset>(init.createPreset());
+
   // g l o b a l
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
-  const [samples, setSamples] = useState<Sample[]>(init._samples);
   const [kit, setKit] = useState<Kit>(preset._kit);
+  const [samples, setSamples] = useState<Sample[]>(init._samples);
   const [sequences, setSequences] = useState<Sequences>(preset._sequences);
   const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
   const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
@@ -116,8 +102,10 @@ const Drumhaus = () => {
     };
   }, [isPlaying, releases, chain, mutes, solos, samples]);
 
+  // p r e s e t   c h a n g e
   useEffect(() => {
     function setFromPreset(_preset: Preset) {
+      console.log("setting new preset");
       setSlotIndex(0);
       setCurrentSequence(_preset._sequences[0][0][0]);
       setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -136,10 +124,12 @@ const Drumhaus = () => {
       setChain(_preset._chain);
     }
 
-    setFromPreset(preset);
+    setFromPreset({ ...preset });
   }, [preset]);
 
+  // k i t   c h a n g e
   useEffect(() => {
+    console.log("setting new kit");
     const newSamples = init.createSamples(kit.samples);
     setSamples(newSamples);
     setAttacks(kit._attacks);
@@ -149,30 +139,17 @@ const Drumhaus = () => {
     setVolumes(kit._volumes);
     setSolos(kit._solos);
     setMutes(kit._mutes);
+    return () => {
+      samples.forEach((sample) => {
+        sample.sampler.dispose();
+        sample.envelope.dispose();
+        sample.filter.dispose();
+        sample.panner.dispose();
+      });
+    };
   }, [kit]);
 
-  useEffect(() => {
-    const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " ") togglePlay();
-    };
-
-    document.addEventListener("keydown", playViaSpacebar);
-
-    return () => {
-      document.removeEventListener("keydown", playViaSpacebar);
-    };
-  }, []);
-
-  useEffect(() => {
-    Tone.Transport.bpm.value = bpm;
-  }, [bpm]);
-
-  useEffect(() => {
-    const newSwing = transformKnobValue(swing, [0, 0.5]);
-    Tone.Transport.swingSubdivision = "16n";
-    Tone.Transport.swing = newSwing;
-  }, [swing]);
-
+  // s a m p l e s   c h a n g e
   useEffect(() => {
     setMasterChain();
 
@@ -185,6 +162,7 @@ const Drumhaus = () => {
     };
 
     function setMasterChain() {
+      console.log("Setting master chain");
       toneLPFilter.current = new Tone.Filter(15000, "lowpass");
       toneHPFilter.current = new Tone.Filter(0, "highpass");
       tonePhaser.current = new Tone.Phaser({
@@ -223,6 +201,29 @@ const Drumhaus = () => {
       }
     }
   }, [samples]);
+
+  // p l a y   f r o m   s p a c e b a r
+  useEffect(() => {
+    const playViaSpacebar = (event: KeyboardEvent) => {
+      if (event.key === " ") togglePlay();
+    };
+
+    document.addEventListener("keydown", playViaSpacebar);
+
+    return () => {
+      document.removeEventListener("keydown", playViaSpacebar);
+    };
+  }, []);
+
+  useEffect(() => {
+    Tone.Transport.bpm.value = bpm;
+  }, [bpm]);
+
+  useEffect(() => {
+    const newSwing = transformKnobValue(swing, [0, 0.5]);
+    Tone.Transport.swingSubdivision = "16n";
+    Tone.Transport.swing = newSwing;
+  }, [swing]);
 
   useEffect(() => {
     const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
@@ -276,8 +277,6 @@ const Drumhaus = () => {
   useEffect(() => {
     const newCurrentSequence: boolean[] = sequences[slotIndex][variation][0];
     setCurrentSequence(newCurrentSequence);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variation]);
 
   const togglePlay = async () => {
@@ -292,6 +291,15 @@ const Drumhaus = () => {
         Tone.Transport.stop();
       }
       return !prevIsPlaying;
+    });
+  };
+
+  const stopPlaying = () => {
+    setIsPlaying((prevIsPlaying) => {
+      if (!prevIsPlaying) {
+        Tone.Transport.stop();
+      }
+      return false;
     });
   };
 
@@ -453,6 +461,7 @@ const Drumhaus = () => {
             solos={solos}
             mutes={mutes}
             chain={chain}
+            stopPlay={stopPlaying}
           />
         </GridItem>
 

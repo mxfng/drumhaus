@@ -324,6 +324,7 @@ export const Slot: React.FC<SlotParams> = ({
                 borderRadius="8px"
               >
                 <Button
+                  title="Mute"
                   h="30px"
                   w="30px"
                   bg="transparent"
@@ -339,6 +340,7 @@ export const Slot: React.FC<SlotParams> = ({
                   )}
                 </Button>
                 <Button
+                  title="Solo"
                   h="30px"
                   w="30px"
                   bg="transparent"

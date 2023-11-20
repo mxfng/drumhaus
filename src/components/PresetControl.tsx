@@ -1,11 +1,13 @@
 "use client";
 
+import * as init from "@/lib/init";
 import { Kit, Preset, Sequences } from "@/types/types";
 import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { RxReset } from "react-icons/rx";
 
 type PresetControlProps = {
   preset: Preset;
@@ -30,6 +32,7 @@ type PresetControlProps = {
   solos: boolean[];
   mutes: boolean[];
   chain: number;
+  stopPlay: () => void;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
@@ -54,6 +57,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   solos,
   mutes,
   chain,
+  stopPlay,
 }) => {
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
@@ -124,9 +128,30 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     reader.readAsText(file);
   };
 
+  const handleReset = () => {
+    stopPlay();
+
+    const isConfirmed = window.confirm(
+      "Are you sure you want to reset all values to their initialized settings?"
+    );
+
+    if (isConfirmed) {
+      setPreset(() => {
+        return init.createPreset();
+      });
+    }
+  };
+
   return (
     <Center h="100%">
-      <Box w="100%" className="neumorphicExtraTall" borderRadius="8px" p={3}>
+      <Box
+        w="100%"
+        h="155px"
+        className="neumorphicExtraTall"
+        borderRadius="8px"
+        p={3}
+        position="relative"
+      >
         <Box
           w="100%"
           borderRadius="8px"
@@ -195,6 +220,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           w="100%"
           borderRadius="8px"
           boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+          }}
         >
           <Box
             id="preset"
@@ -223,70 +254,25 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               right={4}
               top={2}
               bg="silver"
-              filter="blur(5px)"
+              filter="blur(2px)"
               pointerEvents="none"
             />
 
-            <Box
-              position="absolute"
-              h="25px"
-              w="138px"
-              right={2}
-              top={2}
-              bg="linear-gradient(90deg, rgba(24,24,24,0) 0%, #F7F1EA 8%)"
-              filter="blur(5px)"
-              borderRadius="0px 8px 8px 0"
-              pointerEvents="none"
-            />
-
-            <Button
-              bg="transparent"
-              onClick={exportToJson}
-              position="absolute"
-              right="96px"
-              top={0}
-              _hover={{
-                "& .icon": {
-                  fill: "darkorange",
-                  transition: "all 0.2s ease",
-                },
-              }}
-            >
-              <MdOutlineSaveAlt className="icon" color="#B09374" />
-            </Button>
-
-            <Button
-              bg="transparent"
-              onClick={loadFromJson}
-              position="absolute"
-              right="48px"
-              top={0}
-              _hover={{
-                "& .icon": {
-                  fill: "darkorange",
-                  transition: "all 0.2s ease",
-                },
-              }}
-            >
-              <FaFolderOpen className="icon" color="#B09374" />
-            </Button>
             <Button
               bg="transparent"
               position="absolute"
               right={0}
               top={0}
-              _hover={{
-                "& .icon": {
-                  fill: "darkorange",
-                  transition: "all 0.2s ease",
-                },
-              }}
+              pointerEvents="none"
             >
-              <IoShareSharp
-                className="icon"
-                fill="#B09374"
-                transition="all 0.2s ease"
-              />
+              <Box>
+                <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                  <IoMdArrowDropdown className="icon" color="#B09374" />
+                </Box>
+                <Box h="50%">
+                  <IoMdArrowDropdown className="icon" color="#B09374" />
+                </Box>
+              </Box>
             </Button>
           </Box>
         </Box>
@@ -294,6 +280,87 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         <Text fontSize={12} color="gray" my={-3} mb={-1}>
           PRESET
         </Text>
+
+        <Button
+          title="Save"
+          onClick={exportToJson}
+          position="absolute"
+          right="120px"
+          w="20px"
+          p={0}
+          bottom={0}
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+            "& .iconReset": {
+              color: "#ff7b00",
+              transition: "all 0.2s ease",
+            },
+          }}
+        >
+          <MdOutlineSaveAlt className="icon" color="#B09374" />
+        </Button>
+
+        <Button
+          title="Load"
+          onClick={loadFromJson}
+          position="absolute"
+          right="80px"
+          w="20px"
+          bottom={0}
+          p={0}
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+          }}
+        >
+          <FaFolderOpen className="icon" color="#B09374" />
+        </Button>
+        <Button
+          title="Share"
+          w="20px"
+          position="absolute"
+          right="40px"
+          bottom={0}
+          p={0}
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+          }}
+        >
+          <IoShareSharp
+            className="icon"
+            fill="#B09374"
+            transition="all 0.2s ease"
+          />
+        </Button>
+        <Button
+          title="Reset All"
+          onClick={handleReset}
+          w="20px"
+          position="absolute"
+          right={0}
+          bottom={0}
+          p={0}
+          _hover={{
+            "& .icon": {
+              fill: "darkorange",
+              transition: "all 0.2s ease",
+            },
+          }}
+        >
+          <RxReset
+            className="iconReset"
+            color="#B09374"
+            transition="all 0.2s ease"
+          />
+        </Button>
       </Box>
     </Center>
   );
