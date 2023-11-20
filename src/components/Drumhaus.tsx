@@ -23,6 +23,7 @@ import { SignatureLogo } from "./svg/SignatureLogo";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 
 const Drumhaus = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [preset, setPreset] = useState<Preset>(init.createPreset());
 
   // g l o b a l
@@ -104,8 +105,9 @@ const Drumhaus = () => {
 
   // p r e s e t   c h a n g e
   useEffect(() => {
+    if (!isLoading) setIsLoading(true);
+
     function setFromPreset(_preset: Preset) {
-      console.log("setting new preset");
       setSlotIndex(0);
       setCurrentSequence(_preset._sequences[0][0][0]);
       setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -129,7 +131,8 @@ const Drumhaus = () => {
 
   // k i t   c h a n g e
   useEffect(() => {
-    console.log("setting new kit");
+    if (!isLoading) setIsLoading(true);
+
     const newSamples = init.createSamples(kit.samples);
     setSamples(newSamples);
     setAttacks(kit._attacks);
@@ -152,6 +155,7 @@ const Drumhaus = () => {
   // s a m p l e s   c h a n g e
   useEffect(() => {
     setMasterChain();
+    setIsLoading(false);
 
     return () => {
       toneLPFilter.current?.dispose();
@@ -162,7 +166,6 @@ const Drumhaus = () => {
     };
 
     function setMasterChain() {
-      console.log("Setting master chain");
       toneLPFilter.current = new Tone.Filter(15000, "lowpass");
       toneHPFilter.current = new Tone.Filter(0, "highpass");
       tonePhaser.current = new Tone.Phaser({
@@ -214,6 +217,8 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
   }, []);
+
+  // c o n t r o l   p r o p s
 
   useEffect(() => {
     Tone.Transport.bpm.value = bpm;
@@ -279,6 +284,7 @@ const Drumhaus = () => {
     setCurrentSequence(newCurrentSequence);
   }, [variation]);
 
+  // t o g g l e   p l a y
   const togglePlay = async () => {
     if (Tone.context.state !== "running") {
       await Tone.start();
@@ -289,17 +295,9 @@ const Drumhaus = () => {
         Tone.Transport.start();
       } else {
         Tone.Transport.stop();
+        setStepIndex(0);
       }
       return !prevIsPlaying;
-    });
-  };
-
-  const stopPlaying = () => {
-    setIsPlaying((prevIsPlaying) => {
-      if (!prevIsPlaying) {
-        Tone.Transport.stop();
-      }
-      return false;
     });
   };
 
@@ -367,6 +365,9 @@ const Drumhaus = () => {
           href="https://www.maxfung.net/"
           target="_blank"
         />
+        <Text position="absolute" top={0} left={800}>
+          {isLoading ? "LOADING" : "READY"}
+        </Text>
       </Box>
 
       <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
@@ -461,7 +462,8 @@ const Drumhaus = () => {
             solos={solos}
             mutes={mutes}
             chain={chain}
-            stopPlay={stopPlaying}
+            isPlaying={isPlaying}
+            togglePlay={togglePlay}
           />
         </GridItem>
 
@@ -510,6 +512,18 @@ const Drumhaus = () => {
           step={stepIndex}
           isPlaying={isPlaying}
         />
+      </Box>
+      <Box h="28px" mt={2} w="100%" position="relative">
+        <Text
+          color="gray"
+          fontSize={12}
+          opacity={0.3}
+          position="absolute"
+          left={8}
+          top={1}
+        >
+          Designed with love by Max Fung
+        </Text>
       </Box>
     </Box>
   );
