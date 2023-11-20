@@ -1,5 +1,5 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
-import { Knob } from "./Knob";
+import { Knob } from "../common/Knob";
 
 type MasterFXProps = {
   lowPass: number;

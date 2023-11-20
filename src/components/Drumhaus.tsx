@@ -1,37 +1,38 @@
 "use client";
 
-import * as init from "@/lib/init";
+import * as init from "@/lib/presets";
 import { Kit, Preset, Sample, Sequences } from "@/types/types";
 import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
-import { SlotsGrid } from "./SlotsGrid";
+import { SlotsGrid } from "./slots/SlotsGrid";
 import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
-import { TransportControl } from "./TransportControl";
+import { TransportControl } from "./controls/TransportControl";
 import {
   Knob,
   transformKnobValue,
   transformKnobValueExponential,
-} from "./Knob";
-import { SequencerControl } from "./SequencerControl";
-import { MasterFX } from "./MasterFX";
-import { MasterCompressor } from "./MasterCompressor";
-import { PresetControl } from "./PresetControl";
+} from "./common/Knob";
+import { SequencerControl } from "./controls/SequencerControl";
+import { MasterFX } from "./controls/MasterFX";
+import { MasterCompressor } from "./controls/MasterCompressor";
+import { PresetControl } from "./controls/PresetControl";
 import { DrumhausLogo } from "./svg/DrumhausLogo";
 import { SignatureLogo } from "./svg/SignatureLogo";
 import makeGoodMusic from "@/lib/makeGoodMusic";
+import { _samples, createSamples } from "@/lib/createSamples";
 
 const Drumhaus = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [preset, setPreset] = useState<Preset>(init.createPreset());
+  const [preset, setPreset] = useState<Preset>(init.init());
 
   // g l o b a l
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [kit, setKit] = useState<Kit>(preset._kit);
-  const [samples, setSamples] = useState<Sample[]>(init._samples);
+  const [samples, setSamples] = useState<Sample[]>(_samples);
   const [sequences, setSequences] = useState<Sequences>(preset._sequences);
   const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
   const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
@@ -135,7 +136,8 @@ const Drumhaus = () => {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
-    const newSamples = init.createSamples(kit.samples);
+    const newSamples = createSamples(kit.samples);
+
     setSamples(newSamples);
     setAttacks(kit._attacks);
     setReleases(kit._releases);

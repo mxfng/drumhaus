@@ -1,4 +1,4 @@
-import { transformKnobValue } from "@/components/Knob";
+import { transformKnobValue } from "@/components/common/Knob";
 import { Sample, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 
