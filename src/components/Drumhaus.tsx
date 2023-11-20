@@ -282,7 +282,7 @@ const Drumhaus = () => {
   useEffect(() => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
     Tone.Destination.volume.value = newMasterVolume;
-  }, [masterVolume]);
+  }, [masterVolume, preset]);
 
   useEffect(() => {
     const newCurrentSequence: boolean[] = sequences[slotIndex][variation][0];

@@ -12,6 +12,9 @@ import { useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { sticks_and_stones } from "@/lib/presets/sticks_and_stones";
+import { rich_kids } from "@/lib/presets/rich_kids";
+import { headbanger } from "@/lib/presets/headbanger";
+import { neon_sky } from "@/lib/presets/hairspray";
 
 type PresetControlProps = {
   preset: Preset;
@@ -70,12 +73,18 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     kits.drumhaus,
     kits.retrowave,
     kits.dylan_kidd,
+    kits.superich,
+    kits.trapstar,
+    kits.hairspray,
   ];
 
   const _presetOptions: (() => Preset)[] = [
     init,
     sticks_and_stones,
     polaroid_bounce,
+    rich_kids,
+    headbanger,
+    neon_sky,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
