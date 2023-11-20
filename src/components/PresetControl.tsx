@@ -32,7 +32,8 @@ type PresetControlProps = {
   solos: boolean[];
   mutes: boolean[];
   chain: number;
-  stopPlay: () => void;
+  isPlaying: boolean;
+  togglePlay: () => Promise<void>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
@@ -57,7 +58,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   solos,
   mutes,
   chain,
-  stopPlay,
+  isPlaying,
+  togglePlay,
 }) => {
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
@@ -129,7 +131,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleReset = () => {
-    stopPlay();
+    if (isPlaying) {
+      togglePlay();
+    }
 
     const isConfirmed = window.confirm(
       "Are you sure you want to reset all values to their initialized settings?"

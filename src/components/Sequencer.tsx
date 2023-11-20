@@ -199,7 +199,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 <Box
                   bg="darkorange"
                   h="100%"
-                  w={`${sequences[slot][variation][1][node] * 100}%`}
+                  w={`${Math.max(
+                    sequences[slot][variation][1][node] * 100,
+                    12
+                  )}%`}
                   position="absolute"
                   borderRadius="200px 0 200px 0"
                   filter="blur(2px)"
