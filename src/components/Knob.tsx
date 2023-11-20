@@ -74,6 +74,7 @@ export const Knob: React.FC<KnobProps> = ({
     if (!isMouseDown) {
       mouseY.set(knobValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knobValue]);
 
   useEffect(() => {

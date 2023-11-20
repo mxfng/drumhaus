@@ -101,6 +101,7 @@ const Drumhaus = () => {
     return () => {
       toneSequence.current?.dispose();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, releases, chain, mutes, solos, samples]);
 
   // p r e s e t   c h a n g e
@@ -127,6 +128,7 @@ const Drumhaus = () => {
     }
 
     setFromPreset({ ...preset });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset]);
 
   // k i t   c h a n g e
@@ -150,6 +152,7 @@ const Drumhaus = () => {
         sample.panner.dispose();
       });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kit]);
 
   // s a m p l e s   c h a n g e
@@ -282,6 +285,7 @@ const Drumhaus = () => {
   useEffect(() => {
     const newCurrentSequence: boolean[] = sequences[slotIndex][variation][0];
     setCurrentSequence(newCurrentSequence);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variation]);
 
   // t o g g l e   p l a y

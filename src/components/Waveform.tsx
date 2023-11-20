@@ -70,7 +70,7 @@ const Waveform: React.FC<WaveformProps> = ({
         // Call the drawAmplitudeGraphic function to draw the static graphic
         draw();
       });
-  }, [audioFile, width]);
+  }, [audioFile, width, color]);
 
   return <canvas ref={canvasRef} />;
 };
