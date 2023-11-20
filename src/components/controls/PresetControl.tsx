@@ -1,6 +1,6 @@
 "use client";
 
-import * as init from "@/lib/presets";
+import * as presets from "@/lib/presets";
 import * as kits from "@/lib/kits";
 import { Kit, Preset, Sequences } from "@/types/types";
 import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
@@ -10,6 +10,10 @@ import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useState } from "react";
+
+const kitOptions: Kit[] = [kits.debug(), kits.debug2()];
+
+const _presetOptions: Preset[] = [presets.init(), presets.squigglywiggly()];
 
 type PresetControlProps = {
   preset: Preset;
@@ -65,6 +69,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   togglePlay,
 }) => {
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
+  const [selectedPreset, setSelectedPreset] = useState<string>(preset.name);
+  const [presetOptions, setPresetOptions] = useState<Preset[]>(_presetOptions);
 
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
@@ -107,6 +113,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const loadFromJson = () => {
+    if (isPlaying) {
+      togglePlay();
+    }
+
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".dh";
@@ -124,8 +134,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       try {
         const jsonContent = JSON.parse(e.target?.result as string);
         setPreset(jsonContent);
+        setSelectedPreset(jsonContent.name);
+        setSelectedKit(jsonContent._kit.name);
+        setPresetOptions((prevOptions) => [...prevOptions, jsonContent]);
       } catch (error) {
-        console.error("Error parsing JSON:", error);
+        console.error("Error parsing DH JSON:", error);
       }
     };
 
@@ -143,7 +156,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     if (isConfirmed) {
       setPreset(() => {
-        return init.init();
+        return presets.init();
       });
       setSelectedKit(kit.name);
     }
@@ -155,10 +168,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
 
     const selectedKitName = event.target.value;
-    const kitOption = drumKits.find((kit) => kit.name === selectedKitName);
+    const kitOption = kitOptions.find((kit) => kit.name === selectedKitName);
 
     if (kitOption) {
-      setKit(kitOption.kit);
+      setKit(kitOption);
       setSelectedKit(kitOption.name);
     }
   };
@@ -169,36 +182,16 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
 
     const selectedPresetName = event.target.value;
-    // const presetOption =
+    const presetOption = presetOptions.find(
+      (preset) => preset.name === selectedPresetName
+    );
+
+    if (presetOption) {
+      setPreset(presetOption);
+      setSelectedPreset(presetOption.name);
+      setSelectedKit(presetOption._kit.name);
+    }
   };
-
-  interface DrumKitOption {
-    name: string;
-    kit: Kit;
-  }
-
-  const drumKits: DrumKitOption[] = [
-    {
-      name: `debug.dhkit`,
-      kit: kits.debug(),
-    },
-    {
-      name: "option2.dhkit",
-      kit: kits.debug2(),
-    },
-  ];
-
-  interface PresetOption {
-    name: string;
-    preset: Preset;
-  }
-
-  const presets: PresetOption[] = [
-    {
-      name: "init.dh",
-      preset: init.init(),
-    },
-  ];
 
   return (
     <Center h="100%">
@@ -240,7 +233,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               cursor="pointer"
               onChange={handleKitChange}
             >
-              {drumKits.map((kit) => (
+              {kitOptions.map((kit) => (
                 <option key={kit.name} value={kit.name}>
                   {kit.name}
                 </option>
@@ -303,14 +296,21 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           >
             <Select
               variant="unstyled"
-              placeholder={`${preset.name}.dh`}
+              value={selectedPreset}
               fontFamily={`'Pixelify Sans Variable', sans-serif`}
               color="gray"
               position="absolute"
               w="312px"
               overflow="hidden"
               cursor="pointer"
-            ></Select>
+              onChange={handlePresetChange}
+            >
+              {presetOptions.map((preset) => (
+                <option key={preset.name} value={preset.name}>
+                  {preset.name}
+                </option>
+              ))}
+            </Select>
 
             <Box
               position="absolute"

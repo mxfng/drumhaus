@@ -96,7 +96,18 @@ export const TransportControl: React.FC<TransportControlProps> = ({
 
   return (
     <>
-      <Center h="100%" px={4} w="250px">
+      <Center h="100%" px={4} w="250px" position="relative">
+        <Text
+          fontSize={12}
+          color="gray"
+          pb={4}
+          opacity={0.5}
+          position="absolute"
+          top="20px"
+          left={2}
+        >
+          TRANSPORT
+        </Text>
         <Flex>
           <Center>
             <Box
