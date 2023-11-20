@@ -10,11 +10,6 @@ import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useState } from "react";
-import { isEqual } from "lodash";
-
-const kitOptions: Kit[] = [kits.debug(), kits.debug2()];
-
-const _presetOptions: Preset[] = [presets.init(), presets.squigglywiggly()];
 
 type PresetControlProps = {
   preset: Preset;
@@ -69,15 +64,23 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   isPlaying,
   togglePlay,
 }) => {
+  const kitOptions: (() => Kit)[] = [kits.debug, kits.debug2];
+
+  const _presetOptions: (() => Preset)[] = [
+    presets.init,
+    presets.squigglywiggly,
+  ];
+
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
   const [selectedPreset, setSelectedPreset] = useState<string>(preset.name);
-  const [presetOptions, setPresetOptions] = useState<Preset[]>(_presetOptions);
+  const [presetOptions, setPresetOptions] =
+    useState<(() => Preset)[]>(_presetOptions);
   const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
 
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
 
-    const presetToSave: Preset = {
+    const presetToSave = () => ({
       name: customName,
       _kit: {
         name: kit.name,
@@ -102,9 +105,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _compThreshold: compThreshold,
       _compRatio: compRatio,
       _masterVolume: masterVolume,
-    };
+    });
 
-    const jsonPreset = JSON.stringify(presetToSave);
+    const jsonPreset = JSON.stringify(presetToSave());
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -116,10 +119,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
 
-    setPreset(presetToSave);
-    setCleanPreset(presetToSave);
-    setSelectedPreset(presetToSave.name);
-    setSelectedKit(presetToSave._kit.name);
+    const newPreset = presetToSave();
+    setPreset(newPreset);
+    setCleanPreset(newPreset);
+    setSelectedPreset(newPreset.name);
+    setSelectedKit(newPreset._kit.name);
     setPresetOptions((prevOptions) => [...prevOptions, presetToSave]);
   };
 
@@ -141,12 +145,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const jsonContent = JSON.parse(e.target?.result as string);
+        const jsonContent: Preset = JSON.parse(e.target?.result as string);
+        const presetOption = () => jsonContent;
         setPreset(jsonContent);
         setCleanPreset(jsonContent);
         setSelectedPreset(jsonContent.name);
         setSelectedKit(jsonContent._kit.name);
-        setPresetOptions((prevOptions) => [...prevOptions, jsonContent]);
+        setPresetOptions((prevOptions) => [...prevOptions, presetOption]);
       } catch (error) {
         console.error("Error parsing DH JSON:", error);
       }
@@ -181,8 +186,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const kitOption = kitOptions.find((kit) => kit.name === selectedKitName);
 
     if (kitOption) {
-      setKit(kitOption);
-      setSelectedKit(kitOption.name);
+      const newKit = kitOption();
+      setKit(newKit);
+      setSelectedKit(newKit.name);
     }
   };
 
@@ -227,10 +233,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       );
 
       if (presetOption) {
-        setPreset(presetOption);
-        setCleanPreset(presetOption);
-        setSelectedPreset(presetOption.name);
-        setSelectedKit(presetOption._kit.name);
+        const newPreset = presetOption();
+        setPreset(newPreset);
+        setCleanPreset(newPreset);
+        setSelectedPreset(newPreset.name);
+        setSelectedKit(newPreset._kit.name);
       }
     }
   };
