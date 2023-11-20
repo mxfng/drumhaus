@@ -1,6 +1,5 @@
 "use client";
 
-import * as presets from "@/lib/presets";
 import * as kits from "@/lib/kits";
 import { Kit, Preset, Sequences } from "@/types/types";
 import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
@@ -10,6 +9,9 @@ import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useState } from "react";
+import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
+import { init } from "@/lib/presets/init";
+import { sticks_and_stones } from "@/lib/presets/sticks_and_stones";
 
 type PresetControlProps = {
   preset: Preset;
@@ -64,11 +66,16 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   isPlaying,
   togglePlay,
 }) => {
-  const kitOptions: (() => Kit)[] = [kits.debug, kits.debug2];
+  const kitOptions: (() => Kit)[] = [
+    kits.drumhaus,
+    kits.retrowave,
+    kits.dylan_kidd,
+  ];
 
   const _presetOptions: (() => Preset)[] = [
-    presets.init,
-    presets.squigglywiggly,
+    init,
+    sticks_and_stones,
+    polaroid_bounce,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
@@ -170,10 +177,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     );
 
     if (isConfirmed) {
-      setPreset(presets.init());
-      setCleanPreset(presets.init());
+      setPreset(init());
+      setCleanPreset(init());
       setSelectedKit(kit.name);
-      setSelectedPreset(presets.init().name);
+      setSelectedPreset(init().name);
     }
   };
 
@@ -283,8 +290,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               onChange={handleKitChange}
             >
               {kitOptions.map((kit) => (
-                <option key={kit.name} value={kit.name}>
-                  {kit.name}
+                <option key={kit().name} value={kit().name}>
+                  {kit().name}
                 </option>
               ))}
             </Select>
@@ -355,8 +362,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               onChange={handlePresetChange}
             >
               {presetOptions.map((preset) => (
-                <option key={preset.name} value={preset.name}>
-                  {preset.name}
+                <option key={preset().name} value={preset().name}>
+                  {preset().name}
                 </option>
               ))}
             </Select>

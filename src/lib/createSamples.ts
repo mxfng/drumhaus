@@ -28,4 +28,4 @@ export const createSamples = (samples: SampleData[]) => {
 };
 
 // Create initial Drumhaus sampler objects
-export const _samples: Sample[] = createSamples(kits.debug().samples);
+export const _samples: Sample[] = createSamples(kits.drumhaus().samples);
