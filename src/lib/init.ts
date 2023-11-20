@@ -88,9 +88,9 @@ export const createSamples = (samples: SampleData[]) => {
         ["C2"]: sample.url,
       },
       baseUrl: "/samples/",
-      onload: () => {
-        console.log(`DHSampler created for ${sample.name}`);
-      },
+      // onload: () => {
+      //   console.log(`DHSampler created for ${sample.name}`);
+      // },
     });
 
     return {
