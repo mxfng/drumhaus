@@ -298,10 +298,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               fill: "darkorange",
               transition: "all 0.2s ease",
             },
-            "& .iconReset": {
-              color: "#ff7b00",
-              transition: "all 0.2s ease",
-            },
           }}
         >
           <MdOutlineSaveAlt className="icon" color="#B09374" />
@@ -353,8 +349,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           bottom={0}
           p={0}
           _hover={{
-            "& .icon": {
-              fill: "darkorange",
+            "& .iconReset": {
+              color: "#ff7b00",
               transition: "all 0.2s ease",
             },
           }}

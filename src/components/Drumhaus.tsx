@@ -369,9 +369,6 @@ const Drumhaus = () => {
           href="https://www.maxfung.net/"
           target="_blank"
         />
-        <Text position="absolute" top={0} left={800}>
-          {isLoading ? "LOADING" : "READY"}
-        </Text>
       </Box>
 
       <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
@@ -521,12 +518,24 @@ const Drumhaus = () => {
         <Text
           color="gray"
           fontSize={12}
-          opacity={0.3}
+          opacity={0.5}
           position="absolute"
           left={8}
           top={1}
         >
           Designed with love by Max Fung
+        </Text>
+        <Text
+          position="absolute"
+          top={0}
+          left={0}
+          w="100%"
+          textAlign="center"
+          color="gray"
+          fontSize={14}
+          opacity={0.5}
+        >
+          {isLoading ? "LOADING" : "READY"}
         </Text>
       </Box>
     </Box>
