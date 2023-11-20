@@ -76,6 +76,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
+
     const presetToSave: Preset = {
       name: customName,
       _kit: {
@@ -102,29 +103,35 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _compRatio: compRatio,
       _masterVolume: masterVolume,
     };
+
     const jsonPreset = JSON.stringify(presetToSave);
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
+
     downloadLink.href = url;
     downloadLink.download = `${customName}.dh`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
+
+    setPreset(presetToSave);
+    setCleanPreset(presetToSave);
+    setSelectedPreset(presetToSave.name);
+    setSelectedKit(presetToSave._kit.name);
+    setPresetOptions((prevOptions) => [...prevOptions, presetToSave]);
   };
 
   const loadFromJson = () => {
     if (isPlaying) {
       togglePlay();
     }
-
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".dh";
     fileInput.onchange = (e) =>
       handleFileChange((e.target as HTMLInputElement).files?.[0]);
-
     fileInput.click();
   };
 
