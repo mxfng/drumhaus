@@ -202,7 +202,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     if (isConfirmed) {
       setPreset(init());
       setCleanPreset(init());
-      setSelectedKit(kit.name);
+      setSelectedKit(init()._kit.name);
       setSelectedPreset(init().name);
     }
   };
