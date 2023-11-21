@@ -1,6 +1,4 @@
-// __Initialization__
-
-import { Kit, Sample, SampleData } from "@/types/types";
+import { Kit, SampleData } from "@/types/types";
 
 const wrapToSampleData = (
   urls: [string, string, string, string, string, string, string, string],
@@ -43,7 +41,7 @@ export const drumhaus = (): Kit => ({
   _mutes: [false, false, false, false, false, false, false, false],
 });
 
-const dylanKiddSamples: SampleData[] = wrapToSampleData(
+const organicSamples: SampleData[] = wrapToSampleData(
   [
     "3/dk_kick.wav",
     "3/dk_kick2.wav",
@@ -59,7 +57,7 @@ const dylanKiddSamples: SampleData[] = wrapToSampleData(
 
 export const organic = (): Kit => ({
   name: "organic",
-  samples: dylanKiddSamples,
+  samples: organicSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [21, 30, 28, 23, 29, 100, 54, 100],
   _filters: [50, 50, 50, 50, 50, 50, 50, 50],
@@ -69,7 +67,7 @@ export const organic = (): Kit => ({
   _mutes: [false, false, false, false, false, false, false, false],
 });
 
-const retrowaveSamples: SampleData[] = wrapToSampleData(
+const funkSamples: SampleData[] = wrapToSampleData(
   [
     "1/rw_kick.wav",
     "1/rw_kick2.wav",
@@ -85,7 +83,7 @@ const retrowaveSamples: SampleData[] = wrapToSampleData(
 
 export const funk = (): Kit => ({
   name: "funk",
-  samples: retrowaveSamples,
+  samples: funkSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [49, 10, 42, 10, 10, 100, 40, 100],
   _filters: [50, 50, 50, 50, 50, 50, 56, 50],
@@ -95,7 +93,7 @@ export const funk = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const superichSamples: SampleData[] = wrapToSampleData(
+const rnbSamples: SampleData[] = wrapToSampleData(
   [
     "6/superich_kick.wav",
     "6/superich_kick2.wav",
@@ -111,7 +109,7 @@ const superichSamples: SampleData[] = wrapToSampleData(
 
 export const rnb = (): Kit => ({
   name: "rnb",
-  samples: superichSamples,
+  samples: rnbSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [49, 10, 42, 10, 10, 100, 40, 100],
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
@@ -121,7 +119,7 @@ export const rnb = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const decapSamples: SampleData[] = wrapToSampleData(
+const trapSamples: SampleData[] = wrapToSampleData(
   [
     "4/ts_kick.wav",
     "4/ts_kick2.wav",
@@ -137,7 +135,7 @@ const decapSamples: SampleData[] = wrapToSampleData(
 
 export const trap = (): Kit => ({
   name: "trap",
-  samples: decapSamples,
+  samples: trapSamples,
   _attacks: [0, 20, 0, 0, 0, 0, 0, 0],
   _releases: [49, 63, 42, 100, 10, 100, 40, 100],
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
@@ -147,7 +145,7 @@ export const trap = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const hairspraySamples: SampleData[] = wrapToSampleData([
+const eightiesSamples: SampleData[] = wrapToSampleData([
   "5/hs_kick.wav",
   "5/hs_kick2.wav",
   "5/hs_snare.wav",
@@ -160,7 +158,7 @@ const hairspraySamples: SampleData[] = wrapToSampleData([
 
 export const eighties = (): Kit => ({
   name: "eighties",
-  samples: hairspraySamples,
+  samples: eightiesSamples,
   _attacks: [0, 20, 0, 0, 4, 0, 0, 0],
   _releases: [49, 63, 42, 36, 26, 100, 43, 100],
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
@@ -170,7 +168,7 @@ export const eighties = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const parisSamples: SampleData[] = wrapToSampleData(
+const tech_houseSamples: SampleData[] = wrapToSampleData(
   [
     "2/paris_kick.wav",
     "2/paris_bass.wav",
@@ -186,7 +184,7 @@ const parisSamples: SampleData[] = wrapToSampleData(
 
 export const tech_house = (): Kit => ({
   name: "tech_house",
-  samples: parisSamples,
+  samples: tech_houseSamples,
   _attacks: [0, 20, 0, 0, 4, 0, 0, 0],
   _releases: [49, 63, 42, 40, 43, 100, 79, 100],
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
@@ -196,7 +194,7 @@ export const tech_house = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const berlinSamples: SampleData[] = wrapToSampleData(
+const technoSamples: SampleData[] = wrapToSampleData(
   [
     "7/berlin_kick.wav",
     "7/berlin_bass.wav",
@@ -212,7 +210,7 @@ const berlinSamples: SampleData[] = wrapToSampleData(
 
 export const techno = (): Kit => ({
   name: "techno",
-  samples: berlinSamples,
+  samples: technoSamples,
   _attacks: [0, 100, 0, 0, 4, 33, 0, 0],
   _releases: [49, 19, 42, 40, 43, 12, 79, 100],
   _filters: [50, 4, 54, 50, 50, 50, 55, 50],
