@@ -293,23 +293,19 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             },
           }}
         >
-          <Box
-            h="40px"
-            w="100%"
-            id="kit"
-            px={4}
-            py={2}
-            mb={4}
-            position="relative"
-          >
+          <Box h="40px" w="100%" id="kit" mb={4} position="relative">
             <Select
               variant="unstyled"
+              border="none"
+              outline="none"
               value={selectedKit}
               fontFamily={`'Pixelify Sans Variable', sans-serif`}
               color="gray"
-              position="absolute"
-              w="312px"
+              w="332px"
+              h="40px"
+              borderRadius="8px"
               cursor="pointer"
+              pl={4}
               onChange={handleKitChange}
             >
               {kitOptions.map((kit) => (
@@ -323,10 +319,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               position="absolute"
               h="23px"
               w="15px"
-              right={4}
+              right={3}
               top={2}
               bg="silver"
-              filter="blur(2px)"
               pointerEvents="none"
             />
 
@@ -364,25 +359,18 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             },
           }}
         >
-          <Box
-            id="preset"
-            h="40px"
-            px={4}
-            py={2}
-            mt={4}
-            mb={4}
-            position="relative"
-          >
+          <Box id="preset" h="40px" mt={4} mb={4} position="relative">
             <Select
               variant="unstyled"
               value={selectedPreset}
               fontFamily={`'Pixelify Sans Variable', sans-serif`}
               color="gray"
-              position="absolute"
-              w="312px"
-              overflow="hidden"
+              w="332px"
+              h="40px"
+              borderRadius="8px"
               cursor="pointer"
               onChange={handlePresetChange}
+              pl={4}
             >
               {presetOptions.map((preset) => (
                 <option key={preset().name} value={preset().name}>
@@ -395,10 +383,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               position="absolute"
               h="23px"
               w="15px"
-              right={4}
+              right={3}
               top={2}
               bg="silver"
-              filter="blur(2px)"
               pointerEvents="none"
             />
 

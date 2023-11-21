@@ -65,6 +65,8 @@ const Waveform: React.FC<WaveformProps> = ({
 
           ctx.strokeStyle = color;
           ctx.stroke();
+
+          requestAnimationFrame(draw);
         }
 
         // Call the drawAmplitudeGraphic function to draw the static graphic
