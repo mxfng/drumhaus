@@ -1,8 +1,8 @@
 import { Preset } from "@/types/types";
 import * as kits from "@/lib/kits";
 
-export const sticks_and_stones = (): Preset => ({
-  name: "sticks_and_stones",
+export const a_drum_called_haus = (): Preset => ({
+  name: "a_drum_called_haus",
   _kit: kits.organic(),
   _sequences: [
     [

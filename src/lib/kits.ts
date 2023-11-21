@@ -20,39 +20,42 @@ const wrapToSampleData = (
   });
 };
 
-const debugSamples: SampleData[] = wrapToSampleData([
-  "debug/debug_kick.wav",
-  "debug/debug_kick2.wav",
-  "debug/debug_snare.wav",
-  "debug/debug_clap.wav",
-  "debug/debug_hat.wav",
-  "debug/debug_ohat.wav",
-  "debug/debug_bell.wav",
-  "debug/debug_crash.wav",
-]);
+const drumhausSamples: SampleData[] = [
+  { name: "Kick", url: "0/kick.wav" },
+  { name: "Kick2", url: "0/kick2.wav" },
+  { name: "Snare", url: "0/snare.wav" },
+  { name: "Clap", url: "0/clap.wav" },
+  { name: "Hat", url: "0/hat.wav" },
+  { name: "OHat", url: "0/ohat.wav" },
+  { name: "Tom", url: "0/tom.wav" },
+  { name: "Tom2", url: "0/tom2.wav" },
+];
 
 export const drumhaus = (): Kit => ({
   name: "drumhaus",
-  samples: debugSamples,
+  samples: drumhausSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
-  _releases: [10, 10, 10, 10, 10, 100, 40, 100],
+  _releases: [100, 100, 100, 100, 100, 100, 100, 100],
   _filters: [50, 50, 50, 50, 50, 50, 50, 50],
-  _volumes: [92, 92, 92, 92, 92, 92, 92, 70],
+  _volumes: [92, 92, 92, 92, 92, 92, 92, 92],
   _pans: [50, 50, 50, 50, 50, 50, 50, 50],
   _solos: [false, false, false, false, false, false, false, false],
   _mutes: [false, false, false, false, false, false, false, false],
 });
 
-const dylanKiddSamples: SampleData[] = wrapToSampleData([
-  "3/dk_kick.wav",
-  "3/dk_kick2.wav",
-  "3/dk_snare.wav",
-  "3/dk_clap.wav",
-  "3/dk_shaker.wav",
-  "3/dk_stick_click.wav",
-  "3/dk_sidestick.wav",
-  "3/dk_chime.wav",
-]);
+const dylanKiddSamples: SampleData[] = wrapToSampleData(
+  [
+    "3/dk_kick.wav",
+    "3/dk_kick2.wav",
+    "3/dk_snare.wav",
+    "3/dk_clap.wav",
+    "3/dk_shaker.wav",
+    "3/dk_stick_click.wav",
+    "3/dk_sidestick.wav",
+    "3/dk_chime.wav",
+  ],
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "Stick", "Perc", "Chime"]
+);
 
 export const organic = (): Kit => ({
   name: "organic",
@@ -66,16 +69,19 @@ export const organic = (): Kit => ({
   _mutes: [false, false, false, false, false, false, false, false],
 });
 
-const retrowaveSamples: SampleData[] = wrapToSampleData([
-  "1/rw_kick.wav",
-  "1/rw_kick2.wav",
-  "1/rw_snare.wav",
-  "1/rw_clap.wav",
-  "1/rw_hat.wav",
-  "1/rw_ohat.wav",
-  "1/rw_perc_flam.wav",
-  "1/rw_cymbal.wav",
-]);
+const retrowaveSamples: SampleData[] = wrapToSampleData(
+  [
+    "1/rw_kick.wav",
+    "1/rw_kick2.wav",
+    "1/rw_snare.wav",
+    "1/rw_clap.wav",
+    "1/rw_hat.wav",
+    "1/rw_ohat.wav",
+    "1/rw_perc_flam.wav",
+    "1/rw_cymbal.wav",
+  ],
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Tom", "Crash"]
+);
 
 export const funk = (): Kit => ({
   name: "funk",
@@ -89,16 +95,19 @@ export const funk = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const superichSamples: SampleData[] = wrapToSampleData([
-  "6/superich_kick.wav",
-  "6/superich_kick2.wav",
-  "6/superich_snare.wav",
-  "6/superich_tap.wav",
-  "6/superich_hat.wav",
-  "6/superich_ohat.wav",
-  "6/superich_clav.wav",
-  "6/superich_ride.wav",
-]);
+const superichSamples: SampleData[] = wrapToSampleData(
+  [
+    "6/superich_kick.wav",
+    "6/superich_kick2.wav",
+    "6/superich_snare.wav",
+    "6/superich_tap.wav",
+    "6/superich_hat.wav",
+    "6/superich_ohat.wav",
+    "6/superich_clav.wav",
+    "6/superich_ride.wav",
+  ],
+  ["Kick", "Kick2", "Snare", "Snare2", "Hat", "OHat", "Perc", "Crash"]
+);
 
 export const rnb = (): Kit => ({
   name: "rnb",
@@ -112,16 +121,19 @@ export const rnb = (): Kit => ({
   _solos: [false, false, false, false, false, false, false, false],
 });
 
-const decapSamples: SampleData[] = wrapToSampleData([
-  "4/ts_kick.wav",
-  "4/ts_kick2.wav",
-  "4/ts_snare.wav",
-  "4/ts_clap.wav",
-  "4/ts_hat.wav",
-  "4/ts_ohat.wav",
-  "4/ts_hat2.wav",
-  "4/ts_hat3.wav",
-]);
+const decapSamples: SampleData[] = wrapToSampleData(
+  [
+    "4/ts_kick.wav",
+    "4/ts_kick2.wav",
+    "4/ts_snare.wav",
+    "4/ts_clap.wav",
+    "4/ts_hat.wav",
+    "4/ts_ohat.wav",
+    "4/ts_hat2.wav",
+    "4/ts_hat3.wav",
+  ],
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Hat2", "Hat3"]
+);
 
 export const trap = (): Kit => ({
   name: "trap",
@@ -169,7 +181,7 @@ const parisSamples: SampleData[] = wrapToSampleData(
     "2/paris_p_E.wav",
     "2/paris_p_Abm.wav",
   ],
-  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano"]
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano2"]
 );
 
 export const tech_house = (): Kit => ({
@@ -195,7 +207,7 @@ const berlinSamples: SampleData[] = wrapToSampleData(
     "7/berlin_stab.wav",
     "7/berlin_loop.wav",
   ],
-  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth"]
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth2"]
 );
 
 export const techno = (): Kit => ({
@@ -206,6 +218,52 @@ export const techno = (): Kit => ({
   _filters: [50, 4, 54, 50, 50, 50, 55, 50],
   _pans: [50, 50, 50, 50, 36, 62, 35, 66],
   _volumes: [92, 90, 85, 78, 74, 73, 85, 88],
+  _mutes: [false, false, false, false, false, false, false, false],
+  _solos: [false, false, false, false, false, false, false, false],
+});
+
+const indieSamples: SampleData[] = wrapToSampleData([
+  "9/kick_puffy.wav",
+  "9/tom_clonk.wav",
+  "9/snare_together.wav",
+  "9/clap_hectic.wav",
+  "9/hat_crisp.wav",
+  "9/ohat_thick.wav",
+  "9/perc_jungle.wav",
+  "9/crash_legend.wav",
+]);
+
+export const indie = (): Kit => ({
+  name: "indie",
+  samples: indieSamples,
+  _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
+  _releases: [100, 100, 100, 43, 29, 100, 54, 100],
+  _filters: [50, 50, 50, 50, 50, 50, 50, 50],
+  _pans: [50, 50, 50, 37, 50, 50, 50, 50],
+  _volumes: [96, 88, 98, 76, 84, 80, 92, 78],
+  _mutes: [false, false, false, false, false, false, false, false],
+  _solos: [false, false, false, false, false, false, false, false],
+});
+
+const jungleSamples: SampleData[] = wrapToSampleData([
+  "8/kick.wav",
+  "8/kick2.wav",
+  "8/snare.wav",
+  "8/snare2.wav",
+  "8/hat.wav",
+  "8/ohat.wav",
+  "8/cymbal.wav",
+  "8/crash.wav",
+]);
+
+export const jungle = (): Kit => ({
+  name: "jungle",
+  samples: jungleSamples,
+  _attacks: [0, 0, 0, 0, 0, 0, 0, 15],
+  _releases: [31, 100, 100, 43, 29, 100, 54, 90],
+  _filters: [13, 55, 58, 50, 50, 50, 50, 26],
+  _pans: [50, 50, 50, 37, 50, 50, 33, 50],
+  _volumes: [94, 81, 95, 76, 84, 75, 92, 76],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
