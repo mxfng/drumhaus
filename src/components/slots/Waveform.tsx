@@ -14,67 +14,86 @@ const Waveform: React.FC<WaveformProps> = ({
   color = "#ff7b00",
 }) => {
   // Remove the leading directory and .wav file type from string
-  const filename = (audioFile.split("/").pop() || "").split(".")[0] || "";
+  const sample_name = (audioFile.split("/").pop() || "").split(".")[0] || "";
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-    const canvasWidth = width;
-    const canvasHeight = 60;
+    const draw = (
+      amplitudeData: number[][],
+      ctx: CanvasRenderingContext2D,
+      canvasWidth: number,
+      canvasHeight: number
+    ) => {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+      const channelCount = amplitudeData.length;
+      const rectWidth = 1; // Adjust the width as needed
+      const gapWidth = 1; // Adjust the gap width as needed
 
-    fetch(`/waveforms/${filename}.json`)
-      .then((response) => response.json())
-      .then((data) => {
-        const amplitudeData: number[][] = data.amplitude_envelope;
+      for (let channel = 0; channel < channelCount; channel++) {
+        const channelData = amplitudeData[channel];
 
-        function draw() {
-          ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        for (let i = 0; i < channelData.length; i++) {
+          const x = i * (rectWidth + gapWidth);
+          const y =
+            (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2) +
+            channel * (canvasHeight / 2);
+          const rectHeight =
+            canvasHeight / 2 -
+            Math.abs((Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2));
 
-          const channelCount = amplitudeData.length;
-          const rectWidth = 1; // Adjust the width as needed
-          const gapWidth = 1; // Adjust the gap width as needed
-
-          for (let channel = 0; channel < channelCount; channel++) {
-            const channelData = amplitudeData[channel];
-
-            for (let i = 0; i < channelData.length; i++) {
-              const x = i * (rectWidth + gapWidth);
-              const y =
-                (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2) +
-                channel * (canvasHeight / 2);
-              const rectHeight =
-                canvasHeight / 2 -
-                Math.abs(
-                  (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2)
-                );
-
-              ctx.fillStyle = color;
-              ctx.fillRect(x, y, rectWidth, rectHeight);
-            }
-
-            for (let i = 0; i < channelData.length; i++) {
-              const x = i * (rectWidth + gapWidth);
-              const rectHeight =
-                canvasHeight / 2 -
-                Math.abs(
-                  (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2)
-                );
-
-              ctx.fillStyle = color;
-              ctx.fillRect(x, canvasHeight / 2, rectWidth, rectHeight);
-            }
-          }
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, rectWidth, rectHeight);
         }
 
-        // Call the draw function to draw the waveform
-        draw();
-      });
-  }, [filename, width, color]);
+        for (let i = 0; i < channelData.length; i++) {
+          const x = i * (rectWidth + gapWidth);
+          const rectHeight =
+            canvasHeight / 2 -
+            Math.abs((Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2));
+
+          ctx.fillStyle = color;
+          ctx.fillRect(x, canvasHeight / 2, rectWidth, rectHeight);
+        }
+      }
+    };
+
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d")!;
+
+    if (!canvas || !ctx) {
+      return;
+    }
+
+    canvas.width = width;
+    canvas.height = 60;
+
+    // Try to get the waveform data from localStorage
+    const cachedWaveform = localStorage.getItem(`${sample_name}.json`);
+
+    if (cachedWaveform) {
+      // If cached data exists, parse and use it
+      const amplitudeData = JSON.parse(cachedWaveform);
+      draw(amplitudeData, ctx, canvas.width, canvas.height);
+    } else {
+      console.log(`Fetching waveform data for: ${sample_name}`);
+      fetch(`/waveforms/${sample_name}.json`)
+        .then((response) => response.json())
+        .then((data) => {
+          const amplitudeData: number[][] = data.amplitude_envelope;
+
+          // Cache the waveform data in localStorage
+          localStorage.setItem(
+            `${sample_name}.json`,
+            JSON.stringify(amplitudeData)
+          );
+
+          // Call the draw function to draw the waveform
+          draw(amplitudeData, ctx, canvas.width, canvas.height);
+        });
+    }
+  }, [sample_name, width, color]);
 
   return <canvas ref={canvasRef} />;
 };
