@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const city_of_love = (): Preset => ({
   name: "city_of_love",
-  _kit: kits.paris(),
+  _kit: kits.tech_house(),
   _sequences: [
     [
       [

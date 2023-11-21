@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const sticks_and_stones = (): Preset => ({
   name: "sticks_and_stones",
-  _kit: kits.dylan_kidd(),
+  _kit: kits.organic(),
   _sequences: [
     [
       [
