@@ -1,0 +1,14 @@
+__pycache__/_soundfile.cpython-311.pyc,,
+__pycache__/soundfile.cpython-311.pyc,,
+_soundfile.py,sha256=c9uiOw1KR6KHHef095p22DDNGYxBPv6ZtDZhw1MfRPk,5430
+_soundfile_data/COPYING,sha256=rQHqXNJ1X2BIODyNVMiEWc1vyxd1fFyIkvjF6gYPYUA,26518
+_soundfile_data/__init__.py,sha256=NyPoHQFFNB1a48Z6dFNzGSpwx_ZyrQKPdslRKTOar-k,125
+_soundfile_data/__pycache__/__init__.cpython-311.pyc,,
+_soundfile_data/libsndfile_arm64.dylib,sha256=OU0OEU-b7dP2JzwraCfMre5Svzq2F9Hei1S7GMPNH7E,2937924
+soundfile-0.12.1.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+soundfile-0.12.1.dist-info/LICENSE,sha256=DdLkEf7VU7qJGEUHfloyxbcm0bvEb_MaIRiuHM-BZ1I,1512
+soundfile-0.12.1.dist-info/METADATA,sha256=0gDm9qgAsKOPDFI9KJUq169QJ4q2h37a2QEB5W2mJuM,14827
+soundfile-0.12.1.dist-info/RECORD,,
+soundfile-0.12.1.dist-info/WHEEL,sha256=7RhkCCeuuRftyaOCsMa3HNyRrwr1C1Jo_zotjzwvrZY,138
+soundfile-0.12.1.dist-info/top_level.txt,sha256=Tj_0Vt4DBIkZRETu3hVFttfv39v8vHG3H2-ngR1FC4k,37
+soundfile.py,sha256=xAMp25VrLdGu40m-piLzZjDT23FpdSxDMI9ExUFgOlc,60756
