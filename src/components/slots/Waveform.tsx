@@ -13,72 +13,57 @@ const Waveform: React.FC<WaveformProps> = ({
   width,
   color = "#ff7b00",
 }) => {
+  // Remove the leading directory and .wav file type from string
+  const filename = (audioFile.split("/").pop() || "").split(".")[0] || "";
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    const offlineContext = new OfflineAudioContext(2, 44100 * 40, 44100);
-    const source = offlineContext.createBufferSource();
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const canvasWidth = width;
-    const canvasHeight = 50;
+    const canvasHeight = 60;
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    fetch(`/samples/${audioFile}`)
-      .then((response) => response.arrayBuffer())
-      .then((buffer) => offlineContext.decodeAudioData(buffer))
-      .then((decodedBuffer) => {
-        source.buffer = decodedBuffer;
-        source.connect(offlineContext.destination);
-        source.start(0);
-
-        return offlineContext.startRendering();
-      })
-      .then((renderedBuffer) => {
-        const amplitudeData = renderedBuffer.getChannelData(0);
+    // Fetch waveform data from the server
+    fetch(`/waveforms/${filename}.json`)
+      .then((response) => response.json())
+      .then((data) => {
+        const amplitudeData: number[][] = data.amplitude_envelope;
 
         function draw() {
-          const silenceThreshold = 0.01;
-          let endIndex = amplitudeData.length - 1;
-
-          // Find the index of the last non-silent sample
-          for (let index = amplitudeData.length - 1; index >= 0; index--) {
-            if (Math.abs(amplitudeData[index]) > silenceThreshold) {
-              endIndex = index;
-              break;
-            }
-          }
-
-          const trimmedData = amplitudeData.slice(0, endIndex);
-
-          const blockWidth = 200; // Adjust the block width according to your preference
+          console.log("Drawing waveform...");
 
           ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-          ctx.beginPath();
-          ctx.moveTo(0, ((trimmedData[0] + 1) * canvasHeight) / 2);
 
-          for (let i = 1; i < trimmedData.length; i += blockWidth) {
-            const x = (i / trimmedData.length) * canvasWidth;
-            const y = ((trimmedData[i] + 1) * canvasHeight) / 2;
-            ctx.lineTo(x, y);
+          const channelCount = amplitudeData.length;
+          const rectWidth = 1; // Adjust the width as needed
+          const gapWidth = 1; // Adjust the gap width as needed
+
+          for (let channel = 0; channel < channelCount; channel++) {
+            const channelData = amplitudeData[channel];
+
+            for (let i = 0; i < channelData.length; i++) {
+              const x = i * (rectWidth + gapWidth);
+              const y =
+                (channelData[i] + 1) * (canvasHeight / 2) +
+                channel * (canvasHeight / 2);
+              const rectHeight =
+                canvasHeight / 2 -
+                Math.abs((channelData[i] + 1) * (canvasHeight / 2));
+
+              ctx.fillStyle = color;
+              ctx.fillRect(x, y, rectWidth, rectHeight);
+            }
           }
-
-          ctx.strokeStyle = color;
-          ctx.stroke();
-
-          requestAnimationFrame(draw);
         }
 
-        function colorHexToDecimal(hex: string): number {
-          return parseInt(hex, 16);
-        }
-
-        // Call the drawAmplitudeGraphic function to draw the static graphic
+        // Call the draw function to draw the waveform
         draw();
       });
-  }, [audioFile, width, color]);
+  }, [filename, width, color]);
 
   return <canvas ref={canvasRef} />;
 };
