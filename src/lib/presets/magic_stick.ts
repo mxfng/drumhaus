@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const magic_stick = (): Preset => ({
   name: "magic_stick",
-  _kit: kits.berlin(),
+  _kit: kits.techno(),
   _sequences: [
     [
       [

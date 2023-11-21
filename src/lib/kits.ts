@@ -44,18 +44,18 @@ export const drumhaus = (): Kit => ({
 });
 
 const dylanKiddSamples: SampleData[] = wrapToSampleData([
-  "dylanKidd/dk_kick.wav",
-  "dylanKidd/dk_kick2.wav",
-  "dylanKidd/dk_snare.wav",
-  "dylanKidd/dk_clap.wav",
-  "dylanKidd/dk_shaker.wav",
-  "dylanKidd/dk_stick_click.wav",
-  "dylanKidd/dk_sidestick.wav",
-  "dylanKidd/dk_chime.wav",
+  "3/dk_kick.wav",
+  "3/dk_kick2.wav",
+  "3/dk_snare.wav",
+  "3/dk_clap.wav",
+  "3/dk_shaker.wav",
+  "3/dk_stick_click.wav",
+  "3/dk_sidestick.wav",
+  "3/dk_chime.wav",
 ]);
 
-export const dylan_kidd = (): Kit => ({
-  name: "dylan_kidd",
+export const organic = (): Kit => ({
+  name: "organic",
   samples: dylanKiddSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [21, 30, 28, 23, 29, 100, 54, 100],
@@ -67,18 +67,18 @@ export const dylan_kidd = (): Kit => ({
 });
 
 const retrowaveSamples: SampleData[] = wrapToSampleData([
-  "retrowave/rw_kick.wav",
-  "retrowave/rw_kick2.wav",
-  "retrowave/rw_snare.wav",
-  "retrowave/rw_clap.wav",
-  "retrowave/rw_hat.wav",
-  "retrowave/rw_ohat.wav",
-  "retrowave/rw_perc_flam.wav",
-  "retrowave/rw_cymbal.wav",
+  "1/rw_kick.wav",
+  "1/rw_kick2.wav",
+  "1/rw_snare.wav",
+  "1/rw_clap.wav",
+  "1/rw_hat.wav",
+  "1/rw_ohat.wav",
+  "1/rw_perc_flam.wav",
+  "1/rw_cymbal.wav",
 ]);
 
-export const retrowave = (): Kit => ({
-  name: "retrowave",
+export const funk = (): Kit => ({
+  name: "funk",
   samples: retrowaveSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [49, 10, 42, 10, 10, 100, 40, 100],
@@ -90,18 +90,18 @@ export const retrowave = (): Kit => ({
 });
 
 const superichSamples: SampleData[] = wrapToSampleData([
-  "superich/superich_kick.wav",
-  "superich/superich_kick2.wav",
-  "superich/superich_snare.wav",
-  "superich/superich_tap.wav",
-  "superich/superich_hat.wav",
-  "superich/superich_ohat.wav",
-  "superich/superich_clav.wav",
-  "superich/superich_ride.wav",
+  "6/superich_kick.wav",
+  "6/superich_kick2.wav",
+  "6/superich_snare.wav",
+  "6/superich_tap.wav",
+  "6/superich_hat.wav",
+  "6/superich_ohat.wav",
+  "6/superich_clav.wav",
+  "6/superich_ride.wav",
 ]);
 
-export const superich = (): Kit => ({
-  name: "superich",
+export const rnb = (): Kit => ({
+  name: "rnb",
   samples: superichSamples,
   _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
   _releases: [49, 10, 42, 10, 10, 100, 40, 100],
@@ -113,18 +113,18 @@ export const superich = (): Kit => ({
 });
 
 const decapSamples: SampleData[] = wrapToSampleData([
-  "trapstar/ts_kick.wav",
-  "trapstar/ts_kick2.wav",
-  "trapstar/ts_snare.wav",
-  "trapstar/ts_clap.wav",
-  "trapstar/ts_hat.wav",
-  "trapstar/ts_ohat.wav",
-  "trapstar/ts_hat2.wav",
-  "trapstar/ts_hat3.wav",
+  "4/ts_kick.wav",
+  "4/ts_kick2.wav",
+  "4/ts_snare.wav",
+  "4/ts_clap.wav",
+  "4/ts_hat.wav",
+  "4/ts_ohat.wav",
+  "4/ts_hat2.wav",
+  "4/ts_hat3.wav",
 ]);
 
-export const trapstar = (): Kit => ({
-  name: "trapstar",
+export const trap = (): Kit => ({
+  name: "trap",
   samples: decapSamples,
   _attacks: [0, 20, 0, 0, 0, 0, 0, 0],
   _releases: [49, 63, 42, 100, 10, 100, 40, 100],
@@ -136,18 +136,18 @@ export const trapstar = (): Kit => ({
 });
 
 const hairspraySamples: SampleData[] = wrapToSampleData([
-  "hairspray/hs_kick.wav",
-  "hairspray/hs_kick2.wav",
-  "hairspray/hs_snare.wav",
-  "hairspray/hs_clap.wav",
-  "hairspray/hs_hat.wav",
-  "hairspray/hs_ohat.wav",
-  "hairspray/hs_perc.wav",
-  "hairspray/hs_crash.wav",
+  "5/hs_kick.wav",
+  "5/hs_kick2.wav",
+  "5/hs_snare.wav",
+  "5/hs_clap.wav",
+  "5/hs_hat.wav",
+  "5/hs_ohat.wav",
+  "5/hs_perc.wav",
+  "5/hs_crash.wav",
 ]);
 
-export const hairspray = (): Kit => ({
-  name: "hairspray",
+export const eighties = (): Kit => ({
+  name: "eighties",
   samples: hairspraySamples,
   _attacks: [0, 20, 0, 0, 4, 0, 0, 0],
   _releases: [49, 63, 42, 36, 26, 100, 43, 100],
@@ -160,20 +160,20 @@ export const hairspray = (): Kit => ({
 
 const parisSamples: SampleData[] = wrapToSampleData(
   [
-    "paris/paris_kick.wav",
-    "paris/paris_bass.wav",
-    "paris/paris_snare.wav",
-    "paris/paris_clap.wav",
-    "paris/paris_hat.wav",
-    "paris/paris_ohat.wav",
-    "paris/paris_p_E.wav",
-    "paris/paris_p_Abm.wav",
+    "2/paris_kick.wav",
+    "2/paris_bass.wav",
+    "2/paris_snare.wav",
+    "2/paris_clap.wav",
+    "2/paris_hat.wav",
+    "2/paris_ohat.wav",
+    "2/paris_p_E.wav",
+    "2/paris_p_Abm.wav",
   ],
   ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano"]
 );
 
-export const paris = (): Kit => ({
-  name: "paris",
+export const tech_house = (): Kit => ({
+  name: "tech_house",
   samples: parisSamples,
   _attacks: [0, 20, 0, 0, 4, 0, 0, 0],
   _releases: [49, 63, 42, 40, 43, 100, 79, 100],
@@ -186,20 +186,20 @@ export const paris = (): Kit => ({
 
 const berlinSamples: SampleData[] = wrapToSampleData(
   [
-    "berlin/berlin_kick.wav",
-    "berlin/berlin_bass.wav",
-    "berlin/berlin_snare.wav",
-    "berlin/berlin_clap.wav",
-    "berlin/berlin_hat.wav",
-    "berlin/berlin_ohat.wav",
-    "berlin/berlin_stab.wav",
-    "berlin/berlin_loop.wav",
+    "7/berlin_kick.wav",
+    "7/berlin_bass.wav",
+    "7/berlin_snare.wav",
+    "7/berlin_clap.wav",
+    "7/berlin_hat.wav",
+    "7/berlin_ohat.wav",
+    "7/berlin_stab.wav",
+    "7/berlin_loop.wav",
   ],
   ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth"]
 );
 
-export const berlin = (): Kit => ({
-  name: "berlin",
+export const techno = (): Kit => ({
+  name: "techno",
   samples: berlinSamples,
   _attacks: [0, 100, 0, 0, 4, 33, 0, 0],
   _releases: [49, 19, 42, 40, 43, 12, 79, 100],

@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const headbanger = (): Preset => ({
   name: "headbanger",
-  _kit: kits.trapstar(),
+  _kit: kits.trap(),
   _sequences: [
     [
       [

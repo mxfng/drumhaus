@@ -73,13 +73,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 }) => {
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
-    kits.retrowave,
-    kits.dylan_kidd,
-    kits.superich,
-    kits.trapstar,
-    kits.hairspray,
-    kits.paris,
-    kits.berlin,
+    kits.funk,
+    kits.organic,
+    kits.rnb,
+    kits.trap,
+    kits.eighties,
+    kits.tech_house,
+    kits.techno,
   ];
 
   const _presetOptions: (() => Preset)[] = [

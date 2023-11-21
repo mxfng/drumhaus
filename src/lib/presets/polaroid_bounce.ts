@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const polaroid_bounce = (): Preset => ({
   name: "polaroid_bounce",
-  _kit: kits.retrowave(),
+  _kit: kits.funk(),
   _sequences: [
     [
       [

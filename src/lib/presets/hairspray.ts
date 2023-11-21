@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const neon_sky = (): Preset => ({
   name: "neon_sky",
-  _kit: kits.hairspray(),
+  _kit: kits.eighties(),
   _sequences: [
     [
       [

@@ -3,7 +3,7 @@ import * as kits from "@/lib/kits";
 
 export const rich_kids = (): Preset => ({
   name: "rich_kids",
-  _kit: kits.superich(),
+  _kit: kits.rnb(),
   _sequences: [
     [
       [
