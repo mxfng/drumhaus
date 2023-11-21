@@ -24,6 +24,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
   setSwing,
 }) => {
   const [bpmInputValue, setBpmInputValue] = useState<number>(bpm);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const upButtonRef = useRef<HTMLButtonElement | null>(null);
   const downButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -39,7 +40,9 @@ export const TransportControl: React.FC<TransportControlProps> = ({
   };
 
   // Handle the form submission logic with inputValue when the input loses focus
-  const handleBlur = () => setBpm(bpmInputValue);
+  const handleBlur = () => {
+    setBpm(bpmInputValue);
+  };
 
   // Handle mouse hold on BPM buttons
   useEffect(() => {
@@ -120,6 +123,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
               <Center h="100%" position="relative" zIndex={3}>
                 <Flex h="100%">
                   <Input
+                    ref={inputRef}
                     fontFamily={`'Pixelify Sans Variable', sans-serif`}
                     fontSize={40}
                     color="gray"
@@ -130,7 +134,6 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     left={0}
                     borderRadius="8px 0 0 8px"
                     type="number"
-                    placeholder={bpm.toString()}
                     value={bpmInputValue}
                     onChange={handleBpmChange}
                     onBlur={handleBlur}

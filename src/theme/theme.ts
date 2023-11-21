@@ -11,6 +11,13 @@ const theme = extendTheme({
     darkorange: "#ff7b00", // highlight orange
     darkorangehover: "#f5b67a",
   },
+  components: {
+    Text: {
+      baseStyle: {
+        cursor: "default !important",
+      },
+    },
+  },
 });
 
 export default theme;

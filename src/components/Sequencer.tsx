@@ -28,7 +28,6 @@ export const Sequencer: React.FC<SequencerProps> = ({
   step,
   isPlaying,
 }) => {
-  const [parentWidth, setParentWidth] = useState<number>(0);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isWriting, setWriteState] = useState<boolean>(true);
   const [isVelocity, setIsVelocity] = useState<boolean>(false);
@@ -160,6 +159,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
                 }px`}
+                cursor="pointer"
                 _hover={{
                   background: sequence[node] ? "darkorange" : "darkorangehover",
                   transition: "all 0.3s ease",
