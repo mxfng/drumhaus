@@ -1,8 +1,8 @@
 import { Preset } from "@/types/types";
 import * as kits from "@/lib/kits";
 
-export const headbanger = (): Preset => ({
-  name: "headbanger",
+export const slime_time = (): Preset => ({
+  name: "slime_time",
   _kit: kits.trap(),
   _sequences: [
     [

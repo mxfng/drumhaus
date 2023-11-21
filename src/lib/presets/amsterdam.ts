@@ -1,8 +1,8 @@
 import { Preset } from "@/types/types";
 import * as kits from "@/lib/kits";
 
-export const magic_stick = (): Preset => ({
-  name: "magic_stick",
+export const amsterdam = (): Preset => ({
+  name: "amsterdam",
   _kit: kits.techno(),
   _sequences: [
     [

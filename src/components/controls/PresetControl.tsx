@@ -11,12 +11,15 @@ import { RxReset } from "react-icons/rx";
 import { useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
-import { sticks_and_stones } from "@/lib/presets/sticks_and_stones";
+import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
 import { rich_kids } from "@/lib/presets/rich_kids";
-import { headbanger } from "@/lib/presets/headbanger";
-import { neon_sky } from "@/lib/presets/hairspray";
-import { city_of_love } from "@/lib/presets/city_of_love";
-import { magic_stick } from "@/lib/presets/magic_stick";
+import { slime_time } from "@/lib/presets/slime_time";
+import { purple_haus } from "@/lib/presets/purple_haus";
+import { together_again } from "@/lib/presets/together_again";
+import { amsterdam } from "@/lib/presets/amsterdam";
+import { sunflower } from "@/lib/presets/sunflower";
+import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
+import { super_dream_haus } from "@/lib/presets/super_dream_haus";
 
 type PresetControlProps = {
   preset: Preset;
@@ -73,24 +76,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 }) => {
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
+    kits.eighties,
     kits.funk,
+    kits.indie,
+    kits.jungle,
     kits.organic,
     kits.rnb,
-    kits.trap,
-    kits.eighties,
     kits.tech_house,
     kits.techno,
+    kits.trap,
   ];
 
   const _presetOptions: (() => Preset)[] = [
     init,
-    sticks_and_stones,
+    welcome_to_the_haus,
+    a_drum_called_haus,
     polaroid_bounce,
     rich_kids,
-    headbanger,
-    neon_sky,
-    city_of_love,
-    magic_stick,
+    slime_time,
+    purple_haus,
+    together_again,
+    amsterdam,
+    sunflower,
+    super_dream_haus,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
