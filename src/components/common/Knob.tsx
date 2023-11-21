@@ -130,7 +130,7 @@ export const Knob: React.FC<KnobProps> = ({
             m={2}
             position="relative"
           >
-            <Center w="100%" h="100%">
+            <Center w="100%" h="100%" borderRadius="full" cursor="grab">
               <motion.div
                 className="knob-hitbox"
                 onMouseDown={captureMouseDownY}

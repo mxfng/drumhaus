@@ -315,13 +315,13 @@ const Drumhaus = () => {
       bg="silver"
       w={1538}
       h={1000}
-      style={{ userSelect: "none" }}
       borderRadius="12px"
       className="neumorphicExtraTall"
       m="auto"
       position="absolute"
       inset={0}
       overflow="clip"
+      userSelect="none"
     >
       <Box
         h="120px"

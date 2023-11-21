@@ -53,11 +53,13 @@ const Waveform: React.FC<WaveformProps> = ({
 
           const trimmedData = amplitudeData.slice(0, endIndex);
 
+          const blockWidth = 200; // Adjust the block width according to your preference
+
           ctx.clearRect(0, 0, canvasWidth, canvasHeight);
           ctx.beginPath();
           ctx.moveTo(0, ((trimmedData[0] + 1) * canvasHeight) / 2);
 
-          for (let i = 1; i < trimmedData.length; i++) {
+          for (let i = 1; i < trimmedData.length; i += blockWidth) {
             const x = (i / trimmedData.length) * canvasWidth;
             const y = ((trimmedData[i] + 1) * canvasHeight) / 2;
             ctx.lineTo(x, y);
@@ -67,6 +69,10 @@ const Waveform: React.FC<WaveformProps> = ({
           ctx.stroke();
 
           requestAnimationFrame(draw);
+        }
+
+        function colorHexToDecimal(hex: string): number {
+          return parseInt(hex, 16);
         }
 
         // Call the drawAmplitudeGraphic function to draw the static graphic
