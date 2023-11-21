@@ -223,8 +223,24 @@ const Drumhaus = () => {
     };
   }, []);
 
-  // c o n t r o l   p r o p s
+  // r e g i s t e r   s e r v i c e   w o r k e r
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => {
+          console.log(
+            "Service Worker registered with scope:",
+            registration.scope
+          );
+        })
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
+        });
+    }
+  }, []);
 
+  // c o n t r o l   p r o p s
   useEffect(() => {
     Tone.Transport.bpm.value = bpm;
   }, [bpm]);
