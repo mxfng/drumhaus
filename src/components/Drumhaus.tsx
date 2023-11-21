@@ -302,6 +302,9 @@ const Drumhaus = () => {
       } else {
         Tone.Transport.stop();
         setStepIndex(0);
+        samples.forEach((sample) => {
+          sample.sampler.triggerRelease("C2", Tone.now());
+        });
       }
       return !prevIsPlaying;
     });

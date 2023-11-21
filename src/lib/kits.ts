@@ -127,7 +127,7 @@ export const trapstar = (): Kit => ({
   name: "trapstar",
   samples: decapSamples,
   _attacks: [0, 20, 0, 0, 0, 0, 0, 0],
-  _releases: [49, 63, 42, 36, 10, 100, 40, 100],
+  _releases: [49, 63, 42, 100, 10, 100, 40, 100],
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
   _volumes: [91, 77, 86, 79, 89, 90, 85, 88],
@@ -154,6 +154,58 @@ export const hairspray = (): Kit => ({
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
   _volumes: [91, 77, 85, 79, 86, 90, 85, 88],
+  _mutes: [false, false, false, false, false, false, false, false],
+  _solos: [false, false, false, false, false, false, false, false],
+});
+
+const parisSamples: SampleData[] = wrapToSampleData(
+  [
+    "paris/paris_kick.wav",
+    "paris/paris_bass.wav",
+    "paris/paris_snare.wav",
+    "paris/paris_clap.wav",
+    "paris/paris_hat.wav",
+    "paris/paris_ohat.wav",
+    "paris/paris_p_E.wav",
+    "paris/paris_p_Abm.wav",
+  ],
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano"]
+);
+
+export const paris = (): Kit => ({
+  name: "paris",
+  samples: parisSamples,
+  _attacks: [0, 20, 0, 0, 4, 0, 0, 0],
+  _releases: [49, 63, 42, 40, 43, 100, 79, 100],
+  _filters: [50, 50, 54, 50, 50, 50, 55, 50],
+  _pans: [50, 50, 50, 50, 50, 50, 35, 66],
+  _volumes: [83, 83, 85, 87, 70, 82, 80, 79],
+  _mutes: [false, false, false, false, false, false, false, false],
+  _solos: [false, false, false, false, false, false, false, false],
+});
+
+const berlinSamples: SampleData[] = wrapToSampleData(
+  [
+    "berlin/berlin_kick.wav",
+    "berlin/berlin_bass.wav",
+    "berlin/berlin_snare.wav",
+    "berlin/berlin_clap.wav",
+    "berlin/berlin_hat.wav",
+    "berlin/berlin_ohat.wav",
+    "berlin/berlin_stab.wav",
+    "berlin/berlin_loop.wav",
+  ],
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth"]
+);
+
+export const berlin = (): Kit => ({
+  name: "berlin",
+  samples: berlinSamples,
+  _attacks: [0, 100, 0, 0, 4, 33, 0, 0],
+  _releases: [49, 19, 42, 40, 43, 12, 79, 100],
+  _filters: [50, 4, 54, 50, 50, 50, 55, 50],
+  _pans: [50, 50, 50, 50, 36, 62, 35, 66],
+  _volumes: [92, 90, 85, 78, 74, 73, 85, 88],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });

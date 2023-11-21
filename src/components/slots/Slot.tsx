@@ -210,6 +210,9 @@ export const Slot: React.FC<SlotParams> = ({
     setMutes((prevMutes) => {
       const newMutes = [...prevMutes];
       newMutes[slot] = !newMutes[slot];
+      if (newMutes[slot]) {
+        sample.sampler.triggerRelease("C2", Tone.now());
+      }
       return newMutes;
     });
   };
