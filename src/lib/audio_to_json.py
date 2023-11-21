@@ -2,17 +2,7 @@ import librosa
 import numpy as np
 import json
 import os
-
-
-print("Converting audio files to waveform .json")
-# Specify if existing files should be overwritten
-overwrite = True
-
-# Get the directory of the Python script
-script_directory = os.path.dirname(os.path.abspath(__file__))
-
-# Navigate up to the Next.js root folder
-nextjs_root = os.path.join(script_directory, "..", "..", "..", "drumhaus")
+from pathlib import Path
 
 
 def audio_to_json(audio_file, output_json, average_length=200):
@@ -78,31 +68,46 @@ def crawl_waveforms_directory(directory):
     return json_files, total_waveforms
 
 
-audio_files_directory = "public/samples"
-audio_files, total_files = crawl_audio_files_directory(audio_files_directory)
+if __name__ == "__main__":
+    print("Converting audio files to waveform .json")
+    # Specify if existing files should be overwritten
+    overwrite = True
 
+    # Get the directory of the Python script
+    script_directory = Path(__file__).resolve()
 
-waveforms_directory = "public/waveforms"
-existing_json_paths, total_waveforms = crawl_waveforms_directory(waveforms_directory)
+    # Navigate up to the Next.js root folder
+    nextjs_root = None
+    while script_directory.name != "drumhaus":
+        script_directory = script_directory.parent
+    nextjs_root = script_directory
 
-total_new_waveforms = 0
+    audio_files_directory = "public/samples"
+    audio_files, total_files = crawl_audio_files_directory(audio_files_directory)
 
-# Process each .wav file
-for audio_file in audio_files:
-    # Generate the output JSON file path in the waveforms directory
-    output_json_path = os.path.join(
-        nextjs_root,
-        "public",
-        "waveforms",
-        f"{os.path.splitext(os.path.basename(audio_file))[0]}.json",
+    waveforms_directory = "public/waveforms"
+    existing_json_paths, total_waveforms = crawl_waveforms_directory(
+        waveforms_directory
     )
 
-    if overwrite or output_json_path not in existing_json_paths:
-        audio_to_json(audio_file, output_json_path)
-        total_new_waveforms += 1
+    total_new_waveforms = 0
 
-# Print the total file count
-print(f"Overwrite was {overwrite}")
-print(f"Total audio files found: {total_files}")
-print(f"Total waveform .json files found: {total_waveforms}")
-print(f"Total waveform .json files generated: {total_new_waveforms}")
+    # Process each .wav file
+    for audio_file in audio_files:
+        # Generate the output JSON file path in the waveforms directory
+        output_json_path = os.path.join(
+            nextjs_root,
+            "public",
+            "waveforms",
+            f"{os.path.splitext(os.path.basename(audio_file))[0]}.json",
+        )
+
+        if overwrite or output_json_path not in existing_json_paths:
+            audio_to_json(audio_file, output_json_path)
+            total_new_waveforms += 1
+
+    # Print the total file count
+    print(f"Overwrite was {overwrite}")
+    print(f"Total audio files found: {total_files}")
+    print(f"Total waveform .json files found: {total_waveforms}")
+    print(f"Total waveform .json files generated: {total_new_waveforms}")
