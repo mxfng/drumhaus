@@ -15,6 +15,8 @@ import { sticks_and_stones } from "@/lib/presets/sticks_and_stones";
 import { rich_kids } from "@/lib/presets/rich_kids";
 import { headbanger } from "@/lib/presets/headbanger";
 import { neon_sky } from "@/lib/presets/hairspray";
+import { city_of_love } from "@/lib/presets/city_of_love";
+import { magic_stick } from "@/lib/presets/magic_stick";
 
 type PresetControlProps = {
   preset: Preset;
@@ -76,6 +78,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     kits.superich,
     kits.trapstar,
     kits.hairspray,
+    kits.paris,
+    kits.berlin,
   ];
 
   const _presetOptions: (() => Preset)[] = [
@@ -85,6 +89,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     rich_kids,
     headbanger,
     neon_sky,
+    city_of_love,
+    magic_stick,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
