@@ -27,15 +27,12 @@ const Waveform: React.FC<WaveformProps> = ({
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
 
-    // Fetch waveform data from the server
     fetch(`/waveforms/${filename}.json`)
       .then((response) => response.json())
       .then((data) => {
         const amplitudeData: number[][] = data.amplitude_envelope;
 
         function draw() {
-          console.log("Drawing waveform...");
-
           ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
           const channelCount = amplitudeData.length;
@@ -48,14 +45,28 @@ const Waveform: React.FC<WaveformProps> = ({
             for (let i = 0; i < channelData.length; i++) {
               const x = i * (rectWidth + gapWidth);
               const y =
-                (channelData[i] + 1) * (canvasHeight / 2) +
+                (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2) +
                 channel * (canvasHeight / 2);
               const rectHeight =
                 canvasHeight / 2 -
-                Math.abs((channelData[i] + 1) * (canvasHeight / 2));
+                Math.abs(
+                  (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2)
+                );
 
               ctx.fillStyle = color;
               ctx.fillRect(x, y, rectWidth, rectHeight);
+            }
+
+            for (let i = 0; i < channelData.length; i++) {
+              const x = i * (rectWidth + gapWidth);
+              const rectHeight =
+                canvasHeight / 2 -
+                Math.abs(
+                  (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2)
+                );
+
+              ctx.fillStyle = color;
+              ctx.fillRect(x, canvasHeight / 2, rectWidth, rectHeight);
             }
           }
         }
