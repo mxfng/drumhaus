@@ -15,7 +15,7 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 nextjs_root = os.path.join(script_directory, "..", "..", "..", "drumhaus")
 
 
-def audio_to_json(audio_file, output_json, average_length=100):
+def audio_to_json(audio_file, output_json, average_length=200):
     # Load the audio file
     y, sr = librosa.load(audio_file)
 
