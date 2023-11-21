@@ -4,6 +4,7 @@ import json
 import os
 
 
+print("Converting audio files to waveform .json")
 # Specify if existing files should be overwritten
 overwrite = True
 
@@ -100,12 +101,8 @@ for audio_file in audio_files:
         audio_to_json(audio_file, output_json_path)
         total_new_waveforms += 1
 
-
-# Print the list of .wav files
-for audio_file in audio_files:
-    print(audio_file)
-
 # Print the total file count
+print(f"Overwrite was {overwrite}")
 print(f"Total audio files found: {total_files}")
 print(f"Total waveform .json files found: {total_waveforms}")
 print(f"Total waveform .json files generated: {total_new_waveforms}")
