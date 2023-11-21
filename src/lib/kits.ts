@@ -142,7 +142,7 @@ export const trap = (): Kit => ({
   _releases: [49, 63, 42, 100, 10, 100, 40, 100],
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
-  _volumes: [84, 60, 86, 59, 89, 90, 85, 88],
+  _volumes: [84, 80, 86, 59, 89, 90, 85, 88],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });

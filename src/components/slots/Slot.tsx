@@ -259,16 +259,6 @@ export const Slot: React.FC<SlotParams> = ({
             {sample.name}
           </Text>
         </Flex>
-        {/* <Text
-          key={`filename-${sample.name}`}
-          className="filename"
-          fontFamily={`'Pixelify Sans Variable', sans-serif`}
-          color="#B09374"
-          px={4}
-          py={2}
-        >
-          {sample.url.split("/").pop()}
-        </Text> */}
         <Box px={4} pt={5}>
           <Button
             ref={waveButtonRef}
