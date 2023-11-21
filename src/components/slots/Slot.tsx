@@ -70,7 +70,6 @@ export const Slot: React.FC<SlotParams> = ({
   const [filter, setFilter] = useState(filters[sample.id]); // 0-100
   const [pan, setPan] = useState(pans[sample.id]);
   const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
-  const [waveWidth, setWaveWidth] = useState<number>(200);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
@@ -191,21 +190,6 @@ export const Slot: React.FC<SlotParams> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
-  useEffect(() => {
-    const maintainWaveformSize = () => {
-      if (waveButtonRef.current) {
-        setWaveWidth(waveButtonRef.current.clientWidth);
-      }
-    };
-
-    window.addEventListener("resize", maintainWaveformSize);
-    maintainWaveformSize();
-
-    return () => {
-      window.removeEventListener("resize", maintainWaveformSize);
-    };
-  }, []);
-
   const toggleMute = (slot: number) => {
     setMutes((prevMutes) => {
       const newMutes = [...prevMutes];
@@ -268,8 +252,10 @@ export const Slot: React.FC<SlotParams> = ({
             bg="transparent"
             opacity={0.8}
             className="wavebutton"
+            borderRadius="20px"
+            overflow="hidden"
           >
-            {/* <Waveform audioFile={sample.url} width={waveWidth} /> */}
+            <Waveform audioFile={sample.url} width={170} />
           </Button>
         </Box>
 
