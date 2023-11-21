@@ -244,14 +244,14 @@ export const indie = (): Kit => ({
 });
 
 const jungleSamples: SampleData[] = wrapToSampleData([
-  "8/kick.wav",
-  "8/kick2.wav",
-  "8/snare.wav",
-  "8/snare2.wav",
-  "8/hat.wav",
-  "8/ohat.wav",
-  "8/cymbal.wav",
-  "8/crash.wav",
+  "8/indie_kick.wav",
+  "8/indie_kick2.wav",
+  "8/indie_snare.wav",
+  "8/indie_snare2.wav",
+  "8/indie_hat.wav",
+  "8/indie_ohat.wav",
+  "8/indie_cymbal.wav",
+  "8/indie_crash.wav",
 ]);
 
 export const jungle = (): Kit => ({
