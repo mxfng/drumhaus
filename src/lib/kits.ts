@@ -142,7 +142,7 @@ export const trap = (): Kit => ({
   _releases: [49, 63, 42, 100, 10, 100, 40, 100],
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
-  _volumes: [91, 77, 86, 79, 89, 90, 85, 88],
+  _volumes: [84, 60, 86, 59, 89, 90, 85, 88],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -165,7 +165,7 @@ export const eighties = (): Kit => ({
   _releases: [49, 63, 42, 36, 26, 100, 43, 100],
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
-  _volumes: [91, 77, 85, 79, 86, 90, 85, 88],
+  _volumes: [91, 77, 85, 79, 86, 90, 74, 88],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
