@@ -269,7 +269,7 @@ export const Slot: React.FC<SlotParams> = ({
             opacity={0.8}
             className="wavebutton"
           >
-            <Waveform audioFile={sample.url} width={waveWidth} />
+            {/* <Waveform audioFile={sample.url} width={waveWidth} /> */}
           </Button>
         </Box>
 

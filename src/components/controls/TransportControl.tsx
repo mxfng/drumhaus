@@ -142,6 +142,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
                     onFocus={(e) => e.target.select()}
                     _selection={{ background: "rgba(255, 140, 0, 0.5)" }}
                     textAlign="center"
+                    lineHeight="100%"
                   />
                   <Button
                     w="10px"
