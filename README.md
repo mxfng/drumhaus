@@ -34,7 +34,7 @@ Kits are curated groups of samples available in Drumhaus that can be swapped as 
 
 ### Presets
 
-Drumhaus comes pre-loaded with presets to inspire users with its wide variety of sounds and musical capabilities. Presets encapsulate the entire state of the application and can be used to save and share music. Users can also create their own custom presets which can be saved and loaded from local .json files, written as (.dh).
+Drumhaus comes pre-loaded with presets to inspire users with its wide variety of sounds and musical capabilities. Presets encapsulate the state of the application and can be used to save and share music. Users can also create their own custom presets which can be saved and loaded from local .json files, written as (.dh).
 
 Sharing presets via a custom link is currently under construction.
 
