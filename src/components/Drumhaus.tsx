@@ -11,6 +11,7 @@ import {
   GridItem,
   Link,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
@@ -114,6 +115,16 @@ const Drumhaus = () => {
           const newPreset: Preset = data.presets.rows[0].preset_data;
 
           setPreset(newPreset);
+
+          customPresetAlert({
+            render: () => (
+              <Box bg="silver" color="gray" p={3} borderRadius="8px">
+                <Text>
+                  You received a custom preset called "{newPreset.name}"!
+                </Text>
+              </Box>
+            ),
+          });
         } catch (error) {
           console.error(
             `Error fetching provided preset key ${presetKey}:`,
@@ -382,6 +393,10 @@ const Drumhaus = () => {
       return !prevIsPlaying;
     });
   };
+
+  const customPresetAlert = useToast({
+    position: "top",
+  });
 
   const closeMobileWarning = () => {
     setIsMobileWarning(false);
