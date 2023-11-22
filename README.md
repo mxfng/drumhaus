@@ -87,6 +87,14 @@ Once cloned, in the project directory, install all the node modules with npm:
 npm install
 ```
 
+Then, simply run:
+
+```
+npm run dev
+```
+
+This project uses a postgres database hosted on Vercel with Neon. You will have to make modifications to this project's code to either ignore database calls or spin up your own local db.
+
 ## Generating Waveform Data
 
 If you'd like to generate new sound data for the sample library, you should spin up a `venv` first. Once you've activated your venv, you can install the necessary Python packages from `requirements.txt`:
