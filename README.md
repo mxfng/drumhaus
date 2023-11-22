@@ -2,6 +2,8 @@
 
 ![Sample Image](./Drumhaus.png)
 
+[See it live at drumha.us](https://www.drumha.us/)
+
 Drumhaus is a browser controlled rhythmic groove machine built with Tone.js and next. Explore web based drum sampling with limitless creativity, and share it all with your friends.
 
 I'm an amateur music producer, and have always been fascinated by the music software I use in my creative process. I wanted to build this project as a way to combine my love for music with my passion for coding, and dive deep into digial audio engineering and web development. I wanted to reimagine the form of a classic drum machine in a web browser with modern software technologies.
