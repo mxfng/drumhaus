@@ -149,6 +149,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
+  const stopPlayingOnAction = () => {
+    if (isPlaying) {
+      togglePlay();
+    }
+  };
+
   const handleSave = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
     const presetFunctionToSave = createPresetFunction(customName);
@@ -170,9 +176,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleLoad = () => {
-    if (isPlaying) {
-      togglePlay();
-    }
+    stopPlayingOnAction();
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".dh";
@@ -199,9 +203,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleReset = () => {
-    if (isPlaying) {
-      togglePlay();
-    }
+    stopPlayingOnAction();
 
     const isConfirmed = window.confirm(
       "Are you sure you want to reset all values to their initialized settings?"
@@ -212,10 +214,47 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    if (isPlaying) {
-      togglePlay();
+  const handleShare = async () => {
+    stopPlayingOnAction();
+
+    const isConfirmed = window.confirm(
+      "Would you like to share your custom preset as a link? (This feature is incomplete and in development)"
+    );
+
+    if (!isConfirmed) return;
+
+    const customName: string = prompt("Enter a custom name:") || "custom";
+
+    const presetFunctionToSave = createPresetFunction(customName);
+    const presetToSave = presetFunctionToSave();
+    const jsonPreset = JSON.stringify(presetToSave);
+    const bpm = presetToSave._bpm.toString();
+    const kitUsed = presetToSave._kit.name;
+
+    try {
+      const url = new URL("/api/presets", window.location.origin);
+      url.searchParams.append("preset_data", jsonPreset);
+      url.searchParams.append("custom_name", customName);
+      url.searchParams.append("kit_used", kitUsed);
+      url.searchParams.append("bpm", bpm);
+
+      const response = await fetch(url.href, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add preset");
+      }
+
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error adding preset:", error);
     }
+  };
+
+  const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    stopPlayingOnAction();
 
     const selectedKitName = event.target.value;
     const kitOption = kitOptions.find((kit) => kit().name == selectedKitName);
@@ -232,9 +271,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    if (isPlaying) {
-      togglePlay();
-    }
+    stopPlayingOnAction();
 
     // Deep equality check between current states and cached preset states
     const cp = cleanPreset;
@@ -455,6 +492,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         </Button>
         <Button
           title="Share"
+          onClick={handleShare}
           w="20px"
           position="absolute"
           right="40px"
