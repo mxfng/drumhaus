@@ -2,7 +2,16 @@
 
 import * as init from "@/lib/presets/init";
 import { Kit, Preset, Sample, Sequences } from "@/types/types";
-import { Box, Button, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Grid,
+  GridItem,
+  Link,
+  Text,
+} from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
@@ -348,41 +357,32 @@ const Drumhaus = () => {
           boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
           position="relative"
         >
-          <Box zIndex={999} position="absolute" left={0} top="17px">
-            <DrumhausLogo size={100} color="#ff7b00" />
-          </Box>
-          <Text
-            id="logo"
-            variant="logo"
-            fontSize={100}
-            color="darkorange"
-            fontFamily="Mandala"
-            px={6}
-            position="absolute"
-            top={-4}
-            left={14}
-            fontWeight={900}
-          >
-            drumhaus
-          </Text>
-          <Text
-            color="gray"
-            position="absolute"
-            left={520}
-            bottom={9}
-            opacity={0.7}
-          >
-            Browser Controlled
-          </Text>
-          <Text
-            color="gray"
-            position="absolute"
-            left={520}
-            bottom={4}
-            opacity={0.7}
-          >
-            Rhythmic Groove Machine
-          </Text>
+          <Flex position="relative" h="120px" w="750px" flexDir="row">
+            <Box h="90px" w="80px" my="20px">
+              <DrumhausLogo size={100} color="#ff7b00" />
+            </Box>
+            <Text
+              id="logo"
+              variant="logo"
+              fontSize={100}
+              color="darkorange"
+              fontFamily="Mandala"
+              fontWeight={900}
+              my="-12px"
+              h="120px"
+            >
+              drumhaus
+            </Text>
+            <Box my="60px" ml={4}>
+              <Text color="gray" opacity={0.7}>
+                Browser Controlled
+              </Text>
+              <Text color="gray" opacity={0.7}>
+                Rhythmic Groove Machine
+              </Text>
+            </Box>
+          </Flex>
+
           <SignatureLogo
             width={80}
             fill="#B09374"
@@ -541,9 +541,22 @@ const Drumhaus = () => {
         </Box>
       </Box>
       <Box h="20px" w="100%" position="relative">
-        <Text w="100%" textAlign="center" color="gray" mt={3} fontSize={14}>
-          Designed with love by Max Fung
-        </Text>
+        <Center w="100%" h="100%">
+          <Flex mt={8}>
+            <Text color="gray" fontSize={14}>
+              Designed with love by
+            </Text>
+            <Link
+              href="https://www.maxfung.net/"
+              target="_blank"
+              color="gray"
+              ml={1}
+              fontSize={14}
+            >
+              Max Fung.
+            </Link>
+          </Flex>
+        </Center>
       </Box>
     </Box>
   );
