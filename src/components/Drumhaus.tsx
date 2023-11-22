@@ -328,235 +328,221 @@ const Drumhaus = () => {
 
   return (
     <Box
-      bg="silver"
       w={1538}
-      h={1000}
-      borderRadius="12px"
-      className="neumorphicExtraTall"
+      h={1030}
       m="auto"
       position="absolute"
       inset={0}
-      overflow="clip"
       userSelect="none"
     >
       <Box
-        h="120px"
-        boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
-        position="relative"
+        bg="silver"
+        w={1538}
+        h={1000}
+        borderRadius="12px"
+        className="neumorphicExtraTall"
+        overflow="clip"
       >
-        <Box zIndex={999} position="absolute" left={0} top="17px">
-          <DrumhausLogo size={100} color="#ff7b00" />
+        <Box
+          h="120px"
+          boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
+          position="relative"
+        >
+          <Box zIndex={999} position="absolute" left={0} top="17px">
+            <DrumhausLogo size={100} color="#ff7b00" />
+          </Box>
+          <Text
+            id="logo"
+            variant="logo"
+            fontSize={100}
+            color="darkorange"
+            fontFamily="Mandala"
+            px={6}
+            position="absolute"
+            top={-4}
+            left={14}
+            fontWeight={900}
+          >
+            drumhaus
+          </Text>
+          <Text
+            color="gray"
+            position="absolute"
+            left={520}
+            bottom={9}
+            opacity={0.7}
+          >
+            Browser Controlled
+          </Text>
+          <Text
+            color="gray"
+            position="absolute"
+            left={520}
+            bottom={4}
+            opacity={0.7}
+          >
+            Rhythmic Groove Machine
+          </Text>
+          <SignatureLogo
+            width={80}
+            fill="#B09374"
+            position="absolute"
+            right={6}
+            top={14}
+            opacity={0.5}
+            as="a"
+            href="https://www.maxfung.net/"
+            target="_blank"
+          />
         </Box>
-        <Text
-          id="logo"
-          variant="logo"
-          fontSize={100}
-          color="darkorange"
-          fontFamily="Mandala"
-          px={6}
-          position="absolute"
-          top={-4}
-          left={14}
-          fontWeight={900}
-        >
-          drumhaus
-        </Text>
-        <Text
-          color="gray"
-          position="absolute"
-          left={520}
-          bottom={9}
-          opacity={0.7}
-        >
-          Browser Controlled
-        </Text>
-        <Text
-          color="gray"
-          position="absolute"
-          left={520}
-          bottom={4}
-          opacity={0.7}
-        >
-          Rhythmic Groove Machine
-        </Text>
-        <SignatureLogo
-          width={80}
-          fill="#B09374"
-          position="absolute"
-          right={6}
-          top={14}
-          opacity={0.5}
-          as="a"
-          href="https://www.maxfung.net/"
-          target="_blank"
-        />
-      </Box>
 
-      <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-        <SlotsGrid
-          samples={samples}
-          variation={variation}
-          sequences={sequences}
-          setCurrentSequence={setCurrentSequence}
-          slotIndex={slotIndex}
-          setSlotIndex={setSlotIndex}
-          attacks={attacks}
-          setAttacks={setAttacks}
-          releases={releases}
-          setReleases={setReleases}
-          filters={filters}
-          setFilters={setFilters}
-          volumes={volumes}
-          setVolumes={setVolumes}
-          pans={pans}
-          setPans={setPans}
-          mutes={mutes}
-          setMutes={setMutes}
-          solos={solos}
-          setSolos={setSolos}
-          setDurations={setDurations}
-        />
-      </Box>
-
-      <Grid templateColumns="repeat(7, 1fr)" px={4} py={6} w="100%">
-        <GridItem colSpan={1} w="160px">
-          <Center w="100%" h="100%">
-            <Button
-              h="140px"
-              w="140px"
-              onClick={() => togglePlay()}
-              className="neumorphicTallRaised"
-              outline="none"
-            >
-              {isPlaying ? (
-                <IoPauseSharp size={50} color="#ff7b00" />
-              ) : (
-                <IoPlaySharp size={50} color="#B09374" />
-              )}
-            </Button>
-          </Center>
-        </GridItem>
-
-        <GridItem colSpan={1}>
-          <SequencerControl
+        <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+          <SlotsGrid
+            samples={samples}
             variation={variation}
-            setVariation={setVariation}
-            chain={chain}
-            setChain={setChain}
-            currentSequence={currentSequence}
+            sequences={sequences}
             setCurrentSequence={setCurrentSequence}
-            slot={slotIndex}
+            slotIndex={slotIndex}
+            setSlotIndex={setSlotIndex}
+            attacks={attacks}
+            setAttacks={setAttacks}
+            releases={releases}
+            setReleases={setReleases}
+            filters={filters}
+            setFilters={setFilters}
+            volumes={volumes}
+            setVolumes={setVolumes}
+            pans={pans}
+            setPans={setPans}
+            mutes={mutes}
+            setMutes={setMutes}
+            solos={solos}
+            setSolos={setSolos}
+            setDurations={setDurations}
+          />
+        </Box>
+
+        <Grid templateColumns="repeat(7, 1fr)" px={4} py={6} w="100%">
+          <GridItem colSpan={1} w="160px">
+            <Center w="100%" h="100%">
+              <Button
+                h="140px"
+                w="140px"
+                onClick={() => togglePlay()}
+                className="neumorphicTallRaised"
+                outline="none"
+              >
+                {isPlaying ? (
+                  <IoPauseSharp size={50} color="#ff7b00" />
+                ) : (
+                  <IoPlaySharp size={50} color="#B09374" />
+                )}
+              </Button>
+            </Center>
+          </GridItem>
+
+          <GridItem colSpan={1}>
+            <SequencerControl
+              variation={variation}
+              setVariation={setVariation}
+              chain={chain}
+              setChain={setChain}
+              currentSequence={currentSequence}
+              setCurrentSequence={setCurrentSequence}
+              slot={slotIndex}
+              sequences={sequences}
+              setSequences={setSequences}
+            />
+          </GridItem>
+
+          <GridItem colSpan={1}>
+            <TransportControl
+              bpm={bpm}
+              setBpm={setBpm}
+              swing={swing}
+              setSwing={setSwing}
+            />
+          </GridItem>
+
+          <GridItem w="380px" pl={0} pr={6}>
+            <PresetControl
+              preset={preset}
+              setPreset={setPreset}
+              kit={kit}
+              setKit={setKit}
+              bpm={bpm}
+              swing={swing}
+              lowPass={lowPass}
+              hiPass={hiPass}
+              phaser={phaser}
+              reverb={reverb}
+              compThreshold={compThreshold}
+              compRatio={compRatio}
+              masterVolume={masterVolume}
+              sequences={sequences}
+              attacks={attacks}
+              releases={releases}
+              filters={filters}
+              volumes={volumes}
+              pans={pans}
+              solos={solos}
+              mutes={mutes}
+              chain={chain}
+              isPlaying={isPlaying}
+              togglePlay={togglePlay}
+            />
+          </GridItem>
+
+          <GridItem colSpan={1} w={120}>
+            <MasterFX
+              lowPass={lowPass}
+              setLowPass={setLowPass}
+              hiPass={hiPass}
+              setHiPass={setHiPass}
+              phaser={phaser}
+              setPhaser={setPhaser}
+              reverb={reverb}
+              setReverb={setReverb}
+            />
+          </GridItem>
+
+          <GridItem colSpan={1}>
+            <MasterCompressor
+              threshold={compThreshold}
+              setThreshold={setCompThreshold}
+              ratio={compRatio}
+              setRatio={setCompRatio}
+            />
+          </GridItem>
+
+          <GridItem colSpan={1} w={140}>
+            <Knob
+              size={140}
+              knobValue={masterVolume}
+              setKnobValue={setMasterVolume}
+              knobTitle="MASTER VOLUME"
+              knobTransformRange={[-46, 4]}
+              knobUnits="dB"
+            />
+          </GridItem>
+        </Grid>
+
+        <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+          <Sequencer
+            sequence={currentSequence}
+            setSequence={setCurrentSequence}
             sequences={sequences}
             setSequences={setSequences}
-          />
-        </GridItem>
-
-        <GridItem colSpan={1}>
-          <TransportControl
-            bpm={bpm}
-            setBpm={setBpm}
-            swing={swing}
-            setSwing={setSwing}
-          />
-        </GridItem>
-
-        <GridItem w="380px" pl={0} pr={6}>
-          <PresetControl
-            preset={preset}
-            setPreset={setPreset}
-            kit={kit}
-            setKit={setKit}
-            bpm={bpm}
-            swing={swing}
-            lowPass={lowPass}
-            hiPass={hiPass}
-            phaser={phaser}
-            reverb={reverb}
-            compThreshold={compThreshold}
-            compRatio={compRatio}
-            masterVolume={masterVolume}
-            sequences={sequences}
-            attacks={attacks}
-            releases={releases}
-            filters={filters}
-            volumes={volumes}
-            pans={pans}
-            solos={solos}
-            mutes={mutes}
-            chain={chain}
+            variation={variation}
+            slot={slotIndex}
+            step={stepIndex}
             isPlaying={isPlaying}
-            togglePlay={togglePlay}
           />
-        </GridItem>
-
-        <GridItem colSpan={1} w={120}>
-          <MasterFX
-            lowPass={lowPass}
-            setLowPass={setLowPass}
-            hiPass={hiPass}
-            setHiPass={setHiPass}
-            phaser={phaser}
-            setPhaser={setPhaser}
-            reverb={reverb}
-            setReverb={setReverb}
-          />
-        </GridItem>
-
-        <GridItem colSpan={1}>
-          <MasterCompressor
-            threshold={compThreshold}
-            setThreshold={setCompThreshold}
-            ratio={compRatio}
-            setRatio={setCompRatio}
-          />
-        </GridItem>
-
-        <GridItem colSpan={1} w={140}>
-          <Knob
-            size={140}
-            knobValue={masterVolume}
-            setKnobValue={setMasterVolume}
-            knobTitle="MASTER VOLUME"
-            knobTransformRange={[-46, 4]}
-            knobUnits="dB"
-          />
-        </GridItem>
-      </Grid>
-
-      <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-        <Sequencer
-          sequence={currentSequence}
-          setSequence={setCurrentSequence}
-          sequences={sequences}
-          setSequences={setSequences}
-          variation={variation}
-          slot={slotIndex}
-          step={stepIndex}
-          isPlaying={isPlaying}
-        />
+        </Box>
       </Box>
-      <Box h="28px" mt={2} w="100%" position="relative">
-        <Text
-          color="gray"
-          fontSize={12}
-          opacity={0.5}
-          position="absolute"
-          left={8}
-          top={1}
-        >
+      <Box h="20px" w="100%" position="relative">
+        <Text w="100%" textAlign="center" color="gray" mt={3} fontSize={14}>
           Designed with love by Max Fung
-        </Text>
-        <Text
-          position="absolute"
-          top={0}
-          left={0}
-          w="100%"
-          textAlign="center"
-          color="gray"
-          fontSize={14}
-          opacity={0.5}
-        >
-          {isLoading ? "LOADING" : "READY"}
         </Text>
       </Box>
     </Box>

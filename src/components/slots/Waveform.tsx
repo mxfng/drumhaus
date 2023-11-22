@@ -77,7 +77,6 @@ const Waveform: React.FC<WaveformProps> = ({
       const amplitudeData = JSON.parse(cachedWaveform);
       draw(amplitudeData, ctx, canvas.width, canvas.height);
     } else {
-      console.log(`Fetching waveform data for: ${sample_name}`);
       fetch(`/waveforms/${sample_name}.json`)
         .then((response) => response.json())
         .then((data) => {
