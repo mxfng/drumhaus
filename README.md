@@ -56,4 +56,4 @@ While I chose not to reinvent the wheel when it came to low-level audio processi
 
 ### Audio Visualization
 
-Each sample has associated frequency response data that is graphed as a graphic in the user interface when the sample is displayed. Same audio data was generated using librosa and is stored on the server.
+Each sample has associated frequency response data that is graphed as a graphic in the user interface when the sample is displayed. Audio data was generated using librosa, is stored on the server, and can be cached locally for re-interpretation.
