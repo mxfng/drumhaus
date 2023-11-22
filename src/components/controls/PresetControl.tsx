@@ -257,7 +257,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     if (isConfirmed) {
       const selectedPresetName = event.target.value;
-      console.log(selectedPresetName);
       const presetOption = presetOptions.find(
         (preset) => preset().name === selectedPresetName
       );
