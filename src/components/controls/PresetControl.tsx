@@ -245,9 +245,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       if (!response.ok) {
         throw new Error("Failed to add preset");
       }
-
-      const data = await response.json();
-      console.log(data);
     } catch (error) {
       console.error("Error adding preset:", error);
     }
