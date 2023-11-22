@@ -62,6 +62,7 @@ Each sample has associated frequency response data that is graphed as a graphic 
 
 As of the most recent update to this README, Drumhaus is currently at its minimum viable product iteration. I have an exciting plan for additional updates which should increase its usability, reach, and power in the future.
 
+- Cache the user's state in the browser so it persists between sessions
 - Add C and D variations, as well as AABB and ABBB chains
 - Create an additional 8 slots for non-drum samples, like intrument hits and other one-shots
 - Include loops, which will be BPM aware and can be manipulated based on the project tempo
