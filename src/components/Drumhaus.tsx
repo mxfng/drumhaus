@@ -96,6 +96,10 @@ const Drumhaus = () => {
   const solosCache = useMemo(() => solos, [solos]);
   const samplesCache = useMemo(() => samples, [samples]);
 
+  const customPresetAlert = useToast({
+    position: "top",
+  });
+
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
     const loadPresetData = async () => {
@@ -120,7 +124,7 @@ const Drumhaus = () => {
             render: () => (
               <Box bg="silver" color="gray" p={3} borderRadius="8px">
                 <Text>
-                  You received a custom preset called "{newPreset.name}"!
+                  {`You received a custom preset called "${newPreset.name}"!`}
                 </Text>
               </Box>
             ),
@@ -135,6 +139,8 @@ const Drumhaus = () => {
     };
 
     loadPresetData();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // m a k e   g o o d   m u s i c
@@ -266,6 +272,26 @@ const Drumhaus = () => {
     }
   }, [samples]);
 
+  // t o g g l e   p l a y
+  const togglePlay = async () => {
+    if (Tone.context.state !== "running") {
+      await Tone.start();
+    }
+
+    setIsPlaying((prevIsPlaying) => {
+      if (!prevIsPlaying) {
+        Tone.Transport.start();
+      } else {
+        Tone.Transport.stop();
+        setStepIndex(0);
+        samples.forEach((sample) => {
+          sample.sampler.triggerRelease("C2", Tone.now());
+        });
+      }
+      return !prevIsPlaying;
+    });
+  };
+
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -277,7 +303,7 @@ const Drumhaus = () => {
     return () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
-  }, [isModal]);
+  }, [isModal, togglePlay]);
 
   // r e g i s t e r   s e r v i c e   w o r k e r
   useEffect(() => {
@@ -373,30 +399,6 @@ const Drumhaus = () => {
       setIsMobileWarning(true);
     }
   }, []);
-
-  // t o g g l e   p l a y
-  const togglePlay = async () => {
-    if (Tone.context.state !== "running") {
-      await Tone.start();
-    }
-
-    setIsPlaying((prevIsPlaying) => {
-      if (!prevIsPlaying) {
-        Tone.Transport.start();
-      } else {
-        Tone.Transport.stop();
-        setStepIndex(0);
-        samples.forEach((sample) => {
-          sample.sampler.triggerRelease("C2", Tone.now());
-        });
-      }
-      return !prevIsPlaying;
-    });
-  };
-
-  const customPresetAlert = useToast({
-    position: "top",
-  });
 
   const closeMobileWarning = () => {
     setIsMobileWarning(false);
