@@ -24,7 +24,7 @@ Used for its wide array of components, styling, and themeing capabilities. The m
 
 ### librosa
 
-Worth mentioning here, the amplitude data used to generate frequency response waveforms for each sample were cached on the server using Python with librosa for client-side processing.
+Worth mentioning here, the amplitude data used to generate frequency response waveforms for each sample were cached on the server using Python with librosa.
 
 ## Features
 
