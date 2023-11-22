@@ -6,8 +6,11 @@ import {
   Box,
   Button,
   Center,
+  FormControl,
+  FormLabel,
   Grid,
   GridItem,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -17,6 +20,7 @@ import {
   ModalOverlay,
   Select,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
@@ -122,6 +126,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     useState<(() => Preset)[]>(_presetOptions);
   const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
   const [isSharedModalOpen, setIsSharedModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [shareableLink, setShareableLink] = useState("");
 
   const createPresetFunction = (name: string) => () => ({
@@ -172,8 +179,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const handleSave = () => {
-    const customName: string = prompt("Enter a custom name:") || "custom";
+  const handleSave = (customName: string) => {
     const presetFunctionToSave = createPresetFunction(customName);
     const presetToSave = presetFunctionToSave();
 
@@ -221,26 +227,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const handleReset = () => {
     stopPlayingOnAction();
-
-    const isConfirmed = window.confirm(
-      "Are you sure you want to reset all values to their initialized settings?"
-    );
-
-    if (isConfirmed) {
-      updateStatesOnPresetChange(init());
-    }
+    setIsResetModalOpen(false);
+    updateStatesOnPresetChange(init());
   };
 
-  const handleShare = async () => {
+  const handleShare = async (customName: string) => {
     stopPlayingOnAction();
-
-    const isConfirmed = window.confirm(
-      "Would you like to share your custom preset as a link? (This feature is in development. The link should be automatically saved to your device's clipboard)"
-    );
-
-    if (!isConfirmed) return;
-
-    const customName: string = prompt("Enter a custom name:") || "custom";
 
     const presetFunctionToSave = createPresetFunction(customName);
     const presetToSave = presetFunctionToSave();
@@ -294,8 +286,20 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const closeModal = () => {
+  const closeSaveModal = () => {
+    setIsSaveModalOpen(false);
+  };
+
+  const closeSharingModal = () => {
+    setIsSharingModalOpen(false);
+  };
+
+  const closeSharedModal = () => {
     setIsSharedModalOpen(false);
+  };
+
+  const closeResetModal = () => {
+    setIsResetModalOpen(false);
   };
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -530,101 +534,125 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           >
             <GridItem>
               <Center>
-                <Button
-                  title="Save"
-                  onClick={handleSave}
-                  w="100%"
-                  borderRadius="8px 0 0 8px"
-                  className="raised"
-                  _hover={{
-                    "& .icon": {
-                      fill: "darkorange",
-                      transition: "all 0.2s ease",
-                    },
-                  }}
-                >
-                  <MdOutlineSaveAlt
-                    className="icon"
-                    color="#B09374"
-                    size="20px"
-                  />
-                </Button>
+                <Tooltip label="Download to file" color="darkorange">
+                  <Button
+                    onClick={() => setIsSaveModalOpen(true)}
+                    w="100%"
+                    borderRadius="8px 0 0 8px"
+                    className="raised"
+                    _hover={{
+                      "& .icon": {
+                        fill: "darkorange",
+                        transition: "all 0.2s ease",
+                      },
+                    }}
+                  >
+                    <MdOutlineSaveAlt
+                      className="icon"
+                      color="#B09374"
+                      size="20px"
+                    />
+                  </Button>
+                </Tooltip>
               </Center>
             </GridItem>
             <GridItem>
               <Center>
-                <Button
-                  title="Load"
-                  onClick={handleLoad}
-                  w="100%"
-                  borderRadius="0 0 0 0"
-                  className="raised"
-                  _hover={{
-                    "& .icon": {
-                      fill: "darkorange",
-                      transition: "all 0.2s ease",
-                    },
-                  }}
-                >
-                  <FaFolderOpen className="icon" color="#B09374" size="20px" />
-                </Button>
+                <Tooltip label="Load from file" color="darkorange">
+                  <Button
+                    onClick={handleLoad}
+                    w="100%"
+                    borderRadius="0 0 0 0"
+                    className="raised"
+                    _hover={{
+                      "& .icon": {
+                        fill: "darkorange",
+                        transition: "all 0.2s ease",
+                      },
+                    }}
+                  >
+                    <FaFolderOpen
+                      className="icon"
+                      color="#B09374"
+                      size="20px"
+                    />
+                  </Button>
+                </Tooltip>
               </Center>
             </GridItem>
             <GridItem>
               <Center>
-                <Button
-                  title="Share"
-                  onClick={handleShare}
-                  w="100%"
-                  borderRadius="0 0 0 0"
-                  className="raised"
-                  _hover={{
-                    "& .icon": {
-                      fill: "darkorange",
-                      transition: "all 0.2s ease",
-                    },
-                  }}
-                >
-                  <IoShareSharp
-                    className="icon"
-                    fill="#B09374"
-                    transition="all 0.2s ease"
-                    size="20px"
-                  />
-                </Button>
+                <Tooltip label="Share as link" color="darkorange">
+                  <Button
+                    onClick={() => setIsSharingModalOpen(true)}
+                    w="100%"
+                    borderRadius="0 0 0 0"
+                    className="raised"
+                    _hover={{
+                      "& .icon": {
+                        fill: "darkorange",
+                        transition: "all 0.2s ease",
+                      },
+                    }}
+                  >
+                    <IoShareSharp
+                      className="icon"
+                      fill="#B09374"
+                      transition="all 0.2s ease"
+                      size="20px"
+                    />
+                  </Button>
+                </Tooltip>
               </Center>
             </GridItem>
             <GridItem>
               <Center>
-                <Button
-                  title="Reset All"
-                  onClick={handleReset}
-                  w="100%"
-                  borderRadius="0 8px 8px 0"
-                  className="raised"
-                  _hover={{
-                    "& .iconReset": {
-                      color: "#ff7b00",
-                      transition: "all 0.2s ease",
-                    },
-                  }}
-                >
-                  <RxReset
-                    className="iconReset"
-                    color="#B09374"
-                    transition="all 0.2s ease"
-                    size="20px"
-                  />
-                </Button>
+                <Tooltip label="Reset all" color="darkorange">
+                  <Button
+                    onClick={() => setIsResetModalOpen(true)}
+                    w="100%"
+                    borderRadius="0 8px 8px 0"
+                    className="raised"
+                    _hover={{
+                      "& .iconReset": {
+                        color: "#ff7b00",
+                        transition: "all 0.2s ease",
+                      },
+                    }}
+                  >
+                    <RxReset
+                      className="iconReset"
+                      color="#B09374"
+                      transition="all 0.2s ease"
+                      size="20px"
+                    />
+                  </Button>
+                </Tooltip>
               </Center>
             </GridItem>
           </Grid>
         </Box>
       </Center>
+
+      <SaveModal
+        isOpen={isSaveModalOpen}
+        onClose={closeSaveModal}
+        onSave={handleSave}
+      />
+      <SharingModal
+        isOpen={isSharingModalOpen}
+        onClose={closeSharingModal}
+        onShare={handleShare}
+      />
       <ShareModal
         isOpen={isSharedModalOpen}
-        onClose={closeModal}
+        onClose={closeSharedModal}
         shareableLink={shareableLink}
+      />
+      <ResetModal
+        isOpen={isResetModalOpen}
+        onClose={closeResetModal}
+        onReset={handleReset}
       />
     </>
   );
@@ -638,16 +666,169 @@ const ShareModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
         <ModalHeader>Shareable Link</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text>
+          <Text pb={6} color="gray">
             Success! Your preset has been saved to the cloud and can be shared
             using this link:
           </Text>
-          <p>{shareableLink}</p>
+          <Box
+            w="100%"
+            h="40px"
+            borderRadius="8px"
+            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+          >
+            <Center h="100%" pl={4}>
+              <Text w="100%">{shareableLink}</Text>
+            </Center>
+          </Box>
         </ModalBody>
 
         <ModalFooter>
           <Button colorScheme="orange" onClick={onClose}>
             Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const SaveModal: React.FC<any> = ({ isOpen, onClose, onSave }) => {
+  const [presetName, setPresetName] = useState("");
+
+  const handleSave = () => {
+    // Pass the presetName to the onSave function
+    onSave(presetName);
+    onClose(); // Close the modal
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent bg="silver">
+        <ModalHeader color="brown">Download</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Text pb={6} color="gray">
+            To download your preset, enter a custom preset name.
+          </Text>
+          <FormControl>
+            <FormLabel color="gray">NAME</FormLabel>
+            <Box
+              w="80%"
+              h="40px"
+              borderRadius="8px"
+              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+            >
+              <Center h="100%" pl={4}>
+                <Input
+                  color="gray"
+                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                  h="100%"
+                  w="100%"
+                  variant="unstyled"
+                  placeholder="Preset name"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                />
+              </Center>
+            </Box>
+          </FormControl>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button onClick={handleSave} colorScheme="orange" mr={3}>
+            Download
+          </Button>
+          <Button onClick={onClose} color="gray">
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const SharingModal: React.FC<any> = ({ isOpen, onClose, onShare }) => {
+  const [presetName, setPresetName] = useState("");
+
+  const handleShare = () => {
+    // Pass the presetName to the onSave function
+    onShare(presetName);
+    onClose(); // Close the modal
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent bg="silver">
+        <ModalHeader color="brown">Share Preset</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Text pb={2} color="gray">
+            Drumhaus can generate a link for you to share all of your creations
+            with your friends.
+          </Text>
+          <Text pb={6} color="gray">
+            You can give your preset a custom title by entering it in the form
+            below.
+          </Text>
+          <FormControl>
+            <FormLabel color="gray">PRESET NAME</FormLabel>
+            <Box
+              w="80%"
+              h="40px"
+              borderRadius="8px"
+              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+            >
+              <Center h="100%" pl={4}>
+                <Input
+                  color="gray"
+                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                  h="100%"
+                  w="100%"
+                  variant="unstyled"
+                  placeholder="Your custom preset name"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                />
+              </Center>
+            </Box>
+          </FormControl>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button onClick={handleShare} colorScheme="orange" mr={3}>
+            Get Link
+          </Button>
+          <Button onClick={onClose} color="gray">
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+};
+
+const ResetModal: React.FC<any> = ({ isOpen, onClose, onReset }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent bg="silver">
+        <ModalHeader color="brown">Reset All</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <Text pb={2} color="gray">
+            Are you sure you want to reset all instruments and audio parameters
+            to their initialized settings?
+          </Text>
+        </ModalBody>
+
+        <ModalFooter>
+          <Button onClick={onReset} colorScheme="orange" mr={3}>
+            Reset
+          </Button>
+          <Button onClick={onClose} color="gray">
+            Cancel
           </Button>
         </ModalFooter>
       </ModalContent>
