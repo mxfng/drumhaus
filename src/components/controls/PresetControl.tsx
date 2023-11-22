@@ -21,6 +21,7 @@ import {
   Select,
   Text,
   Tooltip,
+  useClipboard,
 } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
@@ -644,7 +645,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onClose={closeSharingModal}
         onShare={handleShare}
       />
-      <ShareModal
+      <SharedModal
         isOpen={isSharedModalOpen}
         onClose={closeSharedModal}
         shareableLink={shareableLink}
@@ -658,7 +659,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   );
 };
 
-const ShareModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
+const SharedModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
+  const { onCopy, hasCopied } = useClipboard("");
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
@@ -676,16 +679,25 @@ const ShareModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
             borderRadius="8px"
             boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
           >
-            <Center h="100%" pl={4}>
-              <Text w="100%">{shareableLink}</Text>
+            <Center h="100%">
+              <Button
+                onClick={onCopy}
+                w="100%"
+                userSelect="all"
+                color="gray"
+                fontFamily={`'Pixelify Sans Variable', sans-serif`}
+              >
+                {shareableLink}
+              </Button>
             </Center>
           </Box>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="orange" onClick={onClose}>
-            Close
+          <Button onClick={onCopy} colorScheme="orange" mr={3}>
+            {hasCopied ? "Copied!" : "Copy Link"}
           </Button>
+          <Button onClick={onClose}>Close</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
@@ -764,16 +776,12 @@ const SharingModal: React.FC<any> = ({ isOpen, onClose, onShare }) => {
         <ModalHeader color="brown">Share Preset</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <Text pb={2} color="gray">
-            Drumhaus can generate a link for you to share all of your creations
-            with your friends.
-          </Text>
           <Text pb={6} color="gray">
-            You can give your preset a custom title by entering it in the form
-            below.
+            Drumhaus can generate a custom link for you to share your presets
+            with.
           </Text>
           <FormControl>
-            <FormLabel color="gray">PRESET NAME</FormLabel>
+            <FormLabel color="gray">GIVE IT A CUSTOM NAME</FormLabel>
             <Box
               w="80%"
               h="40px"
