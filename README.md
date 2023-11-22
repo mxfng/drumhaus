@@ -1,6 +1,6 @@
 # Drumhaus
 
-Drumhaus is a browser controlled rhythmic groove machine built with React, Next.js, and Tone.js.
+Drumhaus is a browser controlled rhythmic groove machine built with Tone.js and next. Explore web based drum sampling with limitless creativity, and share it all with your friends.
 
 I'm an amateur music producer, and have always been fascinated by the music software I use in my creative process. I wanted to build this project as a way to combine my love for music with my passion for coding, and dive deep into digial audio engineering and web development. I wanted to reimagine the form of a classic drum machine in a web browser with modern software technologies.
 
@@ -78,3 +78,45 @@ Some other fun ideas I have in mind and will implement if I get the time:
 - OAuth for users to view a list of their shared kits
 - Custom kits that allow users to drag and drop their own audio files in and save them
 - A social media style feed where users can find and share custom kits and presets, with OAuth
+
+## Running Locally
+
+Once cloned, in the project directory, install all the node modules with npm:
+
+```
+npm install
+```
+
+## Generating Waveform Data
+
+If you'd like to generate new sound data for the sample library, you should spin up a `venv` first. Once you've activated your venv, you can install the necessary Python packages from `requirements.txt`:
+
+```
+pip install -r requirements.txt
+```
+
+After that, you can run:
+
+```
+python3 src/lib/audio_to_json.py
+```
+
+## Quickly creating new kits
+
+There is a Python script that supports quickly (sort-of) adding new kits to your local instance of Drumhaus.
+
+Create a new folder with any unique name, and add 8 samples in .WAV format to `public/samples/your_folder/`.
+
+Run the script:
+
+```
+python3 src/lib/new_kit.py
+```
+
+Enter the desired name for your kit when prompted and let the script run.
+
+You will need to reference `src/lib/kits.ts` to review your auto-generated data and ensure it has been added correctly.
+
+Finally, append it to the state array of kit options (`kitOptions`) in `src/components/controls/PresetControl.tsx`.
+
+Presets are managed within their own files in `src/lib/presets/`. You can create a new preset by importing .json data exported from Drumhaus' client as a .dh file. The approach is close to adding kits, and is probably not worth mentioning here.
