@@ -1,4 +1,4 @@
-import { Box, Center, Flex, Text } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 
 // Dynamically import Drumhaus component without SSR
