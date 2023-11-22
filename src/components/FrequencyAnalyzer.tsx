@@ -10,7 +10,7 @@ const FrequencyAnalyzer: React.FC<FrequencyAnalyzerProps> = () => {
 
   useEffect(() => {
     // Create the frequency analyzer
-    analyzer.current = new Tone.Analyser("fft", 256);
+    analyzer.current = new Tone.Analyser("fft", 512);
 
     // Connect the Tone.Destination to the analyzer
     Tone.Destination.connect(analyzer.current);
@@ -49,7 +49,7 @@ const FrequencyAnalyzer: React.FC<FrequencyAnalyzerProps> = () => {
       const barWidth = canvas.width / dataArray.length;
       const gapWidth = barWidth; // Set the gap width to one bar width
       dataArray.forEach((value, index) => {
-        const barHeight = (typeof value === "number" ? value : 0) + 100; // Adjust for visualization
+        const barHeight = (typeof value === "number" ? value : 0) + 80; // Adjust for visualization
         const x = index * (barWidth + gapWidth); // Add the gap width to the x-position calculation
         const y = canvas.height - barHeight; // Calculate the y position based on the bar height
         canvasContext.fillStyle = "#ff7b00";
