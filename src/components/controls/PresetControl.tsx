@@ -392,6 +392,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
       updateStatesOnPresetChange(preset, presetFunctionToSave);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset]);
 
   // block the spacebar from playing
@@ -401,7 +402,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     } else {
       setIsModal(false);
     }
-  }, [isLoading, isSaveModalOpen, isSharingModalOpen]);
+  }, [isLoading, isSaveModalOpen, isSharingModalOpen, setIsModal]);
 
   return (
     <>
