@@ -134,7 +134,22 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     _masterVolume: masterVolume,
   });
 
-  const exportToJson = () => {
+  const updateStatesOnPresetChange = (
+    presetToSave: Preset,
+    functionToSave?: () => Preset
+  ) => {
+    setPreset(presetToSave);
+    setCleanPreset(presetToSave);
+    setSelectedPreset(presetToSave.name);
+    setSelectedKit(presetToSave._kit.name);
+
+    // Add new presets to the list of options (if provided)
+    if (functionToSave) {
+      setPresetOptions((prevOptions) => [...prevOptions, functionToSave]);
+    }
+  };
+
+  const handleSave = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
     const presetFunctionToSave = createPresetFunction(customName);
     const presetToSave = presetFunctionToSave();
@@ -154,22 +169,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     updateStatesOnPresetChange(presetToSave, presetFunctionToSave);
   };
 
-  const updateStatesOnPresetChange = (
-    presetToSave: Preset,
-    functionToSave?: () => Preset
-  ) => {
-    setPreset(presetToSave);
-    setCleanPreset(presetToSave);
-    setSelectedPreset(presetToSave.name);
-    setSelectedKit(presetToSave._kit.name);
-
-    // Add new presets to the list of options (if provided)
-    if (functionToSave) {
-      setPresetOptions((prevOptions) => [...prevOptions, functionToSave]);
-    }
-  };
-
-  const loadFromJson = () => {
+  const handleLoad = () => {
     if (isPlaying) {
       togglePlay();
     }
@@ -218,7 +218,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
 
     const selectedKitName = event.target.value;
-    const kitOption = kitOptions.find((kit) => kit.name == selectedKitName);
+    const kitOption = kitOptions.find((kit) => kit().name == selectedKitName);
 
     if (kitOption) {
       const newKit = kitOption();
@@ -420,7 +420,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
         <Button
           title="Save"
-          onClick={exportToJson}
+          onClick={handleSave}
           position="absolute"
           right="120px"
           w="20px"
@@ -438,7 +438,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
         <Button
           title="Load"
-          onClick={loadFromJson}
+          onClick={handleLoad}
           position="absolute"
           right="80px"
           w="20px"
