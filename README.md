@@ -22,9 +22,13 @@ This framework has fueled my love for web development using React, and I wanted 
 
 Used for its wide array of components, styling, and themeing capabilities. The majority of this project's React components were built with and styled by Chakra UI's library.
 
+### postgres
+
+This project uses postgres db for storing preset information that can be shared by users with a dynamically generated link.
+
 ### librosa
 
-Worth mentioning here, the amplitude data used to generate frequency response waveforms for each sample were cached on the server using Python with librosa.
+Worth mentioning here, the amplitude datasets used to generate frequency response waveforms for each sample are cached on the server using Python with librosa.
 
 ## Features
 
@@ -34,9 +38,7 @@ Kits are curated groups of samples available in Drumhaus that can be swapped as 
 
 ### Presets
 
-Drumhaus comes pre-loaded with presets to inspire users with its wide variety of sounds and musical capabilities. Presets encapsulate the state of the application and can be used to save and share music. Users can also create their own custom presets which can be saved and loaded from local .json files, written as (.dh).
-
-Sharing presets via a custom link is currently under construction.
+Drumhaus comes pre-loaded with presets to inspire users with its wide variety of sounds and musical capabilities. Presets encapsulate the state of the application and can be used to save and share music. Users can also create their own custom presets which can be saved and loaded from local .json files, written as (.dh). Presets can be shared via a custom generated link, and are stored in a postgres db.
 
 ### Sequencer
 
@@ -62,6 +64,10 @@ Each sample has associated frequency response data that is graphed as a graphic 
 
 As of the most recent update to this README, Drumhaus is currently at its minimum viable product iteration. I have an exciting plan for additional updates which should increase its usability, reach, and power in the future.
 
+- Create some custom modal messaging
+- Some form of tutorial, written or interactive, that recognizes users
+- Amplitude monitors on the instrument slots and compressor threshold
+- Frequency visualizer on the master bus
 - Cache the user's state in the browser so it persists between sessions
 - Add C and D variations, as well as AABB and ABBB chains
 - Create an additional 8 slots for non-drum samples, like intrument hits and other one-shots
@@ -69,5 +75,6 @@ As of the most recent update to this README, Drumhaus is currently at its minimu
 
 Some other fun ideas I have in mind and will implement if I get the time:
 
+- OAuth for users to view a list of their shared kits
 - Custom kits that allow users to drag and drop their own audio files in and save them
 - A social media style feed where users can find and share custom kits and presets, with OAuth
