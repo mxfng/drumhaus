@@ -19,8 +19,9 @@ export const ErrorModal: React.FC<any> = ({ isOpen, onClose }) => {
         <ModalCloseButton />
         <ModalBody pb={6}>
           <Text pb={2} color="gray">
-            We're sorry, there was a temporary interruption of service and your
-            preset could not be saved. Please try again later.
+            {
+              "We're sorry, there was a temporary interruption of service and your preset could not be saved. Please try again later."
+            }
           </Text>
         </ModalBody>
 
