@@ -6,6 +6,8 @@ import {
   Box,
   Button,
   Center,
+  Grid,
+  GridItem,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -384,7 +386,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       <Center h="100%">
         <Box
           w="100%"
-          h="155px"
+          h="195px"
           className="neumorphicExtraTall"
           borderRadius="8px"
           p={3}
@@ -520,83 +522,103 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             PRESET
           </Text>
 
-          <Button
-            title="Save"
-            onClick={handleSave}
-            position="absolute"
-            right="120px"
-            w="20px"
-            p={0}
-            bottom={0}
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
+          <Grid
+            templateColumns="repeat(4, 1fr)"
+            className="neumorphic"
+            borderRadius="8px"
+            mt={2}
           >
-            <MdOutlineSaveAlt className="icon" color="#B09374" />
-          </Button>
-
-          <Button
-            title="Load"
-            onClick={handleLoad}
-            position="absolute"
-            right="80px"
-            w="20px"
-            bottom={0}
-            p={0}
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <FaFolderOpen className="icon" color="#B09374" />
-          </Button>
-          <Button
-            title="Share"
-            onClick={handleShare}
-            w="20px"
-            position="absolute"
-            right="40px"
-            bottom={0}
-            p={0}
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <IoShareSharp
-              className="icon"
-              fill="#B09374"
-              transition="all 0.2s ease"
-            />
-          </Button>
-          <Button
-            title="Reset All"
-            onClick={handleReset}
-            w="20px"
-            position="absolute"
-            right={0}
-            bottom={0}
-            p={0}
-            _hover={{
-              "& .iconReset": {
-                color: "#ff7b00",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <RxReset
-              className="iconReset"
-              color="#B09374"
-              transition="all 0.2s ease"
-            />
-          </Button>
+            <GridItem>
+              <Center>
+                <Button
+                  title="Save"
+                  onClick={handleSave}
+                  w="100%"
+                  borderRadius="8px 0 0 8px"
+                  className="raised"
+                  _hover={{
+                    "& .icon": {
+                      fill: "darkorange",
+                      transition: "all 0.2s ease",
+                    },
+                  }}
+                >
+                  <MdOutlineSaveAlt
+                    className="icon"
+                    color="#B09374"
+                    size="20px"
+                  />
+                </Button>
+              </Center>
+            </GridItem>
+            <GridItem>
+              <Center>
+                <Button
+                  title="Load"
+                  onClick={handleLoad}
+                  w="100%"
+                  borderRadius="0 0 0 0"
+                  className="raised"
+                  _hover={{
+                    "& .icon": {
+                      fill: "darkorange",
+                      transition: "all 0.2s ease",
+                    },
+                  }}
+                >
+                  <FaFolderOpen className="icon" color="#B09374" size="20px" />
+                </Button>
+              </Center>
+            </GridItem>
+            <GridItem>
+              <Center>
+                <Button
+                  title="Share"
+                  onClick={handleShare}
+                  w="100%"
+                  borderRadius="0 0 0 0"
+                  className="raised"
+                  _hover={{
+                    "& .icon": {
+                      fill: "darkorange",
+                      transition: "all 0.2s ease",
+                    },
+                  }}
+                >
+                  <IoShareSharp
+                    className="icon"
+                    fill="#B09374"
+                    transition="all 0.2s ease"
+                    size="20px"
+                  />
+                </Button>
+              </Center>
+            </GridItem>
+            <GridItem>
+              <Center>
+                <Button
+                  title="Reset All"
+                  onClick={handleReset}
+                  w="100%"
+                  borderRadius="0 8px 8px 0"
+                  className="raised"
+                  _hover={{
+                    "& .iconReset": {
+                      color: "#ff7b00",
+                      transition: "all 0.2s ease",
+                    },
+                  }}
+                >
+                  <RxReset
+                    className="iconReset"
+                    color="#B09374"
+                    transition="all 0.2s ease"
+                    size="20px"
+                  />
+                </Button>
+              </Center>
+            </GridItem>
+          </Grid>
         </Box>
       </Center>
       <ShareModal
