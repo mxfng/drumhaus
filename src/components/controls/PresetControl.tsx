@@ -8,7 +8,7 @@ import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -218,7 +218,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     stopPlayingOnAction();
 
     const isConfirmed = window.confirm(
-      "Would you like to share your custom preset as a link? (This feature is incomplete and in development)"
+      "Would you like to share your custom preset as a link? (This feature is in development. The link should be automatically saved to your device's clipboard)"
     );
 
     if (!isConfirmed) return;
@@ -245,6 +245,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       if (!response.ok) {
         throw new Error("Failed to add preset");
       }
+
+      const { presetKey } = await response.json();
+
+      const shareableLink = new URL("/", window.location.origin);
+      shareableLink.searchParams.append("preset", presetKey);
+
+      navigator.clipboard.writeText(shareableLink.href);
     } catch (error) {
       console.error("Error adding preset:", error);
     }
@@ -311,6 +318,44 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    // Add custom presets loaded via URL search params
+    if (!presetOptions.some((option) => option().name == preset.name)) {
+      const presetFunctionToSave = (): Preset => ({
+        name: preset.name,
+        _kit: {
+          name: preset._kit.name,
+          samples: preset._kit.samples,
+          _attacks: preset._kit._attacks,
+          _releases: preset._kit._releases,
+          _filters: preset._kit._filters,
+          _pans: preset._kit._pans,
+          _volumes: preset._kit._volumes,
+          _mutes: preset._kit._mutes,
+          _solos: preset._kit._solos,
+        },
+        _sequences: preset._sequences,
+        _variation: 0,
+        _chain: preset._chain,
+        _bpm: preset._bpm,
+        _swing: preset._swing,
+        _lowPass: preset._lowPass,
+        _hiPass: preset._hiPass,
+        _phaser: preset._phaser,
+        _reverb: preset._reverb,
+        _compThreshold: preset._compThreshold,
+        _compRatio: preset._compRatio,
+        _masterVolume: preset._masterVolume,
+      });
+
+      console.log(preset.name);
+      console.log(preset._sequences);
+      console.log(presetFunctionToSave);
+
+      updateStatesOnPresetChange(preset, presetFunctionToSave);
+    }
+  }, [preset]);
 
   return (
     <Center h="100%">

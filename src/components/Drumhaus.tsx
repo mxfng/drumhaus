@@ -97,13 +97,24 @@ const Drumhaus = () => {
       const presetKey = urlParams.get("preset");
 
       if (presetKey) {
-        const response = await fetch(`/api/presets?preset_key=${presetKey}`);
-        const data = await response.json();
-        console.log(data.presets.rows[0].preset_data);
+        try {
+          const response = await fetch(`/api/presets?preset_key=${presetKey}`);
 
-        const newPreset: Preset = data.presets.rows[0].preset_data;
+          if (!response.ok) {
+            throw new Error("Unable to load preset from key");
+          }
 
-        setPreset(newPreset);
+          const data = await response.json();
+
+          const newPreset: Preset = data.presets.rows[0].preset_data;
+
+          setPreset(newPreset);
+        } catch (error) {
+          console.error(
+            `Error fetching provided preset key ${presetKey}:`,
+            error
+          );
+        }
       }
     };
 
