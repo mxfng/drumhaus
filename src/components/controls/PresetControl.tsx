@@ -6,29 +6,18 @@ import {
   Box,
   Button,
   Center,
-  FormControl,
-  FormLabel,
   Grid,
   GridItem,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Select,
   Text,
   Tooltip,
-  useClipboard,
 } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -40,6 +29,10 @@ import { amsterdam } from "@/lib/presets/amsterdam";
 import { sunflower } from "@/lib/presets/sunflower";
 import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
 import { super_dream_haus } from "@/lib/presets/super_dream_haus";
+import { ErrorModal } from "../modal/ErrorModal";
+import { SaveModal } from "../modal/SaveModal";
+import { ResetModal } from "../modal/ResetModal";
+import { SharedModal, SharingModal } from "../modal/ShareModals";
 
 type PresetControlProps = {
   preset: Preset;
@@ -66,6 +59,9 @@ type PresetControlProps = {
   chain: number;
   isPlaying: boolean;
   togglePlay: () => Promise<void>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
@@ -93,6 +89,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   chain,
   isPlaying,
   togglePlay,
+  isLoading,
+  setIsLoading,
+  setIsModal,
 }) => {
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
@@ -130,7 +129,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isErrorModalShowing, setIsErrorModalShowing] = useState(false);
   const [shareableLink, setShareableLink] = useState("");
+  const modalCloseRef = useRef(null);
 
   const createPresetFunction = (name: string) => () => ({
     name: name,
@@ -233,8 +234,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleShare = async (customName: string) => {
-    stopPlayingOnAction();
-
     const presetFunctionToSave = createPresetFunction(customName);
     const presetToSave = presetFunctionToSave();
     const jsonPreset = JSON.stringify(presetToSave);
@@ -264,8 +263,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       navigator.clipboard.writeText(_shareableLink.href);
       setShareableLink(_shareableLink.href);
 
+      setIsSharingModalOpen(false);
+      setIsLoading(false);
       setIsSharedModalOpen(true);
     } catch (error) {
+      setIsSharingModalOpen(false);
+      setIsLoading(false);
+      setIsErrorModalShowing(true);
       console.error("Error adding preset:", error);
     }
   };
@@ -301,6 +305,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const closeResetModal = () => {
     setIsResetModalOpen(false);
+  };
+
+  const closeErrorModal = () => {
+    setIsErrorModalShowing(false);
   };
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -386,6 +394,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   }, [preset]);
 
+  // block the spacebar from playing
+  useEffect(() => {
+    if (isLoading || isSaveModalOpen || isSharingModalOpen) {
+      setIsModal(true);
+    } else {
+      setIsModal(false);
+    }
+  }, [isLoading, isSaveModalOpen, isSharingModalOpen]);
+
   return (
     <>
       <Center h="100%">
@@ -396,6 +413,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           borderRadius="8px"
           p={3}
           position="relative"
+          ref={modalCloseRef}
         >
           <Box
             w="100%"
@@ -639,207 +657,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         isOpen={isSaveModalOpen}
         onClose={closeSaveModal}
         onSave={handleSave}
+        modalCloseRef={modalCloseRef}
       />
       <SharingModal
         isOpen={isSharingModalOpen}
         onClose={closeSharingModal}
         onShare={handleShare}
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        modalCloseRef={modalCloseRef}
       />
       <SharedModal
         isOpen={isSharedModalOpen}
         onClose={closeSharedModal}
         shareableLink={shareableLink}
+        modalCloseRef={modalCloseRef}
       />
       <ResetModal
         isOpen={isResetModalOpen}
         onClose={closeResetModal}
         onReset={handleReset}
+        modalCloseRef={modalCloseRef}
       />
+      <ErrorModal isOpen={isErrorModalShowing} onClose={closeErrorModal} />
     </>
-  );
-};
-
-const SharedModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
-  const { onCopy, hasCopied } = useClipboard("");
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader>Shareable Link</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text pb={6} color="gray">
-            Success! Your preset has been saved to the cloud and can be shared
-            using this link:
-          </Text>
-          <Box
-            w="100%"
-            h="40px"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-          >
-            <Center h="100%">
-              <Button
-                onClick={onCopy}
-                w="100%"
-                userSelect="all"
-                color="gray"
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-              >
-                {shareableLink}
-              </Button>
-            </Center>
-          </Box>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button onClick={onCopy} colorScheme="orange" mr={3}>
-            {hasCopied ? "Copied!" : "Copy Link"}
-          </Button>
-          <Button onClick={onClose}>Close</Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
-const SaveModal: React.FC<any> = ({ isOpen, onClose, onSave }) => {
-  const [presetName, setPresetName] = useState("");
-
-  const handleSave = () => {
-    // Pass the presetName to the onSave function
-    onSave(presetName);
-    onClose(); // Close the modal
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Download</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={6} color="gray">
-            To download your preset, enter a custom preset name.
-          </Text>
-          <FormControl>
-            <FormLabel color="gray">NAME</FormLabel>
-            <Box
-              w="80%"
-              h="40px"
-              borderRadius="8px"
-              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            >
-              <Center h="100%" pl={4}>
-                <Input
-                  color="gray"
-                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                  h="100%"
-                  w="100%"
-                  variant="unstyled"
-                  placeholder="Preset name"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                />
-              </Center>
-            </Box>
-          </FormControl>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button onClick={handleSave} colorScheme="orange" mr={3}>
-            Download
-          </Button>
-          <Button onClick={onClose} color="gray">
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
-const SharingModal: React.FC<any> = ({ isOpen, onClose, onShare }) => {
-  const [presetName, setPresetName] = useState("");
-
-  const handleShare = () => {
-    // Pass the presetName to the onSave function
-    onShare(presetName);
-    onClose(); // Close the modal
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Share Preset</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={6} color="gray">
-            Drumhaus can generate a custom link for you to share your presets
-            with.
-          </Text>
-          <FormControl>
-            <FormLabel color="gray">GIVE IT A CUSTOM NAME</FormLabel>
-            <Box
-              w="80%"
-              h="40px"
-              borderRadius="8px"
-              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            >
-              <Center h="100%" pl={4}>
-                <Input
-                  color="gray"
-                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                  h="100%"
-                  w="100%"
-                  variant="unstyled"
-                  placeholder="Your custom preset name"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                />
-              </Center>
-            </Box>
-          </FormControl>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button onClick={handleShare} colorScheme="orange" mr={3}>
-            Get Link
-          </Button>
-          <Button onClick={onClose} color="gray">
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-};
-
-const ResetModal: React.FC<any> = ({ isOpen, onClose, onReset }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Reset All</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={2} color="gray">
-            Are you sure you want to reset all instruments and audio parameters
-            to their initialized settings?
-          </Text>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button onClick={onReset} colorScheme="orange" mr={3}>
-            Reset
-          </Button>
-          <Button onClick={onClose} color="gray">
-            Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
   );
 };
