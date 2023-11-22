@@ -2,7 +2,20 @@
 
 import * as kits from "@/lib/kits";
 import { Kit, Preset, Sequences } from "@/types/types";
-import { Box, Button, Center, Select, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  Text,
+} from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
@@ -106,6 +119,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [presetOptions, setPresetOptions] =
     useState<(() => Preset)[]>(_presetOptions);
   const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
+  const [isSharedModalOpen, setIsSharedModalOpen] = useState(false);
+  const [shareableLink, setShareableLink] = useState("");
 
   const createPresetFunction = (name: string) => () => ({
     name: name,
@@ -248,10 +263,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
       const { presetKey } = await response.json();
 
-      const shareableLink = new URL("/", window.location.origin);
-      shareableLink.searchParams.append("preset", presetKey);
+      const _shareableLink = new URL("/", window.location.origin);
+      _shareableLink.searchParams.append("preset", presetKey);
 
-      navigator.clipboard.writeText(shareableLink.href);
+      navigator.clipboard.writeText(_shareableLink.href);
+      setShareableLink(_shareableLink.href);
+
+      setIsSharedModalOpen(true);
     } catch (error) {
       console.error("Error adding preset:", error);
     }
@@ -272,6 +290,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         `Kit ${selectedKitName} not found in options: ${kitOptions}`
       );
     }
+  };
+
+  const closeModal = () => {
+    setIsSharedModalOpen(false);
   };
 
   const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -358,223 +380,255 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   }, [preset]);
 
   return (
-    <Center h="100%">
-      <Box
-        w="100%"
-        h="155px"
-        className="neumorphicExtraTall"
-        borderRadius="8px"
-        p={3}
-        position="relative"
-      >
+    <>
+      <Center h="100%">
         <Box
           w="100%"
+          h="155px"
+          className="neumorphicExtraTall"
           borderRadius="8px"
-          boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-          _hover={{
-            "& .icon": {
-              fill: "darkorange",
-              transition: "all 0.2s ease",
-            },
-          }}
+          p={3}
+          position="relative"
         >
-          <Box h="40px" w="100%" id="kit" mb={4} position="relative">
-            <Select
-              variant="unstyled"
-              border="none"
-              outline="none"
-              value={selectedKit}
-              fontFamily={`'Pixelify Sans Variable', sans-serif`}
-              color="gray"
-              w="332px"
-              h="40px"
-              borderRadius="8px"
-              cursor="pointer"
-              pl={4}
-              onChange={handleKitChange}
-            >
-              {kitOptions.map((kit) => (
-                <option key={kit().name} value={kit().name}>
-                  {kit().name}
-                </option>
-              ))}
-            </Select>
+          <Box
+            w="100%"
+            borderRadius="8px"
+            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <Box h="40px" w="100%" id="kit" mb={4} position="relative">
+              <Select
+                variant="unstyled"
+                border="none"
+                outline="none"
+                value={selectedKit}
+                fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                color="gray"
+                w="332px"
+                h="40px"
+                borderRadius="8px"
+                cursor="pointer"
+                pl={4}
+                onChange={handleKitChange}
+              >
+                {kitOptions.map((kit) => (
+                  <option key={kit().name} value={kit().name}>
+                    {kit().name}
+                  </option>
+                ))}
+              </Select>
 
-            <Box
-              position="absolute"
-              h="23px"
-              w="15px"
-              right={3}
-              top={2}
-              bg="silver"
-              pointerEvents="none"
-            />
+              <Box
+                position="absolute"
+                h="23px"
+                w="15px"
+                right={3}
+                top={2}
+                bg="silver"
+                pointerEvents="none"
+              />
 
-            <Button
-              bg="transparent"
-              position="absolute"
-              right={0}
-              top={0}
-              pointerEvents="none"
-            >
-              <Box>
-                <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                  <IoMdArrowDropdown className="icon" color="#B09374" />
+              <Button
+                bg="transparent"
+                position="absolute"
+                right={0}
+                top={0}
+                pointerEvents="none"
+              >
+                <Box>
+                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
+                  <Box h="50%">
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
                 </Box>
-                <Box h="50%">
-                  <IoMdArrowDropdown className="icon" color="#B09374" />
-                </Box>
-              </Box>
-            </Button>
+              </Button>
+            </Box>
           </Box>
-        </Box>
 
-        <Text fontSize={12} color="gray" my={-3}>
-          KIT
-        </Text>
+          <Text fontSize={12} color="gray" my={-3}>
+            KIT
+          </Text>
 
-        <Box
-          w="100%"
-          borderRadius="8px"
-          boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-          _hover={{
-            "& .icon": {
-              fill: "darkorange",
-              transition: "all 0.2s ease",
-            },
-          }}
-        >
-          <Box id="preset" h="40px" mt={4} mb={4} position="relative">
-            <Select
-              variant="unstyled"
-              value={selectedPreset}
-              fontFamily={`'Pixelify Sans Variable', sans-serif`}
-              color="gray"
-              w="332px"
-              h="40px"
-              borderRadius="8px"
-              cursor="pointer"
-              onChange={handlePresetChange}
-              pl={4}
-            >
-              {presetOptions.map((preset) => (
-                <option key={preset().name} value={preset().name}>
-                  {preset().name}
-                </option>
-              ))}
-            </Select>
+          <Box
+            w="100%"
+            borderRadius="8px"
+            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <Box id="preset" h="40px" mt={4} mb={4} position="relative">
+              <Select
+                variant="unstyled"
+                value={selectedPreset}
+                fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                color="gray"
+                w="332px"
+                h="40px"
+                borderRadius="8px"
+                cursor="pointer"
+                onChange={handlePresetChange}
+                pl={4}
+              >
+                {presetOptions.map((preset) => (
+                  <option key={preset().name} value={preset().name}>
+                    {preset().name}
+                  </option>
+                ))}
+              </Select>
 
-            <Box
-              position="absolute"
-              h="23px"
-              w="15px"
-              right={3}
-              top={2}
-              bg="silver"
-              pointerEvents="none"
-            />
+              <Box
+                position="absolute"
+                h="23px"
+                w="15px"
+                right={3}
+                top={2}
+                bg="silver"
+                pointerEvents="none"
+              />
 
-            <Button
-              bg="transparent"
-              position="absolute"
-              right={0}
-              top={0}
-              pointerEvents="none"
-            >
-              <Box>
-                <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                  <IoMdArrowDropdown className="icon" color="#B09374" />
+              <Button
+                bg="transparent"
+                position="absolute"
+                right={0}
+                top={0}
+                pointerEvents="none"
+              >
+                <Box>
+                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
+                  <Box h="50%">
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
                 </Box>
-                <Box h="50%">
-                  <IoMdArrowDropdown className="icon" color="#B09374" />
-                </Box>
-              </Box>
-            </Button>
+              </Button>
+            </Box>
           </Box>
+
+          <Text fontSize={12} color="gray" my={-3} mb={-1}>
+            PRESET
+          </Text>
+
+          <Button
+            title="Save"
+            onClick={handleSave}
+            position="absolute"
+            right="120px"
+            w="20px"
+            p={0}
+            bottom={0}
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <MdOutlineSaveAlt className="icon" color="#B09374" />
+          </Button>
+
+          <Button
+            title="Load"
+            onClick={handleLoad}
+            position="absolute"
+            right="80px"
+            w="20px"
+            bottom={0}
+            p={0}
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <FaFolderOpen className="icon" color="#B09374" />
+          </Button>
+          <Button
+            title="Share"
+            onClick={handleShare}
+            w="20px"
+            position="absolute"
+            right="40px"
+            bottom={0}
+            p={0}
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <IoShareSharp
+              className="icon"
+              fill="#B09374"
+              transition="all 0.2s ease"
+            />
+          </Button>
+          <Button
+            title="Reset All"
+            onClick={handleReset}
+            w="20px"
+            position="absolute"
+            right={0}
+            bottom={0}
+            p={0}
+            _hover={{
+              "& .iconReset": {
+                color: "#ff7b00",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <RxReset
+              className="iconReset"
+              color="#B09374"
+              transition="all 0.2s ease"
+            />
+          </Button>
         </Box>
+      </Center>
+      <ShareModal
+        isOpen={isSharedModalOpen}
+        onClose={closeModal}
+        shareableLink={shareableLink}
+      />
+    </>
+  );
+};
 
-        <Text fontSize={12} color="gray" my={-3} mb={-1}>
-          PRESET
-        </Text>
+const ShareModal: React.FC<any> = ({ isOpen, onClose, shareableLink }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
+      <ModalOverlay />
+      <ModalContent bg="silver">
+        <ModalHeader>Shareable Link</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Text>
+            Success! Your preset has been saved to the cloud and can be shared
+            using this link:
+          </Text>
+          <p>{shareableLink}</p>
+        </ModalBody>
 
-        <Button
-          title="Save"
-          onClick={handleSave}
-          position="absolute"
-          right="120px"
-          w="20px"
-          p={0}
-          bottom={0}
-          _hover={{
-            "& .icon": {
-              fill: "darkorange",
-              transition: "all 0.2s ease",
-            },
-          }}
-        >
-          <MdOutlineSaveAlt className="icon" color="#B09374" />
-        </Button>
-
-        <Button
-          title="Load"
-          onClick={handleLoad}
-          position="absolute"
-          right="80px"
-          w="20px"
-          bottom={0}
-          p={0}
-          _hover={{
-            "& .icon": {
-              fill: "darkorange",
-              transition: "all 0.2s ease",
-            },
-          }}
-        >
-          <FaFolderOpen className="icon" color="#B09374" />
-        </Button>
-        <Button
-          title="Share"
-          onClick={handleShare}
-          w="20px"
-          position="absolute"
-          right="40px"
-          bottom={0}
-          p={0}
-          _hover={{
-            "& .icon": {
-              fill: "darkorange",
-              transition: "all 0.2s ease",
-            },
-          }}
-        >
-          <IoShareSharp
-            className="icon"
-            fill="#B09374"
-            transition="all 0.2s ease"
-          />
-        </Button>
-        <Button
-          title="Reset All"
-          onClick={handleReset}
-          w="20px"
-          position="absolute"
-          right={0}
-          bottom={0}
-          p={0}
-          _hover={{
-            "& .iconReset": {
-              color: "#ff7b00",
-              transition: "all 0.2s ease",
-            },
-          }}
-        >
-          <RxReset
-            className="iconReset"
-            color="#B09374"
-            transition="all 0.2s ease"
-          />
-        </Button>
-      </Box>
-    </Center>
+        <ModalFooter>
+          <Button colorScheme="orange" onClick={onClose}>
+            Close
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 };
