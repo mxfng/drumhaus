@@ -9,7 +9,6 @@ import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useState } from "react";
-import { sql } from "@vercel/postgres";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -219,7 +218,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
 
     const selectedKitName = event.target.value;
-    const kitOption = kitOptions.find((kit) => kit.name === selectedKitName);
+    const kitOption = kitOptions.find((kit) => kit.name == selectedKitName);
 
     if (kitOption) {
       const newKit = kitOption();
