@@ -90,6 +90,26 @@ const Drumhaus = () => {
   const solosCache = useMemo(() => solos, [solos]);
   const samplesCache = useMemo(() => samples, [samples]);
 
+  // l o a d   f r o m   q u e r y   p a r a m
+  useEffect(() => {
+    const loadPresetData = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const presetKey = urlParams.get("preset");
+
+      if (presetKey) {
+        const response = await fetch(`/api/presets?preset_key=${presetKey}`);
+        const data = await response.json();
+        console.log(data.presets.rows[0].preset_data);
+
+        const newPreset: Preset = data.presets.rows[0].preset_data;
+
+        setPreset(newPreset);
+      }
+    };
+
+    loadPresetData();
+  }, []);
+
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
