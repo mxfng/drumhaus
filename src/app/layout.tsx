@@ -48,6 +48,8 @@ export const metadata: Metadata = {
       "Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends.",
     images: "/opengraph-image.png",
   },
+
+  metadataBase: new URL("https://www.drumha.us/"),
 };
 
 export default function RootLayout({
