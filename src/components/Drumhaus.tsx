@@ -33,6 +33,7 @@ import makeGoodMusic from "@/lib/makeGoodMusic";
 import { _samples, createSamples } from "@/lib/createSamples";
 import { MobileModal } from "./modal/MobileModal";
 import { motion } from "framer-motion";
+import FrequencyAnalyzer from "./FrequencyAnalyzer";
 
 const Drumhaus = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -446,17 +447,17 @@ const Drumhaus = () => {
                 </Box>
               </Flex>
 
-              <SignatureLogo
-                width={80}
-                fill="#B09374"
+              <Box
                 position="absolute"
-                right={6}
-                top={14}
-                opacity={0.5}
-                as="a"
-                href="https://www.maxfung.net/"
-                target="_blank"
-              />
+                right="26px"
+                bottom="18px"
+                borderRadius="16px"
+                overflow="hidden"
+                opacity={0.4}
+                boxShadow="0 2px 8px rgba(176, 147, 116, 0.3) inset"
+              >
+                <FrequencyAnalyzer />
+              </Box>
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
@@ -605,6 +606,18 @@ const Drumhaus = () => {
                 isPlaying={isPlaying}
               />
             </Box>
+
+            <SignatureLogo
+              width={50}
+              fill="#B09374"
+              position="absolute"
+              right={6}
+              bottom={8}
+              opacity={0.3}
+              as="a"
+              href="https://www.maxfung.net/"
+              target="_blank"
+            />
           </Box>
           <Box h="20px" w="100%" position="relative">
             <Center w="100%" h="100%">
