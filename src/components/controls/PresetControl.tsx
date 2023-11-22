@@ -219,6 +219,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       const newKit = kitOption();
       setKit(newKit);
       setSelectedKit(newKit.name);
+    } else {
+      console.error(`Kit ${selectedKitName} not found in options`);
     }
   };
 
