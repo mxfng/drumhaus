@@ -57,3 +57,16 @@ While I chose not to reinvent the wheel when it came to low-level audio processi
 ### Audio Visualization
 
 Each sample has associated frequency response data that is graphed as a graphic in the user interface when the sample is displayed. Audio data was generated using librosa, is stored on the server, and can be cached locally for re-interpretation.
+
+## Features Not Yet Added
+
+As of the most recent update to this README, Drumhaus is currently at its minimum viable product iteration. I have an exciting plan for additional updates which should increase its usability, reach, and power in the future.
+
+- Add C and D variations, as well as AABB and ABBB chains
+- Create an additional 8 slots for non-drum samples, like intrument hits and other one-shots
+- Include loops, which will be BPM aware and can be manipulated based on the project tempo
+
+Some other fun ideas I have in mind and will implement if I get the time:
+
+- Custom kits that allow users to drag and drop their own audio files in and save them
+- A social media style feed where users can find and share custom kits and presets, with OAuth
