@@ -108,37 +108,39 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     useState<(() => Preset)[]>(_presetOptions);
   const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
 
+  const createPresetFunction = (name: string) => () => ({
+    name: name,
+    _kit: {
+      name: kit.name,
+      samples: kit.samples,
+      _attacks: attacks,
+      _releases: releases,
+      _filters: filters,
+      _pans: pans,
+      _volumes: volumes,
+      _mutes: mutes,
+      _solos: solos,
+    },
+    _sequences: sequences,
+    _variation: 0,
+    _chain: chain,
+    _bpm: bpm,
+    _swing: swing,
+    _lowPass: lowPass,
+    _hiPass: hiPass,
+    _phaser: phaser,
+    _reverb: reverb,
+    _compThreshold: compThreshold,
+    _compRatio: compRatio,
+    _masterVolume: masterVolume,
+  });
+
   const exportToJson = () => {
     const customName: string = prompt("Enter a custom name:") || "custom";
+    const presetFunctionToSave = createPresetFunction(customName);
+    const presetToSave = presetFunctionToSave();
 
-    const presetToSave = () => ({
-      name: customName,
-      _kit: {
-        name: kit.name,
-        samples: kit.samples,
-        _attacks: attacks,
-        _releases: releases,
-        _filters: filters,
-        _pans: pans,
-        _volumes: volumes,
-        _mutes: mutes,
-        _solos: solos,
-      },
-      _sequences: sequences,
-      _variation: 0,
-      _chain: chain,
-      _bpm: bpm,
-      _swing: swing,
-      _lowPass: lowPass,
-      _hiPass: hiPass,
-      _phaser: phaser,
-      _reverb: reverb,
-      _compThreshold: compThreshold,
-      _compRatio: compRatio,
-      _masterVolume: masterVolume,
-    });
-
-    const jsonPreset = JSON.stringify(presetToSave());
+    const jsonPreset = JSON.stringify(presetToSave);
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -150,11 +152,22 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
 
-    const newPreset = presetToSave();
-    setPreset(newPreset);
-    setCleanPreset(newPreset);
-    setSelectedPreset(newPreset.name);
-    setPresetOptions((prevOptions) => [...prevOptions, presetToSave]);
+    updateStatesOnPresetChange(presetToSave, presetFunctionToSave);
+  };
+
+  const updateStatesOnPresetChange = (
+    presetToSave: Preset,
+    functionToSave?: () => Preset
+  ) => {
+    setPreset(presetToSave);
+    setCleanPreset(presetToSave);
+    setSelectedPreset(presetToSave.name);
+    setSelectedKit(presetToSave._kit.name);
+
+    // Add new presets to the list of options (if provided)
+    if (functionToSave) {
+      setPresetOptions((prevOptions) => [...prevOptions, functionToSave]);
+    }
   };
 
   const loadFromJson = () => {
@@ -177,11 +190,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       try {
         const jsonContent: Preset = JSON.parse(e.target?.result as string);
         const presetOption = () => jsonContent;
-        setPreset(jsonContent);
-        setCleanPreset(jsonContent);
-        setSelectedPreset(jsonContent.name);
-        setSelectedKit(jsonContent._kit.name);
-        setPresetOptions((prevOptions) => [...prevOptions, presetOption]);
+        updateStatesOnPresetChange(jsonContent, presetOption);
       } catch (error) {
         console.error("Error parsing DH JSON:", error);
       }
@@ -200,10 +209,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     );
 
     if (isConfirmed) {
-      setPreset(init());
-      setCleanPreset(init());
-      setSelectedKit(init()._kit.name);
-      setSelectedPreset(init().name);
+      updateStatesOnPresetChange(init());
     }
   };
 
@@ -220,7 +226,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       setKit(newKit);
       setSelectedKit(newKit.name);
     } else {
-      console.error(`Kit ${selectedKitName} not found in options`);
+      console.error(
+        `Kit ${selectedKitName} not found in options: ${kitOptions}`
+      );
     }
   };
 
@@ -266,10 +274,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
       if (presetOption) {
         const newPreset = presetOption();
-        setPreset(newPreset);
-        setCleanPreset(newPreset);
-        setSelectedPreset(newPreset.name);
-        setSelectedKit(newPreset._kit.name);
+        updateStatesOnPresetChange(newPreset);
       }
     }
   };
