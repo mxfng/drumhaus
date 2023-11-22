@@ -20,13 +20,16 @@ export const MobileModal: React.FC<any> = ({ isOpen, onClose }) => {
         <ModalHeader color="brown">Desktop Recommended</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <Text pb={6} color="gray">
-            We're so glad you've decided to give Drumhaus a try!
+          <Text pb={2} color="gray">
+            {"We're so glad you've decided to give Drumhaus a try!"}
           </Text>
           <Text pb={2} color="gray">
             Drumhaus was built and optimized for use on desktop devices. Some
-            features may not be available on mobile. It is recommended that you
-            switch to your desktop device for the optimal experience.
+            features may not be available on mobile.
+          </Text>
+          <Text pb={2} color="gray">
+            It is recommended that you switch to your desktop device for the
+            optimal experience.
           </Text>
         </ModalBody>
 
