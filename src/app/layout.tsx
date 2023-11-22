@@ -3,8 +3,51 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Drumhaus",
-  description: "A web-based drum sequencer and synthesizer.",
+  title: {
+    template: "%s | Drumhaus",
+    default: "Drumhaus",
+  },
+
+  description:
+    "Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends.",
+
+  keywords: [
+    "Drumhaus",
+    "drum machine",
+    "online drum machine",
+    "web based drum machine",
+    "browser controlled drum machine",
+    "online sampler",
+    "browser sampler",
+    "digital audio workstation",
+    "DAW",
+    "online DAW",
+    "music software",
+    "drum haus",
+    "drums",
+    "bauhaus",
+    "samples",
+    "drum samples",
+    "online drum maker",
+    "web based",
+    "music",
+    "creative",
+    "code",
+    "software engineer",
+    "software",
+    "Max Fung",
+  ],
+
+  creator: "Max Fung",
+
+  category: "music",
+
+  openGraph: {
+    title: "Drumhaus",
+    description:
+      "Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends.",
+    images: "/opengraph-image.png",
+  },
 };
 
 export default function RootLayout({
