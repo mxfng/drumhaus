@@ -153,7 +153,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     setPreset(newPreset);
     setCleanPreset(newPreset);
     setSelectedPreset(newPreset.name);
-    setSelectedKit(newPreset._kit.name);
     setPresetOptions((prevOptions) => [...prevOptions, presetToSave]);
   };
 
@@ -258,8 +257,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     if (isConfirmed) {
       const selectedPresetName = event.target.value;
+      console.log(selectedPresetName);
       const presetOption = presetOptions.find(
-        (preset) => preset.name === selectedPresetName
+        (preset) => preset().name === selectedPresetName
       );
 
       if (presetOption) {
