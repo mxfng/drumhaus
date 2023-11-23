@@ -173,7 +173,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     // Add new presets to the list of options (if provided)
     if (functionToSave) {
-      setPresetOptions((prevOptions) => [...prevOptions, functionToSave]);
+      addOrUpdatePreset(functionToSave);
     }
   };
 
@@ -220,7 +220,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       try {
         const jsonContent: Preset = JSON.parse(e.target?.result as string);
         const presetOption = () => jsonContent;
-        updateStatesOnPresetChange(jsonContent, presetOption);
+        updateStatesOnPresetChange(jsonContent);
       } catch (error) {
         console.error("Error parsing DH JSON:", error);
       }
@@ -364,7 +364,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
       if (presetOption) {
         const newPreset = presetOption();
-        updateStatesOnPresetChange(newPreset);
+        updateStatesOnPresetChange(newPreset, presetOption);
       } else {
         console.error(
           `Preset ${name} was not found in options: ${presetOptions}`
@@ -374,6 +374,21 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [presetOptions, stopPlayingOnAction]
   );
+
+  const addOrUpdatePreset = (newOption: () => Preset) => {
+    const index = presetOptions.findIndex(
+      (option) => option().name == newOption().name
+    );
+
+    if (index !== -1) {
+      presetOptions[index] = newOption;
+    } else {
+      setPresetOptions((prevPresetOptions) => {
+        const newPresetOptions = [...prevPresetOptions, newOption];
+        return newPresetOptions;
+      });
+    }
+  };
 
   const handlePresetChange = useCallback(() => {
     if (isPresetChangeModalOpen) setIsPresetChangeModalOpen(false);
