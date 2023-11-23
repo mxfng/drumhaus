@@ -309,7 +309,8 @@ const Drumhaus = () => {
     return () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
-  }, [isModal, togglePlay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModal]);
 
   // r e g i s t e r   s e r v i c e   w o r k e r
   useEffect(() => {
