@@ -242,8 +242,8 @@ const Drumhaus = () => {
       toneLPFilter.current = new Tone.Filter(15000, "lowpass");
       toneHPFilter.current = new Tone.Filter(0, "highpass");
       tonePhaser.current = new Tone.Phaser({
-        frequency: 5,
-        octaves: 4,
+        frequency: 1,
+        octaves: 3,
         baseFrequency: 1000,
       });
       toneReverb.current = new Tone.Reverb(1);
