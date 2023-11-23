@@ -17,7 +17,7 @@ import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -33,6 +33,7 @@ import { ErrorModal } from "../modal/ErrorModal";
 import { SaveModal } from "../modal/SaveModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
+import { PresetChangeModal } from "../modal/PresetChangeModal";
 
 type PresetControlProps = {
   preset: Preset;
@@ -130,6 +131,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isErrorModalShowing, setIsErrorModalShowing] = useState(false);
+  const [isPresetChangeModalOpen, setIsPresetChangeModalOpen] = useState(false);
   const [shareableLink, setShareableLink] = useState("");
   const modalCloseRef = useRef(null);
 
@@ -175,11 +177,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const stopPlayingOnAction = () => {
+  const stopPlayingOnAction: () => void = useCallback(() => {
     if (isPlaying) {
       togglePlay();
     }
-  };
+  }, [isPlaying]);
 
   const handleSave = (customName: string) => {
     const presetFunctionToSave = createPresetFunction(customName);
@@ -311,9 +313,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     setIsErrorModalShowing(false);
   };
 
-  const handlePresetChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    stopPlayingOnAction();
+  const closePresetChangeModal = () => {
+    setIsPresetChangeModalOpen(false);
+  };
 
+  const [presetToChange, setPresetToChange] = useState<string>("");
+
+  const handlePresetChangeRequest = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     // Deep equality check between current states and cached preset states
     const cp = cleanPreset;
     const changesMade =
@@ -336,25 +344,41 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       sequences !== cp._sequences ||
       chain !== cp._chain;
 
-    let isConfirmed = true;
-    if (changesMade) {
-      isConfirmed = window.confirm(
-        "Are you sure you want to switch to a new preset? You will lose any unsaved work on the current preset."
-      );
-    }
+    const newPreset = event.target.value;
 
-    if (isConfirmed) {
-      const selectedPresetName = event.target.value;
+    if (changesMade) {
+      setIsPresetChangeModalOpen(true);
+      setPresetToChange(newPreset);
+    } else {
+      switchPreset(newPreset);
+    }
+  };
+
+  const switchPreset = useCallback(
+    (name: string) => {
+      stopPlayingOnAction();
+
       const presetOption = presetOptions.find(
-        (preset) => preset().name === selectedPresetName
+        (preset) => preset().name === name
       );
 
       if (presetOption) {
         const newPreset = presetOption();
         updateStatesOnPresetChange(newPreset);
+      } else {
+        console.error(
+          `Preset ${name} was not found in options: ${presetOptions}`
+        );
       }
-    }
-  };
+    },
+    [presetOptions, stopPlayingOnAction]
+  );
+
+  const handlePresetChange = useCallback(() => {
+    if (isPresetChangeModalOpen) setIsPresetChangeModalOpen(false);
+    const selectedPresetName = presetToChange;
+    switchPreset(selectedPresetName);
+  }, [presetToChange]);
 
   useEffect(() => {
     // Add custom presets loaded via URL search params
@@ -503,7 +527,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 h="40px"
                 borderRadius="8px"
                 cursor="pointer"
-                onChange={handlePresetChange}
+                onChange={handlePresetChangeRequest}
                 pl={4}
               >
                 {presetOptions.map((preset) => (
@@ -681,6 +705,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         modalCloseRef={modalCloseRef}
       />
       <ErrorModal isOpen={isErrorModalShowing} onClose={closeErrorModal} />
+      <PresetChangeModal
+        isOpen={isPresetChangeModalOpen}
+        onClose={closePresetChangeModal}
+        onChange={handlePresetChange}
+        modalCloseRef={modalCloseRef}
+      />
     </>
   );
 };
