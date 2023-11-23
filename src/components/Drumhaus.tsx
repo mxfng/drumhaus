@@ -122,7 +122,13 @@ const Drumhaus = () => {
 
           customPresetAlert({
             render: () => (
-              <Box bg="silver" color="gray" p={3} borderRadius="8px">
+              <Box
+                bg="silver"
+                color="gray"
+                p={3}
+                borderRadius="8px"
+                className="neumorphic"
+              >
                 <Text>
                   {`You received a custom preset called "${newPreset.name}"!`}
                 </Text>
