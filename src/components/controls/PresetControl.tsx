@@ -177,11 +177,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const stopPlayingOnAction: () => void = useCallback(() => {
+  const stopPlayingOnAction = () => {
     if (isPlaying) {
       togglePlay();
     }
-  }, [isPlaying]);
+  };
 
   const handleSave = (customName: string) => {
     const presetFunctionToSave = createPresetFunction(customName);
@@ -371,6 +371,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         );
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [presetOptions, stopPlayingOnAction]
   );
 
@@ -378,7 +379,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     if (isPresetChangeModalOpen) setIsPresetChangeModalOpen(false);
     const selectedPresetName = presetToChange;
     switchPreset(selectedPresetName);
-  }, [presetToChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetToChange, isPresetChangeModalOpen]);
 
   useEffect(() => {
     // Add custom presets loaded via URL search params
