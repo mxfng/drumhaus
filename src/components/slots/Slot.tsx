@@ -9,6 +9,7 @@ import {
   Grid,
   GridItem,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import "@fontsource-variable/pixelify-sans";
 import {
@@ -306,36 +307,40 @@ export const Slot: React.FC<SlotParams> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 borderRadius="8px"
               >
-                <Button
-                  title="Mute"
-                  h="30px"
-                  w="30px"
-                  bg="transparent"
-                  borderRadius="8px 0 0 8px"
-                  p="0px"
-                  onClick={() => toggleMute(sample.id)}
-                  className="raised"
-                >
-                  {mutes[sample.id] ? (
-                    <ImVolumeMute2 color="#B09374" />
-                  ) : (
-                    <ImVolumeMute color="#B09374" />
-                  )}
-                </Button>
-                <Button
-                  title="Solo"
-                  h="30px"
-                  w="30px"
-                  bg="transparent"
-                  borderRadius="0 8px 8px 0"
-                  p="0px"
-                  onClick={() => toggleSolo(sample.id)}
-                  className="raised"
-                >
-                  <MdHeadphones
-                    color={solos[sample.id] ? "darkorange" : "B09374"}
-                  />
-                </Button>
+                <Tooltip label="Mute" color="darkorange">
+                  <Button
+                    title="Mute"
+                    h="30px"
+                    w="30px"
+                    bg="transparent"
+                    borderRadius="8px 0 0 8px"
+                    p="0px"
+                    onClick={() => toggleMute(sample.id)}
+                    className="raised"
+                  >
+                    {mutes[sample.id] ? (
+                      <ImVolumeMute2 color="#B09374" />
+                    ) : (
+                      <ImVolumeMute color="#B09374" />
+                    )}
+                  </Button>
+                </Tooltip>
+                <Tooltip label="Solo" color="darkorange">
+                  <Button
+                    title="Solo"
+                    h="30px"
+                    w="30px"
+                    bg="transparent"
+                    borderRadius="0 8px 8px 0"
+                    p="0px"
+                    onClick={() => toggleSolo(sample.id)}
+                    className="raised"
+                  >
+                    <MdHeadphones
+                      color={solos[sample.id] ? "darkorange" : "B09374"}
+                    />
+                  </Button>
+                </Tooltip>
               </Flex>
             </Center>
           </GridItem>
