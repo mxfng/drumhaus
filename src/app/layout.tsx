@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     "drum machine",
     "online drum machine",
     "web based drum machine",
+    "free online drum machine",
     "browser controlled drum machine",
     "online sampler",
     "browser sampler",
