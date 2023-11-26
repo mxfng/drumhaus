@@ -126,7 +126,7 @@ const Drumhaus = () => {
                   borderRadius="8px"
                   className="neumorphic"
                 >
-                  <Text>{`The preset specified in the link does not exist.`}</Text>
+                  <Text>{`The preset in the provided link could not be found.`}</Text>
                 </Box>
               ),
             });
