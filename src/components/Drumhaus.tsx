@@ -171,7 +171,14 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, releases, chain, mutes, solos, samples]);
+  }, [
+    isPlaying,
+    releasesCache,
+    chainCache,
+    mutesCache,
+    solosCache,
+    samplesCache,
+  ]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
