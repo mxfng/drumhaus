@@ -19,23 +19,33 @@ function DrumhausFallback() {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
+  let title: string;
+
   const presetKey = searchParams.preset;
 
-  let title: string;
-  if (presetKey) {
-    // This depends on the availability of Drumhaus' host
-    const response = await fetch(
-      `https://www.drumha.us/api/presets?preset_key=${presetKey}`
-    );
-    const data = await response.json();
+  try {
+    if (presetKey) {
+      // This depends on the availability of Drumhaus' host
+      const response = await fetch(
+        `https://www.drumha.us/api/presets?preset_key=${presetKey}`
+      );
 
-    if (data) {
-      title = `Drumhaus | ${data.presets.rows[0].preset_data.name}`;
+      const data = await response.json();
+
+      if (data.presets.rows[0]) {
+        title = `Drumhaus | ${data.presets.rows[0].preset_data.name}`;
+      } else {
+        title = "Drumhaus";
+      }
     } else {
       title = "Drumhaus";
     }
-  } else {
+  } catch (error) {
     title = "Drumhaus";
+    console.error(
+      `There was an error while fetching the title for the provided preset_key ${presetKey}`,
+      error
+    );
   }
 
   return {
@@ -87,7 +97,7 @@ export async function generateMetadata({
   };
 }
 
-export default function Home({ searchParams }: Props) {
+export default function Home() {
   return (
     <Box w="100%" h="100%">
       <Box w="100%" h="100vh" minW={1538} minH={1050} position="relative">
