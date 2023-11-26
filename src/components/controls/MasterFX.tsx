@@ -50,6 +50,7 @@ export const MasterFX: React.FC<MasterFXProps> = ({
                 knobTransformRange={[0, 15000]}
                 knobUnits="Hz"
                 exponential={true}
+                defaultValue={100}
               />
             </GridItem>
             <GridItem>
@@ -58,6 +59,7 @@ export const MasterFX: React.FC<MasterFXProps> = ({
                 knobValue={phaser}
                 setKnobValue={setPhaser}
                 knobTitle="PHASER"
+                defaultValue={0}
               />
             </GridItem>
             <GridItem>
@@ -69,6 +71,7 @@ export const MasterFX: React.FC<MasterFXProps> = ({
                 knobTransformRange={[0, 15000]}
                 knobUnits="Hz"
                 exponential={true}
+                defaultValue={0}
               />
             </GridItem>
             <GridItem>
@@ -77,6 +80,7 @@ export const MasterFX: React.FC<MasterFXProps> = ({
                 knobValue={reverb}
                 setKnobValue={setReverb}
                 knobTitle="REVERB"
+                defaultValue={0}
               />
             </GridItem>
           </Grid>

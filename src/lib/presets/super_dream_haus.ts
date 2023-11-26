@@ -392,5 +392,5 @@ export const super_dream_haus = (): Preset => ({
   _reverb: 56,
   _compThreshold: 51,
   _compRatio: 52,
-  _masterVolume: 95,
+  _masterVolume: 92,
 });

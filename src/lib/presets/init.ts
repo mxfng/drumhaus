@@ -11,8 +11,8 @@ export const init = (): Preset => ({
   _phaser: 0,
   _reverb: 0,
   _compThreshold: 100,
-  _compRatio: 40,
-  _masterVolume: 90,
+  _compRatio: 43,
+  _masterVolume: 92,
   _sequences: Array.from({ length: 8 }, () =>
     Array.from({ length: 2 }, () => [
       Array.from({ length: 16 }, () => false),

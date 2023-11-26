@@ -616,6 +616,7 @@ const Drumhaus = () => {
                   knobTitle="MASTER VOLUME"
                   knobTransformRange={[-46, 4]}
                   knobUnits="dB"
+                  defaultValue={92}
                 />
               </GridItem>
             </Grid>

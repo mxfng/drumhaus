@@ -187,6 +187,7 @@ export const TransportControl: React.FC<TransportControlProps> = ({
             knobValue={swing}
             setKnobValue={setSwing}
             knobTitle="SWING"
+            defaultValue={0}
           />
         </Flex>
       </Center>

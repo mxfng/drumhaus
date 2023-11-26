@@ -368,5 +368,5 @@ export const amsterdam = (): Preset => ({
   _reverb: 53,
   _compThreshold: 43,
   _compRatio: 40,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

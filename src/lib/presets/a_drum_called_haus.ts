@@ -408,5 +408,5 @@ export const a_drum_called_haus = (): Preset => ({
   _reverb: 32,
   _compThreshold: 58,
   _compRatio: 54,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });
