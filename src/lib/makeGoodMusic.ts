@@ -13,31 +13,36 @@ export default function makeGoodMusic(
   solos: boolean[],
   sequences: Sequences,
   mutes: boolean[],
+  pitches: number[],
   setStepIndex: React.Dispatch<React.SetStateAction<number>>
 ) {
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
       function triggerSample(slot: number, velocity: number) {
-        samples[slot].sampler.triggerRelease("C2", time);
+        const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
+        samples[slot].sampler.triggerRelease(_pitch, time);
         if (samples[slot].name !== "OHat") {
-          samples[slot].sampler.triggerRelease("C2", time);
+          samples[slot].sampler.triggerRelease(_pitch, time);
           samples[slot].envelope.triggerAttack(time);
           samples[slot].envelope.triggerRelease(
             time + transformKnobValue(releases[slot], [0, durations[slot]])
           );
-          samples[slot].sampler.triggerAttack("C2", time, velocity);
+
+          samples[slot].sampler.triggerAttack(_pitch, time, velocity);
         } else {
           triggerOHat(velocity);
         }
       }
 
       function muteOHatOnHat(slot: number) {
-        if (slot == 4) samples[5].sampler.triggerRelease("C2", time);
+        const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
+        if (slot == 4) samples[5].sampler.triggerRelease(_pitch, time);
       }
 
       function triggerOHat(velocity: number) {
         samples[5].envelope.triggerAttack(time);
-        samples[5].sampler.triggerAttack("C2", time, velocity);
+        const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
+        samples[5].sampler.triggerAttack(_pitch, time, velocity);
       }
 
       function updateBarByChain() {

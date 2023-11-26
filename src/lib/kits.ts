@@ -37,6 +37,7 @@ export const drumhaus = (): Kit => ({
   _filters: [50, 50, 50, 50, 50, 50, 50, 50],
   _volumes: [92, 92, 92, 92, 92, 92, 92, 92],
   _pans: [50, 50, 50, 50, 50, 50, 50, 50],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _solos: [false, false, false, false, false, false, false, false],
   _mutes: [false, false, false, false, false, false, false, false],
 });
@@ -62,6 +63,7 @@ export const organic = (): Kit => ({
   _releases: [21, 30, 28, 23, 29, 100, 54, 100],
   _filters: [50, 50, 50, 50, 50, 50, 50, 50],
   _volumes: [92, 92, 90, 92, 83, 87, 92, 78],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _pans: [50, 50, 61, 36, 50, 27, 50, 50],
   _solos: [false, false, false, false, false, false, false, false],
   _mutes: [false, false, false, false, false, false, false, false],
@@ -88,6 +90,7 @@ export const funk = (): Kit => ({
   _releases: [49, 10, 42, 10, 10, 100, 40, 100],
   _filters: [50, 50, 50, 50, 50, 50, 56, 50],
   _pans: [50, 50, 50, 50, 50, 50, 62, 50],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _volumes: [82, 79, 77, 82, 82, 82, 79, 84],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
@@ -115,6 +118,7 @@ export const rnb = (): Kit => ({
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
   _volumes: [100, 97, 99, 100, 97, 97, 85, 100],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -141,6 +145,7 @@ export const trap = (): Kit => ({
   _filters: [50, 50, 56, 50, 50, 50, 56, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
   _volumes: [84, 80, 86, 59, 89, 90, 85, 88],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -164,6 +169,7 @@ export const eighties = (): Kit => ({
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
   _pans: [50, 70, 50, 50, 36, 50, 62, 50],
   _volumes: [91, 77, 85, 79, 86, 90, 74, 88],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -190,6 +196,7 @@ export const tech_house = (): Kit => ({
   _filters: [50, 50, 54, 50, 50, 50, 55, 50],
   _pans: [50, 50, 50, 50, 50, 50, 35, 66],
   _volumes: [83, 83, 85, 87, 70, 82, 80, 79],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -216,6 +223,7 @@ export const techno = (): Kit => ({
   _filters: [50, 4, 54, 50, 50, 50, 55, 50],
   _pans: [50, 50, 50, 50, 36, 62, 35, 66],
   _volumes: [92, 90, 85, 78, 74, 73, 85, 88],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -239,6 +247,7 @@ export const indie = (): Kit => ({
   _filters: [50, 50, 50, 50, 50, 50, 50, 50],
   _pans: [50, 50, 50, 37, 50, 50, 50, 50],
   _volumes: [96, 88, 98, 76, 84, 80, 92, 78],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
@@ -262,6 +271,7 @@ export const jungle = (): Kit => ({
   _filters: [13, 55, 58, 50, 50, 50, 50, 26],
   _pans: [50, 50, 50, 37, 50, 50, 33, 50],
   _volumes: [94, 81, 95, 76, 84, 75, 92, 76],
+  _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
   _mutes: [false, false, false, false, false, false, false, false],
   _solos: [false, false, false, false, false, false, false, false],
 });
