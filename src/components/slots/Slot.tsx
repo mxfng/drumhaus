@@ -375,7 +375,7 @@ export const Slot: React.FC<SlotParams> = ({
                     className="raised"
                   >
                     <MdHeadphones
-                      color={solos[sample.id] ? "darkorange" : "B09374"}
+                      color={solos[sample.id] ? "darkorange" : "#B09374"}
                     />
                   </Button>
                 </Tooltip>
