@@ -668,6 +668,18 @@ const Drumhaus = () => {
                 >
                   Max Fung.
                 </Link>
+                <Text color="gray" fontSize={14} ml={1}>
+                  Enjoying your time here?
+                </Text>
+                <Link
+                  href="https://www.buymeacoffee.com/maxfung"
+                  target="_blank"
+                  color="gray"
+                  ml={1}
+                  fontSize={14}
+                >
+                  Buy me a coffee!
+                </Link>
               </Flex>
             </Center>
           </Box>
