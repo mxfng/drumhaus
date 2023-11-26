@@ -17,13 +17,7 @@ import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
-import {
-  KeyboardEventHandler,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -64,6 +58,7 @@ type PresetControlProps = {
   pans: number[];
   solos: boolean[];
   mutes: boolean[];
+  pitches: number[];
   chain: number;
   isPlaying: boolean;
   togglePlay: () => Promise<void>;
@@ -94,6 +89,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   pans,
   solos,
   mutes,
+  pitches,
   chain,
   isPlaying,
   togglePlay,
@@ -151,6 +147,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _attacks: attacks,
       _releases: releases,
       _filters: filters,
+      _pitches: pitches,
       _pans: pans,
       _volumes: volumes,
       _mutes: mutes,
@@ -340,6 +337,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       !volumes.every((v, i) => v == cp._kit._volumes[i]) ||
       !pans.every((v, i) => v == cp._kit._pans[i]) ||
       !releases.every((v, i) => v == cp._kit._releases[i]) ||
+      !pitches.every((v, i) => v == cp._kit._pitches[i]) ||
       bpm !== cp._bpm ||
       swing !== cp._swing ||
       lowPass !== cp._lowPass ||
@@ -416,6 +414,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           _attacks: preset._kit._attacks,
           _releases: preset._kit._releases,
           _filters: preset._kit._filters,
+          _pitches: preset._kit._pitches,
           _pans: preset._kit._pans,
           _volumes: preset._kit._volumes,
           _mutes: preset._kit._mutes,

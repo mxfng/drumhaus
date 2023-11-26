@@ -28,6 +28,7 @@ export type Kit = {
   _filters: number[];
   _volumes: number[];
   _pans: number[];
+  _pitches: number[];
   _solos: boolean[];
   _mutes: boolean[];
 };

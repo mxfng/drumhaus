@@ -256,7 +256,7 @@ export const Slot: React.FC<SlotParams> = ({
     sample.envelope.triggerRelease(
       time + transformKnobValue(release, [0, sampleDuration])
     );
-    sample.sampler.triggerAttack("C2", time);
+    sample.sampler.triggerAttack("C1", time);
   };
 
   return (
