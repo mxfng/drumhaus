@@ -20,6 +20,7 @@ export const so_there_i_was = (): Preset => ({
     _filters: [36, 50, 50, 50, 50, 100, 4, 50],
     _pans: [50, 50, 50, 50, 50, 50, 50, 50],
     _volumes: [92, 92, 92, 92, 64, 51, 92, 92],
+    _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
     _mutes: [false, false, false, false, false, false, false, false],
     _solos: [false, false, false, false, false, false, false, false],
   },
