@@ -116,25 +116,41 @@ const Drumhaus = () => {
 
           const data = await response.json();
 
-          const newPreset: Preset = data.presets.rows[0].preset_data;
+          if (data.presets.rows.length < 1) {
+            customPresetAlert({
+              render: () => (
+                <Box
+                  bg="silver"
+                  color="gray"
+                  p={3}
+                  borderRadius="8px"
+                  className="neumorphic"
+                >
+                  <Text>{`The preset specified in the link does not exist.`}</Text>
+                </Box>
+              ),
+            });
+          } else {
+            const newPreset: Preset = data.presets.rows[0].preset_data;
 
-          setPreset(newPreset);
+            setPreset(newPreset);
 
-          customPresetAlert({
-            render: () => (
-              <Box
-                bg="silver"
-                color="gray"
-                p={3}
-                borderRadius="8px"
-                className="neumorphic"
-              >
-                <Text>
-                  {`You received a custom preset called "${newPreset.name}"!`}
-                </Text>
-              </Box>
-            ),
-          });
+            customPresetAlert({
+              render: () => (
+                <Box
+                  bg="silver"
+                  color="gray"
+                  p={3}
+                  borderRadius="8px"
+                  className="neumorphic"
+                >
+                  <Text>
+                    {`You received a custom preset called "${newPreset.name}"!`}
+                  </Text>
+                </Box>
+              ),
+            });
+          }
         } catch (error) {
           console.error(
             `Error fetching provided preset key ${presetKey}:`,
