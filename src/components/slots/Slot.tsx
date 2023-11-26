@@ -17,7 +17,7 @@ import {
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import * as Tone from "tone/build/esm/index";
@@ -44,6 +44,8 @@ type SlotParams = {
   setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
   bg?: string;
+  isModal: boolean;
+  slotIndex: number;
 };
 
 export const Slot: React.FC<SlotParams> = ({
@@ -64,6 +66,8 @@ export const Slot: React.FC<SlotParams> = ({
   solos,
   setSolos,
   setDurations,
+  isModal,
+  slotIndex,
   ...props
 }) => {
   const [attack, setAttack] = useState(attacks[sample.id]);
@@ -191,24 +195,58 @@ export const Slot: React.FC<SlotParams> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
 
-  const toggleMute = (slot: number) => {
-    setMutes((prevMutes) => {
-      const newMutes = [...prevMutes];
-      newMutes[slot] = !newMutes[slot];
-      if (newMutes[slot]) {
-        sample.sampler.triggerRelease("C2", Tone.now());
-      }
-      return newMutes;
-    });
-  };
+  const toggleMute = useCallback(
+    (slot: number) => {
+      setMutes((prevMutes) => {
+        const newMutes = [...prevMutes];
+        newMutes[slot] = !newMutes[slot];
+        if (newMutes[slot]) {
+          sample.sampler.triggerRelease("C2", Tone.now());
+        }
+        return newMutes;
+      });
+    },
+    [setMutes, sample]
+  );
 
-  const toggleSolo = (slot: number) => {
-    setSolos((prevSolos) => {
-      const newSolos = [...prevSolos];
-      newSolos[slot] = !newSolos[slot];
-      return newSolos;
-    });
-  };
+  const toggleSolo = useCallback(
+    (slot: number) => {
+      setSolos((prevSolos) => {
+        const newSolos = [...prevSolos];
+        newSolos[slot] = !newSolos[slot];
+        return newSolos;
+      });
+    },
+    [setSolos]
+  );
+
+  useEffect(() => {
+    const muteOnKeyInput = (event: KeyboardEvent) => {
+      if (event.key === "m" && !isModal && slotIndex == sample.id) {
+        toggleMute(sample.id);
+      }
+    };
+
+    window.addEventListener("keydown", muteOnKeyInput);
+
+    return () => {
+      window.removeEventListener("keydown", muteOnKeyInput);
+    };
+  }, [slotIndex, isModal, sample.id, toggleMute]);
+
+  useEffect(() => {
+    const soloOnKeyInput = (event: KeyboardEvent) => {
+      if (event.key === "s" && !isModal && slotIndex == sample.id) {
+        toggleSolo(sample.id);
+      }
+    };
+
+    window.addEventListener("keydown", soloOnKeyInput);
+
+    return () => {
+      window.removeEventListener("keydown", soloOnKeyInput);
+    };
+  }, [slotIndex, isModal, sample.id, toggleSolo]);
 
   const playSample = () => {
     const time = Tone.now();
@@ -307,7 +345,7 @@ export const Slot: React.FC<SlotParams> = ({
                 boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
                 borderRadius="8px"
               >
-                <Tooltip label="Mute" color="darkorange">
+                <Tooltip label="Mute [M]" color="darkorange" openDelay={500}>
                   <Button
                     title="Mute"
                     h="30px"
@@ -325,7 +363,7 @@ export const Slot: React.FC<SlotParams> = ({
                     )}
                   </Button>
                 </Tooltip>
-                <Tooltip label="Solo" color="darkorange">
+                <Tooltip label="Solo [S]" color="darkorange" openDelay={500}>
                   <Button
                     title="Solo"
                     h="30px"
