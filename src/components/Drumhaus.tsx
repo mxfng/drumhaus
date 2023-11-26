@@ -507,6 +507,7 @@ const Drumhaus = () => {
                 solos={solos}
                 setSolos={setSolos}
                 setDurations={setDurations}
+                isModal={isModal}
               />
             </Box>
 
@@ -519,6 +520,7 @@ const Drumhaus = () => {
                     onClick={() => togglePlay()}
                     className="neumorphicTallRaised"
                     outline="none"
+                    onKeyDown={(ev) => ev.preventDefault()}
                   >
                     {isPlaying ? (
                       <IoPauseSharp size={50} color="#ff7b00" />

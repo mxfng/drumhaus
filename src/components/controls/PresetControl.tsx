@@ -17,7 +17,13 @@ import { FaFolderOpen } from "react-icons/fa";
 import { IoShareSharp } from "react-icons/io5";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  KeyboardEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
 import { init } from "@/lib/presets/init";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
@@ -482,6 +488,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 cursor="pointer"
                 pl={4}
                 onChange={handleKitChange}
+                onKeyDown={(ev) => ev.preventDefault()}
               >
                 {kitOptions.map((kit) => (
                   <option key={kit().name} value={kit().name}>
@@ -545,6 +552,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 borderRadius="8px"
                 cursor="pointer"
                 onChange={handlePresetChangeRequest}
+                onKeyDown={(ev) => ev.preventDefault()}
                 pl={4}
               >
                 {presetOptions.map((preset) => (
@@ -595,7 +603,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           >
             <GridItem>
               <Center>
-                <Tooltip label="Download to file" color="darkorange">
+                <Tooltip
+                  label="Download to file"
+                  color="darkorange"
+                  openDelay={500}
+                >
                   <Button
                     onClick={() => setIsSaveModalOpen(true)}
                     w="100%"
@@ -619,7 +631,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             </GridItem>
             <GridItem>
               <Center>
-                <Tooltip label="Load from file" color="darkorange">
+                <Tooltip
+                  label="Load from file"
+                  color="darkorange"
+                  openDelay={500}
+                >
                   <Button
                     onClick={handleLoad}
                     w="100%"
@@ -643,7 +659,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             </GridItem>
             <GridItem>
               <Center>
-                <Tooltip label="Share as link" color="darkorange">
+                <Tooltip
+                  label="Share as link"
+                  color="darkorange"
+                  openDelay={500}
+                >
                   <Button
                     onClick={() => setIsSharingModalOpen(true)}
                     w="100%"
@@ -668,7 +688,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             </GridItem>
             <GridItem>
               <Center>
-                <Tooltip label="Reset all" color="darkorange">
+                <Tooltip label="Reset all" color="darkorange" openDelay={500}>
                   <Button
                     onClick={() => setIsResetModalOpen(true)}
                     w="100%"

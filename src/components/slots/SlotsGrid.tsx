@@ -1,7 +1,7 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { Slot } from "./Slot";
 import { Sample, Sequences } from "@/types/types";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type SlotsGridProps = {
   samples: Sample[];
@@ -25,9 +25,9 @@ type SlotsGridProps = {
   solos: boolean[];
   setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
+  isModal: boolean;
 };
 
-const SLOTS_GAP = 2;
 const NO_OF_SLOTS = 8;
 
 export const SlotsGrid: React.FC<SlotsGridProps> = ({
@@ -52,35 +52,39 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   solos,
   setSolos,
   setDurations,
+  isModal,
 }) => {
-  const [parentW, setParentW] = useState<number>(0);
   const slotsRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    const getParentWOnResize = () => {
-      if (slotsRef.current) {
-        setParentW(slotsRef.current.offsetWidth);
+  const toggleCurrentSequence = useCallback(
+    (slot: number) => {
+      setCurrentSequence(sequences[slot][variation][0]);
+      setSlotIndex(slot);
+    },
+    [sequences, variation, setCurrentSequence, setSlotIndex]
+  );
+
+  const handleArrowKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight" && !isModal) {
+        const newSlot = (slotIndex + 1) % 8;
+        toggleCurrentSequence(newSlot);
+      } else if (event.key === "ArrowLeft" && !isModal) {
+        const newSlot = (slotIndex - 1 + 8) % 8;
+        toggleCurrentSequence(newSlot);
       }
-    };
+    },
+    [isModal, slotIndex, toggleCurrentSequence]
+  );
 
-    window.addEventListener("resize", getParentWOnResize);
-    getParentWOnResize();
-
+  useEffect(() => {
+    window.addEventListener("keydown", handleArrowKeyPress);
     return () => {
-      window.removeEventListener("resize", getParentWOnResize);
+      window.removeEventListener("keydown", handleArrowKeyPress);
     };
-  }, []);
+  }, [handleArrowKeyPress]);
 
-  const slotW = () => {
-    return parentW / 8 - SLOTS_GAP;
-  };
-
-  const toggleCurrentSequence = (node: number) => {
-    setCurrentSequence(sequences[node][variation][0]);
-    setSlotIndex(node);
-  };
-
-  const waveColors = [
+  const slotColors = [
     "#213062",
     "#e9902f",
     "#d72529",
@@ -108,7 +112,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
           transition="all 0.5s ease"
         >
           <Slot
-            color={waveColors[index]}
+            color={slotColors[index]}
             key={`DHSlot-${index}`}
             sample={sample}
             attacks={attacks}
@@ -126,6 +130,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             solos={solos}
             setSolos={setSolos}
             setDurations={setDurations}
+            isModal={isModal}
+            slotIndex={slotIndex}
             bg={slotIndex == index ? "#F7F1EA" : "#E8E3DD"}
           />
         </GridItem>
