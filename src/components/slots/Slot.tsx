@@ -24,6 +24,7 @@ import * as Tone from "tone/build/esm/index";
 import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
+import { init } from "@/lib/presets/init";
 
 type SlotParams = {
   color?: string;
@@ -306,6 +307,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobValue={attack}
               setKnobValue={setAttack}
               knobTitle="ATTACK"
+              defaultValue={0}
             />
           </GridItem>
           <GridItem>
@@ -317,6 +319,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobTitle="FILTER"
               filter={true}
               exponential={true}
+              defaultValue={50}
             />
           </GridItem>
           <GridItem>
@@ -326,6 +329,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobValue={release}
               setKnobValue={setRelease}
               knobTitle="RELEASE"
+              defaultValue={100}
             />
           </GridItem>
 
@@ -337,6 +341,7 @@ export const Slot: React.FC<SlotParams> = ({
               setKnobValue={setPan}
               knobTitle="PAN"
               knobTransformRange={[-100, 100]}
+              defaultValue={50}
             />
           </GridItem>
           <GridItem w="100%">
@@ -391,6 +396,7 @@ export const Slot: React.FC<SlotParams> = ({
               knobTitle="VOLUME"
               knobTransformRange={[-46, 4]}
               knobUnits="dB"
+              defaultValue={92}
             />
           </GridItem>
         </Grid>

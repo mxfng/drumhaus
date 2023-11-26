@@ -38,6 +38,7 @@ export const MasterCompressor: React.FC<MasterCompressorProps> = ({
             knobTitle="THRESHOLD"
             knobTransformRange={[-30, 0]}
             knobUnits="dB"
+            defaultValue={100}
           />
           <Knob
             size={60}
@@ -46,6 +47,7 @@ export const MasterCompressor: React.FC<MasterCompressorProps> = ({
             knobTitle="RATIO"
             knobTransformRange={[1, 8]}
             knobUnits=": 1"
+            defaultValue={43}
           />
         </GridItem>
       </Grid>

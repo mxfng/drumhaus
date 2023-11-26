@@ -408,5 +408,5 @@ export const welcome_to_the_haus = (): Preset => ({
   _reverb: 52,
   _compThreshold: 28,
   _compRatio: 32,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

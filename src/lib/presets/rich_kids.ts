@@ -394,5 +394,5 @@ export const rich_kids = (): Preset => ({
   _reverb: 25,
   _compThreshold: 39,
   _compRatio: 42,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

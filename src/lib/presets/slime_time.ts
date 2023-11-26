@@ -392,5 +392,5 @@ export const slime_time = (): Preset => ({
   _reverb: 27,
   _compThreshold: 24,
   _compRatio: 55,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

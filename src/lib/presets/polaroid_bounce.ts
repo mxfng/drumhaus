@@ -383,5 +383,5 @@ export const polaroid_bounce = (): Preset => ({
   _reverb: 42,
   _compThreshold: 55,
   _compRatio: 40,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

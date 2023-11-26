@@ -374,5 +374,5 @@ export const sunflower = (): Preset => ({
   _reverb: 28,
   _compThreshold: 44,
   _compRatio: 47,
-  _masterVolume: 93,
+  _masterVolume: 92,
 });

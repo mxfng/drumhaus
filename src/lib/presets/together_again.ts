@@ -380,5 +380,5 @@ export const together_again = (): Preset => ({
   _reverb: 30,
   _compThreshold: 54,
   _compRatio: 43,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });

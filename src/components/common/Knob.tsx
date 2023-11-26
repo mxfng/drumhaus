@@ -14,6 +14,7 @@ type KnobProps = {
   knobUnits?: string;
   exponential?: boolean;
   filter?: boolean;
+  defaultValue?: number;
 };
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
@@ -62,12 +63,15 @@ export const Knob: React.FC<KnobProps> = ({
   knobUnits = "",
   exponential = false,
   filter = false,
+  defaultValue = 50,
 }) => {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [mouseDownY, setMouseDownY] = useState({ x: 0, y: 0 });
 
   const mouseY = useMotionValue(knobValue);
   const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
+
+  const immutableDefaultValue = defaultValue;
 
   useEffect(() => {
     // hacky way to set knob from presets and kits
@@ -119,6 +123,10 @@ export const Knob: React.FC<KnobProps> = ({
     setIsMouseDown(false);
   };
 
+  const handleDoubleClick = () => {
+    setKnobValue(immutableDefaultValue);
+  };
+
   return (
     <>
       <Box h={`${size + 30}px`}>
@@ -134,6 +142,7 @@ export const Knob: React.FC<KnobProps> = ({
               <motion.div
                 className="knob-hitbox"
                 onMouseDown={captureMouseDownY}
+                onDoubleClick={handleDoubleClick}
                 style={{
                   rotate: rotation,
                   width: `${size}px`,

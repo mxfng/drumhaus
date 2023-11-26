@@ -385,5 +385,5 @@ export const purple_haus = (): Preset => ({
   _reverb: 56,
   _compThreshold: 47,
   _compRatio: 40,
-  _masterVolume: 90,
+  _masterVolume: 92,
 });
