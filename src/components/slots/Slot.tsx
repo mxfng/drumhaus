@@ -303,6 +303,15 @@ export const Slot: React.FC<SlotParams> = ({
           <Text fontWeight={600} fontSize="12pt" color="brown">
             {sample.name}
           </Text>
+          <Knob
+            key={`knob-${sample.id}-pitch`}
+            size={30}
+            knobValue={pitch}
+            setKnobValue={setPitch}
+            knobTitle="PITCH"
+            knobTransformRange={[43, 88]}
+            defaultValue={50}
+          />
         </Flex>
         <Box px={4} pt={5}>
           <Button
@@ -356,12 +365,12 @@ export const Slot: React.FC<SlotParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-pitch`}
+              key={`knob-${sample.id}-pan`}
               size={50}
-              knobValue={pitch}
-              setKnobValue={setPitch}
-              knobTitle="PITCH"
-              knobTransformRange={[43, 88]}
+              knobValue={pan}
+              setKnobValue={setPan}
+              knobTitle="PAN"
+              knobTransformRange={[-100, 100]}
               defaultValue={50}
             />
           </GridItem>
