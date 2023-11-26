@@ -275,10 +275,10 @@ export const Slot: React.FC<SlotParams> = ({
         {...props}
       >
         <Flex px={4}>
-          <Text pr={2} color={color} fontWeight={900}>
+          <Text pr={2} color={color} fontSize="12pt" fontWeight={900}>
             {sample.id + 1}
           </Text>
-          <Text fontWeight={600} color="brown">
+          <Text fontWeight={600} fontSize="12pt" color="brown">
             {sample.name}
           </Text>
         </Flex>
