@@ -224,7 +224,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     reader.onload = (e) => {
       try {
         const jsonContent: Preset = JSON.parse(e.target?.result as string);
-        const presetOption = () => jsonContent;
         updateStatesOnPresetChange(jsonContent);
       } catch (error) {
         console.error("Error parsing DH JSON:", error);

@@ -74,6 +74,7 @@ const Drumhaus = () => {
   const [pans, setPans] = useState<number[]>(kit._pans);
   const [mutes, setMutes] = useState<boolean[]>(kit._mutes);
   const [solos, setSolos] = useState<boolean[]>(kit._solos);
+  const [pitches, setPitches] = useState<number[]>(kit._pitches);
   const [durations, setDurations] = useState<number[]>([
     0, 0, 0, 0, 0, 0, 0, 0,
   ]);
@@ -179,6 +180,7 @@ const Drumhaus = () => {
         solosCache,
         sequencesCache,
         mutesCache,
+        pitches,
         setStepIndex
       );
     }
@@ -194,6 +196,7 @@ const Drumhaus = () => {
     mutesCache,
     solosCache,
     samplesCache,
+    pitches,
   ]);
 
   // p r e s e t   c h a n g e
@@ -233,6 +236,7 @@ const Drumhaus = () => {
     setAttacks(kit._attacks);
     setReleases(kit._releases);
     setFilters(kit._filters);
+    setPitches(kit._pitches);
     setPans(kit._pans);
     setVolumes(kit._volumes);
     setSolos(kit._solos);
@@ -529,6 +533,8 @@ const Drumhaus = () => {
                 setMutes={setMutes}
                 solos={solos}
                 setSolos={setSolos}
+                pitches={pitches}
+                setPitches={setPitches}
                 setDurations={setDurations}
                 isModal={isModal}
               />
@@ -601,6 +607,7 @@ const Drumhaus = () => {
                   solos={solos}
                   mutes={mutes}
                   chain={chain}
+                  pitches={pitches}
                   isPlaying={isPlaying}
                   togglePlay={togglePlay}
                   isLoading={isLoading}

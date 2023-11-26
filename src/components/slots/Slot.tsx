@@ -24,7 +24,6 @@ import * as Tone from "tone/build/esm/index";
 import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
-import { init } from "@/lib/presets/init";
 
 type SlotParams = {
   color?: string;
@@ -43,6 +42,8 @@ type SlotParams = {
   setMutes: React.Dispatch<React.SetStateAction<boolean[]>>;
   solos: boolean[];
   setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
+  pitches: number[];
+  setPitches: React.Dispatch<React.SetStateAction<number[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
   bg?: string;
   isModal: boolean;
@@ -66,6 +67,8 @@ export const Slot: React.FC<SlotParams> = ({
   setMutes,
   solos,
   setSolos,
+  pitches,
+  setPitches,
   setDurations,
   isModal,
   slotIndex,
@@ -76,6 +79,7 @@ export const Slot: React.FC<SlotParams> = ({
   const [filter, setFilter] = useState(filters[sample.id]); // 0-100
   const [pan, setPan] = useState(pans[sample.id]);
   const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
+  const [pitch, setPitch] = useState(pitches[sample.id]);
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
@@ -157,6 +161,16 @@ export const Slot: React.FC<SlotParams> = ({
   }, [volume, sample.id, sample]);
 
   useEffect(() => {
+    setPitches((prevPitches) => {
+      const newPitches = [...prevPitches];
+      newPitches[sample.id] = pitch;
+      return newPitches;
+    });
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pitch, sample.id, sample]);
+
+  useEffect(() => {
     setDurations((prevDurations) => {
       const newDurations = [...prevDurations];
       newDurations[sample.id] = sampleDuration;
@@ -192,6 +206,12 @@ export const Slot: React.FC<SlotParams> = ({
 
   useEffect(() => {
     setVolume(volumes[sample.id]);
+    // Prop drilling
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sample]);
+
+  useEffect(() => {
+    setPitch(pitches[sample.id]);
     // Prop drilling
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sample]);
@@ -256,7 +276,8 @@ export const Slot: React.FC<SlotParams> = ({
     sample.envelope.triggerRelease(
       time + transformKnobValue(release, [0, sampleDuration])
     );
-    sample.sampler.triggerAttack("C1", time);
+    const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
+    sample.sampler.triggerAttack(_pitch, time);
   };
 
   return (
@@ -335,12 +356,12 @@ export const Slot: React.FC<SlotParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-pans`}
+              key={`knob-${sample.id}-pitch`}
               size={50}
-              knobValue={pan}
-              setKnobValue={setPan}
-              knobTitle="PAN"
-              knobTransformRange={[-100, 100]}
+              knobValue={pitch}
+              setKnobValue={setPitch}
+              knobTitle="PITCH"
+              knobTransformRange={[43, 88]}
               defaultValue={50}
             />
           </GridItem>

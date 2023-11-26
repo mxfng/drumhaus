@@ -24,6 +24,8 @@ type SlotsGridProps = {
   setMutes: React.Dispatch<React.SetStateAction<boolean[]>>;
   solos: boolean[];
   setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
+  pitches: number[];
+  setPitches: React.Dispatch<React.SetStateAction<number[]>>;
   setDurations: React.Dispatch<React.SetStateAction<number[]>>;
   isModal: boolean;
 };
@@ -51,6 +53,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
   setMutes,
   solos,
   setSolos,
+  pitches,
+  setPitches,
   setDurations,
   isModal,
 }) => {
@@ -129,6 +133,8 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             setMutes={setMutes}
             solos={solos}
             setSolos={setSolos}
+            pitches={pitches}
+            setPitches={setPitches}
             setDurations={setDurations}
             isModal={isModal}
             slotIndex={slotIndex}
