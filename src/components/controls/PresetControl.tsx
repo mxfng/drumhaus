@@ -40,6 +40,7 @@ import { SaveModal } from "../modal/SaveModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
+import { so_there_i_was } from "@/lib/presets/so_there_i_was";
 
 type PresetControlProps = {
   preset: Preset;
@@ -125,6 +126,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     amsterdam,
     sunflower,
     super_dream_haus,
+    so_there_i_was,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
