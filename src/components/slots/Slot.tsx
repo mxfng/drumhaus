@@ -24,7 +24,7 @@ import * as Tone from "tone/build/esm/index";
 import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
-import { Sliderz } from "../common/Slider";
+import { CustomSlider } from "../common/CustomSlider";
 
 type SlotParams = {
   color?: string;
@@ -368,11 +368,14 @@ export const Slot: React.FC<SlotParams> = ({
           </GridItem>
           <GridItem w="100%" h="100%">
             <Box position="absolute" bottom={14}>
-              <Sliderz
+              <CustomSlider
                 size={85}
                 sliderValue={pan}
                 setSliderValue={setPan}
                 defaultValue={50}
+                leftLabel="L"
+                centerLabel="|"
+                rightLabel="R"
               />
             </Box>
             <Center h="100%" w="100%">

@@ -7,17 +7,22 @@ import {
   SliderThumb,
   SliderTrack,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { transformKnobValue } from "./Knob";
 
-export const Sliderz: React.FC<any> = ({
+export const CustomSlider: React.FC<any> = ({
   size,
   title,
   sliderValue,
   setSliderValue,
   defaultValue,
+  leftLabel = "",
+  rightLabel = "",
+  centerLabel = "",
 }) => {
-  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const immutableDefaultValue = defaultValue;
 
@@ -26,12 +31,7 @@ export const Sliderz: React.FC<any> = ({
   };
 
   return (
-    <Box
-      position="relative"
-      onDoubleClick={handleDoubleClick}
-      onMouseDown={() => setIsMouseDown(true)}
-      onMouseUp={() => setIsMouseDown(false)}
-    >
+    <Box position="relative" onDoubleClick={handleDoubleClick}>
       <Box
         w={`${size}px`}
         h="10px"
@@ -49,19 +49,31 @@ export const Sliderz: React.FC<any> = ({
             min={0}
             max={100}
             onChange={(v) => setSliderValue(v)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
           >
             <SliderTrack></SliderTrack>
-            <SliderThumb
-              width={`${size / 4}px`}
-              borderRadius="8px"
-              className="neumorphicRaised"
-            />
+            <Tooltip
+              hasArrow
+              bg="darkorange"
+              color="white"
+              placement="top"
+              isOpen={showTooltip}
+              fontSize={10}
+              label={`${transformKnobValue(sliderValue, [-100, 100])}`}
+            >
+              <SliderThumb
+                width={`${size / 4}px`}
+                borderRadius="8px"
+                className="neumorphicRaised"
+              />
+            </Tooltip>
           </Slider>
         </Center>
       </Box>
 
       <Text fontSize={10} color="gray" position="absolute" left={2} bottom={5}>
-        L
+        {leftLabel}
       </Text>
       <Text
         fontSize={8}
@@ -72,7 +84,7 @@ export const Sliderz: React.FC<any> = ({
         bottom="22px"
         align="center"
       >
-        |
+        {centerLabel}
       </Text>
       <Text
         fontSize={10}
@@ -83,7 +95,7 @@ export const Sliderz: React.FC<any> = ({
         bottom={5}
         align="right"
       >
-        R
+        {rightLabel}
       </Text>
       {title ? (
         <Text
