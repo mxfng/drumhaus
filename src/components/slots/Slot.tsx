@@ -24,6 +24,7 @@ import * as Tone from "tone/build/esm/index";
 import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
+import { Sliderz } from "../common/Slider";
 
 type SlotParams = {
   color?: string;
@@ -303,15 +304,6 @@ export const Slot: React.FC<SlotParams> = ({
           <Text fontWeight={600} fontSize="12pt" color="brown">
             {sample.name}
           </Text>
-          <Knob
-            key={`knob-${sample.id}-pitch`}
-            size={30}
-            knobValue={pitch}
-            setKnobValue={setPitch}
-            knobTitle="PITCH"
-            knobTransformRange={[43, 88]}
-            defaultValue={50}
-          />
         </Flex>
         <Box px={4} pt={5}>
           <Button
@@ -346,7 +338,7 @@ export const Slot: React.FC<SlotParams> = ({
               size={50}
               knobValue={filter}
               setKnobValue={setFilter}
-              knobTitle="FILTER"
+              knobTitle="TONE"
               filter={true}
               exponential={true}
               defaultValue={50}
@@ -365,56 +357,69 @@ export const Slot: React.FC<SlotParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-pan`}
+              key={`knob-${sample.id}-pitch`}
               size={50}
-              knobValue={pan}
-              setKnobValue={setPan}
-              knobTitle="PAN"
-              knobTransformRange={[-100, 100]}
+              knobValue={pitch}
+              setKnobValue={setPitch}
+              knobTitle="PITCH"
+              knobTransformRange={[43, 88]}
               defaultValue={50}
             />
           </GridItem>
-          <GridItem w="100%">
+          <GridItem w="100%" h="100%">
+            <Box position="absolute" bottom={14}>
+              <Sliderz
+                size={85}
+                sliderValue={pan}
+                setSliderValue={setPan}
+                defaultValue={50}
+              />
+            </Box>
             <Center h="100%" w="100%">
-              <Flex
-                boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
-                borderRadius="8px"
-              >
-                <Tooltip label="Mute [M]" color="darkorange" openDelay={500}>
-                  <Button
-                    title="Mute"
-                    h="30px"
-                    w="30px"
-                    bg="transparent"
-                    borderRadius="8px 0 0 8px"
-                    p="0px"
-                    onClick={() => toggleMute(sample.id)}
-                    className="raised"
-                  >
-                    {mutes[sample.id] ? (
-                      <ImVolumeMute2 color="#B09374" />
-                    ) : (
-                      <ImVolumeMute color="#B09374" />
-                    )}
-                  </Button>
-                </Tooltip>
-                <Tooltip label="Solo [S]" color="darkorange" openDelay={500}>
-                  <Button
-                    title="Solo"
-                    h="30px"
-                    w="30px"
-                    bg="transparent"
-                    borderRadius="0 8px 8px 0"
-                    p="0px"
-                    onClick={() => toggleSolo(sample.id)}
-                    className="raised"
-                  >
-                    <MdHeadphones
-                      color={solos[sample.id] ? "darkorange" : "#B09374"}
-                    />
-                  </Button>
-                </Tooltip>
-              </Flex>
+              <Box>
+                <Flex
+                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
+                  borderRadius="8px"
+                  position="absolute"
+                  left="10px"
+                  bottom={6}
+                >
+                  <Tooltip label="Mute [M]" color="darkorange" openDelay={500}>
+                    <Button
+                      title="Mute"
+                      h="30px"
+                      w="30px"
+                      bg="transparent"
+                      borderRadius="8px 0 0 8px"
+                      p="0px"
+                      onClick={() => toggleMute(sample.id)}
+                      className="raised"
+                    >
+                      {mutes[sample.id] ? (
+                        <ImVolumeMute2 color="#B09374" />
+                      ) : (
+                        <ImVolumeMute color="#B09374" />
+                      )}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip label="Solo [S]" color="darkorange" openDelay={500}>
+                    <Button
+                      title="Solo"
+                      h="30px"
+                      w="30px"
+                      bg="transparent"
+                      borderRadius="0 8px 8px 0"
+                      p="0px"
+                      onClick={() => toggleSolo(sample.id)}
+                      className="raised"
+                    >
+                      <MdHeadphones
+                        color={solos[sample.id] ? "darkorange" : "#B09374"}
+                      />
+                    </Button>
+                  </Tooltip>
+                </Flex>
+              </Box>
             </Center>
           </GridItem>
           <GridItem>
