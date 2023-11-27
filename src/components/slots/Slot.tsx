@@ -376,6 +376,7 @@ export const Slot: React.FC<SlotParams> = ({
                 leftLabel="L"
                 centerLabel="|"
                 rightLabel="R"
+                transformRange={[-100, 100]}
               />
             </Box>
             <Center h="100%" w="100%">

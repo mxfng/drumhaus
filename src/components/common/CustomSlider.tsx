@@ -21,6 +21,7 @@ export const CustomSlider: React.FC<any> = ({
   leftLabel = "",
   rightLabel = "",
   centerLabel = "",
+  transformRange = [0, 100],
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -60,7 +61,7 @@ export const CustomSlider: React.FC<any> = ({
               placement="top"
               isOpen={showTooltip}
               fontSize={10}
-              label={`${transformKnobValue(sliderValue, [-100, 100])}`}
+              label={`${transformKnobValue(sliderValue, transformRange)}`}
             >
               <SliderThumb
                 width={`${size / 4}px`}
@@ -104,7 +105,7 @@ export const CustomSlider: React.FC<any> = ({
           w={`${size}px`}
           align="center"
           left={1}
-          bottom={-2}
+          bottom={-3}
           position="absolute"
         >
           {title}

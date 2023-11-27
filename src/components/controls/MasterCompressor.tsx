@@ -21,7 +21,7 @@ export const MasterCompressor: React.FC<MasterCompressorProps> = ({
           <Text
             transform="rotate(-90deg)"
             position="absolute"
-            left={-1}
+            left={-2}
             bottom="70px"
             color="gray"
             fontSize={12}
