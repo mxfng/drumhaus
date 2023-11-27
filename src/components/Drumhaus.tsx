@@ -236,11 +236,19 @@ const Drumhaus = () => {
     setAttacks(kit._attacks);
     setReleases(kit._releases);
     setFilters(kit._filters);
-    setPitches(kit._pitches);
     setPans(kit._pans);
     setVolumes(kit._volumes);
     setSolos(kit._solos);
     setMutes(kit._mutes);
+
+    // backwards compatibility for pitch params
+    if (kit._pitches) {
+      setPitches(kit._pitches);
+    } else {
+      // old save files
+      setPitches([50, 50, 50, 50, 50, 50, 50, 50]);
+    }
+
     return () => {
       samples.forEach((sample) => {
         sample.sampler.dispose();
