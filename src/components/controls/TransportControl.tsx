@@ -1,7 +1,6 @@
 "use client";
 
 import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
-import { Knob } from "../common/Knob";
 import { useEffect, useRef, useState } from "react";
 import { IoTriangleSharp } from "react-icons/io5";
 import { CustomSlider } from "../common/CustomSlider";
