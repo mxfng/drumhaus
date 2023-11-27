@@ -65,65 +65,79 @@ export const Knob: React.FC<KnobProps> = ({
   filter = false,
   defaultValue = 50,
 }) => {
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [mouseDownY, setMouseDownY] = useState({ x: 0, y: 0 });
+  const [isMoving, setIsMoving] = useState(false);
+  const [moveStartY, setMoveStartY] = useState({ x: 0, y: 0 });
 
-  const mouseY = useMotionValue(knobValue);
-  const rotation = useTransform(mouseY, [0, MAX_KNOB_VALUE], [-225, 45]);
+  const moveY = useMotionValue(knobValue);
+  const rotation = useTransform(moveY, [0, MAX_KNOB_VALUE], [-225, 45]);
 
   const immutableDefaultValue = defaultValue;
 
   useEffect(() => {
     // hacky way to set knob from presets and kits
-    if (!isMouseDown) {
-      mouseY.set(knobValue);
+    if (!isMoving) {
+      moveY.set(knobValue);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [knobValue]);
 
   useEffect(() => {
-    const setValueOnMouseMove = (ev: MouseEvent) => {
-      if (isMouseDown) {
+    const setValueOnMove = (ev: MouseEvent | TouchEvent) => {
+      ev.preventDefault();
+      if (isMoving) {
+        const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
         const newKnobValue = Math.max(
           0,
-          Math.min(mouseDownY.y - ev.clientY + knobValue, MAX_KNOB_VALUE)
+          Math.min(moveStartY.y - clientY + knobValue, MAX_KNOB_VALUE)
         );
-        mouseY.set(newKnobValue);
+        moveY.set(newKnobValue);
         setKnobValue(newKnobValue);
       }
     };
 
-    if (isMouseDown) {
-      window.addEventListener("mousemove", setValueOnMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+    if (isMoving) {
+      window.addEventListener("mousemove", setValueOnMove);
+      window.addEventListener("touchmove", setValueOnMove, { passive: false });
+      window.addEventListener("mouseup", handleMoveEnd);
+      window.addEventListener("touchend", handleMoveEnd);
     } else {
-      window.removeEventListener("mousemove", setValueOnMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mousemove", setValueOnMove);
+      window.removeEventListener("touchmove", setValueOnMove);
+      window.removeEventListener("mouseup", handleMoveEnd);
+      window.removeEventListener("touchend", handleMoveEnd);
     }
 
     return () => {
-      window.removeEventListener("mousemove", setValueOnMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("mousemove", setValueOnMove);
+      window.removeEventListener("touchmove", setValueOnMove);
+      window.removeEventListener("mouseup", handleMoveEnd);
+      window.removeEventListener("touchend", handleMoveEnd);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMouseDown]);
+  }, [isMoving]);
 
   useEffect(() => {
     return () => {
-      setIsMouseDown(false);
+      setIsMoving(false);
     };
   }, []);
 
-  const captureMouseDownY = (event: React.MouseEvent<HTMLDivElement>) => {
-    setIsMouseDown(true);
-    setMouseDownY({ x: event.clientX, y: event.clientY });
+  const captureMoveStartY = (
+    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+  ) => {
+    setIsMoving(true);
+    setMoveStartY({
+      x: "touches" in ev ? ev.touches[0].clientX : ev.clientX,
+      y: "touches" in ev ? ev.touches[0].clientY : ev.clientY,
+    });
   };
 
-  const handleMouseUp = () => {
-    setIsMouseDown(false);
+  const handleMoveEnd = () => {
+    setIsMoving(false);
   };
 
-  const handleDoubleClick = () => {
+  const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    ev.preventDefault();
     setKnobValue(immutableDefaultValue);
   };
 
@@ -141,7 +155,8 @@ export const Knob: React.FC<KnobProps> = ({
             <Center w="100%" h="100%" borderRadius="full" cursor="grab">
               <motion.div
                 className="knob-hitbox"
-                onMouseDown={captureMouseDownY}
+                onMouseDown={captureMoveStartY}
+                onTouchStart={captureMoveStartY}
                 onDoubleClick={handleDoubleClick}
                 style={{
                   rotate: rotation,
@@ -231,7 +246,7 @@ export const Knob: React.FC<KnobProps> = ({
         </Center>
         <Center>
           <Text fontSize={12} color="gray" my={-3}>
-            {isMouseDown
+            {isMoving
               ? filter
                 ? `${transformKnobFilterValue(knobValue).toFixed(
                     0
