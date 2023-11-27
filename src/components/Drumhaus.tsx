@@ -548,8 +548,8 @@ const Drumhaus = () => {
               />
             </Box>
 
-            <Grid templateColumns="repeat(7, 1fr)" px={4} py={6} w="100%">
-              <GridItem colSpan={1} w="160px">
+            <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
+              <GridItem colSpan={1} w="160px" mr={6}>
                 <Center w="100%" h="100%">
                   <Button
                     h="140px"
@@ -568,7 +568,7 @@ const Drumhaus = () => {
                 </Center>
               </GridItem>
 
-              <GridItem colSpan={1}>
+              <GridItem colSpan={1} mx={0} ml={-3}>
                 <SequencerControl
                   variation={variation}
                   setVariation={setVariation}
@@ -582,7 +582,7 @@ const Drumhaus = () => {
                 />
               </GridItem>
 
-              <GridItem colSpan={1}>
+              <GridItem colSpan={1} px={2}>
                 <TransportControl
                   bpm={bpm}
                   setBpm={setBpm}
@@ -591,7 +591,7 @@ const Drumhaus = () => {
                 />
               </GridItem>
 
-              <GridItem w="380px" pl={0} pr={6}>
+              <GridItem w="380px" px={2}>
                 <PresetControl
                   preset={preset}
                   setPreset={setPreset}
@@ -624,7 +624,7 @@ const Drumhaus = () => {
                 />
               </GridItem>
 
-              <GridItem colSpan={1} w={120}>
+              <GridItem colSpan={1} w={120} pl={8} pr={4}>
                 <MasterFX
                   lowPass={lowPass}
                   setLowPass={setLowPass}
@@ -637,7 +637,7 @@ const Drumhaus = () => {
                 />
               </GridItem>
 
-              <GridItem colSpan={1}>
+              <GridItem colSpan={1} px={4}>
                 <MasterCompressor
                   threshold={compThreshold}
                   setThreshold={setCompThreshold}

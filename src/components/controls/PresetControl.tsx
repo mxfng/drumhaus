@@ -477,6 +477,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             <Box h="40px" w="100%" id="kit" mb={4} position="relative">
               <Select
                 variant="unstyled"
+                icon={<></>}
                 border="none"
                 outline="none"
                 value={selectedKit}
@@ -496,17 +497,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                   </option>
                 ))}
               </Select>
-
-              <Box
-                position="absolute"
-                h="23px"
-                w="15px"
-                right={3}
-                top={2}
-                bg="silver"
-                pointerEvents="none"
-              />
-
               <Button
                 bg="transparent"
                 position="absolute"
@@ -544,6 +534,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             <Box id="preset" h="40px" mt={4} mb={4} position="relative">
               <Select
                 variant="unstyled"
+                icon={<></>}
                 value={selectedPreset}
                 fontFamily={`'Pixelify Sans Variable', sans-serif`}
                 color="gray"
@@ -561,17 +552,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                   </option>
                 ))}
               </Select>
-
-              <Box
-                position="absolute"
-                h="23px"
-                w="15px"
-                right={3}
-                top={2}
-                bg="silver"
-                pointerEvents="none"
-              />
-
               <Button
                 bg="transparent"
                 position="absolute"
