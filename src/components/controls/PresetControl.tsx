@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
-import { IoShareSharp } from "react-icons/io5";
+import { IoIosShareAlt } from "react-icons/io";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { RxReset } from "react-icons/rx";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -34,7 +34,6 @@ import { SaveModal } from "../modal/SaveModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
-import { so_there_i_was } from "@/lib/presets/so_there_i_was";
 
 type PresetControlProps = {
   preset: Preset;
@@ -122,7 +121,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     amsterdam,
     sunflower,
     super_dream_haus,
-    so_there_i_was,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(kit.name);
@@ -656,11 +654,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                       },
                     }}
                   >
-                    <IoShareSharp
+                    <IoIosShareAlt
                       className="icon"
                       fill="#B09374"
                       transition="all 0.2s ease"
-                      size="20px"
+                      size="26px"
                     />
                   </Button>
                 </Tooltip>
