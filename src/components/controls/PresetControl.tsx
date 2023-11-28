@@ -8,6 +8,14 @@ import {
   Center,
   Grid,
   GridItem,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverFooter,
+  PopoverHeader,
+  PopoverTrigger,
   Select,
   Text,
   Tooltip,
@@ -135,6 +143,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [isErrorModalShowing, setIsErrorModalShowing] = useState(false);
   const [isPresetChangeModalOpen, setIsPresetChangeModalOpen] = useState(false);
   const [shareableLink, setShareableLink] = useState("");
+  const [isSharePromptOpen, setIsSharePromptOpen] = useState(false);
+
   const modalCloseRef = useRef(null);
 
   const createPresetFunction = (name: string) => () => ({
@@ -449,6 +459,24 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   }, [isLoading, isSaveModalOpen, isSharingModalOpen, setIsModal]);
 
+  // Effect to display share prompt to new users
+  useEffect(() => {
+    const sharePromptFlag = localStorage.getItem("sharePromptSeen");
+
+    // If the flag is present, the user has visited before
+    if (!sharePromptFlag) {
+      const timer = setTimeout(() => {
+        setIsSharePromptOpen(true);
+      }, 60000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const closeSharePrompt = () => {
+    setIsSharePromptOpen(false);
+    localStorage.setItem("sharePromptSeen", "true");
+  };
+
   return (
     <>
       <Center h="100%">
@@ -637,31 +665,66 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             </GridItem>
             <GridItem>
               <Center>
-                <Tooltip
-                  label="Share as link"
-                  color="darkorange"
-                  openDelay={500}
+                <Popover
+                  isOpen={isSharePromptOpen}
+                  onClose={closeSharePrompt}
+                  isLazy
                 >
-                  <Button
-                    onClick={() => setIsSharingModalOpen(true)}
-                    w="100%"
-                    borderRadius="0 0 0 0"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
+                  <Tooltip
+                    label="Share as link"
+                    color="darkorange"
+                    openDelay={500}
                   >
-                    <IoIosShareAlt
-                      className="icon"
-                      fill="#B09374"
-                      transition="all 0.2s ease"
-                      size="26px"
-                    />
-                  </Button>
-                </Tooltip>
+                    <Box display="inline-block" w="100%">
+                      <PopoverTrigger>
+                        <Button
+                          onClick={() => setIsSharingModalOpen(true)}
+                          w="100%"
+                          borderRadius="0 0 0 0"
+                          className="raised"
+                          _hover={{
+                            "& .icon": {
+                              fill: "darkorange",
+                              transition: "all 0.2s ease",
+                            },
+                          }}
+                        >
+                          <IoIosShareAlt
+                            className="icon"
+                            fill="#B09374"
+                            transition="all 0.2s ease"
+                            size="26px"
+                          />
+                        </Button>
+                      </PopoverTrigger>
+                    </Box>
+                  </Tooltip>
+
+                  <PopoverContent
+                    bg="silver"
+                    className="neumorphic"
+                    borderColor="silver"
+                  >
+                    <PopoverArrow bg="silver" className="neumorphic" />
+                    <PopoverCloseButton color="gray" />
+                    <PopoverHeader color="gray">
+                      Enjoying Drumhaus?
+                    </PopoverHeader>
+                    <PopoverBody color="gray">
+                      You can save your preset to the cloud and share it with a
+                      link using the share button!
+                    </PopoverBody>
+                    <PopoverFooter color="transparent">
+                      <Button
+                        bg="darkorange"
+                        color="silver"
+                        onClick={closeSharePrompt}
+                      >
+                        Dismiss
+                      </Button>
+                    </PopoverFooter>
+                  </PopoverContent>
+                </Popover>
               </Center>
             </GridItem>
             <GridItem>
