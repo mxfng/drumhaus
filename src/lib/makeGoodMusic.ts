@@ -30,7 +30,7 @@ export default function makeGoodMusic(
 
           samples[slot].sampler.triggerAttack(_pitch, time, velocity);
         } else {
-          triggerOHat(velocity);
+          triggerOHat(velocity, slot);
         }
       }
 
@@ -39,10 +39,13 @@ export default function makeGoodMusic(
         if (slot == 4) samples[5].sampler.triggerRelease(_pitch, time);
       }
 
-      function triggerOHat(velocity: number) {
-        samples[5].envelope.triggerAttack(time);
-        const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
-        samples[5].sampler.triggerAttack(_pitch, time, velocity);
+      function triggerOHat(velocity: number, slot: number) {
+        samples[slot].envelope.triggerAttack(time);
+        samples[slot].envelope.triggerRelease(
+          time + transformKnobValue(releases[slot], [0, durations[slot]])
+        );
+        const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
+        samples[slot].sampler.triggerAttack(_pitch, time, velocity);
       }
 
       function updateBarByChain() {
