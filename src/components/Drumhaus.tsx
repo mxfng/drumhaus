@@ -89,14 +89,6 @@ const Drumhaus = () => {
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
-  // m e m o i z a t i o n
-  const sequencesCache = useMemo(() => sequences, [sequences]);
-  const releasesCache = useMemo(() => releases, [releases]);
-  const chainCache = useMemo(() => chain, [chain]);
-  const mutesCache = useMemo(() => mutes, [mutes]);
-  const solosCache = useMemo(() => solos, [solos]);
-  const samplesCache = useMemo(() => samples, [samples]);
-
   const customPresetAlert = useToast({
     position: "top",
   });
@@ -171,15 +163,15 @@ const Drumhaus = () => {
     if (isPlaying) {
       makeGoodMusic(
         toneSequence,
-        samplesCache,
-        releasesCache,
+        samples,
+        releases,
         durations,
-        chainCache,
+        chain,
         bar,
         chainVariation,
-        solosCache,
-        sequencesCache,
-        mutesCache,
+        solos,
+        sequences,
+        mutes,
         pitches,
         setStepIndex
       );
@@ -189,15 +181,7 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    isPlaying,
-    releasesCache,
-    chainCache,
-    mutesCache,
-    solosCache,
-    samplesCache,
-    pitches,
-  ]);
+  }, [isPlaying, releases, chain, mutes, solos, samples, pitches]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
