@@ -151,6 +151,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 key={`sequenceNode${node}`}
                 onMouseDown={() => toggleStepOnMouseDown(node, sequence[node])}
                 onMouseEnter={() => toggleStepOnMouseOver(node, sequence[node])}
+                onContextMenu={(e) => e.preventDefault()}
                 w="100%"
                 h={`${calculateStepsHeight()}px`}
                 bg={sequence[node] ? "darkorange" : "#E8E3DD"}
