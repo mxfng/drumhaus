@@ -130,3 +130,8 @@ You will need to reference `src/lib/kits.ts` to review your auto-generated data 
 Finally, append it to the state array of kit options (`kitOptions`) in `src/components/controls/PresetControl.tsx`.
 
 Presets are managed within their own files in `src/lib/presets/`. You can create a new preset by importing .json data exported from Drumhaus' client as a .dh file. The approach is close to adding kits, and is probably not worth mentioning here.
+
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.  
+See the [LICENSE](./LICENSE) file for details.
