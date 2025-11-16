@@ -19,7 +19,7 @@
     "@vercel/postgres": "^0.5.1",
     "framer-motion": "^10.16.4",
     "nanoid": "^5.0.3",
-    "next": "14.0.2",
+    "next": "14.2.33",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^4.12.0",
