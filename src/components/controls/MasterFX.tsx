@@ -1,6 +1,7 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
-import { Knob } from "../common/Knob";
+
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { Knob } from "../common/Knob";
 
 export const MasterFX: React.FC = () => {
   // Get state from Master FX Store

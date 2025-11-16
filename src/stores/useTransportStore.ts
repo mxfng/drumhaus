@@ -1,7 +1,7 @@
+import * as Tone from "tone/build/esm/index";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import * as Tone from "tone/build/esm/index";
 
 interface TransportState {
   // Playback state
@@ -15,10 +15,7 @@ interface TransportState {
 
   // Actions
   setIsPlaying: (isPlaying: boolean) => void;
-  togglePlay: (
-    samples: any[],
-    onStop?: () => void
-  ) => Promise<void>;
+  togglePlay: (samples: any[], onStop?: () => void) => Promise<void>;
   setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
@@ -108,10 +105,10 @@ export const useTransportStore = create<TransportState>()(
           swing: state.swing,
           // Don't persist isPlaying or stepIndex
         }),
-      }
+      },
     ),
     {
       name: "TransportStore",
-    }
-  )
+    },
+  ),
 );
