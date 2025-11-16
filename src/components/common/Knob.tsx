@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Box, Center, Text } from "@chakra-ui/react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
 
 type KnobProps = {
   color?: string;
@@ -20,7 +20,7 @@ type KnobProps = {
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
 export const transformKnobValue = (
   input: number,
-  range: [number, number]
+  range: [number, number],
 ): number => {
   const [newRangeMin, newRangeMax] = range;
   const scalingFactor = (newRangeMax - newRangeMin) / MAX_KNOB_VALUE;
@@ -30,7 +30,7 @@ export const transformKnobValue = (
 export const transformKnobFilterValue = (
   input: number,
   rangeLow: [number, number] = [0, 15000],
-  rangeHigh: [number, number] = [0, 15000]
+  rangeHigh: [number, number] = [0, 15000],
 ): number => {
   const [min, max] = input <= 49 ? rangeLow : rangeHigh;
   const newInput = ((input <= 49 ? input : input - 50) / 49) * 100;
@@ -39,7 +39,7 @@ export const transformKnobFilterValue = (
 
 export const transformKnobValueExponential = (
   input: number,
-  range: [number, number]
+  range: [number, number],
 ): number => {
   const inputMin = 0;
   const inputMax = MAX_KNOB_VALUE;
@@ -88,7 +88,7 @@ export const Knob: React.FC<KnobProps> = ({
         const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
         const newKnobValue = Math.max(
           0,
-          Math.min(moveStartY.y - clientY + knobValue, MAX_KNOB_VALUE)
+          Math.min(moveStartY.y - clientY + knobValue, MAX_KNOB_VALUE),
         );
         moveY.set(newKnobValue);
         setKnobValue(newKnobValue);
@@ -123,7 +123,7 @@ export const Knob: React.FC<KnobProps> = ({
   }, []);
 
   const captureMoveStartY = (
-    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ) => {
     setIsMoving(true);
     setMoveStartY({
@@ -249,31 +249,31 @@ export const Knob: React.FC<KnobProps> = ({
             {isMoving
               ? filter
                 ? `${transformKnobFilterValue(knobValue).toFixed(
-                    0
+                    0,
                   )} ${knobUnits} ${knobValue <= 49 ? "LP" : "HP"}`
                 : exponential
-                ? `${
-                    knobUnits
-                      ? transformKnobValueExponential(
-                          knobValue,
-                          knobTransformRange
-                        ).toFixed(1)
-                      : transformKnobValueExponential(
-                          knobValue,
-                          knobTransformRange
-                        ).toFixed(0)
-                  } ${knobUnits}`
-                : `${
-                    knobUnits
-                      ? transformKnobValue(
-                          knobValue,
-                          knobTransformRange
-                        ).toFixed(1)
-                      : transformKnobValue(
-                          knobValue,
-                          knobTransformRange
-                        ).toFixed(0)
-                  } ${knobUnits}`
+                  ? `${
+                      knobUnits
+                        ? transformKnobValueExponential(
+                            knobValue,
+                            knobTransformRange,
+                          ).toFixed(1)
+                        : transformKnobValueExponential(
+                            knobValue,
+                            knobTransformRange,
+                          ).toFixed(0)
+                    } ${knobUnits}`
+                  : `${
+                      knobUnits
+                        ? transformKnobValue(
+                            knobValue,
+                            knobTransformRange,
+                          ).toFixed(1)
+                        : transformKnobValue(
+                            knobValue,
+                            knobTransformRange,
+                          ).toFixed(0)
+                    } ${knobUnits}`
               : knobTitle}
           </Text>
         </Center>

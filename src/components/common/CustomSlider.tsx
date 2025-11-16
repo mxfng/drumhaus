@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Center,
@@ -9,7 +10,7 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { useState } from "react";
+
 import { transformKnobValue } from "./Knob";
 
 export const CustomSlider: React.FC<any> = ({

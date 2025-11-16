@@ -1,7 +1,5 @@
 {
-  "plugins": [
-    "@ianvs/prettier-plugin-sort-imports"
-  ],
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
   "importOrder": [
     "^(react/(.*)$)|^(react$)",
     "<THIRD_PARTY_MODULES>",

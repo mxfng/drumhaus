@@ -21,7 +21,7 @@ Early on in my design, I hit a roadblock while trying to produce a high-performa
 ### next.js
 
 This framework has fueled my love for web development using React, and I wanted to include it for its serverless functioning, file based routing, hot module replacement, and overall developer experience.
- 
+
 ### chakra-ui
 
 Used for its wide array of components, styling, and themeing capabilities. The majority of this project's React components were built with and styled by Chakra UI's library.
