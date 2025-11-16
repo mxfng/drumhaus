@@ -1,6 +1,7 @@
 import { transformKnobValue } from "@/components/common/Knob";
 import { Sample, Sequences } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
@@ -13,8 +14,7 @@ export default function makeGoodMusic(
   solos: boolean[],
   sequences: Sequences,
   mutes: boolean[],
-  pitches: number[],
-  setStepIndex: React.Dispatch<React.SetStateAction<number>>
+  pitches: number[]
 ) {
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
@@ -103,7 +103,8 @@ export default function makeGoodMusic(
         }
       }
 
-      setStepIndex(step);
+      // Update step index in store
+      useTransportStore.getState().setStepIndex(step);
       updateBarByChain();
     },
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],

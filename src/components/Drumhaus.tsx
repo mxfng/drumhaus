@@ -13,7 +13,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Tone from "tone/build/esm/index";
 import { Sequencer } from "./Sequencer";
 import { SlotsGrid } from "./slots/SlotsGrid";
@@ -35,16 +35,21 @@ import { _samples, createSamples } from "@/lib/createSamples";
 import { MobileModal } from "./modal/MobileModal";
 import { motion } from "framer-motion";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const Drumhaus = () => {
+  // Transport store - only subscribe to what's used in THIS component
+  const isPlaying = useTransportStore((state) => state.isPlaying);
+  const togglePlay = useTransportStore((state) => state.togglePlay);
+  const setBpm = useTransportStore((state) => state.setBpm);
+  const setSwing = useTransportStore((state) => state.setSwing);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [preset, setPreset] = useState<Preset>(init.init());
   const [isMobileWarning, setIsMobileWarning] = useState(false);
   const [isModal, setIsModal] = useState(false);
 
   // g l o b a l
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [stepIndex, setStepIndex] = useState(0); // 0 - 15
   const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [kit, setKit] = useState<Kit>(preset._kit);
   const [samples, setSamples] = useState<Sample[]>(_samples);
@@ -56,8 +61,6 @@ const Drumhaus = () => {
   );
 
   // m a s t e r   c o n t r o l s
-  const [bpm, setBpm] = useState(preset._bpm);
-  const [swing, setSwing] = useState(preset._swing);
   const [lowPass, setLowPass] = useState(preset._lowPass);
   const [hiPass, setHiPass] = useState(preset._hiPass);
   const [phaser, setPhaser] = useState(preset._phaser);
@@ -80,7 +83,7 @@ const Drumhaus = () => {
   ]);
 
   // r e f s
-  const toneSequence = useRef<Tone.Sequence | null>(null);
+  const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
   const toneLPFilter = useRef<Tone.Filter>();
   const toneHPFilter = useRef<Tone.Filter>();
   const tonePhaser = useRef<Tone.Phaser>();
@@ -172,8 +175,7 @@ const Drumhaus = () => {
         solos,
         sequences,
         mutes,
-        pitches,
-        setStepIndex
+        pitches
       );
     }
 
@@ -194,8 +196,8 @@ const Drumhaus = () => {
       setVariation(0);
       setKit(_preset._kit);
       setSequences(_preset._sequences);
-      setBpm(_preset._bpm);
-      setSwing(_preset._swing);
+      setBpm(_preset._bpm); // Updates store + Tone.Transport
+      setSwing(_preset._swing); // Updates store + Tone.Transport
       setLowPass(_preset._lowPass);
       setHiPass(_preset._hiPass);
       setPhaser(_preset._phaser);
@@ -297,30 +299,15 @@ const Drumhaus = () => {
     }
   }, [samples]);
 
-  // t o g g l e   p l a y
-  const togglePlay = async () => {
-    if (Tone.context.state !== "running") {
-      await Tone.start();
-    }
-
-    setIsPlaying((prevIsPlaying) => {
-      if (!prevIsPlaying) {
-        Tone.Transport.start();
-      } else {
-        Tone.Transport.stop();
-        setStepIndex(0);
-        samples.forEach((sample) => {
-          sample.sampler.triggerRelease("C2", Tone.now());
-        });
-      }
-      return !prevIsPlaying;
-    });
+  // t o g g l e   p l a y (now handled by store)
+  const handleTogglePlay = async () => {
+    await togglePlay(samples);
   };
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " " && !isModal) togglePlay();
+      if (event.key === " " && !isModal) handleTogglePlay();
     };
 
     document.addEventListener("keydown", playViaSpacebar);
@@ -329,7 +316,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModal]);
+  }, [isModal, samples]);
 
   // r e g i s t e r   s e r v i c e   w o r k e r
   useEffect(() => {
@@ -349,15 +336,7 @@ const Drumhaus = () => {
   }, []);
 
   // c o n t r o l   p r o p s
-  useEffect(() => {
-    Tone.Transport.bpm.value = bpm;
-  }, [bpm]);
-
-  useEffect(() => {
-    const newSwing = transformKnobValue(swing, [0, 0.5]);
-    Tone.Transport.swingSubdivision = "16n";
-    Tone.Transport.swing = newSwing;
-  }, [swing]);
+  // BPM and swing are now handled by the Transport Store
 
   useEffect(() => {
     const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
@@ -538,7 +517,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={() => togglePlay()}
+                    onClick={handleTogglePlay}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -567,12 +546,7 @@ const Drumhaus = () => {
               </GridItem>
 
               <GridItem colSpan={1} px={2}>
-                <TransportControl
-                  bpm={bpm}
-                  setBpm={setBpm}
-                  swing={swing}
-                  setSwing={setSwing}
-                />
+                <TransportControl />
               </GridItem>
 
               <GridItem w="380px" px={2}>
@@ -581,8 +555,6 @@ const Drumhaus = () => {
                   setPreset={setPreset}
                   kit={kit}
                   setKit={setKit}
-                  bpm={bpm}
-                  swing={swing}
                   lowPass={lowPass}
                   hiPass={hiPass}
                   phaser={phaser}
@@ -600,8 +572,7 @@ const Drumhaus = () => {
                   mutes={mutes}
                   chain={chain}
                   pitches={pitches}
-                  isPlaying={isPlaying}
-                  togglePlay={togglePlay}
+                  togglePlay={handleTogglePlay}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                   setIsModal={setIsModal}
@@ -651,8 +622,6 @@ const Drumhaus = () => {
                 setSequences={setSequences}
                 variation={variation}
                 slot={slotIndex}
-                step={stepIndex}
-                isPlaying={isPlaying}
               />
             </Box>
 

@@ -42,14 +42,13 @@ import { SaveModal } from "../modal/SaveModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 type PresetControlProps = {
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   kit: Kit;
   setKit: React.Dispatch<React.SetStateAction<Kit>>;
-  bpm: number;
-  swing: number;
   lowPass: number;
   hiPass: number;
   phaser: number;
@@ -67,7 +66,6 @@ type PresetControlProps = {
   mutes: boolean[];
   pitches: number[];
   chain: number;
-  isPlaying: boolean;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -79,8 +77,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   setPreset,
   kit,
   setKit,
-  bpm,
-  swing,
   lowPass,
   hiPass,
   phaser,
@@ -98,12 +94,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   mutes,
   pitches,
   chain,
-  isPlaying,
   togglePlay,
   isLoading,
   setIsLoading,
   setIsModal,
 }) => {
+  // Get transport state from store
+  const bpm = useTransportStore((state) => state.bpm);
+  const swing = useTransportStore((state) => state.swing);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,

@@ -3,6 +3,7 @@
 import { Sequences } from "@/types/types";
 import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
@@ -14,8 +15,6 @@ type SequencerProps = {
   setSequences: React.Dispatch<React.SetStateAction<Sequences>>;
   variation: number;
   slot: number;
-  step: number;
-  isPlaying: boolean;
 };
 
 export const Sequencer: React.FC<SequencerProps> = ({
@@ -25,9 +24,10 @@ export const Sequencer: React.FC<SequencerProps> = ({
   setSequences,
   variation,
   slot,
-  step,
-  isPlaying,
 }) => {
+  // Get playback state from store
+  const step = useTransportStore((state) => state.stepIndex);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isWriting, setWriteState] = useState<boolean>(true);
   const [isVelocity, setIsVelocity] = useState<boolean>(false);
