@@ -43,6 +43,7 @@ import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { useTransportStore } from "@/stores/useTransportStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
 
 type PresetControlProps = {
   preset: Preset;
@@ -57,14 +58,6 @@ type PresetControlProps = {
   compRatio: number;
   masterVolume: number;
   sequences: Sequences;
-  attacks: number[];
-  releases: number[];
-  filters: number[];
-  volumes: number[];
-  pans: number[];
-  solos: boolean[];
-  mutes: boolean[];
-  pitches: number[];
   chain: number;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
@@ -85,14 +78,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   compRatio,
   masterVolume,
   sequences,
-  attacks,
-  releases,
-  filters,
-  volumes,
-  pans,
-  solos,
-  mutes,
-  pitches,
   chain,
   togglePlay,
   isLoading,
@@ -103,6 +88,16 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const bpm = useTransportStore((state) => state.bpm);
   const swing = useTransportStore((state) => state.swing);
   const isPlaying = useTransportStore((state) => state.isPlaying);
+
+  // Get slot state from store
+  const attacks = useSlotsStore((state) => state.attacks);
+  const releases = useSlotsStore((state) => state.releases);
+  const filters = useSlotsStore((state) => state.filters);
+  const volumes = useSlotsStore((state) => state.volumes);
+  const pans = useSlotsStore((state) => state.pans);
+  const solos = useSlotsStore((state) => state.solos);
+  const mutes = useSlotsStore((state) => state.mutes);
+  const pitches = useSlotsStore((state) => state.pitches);
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,

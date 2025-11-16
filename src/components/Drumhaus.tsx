@@ -36,6 +36,7 @@ import { MobileModal } from "./modal/MobileModal";
 import { motion } from "framer-motion";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { useTransportStore } from "@/stores/useTransportStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -43,6 +44,16 @@ const Drumhaus = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
+
+  // Slots store - get batch setters for preset loading
+  const setAllAttacks = useSlotsStore((state) => state.setAllAttacks);
+  const setAllReleases = useSlotsStore((state) => state.setAllReleases);
+  const setAllFilters = useSlotsStore((state) => state.setAllFilters);
+  const setAllVolumes = useSlotsStore((state) => state.setAllVolumes);
+  const setAllPans = useSlotsStore((state) => state.setAllPans);
+  const setAllMutes = useSlotsStore((state) => state.setAllMutes);
+  const setAllSolos = useSlotsStore((state) => state.setAllSolos);
+  const setAllPitches = useSlotsStore((state) => state.setAllPitches);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [preset, setPreset] = useState<Preset>(init.init());
@@ -69,18 +80,7 @@ const Drumhaus = () => {
   const [compRatio, setCompRatio] = useState(preset._compRatio);
   const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
-  // s l o t s
-  const [attacks, setAttacks] = useState<number[]>(kit._attacks);
-  const [releases, setReleases] = useState<number[]>(kit._releases);
-  const [filters, setFilters] = useState<number[]>(kit._filters);
-  const [volumes, setVolumes] = useState<number[]>(kit._volumes);
-  const [pans, setPans] = useState<number[]>(kit._pans);
-  const [mutes, setMutes] = useState<boolean[]>(kit._mutes);
-  const [solos, setSolos] = useState<boolean[]>(kit._solos);
-  const [pitches, setPitches] = useState<number[]>(kit._pitches);
-  const [durations, setDurations] = useState<number[]>([
-    0, 0, 0, 0, 0, 0, 0, 0,
-  ]);
+  // s l o t s - now managed by Slots Store
 
   // r e f s
   const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
@@ -167,15 +167,10 @@ const Drumhaus = () => {
       makeGoodMusic(
         toneSequence,
         samples,
-        releases,
-        durations,
         chain,
         bar,
         chainVariation,
-        solos,
-        sequences,
-        mutes,
-        pitches
+        sequences
       );
     }
 
@@ -183,7 +178,7 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, releases, chain, mutes, solos, samples, pitches]);
+  }, [isPlaying, chain, samples, sequences]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
@@ -192,7 +187,6 @@ const Drumhaus = () => {
     function setFromPreset(_preset: Preset) {
       setSlotIndex(0);
       setCurrentSequence(_preset._sequences[0][0][0]);
-      setDurations([0, 0, 0, 0, 0, 0, 0, 0]);
       setVariation(0);
       setKit(_preset._kit);
       setSequences(_preset._sequences);
@@ -219,20 +213,20 @@ const Drumhaus = () => {
     const newSamples = createSamples(kit.samples);
 
     setSamples(newSamples);
-    setAttacks(kit._attacks);
-    setReleases(kit._releases);
-    setFilters(kit._filters);
-    setPans(kit._pans);
-    setVolumes(kit._volumes);
-    setSolos(kit._solos);
-    setMutes(kit._mutes);
+    setAllAttacks(kit._attacks);
+    setAllReleases(kit._releases);
+    setAllFilters(kit._filters);
+    setAllPans(kit._pans);
+    setAllVolumes(kit._volumes);
+    setAllSolos(kit._solos);
+    setAllMutes(kit._mutes);
 
     // backwards compatibility for pitch params
     if (kit._pitches) {
-      setPitches(kit._pitches);
+      setAllPitches(kit._pitches);
     } else {
       // old save files
-      setPitches([50, 50, 50, 50, 50, 50, 50, 50]);
+      setAllPitches([50, 50, 50, 50, 50, 50, 50, 50]);
     }
 
     return () => {
@@ -490,23 +484,6 @@ const Drumhaus = () => {
                 setCurrentSequence={setCurrentSequence}
                 slotIndex={slotIndex}
                 setSlotIndex={setSlotIndex}
-                attacks={attacks}
-                setAttacks={setAttacks}
-                releases={releases}
-                setReleases={setReleases}
-                filters={filters}
-                setFilters={setFilters}
-                volumes={volumes}
-                setVolumes={setVolumes}
-                pans={pans}
-                setPans={setPans}
-                mutes={mutes}
-                setMutes={setMutes}
-                solos={solos}
-                setSolos={setSolos}
-                pitches={pitches}
-                setPitches={setPitches}
-                setDurations={setDurations}
                 isModal={isModal}
               />
             </Box>
@@ -563,15 +540,7 @@ const Drumhaus = () => {
                   compRatio={compRatio}
                   masterVolume={masterVolume}
                   sequences={sequences}
-                  attacks={attacks}
-                  releases={releases}
-                  filters={filters}
-                  volumes={volumes}
-                  pans={pans}
-                  solos={solos}
-                  mutes={mutes}
                   chain={chain}
-                  pitches={pitches}
                   togglePlay={handleTogglePlay}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
