@@ -27,6 +27,7 @@ import {
 import { SequencerControl } from "./controls/SequencerControl";
 import { MasterFX } from "./controls/MasterFX";
 import { MasterCompressor } from "./controls/MasterCompressor";
+import { MasterVolume } from "./controls/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { DrumhausLogo } from "./svg/DrumhausLogo";
 import { SignatureLogo } from "./svg/SignatureLogo";
@@ -38,6 +39,7 @@ import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { useSlotsStore } from "@/stores/useSlotsStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -66,6 +68,18 @@ const Drumhaus = () => {
   const setChain = useSequencerStore((state) => state.setChain);
   const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
 
+  // Master FX store - subscribe to values for useEffect dependencies
+  const lowPass = useMasterFXStore((state) => state.lowPass);
+  const hiPass = useMasterFXStore((state) => state.hiPass);
+  const phaser = useMasterFXStore((state) => state.phaser);
+  const reverb = useMasterFXStore((state) => state.reverb);
+  const compThreshold = useMasterFXStore((state) => state.compThreshold);
+  const compRatio = useMasterFXStore((state) => state.compRatio);
+  const masterVolume = useMasterFXStore((state) => state.masterVolume);
+
+  // Master FX store - get setter for preset loading
+  const setAllMasterFX = useMasterFXStore((state) => state.setAllMasterFX);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [preset, setPreset] = useState<Preset>(init.init());
   const [isMobileWarning, setIsMobileWarning] = useState(false);
@@ -74,15 +88,6 @@ const Drumhaus = () => {
   // g l o b a l
   const [kit, setKit] = useState<Kit>(preset._kit);
   const [samples, setSamples] = useState<Sample[]>(_samples);
-
-  // m a s t e r   c o n t r o l s
-  const [lowPass, setLowPass] = useState(preset._lowPass);
-  const [hiPass, setHiPass] = useState(preset._hiPass);
-  const [phaser, setPhaser] = useState(preset._phaser);
-  const [reverb, setReverb] = useState(preset._reverb);
-  const [compThreshold, setCompThreshold] = useState(preset._compThreshold);
-  const [compRatio, setCompRatio] = useState(preset._compRatio);
-  const [masterVolume, setMasterVolume] = useState(preset._masterVolume);
 
   // s l o t s - now managed by Slots Store
 
@@ -202,13 +207,15 @@ const Drumhaus = () => {
       setSwing(_preset._swing); // Updates store + Tone.Transport
 
       // Master FX
-      setLowPass(_preset._lowPass);
-      setHiPass(_preset._hiPass);
-      setPhaser(_preset._phaser);
-      setReverb(_preset._reverb);
-      setCompThreshold(_preset._compThreshold);
-      setCompRatio(_preset._compRatio);
-      setMasterVolume(_preset._masterVolume);
+      setAllMasterFX(
+        _preset._lowPass,
+        _preset._hiPass,
+        _preset._phaser,
+        _preset._reverb,
+        _preset._compThreshold,
+        _preset._compRatio,
+        _preset._masterVolume
+      );
     }
 
     setFromPreset({ ...preset });
@@ -520,13 +527,6 @@ const Drumhaus = () => {
                   setPreset={setPreset}
                   kit={kit}
                   setKit={setKit}
-                  lowPass={lowPass}
-                  hiPass={hiPass}
-                  phaser={phaser}
-                  reverb={reverb}
-                  compThreshold={compThreshold}
-                  compRatio={compRatio}
-                  masterVolume={masterVolume}
                   togglePlay={handleTogglePlay}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
@@ -535,37 +535,15 @@ const Drumhaus = () => {
               </GridItem>
 
               <GridItem colSpan={1} w={120} pl={8} pr={4}>
-                <MasterFX
-                  lowPass={lowPass}
-                  setLowPass={setLowPass}
-                  hiPass={hiPass}
-                  setHiPass={setHiPass}
-                  phaser={phaser}
-                  setPhaser={setPhaser}
-                  reverb={reverb}
-                  setReverb={setReverb}
-                />
+                <MasterFX />
               </GridItem>
 
               <GridItem colSpan={1} px={4}>
-                <MasterCompressor
-                  threshold={compThreshold}
-                  setThreshold={setCompThreshold}
-                  ratio={compRatio}
-                  setRatio={setCompRatio}
-                />
+                <MasterCompressor />
               </GridItem>
 
               <GridItem colSpan={1} w={140}>
-                <Knob
-                  size={140}
-                  knobValue={masterVolume}
-                  setKnobValue={setMasterVolume}
-                  knobTitle="MASTER VOLUME"
-                  knobTransformRange={[-46, 4]}
-                  knobUnits="dB"
-                  defaultValue={92}
-                />
+                <MasterVolume />
               </GridItem>
             </Grid>
 

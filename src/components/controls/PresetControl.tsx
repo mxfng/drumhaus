@@ -45,19 +45,13 @@ import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { useSlotsStore } from "@/stores/useSlotsStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
 type PresetControlProps = {
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   kit: Kit;
   setKit: React.Dispatch<React.SetStateAction<Kit>>;
-  lowPass: number;
-  hiPass: number;
-  phaser: number;
-  reverb: number;
-  compThreshold: number;
-  compRatio: number;
-  masterVolume: number;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -69,13 +63,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   setPreset,
   kit,
   setKit,
-  lowPass,
-  hiPass,
-  phaser,
-  reverb,
-  compThreshold,
-  compRatio,
-  masterVolume,
   togglePlay,
   isLoading,
   setIsLoading,
@@ -99,6 +86,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // Get sequencer state from store
   const sequences = useSequencerStore((state) => state.sequences);
   const chain = useSequencerStore((state) => state.chain);
+
+  // Get master FX state from store
+  const lowPass = useMasterFXStore((state) => state.lowPass);
+  const hiPass = useMasterFXStore((state) => state.hiPass);
+  const phaser = useMasterFXStore((state) => state.phaser);
+  const reverb = useMasterFXStore((state) => state.reverb);
+  const compThreshold = useMasterFXStore((state) => state.compThreshold);
+  const compRatio = useMasterFXStore((state) => state.compRatio);
+  const masterVolume = useMasterFXStore((state) => state.masterVolume);
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,
