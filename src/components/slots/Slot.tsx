@@ -25,27 +25,11 @@ import { MdHeadphones } from "react-icons/md";
 import { ImVolumeMute } from "react-icons/im";
 import { ImVolumeMute2 } from "react-icons/im";
 import { CustomSlider } from "../common/CustomSlider";
+import { useSlotsStore } from "@/stores/useSlotsStore";
 
 type SlotParams = {
   color?: string;
   sample: Sample;
-  attacks: number[];
-  setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
-  releases: number[];
-  setReleases: React.Dispatch<React.SetStateAction<number[]>>;
-  filters: number[];
-  setFilters: React.Dispatch<React.SetStateAction<number[]>>;
-  volumes: number[];
-  setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
-  pans: number[];
-  setPans: React.Dispatch<React.SetStateAction<number[]>>;
-  mutes: boolean[];
-  setMutes: React.Dispatch<React.SetStateAction<boolean[]>>;
-  solos: boolean[];
-  setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
-  pitches: number[];
-  setPitches: React.Dispatch<React.SetStateAction<number[]>>;
-  setDurations: React.Dispatch<React.SetStateAction<number[]>>;
   bg?: string;
   isModal: boolean;
   slotIndex: number;
@@ -54,35 +38,43 @@ type SlotParams = {
 export const Slot: React.FC<SlotParams> = ({
   color = "#ff7b00",
   sample,
-  attacks,
-  setAttacks,
-  releases,
-  setReleases,
-  filters,
-  setFilters,
-  volumes,
-  setVolumes,
-  pans,
-  setPans,
-  mutes,
-  setMutes,
-  solos,
-  setSolos,
-  pitches,
-  setPitches,
-  setDurations,
   isModal,
   slotIndex,
   ...props
 }) => {
-  const [attack, setAttack] = useState(attacks[sample.id]);
-  const [release, setRelease] = useState(releases[sample.id]);
-  const [filter, setFilter] = useState(filters[sample.id]); // 0-100
-  const [pan, setPan] = useState(pans[sample.id]);
-  const [volume, setVolume] = useState(volumes[sample.id]); // 0-100
-  const [pitch, setPitch] = useState(pitches[sample.id]);
+  // Subscribe only to THIS slot's data (prevents cross-slot re-renders!)
+  const attack = useSlotsStore((state) => state.attacks[sample.id]);
+  const release = useSlotsStore((state) => state.releases[sample.id]);
+  const filter = useSlotsStore((state) => state.filters[sample.id]);
+  const pan = useSlotsStore((state) => state.pans[sample.id]);
+  const volume = useSlotsStore((state) => state.volumes[sample.id]);
+  const pitch = useSlotsStore((state) => state.pitches[sample.id]);
+  const mute = useSlotsStore((state) => state.mutes[sample.id]);
+  const solo = useSlotsStore((state) => state.solos[sample.id]);
+
+  // Get store actions
+  const setAttackStore = useSlotsStore((state) => state.setAttack);
+  const setReleaseStore = useSlotsStore((state) => state.setRelease);
+  const setFilterStore = useSlotsStore((state) => state.setFilter);
+  const setPanStore = useSlotsStore((state) => state.setPan);
+  const setVolumeStore = useSlotsStore((state) => state.setVolume);
+  const setPitchStore = useSlotsStore((state) => state.setPitch);
+  const setDurationStore = useSlotsStore((state) => state.setDuration);
+  const toggleMuteStore = useSlotsStore((state) => state.toggleMute);
+  const toggleSoloStore = useSlotsStore((state) => state.toggleSolo);
+
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
+
+  // Wrap store setters with slot ID
+  const setAttack = useCallback((value: number) => setAttackStore(sample.id, value), [sample.id, setAttackStore]);
+  const setRelease = useCallback((value: number) => setReleaseStore(sample.id, value), [sample.id, setReleaseStore]);
+  const setFilter = useCallback((value: number) => setFilterStore(sample.id, value), [sample.id, setFilterStore]);
+  const setPan = useCallback((value: number) => setPanStore(sample.id, value), [sample.id, setPanStore]);
+  const setVolume = useCallback((value: number) => setVolumeStore(sample.id, value), [sample.id, setVolumeStore]);
+  const setPitch = useCallback((value: number) => setPitchStore(sample.id, value), [sample.id, setPitchStore]);
+  const toggleMute = useCallback(() => toggleMuteStore(sample.id), [sample.id, toggleMuteStore]);
+  const toggleSolo = useCallback(() => toggleSoloStore(sample.id), [sample.id, toggleSoloStore]);
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
@@ -111,141 +103,26 @@ export const Slot: React.FC<SlotParams> = ({
     sample.sampler.volume.value = newVolumeValue;
   }, [volume, sample.sampler.volume, sample]);
 
+  // Update duration in store when sample duration changes
   useEffect(() => {
-    setAttacks((prevAttacks) => {
-      const newAttacks = [...prevAttacks];
-      newAttacks[sample.id] = attack;
-      return newAttacks;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attack, sample.id, sample]);
+    setDurationStore(sample.id, sampleDuration);
+  }, [sampleDuration, sample.id, setDurationStore]);
 
-  useEffect(() => {
-    setReleases((prevReleases) => {
-      const newReleases = [...prevReleases];
-      newReleases[sample.id] = release;
-      return newReleases;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [release, sample.id, sample]);
-
-  useEffect(() => {
-    setFilters((prevFilters) => {
-      const newFilters = [...prevFilters];
-      newFilters[sample.id] = filter;
-      return newFilters;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, sample.id, sample]);
-
-  useEffect(() => {
-    setPans((prevPans) => {
-      const newPans = [...prevPans];
-      newPans[sample.id] = pan;
-      return newPans;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pan, sample.id, sample]);
-
-  useEffect(() => {
-    setVolumes((prevVolumes) => {
-      const newVolumes = [...prevVolumes];
-      newVolumes[sample.id] = volume;
-      return newVolumes;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [volume, sample.id, sample]);
-
-  useEffect(() => {
-    setPitches((prevPitches) => {
-      const newPitches = [...prevPitches];
-      newPitches[sample.id] = pitch;
-      return newPitches;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pitch, sample.id, sample]);
-
-  useEffect(() => {
-    setDurations((prevDurations) => {
-      const newDurations = [...prevDurations];
-      newDurations[sample.id] = sampleDuration;
-      return newDurations;
-    });
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sampleDuration, sample]);
-
-  useEffect(() => {
-    setAttack(attacks[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  useEffect(() => {
-    setRelease(releases[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  useEffect(() => {
-    setFilter(filters[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  useEffect(() => {
-    setPan(pans[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  useEffect(() => {
-    setVolume(volumes[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  useEffect(() => {
-    setPitch(pitches[sample.id]);
-    // Prop drilling
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sample]);
-
-  const toggleMute = useCallback(
-    (slot: number) => {
-      setMutes((prevMutes) => {
-        const newMutes = [...prevMutes];
-        newMutes[slot] = !newMutes[slot];
-        if (newMutes[slot]) {
-          sample.sampler.triggerRelease("C2", Tone.now());
-        }
-        return newMutes;
-      });
+  const handleToggleMute = useCallback(
+    () => {
+      // Release the sample when muting (before toggling state)
+      if (!mute) {
+        sample.sampler.triggerRelease("C2", Tone.now());
+      }
+      toggleMute();
     },
-    [setMutes, sample]
-  );
-
-  const toggleSolo = useCallback(
-    (slot: number) => {
-      setSolos((prevSolos) => {
-        const newSolos = [...prevSolos];
-        newSolos[slot] = !newSolos[slot];
-        return newSolos;
-      });
-    },
-    [setSolos]
+    [toggleMute, mute, sample]
   );
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
       if (event.key === "m" && !isModal && slotIndex == sample.id) {
-        toggleMute(sample.id);
+        handleToggleMute();
       }
     };
 
@@ -254,12 +131,12 @@ export const Slot: React.FC<SlotParams> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [slotIndex, isModal, sample.id, toggleMute]);
+  }, [slotIndex, isModal, sample.id, handleToggleMute]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
       if (event.key === "s" && !isModal && slotIndex == sample.id) {
-        toggleSolo(sample.id);
+        toggleSolo();
       }
     };
 
@@ -396,10 +273,10 @@ export const Slot: React.FC<SlotParams> = ({
                       bg="transparent"
                       borderRadius="8px 0 0 8px"
                       p="0px"
-                      onClick={() => toggleMute(sample.id)}
+                      onClick={() => handleToggleMute()}
                       className="raised"
                     >
-                      {mutes[sample.id] ? (
+                      {mute ? (
                         <ImVolumeMute2 color="#B09374" />
                       ) : (
                         <ImVolumeMute color="#B09374" />
@@ -414,11 +291,11 @@ export const Slot: React.FC<SlotParams> = ({
                       bg="transparent"
                       borderRadius="0 8px 8px 0"
                       p="0px"
-                      onClick={() => toggleSolo(sample.id)}
+                      onClick={() => toggleSolo()}
                       className="raised"
                     >
                       <MdHeadphones
-                        color={solos[sample.id] ? "darkorange" : "#B09374"}
+                        color={solo ? "darkorange" : "#B09374"}
                       />
                     </Button>
                   </Tooltip>

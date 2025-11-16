@@ -1,27 +1,19 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 import { Knob } from "../common/Knob";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
-type MasterFXProps = {
-  lowPass: number;
-  setLowPass: React.Dispatch<React.SetStateAction<number>>;
-  hiPass: number;
-  setHiPass: React.Dispatch<React.SetStateAction<number>>;
-  phaser: number;
-  setPhaser: React.Dispatch<React.SetStateAction<number>>;
-  reverb: number;
-  setReverb: React.Dispatch<React.SetStateAction<number>>;
-};
+export const MasterFX: React.FC = () => {
+  // Get state from Master FX Store
+  const lowPass = useMasterFXStore((state) => state.lowPass);
+  const hiPass = useMasterFXStore((state) => state.hiPass);
+  const phaser = useMasterFXStore((state) => state.phaser);
+  const reverb = useMasterFXStore((state) => state.reverb);
 
-export const MasterFX: React.FC<MasterFXProps> = ({
-  lowPass,
-  setLowPass,
-  hiPass,
-  setHiPass,
-  phaser,
-  setPhaser,
-  reverb,
-  setReverb,
-}) => {
+  // Get actions from store
+  const setLowPass = useMasterFXStore((state) => state.setLowPass);
+  const setHiPass = useMasterFXStore((state) => state.setHiPass);
+  const setPhaser = useMasterFXStore((state) => state.setPhaser);
+  const setReverb = useMasterFXStore((state) => state.setReverb);
   return (
     <Box>
       <Grid templateColumns="repeat(2, 1fr)">

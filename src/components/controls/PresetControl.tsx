@@ -1,7 +1,7 @@
 "use client";
 
 import * as kits from "@/lib/kits";
-import { Kit, Preset, Sequences } from "@/types/types";
+import { Kit, Preset } from "@/types/types";
 import {
   Box,
   Button,
@@ -42,32 +42,16 @@ import { SaveModal } from "../modal/SaveModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
+import { useTransportStore } from "@/stores/useTransportStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
 type PresetControlProps = {
   preset: Preset;
   setPreset: React.Dispatch<React.SetStateAction<Preset>>;
   kit: Kit;
   setKit: React.Dispatch<React.SetStateAction<Kit>>;
-  bpm: number;
-  swing: number;
-  lowPass: number;
-  hiPass: number;
-  phaser: number;
-  reverb: number;
-  compThreshold: number;
-  compRatio: number;
-  masterVolume: number;
-  sequences: Sequences;
-  attacks: number[];
-  releases: number[];
-  filters: number[];
-  volumes: number[];
-  pans: number[];
-  solos: boolean[];
-  mutes: boolean[];
-  pitches: number[];
-  chain: number;
-  isPlaying: boolean;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -79,31 +63,38 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   setPreset,
   kit,
   setKit,
-  bpm,
-  swing,
-  lowPass,
-  hiPass,
-  phaser,
-  reverb,
-  compThreshold,
-  compRatio,
-  masterVolume,
-  sequences,
-  attacks,
-  releases,
-  filters,
-  volumes,
-  pans,
-  solos,
-  mutes,
-  pitches,
-  chain,
-  isPlaying,
   togglePlay,
   isLoading,
   setIsLoading,
   setIsModal,
 }) => {
+  // Get transport state from store
+  const bpm = useTransportStore((state) => state.bpm);
+  const swing = useTransportStore((state) => state.swing);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
+
+  // Get slot state from store
+  const attacks = useSlotsStore((state) => state.attacks);
+  const releases = useSlotsStore((state) => state.releases);
+  const filters = useSlotsStore((state) => state.filters);
+  const volumes = useSlotsStore((state) => state.volumes);
+  const pans = useSlotsStore((state) => state.pans);
+  const solos = useSlotsStore((state) => state.solos);
+  const mutes = useSlotsStore((state) => state.mutes);
+  const pitches = useSlotsStore((state) => state.pitches);
+
+  // Get sequencer state from store
+  const sequences = useSequencerStore((state) => state.sequences);
+  const chain = useSequencerStore((state) => state.chain);
+
+  // Get master FX state from store
+  const lowPass = useMasterFXStore((state) => state.lowPass);
+  const hiPass = useMasterFXStore((state) => state.hiPass);
+  const phaser = useMasterFXStore((state) => state.phaser);
+  const reverb = useMasterFXStore((state) => state.reverb);
+  const compThreshold = useMasterFXStore((state) => state.compThreshold);
+  const compRatio = useMasterFXStore((state) => state.compRatio);
+  const masterVolume = useMasterFXStore((state) => state.masterVolume);
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,

@@ -1,32 +1,11 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { Slot } from "./Slot";
-import { Sample, Sequences } from "@/types/types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Sample } from "@/types/types";
+import { useCallback, useEffect, useRef } from "react";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 type SlotsGridProps = {
   samples: Sample[];
-  sequences: Sequences;
-  variation: number;
-  setCurrentSequence: (prevCurrentSequence: boolean[]) => void;
-  slotIndex: number;
-  setSlotIndex: (prevSlot: number) => void;
-  attacks: number[];
-  setAttacks: React.Dispatch<React.SetStateAction<number[]>>;
-  releases: number[];
-  setReleases: React.Dispatch<React.SetStateAction<number[]>>;
-  filters: number[];
-  setFilters: React.Dispatch<React.SetStateAction<number[]>>;
-  volumes: number[];
-  setVolumes: React.Dispatch<React.SetStateAction<number[]>>;
-  pans: number[];
-  setPans: React.Dispatch<React.SetStateAction<number[]>>;
-  mutes: boolean[];
-  setMutes: React.Dispatch<React.SetStateAction<boolean[]>>;
-  solos: boolean[];
-  setSolos: React.Dispatch<React.SetStateAction<boolean[]>>;
-  pitches: number[];
-  setPitches: React.Dispatch<React.SetStateAction<number[]>>;
-  setDurations: React.Dispatch<React.SetStateAction<number[]>>;
   isModal: boolean;
 };
 
@@ -34,38 +13,19 @@ const NO_OF_SLOTS = 8;
 
 export const SlotsGrid: React.FC<SlotsGridProps> = ({
   samples,
-  sequences,
-  variation,
-  setCurrentSequence,
-  slotIndex,
-  setSlotIndex,
-  attacks,
-  setAttacks,
-  releases,
-  setReleases,
-  filters,
-  setFilters,
-  volumes,
-  setVolumes,
-  pans,
-  setPans,
-  mutes,
-  setMutes,
-  solos,
-  setSolos,
-  pitches,
-  setPitches,
-  setDurations,
   isModal,
 }) => {
   const slotsRef = useRef<HTMLDivElement | null>(null);
 
+  // Get state from Sequencer Store
+  const slotIndex = useSequencerStore((state) => state.slotIndex);
+  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+
   const toggleCurrentSequence = useCallback(
     (slot: number) => {
-      setCurrentSequence(sequences[slot][variation][0]);
       setSlotIndex(slot);
     },
-    [sequences, variation, setCurrentSequence, setSlotIndex]
+    [setSlotIndex]
   );
 
   const handleArrowKeyPress = useCallback(
@@ -119,23 +79,6 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
             color={slotColors[index]}
             key={`DHSlot-${index}`}
             sample={sample}
-            attacks={attacks}
-            setAttacks={setAttacks}
-            releases={releases}
-            setReleases={setReleases}
-            filters={filters}
-            setFilters={setFilters}
-            volumes={volumes}
-            setVolumes={setVolumes}
-            pans={pans}
-            setPans={setPans}
-            mutes={mutes}
-            setMutes={setMutes}
-            solos={solos}
-            setSolos={setSolos}
-            pitches={pitches}
-            setPitches={setPitches}
-            setDurations={setDurations}
             isModal={isModal}
             slotIndex={slotIndex}
             bg={slotIndex == index ? "#F7F1EA" : "#E8E3DD"}
