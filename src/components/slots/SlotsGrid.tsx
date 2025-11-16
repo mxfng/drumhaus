@@ -1,8 +1,9 @@
-import { Grid, GridItem } from "@chakra-ui/react";
-import { Slot } from "./Slot";
-import { Sample } from "@/types/types";
 import { useCallback, useEffect, useRef } from "react";
+import { Grid, GridItem } from "@chakra-ui/react";
+
 import { useSequencerStore } from "@/stores/useSequencerStore";
+import { Sample } from "@/types/types";
+import { Slot } from "./Slot";
 
 type SlotsGridProps = {
   samples: Sample[];
@@ -11,10 +12,7 @@ type SlotsGridProps = {
 
 const NO_OF_SLOTS = 8;
 
-export const SlotsGrid: React.FC<SlotsGridProps> = ({
-  samples,
-  isModal,
-}) => {
+export const SlotsGrid: React.FC<SlotsGridProps> = ({ samples, isModal }) => {
   const slotsRef = useRef<HTMLDivElement | null>(null);
 
   // Get state from Sequencer Store
@@ -25,7 +23,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
     (slot: number) => {
       setSlotIndex(slot);
     },
-    [setSlotIndex]
+    [setSlotIndex],
   );
 
   const handleArrowKeyPress = useCallback(
@@ -38,7 +36,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({
         toggleCurrentSequence(newSlot);
       }
     },
-    [isModal, slotIndex, toggleCurrentSequence]
+    [isModal, slotIndex, toggleCurrentSequence],
   );
 
   useEffect(() => {

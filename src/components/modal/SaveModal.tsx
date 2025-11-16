@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -15,7 +16,6 @@ import {
   ModalOverlay,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
 
 export const SaveModal: React.FC<any> = ({
   isOpen,

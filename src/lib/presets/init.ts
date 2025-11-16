@@ -1,5 +1,5 @@
-import { Preset } from "@/types/types";
 import * as kits from "@/lib/kits";
+import { Preset } from "@/types/types";
 
 export const init = (): Preset => ({
   name: "init",
@@ -17,7 +17,7 @@ export const init = (): Preset => ({
     Array.from({ length: 2 }, () => [
       Array.from({ length: 16 }, () => false),
       Array.from({ length: 16 }, () => 1),
-    ])
+    ]),
   ),
   _variation: 0,
   _chain: 0,
