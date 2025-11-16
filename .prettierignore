@@ -1,3 +1,6 @@
 # Ignore artifacts:
 build
 coverage
+
+# Auto-generated files:
+public/waveforms
