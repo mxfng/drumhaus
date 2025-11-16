@@ -1,21 +1,23 @@
 import { transformKnobValue } from "@/components/common/Knob";
-import { Sample, Sequences } from "@/types/types";
+import { Sample } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
   samples: Sample[],
   currentChain: number,
   currentBar: React.MutableRefObject<number>,
-  currentVariation: React.MutableRefObject<number>,
-  sequences: Sequences
+  currentVariation: React.MutableRefObject<number>
 ) {
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
       // Get FRESH slot parameters from store on every step (enables live mute/solo)
       const { releases, durations, solos, mutes, pitches } = useSlotsStore.getState();
+      // Get FRESH sequences from store on every step
+      const { sequences } = useSequencerStore.getState();
 
       function triggerSample(slot: number, velocity: number) {
         const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);

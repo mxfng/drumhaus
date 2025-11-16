@@ -1,15 +1,11 @@
 import { Grid, GridItem } from "@chakra-ui/react";
 import { Slot } from "./Slot";
-import { Sample, Sequences } from "@/types/types";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Sample } from "@/types/types";
+import { useCallback, useEffect, useRef } from "react";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 type SlotsGridProps = {
   samples: Sample[];
-  sequences: Sequences;
-  variation: number;
-  setCurrentSequence: (prevCurrentSequence: boolean[]) => void;
-  slotIndex: number;
-  setSlotIndex: (prevSlot: number) => void;
   isModal: boolean;
 };
 
@@ -17,21 +13,19 @@ const NO_OF_SLOTS = 8;
 
 export const SlotsGrid: React.FC<SlotsGridProps> = ({
   samples,
-  sequences,
-  variation,
-  setCurrentSequence,
-  slotIndex,
-  setSlotIndex,
   isModal,
 }) => {
   const slotsRef = useRef<HTMLDivElement | null>(null);
 
+  // Get state from Sequencer Store
+  const slotIndex = useSequencerStore((state) => state.slotIndex);
+  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+
   const toggleCurrentSequence = useCallback(
     (slot: number) => {
-      setCurrentSequence(sequences[slot][variation][0]);
       setSlotIndex(slot);
     },
-    [sequences, variation, setCurrentSequence, setSlotIndex]
+    [setSlotIndex]
   );
 
   const handleArrowKeyPress = useCallback(

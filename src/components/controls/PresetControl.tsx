@@ -1,7 +1,7 @@
 "use client";
 
 import * as kits from "@/lib/kits";
-import { Kit, Preset, Sequences } from "@/types/types";
+import { Kit, Preset } from "@/types/types";
 import {
   Box,
   Button,
@@ -44,6 +44,7 @@ import { SharedModal, SharingModal } from "../modal/ShareModals";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 type PresetControlProps = {
   preset: Preset;
@@ -57,8 +58,6 @@ type PresetControlProps = {
   compThreshold: number;
   compRatio: number;
   masterVolume: number;
-  sequences: Sequences;
-  chain: number;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -77,8 +76,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   compThreshold,
   compRatio,
   masterVolume,
-  sequences,
-  chain,
   togglePlay,
   isLoading,
   setIsLoading,
@@ -98,6 +95,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const solos = useSlotsStore((state) => state.solos);
   const mutes = useSlotsStore((state) => state.mutes);
   const pitches = useSlotsStore((state) => state.pitches);
+
+  // Get sequencer state from store
+  const sequences = useSequencerStore((state) => state.sequences);
+  const chain = useSequencerStore((state) => state.chain);
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,

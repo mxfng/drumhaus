@@ -1,33 +1,25 @@
 "use client";
 
-import { Sequences } from "@/types/types";
 import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useTransportStore } from "@/stores/useTransportStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
 
-type SequencerProps = {
-  sequence: boolean[];
-  setSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
-  sequences: Sequences;
-  setSequences: React.Dispatch<React.SetStateAction<Sequences>>;
-  variation: number;
-  slot: number;
-};
-
-export const Sequencer: React.FC<SequencerProps> = ({
-  sequence,
-  setSequence,
-  sequences,
-  setSequences,
-  variation,
-  slot,
-}) => {
-  // Get playback state from store
+export const Sequencer: React.FC = () => {
+  // Get playback state from Transport Store
   const step = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
+
+  // Get sequencer state from Sequencer Store
+  const sequences = useSequencerStore((state) => state.sequences);
+  const variation = useSequencerStore((state) => state.variation);
+  const slot = useSequencerStore((state) => state.slotIndex);
+  const sequence = useSequencerStore((state) => state.sequences[slot][variation][0]);
+  const toggleStep = useSequencerStore((state) => state.toggleStep);
+  const setVelocity = useSequencerStore((state) => state.setVelocity);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isWriting, setWriteState] = useState<boolean>(true);
   const [isVelocity, setIsVelocity] = useState<boolean>(false);
@@ -55,31 +47,19 @@ export const Sequencer: React.FC<SequencerProps> = ({
     return 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
   };
 
-  const toggleStep = (index: number) => {
-    setSequence((prevSequence: boolean[]) => {
-      const newSequence = [...prevSequence];
-      newSequence[index] = !newSequence[index];
-
-      setSequences((prevSequences: Sequences) => {
-        const newSequences = [...prevSequences];
-        newSequences[slot][variation][0] = newSequence;
-        newSequences[slot][variation][1][index] = 1;
-        return newSequences;
-      });
-
-      return newSequence;
-    });
+  const handleToggleStep = (index: number) => {
+    toggleStep(slot, variation, index);
   };
 
   const toggleStepOnMouseDown = (node: number, nodeState: boolean) => {
     setIsMouseDown(true);
     setWriteState(!nodeState);
-    toggleStep(node);
+    handleToggleStep(node);
   };
 
   const toggleStepOnMouseOver = (node: number, nodeState: boolean) => {
     if (isMouseDown && nodeState !== isWriting && !isVelocity) {
-      toggleStep(node);
+      handleToggleStep(node);
     }
   };
 
@@ -92,11 +72,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
     const mouseX = event.clientX - rect.left;
     const divWidth = rect.width;
     const calculateVelocity = Math.max(Math.min(mouseX / divWidth, 100), 0);
-    setSequences((prevSequences) => {
-      const newSequences = [...prevSequences];
-      newSequences[slot][variation][1][node] = calculateVelocity;
-      return newSequences;
-    });
+    setVelocity(slot, variation, node, calculateVelocity);
   };
 
   const adjustVelocityOnMouseDown = (

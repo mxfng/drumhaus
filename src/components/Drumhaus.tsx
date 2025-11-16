@@ -37,6 +37,7 @@ import { motion } from "framer-motion";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -55,21 +56,24 @@ const Drumhaus = () => {
   const setAllSolos = useSlotsStore((state) => state.setAllSolos);
   const setAllPitches = useSlotsStore((state) => state.setAllPitches);
 
+  // Sequencer store - subscribe to chain for live updates during playback
+  const chain = useSequencerStore((state) => state.chain);
+  const sequences = useSequencerStore((state) => state.sequences);
+
+  // Sequencer store - get setters for preset loading
+  const setSequences = useSequencerStore((state) => state.setSequences);
+  const setVariation = useSequencerStore((state) => state.setVariation);
+  const setChain = useSequencerStore((state) => state.setChain);
+  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [preset, setPreset] = useState<Preset>(init.init());
   const [isMobileWarning, setIsMobileWarning] = useState(false);
   const [isModal, setIsModal] = useState(false);
 
   // g l o b a l
-  const [slotIndex, setSlotIndex] = useState<number>(0); // 0-7
   const [kit, setKit] = useState<Kit>(preset._kit);
   const [samples, setSamples] = useState<Sample[]>(_samples);
-  const [sequences, setSequences] = useState<Sequences>(preset._sequences);
-  const [variation, setVariation] = useState<number>(preset._variation); // A = 0, B = 1
-  const [chain, setChain] = useState<number>(preset._chain); // A = 0, B = 1, AB = 2, AAAB = 3
-  const [currentSequence, setCurrentSequence] = useState<boolean[]>(
-    preset._sequences[slotIndex][variation][0]
-  );
 
   // m a s t e r   c o n t r o l s
   const [lowPass, setLowPass] = useState(preset._lowPass);
@@ -169,8 +173,7 @@ const Drumhaus = () => {
         samples,
         chain,
         bar,
-        chainVariation,
-        sequences
+        chainVariation
       );
     }
 
@@ -178,20 +181,27 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, chain, samples, sequences]);
+  }, [isPlaying, samples, chain, sequences]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
     function setFromPreset(_preset: Preset) {
+      // Sequencer state
       setSlotIndex(0);
-      setCurrentSequence(_preset._sequences[0][0][0]);
       setVariation(0);
-      setKit(_preset._kit);
       setSequences(_preset._sequences);
+      setChain(_preset._chain);
+
+      // Kit
+      setKit(_preset._kit);
+
+      // Transport
       setBpm(_preset._bpm); // Updates store + Tone.Transport
       setSwing(_preset._swing); // Updates store + Tone.Transport
+
+      // Master FX
       setLowPass(_preset._lowPass);
       setHiPass(_preset._hiPass);
       setPhaser(_preset._phaser);
@@ -199,7 +209,6 @@ const Drumhaus = () => {
       setCompThreshold(_preset._compThreshold);
       setCompRatio(_preset._compRatio);
       setMasterVolume(_preset._masterVolume);
-      setChain(_preset._chain);
     }
 
     setFromPreset({ ...preset });
@@ -381,12 +390,6 @@ const Drumhaus = () => {
     Tone.Destination.volume.value = newMasterVolume;
   }, [masterVolume, preset]);
 
-  useEffect(() => {
-    const newCurrentSequence: boolean[] = sequences[slotIndex][variation][0];
-    setCurrentSequence(newCurrentSequence);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variation]);
-
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
     const isMobile =
@@ -479,11 +482,6 @@ const Drumhaus = () => {
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
               <SlotsGrid
                 samples={samples}
-                variation={variation}
-                sequences={sequences}
-                setCurrentSequence={setCurrentSequence}
-                slotIndex={slotIndex}
-                setSlotIndex={setSlotIndex}
                 isModal={isModal}
               />
             </Box>
@@ -509,17 +507,7 @@ const Drumhaus = () => {
               </GridItem>
 
               <GridItem colSpan={1} mx={0} ml={-3}>
-                <SequencerControl
-                  variation={variation}
-                  setVariation={setVariation}
-                  chain={chain}
-                  setChain={setChain}
-                  currentSequence={currentSequence}
-                  setCurrentSequence={setCurrentSequence}
-                  slot={slotIndex}
-                  sequences={sequences}
-                  setSequences={setSequences}
-                />
+                <SequencerControl />
               </GridItem>
 
               <GridItem colSpan={1} px={2}>
@@ -539,8 +527,6 @@ const Drumhaus = () => {
                   compThreshold={compThreshold}
                   compRatio={compRatio}
                   masterVolume={masterVolume}
-                  sequences={sequences}
-                  chain={chain}
                   togglePlay={handleTogglePlay}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
@@ -584,14 +570,7 @@ const Drumhaus = () => {
             </Grid>
 
             <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <Sequencer
-                sequence={currentSequence}
-                setSequence={setCurrentSequence}
-                sequences={sequences}
-                setSequences={setSequences}
-                variation={variation}
-                slot={slotIndex}
-              />
+              <Sequencer />
             </Box>
 
             <SignatureLogo
