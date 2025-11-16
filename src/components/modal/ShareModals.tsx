@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -17,7 +18,6 @@ import {
   Text,
   useClipboard,
 } from "@chakra-ui/react";
-import { useState } from "react";
 
 export const SharingModal: React.FC<any> = ({
   isOpen,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -9,11 +10,10 @@ import {
   GridItem,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { FaDice } from "react-icons/fa";
-import { IoCopySharp } from "react-icons/io5";
-import { IoBrushSharp } from "react-icons/io5";
 import { BsFillEraserFill } from "react-icons/bs";
+import { FaDice } from "react-icons/fa";
+import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
+
 import { useSequencerStore } from "@/stores/useSequencerStore";
 
 export const SequencerControl: React.FC = () => {
@@ -22,8 +22,8 @@ export const SequencerControl: React.FC = () => {
   const chain = useSequencerStore((state) => state.chain);
   const slotIndex = useSequencerStore((state) => state.slotIndex);
   const sequences = useSequencerStore((state) => state.sequences);
-  const currentSequence = useSequencerStore((state) =>
-    state.sequences[state.slotIndex][state.variation][0]
+  const currentSequence = useSequencerStore(
+    (state) => state.sequences[state.slotIndex][state.variation][0],
   );
 
   // Get actions from store
@@ -54,10 +54,10 @@ export const SequencerControl: React.FC = () => {
   const handleRandomSequence = () => {
     const randomSeq: boolean[] = Array.from(
       { length: 16 },
-      () => Math.random() < 0.5
+      () => Math.random() < 0.5,
     );
     const randomVelocities: number[] = Array.from({ length: 16 }, () =>
-      Math.random()
+      Math.random(),
     );
     updateSequence(slotIndex, variation, randomSeq, randomVelocities);
   };

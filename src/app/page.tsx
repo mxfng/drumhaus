@@ -1,7 +1,7 @@
-import { Box } from "@chakra-ui/react";
-import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { Box } from "@chakra-ui/react";
 import { Metadata, ResolvingMetadata } from "next";
+import dynamic from "next/dynamic";
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -27,7 +27,7 @@ export async function generateMetadata({
     if (presetKey) {
       // This depends on the availability of Drumhaus' host
       const response = await fetch(
-        `https://www.drumha.us/api/presets?preset_key=${presetKey}`
+        `https://www.drumha.us/api/presets?preset_key=${presetKey}`,
       );
 
       const data = await response.json();
@@ -44,7 +44,7 @@ export async function generateMetadata({
     title = "Drumhaus";
     console.error(
       `There was an error while fetching the title for the provided preset_key ${presetKey}`,
-      error
+      error,
     );
   }
 

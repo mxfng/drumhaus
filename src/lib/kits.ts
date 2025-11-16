@@ -11,7 +11,7 @@ const wrapToSampleData = (
     "OHat",
     "Perc",
     "Crash",
-  ]
+  ],
 ): SampleData[] => {
   return urls.map((url, i) => {
     return { name: names[i], url: url };
@@ -53,7 +53,7 @@ const organicSamples: SampleData[] = wrapToSampleData(
     "3/dk_sidestick.wav",
     "3/dk_chime.wav",
   ],
-  ["Kick", "Kick2", "Snare", "Clap", "Hat", "Stick", "Perc", "Chime"]
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "Stick", "Perc", "Chime"],
 );
 
 export const organic = (): Kit => ({
@@ -80,7 +80,7 @@ const funkSamples: SampleData[] = wrapToSampleData(
     "1/rw_perc_flam.wav",
     "1/rw_cymbal.wav",
   ],
-  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Tom", "Crash"]
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Tom", "Crash"],
 );
 
 export const funk = (): Kit => ({
@@ -107,7 +107,7 @@ const rnbSamples: SampleData[] = wrapToSampleData(
     "6/superich_clav.wav",
     "6/superich_ride.wav",
   ],
-  ["Kick", "Kick2", "Snare", "Snare2", "Hat", "OHat", "Perc", "Crash"]
+  ["Kick", "Kick2", "Snare", "Snare2", "Hat", "OHat", "Perc", "Crash"],
 );
 
 export const rnb = (): Kit => ({
@@ -134,7 +134,7 @@ const trapSamples: SampleData[] = wrapToSampleData(
     "4/ts_hat2.wav",
     "4/ts_hat3.wav",
   ],
-  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Hat2", "Hat3"]
+  ["Kick", "Kick2", "Snare", "Clap", "Hat", "OHat", "Hat2", "Hat3"],
 );
 
 export const trap = (): Kit => ({
@@ -185,7 +185,7 @@ const tech_houseSamples: SampleData[] = wrapToSampleData(
     "2/paris_p_E.wav",
     "2/paris_p_Abm.wav",
   ],
-  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano2"]
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Piano", "Piano2"],
 );
 
 export const tech_house = (): Kit => ({
@@ -212,7 +212,7 @@ const technoSamples: SampleData[] = wrapToSampleData(
     "7/berlin_stab.wav",
     "7/berlin_loop.wav",
   ],
-  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth2"]
+  ["Kick", "Bass", "Snare", "Clap", "Hat", "OHat", "Synth", "Synth2"],
 );
 
 export const techno = (): Kit => ({

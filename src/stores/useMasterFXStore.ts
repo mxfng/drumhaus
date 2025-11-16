@@ -33,7 +33,7 @@ interface MasterFXState {
     reverb: number,
     compThreshold: number,
     compRatio: number,
-    masterVolume: number
+    masterVolume: number,
   ) => void;
 }
 
@@ -87,7 +87,7 @@ export const useMasterFXStore = create<MasterFXState>()(
           reverb,
           compThreshold,
           compRatio,
-          masterVolume
+          masterVolume,
         ) => {
           set({
             lowPass,
@@ -112,10 +112,10 @@ export const useMasterFXStore = create<MasterFXState>()(
           compRatio: state.compRatio,
           masterVolume: state.masterVolume,
         }),
-      }
+      },
     ),
     {
       name: "MasterFXStore",
-    }
-  )
+    },
+  ),
 );

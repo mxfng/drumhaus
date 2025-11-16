@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+
 import { Sequences } from "@/types/types";
 
 interface SequencerState {
@@ -20,8 +21,18 @@ interface SequencerState {
 
   // Sequence manipulation
   toggleStep: (slot: number, variation: number, step: number) => void;
-  setVelocity: (slot: number, variation: number, step: number, velocity: number) => void;
-  updateSequence: (slot: number, variation: number, sequence: boolean[], velocities: number[]) => void;
+  setVelocity: (
+    slot: number,
+    variation: number,
+    step: number,
+    velocity: number,
+  ) => void;
+  updateSequence: (
+    slot: number,
+    variation: number,
+    sequence: boolean[],
+    velocities: number[],
+  ) => void;
   clearSequence: (slot: number, variation: number) => void;
 
   // Computed getter
@@ -38,7 +49,7 @@ const createEmptySequences = (): Sequences => {
     Array.from({ length: variations }, () => [
       Array(steps).fill(false), // sequence pattern
       Array(steps).fill(1), // velocities
-    ])
+    ]),
   ) as Sequences;
 };
 
@@ -114,10 +125,10 @@ export const useSequencerStore = create<SequencerState>()(
           chain: state.chain,
           // Don't persist slotIndex (UI state)
         }),
-      }
+      },
     ),
     {
       name: "SequencerStore",
-    }
-  )
+    },
+  ),
 );

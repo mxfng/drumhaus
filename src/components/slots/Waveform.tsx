@@ -23,7 +23,7 @@ const Waveform: React.FC<WaveformProps> = ({
       amplitudeData: number[][],
       ctx: CanvasRenderingContext2D,
       canvasWidth: number,
-      canvasHeight: number
+      canvasHeight: number,
     ) => {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -85,7 +85,7 @@ const Waveform: React.FC<WaveformProps> = ({
           // Cache the waveform data in localStorage
           localStorage.setItem(
             `${sample_name}.json`,
-            JSON.stringify(amplitudeData)
+            JSON.stringify(amplitudeData),
           );
 
           // Call the draw function to draw the waveform

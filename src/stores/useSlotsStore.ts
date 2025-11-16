@@ -158,10 +158,10 @@ export const useSlotsStore = create<SlotsState>()(
           pitches: state.pitches,
           // Don't persist durations (computed from samples)
         }),
-      }
+      },
     ),
     {
       name: "SlotsStore",
-    }
-  )
+    },
+  ),
 );

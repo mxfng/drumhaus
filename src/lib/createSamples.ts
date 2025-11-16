@@ -1,6 +1,7 @@
-import { Sample, SampleData } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
+
 import * as kits from "@/lib/kits";
+import { Sample, SampleData } from "@/types/types";
 
 export const createSamples = (samples: SampleData[]) => {
   return samples.map((sample, id) => {

@@ -1,7 +1,6 @@
 "use client";
 
-import * as kits from "@/lib/kits";
-import { Kit, Preset } from "@/types/types";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -20,32 +19,33 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
-import { MdOutlineSaveAlt } from "react-icons/md";
 import { FaFolderOpen } from "react-icons/fa";
-import { IoIosShareAlt } from "react-icons/io";
-import { IoMdArrowDropdown } from "react-icons/io";
+import { IoIosShareAlt, IoMdArrowDropdown } from "react-icons/io";
+import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
-import { init } from "@/lib/presets/init";
+
+import * as kits from "@/lib/kits";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
+import { amsterdam } from "@/lib/presets/amsterdam";
+import { init } from "@/lib/presets/init";
+import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
+import { purple_haus } from "@/lib/presets/purple_haus";
 import { rich_kids } from "@/lib/presets/rich_kids";
 import { slime_time } from "@/lib/presets/slime_time";
-import { purple_haus } from "@/lib/presets/purple_haus";
-import { together_again } from "@/lib/presets/together_again";
-import { amsterdam } from "@/lib/presets/amsterdam";
 import { sunflower } from "@/lib/presets/sunflower";
-import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
 import { super_dream_haus } from "@/lib/presets/super_dream_haus";
-import { ErrorModal } from "../modal/ErrorModal";
-import { SaveModal } from "../modal/SaveModal";
-import { ResetModal } from "../modal/ResetModal";
-import { SharedModal, SharingModal } from "../modal/ShareModals";
-import { PresetChangeModal } from "../modal/PresetChangeModal";
-import { useTransportStore } from "@/stores/useTransportStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { together_again } from "@/lib/presets/together_again";
+import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useTransportStore } from "@/stores/useTransportStore";
+import { Kit, Preset } from "@/types/types";
+import { ErrorModal } from "../modal/ErrorModal";
+import { PresetChangeModal } from "../modal/PresetChangeModal";
+import { ResetModal } from "../modal/ResetModal";
+import { SaveModal } from "../modal/SaveModal";
+import { SharedModal, SharingModal } from "../modal/ShareModals";
 
 type PresetControlProps = {
   preset: Preset;
@@ -168,7 +168,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const updateStatesOnPresetChange = (
     presetToSave: Preset,
-    functionToSave?: () => Preset
+    functionToSave?: () => Preset,
   ) => {
     setPreset(presetToSave);
     setCleanPreset(presetToSave);
@@ -291,7 +291,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       setSelectedKit(newKit.name);
     } else {
       console.error(
-        `Kit ${selectedKitName} not found in options: ${kitOptions}`
+        `Kit ${selectedKitName} not found in options: ${kitOptions}`,
       );
     }
   };
@@ -323,7 +323,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [presetToChange, setPresetToChange] = useState<string>("");
 
   const handlePresetChangeRequest = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     // Deep equality check between current states and cached preset states
     const cp = cleanPreset;
@@ -363,7 +363,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       stopPlayingOnAction();
 
       const presetOption = presetOptions.find(
-        (preset) => preset().name === name
+        (preset) => preset().name === name,
       );
 
       if (presetOption) {
@@ -371,17 +371,17 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         updateStatesOnPresetChange(newPreset, presetOption);
       } else {
         console.error(
-          `Preset ${name} was not found in options: ${presetOptions}`
+          `Preset ${name} was not found in options: ${presetOptions}`,
         );
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [presetOptions, stopPlayingOnAction]
+    [presetOptions, stopPlayingOnAction],
   );
 
   const addOrUpdatePreset = (newOption: () => Preset) => {
     const index = presetOptions.findIndex(
-      (option) => option().name == newOption().name
+      (option) => option().name == newOption().name,
     );
 
     if (index !== -1) {

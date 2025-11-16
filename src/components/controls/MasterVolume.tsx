@@ -1,5 +1,5 @@
-import { Knob } from "../common/Knob";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { Knob } from "../common/Knob";
 
 export const MasterVolume: React.FC = () => {
   // Get state from Master FX Store

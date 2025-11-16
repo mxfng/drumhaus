@@ -1,6 +1,5 @@
 "use client";
 
-import { Sample } from "@/types/types";
 import {
   Box,
   Button,
@@ -11,21 +10,25 @@ import {
   Text,
   Tooltip,
 } from "@chakra-ui/react";
+
+import { Sample } from "@/types/types";
+
 import "@fontsource-variable/pixelify-sans";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
+import { MdHeadphones } from "react-icons/md";
+import * as Tone from "tone/build/esm/index";
+
+import { useSampleDuration } from "@/hooks/useSampleDuration";
+import { useSlotsStore } from "@/stores/useSlotsStore";
+import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
-import { useCallback, useEffect, useRef, useState } from "react";
 import Waveform from "./Waveform";
-import { useSampleDuration } from "@/hooks/useSampleDuration";
-import * as Tone from "tone/build/esm/index";
-import { MdHeadphones } from "react-icons/md";
-import { ImVolumeMute } from "react-icons/im";
-import { ImVolumeMute2 } from "react-icons/im";
-import { CustomSlider } from "../common/CustomSlider";
-import { useSlotsStore } from "@/stores/useSlotsStore";
 
 type SlotParams = {
   color?: string;
@@ -67,14 +70,38 @@ export const Slot: React.FC<SlotParams> = ({
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
   // Wrap store setters with slot ID
-  const setAttack = useCallback((value: number) => setAttackStore(sample.id, value), [sample.id, setAttackStore]);
-  const setRelease = useCallback((value: number) => setReleaseStore(sample.id, value), [sample.id, setReleaseStore]);
-  const setFilter = useCallback((value: number) => setFilterStore(sample.id, value), [sample.id, setFilterStore]);
-  const setPan = useCallback((value: number) => setPanStore(sample.id, value), [sample.id, setPanStore]);
-  const setVolume = useCallback((value: number) => setVolumeStore(sample.id, value), [sample.id, setVolumeStore]);
-  const setPitch = useCallback((value: number) => setPitchStore(sample.id, value), [sample.id, setPitchStore]);
-  const toggleMute = useCallback(() => toggleMuteStore(sample.id), [sample.id, toggleMuteStore]);
-  const toggleSolo = useCallback(() => toggleSoloStore(sample.id), [sample.id, toggleSoloStore]);
+  const setAttack = useCallback(
+    (value: number) => setAttackStore(sample.id, value),
+    [sample.id, setAttackStore],
+  );
+  const setRelease = useCallback(
+    (value: number) => setReleaseStore(sample.id, value),
+    [sample.id, setReleaseStore],
+  );
+  const setFilter = useCallback(
+    (value: number) => setFilterStore(sample.id, value),
+    [sample.id, setFilterStore],
+  );
+  const setPan = useCallback(
+    (value: number) => setPanStore(sample.id, value),
+    [sample.id, setPanStore],
+  );
+  const setVolume = useCallback(
+    (value: number) => setVolumeStore(sample.id, value),
+    [sample.id, setVolumeStore],
+  );
+  const setPitch = useCallback(
+    (value: number) => setPitchStore(sample.id, value),
+    [sample.id, setPitchStore],
+  );
+  const toggleMute = useCallback(
+    () => toggleMuteStore(sample.id),
+    [sample.id, toggleMuteStore],
+  );
+  const toggleSolo = useCallback(
+    () => toggleSoloStore(sample.id),
+    [sample.id, toggleSoloStore],
+  );
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
@@ -108,16 +135,13 @@ export const Slot: React.FC<SlotParams> = ({
     setDurationStore(sample.id, sampleDuration);
   }, [sampleDuration, sample.id, setDurationStore]);
 
-  const handleToggleMute = useCallback(
-    () => {
-      // Release the sample when muting (before toggling state)
-      if (!mute) {
-        sample.sampler.triggerRelease("C2", Tone.now());
-      }
-      toggleMute();
-    },
-    [toggleMute, mute, sample]
-  );
+  const handleToggleMute = useCallback(() => {
+    // Release the sample when muting (before toggling state)
+    if (!mute) {
+      sample.sampler.triggerRelease("C2", Tone.now());
+    }
+    toggleMute();
+  }, [toggleMute, mute, sample]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
@@ -152,7 +176,7 @@ export const Slot: React.FC<SlotParams> = ({
     sample.sampler.triggerRelease("C2", time);
     sample.envelope.triggerAttack(time);
     sample.envelope.triggerRelease(
-      time + transformKnobValue(release, [0, sampleDuration])
+      time + transformKnobValue(release, [0, sampleDuration]),
     );
     const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
     sample.sampler.triggerAttack(_pitch, time);
@@ -294,9 +318,7 @@ export const Slot: React.FC<SlotParams> = ({
                       onClick={() => toggleSolo()}
                       className="raised"
                     >
-                      <MdHeadphones
-                        color={solo ? "darkorange" : "#B09374"}
-                      />
+                      <MdHeadphones color={solo ? "darkorange" : "#B09374"} />
                     </Button>
                   </Tooltip>
                 </Flex>

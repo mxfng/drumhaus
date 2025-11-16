@@ -1,7 +1,6 @@
 "use client";
 
-import * as init from "@/lib/presets/init";
-import { Kit, Preset, Sample, Sequences } from "@/types/types";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -13,33 +12,35 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
-import { Sequencer } from "./Sequencer";
-import { SlotsGrid } from "./slots/SlotsGrid";
-import { IoPlaySharp, IoPauseSharp } from "react-icons/io5";
-import { TransportControl } from "./controls/TransportControl";
+
+import { _samples, createSamples } from "@/lib/createSamples";
+import makeGoodMusic from "@/lib/makeGoodMusic";
+import * as init from "@/lib/presets/init";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useTransportStore } from "@/stores/useTransportStore";
+import { Kit, Preset, Sample, Sequences } from "@/types/types";
 import {
   Knob,
   transformKnobValue,
   transformKnobValueExponential,
 } from "./common/Knob";
-import { SequencerControl } from "./controls/SequencerControl";
-import { MasterFX } from "./controls/MasterFX";
 import { MasterCompressor } from "./controls/MasterCompressor";
+import { MasterFX } from "./controls/MasterFX";
 import { MasterVolume } from "./controls/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
+import { SequencerControl } from "./controls/SequencerControl";
+import { TransportControl } from "./controls/TransportControl";
+import FrequencyAnalyzer from "./FrequencyAnalyzer";
+import { MobileModal } from "./modal/MobileModal";
+import { Sequencer } from "./Sequencer";
+import { SlotsGrid } from "./slots/SlotsGrid";
 import { DrumhausLogo } from "./svg/DrumhausLogo";
 import { SignatureLogo } from "./svg/SignatureLogo";
-import makeGoodMusic from "@/lib/makeGoodMusic";
-import { _samples, createSamples } from "@/lib/createSamples";
-import { MobileModal } from "./modal/MobileModal";
-import { motion } from "framer-motion";
-import FrequencyAnalyzer from "./FrequencyAnalyzer";
-import { useTransportStore } from "@/stores/useTransportStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -159,7 +160,7 @@ const Drumhaus = () => {
         } catch (error) {
           console.error(
             `Error fetching provided preset key ${presetKey}:`,
-            error
+            error,
           );
         }
       }
@@ -173,13 +174,7 @@ const Drumhaus = () => {
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(
-        toneSequence,
-        samples,
-        chain,
-        bar,
-        chainVariation
-      );
+      makeGoodMusic(toneSequence, samples, chain, bar, chainVariation);
     }
 
     return () => {
@@ -214,7 +209,7 @@ const Drumhaus = () => {
         _preset._reverb,
         _preset._compThreshold,
         _preset._compRatio,
-        _preset._masterVolume
+        _preset._masterVolume,
       );
     }
 
@@ -302,7 +297,7 @@ const Drumhaus = () => {
             tonePhaser.current!!,
             toneReverb.current!!,
             toneCompressor.current!!,
-            Tone.Destination
+            Tone.Destination,
           );
         });
       }
@@ -336,7 +331,7 @@ const Drumhaus = () => {
         .then((registration) => {
           console.log(
             "Service Worker registered with scope:",
-            registration.scope
+            registration.scope,
           );
         })
         .catch((error) => {
@@ -401,7 +396,7 @@ const Drumhaus = () => {
   useEffect(() => {
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+        navigator.userAgent,
       );
 
     if (isMobile) {
@@ -487,10 +482,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <SlotsGrid
-                samples={samples}
-                isModal={isModal}
-              />
+              <SlotsGrid samples={samples} isModal={isModal} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">

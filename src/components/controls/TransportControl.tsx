@@ -1,10 +1,11 @@
 "use client";
 
-import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
+import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";
-import { CustomSlider } from "../common/CustomSlider";
+
 import { useTransportStore } from "@/stores/useTransportStore";
+import { CustomSlider } from "../common/CustomSlider";
 
 // Constants
 const MIN_BPM = 1;
@@ -44,7 +45,7 @@ export const TransportControl: React.FC = () => {
       setBpmInputValue((prevBpmInputValue) => {
         const newBpmInputValue = Math.min(
           Math.max(prevBpmInputValue + modifier, MIN_BPM),
-          MAX_BPM
+          MAX_BPM,
         );
         return newBpmInputValue;
       });

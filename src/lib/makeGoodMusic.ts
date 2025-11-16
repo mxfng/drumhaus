@@ -1,21 +1,23 @@
-import { transformKnobValue } from "@/components/common/Knob";
-import { Sample } from "@/types/types";
 import * as Tone from "tone/build/esm/index";
-import { useTransportStore } from "@/stores/useTransportStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
+
+import { transformKnobValue } from "@/components/common/Knob";
 import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useTransportStore } from "@/stores/useTransportStore";
+import { Sample } from "@/types/types";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
   samples: Sample[],
   currentChain: number,
   currentBar: React.MutableRefObject<number>,
-  currentVariation: React.MutableRefObject<number>
+  currentVariation: React.MutableRefObject<number>,
 ) {
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
       // Get FRESH slot parameters from store on every step (enables live mute/solo)
-      const { releases, durations, solos, mutes, pitches } = useSlotsStore.getState();
+      const { releases, durations, solos, mutes, pitches } =
+        useSlotsStore.getState();
       // Get FRESH sequences from store on every step
       const { sequences } = useSequencerStore.getState();
 
@@ -26,7 +28,7 @@ export default function makeGoodMusic(
           samples[slot].sampler.triggerRelease(_pitch, time);
           samples[slot].envelope.triggerAttack(time);
           samples[slot].envelope.triggerRelease(
-            time + transformKnobValue(releases[slot], [0, durations[slot]])
+            time + transformKnobValue(releases[slot], [0, durations[slot]]),
           );
 
           samples[slot].sampler.triggerAttack(_pitch, time, velocity);
@@ -43,7 +45,7 @@ export default function makeGoodMusic(
       function triggerOHat(velocity: number, slot: number) {
         samples[slot].envelope.triggerAttack(time);
         samples[slot].envelope.triggerRelease(
-          time + transformKnobValue(releases[slot], [0, durations[slot]])
+          time + transformKnobValue(releases[slot], [0, durations[slot]]),
         );
         const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
         samples[slot].sampler.triggerAttack(_pitch, time, velocity);
@@ -109,6 +111,6 @@ export default function makeGoodMusic(
       updateBarByChain();
     },
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    "16n"
+    "16n",
   ).start(0);
 }

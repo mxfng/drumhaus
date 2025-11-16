@@ -1,9 +1,10 @@
 "use client";
 
-import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
-import { useTransportStore } from "@/stores/useTransportStore";
+import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+
 import { useSequencerStore } from "@/stores/useSequencerStore";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
@@ -17,7 +18,9 @@ export const Sequencer: React.FC = () => {
   const sequences = useSequencerStore((state) => state.sequences);
   const variation = useSequencerStore((state) => state.variation);
   const slot = useSequencerStore((state) => state.slotIndex);
-  const sequence = useSequencerStore((state) => state.sequences[slot][variation][0]);
+  const sequence = useSequencerStore(
+    (state) => state.sequences[slot][variation][0],
+  );
   const toggleStep = useSequencerStore((state) => state.toggleStep);
   const setVelocity = useSequencerStore((state) => state.setVelocity);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
@@ -65,7 +68,7 @@ export const Sequencer: React.FC = () => {
 
   const getVelocityValue = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     const targetDiv = event.currentTarget;
     const rect = targetDiv.getBoundingClientRect();
@@ -77,7 +80,7 @@ export const Sequencer: React.FC = () => {
 
   const adjustVelocityOnMouseDown = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     setIsMouseDown(true);
     setIsVelocity(true);
@@ -86,7 +89,7 @@ export const Sequencer: React.FC = () => {
 
   const adjustVelocityOnMouseMove = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     if (isMouseDown && isVelocity) {
       getVelocityValue(event, node);
@@ -118,8 +121,8 @@ export const Sequencer: React.FC = () => {
                   node == step && isPlaying
                     ? 1
                     : [0, 4, 8, 12].includes(node)
-                    ? 0.6
-                    : 0.2
+                      ? 0.6
+                      : 0.2
                 }
                 bg={node == step && isPlaying ? "darkorange" : "gray"}
               />
@@ -178,7 +181,7 @@ export const Sequencer: React.FC = () => {
                   h="100%"
                   w={`${Math.max(
                     sequences[slot][variation][1][node] * 100,
-                    12
+                    12,
                   )}%`}
                   position="absolute"
                   borderRadius="200px 0 200px 0"
@@ -198,7 +201,7 @@ export const Sequencer: React.FC = () => {
                 </Center>
               </Box>
             </GridItem>
-          )
+          ),
         )}
       </Grid>
     </Box>

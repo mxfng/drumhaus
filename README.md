@@ -21,7 +21,7 @@ Early on in my design, I hit a roadblock while trying to produce a high-performa
 ### next.js
 
 This framework has fueled my love for web development using React, and I wanted to include it for its serverless functioning, file based routing, hot module replacement, and overall developer experience.
- 
+
 ### chakra-ui
 
 Used for its wide array of components, styling, and themeing capabilities. The majority of this project's React components were built with and styled by Chakra UI's library.
@@ -108,7 +108,7 @@ pip install -r requirements.txt
 After that, you can run:
 
 ```
-python3 src/lib/audio_to_json.py
+python3 scripts/audio_to_json.py
 ```
 
 ## Quickly creating new kits
@@ -120,7 +120,7 @@ Create a new folder with any unique name, and add 8 samples in .WAV format to `p
 Run the script:
 
 ```
-python3 src/lib/new_kit.py
+python3 scripts/new_kit.py
 ```
 
 Enter the desired name for your kit when prompted and let the script run.
