@@ -108,7 +108,7 @@ pip install -r requirements.txt
 After that, you can run:
 
 ```
-python3 src/lib/audio_to_json.py
+python3 scripts/audio_to_json.py
 ```
 
 ## Quickly creating new kits
@@ -120,7 +120,7 @@ Create a new folder with any unique name, and add 8 samples in .WAV format to `p
 Run the script:
 
 ```
-python3 src/lib/new_kit.py
+python3 scripts/new_kit.py
 ```
 
 Enter the desired name for your kit when prompted and let the script run.
