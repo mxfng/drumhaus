@@ -12,10 +12,11 @@ export default function makeGoodMusic(
   currentVariation: React.MutableRefObject<number>,
   sequences: Sequences
 ) {
-  // Get slot parameters from store
-  const { releases, durations, solos, mutes, pitches } = useSlotsStore.getState();
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
+      // Get FRESH slot parameters from store on every step (enables live mute/solo)
+      const { releases, durations, solos, mutes, pitches } = useSlotsStore.getState();
+
       function triggerSample(slot: number, velocity: number) {
         const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
         samples[slot].sampler.triggerRelease(_pitch, time);

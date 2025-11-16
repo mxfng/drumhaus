@@ -110,7 +110,8 @@ export const Slot: React.FC<SlotParams> = ({
 
   const handleToggleMute = useCallback(
     () => {
-      if (mute) {
+      // Release the sample when muting (before toggling state)
+      if (!mute) {
         sample.sampler.triggerRelease("C2", Tone.now());
       }
       toggleMute();
