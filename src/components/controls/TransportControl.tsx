@@ -4,25 +4,19 @@ import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { IoTriangleSharp } from "react-icons/io5";
 import { CustomSlider } from "../common/CustomSlider";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 // Constants
 const MIN_BPM = 1;
 const MAX_BPM = 300;
 const HOLD_INTERVAL = 130;
 
-type TransportControlProps = {
-  bpm: number;
-  setBpm: React.Dispatch<React.SetStateAction<number>>;
-  swing: number;
-  setSwing: React.Dispatch<React.SetStateAction<number>>;
-};
-
-export const TransportControl: React.FC<TransportControlProps> = ({
-  bpm,
-  setBpm,
-  swing,
-  setSwing,
-}) => {
+export const TransportControl: React.FC = () => {
+  // Get transport state from store
+  const bpm = useTransportStore((state) => state.bpm);
+  const setBpm = useTransportStore((state) => state.setBpm);
+  const swing = useTransportStore((state) => state.swing);
+  const setSwing = useTransportStore((state) => state.setSwing);
   const [bpmInputValue, setBpmInputValue] = useState<number>(bpm);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const upButtonRef = useRef<HTMLButtonElement | null>(null);

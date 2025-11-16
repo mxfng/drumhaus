@@ -1,19 +1,15 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 import { Knob } from "../common/Knob";
+import { useMasterFXStore } from "@/stores/useMasterFXStore";
 
-type MasterCompressorProps = {
-  threshold: number;
-  setThreshold: React.Dispatch<React.SetStateAction<number>>;
-  ratio: number;
-  setRatio: React.Dispatch<React.SetStateAction<number>>;
-};
+export const MasterCompressor: React.FC = () => {
+  // Get state from Master FX Store
+  const threshold = useMasterFXStore((state) => state.compThreshold);
+  const ratio = useMasterFXStore((state) => state.compRatio);
 
-export const MasterCompressor: React.FC<MasterCompressorProps> = ({
-  threshold,
-  setThreshold,
-  ratio,
-  setRatio,
-}) => {
+  // Get actions from store
+  const setThreshold = useMasterFXStore((state) => state.setCompThreshold);
+  const setRatio = useMasterFXStore((state) => state.setCompRatio);
   return (
     <Box h="100%" w="130px">
       <Grid templateColumns="repeat(2, 1fr)">
