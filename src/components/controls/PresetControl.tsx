@@ -476,65 +476,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           h="195px"
           className="neumorphicExtraTall"
           borderRadius="8px"
-          p={3}
+          pt={2}
+          pb={1}
+          px={3}
           position="relative"
           ref={modalCloseRef}
         >
-          <Box
-            w="100%"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <Box h="40px" w="100%" id="kit" mb={4} position="relative">
-              <Select
-                variant="unstyled"
-                icon={<></>}
-                border="none"
-                outline="none"
-                value={selectedKit}
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="gray"
-                w="332px"
-                h="40px"
-                borderRadius="8px"
-                cursor="pointer"
-                pl={4}
-                onChange={handleKitChange}
-                onKeyDown={(ev) => ev.preventDefault()}
-              >
-                {kitOptions.map((kit) => (
-                  <option key={kit().name} value={kit().name}>
-                    {kit().name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                bg="transparent"
-                position="absolute"
-                right={0}
-                top={0}
-                pointerEvents="none"
-              >
-                <Box>
-                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                  <Box h="50%">
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                </Box>
-              </Button>
-            </Box>
-          </Box>
-
-          <Text fontSize={12} color="gray" my={-3}>
-            KIT
+          <Text fontSize={12} color="gray">
+            PRESET
           </Text>
 
           <Box
@@ -548,7 +497,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
               },
             }}
           >
-            <Box id="preset" h="40px" mt={4} mb={4} position="relative">
+            <Box id="preset" h="40px" mb={2} position="relative">
               <Select
                 variant="unstyled"
                 icon={<></>}
@@ -588,9 +537,60 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             </Box>
           </Box>
 
-          <Text fontSize={12} color="gray" my={-3} mb={-1}>
-            PRESET
+          <Text fontSize={12} color="gray">
+            KIT
           </Text>
+
+          <Box
+            w="100%"
+            borderRadius="8px"
+            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+            _hover={{
+              "& .icon": {
+                fill: "darkorange",
+                transition: "all 0.2s ease",
+              },
+            }}
+          >
+            <Box h="40px" w="100%" id="kit" mb={2} position="relative">
+              <Select
+                variant="unstyled"
+                icon={<></>}
+                value={selectedKit}
+                fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                color="gray"
+                w="332px"
+                h="40px"
+                borderRadius="8px"
+                cursor="pointer"
+                pl={4}
+                onChange={handleKitChange}
+                onKeyDown={(ev) => ev.preventDefault()}
+              >
+                {kitOptions.map((kit) => (
+                  <option key={kit().name} value={kit().name}>
+                    {kit().name}
+                  </option>
+                ))}
+              </Select>
+              <Button
+                bg="transparent"
+                position="absolute"
+                right={0}
+                top={0}
+                pointerEvents="none"
+              >
+                <Box>
+                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
+                  <Box h="50%">
+                    <IoMdArrowDropdown className="icon" color="#B09374" />
+                  </Box>
+                </Box>
+              </Button>
+            </Box>
+          </Box>
 
           <Grid
             templateColumns="repeat(4, 1fr)"
