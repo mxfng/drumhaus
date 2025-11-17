@@ -36,11 +36,12 @@ import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
+import { DrumhausLogo } from "./icon/DrumhausLogo";
+import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
+import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
 import { SlotsGrid } from "./slots/SlotsGrid";
-import { DrumhausLogo } from "./svg/DrumhausLogo";
-import { SignatureLogo } from "./svg/SignatureLogo";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -442,23 +443,22 @@ const Drumhaus = () => {
               boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
               position="relative"
             >
-              <Flex position="relative" h="120px" w="750px" flexDir="row">
-                <Box h="90px" w="80px" my="20px">
-                  <DrumhausLogo size={100} color="#ff7b00" />
+              <Flex
+                position="relative"
+                h="120px"
+                w="750px"
+                flexDir="row"
+                alignItems="flex-end"
+                pl="26px"
+                pb="20px"
+              >
+                <Box display="flex" alignItems="flex-end">
+                  <DrumhausLogo size={46} color="#ff7b00" />
                 </Box>
-                <Text
-                  id="logo"
-                  variant="logo"
-                  fontSize={100}
-                  color="darkorange"
-                  fontFamily="Mandala"
-                  fontWeight={900}
-                  my="-12px"
-                  h="120px"
-                >
-                  drumhaus
-                </Text>
-                <Box my="60px" ml={4}>
+                <Box ml={2} display="flex" alignItems="flex-end">
+                  <DrumhausTypographyLogo color="#ff7b00" size={420} />
+                </Box>
+                <Box mb={-1} ml={4}>
                   <Text color="gray" opacity={0.7}>
                     Browser Controlled
                   </Text>
@@ -543,17 +543,17 @@ const Drumhaus = () => {
               <Sequencer />
             </Box>
 
-            <SignatureLogo
-              width={50}
-              fill="#B09374"
+            <Box
               position="absolute"
-              right={6}
-              bottom={8}
-              opacity={0.3}
+              right="26px"
+              bottom={10}
+              opacity={0.2}
               as="a"
-              href="https://www.maxfung.net/"
+              href="https://fung.studio/"
               target="_blank"
-            />
+            >
+              <FungPeaceLogo color="#B09374" size={80} />
+            </Box>
           </Box>
           <Box h="20px" w="100%" position="relative">
             <Center w="100%" h="100%">
@@ -562,22 +562,13 @@ const Drumhaus = () => {
                   Designed with love by
                 </Text>
                 <Link
-                  href="https://www.maxfung.net/"
+                  href="https://fung.studio/"
                   target="_blank"
                   color="gray"
                   ml={1}
                   fontSize={14}
                 >
                   Max Fung.
-                </Link>
-                <Link
-                  href="https://forms.gle/txrvMfTczxe8Bg819"
-                  target="_blank"
-                  color="gray"
-                  ml={1}
-                  fontSize={14}
-                >
-                  Send feedback.
                 </Link>
                 <Link
                   href="https://ko-fi.com/maxfung"
