@@ -1,29 +1,10 @@
+import * as kits from "@/lib/kits";
 import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const welcome_to_the_haus = (): Preset => ({
   name: "welcome_to_the_haus",
-  _kit: {
-    name: "drumhaus",
-    samples: [
-      { name: "Kick", url: "0/kick.wav" },
-      { name: "Kick2", url: "0/kick2.wav" },
-      { name: "Snare", url: "0/snare.wav" },
-      { name: "Clap", url: "0/clap.wav" },
-      { name: "Hat", url: "0/hat.wav" },
-      { name: "OHat", url: "0/ohat.wav" },
-      { name: "Tom", url: "0/tom.wav" },
-      { name: "Tom2", url: "0/tom2.wav" },
-    ],
-    _attacks: [0, 0, 0, 0, 0, 0, 0, 0],
-    _releases: [24, 100, 68, 55, 57, 100, 40, 100],
-    _pitches: [50, 50, 50, 50, 50, 50, 50, 50],
-    _filters: [50, 50, 50, 21, 50, 50, 50, 50],
-    _pans: [50, 50, 50, 50, 50, 50, 29, 75],
-    _volumes: [92, 92, 92, 92, 92, 92, 92, 92],
-    _mutes: [false, false, false, false, false, false, false, false],
-    _solos: [false, false, false, false, false, false, false, false],
-  },
+  _kit: kits.drumhaus(),
   _pattern: sequencesToPattern([
     [
       [

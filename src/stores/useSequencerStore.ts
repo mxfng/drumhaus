@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { createEmptyPattern } from "@/lib/pattern/migrate";
+import { createEmptyPattern } from "@/lib/pattern/create";
 import { Pattern } from "@/lib/pattern/types";
 
 interface SequencerState {

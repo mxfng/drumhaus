@@ -1,5 +1,5 @@
 import * as kits from "@/lib/kits";
-import { createEmptyPattern } from "@/lib/pattern/migrate";
+import { createEmptyPattern } from "@/lib/pattern/create";
 import { Preset } from "@/types/types";
 
 export const init = (): Preset => ({
