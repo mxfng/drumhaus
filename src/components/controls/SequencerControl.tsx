@@ -20,10 +20,11 @@ export const SequencerControl: React.FC = () => {
   // Get state from Sequencer Store
   const variation = useSequencerStore((state) => state.variation);
   const chain = useSequencerStore((state) => state.chain);
-  const slotIndex = useSequencerStore((state) => state.slotIndex);
-  const sequences = useSequencerStore((state) => state.sequences);
-  const currentSequence = useSequencerStore(
-    (state) => state.sequences[state.slotIndex][state.variation][0],
+  const voiceIndex = useSequencerStore((state) => state.voiceIndex);
+  const pattern = useSequencerStore((state) => state.pattern);
+  const currentTriggers = useSequencerStore(
+    (state) =>
+      state.pattern[state.voiceIndex].variations[state.variation].triggers,
   );
 
   // Get actions from store
@@ -31,35 +32,35 @@ export const SequencerControl: React.FC = () => {
   const setChain = useSequencerStore((state) => state.setChain);
   const updateSequence = useSequencerStore((state) => state.updateSequence);
   const clearSequence = useSequencerStore((state) => state.clearSequence);
-  const [copiedSequence, setCopiedSequence] = useState<boolean[] | undefined>();
+  const [copiedTriggers, setCopiedTriggers] = useState<boolean[] | undefined>();
   const [copiedVelocities, setCopiedVelocities] = useState<
     number[] | undefined
   >();
 
   const copySequence = () => {
-    setCopiedSequence(currentSequence);
-    setCopiedVelocities(sequences[slotIndex][variation][1]);
+    setCopiedTriggers(currentTriggers);
+    setCopiedVelocities(pattern[voiceIndex].variations[variation].velocities);
   };
 
   const pasteSequence = () => {
-    if (copiedSequence && copiedVelocities) {
-      updateSequence(slotIndex, variation, copiedSequence, copiedVelocities);
+    if (copiedTriggers && copiedVelocities) {
+      updateSequence(voiceIndex, variation, copiedTriggers, copiedVelocities);
     }
   };
 
   const handleClearSequence = () => {
-    clearSequence(slotIndex, variation);
+    clearSequence(voiceIndex, variation);
   };
 
   const handleRandomSequence = () => {
-    const randomSeq: boolean[] = Array.from(
+    const randomTriggers: boolean[] = Array.from(
       { length: 16 },
       () => Math.random() < 0.5,
     );
     const randomVelocities: number[] = Array.from({ length: 16 }, () =>
       Math.random(),
     );
-    updateSequence(slotIndex, variation, randomSeq, randomVelocities);
+    updateSequence(voiceIndex, variation, randomTriggers, randomVelocities);
   };
 
   return (

@@ -1,4 +1,5 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const so_there_i_was = (): Preset => ({
@@ -24,7 +25,7 @@ export const so_there_i_was = (): Preset => ({
     _mutes: [false, false, false, false, false, false, false, false],
     _solos: [false, false, false, false, false, false, false, false],
   },
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -377,7 +378,7 @@ export const so_there_i_was = (): Preset => ({
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 3,
   _bpm: 128,

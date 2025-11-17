@@ -1,3 +1,4 @@
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const welcome_to_the_haus = (): Preset => ({
@@ -23,7 +24,7 @@ export const welcome_to_the_haus = (): Preset => ({
     _mutes: [false, false, false, false, false, false, false, false],
     _solos: [false, false, false, false, false, false, false, false],
   },
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -398,7 +399,7 @@ export const welcome_to_the_haus = (): Preset => ({
         ],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 2,
   _bpm: 115,

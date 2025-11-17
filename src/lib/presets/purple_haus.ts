@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const purple_haus = (): Preset => ({
   name: "purple_haus",
   _kit: kits.eighties(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -374,7 +375,7 @@ export const purple_haus = (): Preset => ({
         [0.38330757341576505, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 2,
   _bpm: 130,

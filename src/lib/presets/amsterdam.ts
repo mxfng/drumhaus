@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const amsterdam = (): Preset => ({
   name: "amsterdam",
   _kit: kits.techno(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -357,7 +358,7 @@ export const amsterdam = (): Preset => ({
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 3,
   _bpm: 125,

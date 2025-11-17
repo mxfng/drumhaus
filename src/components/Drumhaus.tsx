@@ -19,11 +19,11 @@ import * as Tone from "tone/build/esm/index";
 import { _samples, createSamples } from "@/lib/createSamples";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Kit, Preset, Sample, Sequences } from "@/types/types";
+import { Kit, Preset, Sample } from "@/types/types";
 import {
   Knob,
   transformKnobValue,
@@ -41,7 +41,7 @@ import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
-import { SlotsGrid } from "./slots/SlotsGrid";
+import { InstrumentsGrid } from "./slots/InstrumentsGrid";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -50,25 +50,25 @@ const Drumhaus = () => {
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Slots store - get batch setters for preset loading
-  const setAllAttacks = useSlotsStore((state) => state.setAllAttacks);
-  const setAllReleases = useSlotsStore((state) => state.setAllReleases);
-  const setAllFilters = useSlotsStore((state) => state.setAllFilters);
-  const setAllVolumes = useSlotsStore((state) => state.setAllVolumes);
-  const setAllPans = useSlotsStore((state) => state.setAllPans);
-  const setAllMutes = useSlotsStore((state) => state.setAllMutes);
-  const setAllSolos = useSlotsStore((state) => state.setAllSolos);
-  const setAllPitches = useSlotsStore((state) => state.setAllPitches);
+  // Instruments store - get batch setters for preset loading
+  const setAllAttacks = useInstrumentsStore((state) => state.setAllAttacks);
+  const setAllReleases = useInstrumentsStore((state) => state.setAllReleases);
+  const setAllFilters = useInstrumentsStore((state) => state.setAllFilters);
+  const setAllVolumes = useInstrumentsStore((state) => state.setAllVolumes);
+  const setAllPans = useInstrumentsStore((state) => state.setAllPans);
+  const setAllMutes = useInstrumentsStore((state) => state.setAllMutes);
+  const setAllSolos = useInstrumentsStore((state) => state.setAllSolos);
+  const setAllPitches = useInstrumentsStore((state) => state.setAllPitches);
 
   // Sequencer store - subscribe to chain for live updates during playback
   const chain = useSequencerStore((state) => state.chain);
-  const sequences = useSequencerStore((state) => state.sequences);
+  const pattern = useSequencerStore((state) => state.pattern);
 
   // Sequencer store - get setters for preset loading
-  const setSequences = useSequencerStore((state) => state.setSequences);
+  const setPattern = useSequencerStore((state) => state.setPattern);
   const setVariation = useSequencerStore((state) => state.setVariation);
   const setChain = useSequencerStore((state) => state.setChain);
-  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+  const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
 
   // Master FX store - subscribe to values for useEffect dependencies
   const lowPass = useMasterFXStore((state) => state.lowPass);
@@ -91,7 +91,7 @@ const Drumhaus = () => {
   const [kit, setKit] = useState<Kit>(preset._kit);
   const [samples, setSamples] = useState<Sample[]>(_samples);
 
-  // s l o t s - now managed by Slots Store
+  // i n s t r u m e n t s - now managed by Instruments Store
 
   // r e f s
   const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
@@ -182,7 +182,7 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, samples, chain, sequences]);
+  }, [isPlaying, samples, chain, pattern]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
@@ -190,9 +190,9 @@ const Drumhaus = () => {
 
     function setFromPreset(_preset: Preset) {
       // Sequencer state
-      setSlotIndex(0);
+      setVoiceIndex(0);
       setVariation(0);
-      setSequences(_preset._sequences);
+      setPattern(_preset._pattern);
       setChain(_preset._chain);
 
       // Kit
@@ -482,7 +482,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <SlotsGrid samples={samples} isModal={isModal} />
+              <InstrumentsGrid samples={samples} isModal={isModal} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">

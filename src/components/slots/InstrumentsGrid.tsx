@@ -3,40 +3,43 @@ import { Grid, GridItem } from "@chakra-ui/react";
 
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { Sample } from "@/types/types";
-import { Slot } from "./Slot";
+import { Instrument } from "./Instrument";
 
-type SlotsGridProps = {
+type InstrumentsGridProps = {
   samples: Sample[];
   isModal: boolean;
 };
 
-const NO_OF_SLOTS = 8;
+const NO_OF_INSTRUMENTS = 8;
 
-export const SlotsGrid: React.FC<SlotsGridProps> = ({ samples, isModal }) => {
-  const slotsRef = useRef<HTMLDivElement | null>(null);
+export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
+  samples,
+  isModal,
+}) => {
+  const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
   // Get state from Sequencer Store
-  const slotIndex = useSequencerStore((state) => state.slotIndex);
-  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+  const voiceIndex = useSequencerStore((state) => state.voiceIndex);
+  const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
 
-  const toggleCurrentSequence = useCallback(
-    (slot: number) => {
-      setSlotIndex(slot);
+  const toggleCurrentVoice = useCallback(
+    (voice: number) => {
+      setVoiceIndex(voice);
     },
-    [setSlotIndex],
+    [setVoiceIndex],
   );
 
   const handleArrowKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "ArrowRight" && !isModal) {
-        const newSlot = (slotIndex + 1) % 8;
-        toggleCurrentSequence(newSlot);
+        const newVoice = (voiceIndex + 1) % 8;
+        toggleCurrentVoice(newVoice);
       } else if (event.key === "ArrowLeft" && !isModal) {
-        const newSlot = (slotIndex - 1 + 8) % 8;
-        toggleCurrentSequence(newSlot);
+        const newVoice = (voiceIndex - 1 + 8) % 8;
+        toggleCurrentVoice(newVoice);
       }
     },
-    [isModal, slotIndex, toggleCurrentSequence],
+    [isModal, voiceIndex, toggleCurrentVoice],
   );
 
   useEffect(() => {
@@ -46,7 +49,7 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({ samples, isModal }) => {
     };
   }, [handleArrowKeyPress]);
 
-  const slotColors = [
+  const instrumentColors = [
     "#213062",
     "#e9902f",
     "#d72529",
@@ -59,10 +62,10 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({ samples, isModal }) => {
 
   return (
     <Grid
-      ref={slotsRef}
-      key="slots"
+      ref={instrumentsRef}
+      key="instruments"
       w="100%"
-      templateColumns={`repeat(${NO_OF_SLOTS}, 1fr)`}
+      templateColumns={`repeat(${NO_OF_INSTRUMENTS}, 1fr)`}
       boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
     >
       {samples.map((sample, index) => (
@@ -70,16 +73,16 @@ export const SlotsGrid: React.FC<SlotsGridProps> = ({ samples, isModal }) => {
           colSpan={1}
           key={`gridItem-${index}`}
           w={`193px`}
-          onMouseDown={() => toggleCurrentSequence(index)}
+          onMouseDown={() => toggleCurrentVoice(index)}
           transition="all 0.5s ease"
         >
-          <Slot
-            color={slotColors[index]}
-            key={`DHSlot-${index}`}
+          <Instrument
+            color={instrumentColors[index]}
+            key={`Instrument-${index}`}
             sample={sample}
             isModal={isModal}
-            slotIndex={slotIndex}
-            bg={slotIndex == index ? "#F7F1EA" : "#E8E3DD"}
+            instrumentIndex={voiceIndex}
+            bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
           />
         </GridItem>
       ))}

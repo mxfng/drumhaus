@@ -2,66 +2,53 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { Sequences } from "@/types/types";
+import { createEmptyPattern } from "@/lib/pattern/migrate";
+import { Pattern } from "@/lib/pattern/types";
 
 interface SequencerState {
-  // Sequence data - [8 slots][2 variations][2 (sequences/velocities)][16 steps]
-  sequences: Sequences;
+  // Pattern data - 8 voices, each with instrumentIndex and 2 variations
+  pattern: Pattern;
 
   // Sequencer controls
   variation: number; // A = 0, B = 1
   chain: number; // A = 0, B = 1, AB = 2, AAAB = 3
-  slotIndex: number; // Currently selected slot (0-7)
+  voiceIndex: number; // Currently selected voice (0-7)
 
   // Actions
   setVariation: (variation: number) => void;
   setChain: (chain: number) => void;
-  setSlotIndex: (slotIndex: number) => void;
-  setSequences: (sequences: Sequences) => void;
+  setVoiceIndex: (voiceIndex: number) => void;
+  setPattern: (pattern: Pattern) => void;
 
   // Sequence manipulation
-  toggleStep: (slot: number, variation: number, step: number) => void;
+  toggleStep: (voiceIndex: number, variation: number, step: number) => void;
   setVelocity: (
-    slot: number,
+    voiceIndex: number,
     variation: number,
     step: number,
     velocity: number,
   ) => void;
   updateSequence: (
-    slot: number,
+    voiceIndex: number,
     variation: number,
-    sequence: boolean[],
+    triggers: boolean[],
     velocities: number[],
   ) => void;
-  clearSequence: (slot: number, variation: number) => void;
+  clearSequence: (voiceIndex: number, variation: number) => void;
 
   // Computed getter
   getCurrentSequence: () => boolean[];
 }
-
-// Default empty sequences for 8 slots, 2 variations
-const createEmptySequences = (): Sequences => {
-  const slots = 8;
-  const variations = 2;
-  const steps = 16;
-
-  return Array.from({ length: slots }, () =>
-    Array.from({ length: variations }, () => [
-      Array(steps).fill(false), // sequence pattern
-      Array(steps).fill(1), // velocities
-    ]),
-  ) as Sequences;
-};
 
 export const useSequencerStore = create<SequencerState>()(
   devtools(
     persist(
       immer((set, get) => ({
         // Initial state
-        sequences: createEmptySequences(),
+        pattern: createEmptyPattern(),
         variation: 0,
         chain: 0,
-        slotIndex: 0,
+        voiceIndex: 0,
 
         // Actions
         setVariation: (variation) => {
@@ -72,58 +59,65 @@ export const useSequencerStore = create<SequencerState>()(
           set({ chain });
         },
 
-        setSlotIndex: (slotIndex) => {
-          set({ slotIndex });
+        setVoiceIndex: (voiceIndex) => {
+          set({ voiceIndex });
         },
 
-        setSequences: (sequences) => {
-          set({ sequences });
+        setPattern: (pattern) => {
+          set({ pattern });
         },
 
-        toggleStep: (slot, variation, step) => {
+        toggleStep: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue = state.sequences[slot][variation][0][step];
-            state.sequences[slot][variation][0][step] = !currentValue;
+            const currentValue =
+              state.pattern[voiceIndex].variations[variation].triggers[step];
+            state.pattern[voiceIndex].variations[variation].triggers[step] =
+              !currentValue;
             // Set default velocity to 1 when enabling a step
             if (!currentValue) {
-              state.sequences[slot][variation][1][step] = 1;
+              state.pattern[voiceIndex].variations[variation].velocities[step] =
+                1;
             }
           });
         },
 
-        setVelocity: (slot, variation, step, velocity) => {
+        setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
-            state.sequences[slot][variation][1][step] = velocity;
+            state.pattern[voiceIndex].variations[variation].velocities[step] =
+              velocity;
           });
         },
 
-        updateSequence: (slot, variation, sequence, velocities) => {
+        updateSequence: (voiceIndex, variation, triggers, velocities) => {
           set((state) => {
-            state.sequences[slot][variation][0] = sequence;
-            state.sequences[slot][variation][1] = velocities;
+            state.pattern[voiceIndex].variations[variation].triggers = triggers;
+            state.pattern[voiceIndex].variations[variation].velocities =
+              velocities;
           });
         },
 
-        clearSequence: (slot, variation) => {
+        clearSequence: (voiceIndex, variation) => {
           set((state) => {
-            state.sequences[slot][variation][0] = Array(16).fill(false);
-            state.sequences[slot][variation][1] = Array(16).fill(1);
+            state.pattern[voiceIndex].variations[variation].triggers =
+              Array(16).fill(false);
+            state.pattern[voiceIndex].variations[variation].velocities =
+              Array(16).fill(1);
           });
         },
 
         getCurrentSequence: () => {
-          const { sequences, slotIndex, variation } = get();
-          return sequences[slotIndex][variation][0];
+          const { pattern, voiceIndex, variation } = get();
+          return pattern[voiceIndex].variations[variation].triggers;
         },
       })),
       {
         name: "drumhaus-sequencer-storage",
-        // Persist sequences and settings
+        // Persist pattern and settings
         partialize: (state) => ({
-          sequences: state.sequences,
+          pattern: state.pattern,
           variation: state.variation,
           chain: state.chain,
-          // Don't persist slotIndex (UI state)
+          // Don't persist voiceIndex (UI state)
         }),
       },
     ),

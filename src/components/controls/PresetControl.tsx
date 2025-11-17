@@ -36,9 +36,9 @@ import { sunflower } from "@/lib/presets/sunflower";
 import { super_dream_haus } from "@/lib/presets/super_dream_haus";
 import { together_again } from "@/lib/presets/together_again";
 import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { Kit, Preset } from "@/types/types";
 import { ErrorModal } from "../modal/ErrorModal";
@@ -73,18 +73,18 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const swing = useTransportStore((state) => state.swing);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
-  // Get slot state from store
-  const attacks = useSlotsStore((state) => state.attacks);
-  const releases = useSlotsStore((state) => state.releases);
-  const filters = useSlotsStore((state) => state.filters);
-  const volumes = useSlotsStore((state) => state.volumes);
-  const pans = useSlotsStore((state) => state.pans);
-  const solos = useSlotsStore((state) => state.solos);
-  const mutes = useSlotsStore((state) => state.mutes);
-  const pitches = useSlotsStore((state) => state.pitches);
+  // Get instrument state from store
+  const attacks = useInstrumentsStore((state) => state.attacks);
+  const releases = useInstrumentsStore((state) => state.releases);
+  const filters = useInstrumentsStore((state) => state.filters);
+  const volumes = useInstrumentsStore((state) => state.volumes);
+  const pans = useInstrumentsStore((state) => state.pans);
+  const solos = useInstrumentsStore((state) => state.solos);
+  const mutes = useInstrumentsStore((state) => state.mutes);
+  const pitches = useInstrumentsStore((state) => state.pitches);
 
   // Get sequencer state from store
-  const sequences = useSequencerStore((state) => state.sequences);
+  const pattern = useSequencerStore((state) => state.pattern);
   const chain = useSequencerStore((state) => state.chain);
 
   // Get master FX state from store
@@ -152,7 +152,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _mutes: mutes,
       _solos: solos,
     },
-    _sequences: sequences,
+    _pattern: pattern,
     _variation: 0,
     _chain: chain,
     _bpm: bpm,
@@ -345,7 +345,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       compThreshold !== cp._compThreshold ||
       compRatio !== cp._compRatio ||
       masterVolume !== cp._masterVolume ||
-      sequences !== cp._sequences ||
+      pattern !== cp._pattern ||
       chain !== cp._chain;
 
     const newPreset = event.target.value;
@@ -418,7 +418,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           _mutes: preset._kit._mutes,
           _solos: preset._kit._solos,
         },
-        _sequences: preset._sequences,
+        _pattern: preset._pattern,
         _variation: 0,
         _chain: preset._chain,
         _bpm: preset._bpm,
@@ -433,7 +433,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       });
 
       console.log(preset.name);
-      console.log(preset._sequences);
+      console.log(preset._pattern);
       console.log(presetFunctionToSave);
 
       updateStatesOnPresetChange(preset, presetFunctionToSave);

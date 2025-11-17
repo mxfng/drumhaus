@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const slime_time = (): Preset => ({
   name: "slime_time",
   _kit: kits.trap(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -381,7 +382,7 @@ export const slime_time = (): Preset => ({
         ],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 2,
   _bpm: 124,

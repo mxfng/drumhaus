@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const a_drum_called_haus = (): Preset => ({
   name: "a_drum_called_haus",
   _kit: kits.organic(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -397,7 +398,7 @@ export const a_drum_called_haus = (): Preset => ({
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 3,
   _bpm: 95,

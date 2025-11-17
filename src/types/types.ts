@@ -1,12 +1,14 @@
 import * as Tone from "tone/build/esm/index";
 
+import type { Pattern } from "@/lib/pattern/types";
+
 export type SampleData = {
   name: string;
   url: string;
 };
 
 export type Sample = {
-  id: number; // index of the slot
+  id: number; // index of the instrument
   name: string; // The sample name
   url: string; // The filename of the sample ex. kick.wav
   sampler: Tone.Sampler;
@@ -38,7 +40,7 @@ export type Sequences = [boolean[], number[]][][];
 export type Preset = {
   name: string;
   _kit: Kit;
-  _sequences: Sequences;
+  _pattern: Pattern;
   _variation: number;
   _chain: number;
   _bpm: number;

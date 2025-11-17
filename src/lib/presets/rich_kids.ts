@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const rich_kids = (): Preset => ({
   name: "rich_kids",
   _kit: kits.rnb(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -383,7 +384,7 @@ export const rich_kids = (): Preset => ({
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 3,
   _bpm: 60,

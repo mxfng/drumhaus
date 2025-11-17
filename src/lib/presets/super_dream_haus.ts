@@ -1,10 +1,11 @@
 import * as kits from "@/lib/kits";
+import { sequencesToPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const super_dream_haus = (): Preset => ({
   name: "super_dream_haus",
   _kit: kits.jungle(),
-  _sequences: [
+  _pattern: sequencesToPattern([
     [
       [
         [
@@ -381,7 +382,7 @@ export const super_dream_haus = (): Preset => ({
         [0.35857805255023184, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       ],
     ],
-  ],
+  ]),
   _variation: 0,
   _chain: 3,
   _bpm: 160,

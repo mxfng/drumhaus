@@ -2,8 +2,8 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-interface SlotsState {
-  // Slot parameters (arrays of 8 values, indexed by slot ID)
+interface InstrumentsState {
+  // Instrument parameters (arrays of 8 values, indexed by instrument ID)
   attacks: number[];
   releases: number[];
   filters: number[];
@@ -14,16 +14,16 @@ interface SlotsState {
   pitches: number[];
   durations: number[];
 
-  // Actions - individual setters per slot (prevents cross-slot re-renders)
-  setAttack: (slotId: number, value: number) => void;
-  setRelease: (slotId: number, value: number) => void;
-  setFilter: (slotId: number, value: number) => void;
-  setVolume: (slotId: number, value: number) => void;
-  setPan: (slotId: number, value: number) => void;
-  setPitch: (slotId: number, value: number) => void;
-  setDuration: (slotId: number, value: number) => void;
-  toggleMute: (slotId: number) => void;
-  toggleSolo: (slotId: number) => void;
+  // Actions - individual setters per instrument (prevents cross-instrument re-renders)
+  setAttack: (instrumentId: number, value: number) => void;
+  setRelease: (instrumentId: number, value: number) => void;
+  setFilter: (instrumentId: number, value: number) => void;
+  setVolume: (instrumentId: number, value: number) => void;
+  setPan: (instrumentId: number, value: number) => void;
+  setPitch: (instrumentId: number, value: number) => void;
+  setDuration: (instrumentId: number, value: number) => void;
+  toggleMute: (instrumentId: number) => void;
+  toggleSolo: (instrumentId: number) => void;
 
   // Batch actions for preset loading
   setAllAttacks: (attacks: number[]) => void;
@@ -37,11 +37,11 @@ interface SlotsState {
   setAllDurations: (durations: number[]) => void;
 }
 
-export const useSlotsStore = create<SlotsState>()(
+export const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
-        // Initial state - default values for 8 slots
+        // Initial state - default values for 8 instruments
         attacks: [50, 50, 50, 50, 50, 50, 50, 50],
         releases: [50, 50, 50, 50, 50, 50, 50, 50],
         filters: [50, 50, 50, 50, 50, 50, 50, 50],
@@ -52,58 +52,58 @@ export const useSlotsStore = create<SlotsState>()(
         pitches: [50, 50, 50, 50, 50, 50, 50, 50],
         durations: [0, 0, 0, 0, 0, 0, 0, 0],
 
-        // Individual slot setters (with Immer, we can mutate directly)
-        setAttack: (slotId, value) => {
+        // Individual instrument setters (with Immer, we can mutate directly)
+        setAttack: (instrumentId, value) => {
           set((state) => {
-            state.attacks[slotId] = value;
+            state.attacks[instrumentId] = value;
           });
         },
 
-        setRelease: (slotId, value) => {
+        setRelease: (instrumentId, value) => {
           set((state) => {
-            state.releases[slotId] = value;
+            state.releases[instrumentId] = value;
           });
         },
 
-        setFilter: (slotId, value) => {
+        setFilter: (instrumentId, value) => {
           set((state) => {
-            state.filters[slotId] = value;
+            state.filters[instrumentId] = value;
           });
         },
 
-        setVolume: (slotId, value) => {
+        setVolume: (instrumentId, value) => {
           set((state) => {
-            state.volumes[slotId] = value;
+            state.volumes[instrumentId] = value;
           });
         },
 
-        setPan: (slotId, value) => {
+        setPan: (instrumentId, value) => {
           set((state) => {
-            state.pans[slotId] = value;
+            state.pans[instrumentId] = value;
           });
         },
 
-        setPitch: (slotId, value) => {
+        setPitch: (instrumentId, value) => {
           set((state) => {
-            state.pitches[slotId] = value;
+            state.pitches[instrumentId] = value;
           });
         },
 
-        setDuration: (slotId, value) => {
+        setDuration: (instrumentId, value) => {
           set((state) => {
-            state.durations[slotId] = value;
+            state.durations[instrumentId] = value;
           });
         },
 
-        toggleMute: (slotId) => {
+        toggleMute: (instrumentId) => {
           set((state) => {
-            state.mutes[slotId] = !state.mutes[slotId];
+            state.mutes[instrumentId] = !state.mutes[instrumentId];
           });
         },
 
-        toggleSolo: (slotId) => {
+        toggleSolo: (instrumentId) => {
           set((state) => {
-            state.solos[slotId] = !state.solos[slotId];
+            state.solos[instrumentId] = !state.solos[instrumentId];
           });
         },
 
@@ -145,8 +145,8 @@ export const useSlotsStore = create<SlotsState>()(
         },
       })),
       {
-        name: "drumhaus-slots-storage",
-        // Persist all slot parameters
+        name: "drumhaus-instruments-storage",
+        // Persist all instrument parameters
         partialize: (state) => ({
           attacks: state.attacks,
           releases: state.releases,
@@ -161,7 +161,7 @@ export const useSlotsStore = create<SlotsState>()(
       },
     ),
     {
-      name: "SlotsStore",
+      name: "InstrumentsStore",
     },
   ),
 );

@@ -1,4 +1,5 @@
 import * as kits from "@/lib/kits";
+import { createEmptyPattern } from "@/lib/pattern/migrate";
 import { Preset } from "@/types/types";
 
 export const init = (): Preset => ({
@@ -13,12 +14,7 @@ export const init = (): Preset => ({
   _compThreshold: 100,
   _compRatio: 43,
   _masterVolume: 92,
-  _sequences: Array.from({ length: 8 }, () =>
-    Array.from({ length: 2 }, () => [
-      Array.from({ length: 16 }, () => false),
-      Array.from({ length: 16 }, () => 1),
-    ]),
-  ),
+  _pattern: createEmptyPattern(),
   _variation: 0,
   _chain: 0,
 });

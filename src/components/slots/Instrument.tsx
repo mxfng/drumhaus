@@ -21,7 +21,7 @@ import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
-import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
@@ -30,46 +30,46 @@ import {
 } from "../common/Knob";
 import Waveform from "./Waveform";
 
-type SlotParams = {
+type InstrumentParams = {
   color?: string;
   sample: Sample;
   bg?: string;
   isModal: boolean;
-  slotIndex: number;
+  instrumentIndex: number;
 };
 
-export const Slot: React.FC<SlotParams> = ({
+export const Instrument: React.FC<InstrumentParams> = ({
   color = "#ff7b00",
   sample,
   isModal,
-  slotIndex,
+  instrumentIndex,
   ...props
 }) => {
-  // Subscribe only to THIS slot's data (prevents cross-slot re-renders!)
-  const attack = useSlotsStore((state) => state.attacks[sample.id]);
-  const release = useSlotsStore((state) => state.releases[sample.id]);
-  const filter = useSlotsStore((state) => state.filters[sample.id]);
-  const pan = useSlotsStore((state) => state.pans[sample.id]);
-  const volume = useSlotsStore((state) => state.volumes[sample.id]);
-  const pitch = useSlotsStore((state) => state.pitches[sample.id]);
-  const mute = useSlotsStore((state) => state.mutes[sample.id]);
-  const solo = useSlotsStore((state) => state.solos[sample.id]);
+  // Subscribe only to THIS instrument's data (prevents cross-instrument re-renders!)
+  const attack = useInstrumentsStore((state) => state.attacks[sample.id]);
+  const release = useInstrumentsStore((state) => state.releases[sample.id]);
+  const filter = useInstrumentsStore((state) => state.filters[sample.id]);
+  const pan = useInstrumentsStore((state) => state.pans[sample.id]);
+  const volume = useInstrumentsStore((state) => state.volumes[sample.id]);
+  const pitch = useInstrumentsStore((state) => state.pitches[sample.id]);
+  const mute = useInstrumentsStore((state) => state.mutes[sample.id]);
+  const solo = useInstrumentsStore((state) => state.solos[sample.id]);
 
   // Get store actions
-  const setAttackStore = useSlotsStore((state) => state.setAttack);
-  const setReleaseStore = useSlotsStore((state) => state.setRelease);
-  const setFilterStore = useSlotsStore((state) => state.setFilter);
-  const setPanStore = useSlotsStore((state) => state.setPan);
-  const setVolumeStore = useSlotsStore((state) => state.setVolume);
-  const setPitchStore = useSlotsStore((state) => state.setPitch);
-  const setDurationStore = useSlotsStore((state) => state.setDuration);
-  const toggleMuteStore = useSlotsStore((state) => state.toggleMute);
-  const toggleSoloStore = useSlotsStore((state) => state.toggleSolo);
+  const setAttackStore = useInstrumentsStore((state) => state.setAttack);
+  const setReleaseStore = useInstrumentsStore((state) => state.setRelease);
+  const setFilterStore = useInstrumentsStore((state) => state.setFilter);
+  const setPanStore = useInstrumentsStore((state) => state.setPan);
+  const setVolumeStore = useInstrumentsStore((state) => state.setVolume);
+  const setPitchStore = useInstrumentsStore((state) => state.setPitch);
+  const setDurationStore = useInstrumentsStore((state) => state.setDuration);
+  const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
+  const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.sampler, sample.url);
 
-  // Wrap store setters with slot ID
+  // Wrap store setters with instrument ID
   const setAttack = useCallback(
     (value: number) => setAttackStore(sample.id, value),
     [sample.id, setAttackStore],
@@ -145,7 +145,7 @@ export const Slot: React.FC<SlotParams> = ({
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isModal && slotIndex == sample.id) {
+      if (event.key === "m" && !isModal && instrumentIndex == sample.id) {
         handleToggleMute();
       }
     };
@@ -155,11 +155,11 @@ export const Slot: React.FC<SlotParams> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [slotIndex, isModal, sample.id, handleToggleMute]);
+  }, [instrumentIndex, isModal, sample.id, handleToggleMute]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isModal && slotIndex == sample.id) {
+      if (event.key === "s" && !isModal && instrumentIndex == sample.id) {
         toggleSolo();
       }
     };
@@ -169,7 +169,7 @@ export const Slot: React.FC<SlotParams> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [slotIndex, isModal, sample.id, toggleSolo]);
+  }, [instrumentIndex, isModal, sample.id, toggleSolo]);
 
   const playSample = () => {
     const time = Tone.now();
@@ -186,7 +186,7 @@ export const Slot: React.FC<SlotParams> = ({
     <>
       <Box
         w="100%"
-        key={`Slot-${sample.name}`}
+        key={`Instrument-${sample.name}`}
         py={4}
         position="relative"
         transition="all 0.5s ease-in-out"
