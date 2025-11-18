@@ -1,12 +1,12 @@
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { Knob } from "../common/Knob";
 
 export const MasterVolume: React.FC = () => {
   // Get state from Master FX Store
-  const masterVolume = useMasterFXStore((state) => state.masterVolume);
+  const masterVolume = useMasterChainStore((state) => state.masterVolume);
 
   // Get action from store
-  const setMasterVolume = useMasterFXStore((state) => state.setMasterVolume);
+  const setMasterVolume = useMasterChainStore((state) => state.setMasterVolume);
 
   return (
     <Knob

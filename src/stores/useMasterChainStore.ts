@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-interface MasterFXState {
+interface MasterChainState {
   // Filter effects
   lowPass: number;
   hiPass: number;
@@ -26,7 +26,7 @@ interface MasterFXState {
   setMasterVolume: (masterVolume: number) => void;
 
   // Batch setters for preset loading
-  setAllMasterFX: (
+  setAllMasterChain: (
     lowPass: number,
     hiPass: number,
     phaser: number,
@@ -37,7 +37,7 @@ interface MasterFXState {
   ) => void;
 }
 
-export const useMasterFXStore = create<MasterFXState>()(
+export const useMasterChainStore = create<MasterChainState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -80,7 +80,7 @@ export const useMasterFXStore = create<MasterFXState>()(
         },
 
         // Batch setter for preset loading
-        setAllMasterFX: (
+        setAllMasterChain: (
           lowPass,
           hiPass,
           phaser,
@@ -101,7 +101,7 @@ export const useMasterFXStore = create<MasterFXState>()(
         },
       })),
       {
-        name: "drumhaus-master-fx-storage",
+        name: "drumhaus-master-chain-storage",
         // Persist all master FX settings
         partialize: (state) => ({
           lowPass: state.lowPass,
@@ -115,7 +115,7 @@ export const useMasterFXStore = create<MasterFXState>()(
       },
     ),
     {
-      name: "MasterFXStore",
+      name: "MasterChainStore",
     },
   ),
 );

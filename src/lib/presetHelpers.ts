@@ -1,5 +1,5 @@
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { Preset } from "@/types/types";
@@ -20,7 +20,7 @@ export function getCurrentPreset(name: string, kitName: string): Preset {
     compThreshold,
     compRatio,
     masterVolume,
-  } = useMasterFXStore.getState();
+  } = useMasterChainStore.getState();
 
   return {
     name,

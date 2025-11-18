@@ -16,6 +16,7 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
 
+import { useMasterChain } from "@/hooks/useMasterChain";
 import {
   createInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
@@ -23,14 +24,10 @@ import {
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
+import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { InstrumentRuntime, Kit, Preset } from "@/types/types";
-import {
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "./common/Knob";
+import { InstrumentRuntime, Preset } from "@/types/types";
 import { MasterCompressor } from "./controls/MasterCompressor";
 import { MasterFX } from "./controls/MasterFX";
 import { MasterVolume } from "./controls/MasterVolume";
@@ -44,6 +41,11 @@ import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { InstrumentGrid } from "./instrument/InstrumentGrid";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
+
+const FADE_IN_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
 
 const Drumhaus = () => {
   // Transport
@@ -67,14 +69,9 @@ const Drumhaus = () => {
   const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
 
   // Master Chain
-  const lowPass = useMasterFXStore((state) => state.lowPass);
-  const hiPass = useMasterFXStore((state) => state.hiPass);
-  const phaser = useMasterFXStore((state) => state.phaser);
-  const reverb = useMasterFXStore((state) => state.reverb);
-  const compThreshold = useMasterFXStore((state) => state.compThreshold);
-  const compRatio = useMasterFXStore((state) => state.compRatio);
-  const masterVolume = useMasterFXStore((state) => state.masterVolume);
-  const setAllMasterFX = useMasterFXStore((state) => state.setAllMasterFX);
+  const setAllMasterChain = useMasterChainStore(
+    (state) => state.setAllMasterChain,
+  );
 
   // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -93,23 +90,9 @@ const Drumhaus = () => {
   >(INIT_INSTRUMENT_RUNTIMES);
 
   // Refs
-
-  // Master Chain Nodes
   const toneSequence = useRef<Tone.Sequence | null>(null);
-  const toneLPFilter = useRef<Tone.Filter>();
-  const toneHPFilter = useRef<Tone.Filter>();
-  const tonePhaser = useRef<Tone.Phaser>();
-  const toneReverb = useRef<Tone.Reverb>();
-  const toneCompressor = useRef<Tone.Compressor>();
-
-  // Timing and variation
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
-
-  // Toast for warnings
-  const toast = useToast({
-    position: "top",
-  });
 
   // Load preset into all stores (single source of truth)
   const loadPreset = useCallback(
@@ -124,7 +107,7 @@ const Drumhaus = () => {
       setChain(preset._chain);
       setBpm(preset._bpm);
       setSwing(preset._swing);
-      setAllMasterFX(
+      setAllMasterChain(
         preset._lowPass,
         preset._hiPass,
         preset._phaser,
@@ -142,10 +125,17 @@ const Drumhaus = () => {
       setChain,
       setBpm,
       setSwing,
-      setAllMasterFX,
+      setAllMasterChain,
       setAllInstruments,
     ],
   );
+
+  // Toast for warnings
+  const toast = useToast({
+    position: "top",
+  });
+
+  useMasterChain({ instrumentRuntimes, setIsLoading });
 
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
@@ -254,74 +244,6 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instruments]);
 
-  // Set new master chain nodes to instrument runtimes when instruments change
-  useEffect(() => {
-    function setMasterChain() {
-      // Create new master FX nodes and initialize with current UI parameter values
-      const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-      const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-      const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-      const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-      const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-      const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-      const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-
-      toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
-      toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
-      tonePhaser.current = new Tone.Phaser({
-        frequency: 1,
-        octaves: 3,
-        baseFrequency: 1000,
-        wet: newPhaserWet,
-      });
-      toneReverb.current = new Tone.Reverb({
-        decay: newReverbDecay,
-        wet: newReverbWet,
-      });
-      toneCompressor.current = new Tone.Compressor({
-        threshold: newCompThreshold,
-        ratio: newCompRatio,
-        attack: 0.5,
-        release: 1,
-      });
-
-      if (
-        toneLPFilter.current &&
-        toneHPFilter.current &&
-        tonePhaser.current &&
-        toneReverb.current &&
-        toneCompressor.current
-      ) {
-        instrumentRuntimes.forEach((runtime) => {
-          runtime.samplerNode.chain(
-            runtime.envelopeNode,
-            runtime.filterNode,
-            runtime.pannerNode,
-            toneLPFilter.current!!,
-            toneHPFilter.current!!,
-            tonePhaser.current!!,
-            toneReverb.current!!,
-            toneCompressor.current!!,
-            Tone.Destination,
-          );
-        });
-      }
-    }
-
-    setMasterChain();
-    setIsLoading(false);
-
-    return () => {
-      toneLPFilter.current?.dispose();
-      toneHPFilter.current?.dispose();
-      tonePhaser.current?.dispose();
-      toneReverb.current?.dispose();
-      toneCompressor.current?.dispose();
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instrumentRuntimes]);
-
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
@@ -335,58 +257,6 @@ const Drumhaus = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModal, instrumentRuntimes]);
-
-  // c o n t r o l   p r o p s
-  // BPM and swing are now handled by the Transport Store
-
-  useEffect(() => {
-    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-    if (toneLPFilter.current) {
-      toneLPFilter.current.frequency.value = newLowPass;
-    }
-  }, [lowPass]);
-
-  useEffect(() => {
-    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-    if (toneHPFilter.current) {
-      toneHPFilter.current.frequency.value = newHiPass;
-    }
-  }, [hiPass]);
-
-  useEffect(() => {
-    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-    if (tonePhaser.current) {
-      tonePhaser.current.wet.value = newPhaserWet;
-    }
-  }, [phaser]);
-
-  useEffect(() => {
-    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-    if (toneReverb.current) {
-      toneReverb.current.wet.value = newReverbWet;
-      toneReverb.current.decay = newReverbDecay;
-    }
-  }, [reverb]);
-
-  useEffect(() => {
-    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-    if (toneCompressor.current) {
-      toneCompressor.current.threshold.value = newCompThreshold;
-    }
-  }, [compThreshold]);
-
-  useEffect(() => {
-    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-    if (toneCompressor.current) {
-      toneCompressor.current.ratio.value = newCompRatio;
-    }
-  }, [compRatio]);
-
-  useEffect(() => {
-    const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
-    Tone.Destination.volume.value = newMasterVolume;
-  }, [masterVolume]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -404,11 +274,6 @@ const Drumhaus = () => {
     setIsMobileWarning(false);
   };
 
-  const fadeInVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
   return (
     <>
       <Box
@@ -422,7 +287,7 @@ const Drumhaus = () => {
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeInVariants}
+          variants={FADE_IN_VARIANTS}
           transition={{ duration: 0.5 }} // Adjust the duration as needed
         >
           <Box
