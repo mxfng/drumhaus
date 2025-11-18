@@ -19,41 +19,81 @@ export function useMasterChain({
   instrumentRuntimes,
   setIsLoading,
 }: UseMasterChainProps) {
-  // Master Chain values
-  const lowPass = useMasterChainStore((state) => state.lowPass);
-  const hiPass = useMasterChainStore((state) => state.hiPass);
-  const phaser = useMasterChainStore((state) => state.phaser);
-  const reverb = useMasterChainStore((state) => state.reverb);
-  const compThreshold = useMasterChainStore((state) => state.compThreshold);
-  const compRatio = useMasterChainStore((state) => state.compRatio);
-  const masterVolume = useMasterChainStore((state) => state.masterVolume);
-
   // Master Chain Runtimes
   const masterChainRuntimes = useRef<MasterChainRuntimes | null>(null);
   const isInitialized = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  // Initialize master chain runtimes once
+  // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
     if (isInitialized.current) return;
 
     const initializeMasterChain = async () => {
+      // Get initial params without subscribing
+      const initialState = useMasterChainStore.getState();
       await createMasterChainRuntimes(masterChainRuntimes, {
-        lowPass,
-        hiPass,
-        phaser,
-        reverb,
-        compThreshold,
-        compRatio,
-        masterVolume,
+        lowPass: initialState.lowPass,
+        hiPass: initialState.hiPass,
+        phaser: initialState.phaser,
+        reverb: initialState.reverb,
+        compThreshold: initialState.compThreshold,
+        compRatio: initialState.compRatio,
+        masterVolume: initialState.masterVolume,
       });
 
       isInitialized.current = true;
       setIsLoading(false);
+
+      // Set up subscription after initialization
+      let prevParams: {
+        lowPass: number;
+        hiPass: number;
+        phaser: number;
+        reverb: number;
+        compThreshold: number;
+        compRatio: number;
+        masterVolume: number;
+      } | null = null;
+
+      unsubscribeRef.current = useMasterChainStore.subscribe((state) => {
+        if (!masterChainRuntimes.current) return;
+
+        // Extract current params
+        const currentParams = {
+          lowPass: state.lowPass,
+          hiPass: state.hiPass,
+          phaser: state.phaser,
+          reverb: state.reverb,
+          compThreshold: state.compThreshold,
+          compRatio: state.compRatio,
+          masterVolume: state.masterVolume,
+        };
+
+        // Only update if params actually changed
+        if (
+          !prevParams ||
+          prevParams.lowPass !== currentParams.lowPass ||
+          prevParams.hiPass !== currentParams.hiPass ||
+          prevParams.phaser !== currentParams.phaser ||
+          prevParams.reverb !== currentParams.reverb ||
+          prevParams.compThreshold !== currentParams.compThreshold ||
+          prevParams.compRatio !== currentParams.compRatio ||
+          prevParams.masterVolume !== currentParams.masterVolume
+        ) {
+          updateMasterChainParams(masterChainRuntimes.current, currentParams);
+          prevParams = currentParams;
+        }
+      });
     };
 
     initializeMasterChain();
 
     return () => {
+      // Clean up subscription
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
       // Only dispose on unmount, not on every instrument change
       if (isInitialized.current) {
         disposeMasterChainRuntimes(masterChainRuntimes);
@@ -72,18 +112,4 @@ export function useMasterChain({
       masterChainRuntimes.current,
     );
   }, [instrumentRuntimes]);
-
-  // Update parameters on existing runtimes
-  useEffect(() => {
-    if (!masterChainRuntimes.current) return;
-    updateMasterChainParams(masterChainRuntimes.current, {
-      lowPass,
-      hiPass,
-      phaser,
-      reverb,
-      compThreshold,
-      compRatio,
-      masterVolume,
-    });
-  }, [lowPass, hiPass, phaser, reverb, compThreshold, compRatio, masterVolume]);
 }
