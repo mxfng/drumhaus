@@ -2,18 +2,19 @@ import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
+import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
 
 /**
  * Generate a Preset object from current store state
  * Single source of truth - reads fresh data from all stores
+ *
+ * @param presetMeta - The metadata for this preset (id, name, timestamps)
+ * @param kitMeta - The metadata for the kit (id, name, timestamps)
  */
 export function getCurrentPreset(
-  // TODO: this is not enough info to keep track of metadata for preset AND kit, should use meta
-  presetId: string,
-  presetName: string,
-  kitId: string,
-  kitName: string,
+  presetMeta: Meta,
+  kitMeta: Meta,
 ): PresetFileV1 {
   const instruments = useInstrumentsStore.getState().instruments;
   const { pattern, variationCycle } = usePatternStore.getState();
@@ -28,27 +29,17 @@ export function getCurrentPreset(
     masterVolume,
   } = useMasterChainStore.getState();
 
-  const now = new Date().toISOString();
-
   return {
     kind: "drumhaus.preset",
     version: 1,
     meta: {
-      id: presetId,
-      name: presetName,
-      createdAt: now, // TODO: track an actual creation date
-      updatedAt: now,
+      ...presetMeta,
+      updatedAt: new Date().toISOString(),
     },
     kit: {
       kind: "drumhaus.kit",
       version: 1,
-      meta: {
-        // TODO: track kit meta in state or retrieve from kit file for saving
-        id: kitId,
-        name: kitName,
-        createdAt: now,
-        updatedAt: now,
-      },
+      meta: kitMeta,
       instruments,
     },
     transport: {

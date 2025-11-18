@@ -11,6 +11,7 @@ import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { KitFileV1 } from "@/types/instrument";
+import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
 import { ErrorModal } from "../modal/ErrorModal";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
@@ -22,31 +23,22 @@ import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
-  // TODO: these props seem cluttered, is there a better shape for this?
-  currentPresetId: string;
-  currentPresetName: string;
-  currentKitId: string;
-  currentKitName: string;
+  currentPresetMeta: Meta;
+  currentKitMeta: Meta;
   loadPreset: (preset: PresetFileV1) => void;
-  setCurrentKitId: React.Dispatch<React.SetStateAction<string>>;
-  setCurrentKitName: React.Dispatch<React.SetStateAction<string>>;
-  setCurrentPresetId: React.Dispatch<React.SetStateAction<string>>;
-  setCurrentPresetName: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentPresetMeta: React.Dispatch<React.SetStateAction<Meta>>;
+  setCurrentKitMeta: React.Dispatch<React.SetStateAction<Meta>>;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  currentPresetId,
-  currentPresetName,
-  currentKitId,
-  currentKitName,
+  currentPresetMeta,
+  currentKitMeta,
   loadPreset,
-  setCurrentKitId,
-  setCurrentKitName,
-  setCurrentPresetId,
-  setCurrentPresetName,
+  setCurrentPresetMeta,
+  setCurrentKitMeta,
   togglePlay,
   isLoading,
   setIsLoading,
@@ -99,17 +91,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     welcome_to_the_haus,
   ];
 
-  const [selectedKit, setSelectedKit] = useState<string>(currentKitId);
-  const [selectedPreset, setSelectedPreset] = useState<string>(currentPresetId);
+  const [selectedKit, setSelectedKit] = useState<string>(currentKitMeta.id);
+  const [selectedPreset, setSelectedPreset] = useState<string>(
+    currentPresetMeta.id,
+  );
   const [presetOptions, setPresetOptions] =
     useState<(() => PresetFileV1)[]>(defaultPresetOptions);
   const [cleanPreset, setCleanPreset] = useState<PresetFileV1>(
-    getCurrentPreset(
-      currentPresetId,
-      currentPresetName,
-      currentKitId,
-      currentKitName,
-    ),
+    getCurrentPreset(currentPresetMeta, currentKitMeta),
   );
 
   const modalCloseRef = useRef(null);
@@ -154,11 +143,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       loadPreset(presetToLoad);
       setCleanPreset(presetToLoad);
       setSelectedPreset(presetToLoad.meta.id);
-      setCurrentPresetId(presetToLoad.meta.id);
-      setCurrentPresetName(presetToLoad.meta.name);
+      setCurrentPresetMeta(presetToLoad.meta);
       setSelectedKit(presetToLoad.kit.meta.id);
-      setCurrentKitId(presetToLoad.kit.meta.id);
-      setCurrentKitName(presetToLoad.kit.meta.name);
+      setCurrentKitMeta(presetToLoad.kit.meta);
 
       // Add new presets to the list of options (if provided)
       if (functionToSave) {
@@ -169,25 +156,26 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       loadPreset,
       setCleanPreset,
       setSelectedPreset,
-      setCurrentPresetId,
-      setCurrentPresetName,
+      setCurrentPresetMeta,
       setSelectedKit,
-      setCurrentKitId,
-      setCurrentKitName,
+      setCurrentKitMeta,
       addOrUpdatePreset,
     ],
   );
 
   const handleSave = (customName: string) => {
-    // TODO: extract to preset library
-    // Generate new IDs for the saved preset
-    const newPresetId = crypto.randomUUID();
-    const presetToSave = getCurrentPreset(
-      newPresetId,
-      customName,
-      currentKitId,
-      currentKitName,
-    );
+    // Generate new metadata for the saved preset
+    // TODO: consider checking if name changed and preserving ID, name, and createdAt timestamp
+    // however, do not allow this for default presets (could enforce by checking UUID vs human-readable)
+    const now = new Date().toISOString();
+    const newPresetMeta: Meta = {
+      id: crypto.randomUUID(),
+      name: customName,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const presetToSave = getCurrentPreset(newPresetMeta, currentKitMeta);
 
     const jsonPreset = JSON.stringify(presetToSave, null, 2);
     const blob = new Blob([jsonPreset], { type: "application/json" });
@@ -265,8 +253,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       // Update instruments store (single source of truth)
       setAllInstruments(newKit.instruments);
       // Update kit metadata
-      setCurrentKitId(newKit.meta.id);
-      setCurrentKitName(newKit.meta.name);
+      setCurrentKitMeta(newKit.meta);
       setSelectedKit(newKit.meta.id);
     } else {
       console.error(
@@ -284,12 +271,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     // Check if current state differs from loaded preset
-    const currentState = getCurrentPreset(
-      currentPresetId,
-      currentPresetName,
-      currentKitId,
-      currentKitName,
-    );
+    const currentState = getCurrentPreset(currentPresetMeta, currentKitMeta);
     const cp = cleanPreset;
 
     // Deep equality check using proper comparison
@@ -344,29 +326,17 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // Add custom presets loaded via URL search params
   useEffect(() => {
     const currentPresetExists = presetOptions.some(
-      (option) => option().meta.id === currentPresetId,
+      (option) => option().meta.id === currentPresetMeta.id,
     );
 
     if (!currentPresetExists) {
       // Create a function that returns the current preset from stores
       const customPresetFunction = () =>
-        getCurrentPreset(
-          currentPresetId,
-          currentPresetName,
-          currentKitId,
-          currentKitName,
-        );
+        getCurrentPreset(currentPresetMeta, currentKitMeta);
 
       addOrUpdatePreset(customPresetFunction);
     }
-  }, [
-    currentPresetId,
-    currentPresetName,
-    currentKitId,
-    currentKitName,
-    presetOptions,
-    addOrUpdatePreset,
-  ]);
+  }, [currentPresetMeta, currentKitMeta, presetOptions, addOrUpdatePreset]);
 
   // Effect to display share prompt to new users
   useEffect(() => {
