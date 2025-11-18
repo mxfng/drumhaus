@@ -17,7 +17,7 @@ export function useMasterChain({
   instrumentRuntimes,
   setIsLoading,
 }: UseMasterChainProps) {
-  // Master Chain
+  // Master Chain values
   const lowPass = useMasterChainStore((state) => state.lowPass);
   const hiPass = useMasterChainStore((state) => state.hiPass);
   const phaser = useMasterChainStore((state) => state.phaser);
@@ -33,9 +33,13 @@ export function useMasterChain({
   const toneReverb = useRef<Tone.Reverb>();
   const toneCompressor = useRef<Tone.Compressor>();
 
-  // Set new master chain nodes to instrument runtimes when instruments change
+  const isInitialized = useRef(false);
+
+  // Initialize master chain nodes once
   useEffect(() => {
-    function setMasterChain() {
+    if (isInitialized.current) return;
+
+    const initializeMasterChain = async () => {
       const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
       const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
       const newPhaserWet = transformKnobValue(phaser, [0, 1]);
@@ -52,10 +56,14 @@ export function useMasterChain({
         baseFrequency: 1000,
         wet: newPhaserWet,
       });
+
+      // Reverb needs async initialization
       toneReverb.current = new Tone.Reverb({
         decay: newReverbDecay,
         wet: newReverbWet,
       });
+      await toneReverb.current.generate();
+
       toneCompressor.current = new Tone.Compressor({
         threshold: newCompThreshold,
         ratio: newCompRatio,
@@ -63,91 +71,98 @@ export function useMasterChain({
         release: 1,
       });
 
-      if (
-        toneLPFilter.current &&
-        toneHPFilter.current &&
-        tonePhaser.current &&
-        toneReverb.current &&
-        toneCompressor.current
-      ) {
-        instrumentRuntimes.forEach((runtime) => {
-          runtime.samplerNode.chain(
-            runtime.envelopeNode,
-            runtime.filterNode,
-            runtime.pannerNode,
-            toneLPFilter.current!!,
-            toneHPFilter.current!!,
-            tonePhaser.current!!,
-            toneReverb.current!!,
-            toneCompressor.current!!,
-            Tone.Destination,
-          );
-        });
-      }
-    }
-
-    setMasterChain();
-    setIsLoading(false);
-
-    return () => {
-      toneLPFilter.current?.dispose();
-      toneHPFilter.current?.dispose();
-      tonePhaser.current?.dispose();
-      toneReverb.current?.dispose();
-      toneCompressor.current?.dispose();
+      isInitialized.current = true;
+      setIsLoading(false);
     };
 
+    initializeMasterChain();
+
+    return () => {
+      // Only dispose on unmount, not on every instrument change
+      if (isInitialized.current) {
+        toneLPFilter.current?.dispose();
+        toneHPFilter.current?.dispose();
+        tonePhaser.current?.dispose();
+        toneReverb.current?.dispose();
+        toneCompressor.current?.dispose();
+        isInitialized.current = false;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Connect instruments to master chain when they change
+  useEffect(() => {
+    if (!isInitialized.current) return;
+
+    if (
+      toneLPFilter.current &&
+      toneHPFilter.current &&
+      tonePhaser.current &&
+      toneReverb.current &&
+      toneCompressor.current
+    ) {
+      instrumentRuntimes.forEach((runtime) => {
+        runtime.samplerNode.chain(
+          runtime.envelopeNode,
+          runtime.filterNode,
+          runtime.pannerNode,
+          toneLPFilter.current!,
+          toneHPFilter.current!,
+          tonePhaser.current!,
+          toneReverb.current!,
+          toneCompressor.current!,
+          Tone.Destination,
+        );
+      });
+    }
   }, [instrumentRuntimes]);
 
-  // Listeners for master chain input changes
+  // Update parameters on existing nodes
 
   useEffect(() => {
-    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-    if (toneLPFilter.current) {
-      toneLPFilter.current.frequency.value = newLowPass;
-    }
+    if (!toneLPFilter.current) return;
+    toneLPFilter.current.frequency.value = transformKnobValueExponential(
+      lowPass,
+      [0, 15000],
+    );
   }, [lowPass]);
 
   useEffect(() => {
-    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-    if (toneHPFilter.current) {
-      toneHPFilter.current.frequency.value = newHiPass;
-    }
+    if (!toneHPFilter.current) return;
+    toneHPFilter.current.frequency.value = transformKnobValueExponential(
+      hiPass,
+      [0, 15000],
+    );
   }, [hiPass]);
 
   useEffect(() => {
-    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-    if (tonePhaser.current) {
-      tonePhaser.current.wet.value = newPhaserWet;
-    }
+    if (!tonePhaser.current) return;
+    tonePhaser.current.wet.value = transformKnobValue(phaser, [0, 1]);
   }, [phaser]);
 
   useEffect(() => {
-    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-    if (toneReverb.current) {
-      toneReverb.current.wet.value = newReverbWet;
-      toneReverb.current.decay = newReverbDecay;
-    }
+    if (!toneReverb.current) return;
+    toneReverb.current.wet.value = transformKnobValue(reverb, [0, 0.5]);
+    toneReverb.current.decay = transformKnobValue(reverb, [0.1, 3]);
   }, [reverb]);
 
   useEffect(() => {
-    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-    if (toneCompressor.current) {
-      toneCompressor.current.threshold.value = newCompThreshold;
-    }
+    if (!toneCompressor.current) return;
+    toneCompressor.current.threshold.value = transformKnobValue(
+      compThreshold,
+      [-40, 0],
+    );
   }, [compThreshold]);
 
   useEffect(() => {
-    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-    if (toneCompressor.current) {
-      toneCompressor.current.ratio.value = newCompRatio;
-    }
+    if (!toneCompressor.current) return;
+    toneCompressor.current.ratio.value = Math.floor(
+      transformKnobValue(compRatio, [1, 8]),
+    );
   }, [compRatio]);
 
   useEffect(() => {
-    const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
-    Tone.Destination.volume.value = newMasterVolume;
+    Tone.Destination.volume.value = transformKnobValue(masterVolume, [-46, 4]);
   }, [masterVolume]);
 }
