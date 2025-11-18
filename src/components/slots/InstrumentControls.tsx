@@ -11,11 +11,11 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import { Sample } from "@/types/types";
+import { Instrument } from "@/types/types";
 
 import "@fontsource-variable/pixelify-sans";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
@@ -32,120 +32,122 @@ import Waveform from "./Waveform";
 
 type InstrumentParams = {
   color?: string;
-  sample: Sample;
+  sample: Instrument;
   bg?: string;
   isModal: boolean;
-  instrumentIndex: number;
+  index: number; // Array index of this instrument (0-7)
+  instrumentIndex: number; // Currently selected instrument for keyboard shortcuts
 };
 
-export const Instrument: React.FC<InstrumentParams> = ({
+export const InstrumentControls: React.FC<InstrumentParams> = ({
   color = "#ff7b00",
   sample,
   isModal,
+  index,
   instrumentIndex,
   ...props
 }) => {
   // Subscribe only to THIS instrument's data (prevents cross-instrument re-renders!)
-  const attack = useInstrumentsStore((state) => state.attacks[sample.id]);
-  const release = useInstrumentsStore((state) => state.releases[sample.id]);
-  const filter = useInstrumentsStore((state) => state.filters[sample.id]);
-  const pan = useInstrumentsStore((state) => state.pans[sample.id]);
-  const volume = useInstrumentsStore((state) => state.volumes[sample.id]);
-  const pitch = useInstrumentsStore((state) => state.pitches[sample.id]);
-  const mute = useInstrumentsStore((state) => state.mutes[sample.id]);
-  const solo = useInstrumentsStore((state) => state.solos[sample.id]);
+  const instrumentData = useInstrumentsStore(
+    (state) => state.instruments[index],
+  );
+  const attack = instrumentData.attack;
+  const release = instrumentData.release;
+  const filter = instrumentData.filter;
+  const pan = instrumentData.pan;
+  const volume = instrumentData.volume;
+  const pitch = instrumentData.pitch;
+  const mute = instrumentData.mute;
+  const solo = instrumentData.solo;
 
   // Get store actions
-  const setAttackStore = useInstrumentsStore((state) => state.setAttack);
-  const setReleaseStore = useInstrumentsStore((state) => state.setRelease);
-  const setFilterStore = useInstrumentsStore((state) => state.setFilter);
-  const setPanStore = useInstrumentsStore((state) => state.setPan);
-  const setVolumeStore = useInstrumentsStore((state) => state.setVolume);
-  const setPitchStore = useInstrumentsStore((state) => state.setPitch);
+  const setInstrumentProperty = useInstrumentsStore(
+    (state) => state.setInstrumentProperty,
+  );
   const setDurationStore = useInstrumentsStore((state) => state.setDuration);
   const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleDuration = useSampleDuration(sample.sampler, sample.url);
+  const sampleDuration = useSampleDuration(sample.samplerNode, sample.url);
 
-  // Wrap store setters with instrument ID
+  // Wrap store setters with instrument index
   const setAttack = useCallback(
-    (value: number) => setAttackStore(sample.id, value),
-    [sample.id, setAttackStore],
+    (value: number) => setInstrumentProperty(index, "attack", value),
+    [index, setInstrumentProperty],
   );
   const setRelease = useCallback(
-    (value: number) => setReleaseStore(sample.id, value),
-    [sample.id, setReleaseStore],
+    (value: number) => setInstrumentProperty(index, "release", value),
+    [index, setInstrumentProperty],
   );
   const setFilter = useCallback(
-    (value: number) => setFilterStore(sample.id, value),
-    [sample.id, setFilterStore],
+    (value: number) => setInstrumentProperty(index, "filter", value),
+    [index, setInstrumentProperty],
   );
   const setPan = useCallback(
-    (value: number) => setPanStore(sample.id, value),
-    [sample.id, setPanStore],
+    (value: number) => setInstrumentProperty(index, "pan", value),
+    [index, setInstrumentProperty],
   );
   const setVolume = useCallback(
-    (value: number) => setVolumeStore(sample.id, value),
-    [sample.id, setVolumeStore],
+    (value: number) => setInstrumentProperty(index, "volume", value),
+    [index, setInstrumentProperty],
   );
   const setPitch = useCallback(
-    (value: number) => setPitchStore(sample.id, value),
-    [sample.id, setPitchStore],
+    (value: number) => setInstrumentProperty(index, "pitch", value),
+    [index, setInstrumentProperty],
   );
   const toggleMute = useCallback(
-    () => toggleMuteStore(sample.id),
-    [sample.id, toggleMuteStore],
+    () => toggleMuteStore(index),
+    [index, toggleMuteStore],
   );
   const toggleSolo = useCallback(
-    () => toggleSoloStore(sample.id),
-    [sample.id, toggleSoloStore],
+    () => toggleSoloStore(index),
+    [index, toggleSoloStore],
   );
 
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
-    sample.envelope.attack = newAttackValue;
-  }, [attack, sample.envelope.attack, sample.envelope, sample]);
+    sample.envelopeNode.attack = newAttackValue;
+  }, [attack, sample.envelopeNode.attack, sample.envelopeNode, sample]);
 
   useEffect(() => {
-    sample.filter.type = filter <= 49 ? "lowpass" : "highpass";
-    sample.filter.frequency.value = transformKnobFilterValue(filter);
+    sample.filterNode.type = filter <= 49 ? "lowpass" : "highpass";
+    sample.filterNode.frequency.value = transformKnobFilterValue(filter);
   }, [
     filter,
-    sample.filter,
-    sample.filter.frequency.value,
-    sample.filter.type,
-    sample.sampler,
+    sample.filterNode,
+    sample.filterNode.frequency.value,
+    sample.filterNode.type,
+    sample.samplerNode,
     sample,
   ]);
 
   useEffect(() => {
     const newPanValue = transformKnobValue(pan, [-1, 1]);
-    sample.panner.pan.value = newPanValue;
-  }, [pan, sample.panner.pan, sample]);
+    sample.pannerNode.pan.value = newPanValue;
+  }, [pan, sample.pannerNode.pan, sample]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-46, 4]);
-    sample.sampler.volume.value = newVolumeValue;
-  }, [volume, sample.sampler.volume, sample]);
+    sample.samplerNode.volume.value = newVolumeValue;
+  }, [volume, sample.samplerNode.volume, sample]);
 
   // Update duration in store when sample duration changes
   useEffect(() => {
-    setDurationStore(sample.id, sampleDuration);
-  }, [sampleDuration, sample.id, setDurationStore]);
+    setDurationStore(index, sampleDuration);
+  }, [sampleDuration, index, setDurationStore]);
 
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute) {
-      sample.sampler.triggerRelease("C2", Tone.now());
+      sample.samplerNode.triggerRelease("C2", Tone.now());
     }
     toggleMute();
   }, [toggleMute, mute, sample]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isModal && instrumentIndex == sample.id) {
+      if (event.key === "m" && !isModal && instrumentIndex == index) {
         handleToggleMute();
       }
     };
@@ -155,11 +157,11 @@ export const Instrument: React.FC<InstrumentParams> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [instrumentIndex, isModal, sample.id, handleToggleMute]);
+  }, [instrumentIndex, isModal, index, handleToggleMute]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isModal && instrumentIndex == sample.id) {
+      if (event.key === "s" && !isModal && instrumentIndex == index) {
         toggleSolo();
       }
     };
@@ -169,17 +171,17 @@ export const Instrument: React.FC<InstrumentParams> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [instrumentIndex, isModal, sample.id, toggleSolo]);
+  }, [instrumentIndex, isModal, index, toggleSolo]);
 
   const playSample = () => {
     const time = Tone.now();
-    sample.sampler.triggerRelease("C2", time);
-    sample.envelope.triggerAttack(time);
-    sample.envelope.triggerRelease(
+    sample.samplerNode.triggerRelease("C2", time);
+    sample.envelopeNode.triggerAttack(time);
+    sample.envelopeNode.triggerRelease(
       time + transformKnobValue(release, [0, sampleDuration]),
     );
     const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
-    sample.sampler.triggerAttack(_pitch, time);
+    sample.samplerNode.triggerAttack(_pitch, time);
   };
 
   return (
@@ -200,7 +202,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
       >
         <Flex px={4}>
           <Text pr={2} color={color} fontSize="12pt" fontWeight={900}>
-            {sample.id + 1}
+            {index + 1}
           </Text>
           <Text fontWeight={600} fontSize="12pt" color="brown">
             {sample.name}
@@ -225,7 +227,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
         <Grid templateColumns="repeat(2, 1fr)" p={1}>
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-attack`}
+              key={`knob-${index}-attack`}
               size={50}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -235,7 +237,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-filter`}
+              key={`knob-${index}-filter`}
               size={50}
               knobValue={filter}
               setKnobValue={setFilter}
@@ -247,7 +249,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-release`}
+              key={`knob-${index}-release`}
               size={50}
               knobValue={release}
               setKnobValue={setRelease}
@@ -258,7 +260,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-pitch`}
+              key={`knob-${index}-pitch`}
               size={50}
               knobValue={pitch}
               setKnobValue={setPitch}
@@ -327,7 +329,7 @@ export const Instrument: React.FC<InstrumentParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${sample.id}-volume`}
+              key={`knob-${index}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}

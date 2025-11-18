@@ -74,14 +74,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
   // Get instrument state from store
-  const attacks = useInstrumentsStore((state) => state.attacks);
-  const releases = useInstrumentsStore((state) => state.releases);
-  const filters = useInstrumentsStore((state) => state.filters);
-  const volumes = useInstrumentsStore((state) => state.volumes);
-  const pans = useInstrumentsStore((state) => state.pans);
-  const solos = useInstrumentsStore((state) => state.solos);
-  const mutes = useInstrumentsStore((state) => state.mutes);
-  const pitches = useInstrumentsStore((state) => state.pitches);
+  const instruments = useInstrumentsStore((state) => state.instruments);
 
   // Get sequencer state from store
   const pattern = useSequencerStore((state) => state.pattern);
@@ -142,15 +135,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     name: name,
     _kit: {
       name: kit.name,
-      samples: kit.samples,
-      _attacks: attacks,
-      _releases: releases,
-      _filters: filters,
-      _pitches: pitches,
-      _pans: pans,
-      _volumes: volumes,
-      _mutes: mutes,
-      _solos: solos,
+      instruments: instruments,
     },
     _pattern: pattern,
     _variation: 0,
@@ -327,15 +312,30 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   ) => {
     // Deep equality check between current states and cached preset states
     const cp = cleanPreset;
+
+    // Helper to check if instruments have changed
+    const instrumentsChanged = () => {
+      if (instruments.length !== cp._kit.instruments.length) return true;
+      return !instruments.every((inst, i) => {
+        const cpInst = cp._kit.instruments[i];
+        return (
+          inst.name === cpInst.name &&
+          inst.url === cpInst.url &&
+          inst.attack === cpInst.attack &&
+          inst.release === cpInst.release &&
+          inst.filter === cpInst.filter &&
+          inst.volume === cpInst.volume &&
+          inst.pan === cpInst.pan &&
+          inst.pitch === cpInst.pitch &&
+          inst.solo === cpInst.solo &&
+          inst.mute === cpInst.mute
+        );
+      });
+    };
+
     const changesMade =
       kit.name !== cp._kit.name ||
-      !attacks.every((v, i) => v == cp._kit._attacks[i]) ||
-      !releases.every((v, i) => v == cp._kit._releases[i]) ||
-      !filters.every((v, i) => v == cp._kit._filters[i]) ||
-      !volumes.every((v, i) => v == cp._kit._volumes[i]) ||
-      !pans.every((v, i) => v == cp._kit._pans[i]) ||
-      !releases.every((v, i) => v == cp._kit._releases[i]) ||
-      !pitches.every((v, i) => v == cp._kit._pitches[i]) ||
+      instrumentsChanged() ||
       bpm !== cp._bpm ||
       swing !== cp._swing ||
       lowPass !== cp._lowPass ||
@@ -408,15 +408,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         name: preset.name,
         _kit: {
           name: preset._kit.name,
-          samples: preset._kit.samples,
-          _attacks: preset._kit._attacks,
-          _releases: preset._kit._releases,
-          _filters: preset._kit._filters,
-          _pitches: preset._kit._pitches,
-          _pans: preset._kit._pans,
-          _volumes: preset._kit._volumes,
-          _mutes: preset._kit._mutes,
-          _solos: preset._kit._solos,
+          instruments: preset._kit.instruments,
         },
         _pattern: preset._pattern,
         _variation: 0,

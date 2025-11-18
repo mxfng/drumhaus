@@ -2,38 +2,43 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import type { InstrumentData } from "@/types/types";
+
+// Default instrument parameters
+const createDefaultInstrument = (
+  name: string = "",
+  url: string = "",
+): InstrumentData => ({
+  name,
+  url,
+  attack: 0,
+  release: 100,
+  filter: 50,
+  volume: 92,
+  pan: 50,
+  pitch: 50,
+  solo: false,
+  mute: false,
+});
+
 interface InstrumentsState {
-  // Instrument parameters (arrays of 8 values, indexed by instrument ID)
-  attacks: number[];
-  releases: number[];
-  filters: number[];
-  volumes: number[];
-  pans: number[];
-  mutes: boolean[];
-  solos: boolean[];
-  pitches: number[];
+  // Array of 8 instruments with all their parameters
+  instruments: InstrumentData[];
+  // Sample durations (runtime-computed, not persisted)
   durations: number[];
 
-  // Actions - individual setters per instrument (prevents cross-instrument re-renders)
-  setAttack: (instrumentId: number, value: number) => void;
-  setRelease: (instrumentId: number, value: number) => void;
-  setFilter: (instrumentId: number, value: number) => void;
-  setVolume: (instrumentId: number, value: number) => void;
-  setPan: (instrumentId: number, value: number) => void;
-  setPitch: (instrumentId: number, value: number) => void;
-  setDuration: (instrumentId: number, value: number) => void;
-  toggleMute: (instrumentId: number) => void;
-  toggleSolo: (instrumentId: number) => void;
+  // Actions - granular property setters (prevents cross-instrument re-renders)
+  setInstrumentProperty: <K extends keyof InstrumentData>(
+    index: number,
+    key: K,
+    value: InstrumentData[K],
+  ) => void;
+  toggleMute: (index: number) => void;
+  toggleSolo: (index: number) => void;
+  setDuration: (index: number, value: number) => void;
 
-  // Batch actions for preset loading
-  setAllAttacks: (attacks: number[]) => void;
-  setAllReleases: (releases: number[]) => void;
-  setAllFilters: (filters: number[]) => void;
-  setAllVolumes: (volumes: number[]) => void;
-  setAllPans: (pans: number[]) => void;
-  setAllMutes: (mutes: boolean[]) => void;
-  setAllSolos: (solos: boolean[]) => void;
-  setAllPitches: (pitches: number[]) => void;
+  // Batch actions for kit/preset loading
+  setAllInstruments: (instruments: InstrumentData[]) => void;
   setAllDurations: (durations: number[]) => void;
 }
 
@@ -41,103 +46,40 @@ export const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
-        // Initial state - default values for 8 instruments
-        attacks: [50, 50, 50, 50, 50, 50, 50, 50],
-        releases: [50, 50, 50, 50, 50, 50, 50, 50],
-        filters: [50, 50, 50, 50, 50, 50, 50, 50],
-        volumes: [92, 92, 92, 92, 92, 92, 92, 92],
-        pans: [50, 50, 50, 50, 50, 50, 50, 50],
-        mutes: [false, false, false, false, false, false, false, false],
-        solos: [false, false, false, false, false, false, false, false],
-        pitches: [50, 50, 50, 50, 50, 50, 50, 50],
+        // Initial state - 8 default instruments
+        instruments: Array(8)
+          .fill(null)
+          .map(() => createDefaultInstrument()),
         durations: [0, 0, 0, 0, 0, 0, 0, 0],
 
-        // Individual instrument setters (with Immer, we can mutate directly)
-        setAttack: (instrumentId, value) => {
+        // Granular property setter (with Immer, we can mutate directly)
+        setInstrumentProperty: (index, key, value) => {
           set((state) => {
-            state.attacks[instrumentId] = value;
+            state.instruments[index][key] = value;
           });
         },
 
-        setRelease: (instrumentId, value) => {
+        toggleMute: (index) => {
           set((state) => {
-            state.releases[instrumentId] = value;
+            state.instruments[index].mute = !state.instruments[index].mute;
           });
         },
 
-        setFilter: (instrumentId, value) => {
+        toggleSolo: (index) => {
           set((state) => {
-            state.filters[instrumentId] = value;
+            state.instruments[index].solo = !state.instruments[index].solo;
           });
         },
 
-        setVolume: (instrumentId, value) => {
+        setDuration: (index, value) => {
           set((state) => {
-            state.volumes[instrumentId] = value;
+            state.durations[index] = value;
           });
         },
 
-        setPan: (instrumentId, value) => {
-          set((state) => {
-            state.pans[instrumentId] = value;
-          });
-        },
-
-        setPitch: (instrumentId, value) => {
-          set((state) => {
-            state.pitches[instrumentId] = value;
-          });
-        },
-
-        setDuration: (instrumentId, value) => {
-          set((state) => {
-            state.durations[instrumentId] = value;
-          });
-        },
-
-        toggleMute: (instrumentId) => {
-          set((state) => {
-            state.mutes[instrumentId] = !state.mutes[instrumentId];
-          });
-        },
-
-        toggleSolo: (instrumentId) => {
-          set((state) => {
-            state.solos[instrumentId] = !state.solos[instrumentId];
-          });
-        },
-
-        // Batch setters for preset loading
-        setAllAttacks: (attacks) => {
-          set({ attacks });
-        },
-
-        setAllReleases: (releases) => {
-          set({ releases });
-        },
-
-        setAllFilters: (filters) => {
-          set({ filters });
-        },
-
-        setAllVolumes: (volumes) => {
-          set({ volumes });
-        },
-
-        setAllPans: (pans) => {
-          set({ pans });
-        },
-
-        setAllMutes: (mutes) => {
-          set({ mutes });
-        },
-
-        setAllSolos: (solos) => {
-          set({ solos });
-        },
-
-        setAllPitches: (pitches) => {
-          set({ pitches });
+        // Batch setters for kit/preset loading
+        setAllInstruments: (instruments) => {
+          set({ instruments });
         },
 
         setAllDurations: (durations) => {
@@ -146,17 +88,9 @@ export const useInstrumentsStore = create<InstrumentsState>()(
       })),
       {
         name: "drumhaus-instruments-storage",
-        // Persist all instrument parameters
+        // Persist instruments but not durations (computed from samples)
         partialize: (state) => ({
-          attacks: state.attacks,
-          releases: state.releases,
-          filters: state.filters,
-          volumes: state.volumes,
-          pans: state.pans,
-          mutes: state.mutes,
-          solos: state.solos,
-          pitches: state.pitches,
-          // Don't persist durations (computed from samples)
+          instruments: state.instruments,
         }),
       },
     ),

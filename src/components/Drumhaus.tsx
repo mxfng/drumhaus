@@ -16,14 +16,14 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
 
-import { _samples, createSamples } from "@/lib/createSamples";
+import { _samples, createInstruments } from "@/lib/createInstruments";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Kit, Preset, Sample } from "@/types/types";
+import { Instrument, Kit, Preset } from "@/types/types";
 import {
   Knob,
   transformKnobValue,
@@ -50,15 +50,10 @@ const Drumhaus = () => {
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Instruments store - get batch setters for preset loading
-  const setAllAttacks = useInstrumentsStore((state) => state.setAllAttacks);
-  const setAllReleases = useInstrumentsStore((state) => state.setAllReleases);
-  const setAllFilters = useInstrumentsStore((state) => state.setAllFilters);
-  const setAllVolumes = useInstrumentsStore((state) => state.setAllVolumes);
-  const setAllPans = useInstrumentsStore((state) => state.setAllPans);
-  const setAllMutes = useInstrumentsStore((state) => state.setAllMutes);
-  const setAllSolos = useInstrumentsStore((state) => state.setAllSolos);
-  const setAllPitches = useInstrumentsStore((state) => state.setAllPitches);
+  // Instruments store - get batch setter for kit/preset loading
+  const setAllInstruments = useInstrumentsStore(
+    (state) => state.setAllInstruments,
+  );
 
   // Sequencer store - subscribe to chain for live updates during playback
   const chain = useSequencerStore((state) => state.chain);
@@ -89,7 +84,7 @@ const Drumhaus = () => {
 
   // g l o b a l
   const [kit, setKit] = useState<Kit>(preset._kit);
-  const [samples, setSamples] = useState<Sample[]>(_samples);
+  const [samples, setSamples] = useState<Instrument[]>(_samples);
 
   // i n s t r u m e n t s - now managed by Instruments Store
 
@@ -222,31 +217,21 @@ const Drumhaus = () => {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
-    const newSamples = createSamples(kit.samples);
+    // Create runtime instruments from kit data
+    const newSamples = createInstruments(kit.instruments);
 
+    // Update local samples state
     setSamples(newSamples);
-    setAllAttacks(kit._attacks);
-    setAllReleases(kit._releases);
-    setAllFilters(kit._filters);
-    setAllPans(kit._pans);
-    setAllVolumes(kit._volumes);
-    setAllSolos(kit._solos);
-    setAllMutes(kit._mutes);
 
-    // backwards compatibility for pitch params
-    if (kit._pitches) {
-      setAllPitches(kit._pitches);
-    } else {
-      // old save files
-      setAllPitches([50, 50, 50, 50, 50, 50, 50, 50]);
-    }
+    // Update instruments store with kit data
+    setAllInstruments(kit.instruments);
 
     return () => {
       samples.forEach((sample) => {
-        sample.sampler.dispose();
-        sample.envelope.dispose();
-        sample.filter.dispose();
-        sample.panner.dispose();
+        sample.samplerNode.dispose();
+        sample.envelopeNode.dispose();
+        sample.filterNode.dispose();
+        sample.pannerNode.dispose();
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,10 +274,10 @@ const Drumhaus = () => {
         toneCompressor.current
       ) {
         samples.forEach((sample) => {
-          sample.sampler.chain(
-            sample.envelope,
-            sample.filter,
-            sample.panner,
+          sample.samplerNode.chain(
+            sample.envelopeNode,
+            sample.filterNode,
+            sample.pannerNode,
             toneLPFilter.current!!,
             toneHPFilter.current!!,
             tonePhaser.current!!,
@@ -482,7 +467,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentsGrid samples={samples} isModal={isModal} />
+              <InstrumentsGrid instruments={samples} isModal={isModal} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">

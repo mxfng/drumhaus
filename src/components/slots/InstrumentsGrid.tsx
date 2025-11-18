@@ -2,18 +2,29 @@ import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
 import { useSequencerStore } from "@/stores/useSequencerStore";
-import { Sample } from "@/types/types";
-import { Instrument } from "./Instrument";
-
-type InstrumentsGridProps = {
-  samples: Sample[];
-  isModal: boolean;
-};
+import { Instrument } from "@/types/types";
+import { InstrumentControls } from "./InstrumentControls";
 
 const NO_OF_INSTRUMENTS = 8;
 
+const INSTRUMENT_COLORS = [
+  "#213062",
+  "#e9902f",
+  "#d72529",
+  "#27991a",
+  "#213062",
+  "#e9902f",
+  "#d72529",
+  "#27991a",
+];
+
+type InstrumentsGridProps = {
+  instruments: Instrument[];
+  isModal: boolean;
+};
+
 export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
-  samples,
+  instruments,
   isModal,
 }) => {
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
@@ -49,26 +60,15 @@ export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
     };
   }, [handleArrowKeyPress]);
 
-  const instrumentColors = [
-    "#213062",
-    "#e9902f",
-    "#d72529",
-    "#27991a",
-    "#213062",
-    "#e9902f",
-    "#d72529",
-    "#27991a",
-  ];
-
   return (
     <Grid
       ref={instrumentsRef}
-      key="instruments"
+      key="instruments-grid"
       w="100%"
       templateColumns={`repeat(${NO_OF_INSTRUMENTS}, 1fr)`}
       boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
     >
-      {samples.map((sample, index) => (
+      {instruments.map((sample, index) => (
         <GridItem
           colSpan={1}
           key={`gridItem-${index}`}
@@ -76,10 +76,11 @@ export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
           onMouseDown={() => toggleCurrentVoice(index)}
           transition="all 0.5s ease"
         >
-          <Instrument
-            color={instrumentColors[index]}
+          <InstrumentControls
+            color={INSTRUMENT_COLORS[index]}
             key={`Instrument-${index}`}
             sample={sample}
+            index={index}
             isModal={isModal}
             instrumentIndex={voiceIndex}
             bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}

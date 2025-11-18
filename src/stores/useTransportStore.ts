@@ -3,6 +3,8 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { Instrument } from "@/types/types";
+
 interface TransportState {
   // Playback state
   isPlaying: boolean;
@@ -39,7 +41,7 @@ export const useTransportStore = create<TransportState>()(
           set({ isPlaying });
         },
 
-        togglePlay: async (samples, onStop) => {
+        togglePlay: async (instruments, onStop) => {
           // Start Tone.js context if needed
           if (Tone.context.state !== "running") {
             await Tone.start();
@@ -55,8 +57,8 @@ export const useTransportStore = create<TransportState>()(
               state.stepIndex = 0;
 
               // Release all samples
-              samples.forEach((sample) => {
-                sample.sampler.triggerRelease("C2", Tone.now());
+              instruments.forEach((instrument: Instrument) => {
+                instrument.samplerNode.triggerRelease("C2", Tone.now());
               });
 
               // Call optional stop callback
