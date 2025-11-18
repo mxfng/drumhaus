@@ -55,15 +55,15 @@ const Drumhaus = () => {
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Instruments
-  const instruments = useInstrumentsStore((state) => state.instruments);
+  const instrumentSamplePaths = useInstrumentsStore((state) =>
+    state.instruments.map((inst) => inst.sample.path).join(","),
+  );
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
 
   // Sequencer
   const variationCycle = usePatternStore((state) => state.variationCycle);
-  const pattern = usePatternStore((state) => state.pattern);
   const setPattern = usePatternStore((state) => state.setPattern);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
@@ -211,6 +211,7 @@ const Drumhaus = () => {
   }, []);
 
   // m a k e   g o o d   m u s i c
+  // Note: pattern is read directly from store in makeGoodMusic, so we don't need it in deps
   useEffect(() => {
     if (isPlaying) {
       makeGoodMusic(
@@ -227,13 +228,7 @@ const Drumhaus = () => {
     return () => {
       ts?.dispose();
     };
-  }, [isPlaying, instrumentRuntimes, variationCycle, pattern]);
-
-  // Extract URLs to track when samples change (not when params change)
-  const instrumentUrls = useMemo(
-    () => instruments.map((inst) => inst.sample.path).join(","),
-    [instruments],
-  );
+  }, [isPlaying, instrumentRuntimes, variationCycle]);
 
   // Create new instrument runtimes only when sample URLs change
   // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
@@ -242,6 +237,8 @@ const Drumhaus = () => {
     if (!isLoading) setIsLoading(true);
 
     // Create runtime nodes from store data
+    // Use getState() to avoid subscribing to param changes
+    const instruments = useInstrumentsStore.getState().instruments;
     const newRuntimes = createInstrumentRuntimes(instruments);
 
     // Wait for all sampler buffers to load before updating state
@@ -272,7 +269,7 @@ const Drumhaus = () => {
     };
     // Only recreate runtimes when URLs change, not when other params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instrumentUrls]);
+  }, [instrumentSamplePaths]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {

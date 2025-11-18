@@ -49,17 +49,40 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // Modal store
   const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
-  const instrumentData = useInstrumentsStore(
-    (state) => state.instruments[index],
+  // Use granular selectors - only re-render when specific params change
+  // This prevents unnecessary re-renders when other instrument params change
+  const attack = useInstrumentsStore(
+    (state) => state.instruments[index].params.attack,
   );
-  const attack = instrumentData.params.attack;
-  const release = instrumentData.params.release;
-  const filter = instrumentData.params.filter;
-  const pan = instrumentData.params.pan;
-  const volume = instrumentData.params.volume;
-  const pitch = instrumentData.params.pitch;
-  const mute = instrumentData.params.mute;
-  const solo = instrumentData.params.solo;
+  const release = useInstrumentsStore(
+    (state) => state.instruments[index].params.release,
+  );
+  const filter = useInstrumentsStore(
+    (state) => state.instruments[index].params.filter,
+  );
+  const pan = useInstrumentsStore(
+    (state) => state.instruments[index].params.pan,
+  );
+  const volume = useInstrumentsStore(
+    (state) => state.instruments[index].params.volume,
+  );
+  const pitch = useInstrumentsStore(
+    (state) => state.instruments[index].params.pitch,
+  );
+  const mute = useInstrumentsStore(
+    (state) => state.instruments[index].params.mute,
+  );
+  const solo = useInstrumentsStore(
+    (state) => state.instruments[index].params.solo,
+  );
+
+  // Get sample path and meta separately (these change less frequently)
+  const samplePath = useInstrumentsStore(
+    (state) => state.instruments[index].sample.path,
+  );
+  const instrumentMeta = useInstrumentsStore(
+    (state) => state.instruments[index].meta,
+  );
 
   // Get store actions
   const setInstrumentProperty = useInstrumentsStore(
@@ -71,10 +94,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const currentPitchRef = useRef<number | null>(null);
-  const sampleDuration = useSampleDuration(
-    runtime.samplerNode,
-    instrumentData.sample.path,
-  );
+  const sampleDuration = useSampleDuration(runtime.samplerNode, samplePath);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -194,7 +214,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     <>
       <Box
         w="100%"
-        key={`Instrument-${instrumentData.meta.id}-${index}`}
+        key={`Instrument-${instrumentMeta.id}-${index}`}
         py={4}
         position="relative"
         transition="all 0.5s ease-in-out"
@@ -211,7 +231,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             {index + 1}
           </Text>
           <Text fontWeight={600} fontSize="12pt" color="brown">
-            {instrumentData.meta.name}
+            {instrumentMeta.name}
           </Text>
         </Flex>
         <Box px={4} pt={5}>
@@ -226,14 +246,14 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             borderRadius="20px"
             overflow="hidden"
           >
-            <Waveform audioFile={instrumentData.sample.path} width={170} />
+            <Waveform audioFile={samplePath} width={170} />
           </Button>
         </Box>
 
         <Grid templateColumns="repeat(2, 1fr)" p={1}>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-attack`}
+              key={`knob-${instrumentMeta.id}-${index}-attack`}
               size={50}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -255,7 +275,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-release`}
+              key={`knob-${instrumentMeta.id}-${index}-release`}
               size={50}
               knobValue={release}
               setKnobValue={setRelease}
@@ -266,7 +286,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-pitch`}
+              key={`knob-${instrumentMeta.id}-${index}-pitch`}
               size={50}
               knobValue={pitch}
               setKnobValue={setPitch}
@@ -335,7 +355,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-volume`}
+              key={`knob-${instrumentMeta.id}-${index}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}
