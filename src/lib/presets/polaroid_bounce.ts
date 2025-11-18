@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const polaroid_bounce = (): Preset => ({
   name: "polaroid_bounce",
-  _kit: kits.funk(),
-  _pattern: sequencesToPattern([
+  kit: kits.funk(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -374,15 +374,16 @@ export const polaroid_bounce = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 2,
-  _bpm: 107,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 24,
-  _reverb: 42,
-  _compThreshold: 55,
-  _compRatio: 40,
-  _masterVolume: 92,
+  variationCycle: "AB",
+  bpm: 107,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 24,
+    reverb: 42,
+    compThreshold: 55,
+    compRatio: 40,
+    masterVolume: 92,
+  },
 });

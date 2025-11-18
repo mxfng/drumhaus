@@ -12,11 +12,7 @@ interface TransportState {
   bpm: number;
   swing: number;
 
-  // Tone.js refs (stored but don't trigger re-renders)
-  toneSequence: Tone.Sequence | null;
-
   // Actions
-  setIsPlaying: (isPlaying: boolean) => void;
   togglePlay: (
     instrumentRuntimes: InstrumentRuntime[],
     onStop?: () => void,
@@ -24,8 +20,6 @@ interface TransportState {
   setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
-  setToneSequence: (sequence: Tone.Sequence | null) => void;
-  disposeToneSequence: () => void;
 }
 
 export const useTransportStore = create<TransportState>()(
@@ -40,10 +34,6 @@ export const useTransportStore = create<TransportState>()(
         toneSequence: null,
 
         // Actions
-        setIsPlaying: (isPlaying) => {
-          set({ isPlaying });
-        },
-
         togglePlay: async (instrumentRuntimes, onStop) => {
           // Start Tone.js context if needed
           if (Tone.context.state !== "running") {
@@ -88,18 +78,6 @@ export const useTransportStore = create<TransportState>()(
           const newSwing = (swing / 100) * 0.5;
           Tone.Transport.swingSubdivision = "16n";
           Tone.Transport.swing = newSwing;
-        },
-
-        setToneSequence: (sequence) => {
-          set({ toneSequence: sequence });
-        },
-
-        disposeToneSequence: () => {
-          const { toneSequence } = get();
-          if (toneSequence) {
-            toneSequence.dispose();
-            set({ toneSequence: null });
-          }
         },
       })),
       {

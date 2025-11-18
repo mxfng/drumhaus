@@ -2,14 +2,14 @@ import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { InstrumentRuntime } from "@/types/types";
+import { InstrumentRuntime, VariationCycle } from "@/types/types";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
   instrumentRuntimes: InstrumentRuntime[], // Only runtime nodes, data comes from store
-  currentChain: number,
+  variationCycle: VariationCycle,
   currentBar: React.MutableRefObject<number>,
   currentVariation: React.MutableRefObject<number>,
 ) {
@@ -24,7 +24,7 @@ export default function makeGoodMusic(
       const pitches = instrumentData.map((inst) => inst.pitch);
 
       // Get FRESH pattern from store on every step
-      const { pattern } = useSequencerStore.getState();
+      const { pattern } = usePatternStore.getState();
 
       function triggerSample(instrumentIndex: number, velocity: number) {
         const _pitch = transformKnobValue(
@@ -78,9 +78,10 @@ export default function makeGoodMusic(
       function updateBarByChain() {
         if (step === 15) {
           if (
-            currentChain < 2 ||
-            (currentChain === 2 && currentBar.current > 0) ||
-            (currentChain === 3 && currentBar.current > 2)
+            variationCycle === "A" ||
+            variationCycle === "B" ||
+            (variationCycle === "AB" && currentBar.current > 0) ||
+            (variationCycle === "AAAB" && currentBar.current > 2)
           ) {
             currentBar.current = 0;
           } else {
@@ -91,21 +92,19 @@ export default function makeGoodMusic(
 
       function updateVariationByChainAndBar() {
         if (step === 0) {
-          switch (currentChain) {
-            case 0:
+          switch (variationCycle) {
+            case "A":
               currentVariation.current = 0;
               break;
-            case 1:
+            case "B":
               currentVariation.current = 1;
               break;
-            case 2:
+            case "AB":
               currentVariation.current = currentBar.current === 0 ? 0 : 1;
               break;
-            case 3:
+            case "AAAB":
               currentVariation.current = currentBar.current === 3 ? 1 : 0;
               break;
-            default:
-              currentVariation.current = 0;
           }
         }
       }

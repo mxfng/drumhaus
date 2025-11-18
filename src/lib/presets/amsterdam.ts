@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const amsterdam = (): Preset => ({
   name: "amsterdam",
-  _kit: kits.techno(),
-  _pattern: sequencesToPattern([
+  kit: kits.techno(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -359,15 +359,16 @@ export const amsterdam = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 125,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 0,
-  _reverb: 53,
-  _compThreshold: 43,
-  _compRatio: 40,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 125,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 0,
+    reverb: 53,
+    compThreshold: 43,
+    compRatio: 40,
+    masterVolume: 92,
+  },
 });

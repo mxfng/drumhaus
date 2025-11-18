@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const purple_haus = (): Preset => ({
   name: "purple_haus",
-  _kit: kits.eighties(),
-  _pattern: sequencesToPattern([
+  kit: kits.eighties(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -376,15 +376,16 @@ export const purple_haus = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 2,
-  _bpm: 130,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 2,
-  _phaser: 16,
-  _reverb: 56,
-  _compThreshold: 47,
-  _compRatio: 40,
-  _masterVolume: 92,
+  variationCycle: "AB",
+  bpm: 130,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 2,
+    phaser: 16,
+    reverb: 56,
+    compThreshold: 47,
+    compRatio: 40,
+    masterVolume: 92,
+  },
 });

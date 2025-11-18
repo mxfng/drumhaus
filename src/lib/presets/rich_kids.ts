@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const rich_kids = (): Preset => ({
   name: "rich_kids",
-  _kit: kits.rnb(),
-  _pattern: sequencesToPattern([
+  kit: kits.rnb(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -385,15 +385,16 @@ export const rich_kids = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 60,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 0,
-  _reverb: 25,
-  _compThreshold: 39,
-  _compRatio: 42,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 60,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 0,
+    reverb: 25,
+    compThreshold: 39,
+    compRatio: 42,
+    masterVolume: 92,
+  },
 });

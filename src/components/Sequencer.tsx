@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
 const STEP_BOXES_GAP = 12;
@@ -15,14 +15,14 @@ export const Sequencer: React.FC = () => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
   // Get sequencer state from Sequencer Store
-  const pattern = useSequencerStore((state) => state.pattern);
-  const variation = useSequencerStore((state) => state.variation);
-  const voiceIndex = useSequencerStore((state) => state.voiceIndex);
-  const triggers = useSequencerStore(
+  const pattern = usePatternStore((state) => state.pattern);
+  const variation = usePatternStore((state) => state.variation);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const triggers = usePatternStore(
     (state) => state.pattern[voiceIndex].variations[variation].triggers,
   );
-  const toggleStep = useSequencerStore((state) => state.toggleStep);
-  const setVelocity = useSequencerStore((state) => state.setVelocity);
+  const toggleStep = usePatternStore((state) => state.toggleStep);
+  const setVelocity = usePatternStore((state) => state.setVelocity);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isWriting, setWriteState] = useState<boolean>(true);
   const [isVelocity, setIsVelocity] = useState<boolean>(false);

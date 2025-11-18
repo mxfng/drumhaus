@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const together_again = (): Preset => ({
   name: "together_again",
-  _kit: kits.tech_house(),
-  _pattern: sequencesToPattern([
+  kit: kits.tech_house(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -371,15 +371,16 @@ export const together_again = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 125,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 13,
-  _reverb: 30,
-  _compThreshold: 54,
-  _compRatio: 43,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 125,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 13,
+    reverb: 30,
+    compThreshold: 54,
+    compRatio: 43,
+    masterVolume: 92,
+  },
 });

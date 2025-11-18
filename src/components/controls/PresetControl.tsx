@@ -125,7 +125,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     loadPreset(presetToLoad);
     setCleanPreset(presetToLoad);
     setSelectedPreset(presetToLoad.name);
-    setSelectedKit(presetToLoad._kit.name);
+    setSelectedKit(presetToLoad.kit.name);
 
     // Add new presets to the list of options (if provided)
     if (functionToSave) {
@@ -194,8 +194,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const handleShare = async (customName: string) => {
     const presetToSave = getCurrentPreset(customName, currentKitName);
     const jsonPreset = JSON.stringify(presetToSave);
-    const bpm = presetToSave._bpm.toString();
-    const kitUsed = presetToSave._kit.name;
+    const bpm = presetToSave.bpm.toString();
+    const kitUsed = presetToSave.kit.name;
 
     try {
       const url = new URL("/api/presets", window.location.origin);

@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const so_there_i_was = (): Preset => ({
   name: "so_there_i_was",
-  _kit: kits.drumhaus(),
-  _pattern: sequencesToPattern([
+  kit: kits.drumhaus(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -359,15 +359,16 @@ export const so_there_i_was = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 128,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 0,
-  _reverb: 0,
-  _compThreshold: 22,
-  _compRatio: 100,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 128,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 0,
+    reverb: 0,
+    compThreshold: 22,
+    compRatio: 100,
+    masterVolume: 92,
+  },
 });

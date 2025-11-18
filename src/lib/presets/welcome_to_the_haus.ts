@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const welcome_to_the_haus = (): Preset => ({
   name: "welcome_to_the_haus",
-  _kit: kits.drumhaus(),
-  _pattern: sequencesToPattern([
+  kit: kits.drumhaus(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -381,15 +381,16 @@ export const welcome_to_the_haus = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 2,
-  _bpm: 115,
-  _swing: 0,
-  _lowPass: 100,
-  _hiPass: 3,
-  _phaser: 19,
-  _reverb: 52,
-  _compThreshold: 28,
-  _compRatio: 32,
-  _masterVolume: 92,
+  variationCycle: "AB",
+  bpm: 115,
+  swing: 0,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 3,
+    phaser: 19,
+    reverb: 52,
+    compThreshold: 28,
+    compRatio: 32,
+    masterVolume: 92,
+  },
 });

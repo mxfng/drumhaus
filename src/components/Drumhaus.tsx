@@ -25,7 +25,7 @@ import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { InstrumentRuntime, Preset } from "@/types/types";
 import { MasterCompressor } from "./controls/MasterCompressor";
@@ -61,12 +61,12 @@ const Drumhaus = () => {
   );
 
   // Sequencer
-  const chain = useSequencerStore((state) => state.chain);
-  const pattern = useSequencerStore((state) => state.pattern);
-  const setPattern = useSequencerStore((state) => state.setPattern);
-  const setVariation = useSequencerStore((state) => state.setVariation);
-  const setChain = useSequencerStore((state) => state.setChain);
-  const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
+  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const pattern = usePatternStore((state) => state.pattern);
+  const setPattern = usePatternStore((state) => state.setPattern);
+  const setVariation = usePatternStore((state) => state.setVariation);
+  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
+  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
 
   // Master Chain
   const setAllMasterChain = useMasterChainStore(
@@ -98,31 +98,31 @@ const Drumhaus = () => {
   const loadPreset = useCallback(
     (preset: Preset) => {
       setCurrentPresetName(preset.name);
-      setCurrentKitName(preset._kit.name);
+      setCurrentKitName(preset.kit.name);
 
       // Distribute preset data to respective stores
       setVoiceIndex(0);
       setVariation(0);
-      setPattern(preset._pattern);
-      setChain(preset._chain);
-      setBpm(preset._bpm);
-      setSwing(preset._swing);
+      setPattern(preset.pattern);
+      setVariationCycle(preset.variationCycle);
+      setBpm(preset.bpm);
+      setSwing(preset.swing);
       setAllMasterChain(
-        preset._lowPass,
-        preset._hiPass,
-        preset._phaser,
-        preset._reverb,
-        preset._compThreshold,
-        preset._compRatio,
-        preset._masterVolume,
+        preset.masterChain.lowPass,
+        preset.masterChain.hiPass,
+        preset.masterChain.phaser,
+        preset.masterChain.reverb,
+        preset.masterChain.compThreshold,
+        preset.masterChain.compRatio,
+        preset.masterChain.masterVolume,
       );
-      setAllInstruments(preset._kit.instruments);
+      setAllInstruments(preset.kit.instruments);
     },
     [
       setVoiceIndex,
       setVariation,
       setPattern,
-      setChain,
+      setVariationCycle,
       setBpm,
       setSwing,
       setAllMasterChain,
@@ -211,7 +211,7 @@ const Drumhaus = () => {
       makeGoodMusic(
         toneSequence,
         instrumentRuntimes,
-        chain,
+        variationCycle,
         bar,
         chainVariation,
       );
@@ -221,7 +221,7 @@ const Drumhaus = () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, instrumentRuntimes, chain, pattern]);
+  }, [isPlaying, instrumentRuntimes, variationCycle, pattern]);
 
   // Extract URLs to track when samples change (not when params change)
   const instrumentUrls = useMemo(

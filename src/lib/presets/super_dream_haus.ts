@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const super_dream_haus = (): Preset => ({
   name: "super_dream_haus",
-  _kit: kits.jungle(),
-  _pattern: sequencesToPattern([
+  kit: kits.jungle(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -383,15 +383,16 @@ export const super_dream_haus = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 160,
-  _swing: 0,
-  _lowPass: 73,
-  _hiPass: 7,
-  _phaser: 21,
-  _reverb: 56,
-  _compThreshold: 51,
-  _compRatio: 52,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 160,
+  swing: 0,
+  masterChain: {
+    lowPass: 73,
+    hiPass: 7,
+    phaser: 21,
+    reverb: 56,
+    compThreshold: 51,
+    compRatio: 52,
+    masterVolume: 92,
+  },
 });

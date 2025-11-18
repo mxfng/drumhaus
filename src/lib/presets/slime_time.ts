@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const slime_time = (): Preset => ({
   name: "slime_time",
-  _kit: kits.trap(),
-  _pattern: sequencesToPattern([
+  kit: kits.trap(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -383,15 +383,16 @@ export const slime_time = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 2,
-  _bpm: 124,
-  _swing: 38,
-  _lowPass: 100,
-  _hiPass: 0,
-  _phaser: 0,
-  _reverb: 27,
-  _compThreshold: 24,
-  _compRatio: 55,
-  _masterVolume: 92,
+  variationCycle: "AB",
+  bpm: 124,
+  swing: 38,
+  masterChain: {
+    lowPass: 100,
+    hiPass: 0,
+    phaser: 0,
+    reverb: 27,
+    compThreshold: 24,
+    compRatio: 55,
+    masterVolume: 92,
+  },
 });

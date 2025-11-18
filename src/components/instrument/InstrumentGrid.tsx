@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { InstrumentRuntime } from "@/types/types";
 import { InstrumentControl } from "./InstrumentControl";
 
@@ -30,8 +30,8 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
   // Get state from Sequencer Store
-  const voiceIndex = useSequencerStore((state) => state.voiceIndex);
-  const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
 
   const toggleCurrentVoice = useCallback(
     (voice: number) => {

@@ -47,21 +47,24 @@ export interface Kit {
   instruments: InstrumentData[];
 }
 
+export type VariationCycle = "A" | "B" | "AB" | "AAAB";
+
 export interface Preset {
   name: string;
-  _kit: Kit;
-  _pattern: Pattern;
-  _variation: number;
-  _chain: number;
-  _bpm: number;
-  _swing: number;
-  _lowPass: number;
-  _hiPass: number;
-  _phaser: number;
-  _reverb: number;
-  _compThreshold: number;
-  _compRatio: number;
-  _masterVolume: number;
+  kit: Kit;
+  pattern: Pattern;
+  bpm: number;
+  swing: number;
+  variationCycle: VariationCycle;
+  masterChain: {
+    lowPass: number;
+    hiPass: number;
+    phaser: number;
+    reverb: number;
+    compThreshold: number;
+    compRatio: number;
+    masterVolume: number;
+  };
 }
 
 // legacy

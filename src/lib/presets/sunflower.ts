@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const sunflower = (): Preset => ({
   name: "sunflower",
-  _kit: kits.indie(),
-  _pattern: sequencesToPattern([
+  kit: kits.indie(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -365,15 +365,16 @@ export const sunflower = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 2,
-  _bpm: 91,
-  _swing: 15,
-  _lowPass: 77,
-  _hiPass: 8,
-  _phaser: 64,
-  _reverb: 28,
-  _compThreshold: 44,
-  _compRatio: 47,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 91,
+  swing: 15,
+  masterChain: {
+    lowPass: 77,
+    hiPass: 8,
+    phaser: 64,
+    reverb: 28,
+    compThreshold: 44,
+    compRatio: 47,
+    masterVolume: 92,
+  },
 });

@@ -1,6 +1,6 @@
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { Preset } from "@/types/types";
 
@@ -10,7 +10,7 @@ import type { Preset } from "@/types/types";
  */
 export function getCurrentPreset(name: string, kitName: string): Preset {
   const instruments = useInstrumentsStore.getState().instruments;
-  const { pattern, variation, chain } = useSequencerStore.getState();
+  const { pattern, variationCycle } = usePatternStore.getState();
   const { bpm, swing } = useTransportStore.getState();
   const {
     lowPass,
@@ -24,22 +24,23 @@ export function getCurrentPreset(name: string, kitName: string): Preset {
 
   return {
     name,
-    _kit: {
+    kit: {
       name: kitName,
       instruments,
     },
-    _pattern: pattern,
-    _variation: variation,
-    _chain: chain,
-    _bpm: bpm,
-    _swing: swing,
-    _lowPass: lowPass,
-    _hiPass: hiPass,
-    _phaser: phaser,
-    _reverb: reverb,
-    _compThreshold: compThreshold,
-    _compRatio: compRatio,
-    _masterVolume: masterVolume,
+    pattern,
+    variationCycle,
+    bpm,
+    swing,
+    masterChain: {
+      lowPass,
+      hiPass,
+      phaser,
+      reverb,
+      compThreshold,
+      compRatio,
+      masterVolume,
+    },
   };
 }
 

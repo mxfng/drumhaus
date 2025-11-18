@@ -4,8 +4,8 @@ import { Preset } from "@/types/types";
 
 export const a_drum_called_haus = (): Preset => ({
   name: "a_drum_called_haus",
-  _kit: kits.organic(),
-  _pattern: sequencesToPattern([
+  kit: kits.organic(),
+  pattern: sequencesToPattern([
     [
       [
         [
@@ -399,15 +399,16 @@ export const a_drum_called_haus = (): Preset => ({
       ],
     ],
   ]),
-  _variation: 0,
-  _chain: 3,
-  _bpm: 95,
-  _swing: 48,
-  _lowPass: 77,
-  _hiPass: 0,
-  _phaser: 0,
-  _reverb: 32,
-  _compThreshold: 58,
-  _compRatio: 54,
-  _masterVolume: 92,
+  variationCycle: "AAAB",
+  bpm: 95,
+  swing: 48,
+  masterChain: {
+    lowPass: 77,
+    hiPass: 0,
+    phaser: 0,
+    reverb: 32,
+    compThreshold: 58,
+    compRatio: 54,
+    masterVolume: 92,
+  },
 });
