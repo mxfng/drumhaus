@@ -1,5 +1,5 @@
-import type { Kit } from "@/lib/instrument/types";
-import type { Pattern } from "@/lib/pattern/types";
+import type { Kit } from "@/types/instrument";
+import type { Pattern } from "@/types/pattern";
 
 export type VariationCycle = "A" | "B" | "AB" | "AAAB";
 

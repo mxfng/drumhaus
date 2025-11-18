@@ -1,6 +1,6 @@
 import * as kits from "@/lib/drumhausKits";
 import { createEmptyPattern } from "@/lib/pattern/create";
-import type { Preset } from "@/lib/preset/types";
+import type { Preset } from "@/types/preset";
 
 export const init = (): Preset => ({
   name: "init",

@@ -1,11 +1,11 @@
 import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
-import type { InstrumentRuntime } from "@/lib/instrument/types";
-import type { VariationCycle } from "@/lib/preset/types";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
+import type { InstrumentRuntime } from "@/types/instrument";
+import type { VariationCycle } from "@/types/preset";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,

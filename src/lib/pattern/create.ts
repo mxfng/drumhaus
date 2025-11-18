@@ -1,4 +1,4 @@
-import { Pattern, Voice } from "./types";
+import { Pattern, Voice } from "../../types/pattern";
 
 /**
  * Creates an empty pattern with all triggers off and velocities at 1.0

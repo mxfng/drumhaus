@@ -1,5 +1,5 @@
 import type { Sequences } from "@/types/types";
-import type { Pattern, Voice } from "./types";
+import type { Pattern, Voice } from "../../types/pattern";
 
 /**
  * Converts old Sequences format to new Pattern format

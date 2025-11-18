@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import type { InstrumentRuntime } from "@/lib/instrument/types";
+import type { InstrumentRuntime } from "@/types/instrument";
 
 import "@fontsource-variable/pixelify-sans";
 

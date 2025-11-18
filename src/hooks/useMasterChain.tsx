@@ -5,8 +5,8 @@ import {
   transformKnobValue,
   transformKnobValueExponential,
 } from "@/components/common/Knob";
-import { InstrumentRuntime } from "@/lib/instrument/types";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import { InstrumentRuntime } from "@/types/instrument";
 
 interface UseMasterChainProps {
   instrumentRuntimes: InstrumentRuntime[];

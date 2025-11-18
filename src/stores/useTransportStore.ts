@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import type { InstrumentRuntime } from "@/lib/instrument/types";
+import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
   // Playback state

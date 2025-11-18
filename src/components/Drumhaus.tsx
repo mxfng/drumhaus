@@ -21,14 +21,14 @@ import {
   createInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
 } from "@/lib/instrument/helpers";
-import type { InstrumentRuntime } from "@/lib/instrument/types";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/preset/dh/init";
-import type { Preset } from "@/lib/preset/types";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
+import type { InstrumentRuntime } from "@/types/instrument";
+import type { Preset } from "@/types/preset";
 import { MasterCompressor } from "./controls/MasterCompressor";
 import { MasterFX } from "./controls/MasterFX";
 import { MasterVolume } from "./controls/MasterVolume";

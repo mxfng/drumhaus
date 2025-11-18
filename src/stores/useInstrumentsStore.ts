@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import type { InstrumentData } from "@/lib/instrument/types";
+import type { InstrumentData } from "@/types/instrument";
 
 // Default instrument parameters
 const createDefaultInstrument = (

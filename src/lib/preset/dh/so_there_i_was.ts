@@ -1,6 +1,6 @@
 import * as kits from "@/lib/drumhausKits";
 import { sequencesToPattern } from "@/lib/pattern/migrate";
-import type { Preset } from "@/lib/preset/types";
+import type { Preset } from "@/types/preset";
 
 export const so_there_i_was = (): Preset => ({
   name: "so_there_i_was",

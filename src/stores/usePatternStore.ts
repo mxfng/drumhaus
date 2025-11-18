@@ -3,8 +3,8 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { createEmptyPattern } from "@/lib/pattern/create";
-import { Pattern } from "@/lib/pattern/types";
-import type { VariationCycle } from "@/lib/preset/types";
+import { Pattern } from "@/types/pattern";
+import type { VariationCycle } from "@/types/preset";
 
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations

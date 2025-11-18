@@ -1,8 +1,8 @@
-import type { Preset } from "@/lib/preset/types";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
+import type { Preset } from "@/types/preset";
 
 /**
  * Generate a Preset object from current store state

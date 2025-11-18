@@ -1,6 +1,6 @@
 import * as kits from "@/lib/drumhausKits";
 import { sequencesToPattern } from "@/lib/pattern/migrate";
-import type { Preset } from "@/lib/preset/types";
+import type { Preset } from "@/types/preset";
 
 export const super_dream_haus = (): Preset => ({
   name: "super_dream_haus",
