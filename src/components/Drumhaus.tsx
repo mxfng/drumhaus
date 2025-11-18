@@ -20,7 +20,7 @@ import { useMasterChain } from "@/hooks/useMasterChain";
 import {
   createInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
-} from "@/lib/createInstrumentRuntimes";
+} from "@/lib/instrumentHelpers";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
