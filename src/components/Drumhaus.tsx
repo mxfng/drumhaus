@@ -22,7 +22,7 @@ import {
   INIT_INSTRUMENT_RUNTIMES,
 } from "@/lib/instrument/helpers";
 import makeGoodMusic from "@/lib/makeGoodMusic";
-import * as init from "@/lib/preset/bin/ts/init";
+import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { useModalStore } from "@/stores/useModalStore";
@@ -201,7 +201,7 @@ const Drumhaus = () => {
         }
       } else {
         // Load default preset on initial mount
-        loadPreset(init.init());
+        loadPreset(init());
       }
     };
 

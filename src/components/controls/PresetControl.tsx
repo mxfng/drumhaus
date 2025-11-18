@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Center } from "@chakra-ui/react";
 
 import * as kits from "@/lib/kit";
-import { init } from "@/lib/preset/bin/ts/init";
-import { welcome_to_the_haus } from "@/lib/preset/bin/ts/welcome_to_the_haus";
+import * as presets from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
@@ -91,8 +90,17 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   ];
 
   const defaultPresetOptions: (() => PresetFileV1)[] = [
-    init,
-    welcome_to_the_haus,
+    presets.init,
+    presets.welcomeToTheHaus,
+    presets.aDrumCalledHaus,
+    presets.amsterdam,
+    presets.polaroidBounce,
+    presets.purpleHaus,
+    presets.richKids,
+    presets.slimeTime,
+    presets.sunflower,
+    presets.superDreamHaus,
+    presets.togetherAgain,
   ];
 
   const [selectedKit, setSelectedKit] = useState<string>(currentKitMeta.id);
@@ -228,7 +236,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const handleReset = () => {
     stopPlayingOnAction();
     closeResetModal();
-    updateStatesOnPresetChange(init());
+    updateStatesOnPresetChange(presets.init());
   };
 
   const handleShare = async () => {
