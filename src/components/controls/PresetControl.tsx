@@ -92,7 +92,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     kits.trap,
   ];
 
-  const _presetOptions: (() => Preset)[] = [
+  const defaultPresetOptions: (() => Preset)[] = [
     init,
     welcome_to_the_haus,
     a_drum_called_haus,
@@ -110,13 +110,19 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [selectedPreset, setSelectedPreset] =
     useState<string>(currentPresetName);
   const [presetOptions, setPresetOptions] =
-    useState<(() => Preset)[]>(_presetOptions);
+    useState<(() => Preset)[]>(defaultPresetOptions);
   const [cleanPreset, setCleanPreset] = useState<Preset>(
     getCurrentPreset(currentPresetName, currentKitName),
   );
 
   const modalCloseRef = useRef(null);
 
+  /**
+   * Updates all relevant states when a preset is loaded or changed.
+   * This ensures UI state stays in sync with the loaded preset.
+   * @param presetToLoad - The preset to load
+   * @param functionToSave - Optional function that returns the preset, added to preset options
+   */
   const updateStatesOnPresetChange = (
     presetToLoad: Preset,
     functionToSave?: () => Preset,
@@ -174,11 +180,22 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const jsonContent: Preset = JSON.parse(e.target?.result as string);
+        const result = e.target?.result;
+        if (typeof result !== "string") {
+          throw new Error("Invalid file content");
+        }
+
+        const jsonContent: Preset = JSON.parse(result);
         updateStatesOnPresetChange(jsonContent);
       } catch (error) {
-        console.error("Error parsing DH JSON:", error);
+        console.error("Error parsing preset file:", error);
+        openErrorModal();
       }
+    };
+
+    reader.onerror = () => {
+      console.error("Error reading file");
+      openErrorModal();
     };
 
     reader.readAsText(file);
@@ -208,24 +225,31 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add preset");
+        const errorText = await response.text();
+        throw new Error(
+          `Failed to add preset: ${response.status} ${errorText}`,
+        );
       }
 
-      const { presetKey } = await response.json();
+      const data = await response.json();
 
-      const _shareableLink = new URL("/", window.location.origin);
-      _shareableLink.searchParams.append("preset", presetKey);
+      if (!data.presetKey || typeof data.presetKey !== "string") {
+        throw new Error("Invalid response from server");
+      }
 
-      navigator.clipboard.writeText(_shareableLink.href);
+      const shareableLink = new URL("/", window.location.origin);
+      shareableLink.searchParams.append("preset", data.presetKey);
+
+      await navigator.clipboard.writeText(shareableLink.href);
 
       closeSharingModal();
       setIsLoading(false);
-      openSharedModal(_shareableLink.href);
+      openSharedModal(shareableLink.href);
     } catch (error) {
       closeSharingModal();
       setIsLoading(false);
       openErrorModal();
-      console.error("Error adding preset:", error);
+      console.error("Error sharing preset:", error);
     }
   };
 
@@ -249,6 +273,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
+  /**
+   * Handles preset change requests from the selector.
+   * If the user has unsaved changes, prompts them with a modal.
+   * Otherwise, switches to the new preset directly.
+   */
   const handlePresetChangeRequest = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -268,9 +297,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
+  /**
+   * Switches to a different preset by name.
+   * Stops playback if currently playing, then loads the new preset.
+   */
   const switchPreset = useCallback(
     (name: string) => {
-      stopPlayingOnAction();
+      if (isPlaying) {
+        togglePlay();
+      }
 
       const presetOption = presetOptions.find(
         (preset) => preset().name === name,
@@ -285,31 +320,42 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         );
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [presetOptions, stopPlayingOnAction],
+    [presetOptions, isPlaying, togglePlay, updateStatesOnPresetChange],
   );
 
-  const addOrUpdatePreset = (newOption: () => Preset) => {
-    const index = presetOptions.findIndex(
-      (option) => option().name == newOption().name,
-    );
+  /**
+   * Adds a new preset to the options list or updates an existing one.
+   * Used for custom presets loaded from files or URL params.
+   */
+  const addOrUpdatePreset = useCallback(
+    (newOption: () => Preset) => {
+      const index = presetOptions.findIndex(
+        (option) => option().name === newOption().name,
+      );
 
-    if (index !== -1) {
-      presetOptions[index] = newOption;
-    } else {
-      setPresetOptions((prevPresetOptions) => {
-        const newPresetOptions = [...prevPresetOptions, newOption];
-        return newPresetOptions;
-      });
-    }
-  };
+      if (index !== -1) {
+        // Update existing preset (mutating is acceptable here since we're modifying the array directly)
+        presetOptions[index] = newOption;
+      } else {
+        setPresetOptions((prevPresetOptions) => [
+          ...prevPresetOptions,
+          newOption,
+        ]);
+      }
+    },
+    [presetOptions, setPresetOptions],
+  );
 
   const handlePresetChange = useCallback(() => {
     if (isPresetChangeModalOpen) closePresetChangeModal();
     const selectedPresetName = presetToChange;
     switchPreset(selectedPresetName);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetToChange, isPresetChangeModalOpen]);
+  }, [
+    presetToChange,
+    isPresetChangeModalOpen,
+    closePresetChangeModal,
+    switchPreset,
+  ]);
 
   // Add custom presets loaded via URL search params
   useEffect(() => {
@@ -324,8 +370,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
       addOrUpdatePreset(customPresetFunction);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPresetName]);
+  }, [currentPresetName, currentKitName, presetOptions, addOrUpdatePreset]);
 
   // Effect to display share prompt to new users
   useEffect(() => {
