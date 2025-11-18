@@ -219,10 +219,11 @@ const Drumhaus = () => {
       );
     }
 
+    const ts = toneSequence.current;
+
     return () => {
-      toneSequence.current?.dispose();
+      ts?.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, instrumentRuntimes, variationCycle, pattern]);
 
   // Extract URLs to track when samples change (not when params change)

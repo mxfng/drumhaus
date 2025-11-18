@@ -117,32 +117,61 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const modalCloseRef = useRef(null);
 
+  const stopPlayingOnAction = () => {
+    if (isPlaying) {
+      togglePlay();
+    }
+  };
+
+  /**
+   * Adds a new preset to the options list or updates an existing one.
+   * Used for custom presets loaded from files or URL params.
+   */
+  const addOrUpdatePreset = useCallback(
+    (newOption: () => Preset) => {
+      const index = presetOptions.findIndex(
+        (option) => option().name === newOption().name,
+      );
+
+      if (index !== -1) {
+        // Update existing preset (mutating is acceptable here since we're modifying the array directly)
+        presetOptions[index] = newOption;
+      } else {
+        setPresetOptions((prevPresetOptions) => [
+          ...prevPresetOptions,
+          newOption,
+        ]);
+      }
+    },
+    [presetOptions, setPresetOptions],
+  );
+
   /**
    * Updates all relevant states when a preset is loaded or changed.
    * This ensures UI state stays in sync with the loaded preset.
    * @param presetToLoad - The preset to load
    * @param functionToSave - Optional function that returns the preset, added to preset options
    */
-  const updateStatesOnPresetChange = (
-    presetToLoad: Preset,
-    functionToSave?: () => Preset,
-  ) => {
-    loadPreset(presetToLoad);
-    setCleanPreset(presetToLoad);
-    setSelectedPreset(presetToLoad.name);
-    setSelectedKit(presetToLoad.kit.name);
+  const updateStatesOnPresetChange = useCallback(
+    (presetToLoad: Preset, functionToSave?: () => Preset) => {
+      loadPreset(presetToLoad);
+      setCleanPreset(presetToLoad);
+      setSelectedPreset(presetToLoad.name);
+      setSelectedKit(presetToLoad.kit.name);
 
-    // Add new presets to the list of options (if provided)
-    if (functionToSave) {
-      addOrUpdatePreset(functionToSave);
-    }
-  };
-
-  const stopPlayingOnAction = () => {
-    if (isPlaying) {
-      togglePlay();
-    }
-  };
+      // Add new presets to the list of options (if provided)
+      if (functionToSave) {
+        addOrUpdatePreset(functionToSave);
+      }
+    },
+    [
+      loadPreset,
+      setCleanPreset,
+      setSelectedPreset,
+      setSelectedKit,
+      addOrUpdatePreset,
+    ],
+  );
 
   const handleSave = (customName: string) => {
     const presetToSave = getCurrentPreset(customName, currentKitName);
@@ -321,29 +350,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       }
     },
     [presetOptions, isPlaying, togglePlay, updateStatesOnPresetChange],
-  );
-
-  /**
-   * Adds a new preset to the options list or updates an existing one.
-   * Used for custom presets loaded from files or URL params.
-   */
-  const addOrUpdatePreset = useCallback(
-    (newOption: () => Preset) => {
-      const index = presetOptions.findIndex(
-        (option) => option().name === newOption().name,
-      );
-
-      if (index !== -1) {
-        // Update existing preset (mutating is acceptable here since we're modifying the array directly)
-        presetOptions[index] = newOption;
-      } else {
-        setPresetOptions((prevPresetOptions) => [
-          ...prevPresetOptions,
-          newOption,
-        ]);
-      }
-    },
-    [presetOptions, setPresetOptions],
   );
 
   const handlePresetChange = useCallback(() => {
