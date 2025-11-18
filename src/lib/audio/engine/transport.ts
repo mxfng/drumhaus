@@ -20,9 +20,13 @@ export function startTransport(): void {
 
 /**
  * Stops the transport
+ * @param onStop - Optional callback to execute after stopping
  */
-export function stopTransport(): void {
+export function stopTransport(onStop?: () => void): void {
   Tone.Transport.stop();
+  if (onStop) {
+    onStop();
+  }
 }
 
 /**

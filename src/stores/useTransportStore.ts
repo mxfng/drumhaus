@@ -50,14 +50,16 @@ export const useTransportStore = create<TransportState>()(
             if (newIsPlaying) {
               startTransport();
             } else {
-              stopTransport();
-              state.stepIndex = 0;
+              // Stop transport and reset step index
+              stopTransport(() => {
+                state.stepIndex = 0;
 
-              // Release all samples
-              releaseAllSamples(instrumentRuntimes);
+                // Release all samples
+                releaseAllSamples(instrumentRuntimes);
 
-              // Call optional stop callback
-              if (onStop) onStop();
+                // Call optional stop callback
+                if (onStop) onStop();
+              });
             }
 
             state.isPlaying = newIsPlaying;
