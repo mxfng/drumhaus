@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
+import type { InstrumentRuntime } from "@/lib/instrument/types";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { InstrumentRuntime } from "@/types/types";
 import { InstrumentControl } from "./InstrumentControl";
 
 const NO_OF_INSTRUMENTS = 8;

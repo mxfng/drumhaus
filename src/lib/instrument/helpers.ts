@@ -1,7 +1,7 @@
 import * as Tone from "tone/build/esm/index";
 
 import * as kits from "@/lib/drumhausKits";
-import { InstrumentData, InstrumentRuntime } from "@/types/types";
+import type { InstrumentData, InstrumentRuntime } from "@/lib/instrument/types";
 
 /**
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
