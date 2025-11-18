@@ -25,6 +25,7 @@ import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
 import * as kits from "@/lib/kits";
+import { arePresetsEqual, getCurrentPreset } from "@/lib/presetHelpers";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
 import { amsterdam } from "@/lib/presets/amsterdam";
 import { init } from "@/lib/presets/init";
@@ -37,8 +38,6 @@ import { super_dream_haus } from "@/lib/presets/super_dream_haus";
 import { together_again } from "@/lib/presets/together_again";
 import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { Kit, Preset } from "@/types/types";
 import { ErrorModal } from "../modal/ErrorModal";
@@ -48,10 +47,10 @@ import { SaveModal } from "../modal/SaveModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
 
 type PresetControlProps = {
-  preset: Preset;
-  setPreset: React.Dispatch<React.SetStateAction<Preset>>;
-  kit: Kit;
-  setKit: React.Dispatch<React.SetStateAction<Kit>>;
+  currentPresetName: string;
+  currentKitName: string;
+  loadPreset: (preset: Preset) => void;
+  setCurrentKitName: React.Dispatch<React.SetStateAction<string>>;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -59,35 +58,20 @@ type PresetControlProps = {
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  preset,
-  setPreset,
-  kit,
-  setKit,
+  currentPresetName,
+  currentKitName,
+  loadPreset,
+  setCurrentKitName,
   togglePlay,
   isLoading,
   setIsLoading,
   setIsModal,
 }) => {
-  // Get transport state from store
-  const bpm = useTransportStore((state) => state.bpm);
-  const swing = useTransportStore((state) => state.swing);
+  // Subscribe to stores for UI updates
   const isPlaying = useTransportStore((state) => state.isPlaying);
-
-  // Get instrument state from store
-  const instruments = useInstrumentsStore((state) => state.instruments);
-
-  // Get sequencer state from store
-  const pattern = useSequencerStore((state) => state.pattern);
-  const chain = useSequencerStore((state) => state.chain);
-
-  // Get master FX state from store
-  const lowPass = useMasterFXStore((state) => state.lowPass);
-  const hiPass = useMasterFXStore((state) => state.hiPass);
-  const phaser = useMasterFXStore((state) => state.phaser);
-  const reverb = useMasterFXStore((state) => state.reverb);
-  const compThreshold = useMasterFXStore((state) => state.compThreshold);
-  const compRatio = useMasterFXStore((state) => state.compRatio);
-  const masterVolume = useMasterFXStore((state) => state.masterVolume);
+  const setAllInstruments = useInstrumentsStore(
+    (state) => state.setAllInstruments,
+  );
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,
@@ -115,11 +99,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     super_dream_haus,
   ];
 
-  const [selectedKit, setSelectedKit] = useState<string>(kit.name);
-  const [selectedPreset, setSelectedPreset] = useState<string>(preset.name);
+  const [selectedKit, setSelectedKit] = useState<string>(currentKitName);
+  const [selectedPreset, setSelectedPreset] =
+    useState<string>(currentPresetName);
   const [presetOptions, setPresetOptions] =
     useState<(() => Preset)[]>(_presetOptions);
-  const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
+  const [cleanPreset, setCleanPreset] = useState<Preset>(
+    getCurrentPreset(currentPresetName, currentKitName),
+  );
   const [isSharedModalOpen, setIsSharedModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
@@ -131,34 +118,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const modalCloseRef = useRef(null);
 
-  const createPresetFunction = (name: string) => () => ({
-    name: name,
-    _kit: {
-      name: kit.name,
-      instruments: instruments,
-    },
-    _pattern: pattern,
-    _variation: 0,
-    _chain: chain,
-    _bpm: bpm,
-    _swing: swing,
-    _lowPass: lowPass,
-    _hiPass: hiPass,
-    _phaser: phaser,
-    _reverb: reverb,
-    _compThreshold: compThreshold,
-    _compRatio: compRatio,
-    _masterVolume: masterVolume,
-  });
-
   const updateStatesOnPresetChange = (
-    presetToSave: Preset,
+    presetToLoad: Preset,
     functionToSave?: () => Preset,
   ) => {
-    setPreset(presetToSave);
-    setCleanPreset(presetToSave);
-    setSelectedPreset(presetToSave.name);
-    setSelectedKit(presetToSave._kit.name);
+    loadPreset(presetToLoad);
+    setCleanPreset(presetToLoad);
+    setSelectedPreset(presetToLoad.name);
+    setSelectedKit(presetToLoad._kit.name);
 
     // Add new presets to the list of options (if provided)
     if (functionToSave) {
@@ -173,8 +140,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleSave = (customName: string) => {
-    const presetFunctionToSave = createPresetFunction(customName);
-    const presetToSave = presetFunctionToSave();
+    const presetToSave = getCurrentPreset(customName, currentKitName);
 
     const jsonPreset = JSON.stringify(presetToSave);
     const blob = new Blob([jsonPreset], { type: "application/json" });
@@ -188,7 +154,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
 
-    updateStatesOnPresetChange(presetToSave, presetFunctionToSave);
+    // Create a function that returns this preset
+    const presetFunction = () => presetToSave;
+    updateStatesOnPresetChange(presetToSave, presetFunction);
   };
 
   const handleLoad = () => {
@@ -224,8 +192,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleShare = async (customName: string) => {
-    const presetFunctionToSave = createPresetFunction(customName);
-    const presetToSave = presetFunctionToSave();
+    const presetToSave = getCurrentPreset(customName, currentKitName);
     const jsonPreset = JSON.stringify(presetToSave);
     const bpm = presetToSave._bpm.toString();
     const kitUsed = presetToSave._kit.name;
@@ -272,7 +239,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     if (kitOption) {
       const newKit = kitOption();
-      setKit(newKit);
+      // Update instruments store (single source of truth)
+      setAllInstruments(newKit.instruments);
+      // Update kit name metadata
+      setCurrentKitName(newKit.name);
       setSelectedKit(newKit.name);
     } else {
       console.error(
@@ -310,43 +280,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const handlePresetChangeRequest = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    // Deep equality check between current states and cached preset states
+    // Check if current state differs from loaded preset
+    const currentState = getCurrentPreset(currentPresetName, currentKitName);
     const cp = cleanPreset;
 
-    // Helper to check if instruments have changed
-    const instrumentsChanged = () => {
-      if (instruments.length !== cp._kit.instruments.length) return true;
-      return !instruments.every((inst, i) => {
-        const cpInst = cp._kit.instruments[i];
-        return (
-          inst.name === cpInst.name &&
-          inst.url === cpInst.url &&
-          inst.attack === cpInst.attack &&
-          inst.release === cpInst.release &&
-          inst.filter === cpInst.filter &&
-          inst.volume === cpInst.volume &&
-          inst.pan === cpInst.pan &&
-          inst.pitch === cpInst.pitch &&
-          inst.solo === cpInst.solo &&
-          inst.mute === cpInst.mute
-        );
-      });
-    };
-
-    const changesMade =
-      kit.name !== cp._kit.name ||
-      instrumentsChanged() ||
-      bpm !== cp._bpm ||
-      swing !== cp._swing ||
-      lowPass !== cp._lowPass ||
-      hiPass !== cp._hiPass ||
-      phaser !== cp._phaser ||
-      reverb !== cp._reverb ||
-      compThreshold !== cp._compThreshold ||
-      compRatio !== cp._compRatio ||
-      masterVolume !== cp._masterVolume ||
-      pattern !== cp._pattern ||
-      chain !== cp._chain;
+    // Deep equality check using proper comparison
+    const changesMade = !arePresetsEqual(currentState, cp);
 
     const newPreset = event.target.value;
 
@@ -401,37 +340,21 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [presetToChange, isPresetChangeModalOpen]);
 
+  // Add custom presets loaded via URL search params
   useEffect(() => {
-    // Add custom presets loaded via URL search params
-    if (!presetOptions.some((option) => option().name == preset.name)) {
-      const presetFunctionToSave = (): Preset => ({
-        name: preset.name,
-        _kit: {
-          name: preset._kit.name,
-          instruments: preset._kit.instruments,
-        },
-        _pattern: preset._pattern,
-        _variation: 0,
-        _chain: preset._chain,
-        _bpm: preset._bpm,
-        _swing: preset._swing,
-        _lowPass: preset._lowPass,
-        _hiPass: preset._hiPass,
-        _phaser: preset._phaser,
-        _reverb: preset._reverb,
-        _compThreshold: preset._compThreshold,
-        _compRatio: preset._compRatio,
-        _masterVolume: preset._masterVolume,
-      });
+    const currentPresetExists = presetOptions.some(
+      (option) => option().name === currentPresetName,
+    );
 
-      console.log(preset.name);
-      console.log(preset._pattern);
-      console.log(presetFunctionToSave);
+    if (!currentPresetExists) {
+      // Create a function that returns the current preset from stores
+      const customPresetFunction = () =>
+        getCurrentPreset(currentPresetName, currentKitName);
 
-      updateStatesOnPresetChange(preset, presetFunctionToSave);
+      addOrUpdatePreset(customPresetFunction);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
+  }, [currentPresetName]);
 
   // block the spacebar from playing
   useEffect(() => {
@@ -675,7 +598,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                           <IoIosShareAlt
                             className="icon"
                             fill="#B09374"
-                            transition="all 0.2s ease"
                             size="26px"
                           />
                         </Button>
@@ -728,7 +650,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                     <RxReset
                       className="iconReset"
                       color="#B09374"
-                      transition="all 0.2s ease"
                       size="20px"
                     />
                   </Button>

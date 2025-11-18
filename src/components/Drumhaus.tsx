@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -80,12 +80,14 @@ const Drumhaus = () => {
   const setAllMasterFX = useMasterFXStore((state) => state.setAllMasterFX);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [preset, setPreset] = useState<Preset>(init.init());
   const [isMobileWarning, setIsMobileWarning] = useState(false);
   const [isModal, setIsModal] = useState(false);
 
-  // g l o b a l
-  const [kit, setKit] = useState<Kit>(preset._kit);
+  // Preset/Kit metadata
+  // All actual data lives in stores (useInstrumentsStore, useSequencerStore, etc.)
+  // These just track which preset/kit is currently loaded for UI display
+  const [currentPresetName, setCurrentPresetName] = useState<string>("init");
+  const [currentKitName, setCurrentKitName] = useState<string>("drumhaus");
 
   // State architecture for instruments:
   // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
@@ -109,6 +111,42 @@ const Drumhaus = () => {
   const customPresetAlert = useToast({
     position: "top",
   });
+
+  // Load preset into all stores (single source of truth)
+  const loadPreset = useCallback(
+    (preset: Preset) => {
+      setCurrentPresetName(preset.name);
+      setCurrentKitName(preset._kit.name);
+
+      // Distribute preset data to respective stores
+      setVoiceIndex(0);
+      setVariation(0);
+      setPattern(preset._pattern);
+      setChain(preset._chain);
+      setBpm(preset._bpm);
+      setSwing(preset._swing);
+      setAllMasterFX(
+        preset._lowPass,
+        preset._hiPass,
+        preset._phaser,
+        preset._reverb,
+        preset._compThreshold,
+        preset._compRatio,
+        preset._masterVolume,
+      );
+      setAllInstruments(preset._kit.instruments);
+    },
+    [
+      setVoiceIndex,
+      setVariation,
+      setPattern,
+      setChain,
+      setBpm,
+      setSwing,
+      setAllMasterFX,
+      setAllInstruments,
+    ],
+  );
 
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
@@ -143,7 +181,7 @@ const Drumhaus = () => {
           } else {
             const newPreset: Preset = data.presets.rows[0].preset_data;
 
-            setPreset(newPreset);
+            loadPreset(newPreset);
 
             customPresetAlert({
               render: () => (
@@ -167,6 +205,9 @@ const Drumhaus = () => {
             error,
           );
         }
+      } else {
+        // Load default preset on initial mount
+        loadPreset(init.init());
       }
     };
 
@@ -193,52 +234,18 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, instrumentRuntimes, chain, pattern]);
 
-  // p r e s e t   c h a n g e
+  // i n s t r u m e n t s   s t o r e   c h a n g e
+  // When instruments in the store change, recreate runtime nodes
+  const instruments = useInstrumentsStore((state) => state.instruments);
+
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
-    function setFromPreset(_preset: Preset) {
-      // Sequencer state
-      setVoiceIndex(0);
-      setVariation(0);
-      setPattern(_preset._pattern);
-      setChain(_preset._chain);
-
-      // Kit
-      setKit(_preset._kit);
-
-      // Transport
-      setBpm(_preset._bpm); // Updates store + Tone.Transport
-      setSwing(_preset._swing); // Updates store + Tone.Transport
-
-      // Master FX
-      setAllMasterFX(
-        _preset._lowPass,
-        _preset._hiPass,
-        _preset._phaser,
-        _preset._reverb,
-        _preset._compThreshold,
-        _preset._compRatio,
-        _preset._masterVolume,
-      );
-    }
-
-    setFromPreset({ ...preset });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
-
-  // k i t   c h a n g e
-  useEffect(() => {
-    if (!isLoading) setIsLoading(true);
-
-    // Create runtime nodes from kit data
-    const newRuntimes = createInstrumentRuntimes(kit.instruments);
+    // Create runtime nodes from store data
+    const newRuntimes = createInstrumentRuntimes(instruments);
 
     // Update local runtime state
     setInstrumentRuntimes(newRuntimes);
-
-    // Update instruments store with kit data (single source of truth)
-    setAllInstruments(kit.instruments);
 
     return () => {
       instrumentRuntimes.forEach((runtime) => {
@@ -249,7 +256,7 @@ const Drumhaus = () => {
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kit]);
+  }, [instruments]);
 
   // s a m p l e s   c h a n g e
   useEffect(() => {
@@ -510,10 +517,10 @@ const Drumhaus = () => {
 
               <GridItem w="380px" px={2}>
                 <PresetControl
-                  preset={preset}
-                  setPreset={setPreset}
-                  kit={kit}
-                  setKit={setKit}
+                  currentPresetName={currentPresetName}
+                  currentKitName={currentKitName}
+                  loadPreset={loadPreset}
+                  setCurrentKitName={setCurrentKitName}
                   togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
