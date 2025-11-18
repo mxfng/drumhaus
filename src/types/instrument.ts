@@ -1,14 +1,9 @@
 import * as Tone from "tone/build/esm/index";
 
-/**
- * Serializable instrument data (no Tone.js objects)
- * Used in Kit definitions and preset storage
- * Contains all parameters for a single instrument
- * Note: index is not stored - use array index instead
- */
-export interface InstrumentData {
-  name: string;
-  url: string;
+import { InlineMeta, Meta } from "./meta";
+import { SampleData } from "./sample";
+
+export interface InstrumentParams {
   attack: number;
   release: number;
   filter: number;
@@ -19,24 +14,44 @@ export interface InstrumentData {
   mute: boolean;
 }
 
+export type InstrumentRole =
+  | "kick"
+  | "snare"
+  | "clap"
+  | "hat"
+  | "ohat"
+  | "tom"
+  | "perc"
+  | "crash"
+  | "bass"
+  | "synth"
+  | "other";
+
+export interface InstrumentData {
+  meta: InlineMeta; // id + display name of this pad
+  role: InstrumentRole; // where it lives conceptually in the kit
+  sample: SampleData;
+  params: InstrumentParams;
+}
+
 /**
- * Runtime instrument with Tone.js audio nodes
- * Created from InstrumentData when kit is loaded
+ * Represents the kit file schema
+ */
+export interface KitFileV1 {
+  kind: "drumhaus.kit";
+  version: 1;
+  meta: Meta; // kit-level metadata
+  instruments: InstrumentData[];
+}
+
+/**
+ * Represents the runtime audio nodes for an instrument
+ * Used during playback and rendering
  */
 export interface InstrumentRuntime {
+  instrumentId: string; // matches InstrumentData.meta.id
   samplerNode: Tone.Sampler;
   envelopeNode: Tone.AmplitudeEnvelope;
   filterNode: Tone.Filter;
   pannerNode: Tone.Panner;
-}
-
-/**
- * Complete instrument - combines serializable data with runtime audio nodes
- * Used during playback and rendering
- */
-export type Instrument = InstrumentData & InstrumentRuntime;
-
-export interface Kit {
-  name: string;
-  instruments: InstrumentData[];
 }
