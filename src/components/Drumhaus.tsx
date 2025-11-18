@@ -238,8 +238,23 @@ const Drumhaus = () => {
     // Create runtime nodes from store data
     const newRuntimes = createInstrumentRuntimes(instruments);
 
-    // Update local runtime state
-    setInstrumentRuntimes(newRuntimes);
+    // Wait for all sampler buffers to load before updating state
+    const loadBuffers = async () => {
+      try {
+        // Wait for all Tone.js audio files to load
+        await Tone.loaded();
+        // Update local runtime state only after buffers are loaded
+        setInstrumentRuntimes(newRuntimes);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading sampler buffers:", error);
+        // Still update runtimes even if loading fails (graceful degradation)
+        setInstrumentRuntimes(newRuntimes);
+        setIsLoading(false);
+      }
+    };
+
+    loadBuffers();
 
     return () => {
       instrumentRuntimes.forEach((runtime) => {

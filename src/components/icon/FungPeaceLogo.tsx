@@ -17,29 +17,29 @@ export const FungPeaceLogo: React.FC<{ color: string; size: number }> = ({
     >
       <path
         stroke={color}
-        stroke-miterlimit="10"
-        stroke-width="20"
+        strokeMiterlimit="10"
+        strokeWidth="20"
         d="m214 50 152 355H62zm0-51L32 425h364z"
       />
-      <g fill="none" stroke={color} stroke-miterlimit="10" stroke-width="20">
+      <g fill="none" stroke={color} strokeMiterlimit="10" strokeWidth="20">
         <path d="M214 30v379M214 211 73 352M214 211l144 146" />
       </g>
       <path
         stroke={color}
-        stroke-miterlimit="10"
-        stroke-width="20"
+        strokeMiterlimit="10"
+        strokeWidth="20"
         d="M739 19a192 192 0 0 1 193 193 192 192 0 0 1-193 193 192 192 0 0 1-193-193A192 192 0 0 1 739 19m0-20a213 213 0 1 0 0 426 213 213 0 0 0 0-426"
       />
-      <g fill="none" stroke={color} stroke-miterlimit="10" stroke-width="20">
+      <g fill="none" stroke={color} strokeMiterlimit="10" strokeWidth="20">
         <path d="M739-1v410M739 211 588 362M739 211l144 146" />
       </g>
       <path
         stroke={color}
-        stroke-miterlimit="10"
-        stroke-width="20"
+        strokeMiterlimit="10"
+        strokeWidth="20"
         d="M1509 35v355h-355V35zm20-20h-395v395h395z"
       />
-      <g fill="none" stroke={color} stroke-miterlimit="10" stroke-width="20">
+      <g fill="none" stroke={color} strokeMiterlimit="10" strokeWidth="20">
         <path d="M1332 20v389M1332 211l-182 182M1332 211l181 183" />
       </g>
     </svg>
