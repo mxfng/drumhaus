@@ -1,0 +1,77 @@
+"use client";
+
+import { Box, Button, Select, Text } from "@chakra-ui/react";
+import { IoMdArrowDropdown } from "react-icons/io";
+
+import type { Preset } from "@/types/preset";
+
+type PresetSelectorProps = {
+  selectedPreset: string;
+  presetOptions: (() => Preset)[];
+  onPresetChangeRequest: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+};
+
+export const PresetSelector: React.FC<PresetSelectorProps> = ({
+  selectedPreset,
+  presetOptions,
+  onPresetChangeRequest,
+}) => {
+  return (
+    <>
+      <Text fontSize={12} color="gray">
+        PRESET
+      </Text>
+
+      <Box
+        w="100%"
+        borderRadius="8px"
+        boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+        _hover={{
+          "& .icon": {
+            fill: "darkorange",
+            transition: "all 0.2s ease",
+          },
+        }}
+      >
+        <Box id="preset" h="40px" mb={2} position="relative">
+          <Select
+            variant="unstyled"
+            icon={<></>}
+            value={selectedPreset}
+            fontFamily={`'Pixelify Sans Variable', sans-serif`}
+            color="gray"
+            w="332px"
+            h="40px"
+            borderRadius="8px"
+            cursor="pointer"
+            onChange={onPresetChangeRequest}
+            onKeyDown={(ev) => ev.preventDefault()}
+            pl={4}
+          >
+            {presetOptions.map((preset) => (
+              <option key={preset().name} value={preset().name}>
+                {preset().name}
+              </option>
+            ))}
+          </Select>
+          <Button
+            bg="transparent"
+            position="absolute"
+            right={0}
+            top={0}
+            pointerEvents="none"
+          >
+            <Box>
+              <Box h="50%" transform="rotate(180deg)" mb={-1}>
+                <IoMdArrowDropdown className="icon" color="#B09374" />
+              </Box>
+              <Box h="50%">
+                <IoMdArrowDropdown className="icon" color="#B09374" />
+              </Box>
+            </Box>
+          </Button>
+        </Box>
+      </Box>
+    </>
+  );
+};

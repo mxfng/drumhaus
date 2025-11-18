@@ -1,28 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverFooter,
-  PopoverHeader,
-  PopoverTrigger,
-  Select,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
-import { FaFolderOpen } from "react-icons/fa";
-import { IoIosShareAlt, IoMdArrowDropdown } from "react-icons/io";
-import { MdOutlineSaveAlt } from "react-icons/md";
-import { RxReset } from "react-icons/rx";
+import { Box, Center } from "@chakra-ui/react";
 
 import * as kits from "@/lib/drumhausKits";
 import { a_drum_called_haus } from "@/lib/preset/dh/a_drum_called_haus";
@@ -38,6 +17,7 @@ import { together_again } from "@/lib/preset/dh/together_again";
 import { welcome_to_the_haus } from "@/lib/preset/dh/welcome_to_the_haus";
 import { arePresetsEqual, getCurrentPreset } from "@/lib/preset/helpers";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useModalStore } from "@/stores/useModalStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { Kit } from "@/types/instrument";
 import type { Preset } from "@/types/preset";
@@ -46,6 +26,9 @@ import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SaveModal } from "../modal/SaveModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
+import { KitSelector } from "./preset/KitSelector";
+import { PresetActions } from "./preset/PresetActions";
+import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
   currentPresetName: string;
@@ -55,7 +38,6 @@ type PresetControlProps = {
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
@@ -66,13 +48,37 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   togglePlay,
   isLoading,
   setIsLoading,
-  setIsModal,
 }) => {
   // Subscribe to stores for UI updates
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
+
+  // Modal store
+  const {
+    isSaveModalOpen,
+    isSharingModalOpen,
+    isSharedModalOpen,
+    isResetModalOpen,
+    isErrorModalShowing,
+    isPresetChangeModalOpen,
+    isSharePromptOpen,
+    shareableLink,
+    presetToChange,
+    closeSaveModal,
+    closeSharingModal,
+    closeSharedModal,
+    closeResetModal,
+    closeErrorModal,
+    closePresetChangeModal,
+    closeSharePrompt,
+    openSharedModal,
+    openErrorModal,
+    openPresetChangeModal,
+    openSharePrompt,
+  } = useModalStore();
+
   const kitOptions: (() => Kit)[] = [
     kits.drumhaus,
     kits.eighties,
@@ -108,14 +114,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const [cleanPreset, setCleanPreset] = useState<Preset>(
     getCurrentPreset(currentPresetName, currentKitName),
   );
-  const [isSharedModalOpen, setIsSharedModalOpen] = useState(false);
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-  const [isErrorModalShowing, setIsErrorModalShowing] = useState(false);
-  const [isPresetChangeModalOpen, setIsPresetChangeModalOpen] = useState(false);
-  const [shareableLink, setShareableLink] = useState("");
-  const [isSharePromptOpen, setIsSharePromptOpen] = useState(false);
 
   const modalCloseRef = useRef(null);
 
@@ -188,7 +186,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const handleReset = () => {
     stopPlayingOnAction();
-    setIsResetModalOpen(false);
+    closeResetModal();
     updateStatesOnPresetChange(init());
   };
 
@@ -219,15 +217,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       _shareableLink.searchParams.append("preset", presetKey);
 
       navigator.clipboard.writeText(_shareableLink.href);
-      setShareableLink(_shareableLink.href);
 
-      setIsSharingModalOpen(false);
+      closeSharingModal();
       setIsLoading(false);
-      setIsSharedModalOpen(true);
+      openSharedModal(_shareableLink.href);
     } catch (error) {
-      setIsSharingModalOpen(false);
+      closeSharingModal();
       setIsLoading(false);
-      setIsErrorModalShowing(true);
+      openErrorModal();
       console.error("Error adding preset:", error);
     }
   };
@@ -252,32 +249,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const closeSaveModal = () => {
-    setIsSaveModalOpen(false);
-  };
-
-  const closeSharingModal = () => {
-    setIsSharingModalOpen(false);
-  };
-
-  const closeSharedModal = () => {
-    setIsSharedModalOpen(false);
-  };
-
-  const closeResetModal = () => {
-    setIsResetModalOpen(false);
-  };
-
-  const closeErrorModal = () => {
-    setIsErrorModalShowing(false);
-  };
-
-  const closePresetChangeModal = () => {
-    setIsPresetChangeModalOpen(false);
-  };
-
-  const [presetToChange, setPresetToChange] = useState<string>("");
-
   const handlePresetChangeRequest = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -291,8 +262,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const newPreset = event.target.value;
 
     if (changesMade) {
-      setIsPresetChangeModalOpen(true);
-      setPresetToChange(newPreset);
+      openPresetChangeModal(newPreset);
     } else {
       switchPreset(newPreset);
     }
@@ -335,7 +305,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handlePresetChange = useCallback(() => {
-    if (isPresetChangeModalOpen) setIsPresetChangeModalOpen(false);
+    if (isPresetChangeModalOpen) closePresetChangeModal();
     const selectedPresetName = presetToChange;
     switchPreset(selectedPresetName);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -357,15 +327,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPresetName]);
 
-  // block the spacebar from playing
-  useEffect(() => {
-    if (isLoading || isSaveModalOpen || isSharingModalOpen) {
-      setIsModal(true);
-    } else {
-      setIsModal(false);
-    }
-  }, [isLoading, isSaveModalOpen, isSharingModalOpen, setIsModal]);
-
   // Effect to display share prompt to new users
   useEffect(() => {
     const sharePromptFlag = localStorage.getItem("sharePromptSeen");
@@ -373,14 +334,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     // If the flag is present, the user has visited before
     if (!sharePromptFlag) {
       const timer = setTimeout(() => {
-        setIsSharePromptOpen(true);
+        openSharePrompt();
       }, 60000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [openSharePrompt]);
 
-  const closeSharePrompt = () => {
-    setIsSharePromptOpen(false);
+  const handleCloseSharePrompt = () => {
+    closeSharePrompt();
     localStorage.setItem("sharePromptSeen", "true");
   };
 
@@ -398,266 +359,23 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           position="relative"
           ref={modalCloseRef}
         >
-          <Text fontSize={12} color="gray">
-            PRESET
-          </Text>
+          <PresetSelector
+            selectedPreset={selectedPreset}
+            presetOptions={presetOptions}
+            onPresetChangeRequest={handlePresetChangeRequest}
+          />
 
-          <Box
-            w="100%"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <Box id="preset" h="40px" mb={2} position="relative">
-              <Select
-                variant="unstyled"
-                icon={<></>}
-                value={selectedPreset}
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="gray"
-                w="332px"
-                h="40px"
-                borderRadius="8px"
-                cursor="pointer"
-                onChange={handlePresetChangeRequest}
-                onKeyDown={(ev) => ev.preventDefault()}
-                pl={4}
-              >
-                {presetOptions.map((preset) => (
-                  <option key={preset().name} value={preset().name}>
-                    {preset().name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                bg="transparent"
-                position="absolute"
-                right={0}
-                top={0}
-                pointerEvents="none"
-              >
-                <Box>
-                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                  <Box h="50%">
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                </Box>
-              </Button>
-            </Box>
-          </Box>
+          <KitSelector
+            selectedKit={selectedKit}
+            kitOptions={kitOptions}
+            onKitChange={handleKitChange}
+          />
 
-          <Text fontSize={12} color="gray">
-            KIT
-          </Text>
-
-          <Box
-            w="100%"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <Box h="40px" w="100%" id="kit" mb={2} position="relative">
-              <Select
-                variant="unstyled"
-                icon={<></>}
-                value={selectedKit}
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="gray"
-                w="332px"
-                h="40px"
-                borderRadius="8px"
-                cursor="pointer"
-                pl={4}
-                onChange={handleKitChange}
-                onKeyDown={(ev) => ev.preventDefault()}
-              >
-                {kitOptions.map((kit) => (
-                  <option key={kit().name} value={kit().name}>
-                    {kit().name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                bg="transparent"
-                position="absolute"
-                right={0}
-                top={0}
-                pointerEvents="none"
-              >
-                <Box>
-                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                  <Box h="50%">
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                </Box>
-              </Button>
-            </Box>
-          </Box>
-
-          <Grid
-            templateColumns="repeat(4, 1fr)"
-            className="neumorphic"
-            borderRadius="8px"
-            mt={2}
-          >
-            <GridItem>
-              <Center>
-                <Tooltip
-                  label="Download to file"
-                  color="darkorange"
-                  openDelay={500}
-                >
-                  <Button
-                    onClick={() => setIsSaveModalOpen(true)}
-                    w="100%"
-                    borderRadius="8px 0 0 8px"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <MdOutlineSaveAlt
-                      className="icon"
-                      color="#B09374"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Tooltip
-                  label="Load from file"
-                  color="darkorange"
-                  openDelay={500}
-                >
-                  <Button
-                    onClick={handleLoad}
-                    w="100%"
-                    borderRadius="0 0 0 0"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <FaFolderOpen
-                      className="icon"
-                      color="#B09374"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Popover
-                  isOpen={isSharePromptOpen}
-                  onClose={closeSharePrompt}
-                  isLazy
-                >
-                  <Tooltip
-                    label="Share as link"
-                    color="darkorange"
-                    openDelay={500}
-                  >
-                    <Box display="inline-block" w="100%">
-                      <PopoverTrigger>
-                        <Button
-                          onClick={() => setIsSharingModalOpen(true)}
-                          w="100%"
-                          borderRadius="0 0 0 0"
-                          className="raised"
-                          _hover={{
-                            "& .icon": {
-                              fill: "darkorange",
-                              transition: "all 0.2s ease",
-                            },
-                          }}
-                        >
-                          <IoIosShareAlt
-                            className="icon"
-                            fill="#B09374"
-                            size="26px"
-                          />
-                        </Button>
-                      </PopoverTrigger>
-                    </Box>
-                  </Tooltip>
-
-                  <PopoverContent
-                    bg="silver"
-                    className="neumorphic"
-                    borderColor="silver"
-                  >
-                    <PopoverArrow bg="silver" className="neumorphic" />
-                    <PopoverCloseButton color="gray" />
-                    <PopoverHeader color="gray">
-                      Enjoying Drumhaus?
-                    </PopoverHeader>
-                    <PopoverBody color="gray">
-                      You can save your preset to the cloud and share it with a
-                      link using the share button!
-                    </PopoverBody>
-                    <PopoverFooter color="transparent">
-                      <Button
-                        bg="darkorange"
-                        color="silver"
-                        onClick={closeSharePrompt}
-                      >
-                        Dismiss
-                      </Button>
-                    </PopoverFooter>
-                  </PopoverContent>
-                </Popover>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Tooltip label="Reset all" color="darkorange" openDelay={500}>
-                  <Button
-                    onClick={() => setIsResetModalOpen(true)}
-                    w="100%"
-                    borderRadius="0 8px 8px 0"
-                    className="raised"
-                    _hover={{
-                      "& .iconReset": {
-                        color: "#ff7b00",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <RxReset
-                      className="iconReset"
-                      color="#B09374"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-          </Grid>
+          <PresetActions
+            onLoad={handleLoad}
+            isSharePromptOpen={isSharePromptOpen}
+            onCloseSharePrompt={handleCloseSharePrompt}
+          />
         </Box>
       </Center>
 

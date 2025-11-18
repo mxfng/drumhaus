@@ -25,6 +25,7 @@ import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/preset/dh/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -74,10 +75,12 @@ const Drumhaus = () => {
     (state) => state.setAllMasterChain,
   );
 
+  // Modal store
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
+
   // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobileWarning, setIsMobileWarning] = useState(false);
-  const [isModal, setIsModal] = useState(false);
   const [currentPresetName, setCurrentPresetName] = useState<string>("init");
   const [currentKitName, setCurrentKitName] = useState<string>("drumhaus");
 
@@ -272,7 +275,10 @@ const Drumhaus = () => {
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " " && !isModal) togglePlay(instrumentRuntimes);
+      // Block spacebar when any modal is open or when loading
+      if (event.key === " " && !isAnyModalOpen() && !isLoading) {
+        togglePlay(instrumentRuntimes);
+      }
     };
 
     document.addEventListener("keydown", playViaSpacebar);
@@ -281,7 +287,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModal, instrumentRuntimes]);
+  }, [isLoading, instrumentRuntimes]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -367,10 +373,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentGrid
-                instrumentRuntimes={instrumentRuntimes}
-                isModal={isModal}
-              />
+              <InstrumentGrid instrumentRuntimes={instrumentRuntimes} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -410,7 +413,6 @@ const Drumhaus = () => {
                   togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
-                  setIsModal={setIsModal}
                 />
               </GridItem>
 

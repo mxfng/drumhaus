@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
+import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { InstrumentControl } from "./InstrumentControl";
@@ -20,14 +21,15 @@ const INSTRUMENT_COLORS = [
 
 type InstrumentGridProps = {
   instrumentRuntimes: InstrumentRuntime[];
-  isModal: boolean;
 };
 
 export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
   instrumentRuntimes,
-  isModal,
 }) => {
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
+
+  // Modal store
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
   // Get state from Sequencer Store
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
@@ -42,15 +44,15 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
 
   const handleArrowKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" && !isModal) {
+      if (event.key === "ArrowRight" && !isAnyModalOpen()) {
         const newVoice = (voiceIndex + 1) % 8;
         toggleCurrentVoice(newVoice);
-      } else if (event.key === "ArrowLeft" && !isModal) {
+      } else if (event.key === "ArrowLeft" && !isAnyModalOpen()) {
         const newVoice = (voiceIndex - 1 + 8) % 8;
         toggleCurrentVoice(newVoice);
       }
     },
-    [isModal, voiceIndex, toggleCurrentVoice],
+    [voiceIndex, toggleCurrentVoice, isAnyModalOpen],
   );
 
   useEffect(() => {
@@ -81,7 +83,6 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
             key={`Instrument-${index}`}
             runtime={runtime}
             index={index}
-            isModal={isModal}
             instrumentIndex={voiceIndex}
             bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
           />

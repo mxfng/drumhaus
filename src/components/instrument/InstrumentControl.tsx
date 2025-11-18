@@ -22,6 +22,7 @@ import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
@@ -34,19 +35,20 @@ type InstrumentControlParams = {
   runtime: InstrumentRuntime; // Tone.js audio nodes only
   color?: string;
   bg?: string;
-  isModal: boolean;
   index: number; // Array index of this instrument (0-7)
   instrumentIndex: number; // Currently selected instrument for keyboard shortcuts
 };
 
 export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   runtime,
-  isModal,
   index,
   instrumentIndex,
   color = "#ff7b00",
   ...props
 }) => {
+  // Modal store
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
+
   const instrumentData = useInstrumentsStore(
     (state) => state.instruments[index],
   );
@@ -144,7 +146,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isModal && instrumentIndex == index) {
+      if (event.key === "m" && !isAnyModalOpen() && instrumentIndex == index) {
         handleToggleMute();
       }
     };
@@ -154,11 +156,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [instrumentIndex, isModal, index, handleToggleMute]);
+  }, [instrumentIndex, index, handleToggleMute, isAnyModalOpen]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isModal && instrumentIndex == index) {
+      if (event.key === "s" && !isAnyModalOpen() && instrumentIndex == index) {
         toggleSolo();
       }
     };
@@ -168,7 +170,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [instrumentIndex, isModal, index, toggleSolo]);
+  }, [instrumentIndex, index, toggleSolo, isAnyModalOpen]);
 
   const playSample = () => {
     const time = Tone.now();
