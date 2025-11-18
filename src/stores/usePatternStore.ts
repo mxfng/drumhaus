@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { createEmptyPattern } from "@/lib/pattern/create";
+import { createEmptyPattern } from "@/lib/pattern/helpers";
 import { Pattern } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
 

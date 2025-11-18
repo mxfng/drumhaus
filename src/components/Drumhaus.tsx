@@ -14,14 +14,17 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
-import * as Tone from "tone/build/esm/index";
+import type * as Tone from "tone/build/esm/index";
 
 import { useMasterChain } from "@/hooks/useMasterChain";
 import {
+  createDrumSequence,
   createInstrumentRuntimes,
+  disposeDrumSequence,
+  disposeInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
-} from "@/lib/instrument/helpers";
-import makeGoodMusic from "@/lib/makeGoodMusic";
+  waitForBuffersToLoad,
+} from "@/lib/audio/engine";
 import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
@@ -55,15 +58,15 @@ const Drumhaus = () => {
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Instruments
-  const instruments = useInstrumentsStore((state) => state.instruments);
+  const instrumentSamplePaths = useInstrumentsStore((state) =>
+    state.instruments.map((inst) => inst.sample.path).join(","),
+  );
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
 
   // Sequencer
   const variationCycle = usePatternStore((state) => state.variationCycle);
-  const pattern = usePatternStore((state) => state.pattern);
   const setPattern = usePatternStore((state) => state.setPattern);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
@@ -85,13 +88,15 @@ const Drumhaus = () => {
   const [isMobileWarning, setIsMobileWarning] = useState(false);
 
   // State architecture for instruments:
-  // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
+  // - Local ref (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
   //   Created fresh when kit changes, disposed on cleanup. No data duplication!
+  //   Using ref to avoid unnecessary re-renders - components read data from store, not runtime objects
   // - Store (useInstrumentsStore): Single source of truth for serializable InstrumentData
   //   Contains all parameters (attack, release, volume, etc.), persisted to localStorage
-  const [instrumentRuntimes, setInstrumentRuntimes] = useState<
-    InstrumentRuntime[]
-  >(INIT_INSTRUMENT_RUNTIMES);
+  const instrumentRuntimes = useRef<InstrumentRuntime[]>(
+    INIT_INSTRUMENT_RUNTIMES,
+  );
+  const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
 
   // Refs
   const toneSequence = useRef<Tone.Sequence | null>(null);
@@ -140,7 +145,10 @@ const Drumhaus = () => {
     position: "top",
   });
 
-  useMasterChain({ instrumentRuntimes, setIsLoading });
+  useMasterChain({
+    instrumentRuntimes: instrumentRuntimes.current,
+    setIsLoading,
+  });
 
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
@@ -213,7 +221,7 @@ const Drumhaus = () => {
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(
+      createDrumSequence(
         toneSequence,
         instrumentRuntimes,
         variationCycle,
@@ -222,18 +230,10 @@ const Drumhaus = () => {
       );
     }
 
-    const ts = toneSequence.current;
-
     return () => {
-      ts?.dispose();
+      disposeDrumSequence(toneSequence);
     };
-  }, [isPlaying, instrumentRuntimes, variationCycle, pattern]);
-
-  // Extract URLs to track when samples change (not when params change)
-  const instrumentUrls = useMemo(
-    () => instruments.map((inst) => inst.sample.path).join(","),
-    [instruments],
-  );
+  }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
 
   // Create new instrument runtimes only when sample URLs change
   // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
@@ -242,20 +242,25 @@ const Drumhaus = () => {
     if (!isLoading) setIsLoading(true);
 
     // Create runtime nodes from store data
-    const newRuntimes = createInstrumentRuntimes(instruments);
+    // Use getState() to avoid subscribing to param changes
+    const instruments = useInstrumentsStore.getState().instruments;
+    createInstrumentRuntimes(instrumentRuntimes, instruments);
+
+    // Capture the newly created runtimes for cleanup
+    const currentRuntimes = instrumentRuntimes.current;
 
     // Wait for all sampler buffers to load before updating state
     const loadBuffers = async () => {
       try {
         // Wait for all Tone.js audio files to load
-        await Tone.loaded();
-        // Update local runtime state only after buffers are loaded
-        setInstrumentRuntimes(newRuntimes);
+        await waitForBuffersToLoad();
+        // Trigger re-render for components that need new runtime objects
+        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading sampler buffers:", error);
-        // Still update runtimes even if loading fails (graceful degradation)
-        setInstrumentRuntimes(newRuntimes);
+        // Still trigger re-render even if loading fails (graceful degradation)
+        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       }
     };
@@ -263,23 +268,20 @@ const Drumhaus = () => {
     loadBuffers();
 
     return () => {
-      instrumentRuntimes.forEach((runtime) => {
-        runtime.samplerNode.dispose();
-        runtime.envelopeNode.dispose();
-        runtime.filterNode.dispose();
-        runtime.pannerNode.dispose();
-      });
+      // Dispose runtimes on cleanup (e.g., on unmount or dependency change)
+      // Note: createInstrumentRuntimes already disposes previous runtimes when creating new ones
+      disposeInstrumentRuntimes(instrumentRuntimes);
     };
-    // Only recreate runtimes when URLs change, not when other params change
+    // Only recreate runtimes when sample paths change, not when other params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instrumentUrls]);
+  }, [instrumentSamplePaths]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
       // Block spacebar when any modal is open or when loading
       if (event.key === " " && !isAnyModalOpen() && !isLoading) {
-        togglePlay(instrumentRuntimes);
+        togglePlay(instrumentRuntimes.current);
       }
     };
 
@@ -289,7 +291,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, instrumentRuntimes]);
+  }, [isLoading, instrumentRuntimesVersion]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -375,7 +377,10 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentGrid instrumentRuntimes={instrumentRuntimes} />
+              <InstrumentGrid
+                key={instrumentRuntimesVersion}
+                instrumentRuntimes={instrumentRuntimes.current}
+              />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -384,7 +389,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={() => togglePlay(instrumentRuntimes)}
+                    onClick={() => togglePlay(instrumentRuntimes.current)}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -409,7 +414,7 @@ const Drumhaus = () => {
               <GridItem w="380px" px={2}>
                 <PresetControl
                   loadPreset={loadPreset}
-                  togglePlay={() => togglePlay(instrumentRuntimes)}
+                  togglePlay={() => togglePlay(instrumentRuntimes.current)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                 />

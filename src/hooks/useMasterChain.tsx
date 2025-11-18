@@ -1,12 +1,14 @@
 import { useEffect, useRef } from "react";
-import * as Tone from "tone/build/esm/index";
 
 import {
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "@/components/common/Knob";
+  connectInstrumentsToMasterChain,
+  createMasterChainRuntimes,
+  disposeMasterChainRuntimes,
+  updateMasterChainParams,
+  type MasterChainRuntimes,
+} from "@/lib/audio/engine";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { InstrumentRuntime } from "@/types/instrument";
+import type { InstrumentRuntime } from "@/types/instrument";
 
 interface UseMasterChainProps {
   instrumentRuntimes: InstrumentRuntime[];
@@ -17,74 +19,84 @@ export function useMasterChain({
   instrumentRuntimes,
   setIsLoading,
 }: UseMasterChainProps) {
-  // Master Chain values
-  const lowPass = useMasterChainStore((state) => state.lowPass);
-  const hiPass = useMasterChainStore((state) => state.hiPass);
-  const phaser = useMasterChainStore((state) => state.phaser);
-  const reverb = useMasterChainStore((state) => state.reverb);
-  const compThreshold = useMasterChainStore((state) => state.compThreshold);
-  const compRatio = useMasterChainStore((state) => state.compRatio);
-  const masterVolume = useMasterChainStore((state) => state.masterVolume);
-
-  // Master Chain Nodes
-  const toneLPFilter = useRef<Tone.Filter>();
-  const toneHPFilter = useRef<Tone.Filter>();
-  const tonePhaser = useRef<Tone.Phaser>();
-  const toneReverb = useRef<Tone.Reverb>();
-  const toneCompressor = useRef<Tone.Compressor>();
-
+  // Master Chain Runtimes
+  const masterChainRuntimes = useRef<MasterChainRuntimes | null>(null);
   const isInitialized = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
-  // Initialize master chain nodes once
+  // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
     if (isInitialized.current) return;
 
     const initializeMasterChain = async () => {
-      const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-      const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-      const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-      const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-      const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-      const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-      const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-
-      toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
-      toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
-      tonePhaser.current = new Tone.Phaser({
-        frequency: 1,
-        octaves: 3,
-        baseFrequency: 1000,
-        wet: newPhaserWet,
-      });
-
-      // Reverb needs async initialization
-      toneReverb.current = new Tone.Reverb({
-        decay: newReverbDecay,
-        wet: newReverbWet,
-      });
-      await toneReverb.current.generate();
-
-      toneCompressor.current = new Tone.Compressor({
-        threshold: newCompThreshold,
-        ratio: newCompRatio,
-        attack: 0.5,
-        release: 1,
+      // Get initial params without subscribing
+      const initialState = useMasterChainStore.getState();
+      await createMasterChainRuntimes(masterChainRuntimes, {
+        lowPass: initialState.lowPass,
+        hiPass: initialState.hiPass,
+        phaser: initialState.phaser,
+        reverb: initialState.reverb,
+        compThreshold: initialState.compThreshold,
+        compRatio: initialState.compRatio,
+        masterVolume: initialState.masterVolume,
       });
 
       isInitialized.current = true;
       setIsLoading(false);
+
+      // Set up subscription after initialization
+      let prevParams: {
+        lowPass: number;
+        hiPass: number;
+        phaser: number;
+        reverb: number;
+        compThreshold: number;
+        compRatio: number;
+        masterVolume: number;
+      } | null = null;
+
+      unsubscribeRef.current = useMasterChainStore.subscribe((state) => {
+        if (!masterChainRuntimes.current) return;
+
+        // Extract current params
+        const currentParams = {
+          lowPass: state.lowPass,
+          hiPass: state.hiPass,
+          phaser: state.phaser,
+          reverb: state.reverb,
+          compThreshold: state.compThreshold,
+          compRatio: state.compRatio,
+          masterVolume: state.masterVolume,
+        };
+
+        // Only update if params actually changed
+        if (
+          !prevParams ||
+          prevParams.lowPass !== currentParams.lowPass ||
+          prevParams.hiPass !== currentParams.hiPass ||
+          prevParams.phaser !== currentParams.phaser ||
+          prevParams.reverb !== currentParams.reverb ||
+          prevParams.compThreshold !== currentParams.compThreshold ||
+          prevParams.compRatio !== currentParams.compRatio ||
+          prevParams.masterVolume !== currentParams.masterVolume
+        ) {
+          updateMasterChainParams(masterChainRuntimes.current, currentParams);
+          prevParams = currentParams;
+        }
+      });
     };
 
     initializeMasterChain();
 
     return () => {
+      // Clean up subscription
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
       // Only dispose on unmount, not on every instrument change
       if (isInitialized.current) {
-        toneLPFilter.current?.dispose();
-        toneHPFilter.current?.dispose();
-        tonePhaser.current?.dispose();
-        toneReverb.current?.dispose();
-        toneCompressor.current?.dispose();
+        disposeMasterChainRuntimes(masterChainRuntimes);
         isInitialized.current = false;
       }
     };
@@ -93,76 +105,11 @@ export function useMasterChain({
 
   // Connect instruments to master chain when they change
   useEffect(() => {
-    if (!isInitialized.current) return;
+    if (!isInitialized.current || !masterChainRuntimes.current) return;
 
-    if (
-      toneLPFilter.current &&
-      toneHPFilter.current &&
-      tonePhaser.current &&
-      toneReverb.current &&
-      toneCompressor.current
-    ) {
-      instrumentRuntimes.forEach((runtime) => {
-        runtime.samplerNode.chain(
-          runtime.envelopeNode,
-          runtime.filterNode,
-          runtime.pannerNode,
-          toneLPFilter.current!,
-          toneHPFilter.current!,
-          tonePhaser.current!,
-          toneReverb.current!,
-          toneCompressor.current!,
-          Tone.Destination,
-        );
-      });
-    }
+    connectInstrumentsToMasterChain(
+      instrumentRuntimes,
+      masterChainRuntimes.current,
+    );
   }, [instrumentRuntimes]);
-
-  // Update parameters on existing nodes
-
-  useEffect(() => {
-    if (!toneLPFilter.current) return;
-    toneLPFilter.current.frequency.value = transformKnobValueExponential(
-      lowPass,
-      [0, 15000],
-    );
-  }, [lowPass]);
-
-  useEffect(() => {
-    if (!toneHPFilter.current) return;
-    toneHPFilter.current.frequency.value = transformKnobValueExponential(
-      hiPass,
-      [0, 15000],
-    );
-  }, [hiPass]);
-
-  useEffect(() => {
-    if (!tonePhaser.current) return;
-    tonePhaser.current.wet.value = transformKnobValue(phaser, [0, 1]);
-  }, [phaser]);
-
-  useEffect(() => {
-    if (!toneReverb.current) return;
-    toneReverb.current.wet.value = transformKnobValue(reverb, [0, 0.5]);
-    toneReverb.current.decay = transformKnobValue(reverb, [0.1, 3]);
-  }, [reverb]);
-
-  useEffect(() => {
-    if (!toneCompressor.current) return;
-    toneCompressor.current.threshold.value = transformKnobValue(
-      compThreshold,
-      [-40, 0],
-    );
-  }, [compThreshold]);
-
-  useEffect(() => {
-    if (!toneCompressor.current) return;
-    toneCompressor.current.ratio.value = Math.floor(
-      transformKnobValue(compRatio, [1, 8]),
-    );
-  }, [compRatio]);
-
-  useEffect(() => {
-    Tone.Destination.volume.value = transformKnobValue(masterVolume, [-46, 4]);
-  }, [masterVolume]);
 }

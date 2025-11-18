@@ -21,6 +21,7 @@ import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
+import { playInstrumentSample } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
@@ -49,17 +50,40 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // Modal store
   const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
-  const instrumentData = useInstrumentsStore(
-    (state) => state.instruments[index],
+  // Use granular selectors - only re-render when specific params change
+  // This prevents unnecessary re-renders when other instrument params change
+  const attack = useInstrumentsStore(
+    (state) => state.instruments[index].params.attack,
   );
-  const attack = instrumentData.params.attack;
-  const release = instrumentData.params.release;
-  const filter = instrumentData.params.filter;
-  const pan = instrumentData.params.pan;
-  const volume = instrumentData.params.volume;
-  const pitch = instrumentData.params.pitch;
-  const mute = instrumentData.params.mute;
-  const solo = instrumentData.params.solo;
+  const release = useInstrumentsStore(
+    (state) => state.instruments[index].params.release,
+  );
+  const filter = useInstrumentsStore(
+    (state) => state.instruments[index].params.filter,
+  );
+  const pan = useInstrumentsStore(
+    (state) => state.instruments[index].params.pan,
+  );
+  const volume = useInstrumentsStore(
+    (state) => state.instruments[index].params.volume,
+  );
+  const pitch = useInstrumentsStore(
+    (state) => state.instruments[index].params.pitch,
+  );
+  const mute = useInstrumentsStore(
+    (state) => state.instruments[index].params.mute,
+  );
+  const solo = useInstrumentsStore(
+    (state) => state.instruments[index].params.solo,
+  );
+
+  // Get sample path and meta separately (these change less frequently)
+  const samplePath = useInstrumentsStore(
+    (state) => state.instruments[index].sample.path,
+  );
+  const instrumentMeta = useInstrumentsStore(
+    (state) => state.instruments[index].meta,
+  );
 
   // Get store actions
   const setInstrumentProperty = useInstrumentsStore(
@@ -71,10 +95,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const currentPitchRef = useRef<number | null>(null);
-  const sampleDuration = useSampleDuration(
-    runtime.samplerNode,
-    instrumentData.sample.path,
-  );
+  const sampleDuration = useSampleDuration(samplePath);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -110,26 +131,66 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     [index, toggleSoloStore],
   );
 
-  // Apply store data to Tone.js runtime nodes when parameters change
+  // Subscribe to instrument parameter changes and update audio nodes directly
+  // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
-    const newAttackValue = transformKnobValue(attack, [0, 0.1]);
-    runtime.envelopeNode.attack = newAttackValue;
-  }, [attack, runtime.envelopeNode]);
+    let prevParams: {
+      attack: number;
+      filter: number;
+      pan: number;
+      volume: number;
+    } | null = null;
 
-  useEffect(() => {
-    runtime.filterNode.type = filter <= 49 ? "lowpass" : "highpass";
-    runtime.filterNode.frequency.value = transformKnobFilterValue(filter);
-  }, [filter, runtime.filterNode]);
+    const unsubscribe = useInstrumentsStore.subscribe((state) => {
+      const instrument = state.instruments[index];
+      if (!instrument) return;
 
-  useEffect(() => {
-    const newPanValue = transformKnobValue(pan, [-1, 1]);
-    runtime.pannerNode.pan.value = newPanValue;
-  }, [pan, runtime.pannerNode]);
+      const currentParams = {
+        attack: instrument.params.attack,
+        filter: instrument.params.filter,
+        pan: instrument.params.pan,
+        volume: instrument.params.volume,
+      };
 
-  useEffect(() => {
-    const newVolumeValue = transformKnobValue(volume, [-46, 4]);
-    runtime.samplerNode.volume.value = newVolumeValue;
-  }, [volume, runtime.samplerNode]);
+      // Only update if params actually changed
+      if (
+        !prevParams ||
+        prevParams.attack !== currentParams.attack ||
+        prevParams.filter !== currentParams.filter ||
+        prevParams.pan !== currentParams.pan ||
+        prevParams.volume !== currentParams.volume
+      ) {
+        // Update attack
+        const newAttackValue = transformKnobValue(
+          currentParams.attack,
+          [0, 0.1],
+        );
+        runtime.envelopeNode.attack = newAttackValue;
+
+        // Update filter
+        runtime.filterNode.type =
+          currentParams.filter <= 49 ? "lowpass" : "highpass";
+        runtime.filterNode.frequency.value = transformKnobFilterValue(
+          currentParams.filter,
+        );
+
+        // Update pan
+        const newPanValue = transformKnobValue(currentParams.pan, [-1, 1]);
+        runtime.pannerNode.pan.value = newPanValue;
+
+        // Update volume
+        const newVolumeValue = transformKnobValue(
+          currentParams.volume,
+          [-46, 4],
+        );
+        runtime.samplerNode.volume.value = newVolumeValue;
+
+        prevParams = currentParams;
+      }
+    });
+
+    return unsubscribe;
+  }, [index, runtime]);
 
   // Update duration in store when sample duration changes
   useEffect(() => {
@@ -173,28 +234,22 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   }, [instrumentIndex, index, toggleSolo, isAnyModalOpen]);
 
   const playSample = () => {
-    const time = Tone.now();
-    // Should be monophonic
-    runtime.envelopeNode.triggerRelease(time);
-    // Release the specific note if we're tracking it, otherwise release all
-    if (currentPitchRef.current !== null) {
-      runtime.samplerNode.triggerRelease(currentPitchRef.current, time);
-    }
-    runtime.samplerNode.triggerRelease(time);
-    runtime.envelopeNode.triggerAttack(time);
-    runtime.envelopeNode.triggerRelease(
-      time + transformKnobValue(release, [0, sampleDuration]),
+    const previousPitch = currentPitchRef.current;
+    const pitchValue = playInstrumentSample(
+      runtime,
+      pitch,
+      release,
+      sampleDuration,
+      previousPitch,
     );
-    const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
-    currentPitchRef.current = _pitch;
-    runtime.samplerNode.triggerAttack(_pitch, time);
+    currentPitchRef.current = pitchValue;
   };
 
   return (
     <>
       <Box
         w="100%"
-        key={`Instrument-${instrumentData.meta.id}-${index}`}
+        key={`Instrument-${instrumentMeta.id}-${index}`}
         py={4}
         position="relative"
         transition="all 0.5s ease-in-out"
@@ -211,7 +266,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             {index + 1}
           </Text>
           <Text fontWeight={600} fontSize="12pt" color="brown">
-            {instrumentData.meta.name}
+            {instrumentMeta.name}
           </Text>
         </Flex>
         <Box px={4} pt={5}>
@@ -226,14 +281,14 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             borderRadius="20px"
             overflow="hidden"
           >
-            <Waveform audioFile={instrumentData.sample.path} width={170} />
+            <Waveform audioFile={samplePath} width={170} />
           </Button>
         </Box>
 
         <Grid templateColumns="repeat(2, 1fr)" p={1}>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-attack`}
+              key={`knob-${instrumentMeta.id}-${index}-attack`}
               size={50}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -255,7 +310,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-release`}
+              key={`knob-${instrumentMeta.id}-${index}-release`}
               size={50}
               knobValue={release}
               setKnobValue={setRelease}
@@ -266,7 +321,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-pitch`}
+              key={`knob-${instrumentMeta.id}-${index}-pitch`}
               size={50}
               knobValue={pitch}
               setKnobValue={setPitch}
@@ -335,7 +390,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${instrumentData.meta.id}-${index}-volume`}
+              key={`knob-${instrumentMeta.id}-${index}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}

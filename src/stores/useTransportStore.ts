@@ -1,8 +1,15 @@
-import * as Tone from "tone/build/esm/index";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import {
+  releaseAllSamples,
+  setTransportBpm,
+  setTransportSwing,
+  startAudioContext,
+  startTransport,
+  stopTransport,
+} from "@/lib/audio/engine";
 import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
@@ -31,31 +38,28 @@ export const useTransportStore = create<TransportState>()(
         stepIndex: 0,
         bpm: 120,
         swing: 50,
-        toneSequence: null,
 
         // Actions
         togglePlay: async (instrumentRuntimes, onStop) => {
           // Start Tone.js context if needed
-          if (Tone.context.state !== "running") {
-            await Tone.start();
-          }
+          await startAudioContext();
 
           set((state) => {
             const newIsPlaying = !state.isPlaying;
 
             if (newIsPlaying) {
-              Tone.Transport.start();
+              startTransport();
             } else {
-              Tone.Transport.stop();
-              state.stepIndex = 0;
+              // Stop transport and reset step index
+              stopTransport(() => {
+                state.stepIndex = 0;
 
-              // Release all samples
-              instrumentRuntimes.forEach((runtime: InstrumentRuntime) => {
-                runtime.samplerNode.triggerRelease("C2", Tone.now());
+                // Release all samples
+                releaseAllSamples(instrumentRuntimes);
+
+                // Call optional stop callback
+                if (onStop) onStop();
               });
-
-              // Call optional stop callback
-              if (onStop) onStop();
             }
 
             state.isPlaying = newIsPlaying;
@@ -68,16 +72,12 @@ export const useTransportStore = create<TransportState>()(
 
         setBpm: (bpm) => {
           set({ bpm });
-          Tone.Transport.bpm.value = bpm;
+          setTransportBpm(bpm);
         },
 
         setSwing: (swing) => {
           set({ swing });
-
-          // Transform swing value from 0-100 to 0-0.5
-          const newSwing = (swing / 100) * 0.5;
-          Tone.Transport.swingSubdivision = "16n";
-          Tone.Transport.swing = newSwing;
+          setTransportSwing(swing);
         },
       })),
       {
