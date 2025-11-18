@@ -102,24 +102,11 @@ export const useInstrumentsStore = create<InstrumentsState>()(
       })),
       {
         name: "drumhaus-instruments-storage",
-        version: 1, // Increment this when data structure changes
+        version: 1,
         // Persist instruments but not durations (computed from samples)
         partialize: (state) => ({
           instruments: state.instruments,
         }),
-        // Migration function to handle old data format
-        migrate: (persistedState: any, version: number) => {
-          // If version is 0 (old format), clear the state
-          if (version === 0) {
-            return {
-              instruments: Array(8)
-                .fill(null)
-                .map(() => createDefaultInstrument()),
-              durations: [0, 0, 0, 0, 0, 0, 0, 0],
-            };
-          }
-          return persistedState as InstrumentsState;
-        },
       },
     ),
     {

@@ -73,7 +73,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(
     runtime.samplerNode,
-    instrumentData.sample?.path || "",
+    instrumentData.sample.path,
   );
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
@@ -226,10 +226,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             borderRadius="20px"
             overflow="hidden"
           >
-            <Waveform
-              audioFile={instrumentData.sample?.path || ""}
-              width={170}
-            />
+            <Waveform audioFile={instrumentData.sample.path} width={170} />
           </Button>
         </Box>
 

@@ -1,0 +1,245 @@
+{
+  "kind": "drumhaus.kit",
+  "version": 1,
+  "meta": {
+    "id": "kit-organic",
+    "name": "organic",
+    "createdAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "author": "Max Fung"
+  },
+  "instruments": [
+    {
+      "meta": {
+        "id": "kit-organic-inst-0",
+        "name": "Kick"
+      },
+      "role": "kick",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-0",
+          "name": "Kick"
+        },
+        "path": "3/dk_kick.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 21,
+        "filter": 50,
+        "volume": 92,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-1",
+        "name": "Kick2"
+      },
+      "role": "kick",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-1",
+          "name": "Kick2"
+        },
+        "path": "3/dk_kick2.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 30,
+        "filter": 50,
+        "volume": 92,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-2",
+        "name": "Snare"
+      },
+      "role": "snare",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-2",
+          "name": "Snare"
+        },
+        "path": "3/dk_snare.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 28,
+        "filter": 50,
+        "volume": 90,
+        "pan": 61,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-3",
+        "name": "Clap"
+      },
+      "role": "clap",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-3",
+          "name": "Clap"
+        },
+        "path": "3/dk_clap.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 23,
+        "filter": 50,
+        "volume": 92,
+        "pan": 36,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-4",
+        "name": "Hat"
+      },
+      "role": "hat",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-4",
+          "name": "Hat"
+        },
+        "path": "3/dk_shaker.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 29,
+        "filter": 50,
+        "volume": 83,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-5",
+        "name": "Stick"
+      },
+      "role": "perc",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-5",
+          "name": "Stick"
+        },
+        "path": "3/dk_stick_click.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 100,
+        "filter": 50,
+        "volume": 87,
+        "pan": 27,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-6",
+        "name": "Perc"
+      },
+      "role": "perc",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-6",
+          "name": "Perc"
+        },
+        "path": "3/dk_sidestick.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 54,
+        "filter": 50,
+        "volume": 92,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-organic-inst-7",
+        "name": "Chime"
+      },
+      "role": "perc",
+      "sample": {
+        "meta": {
+          "id": "kit-organic-sample-7",
+          "name": "Chime"
+        },
+        "path": "3/dk_chime.wav",
+        "attribution": {
+          "status": "samplePack",
+          "label": "Sticks & Stones by Dylan Kidd",
+          "creditName": "Dylan Kidd"
+        }
+      },
+      "params": {
+        "attack": 0,
+        "release": 100,
+        "filter": 50,
+        "volume": 78,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    }
+  ]
+}

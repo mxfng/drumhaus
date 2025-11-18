@@ -113,23 +113,30 @@ python3 scripts/audio_to_json.py
 
 ## Quickly creating new kits
 
-There is a Python script that supports quickly (sort-of) adding new kits to your local instance of Drumhaus.
+To create a new kit from audio samples, use the TypeScript kit generator:
 
-Create a new folder with any unique name, and add 8 samples in .WAV format to `public/samples/your_folder/`.
-
-Run the script:
+1. Add your audio files (`.wav`, `.mp3`, `.ogg`, or `.flac`) to `public/samples/your_folder/`
+2. Run the script:
 
 ```
-python3 scripts/new_kit.py
+npm run kit:new
 ```
 
-Enter the desired name for your kit when prompted and let the script run.
+The interactive script will prompt you for:
 
-You will need to reference `src/lib/kits.ts` to review your auto-generated data and ensure it has been added correctly.
+- Kit name
+- Sample folder path (relative to `public/samples/`)
+- Author name (optional)
+- Attribution details (optional)
 
-Finally, append it to the state array of kit options (`kitOptions`) in `src/components/controls/PresetControl.tsx`.
+The script will automatically:
 
-Presets are managed within their own files in `src/lib/presets/`. You can create a new preset by importing .json data exported from Drumhaus' client as a .dh file. The approach is close to adding kits, and is probably not worth mentioning here.
+- Generate a `.dhkit` file with intelligent role detection (kick, snare, hat, etc.)
+- Create instrument names from filenames
+- Update `src/lib/kit/index.ts` to export your new kit
+- Set default parameter values for all instruments
+
+After creation, review the generated `.dhkit` file in `src/lib/kit/bin/` and adjust instrument names, roles, or parameters as needed.
 
 ## License
 

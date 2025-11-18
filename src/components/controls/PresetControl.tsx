@@ -22,6 +22,7 @@ import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
+  // TODO: these props seem cluttered, is there a better shape for this?
   currentPresetId: string;
   currentPresetName: string;
   currentKitId: string;
@@ -82,7 +83,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const kitOptions: (() => KitFileV1)[] = [
     kits.drumhaus,
-    // TODO: Add remaining kits once they are converted to .dhkit files
+    kits.organic,
+    kits.funk,
+    kits.rnb,
+    kits.trap,
+    kits.eighties,
+    kits.tech_house,
+    kits.techno,
+    kits.indie,
+    kits.jungle,
   ];
 
   const defaultPresetOptions: (() => PresetFileV1)[] = [

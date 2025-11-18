@@ -7,13 +7,9 @@ import type { PresetFileV1 } from "@/types/preset";
 /**
  * Generate a Preset object from current store state
  * Single source of truth - reads fresh data from all stores
- *
- * @param presetId - The ID for this preset (use existing ID when snapshotting, generate new when saving)
- * @param presetName - The display name for this preset
- * @param kitId - The kit ID (use existing ID when snapshotting, generate new when creating custom kit)
- * @param kitName - The display name for the kit
  */
 export function getCurrentPreset(
+  // TODO: this is not enough info to keep track of metadata for preset AND kit, should use meta
   presetId: string,
   presetName: string,
   kitId: string,

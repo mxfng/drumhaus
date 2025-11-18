@@ -232,7 +232,7 @@ const Drumhaus = () => {
 
   // Extract URLs to track when samples change (not when params change)
   const instrumentUrls = useMemo(
-    () => instruments.map((inst) => inst.sample?.path || "").join(","),
+    () => instruments.map((inst) => inst.sample.path).join(","),
     [instruments],
   );
 
