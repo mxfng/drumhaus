@@ -18,10 +18,12 @@ import * as Tone from "tone/build/esm/index";
 
 import { useMasterChain } from "@/hooks/useMasterChain";
 import {
+  createDrumSequence,
   createInstrumentRuntimes,
+  disposeDrumSequence,
+  disposeInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
-} from "@/lib/instrument/helpers";
-import makeGoodMusic from "@/lib/makeGoodMusic";
+} from "@/lib/audio/engine";
 import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
@@ -85,13 +87,15 @@ const Drumhaus = () => {
   const [isMobileWarning, setIsMobileWarning] = useState(false);
 
   // State architecture for instruments:
-  // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
+  // - Local ref (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
   //   Created fresh when kit changes, disposed on cleanup. No data duplication!
+  //   Using ref to avoid unnecessary re-renders - components read data from store, not runtime objects
   // - Store (useInstrumentsStore): Single source of truth for serializable InstrumentData
   //   Contains all parameters (attack, release, volume, etc.), persisted to localStorage
-  const [instrumentRuntimes, setInstrumentRuntimes] = useState<
-    InstrumentRuntime[]
-  >(INIT_INSTRUMENT_RUNTIMES);
+  const instrumentRuntimes = useRef<InstrumentRuntime[]>(
+    INIT_INSTRUMENT_RUNTIMES,
+  );
+  const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
 
   // Refs
   const toneSequence = useRef<Tone.Sequence | null>(null);
@@ -140,7 +144,10 @@ const Drumhaus = () => {
     position: "top",
   });
 
-  useMasterChain({ instrumentRuntimes, setIsLoading });
+  useMasterChain({
+    instrumentRuntimes: instrumentRuntimes.current,
+    setIsLoading,
+  });
 
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
@@ -211,10 +218,9 @@ const Drumhaus = () => {
   }, []);
 
   // m a k e   g o o d   m u s i c
-  // Note: pattern is read directly from store in makeGoodMusic, so we don't need it in deps
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(
+      createDrumSequence(
         toneSequence,
         instrumentRuntimes,
         variationCycle,
@@ -223,12 +229,10 @@ const Drumhaus = () => {
       );
     }
 
-    const ts = toneSequence.current;
-
     return () => {
-      ts?.dispose();
+      disposeDrumSequence(toneSequence);
     };
-  }, [isPlaying, instrumentRuntimes, variationCycle]);
+  }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
 
   // Create new instrument runtimes only when sample URLs change
   // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
@@ -239,20 +243,23 @@ const Drumhaus = () => {
     // Create runtime nodes from store data
     // Use getState() to avoid subscribing to param changes
     const instruments = useInstrumentsStore.getState().instruments;
-    const newRuntimes = createInstrumentRuntimes(instruments);
+    createInstrumentRuntimes(instrumentRuntimes, instruments);
+
+    // Capture the newly created runtimes for cleanup
+    const currentRuntimes = instrumentRuntimes.current;
 
     // Wait for all sampler buffers to load before updating state
     const loadBuffers = async () => {
       try {
         // Wait for all Tone.js audio files to load
         await Tone.loaded();
-        // Update local runtime state only after buffers are loaded
-        setInstrumentRuntimes(newRuntimes);
+        // Trigger re-render for components that need new runtime objects
+        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading sampler buffers:", error);
-        // Still update runtimes even if loading fails (graceful degradation)
-        setInstrumentRuntimes(newRuntimes);
+        // Still trigger re-render even if loading fails (graceful degradation)
+        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       }
     };
@@ -260,14 +267,11 @@ const Drumhaus = () => {
     loadBuffers();
 
     return () => {
-      instrumentRuntimes.forEach((runtime) => {
-        runtime.samplerNode.dispose();
-        runtime.envelopeNode.dispose();
-        runtime.filterNode.dispose();
-        runtime.pannerNode.dispose();
-      });
+      // Dispose runtimes on cleanup (e.g., on unmount or dependency change)
+      // Note: createInstrumentRuntimes already disposes previous runtimes when creating new ones
+      disposeInstrumentRuntimes(instrumentRuntimes);
     };
-    // Only recreate runtimes when URLs change, not when other params change
+    // Only recreate runtimes when sample paths change, not when other params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instrumentSamplePaths]);
 
@@ -276,7 +280,7 @@ const Drumhaus = () => {
     const playViaSpacebar = (event: KeyboardEvent) => {
       // Block spacebar when any modal is open or when loading
       if (event.key === " " && !isAnyModalOpen() && !isLoading) {
-        togglePlay(instrumentRuntimes);
+        togglePlay(instrumentRuntimes.current);
       }
     };
 
@@ -286,7 +290,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, instrumentRuntimes]);
+  }, [isLoading, instrumentRuntimesVersion]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -372,7 +376,10 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentGrid instrumentRuntimes={instrumentRuntimes} />
+              <InstrumentGrid
+                key={instrumentRuntimesVersion}
+                instrumentRuntimes={instrumentRuntimes.current}
+              />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -381,7 +388,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={() => togglePlay(instrumentRuntimes)}
+                    onClick={() => togglePlay(instrumentRuntimes.current)}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -406,7 +413,7 @@ const Drumhaus = () => {
               <GridItem w="380px" px={2}>
                 <PresetControl
                   loadPreset={loadPreset}
-                  togglePlay={() => togglePlay(instrumentRuntimes)}
+                  togglePlay={() => togglePlay(instrumentRuntimes.current)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                 />
