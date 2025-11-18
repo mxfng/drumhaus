@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -16,22 +16,21 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
 
-import { _samples, createSamples } from "@/lib/createSamples";
-import makeGoodMusic from "@/lib/makeGoodMusic";
-import * as init from "@/lib/presets/init";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
-import { useTransportStore } from "@/stores/useTransportStore";
-import { Kit, Preset, Sample, Sequences } from "@/types/types";
+import { useMasterChain } from "@/hooks/useMasterChain";
 import {
-  Knob,
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "./common/Knob";
-import { MasterCompressor } from "./controls/MasterCompressor";
-import { MasterFX } from "./controls/MasterFX";
-import { MasterVolume } from "./controls/MasterVolume";
+  createInstrumentRuntimes,
+  INIT_INSTRUMENT_RUNTIMES,
+} from "@/lib/instrument/helpers";
+import makeGoodMusic from "@/lib/makeGoodMusic";
+import * as init from "@/lib/preset/dh/init";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import { useModalStore } from "@/stores/useModalStore";
+import { usePatternStore } from "@/stores/usePatternStore";
+import { useTransportStore } from "@/stores/useTransportStore";
+import type { InstrumentRuntime } from "@/types/instrument";
+import type { Preset } from "@/types/preset";
+import { MasterControl } from "./controls/MasterControl";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
@@ -39,73 +38,106 @@ import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
+import { InstrumentGrid } from "./instrument/InstrumentGrid";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
-import { SlotsGrid } from "./slots/SlotsGrid";
+
+const FADE_IN_VARIANTS = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
 
 const Drumhaus = () => {
-  // Transport store - only subscribe to what's used in THIS component
+  // Transport
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Slots store - get batch setters for preset loading
-  const setAllAttacks = useSlotsStore((state) => state.setAllAttacks);
-  const setAllReleases = useSlotsStore((state) => state.setAllReleases);
-  const setAllFilters = useSlotsStore((state) => state.setAllFilters);
-  const setAllVolumes = useSlotsStore((state) => state.setAllVolumes);
-  const setAllPans = useSlotsStore((state) => state.setAllPans);
-  const setAllMutes = useSlotsStore((state) => state.setAllMutes);
-  const setAllSolos = useSlotsStore((state) => state.setAllSolos);
-  const setAllPitches = useSlotsStore((state) => state.setAllPitches);
+  // Instruments
+  const instruments = useInstrumentsStore((state) => state.instruments);
+  const setAllInstruments = useInstrumentsStore(
+    (state) => state.setAllInstruments,
+  );
 
-  // Sequencer store - subscribe to chain for live updates during playback
-  const chain = useSequencerStore((state) => state.chain);
-  const sequences = useSequencerStore((state) => state.sequences);
+  // Sequencer
+  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const pattern = usePatternStore((state) => state.pattern);
+  const setPattern = usePatternStore((state) => state.setPattern);
+  const setVariation = usePatternStore((state) => state.setVariation);
+  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
+  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
 
-  // Sequencer store - get setters for preset loading
-  const setSequences = useSequencerStore((state) => state.setSequences);
-  const setVariation = useSequencerStore((state) => state.setVariation);
-  const setChain = useSequencerStore((state) => state.setChain);
-  const setSlotIndex = useSequencerStore((state) => state.setSlotIndex);
+  // Master Chain
+  const setAllMasterChain = useMasterChainStore(
+    (state) => state.setAllMasterChain,
+  );
 
-  // Master FX store - subscribe to values for useEffect dependencies
-  const lowPass = useMasterFXStore((state) => state.lowPass);
-  const hiPass = useMasterFXStore((state) => state.hiPass);
-  const phaser = useMasterFXStore((state) => state.phaser);
-  const reverb = useMasterFXStore((state) => state.reverb);
-  const compThreshold = useMasterFXStore((state) => state.compThreshold);
-  const compRatio = useMasterFXStore((state) => state.compRatio);
-  const masterVolume = useMasterFXStore((state) => state.masterVolume);
+  // Modal store
+  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
-  // Master FX store - get setter for preset loading
-  const setAllMasterFX = useMasterFXStore((state) => state.setAllMasterFX);
-
+  // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [preset, setPreset] = useState<Preset>(init.init());
   const [isMobileWarning, setIsMobileWarning] = useState(false);
-  const [isModal, setIsModal] = useState(false);
+  const [currentPresetName, setCurrentPresetName] = useState<string>("init");
+  const [currentKitName, setCurrentKitName] = useState<string>("drumhaus");
 
-  // g l o b a l
-  const [kit, setKit] = useState<Kit>(preset._kit);
-  const [samples, setSamples] = useState<Sample[]>(_samples);
+  // State architecture for instruments:
+  // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
+  //   Created fresh when kit changes, disposed on cleanup. No data duplication!
+  // - Store (useInstrumentsStore): Single source of truth for serializable InstrumentData
+  //   Contains all parameters (attack, release, volume, etc.), persisted to localStorage
+  const [instrumentRuntimes, setInstrumentRuntimes] = useState<
+    InstrumentRuntime[]
+  >(INIT_INSTRUMENT_RUNTIMES);
 
-  // s l o t s - now managed by Slots Store
-
-  // r e f s
-  const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
-  const toneLPFilter = useRef<Tone.Filter>();
-  const toneHPFilter = useRef<Tone.Filter>();
-  const tonePhaser = useRef<Tone.Phaser>();
-  const toneReverb = useRef<Tone.Reverb>();
-  const toneCompressor = useRef<Tone.Compressor>();
+  // Refs
+  const toneSequence = useRef<Tone.Sequence | null>(null);
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
-  const customPresetAlert = useToast({
+  // Load preset into all stores (single source of truth)
+  const loadPreset = useCallback(
+    (preset: Preset) => {
+      setCurrentPresetName(preset.name);
+      setCurrentKitName(preset.kit.name);
+
+      // Distribute preset data to respective stores
+      setVoiceIndex(0);
+      setVariation(0);
+      setPattern(preset.pattern);
+      setVariationCycle(preset.variationCycle);
+      setBpm(preset.bpm);
+      setSwing(preset.swing);
+      setAllMasterChain(
+        preset.masterChain.lowPass,
+        preset.masterChain.hiPass,
+        preset.masterChain.phaser,
+        preset.masterChain.reverb,
+        preset.masterChain.compThreshold,
+        preset.masterChain.compRatio,
+        preset.masterChain.masterVolume,
+      );
+      setAllInstruments(preset.kit.instruments);
+    },
+    [
+      setVoiceIndex,
+      setVariation,
+      setPattern,
+      setVariationCycle,
+      setBpm,
+      setSwing,
+      setAllMasterChain,
+      setAllInstruments,
+    ],
+  );
+
+  // Toast for warnings
+  const toast = useToast({
     position: "top",
   });
+
+  useMasterChain({ instrumentRuntimes, setIsLoading });
 
   // l o a d   f r o m   q u e r y   p a r a m
   useEffect(() => {
@@ -124,7 +156,7 @@ const Drumhaus = () => {
           const data = await response.json();
 
           if (data.presets.rows.length < 1) {
-            customPresetAlert({
+            toast({
               render: () => (
                 <Box
                   bg="silver"
@@ -140,9 +172,9 @@ const Drumhaus = () => {
           } else {
             const newPreset: Preset = data.presets.rows[0].preset_data;
 
-            setPreset(newPreset);
+            loadPreset(newPreset);
 
-            customPresetAlert({
+            toast({
               render: () => (
                 <Box
                   bg="silver"
@@ -164,6 +196,9 @@ const Drumhaus = () => {
             error,
           );
         }
+      } else {
+        // Load default preset on initial mount
+        loadPreset(init.init());
       }
     };
 
@@ -175,145 +210,73 @@ const Drumhaus = () => {
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(toneSequence, samples, chain, bar, chainVariation);
+      makeGoodMusic(
+        toneSequence,
+        instrumentRuntimes,
+        variationCycle,
+        bar,
+        chainVariation,
+      );
     }
 
     return () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, samples, chain, sequences]);
+  }, [isPlaying, instrumentRuntimes, variationCycle, pattern]);
 
-  // p r e s e t   c h a n g e
+  // Extract URLs to track when samples change (not when params change)
+  const instrumentUrls = useMemo(
+    () => instruments.map((inst) => inst.url).join(","),
+    [instruments],
+  );
+
+  // Create new instrument runtimes only when sample URLs change
+  // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
+  // They are applied to existing runtime nodes in InstrumentControls.tsx
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
-    function setFromPreset(_preset: Preset) {
-      // Sequencer state
-      setSlotIndex(0);
-      setVariation(0);
-      setSequences(_preset._sequences);
-      setChain(_preset._chain);
+    // Create runtime nodes from store data
+    const newRuntimes = createInstrumentRuntimes(instruments);
 
-      // Kit
-      setKit(_preset._kit);
-
-      // Transport
-      setBpm(_preset._bpm); // Updates store + Tone.Transport
-      setSwing(_preset._swing); // Updates store + Tone.Transport
-
-      // Master FX
-      setAllMasterFX(
-        _preset._lowPass,
-        _preset._hiPass,
-        _preset._phaser,
-        _preset._reverb,
-        _preset._compThreshold,
-        _preset._compRatio,
-        _preset._masterVolume,
-      );
-    }
-
-    setFromPreset({ ...preset });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
-
-  // k i t   c h a n g e
-  useEffect(() => {
-    if (!isLoading) setIsLoading(true);
-
-    const newSamples = createSamples(kit.samples);
-
-    setSamples(newSamples);
-    setAllAttacks(kit._attacks);
-    setAllReleases(kit._releases);
-    setAllFilters(kit._filters);
-    setAllPans(kit._pans);
-    setAllVolumes(kit._volumes);
-    setAllSolos(kit._solos);
-    setAllMutes(kit._mutes);
-
-    // backwards compatibility for pitch params
-    if (kit._pitches) {
-      setAllPitches(kit._pitches);
-    } else {
-      // old save files
-      setAllPitches([50, 50, 50, 50, 50, 50, 50, 50]);
-    }
-
-    return () => {
-      samples.forEach((sample) => {
-        sample.sampler.dispose();
-        sample.envelope.dispose();
-        sample.filter.dispose();
-        sample.panner.dispose();
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kit]);
-
-  // s a m p l e s   c h a n g e
-  useEffect(() => {
-    setMasterChain();
-    setIsLoading(false);
-
-    return () => {
-      toneLPFilter.current?.dispose();
-      toneHPFilter.current?.dispose();
-      tonePhaser.current?.dispose();
-      toneReverb.current?.dispose();
-      toneCompressor.current?.dispose();
-    };
-
-    function setMasterChain() {
-      toneLPFilter.current = new Tone.Filter(15000, "lowpass");
-      toneHPFilter.current = new Tone.Filter(0, "highpass");
-      tonePhaser.current = new Tone.Phaser({
-        frequency: 1,
-        octaves: 3,
-        baseFrequency: 1000,
-      });
-      toneReverb.current = new Tone.Reverb(1);
-      toneCompressor.current = new Tone.Compressor({
-        threshold: 0,
-        ratio: 1,
-        attack: 0.5,
-        release: 1,
-      });
-
-      if (
-        toneLPFilter.current &&
-        toneHPFilter.current &&
-        tonePhaser.current &&
-        toneReverb.current &&
-        toneCompressor.current
-      ) {
-        samples.forEach((sample) => {
-          sample.sampler.chain(
-            sample.envelope,
-            sample.filter,
-            sample.panner,
-            toneLPFilter.current!!,
-            toneHPFilter.current!!,
-            tonePhaser.current!!,
-            toneReverb.current!!,
-            toneCompressor.current!!,
-            Tone.Destination,
-          );
-        });
+    // Wait for all sampler buffers to load before updating state
+    const loadBuffers = async () => {
+      try {
+        // Wait for all Tone.js audio files to load
+        await Tone.loaded();
+        // Update local runtime state only after buffers are loaded
+        setInstrumentRuntimes(newRuntimes);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading sampler buffers:", error);
+        // Still update runtimes even if loading fails (graceful degradation)
+        setInstrumentRuntimes(newRuntimes);
+        setIsLoading(false);
       }
-    }
-  }, [samples]);
+    };
 
-  // t o g g l e   p l a y (now handled by store)
-  const handleTogglePlay = async () => {
-    await togglePlay(samples);
-  };
+    loadBuffers();
+
+    return () => {
+      instrumentRuntimes.forEach((runtime) => {
+        runtime.samplerNode.dispose();
+        runtime.envelopeNode.dispose();
+        runtime.filterNode.dispose();
+        runtime.pannerNode.dispose();
+      });
+    };
+    // Only recreate runtimes when URLs change, not when other params change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instrumentUrls]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " " && !isModal) handleTogglePlay();
+      // Block spacebar when any modal is open or when loading
+      if (event.key === " " && !isAnyModalOpen() && !isLoading) {
+        togglePlay(instrumentRuntimes);
+      }
     };
 
     document.addEventListener("keydown", playViaSpacebar);
@@ -322,76 +285,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModal, samples]);
-
-  // r e g i s t e r   s e r v i c e   w o r k e r
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((registration) => {
-          console.log(
-            "Service Worker registered with scope:",
-            registration.scope,
-          );
-        })
-        .catch((error) => {
-          console.error("Service Worker registration failed:", error);
-        });
-    }
-  }, []);
-
-  // c o n t r o l   p r o p s
-  // BPM and swing are now handled by the Transport Store
-
-  useEffect(() => {
-    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-    if (toneLPFilter.current) {
-      toneLPFilter.current.frequency.value = newLowPass;
-    }
-  }, [lowPass, samples]);
-
-  useEffect(() => {
-    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-    if (toneHPFilter.current) {
-      toneHPFilter.current.frequency.value = newHiPass;
-    }
-  }, [hiPass, samples]);
-
-  useEffect(() => {
-    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-    if (tonePhaser.current) {
-      tonePhaser.current.wet.value = newPhaserWet;
-    }
-  }, [phaser, samples]);
-
-  useEffect(() => {
-    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-    if (toneReverb.current) {
-      toneReverb.current.wet.value = newReverbWet;
-      toneReverb.current.decay = newReverbDecay;
-    }
-  }, [reverb, samples]);
-
-  useEffect(() => {
-    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-    if (toneCompressor.current) {
-      toneCompressor.current.threshold.value = newCompThreshold;
-    }
-  }, [compThreshold, samples]);
-
-  useEffect(() => {
-    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-    if (toneCompressor.current) {
-      toneCompressor.current.ratio.value = newCompRatio;
-    }
-  }, [compRatio, samples]);
-
-  useEffect(() => {
-    const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
-    Tone.Destination.volume.value = newMasterVolume;
-  }, [masterVolume, preset]);
+  }, [isLoading, instrumentRuntimes]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -409,11 +303,6 @@ const Drumhaus = () => {
     setIsMobileWarning(false);
   };
 
-  const fadeInVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
   return (
     <>
       <Box
@@ -427,7 +316,7 @@ const Drumhaus = () => {
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeInVariants}
+          variants={FADE_IN_VARIANTS}
           transition={{ duration: 0.5 }} // Adjust the duration as needed
         >
           <Box
@@ -482,7 +371,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <SlotsGrid samples={samples} isModal={isModal} />
+              <InstrumentGrid instrumentRuntimes={instrumentRuntimes} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -491,7 +380,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={handleTogglePlay}
+                    onClick={() => togglePlay(instrumentRuntimes)}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -515,28 +404,17 @@ const Drumhaus = () => {
 
               <GridItem w="380px" px={2}>
                 <PresetControl
-                  preset={preset}
-                  setPreset={setPreset}
-                  kit={kit}
-                  setKit={setKit}
-                  togglePlay={handleTogglePlay}
+                  currentPresetName={currentPresetName}
+                  currentKitName={currentKitName}
+                  loadPreset={loadPreset}
+                  setCurrentKitName={setCurrentKitName}
+                  togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
-                  setIsModal={setIsModal}
                 />
               </GridItem>
 
-              <GridItem colSpan={1} w={120} pl={8} pr={4}>
-                <MasterFX />
-              </GridItem>
-
-              <GridItem colSpan={1} px={4}>
-                <MasterCompressor />
-              </GridItem>
-
-              <GridItem colSpan={1} w={140}>
-                <MasterVolume />
-              </GridItem>
+              <MasterControl />
             </Grid>
 
             <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">

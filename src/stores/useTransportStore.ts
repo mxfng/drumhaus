@@ -3,6 +3,8 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import type { InstrumentRuntime } from "@/types/instrument";
+
 interface TransportState {
   // Playback state
   isPlaying: boolean;
@@ -10,17 +12,14 @@ interface TransportState {
   bpm: number;
   swing: number;
 
-  // Tone.js refs (stored but don't trigger re-renders)
-  toneSequence: Tone.Sequence | null;
-
   // Actions
-  setIsPlaying: (isPlaying: boolean) => void;
-  togglePlay: (samples: any[], onStop?: () => void) => Promise<void>;
+  togglePlay: (
+    instrumentRuntimes: InstrumentRuntime[],
+    onStop?: () => void,
+  ) => Promise<void>;
   setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
-  setToneSequence: (sequence: Tone.Sequence | null) => void;
-  disposeToneSequence: () => void;
 }
 
 export const useTransportStore = create<TransportState>()(
@@ -35,11 +34,7 @@ export const useTransportStore = create<TransportState>()(
         toneSequence: null,
 
         // Actions
-        setIsPlaying: (isPlaying) => {
-          set({ isPlaying });
-        },
-
-        togglePlay: async (samples, onStop) => {
+        togglePlay: async (instrumentRuntimes, onStop) => {
           // Start Tone.js context if needed
           if (Tone.context.state !== "running") {
             await Tone.start();
@@ -55,8 +50,8 @@ export const useTransportStore = create<TransportState>()(
               state.stepIndex = 0;
 
               // Release all samples
-              samples.forEach((sample) => {
-                sample.sampler.triggerRelease("C2", Tone.now());
+              instrumentRuntimes.forEach((runtime: InstrumentRuntime) => {
+                runtime.samplerNode.triggerRelease("C2", Tone.now());
               });
 
               // Call optional stop callback
@@ -83,18 +78,6 @@ export const useTransportStore = create<TransportState>()(
           const newSwing = (swing / 100) * 0.5;
           Tone.Transport.swingSubdivision = "16n";
           Tone.Transport.swing = newSwing;
-        },
-
-        setToneSequence: (sequence) => {
-          set({ toneSequence: sequence });
-        },
-
-        disposeToneSequence: () => {
-          const { toneSequence } = get();
-          if (toneSequence) {
-            toneSequence.dispose();
-            set({ toneSequence: null });
-          }
         },
       })),
       {

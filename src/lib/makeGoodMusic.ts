@@ -1,62 +1,88 @@
 import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
-import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Sample } from "@/types/types";
+import type { InstrumentRuntime } from "@/types/instrument";
+import type { VariationCycle } from "@/types/preset";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
-  samples: Sample[],
-  currentChain: number,
+  instrumentRuntimes: InstrumentRuntime[], // Only runtime nodes, data comes from store
+  variationCycle: VariationCycle,
   currentBar: React.MutableRefObject<number>,
   currentVariation: React.MutableRefObject<number>,
 ) {
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
-      // Get FRESH slot parameters from store on every step (enables live mute/solo)
-      const { releases, durations, solos, mutes, pitches } =
-        useSlotsStore.getState();
-      // Get FRESH sequences from store on every step
-      const { sequences } = useSequencerStore.getState();
+      // Get FRESH instrument parameters from store on every step (enables live mute/solo)
+      const { instruments: instrumentData, durations } =
+        useInstrumentsStore.getState();
+      const releases = instrumentData.map((inst) => inst.release);
+      const solos = instrumentData.map((inst) => inst.solo);
+      const mutes = instrumentData.map((inst) => inst.mute);
+      const pitches = instrumentData.map((inst) => inst.pitch);
 
-      function triggerSample(slot: number, velocity: number) {
-        const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
-        samples[slot].sampler.triggerRelease(_pitch, time);
-        if (samples[slot].name !== "OHat") {
-          samples[slot].sampler.triggerRelease(_pitch, time);
-          samples[slot].envelope.triggerAttack(time);
-          samples[slot].envelope.triggerRelease(
-            time + transformKnobValue(releases[slot], [0, durations[slot]]),
+      // Get FRESH pattern from store on every step
+      const { pattern } = usePatternStore.getState();
+
+      function triggerSample(instrumentIndex: number, velocity: number) {
+        const _pitch = transformKnobValue(
+          pitches[instrumentIndex],
+          [15.4064, 115.4064],
+        );
+        const runtime = instrumentRuntimes[instrumentIndex];
+        const name = instrumentData[instrumentIndex].name;
+
+        runtime.samplerNode.triggerRelease(_pitch, time);
+        if (name !== "OHat") {
+          runtime.samplerNode.triggerRelease(_pitch, time);
+          runtime.envelopeNode.triggerAttack(time);
+          runtime.envelopeNode.triggerRelease(
+            time +
+              transformKnobValue(releases[instrumentIndex], [
+                0,
+                durations[instrumentIndex],
+              ]),
           );
 
-          samples[slot].sampler.triggerAttack(_pitch, time, velocity);
+          runtime.samplerNode.triggerAttack(_pitch, time, velocity);
         } else {
-          triggerOHat(velocity, slot);
+          triggerOHat(velocity, instrumentIndex);
         }
       }
 
-      function muteOHatOnHat(slot: number) {
+      function muteOHatOnHat(instrumentIndex: number) {
         const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
-        if (slot == 4) samples[5].sampler.triggerRelease(_pitch, time);
+        if (instrumentIndex == 4)
+          instrumentRuntimes[5].samplerNode.triggerRelease(_pitch, time);
       }
 
-      function triggerOHat(velocity: number, slot: number) {
-        samples[slot].envelope.triggerAttack(time);
-        samples[slot].envelope.triggerRelease(
-          time + transformKnobValue(releases[slot], [0, durations[slot]]),
+      function triggerOHat(velocity: number, instrumentIndex: number) {
+        const runtime = instrumentRuntimes[instrumentIndex];
+        runtime.envelopeNode.triggerAttack(time);
+        runtime.envelopeNode.triggerRelease(
+          time +
+            transformKnobValue(releases[instrumentIndex], [
+              0,
+              durations[instrumentIndex],
+            ]),
         );
-        const _pitch = transformKnobValue(pitches[slot], [15.4064, 115.4064]);
-        samples[slot].sampler.triggerAttack(_pitch, time, velocity);
+        const _pitch = transformKnobValue(
+          pitches[instrumentIndex],
+          [15.4064, 115.4064],
+        );
+        runtime.samplerNode.triggerAttack(_pitch, time, velocity);
       }
 
       function updateBarByChain() {
         if (step === 15) {
           if (
-            currentChain < 2 ||
-            (currentChain === 2 && currentBar.current > 0) ||
-            (currentChain === 3 && currentBar.current > 2)
+            variationCycle === "A" ||
+            variationCycle === "B" ||
+            (variationCycle === "AB" && currentBar.current > 0) ||
+            (variationCycle === "AAAB" && currentBar.current > 2)
           ) {
             currentBar.current = 0;
           } else {
@@ -67,21 +93,19 @@ export default function makeGoodMusic(
 
       function updateVariationByChainAndBar() {
         if (step === 0) {
-          switch (currentChain) {
-            case 0:
+          switch (variationCycle) {
+            case "A":
               currentVariation.current = 0;
               break;
-            case 1:
+            case "B":
               currentVariation.current = 1;
               break;
-            case 2:
+            case "AB":
               currentVariation.current = currentBar.current === 0 ? 0 : 1;
               break;
-            case 3:
+            case "AAAB":
               currentVariation.current = currentBar.current === 3 ? 1 : 0;
               break;
-            default:
-              currentVariation.current = 0;
           }
         }
       }
@@ -93,16 +117,20 @@ export default function makeGoodMusic(
 
       const anySolos = hasSolos(solos);
 
-      for (let slot = 0; slot < sequences.length; slot++) {
-        const hit: boolean = sequences[slot][currentVariation.current][0][step];
-        const isSolo = solos[slot];
+      for (let voice = 0; voice < pattern.length; voice++) {
+        const instrumentIndex = pattern[voice].instrumentIndex;
+        const hit: boolean =
+          pattern[voice].variations[currentVariation.current].triggers[step];
+        const isSolo = solos[instrumentIndex];
         if (anySolos && !isSolo) {
           continue;
-        } else if (hit && !mutes[slot]) {
+        } else if (hit && !mutes[instrumentIndex]) {
           const velocity: number =
-            sequences[slot][currentVariation.current][1][step];
-          muteOHatOnHat(slot);
-          triggerSample(slot, velocity);
+            pattern[voice].variations[currentVariation.current].velocities[
+              step
+            ];
+          muteOHatOnHat(instrumentIndex);
+          triggerSample(instrumentIndex, velocity);
         }
       }
 
