@@ -27,9 +27,9 @@ import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
 import { MasterControl } from "./controls/MasterControl";
 import { PresetControl } from "./controls/PresetControl";
@@ -77,21 +77,12 @@ const Drumhaus = () => {
   // Modal store
   const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
+  // Preset/Kit metadata store
+  const loadPresetMeta = usePresetMetaStore((state) => state.loadPreset);
+
   // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobileWarning, setIsMobileWarning] = useState(false);
-  const [currentPresetMeta, setCurrentPresetMeta] = useState<Meta>({
-    id: "preset-init",
-    name: "init",
-    createdAt: "2023-11-20T16:00:00.000Z",
-    updatedAt: "2023-11-20T16:00:00.000Z",
-  });
-  const [currentKitMeta, setCurrentKitMeta] = useState<Meta>({
-    id: "kit-drumhaus",
-    name: "drumhaus",
-    createdAt: "2023-11-20T16:00:00.000Z",
-    updatedAt: "2023-11-20T16:00:00.000Z",
-  });
 
   // State architecture for instruments:
   // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
@@ -110,8 +101,8 @@ const Drumhaus = () => {
   // Load preset into all stores (single source of truth)
   const loadPreset = useCallback(
     (preset: PresetFileV1) => {
-      setCurrentPresetMeta(preset.meta);
-      setCurrentKitMeta(preset.kit.meta);
+      // Update preset/kit metadata store
+      loadPresetMeta(preset);
 
       // Distribute preset data to respective stores
       setVoiceIndex(0);
@@ -132,6 +123,7 @@ const Drumhaus = () => {
       setAllInstruments(preset.kit.instruments);
     },
     [
+      loadPresetMeta,
       setVoiceIndex,
       setVariation,
       setPattern,
@@ -416,11 +408,7 @@ const Drumhaus = () => {
 
               <GridItem w="380px" px={2}>
                 <PresetControl
-                  currentPresetMeta={currentPresetMeta}
-                  currentKitMeta={currentKitMeta}
                   loadPreset={loadPreset}
-                  setCurrentPresetMeta={setCurrentPresetMeta}
-                  setCurrentKitMeta={setCurrentKitMeta}
                   togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}

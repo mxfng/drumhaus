@@ -6,9 +6,10 @@ import { Box, Center } from "@chakra-ui/react";
 import * as kits from "@/lib/kit";
 import { init } from "@/lib/preset/bin/ts/init";
 import { welcome_to_the_haus } from "@/lib/preset/bin/ts/welcome_to_the_haus";
-import { arePresetsEqual, getCurrentPreset } from "@/lib/preset/helpers";
+import { getCurrentPreset } from "@/lib/preset/helpers";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
@@ -23,22 +24,14 @@ import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
-  currentPresetMeta: Meta;
-  currentKitMeta: Meta;
   loadPreset: (preset: PresetFileV1) => void;
-  setCurrentPresetMeta: React.Dispatch<React.SetStateAction<Meta>>;
-  setCurrentKitMeta: React.Dispatch<React.SetStateAction<Meta>>;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  currentPresetMeta,
-  currentKitMeta,
   loadPreset,
-  setCurrentPresetMeta,
-  setCurrentKitMeta,
   togglePlay,
   isLoading,
   setIsLoading,
@@ -47,6 +40,17 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
+  );
+
+  // Preset metadata store
+  const currentPresetMeta = usePresetMetaStore(
+    (state) => state.currentPresetMeta,
+  );
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
+  const setKitMeta = usePresetMetaStore((state) => state.setKitMeta);
+  const markPresetClean = usePresetMetaStore((state) => state.markPresetClean);
+  const hasUnsavedChanges = usePresetMetaStore(
+    (state) => state.hasUnsavedChanges,
   );
 
   // Modal store
@@ -97,9 +101,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   );
   const [presetOptions, setPresetOptions] =
     useState<(() => PresetFileV1)[]>(defaultPresetOptions);
-  const [cleanPreset, setCleanPreset] = useState<PresetFileV1>(
-    getCurrentPreset(currentPresetMeta, currentKitMeta),
-  );
 
   const modalCloseRef = useRef(null);
 
@@ -140,32 +141,21 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const updateStatesOnPresetChange = useCallback(
     (presetToLoad: PresetFileV1, functionToSave?: () => PresetFileV1) => {
-      loadPreset(presetToLoad);
-      setCleanPreset(presetToLoad);
+      loadPreset(presetToLoad); // This calls the store's loadPreset which sets meta + cleanPreset
       setSelectedPreset(presetToLoad.meta.id);
-      setCurrentPresetMeta(presetToLoad.meta);
       setSelectedKit(presetToLoad.kit.meta.id);
-      setCurrentKitMeta(presetToLoad.kit.meta);
 
       // Add new presets to the list of options (if provided)
       if (functionToSave) {
         addOrUpdatePreset(functionToSave);
       }
     },
-    [
-      loadPreset,
-      setCleanPreset,
-      setSelectedPreset,
-      setCurrentPresetMeta,
-      setSelectedKit,
-      setCurrentKitMeta,
-      addOrUpdatePreset,
-    ],
+    [loadPreset, setSelectedPreset, setSelectedKit, addOrUpdatePreset],
   );
 
   const handleSave = (customName: string) => {
     // Generate new metadata for the saved preset
-    // TODO: consider checking if name changed and preserving ID, name, and createdAt timestamp
+    // TODO: consider checking if name changed and preserving ID and createdAt timestamp
     // however, do not allow this for default presets (could enforce by checking UUID vs human-readable)
     const now = new Date().toISOString();
     const newPresetMeta: Meta = {
@@ -188,6 +178,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     downloadLink.click();
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
+
+    // Mark preset as clean (saved) in the store
+    markPresetClean(presetToSave);
 
     // Create a function that returns this preset
     const presetFunction = () => presetToSave;
@@ -252,8 +245,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       const newKit: KitFileV1 = kitOption();
       // Update instruments store (single source of truth)
       setAllInstruments(newKit.instruments);
-      // Update kit metadata
-      setCurrentKitMeta(newKit.meta);
+      // Update kit metadata in store
+      setKitMeta(newKit.meta);
       setSelectedKit(newKit.meta.id);
     } else {
       console.error(
@@ -270,13 +263,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const handlePresetChangeRequest = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    // Check if current state differs from loaded preset
-    const currentState = getCurrentPreset(currentPresetMeta, currentKitMeta);
-    const cp = cleanPreset;
-
-    // Deep equality check using proper comparison
-    const changesMade = !arePresetsEqual(currentState, cp);
-
+    // Check if current state has unsaved changes
+    const changesMade = hasUnsavedChanges();
     const newPresetId = event.target.value;
 
     if (changesMade) {
