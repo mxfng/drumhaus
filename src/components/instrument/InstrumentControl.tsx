@@ -130,26 +130,66 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     [index, toggleSoloStore],
   );
 
-  // Apply store data to Tone.js runtime nodes when parameters change
+  // Subscribe to instrument parameter changes and update audio nodes directly
+  // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
-    const newAttackValue = transformKnobValue(attack, [0, 0.1]);
-    runtime.envelopeNode.attack = newAttackValue;
-  }, [attack, runtime.envelopeNode]);
+    let prevParams: {
+      attack: number;
+      filter: number;
+      pan: number;
+      volume: number;
+    } | null = null;
 
-  useEffect(() => {
-    runtime.filterNode.type = filter <= 49 ? "lowpass" : "highpass";
-    runtime.filterNode.frequency.value = transformKnobFilterValue(filter);
-  }, [filter, runtime.filterNode]);
+    const unsubscribe = useInstrumentsStore.subscribe((state) => {
+      const instrument = state.instruments[index];
+      if (!instrument) return;
 
-  useEffect(() => {
-    const newPanValue = transformKnobValue(pan, [-1, 1]);
-    runtime.pannerNode.pan.value = newPanValue;
-  }, [pan, runtime.pannerNode]);
+      const currentParams = {
+        attack: instrument.params.attack,
+        filter: instrument.params.filter,
+        pan: instrument.params.pan,
+        volume: instrument.params.volume,
+      };
 
-  useEffect(() => {
-    const newVolumeValue = transformKnobValue(volume, [-46, 4]);
-    runtime.samplerNode.volume.value = newVolumeValue;
-  }, [volume, runtime.samplerNode]);
+      // Only update if params actually changed
+      if (
+        !prevParams ||
+        prevParams.attack !== currentParams.attack ||
+        prevParams.filter !== currentParams.filter ||
+        prevParams.pan !== currentParams.pan ||
+        prevParams.volume !== currentParams.volume
+      ) {
+        // Update attack
+        const newAttackValue = transformKnobValue(
+          currentParams.attack,
+          [0, 0.1],
+        );
+        runtime.envelopeNode.attack = newAttackValue;
+
+        // Update filter
+        runtime.filterNode.type =
+          currentParams.filter <= 49 ? "lowpass" : "highpass";
+        runtime.filterNode.frequency.value = transformKnobFilterValue(
+          currentParams.filter,
+        );
+
+        // Update pan
+        const newPanValue = transformKnobValue(currentParams.pan, [-1, 1]);
+        runtime.pannerNode.pan.value = newPanValue;
+
+        // Update volume
+        const newVolumeValue = transformKnobValue(
+          currentParams.volume,
+          [-46, 4],
+        );
+        runtime.samplerNode.volume.value = newVolumeValue;
+
+        prevParams = currentParams;
+      }
+    });
+
+    return unsubscribe;
+  }, [index, runtime]);
 
   // Update duration in store when sample duration changes
   useEffect(() => {

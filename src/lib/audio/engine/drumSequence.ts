@@ -17,15 +17,14 @@ export function disposeDrumSequence(
 ): void {
   if (sequencer.current) {
     try {
+      // Try to stop the sequence
       sequencer.current.stop();
     } catch (error) {
-      console.warn("Failed to stop drum sequence:", error);
+      // Expect errors since we can't check if the sequence is running first
+      console.debug("Unable to stop drum sequence:", error);
     }
-    try {
-      sequencer.current.dispose();
-    } catch (error) {
-      console.warn("Failed to dispose drum sequence:", error);
-    }
+
+    sequencer.current.dispose();
     sequencer.current = null;
   }
 }
