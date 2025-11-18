@@ -4,7 +4,7 @@ import { immer } from "zustand/middleware/immer";
 
 import { createEmptyPattern } from "@/lib/pattern/create";
 import { Pattern } from "@/lib/pattern/types";
-import { VariationCycle } from "@/types/types";
+import type { VariationCycle } from "@/lib/preset/types";
 
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations

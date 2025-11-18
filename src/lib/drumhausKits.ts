@@ -1,5 +1,4 @@
-import type { InstrumentData } from "@/lib/instrument/types";
-import type { Kit } from "@/types/types";
+import type { InstrumentData, Kit } from "@/lib/instrument/types";
 
 /**
  * Helper to create InstrumentData from parallel arrays

@@ -35,3 +35,8 @@ export interface InstrumentRuntime {
  * Used during playback and rendering
  */
 export type Instrument = InstrumentData & InstrumentRuntime;
+
+export interface Kit {
+  name: string;
+  instruments: InstrumentData[];
+}

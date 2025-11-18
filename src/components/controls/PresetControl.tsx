@@ -25,6 +25,7 @@ import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
 import * as kits from "@/lib/drumhausKits";
+import type { Kit } from "@/lib/instrument/types";
 import { a_drum_called_haus } from "@/lib/preset/dh/a_drum_called_haus";
 import { amsterdam } from "@/lib/preset/dh/amsterdam";
 import { init } from "@/lib/preset/dh/init";
@@ -40,7 +41,6 @@ import { arePresetsEqual, getCurrentPreset } from "@/lib/preset/helpers";
 import type { Preset } from "@/lib/preset/types";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { Kit } from "@/types/types";
 import { ErrorModal } from "../modal/ErrorModal";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { ResetModal } from "../modal/ResetModal";

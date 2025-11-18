@@ -1,5 +1,7 @@
+import type { Kit } from "@/lib/instrument/types";
 import type { Pattern } from "@/lib/pattern/types";
-import type { Kit, VariationCycle } from "@/types/types";
+
+export type VariationCycle = "A" | "B" | "AB" | "AAAB";
 
 export interface Preset {
   name: string;
