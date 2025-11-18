@@ -24,7 +24,7 @@ import { IoIosShareAlt, IoMdArrowDropdown } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
-import * as kits from "@/lib/kits";
+import * as kits from "@/lib/drumhausKits";
 import { arePresetsEqual, getCurrentPreset } from "@/lib/presetHelpers";
 import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
 import { amsterdam } from "@/lib/presets/amsterdam";

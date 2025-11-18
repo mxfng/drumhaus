@@ -1,4 +1,4 @@
-import * as kits from "@/lib/kits";
+import * as kits from "@/lib/drumhausKits";
 import { createEmptyPattern } from "@/lib/pattern/create";
 import { Preset } from "@/types/types";
 

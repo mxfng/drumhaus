@@ -1,6 +1,6 @@
 import * as Tone from "tone/build/esm/index";
 
-import * as kits from "@/lib/kits";
+import * as kits from "@/lib/drumhausKits";
 import { InstrumentData, InstrumentRuntime } from "@/types/types";
 
 /**
