@@ -16,7 +16,7 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
 
-import { _samples, createInstruments } from "@/lib/createInstruments";
+import { createInstruments, INIT_INSTRUMENTS } from "@/lib/createInstruments";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
@@ -84,9 +84,15 @@ const Drumhaus = () => {
 
   // g l o b a l
   const [kit, setKit] = useState<Kit>(preset._kit);
-  const [samples, setSamples] = useState<Instrument[]>(_samples);
 
-  // i n s t r u m e n t s - now managed by Instruments Store
+  // NOTE: State architecture for instruments
+  // - Local state (instruments): Holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
+  //   Created fresh when kit changes, disposed on cleanup
+  // - Store (useInstrumentsStore): Holds serializable InstrumentData (attack, release, volume, etc.)
+  //   Single source of truth for instrument parameters, persisted to localStorage
+  // TODO: Consider refactoring to eliminate duplicate InstrumentData in this local state
+  const [instruments, setInstruments] =
+    useState<Instrument[]>(INIT_INSTRUMENTS);
 
   // r e f s
   const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
@@ -170,14 +176,14 @@ const Drumhaus = () => {
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(toneSequence, samples, chain, bar, chainVariation);
+      makeGoodMusic(toneSequence, instruments, chain, bar, chainVariation);
     }
 
     return () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, samples, chain, pattern]);
+  }, [isPlaying, instruments, chain, pattern]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
@@ -221,13 +227,13 @@ const Drumhaus = () => {
     const newSamples = createInstruments(kit.instruments);
 
     // Update local samples state
-    setSamples(newSamples);
+    setInstruments(newSamples);
 
     // Update instruments store with kit data
     setAllInstruments(kit.instruments);
 
     return () => {
-      samples.forEach((sample) => {
+      instruments.forEach((sample) => {
         sample.samplerNode.dispose();
         sample.envelopeNode.dispose();
         sample.filterNode.dispose();
@@ -239,29 +245,31 @@ const Drumhaus = () => {
 
   // s a m p l e s   c h a n g e
   useEffect(() => {
-    setMasterChain();
-    setIsLoading(false);
-
-    return () => {
-      toneLPFilter.current?.dispose();
-      toneHPFilter.current?.dispose();
-      tonePhaser.current?.dispose();
-      toneReverb.current?.dispose();
-      toneCompressor.current?.dispose();
-    };
-
     function setMasterChain() {
-      toneLPFilter.current = new Tone.Filter(15000, "lowpass");
-      toneHPFilter.current = new Tone.Filter(0, "highpass");
+      // Create new master FX nodes and initialize with current UI parameter values
+      const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
+      const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
+      const newPhaserWet = transformKnobValue(phaser, [0, 1]);
+      const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
+      const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
+      const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
+      const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
+
+      toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
+      toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
       tonePhaser.current = new Tone.Phaser({
         frequency: 1,
         octaves: 3,
         baseFrequency: 1000,
+        wet: newPhaserWet,
       });
-      toneReverb.current = new Tone.Reverb(1);
+      toneReverb.current = new Tone.Reverb({
+        decay: newReverbDecay,
+        wet: newReverbWet,
+      });
       toneCompressor.current = new Tone.Compressor({
-        threshold: 0,
-        ratio: 1,
+        threshold: newCompThreshold,
+        ratio: newCompRatio,
         attack: 0.5,
         release: 1,
       });
@@ -273,7 +281,7 @@ const Drumhaus = () => {
         toneReverb.current &&
         toneCompressor.current
       ) {
-        samples.forEach((sample) => {
+        instruments.forEach((sample) => {
           sample.samplerNode.chain(
             sample.envelopeNode,
             sample.filterNode,
@@ -288,17 +296,25 @@ const Drumhaus = () => {
         });
       }
     }
-  }, [samples]);
 
-  // t o g g l e   p l a y (now handled by store)
-  const handleTogglePlay = async () => {
-    await togglePlay(samples);
-  };
+    setMasterChain();
+    setIsLoading(false);
+
+    return () => {
+      toneLPFilter.current?.dispose();
+      toneHPFilter.current?.dispose();
+      tonePhaser.current?.dispose();
+      toneReverb.current?.dispose();
+      toneCompressor.current?.dispose();
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instruments]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " " && !isModal) handleTogglePlay();
+      if (event.key === " " && !isModal) togglePlay(instruments);
     };
 
     document.addEventListener("keydown", playViaSpacebar);
@@ -307,7 +323,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModal, samples]);
+  }, [isModal, instruments]);
 
   // r e g i s t e r   s e r v i c e   w o r k e r
   useEffect(() => {
@@ -334,21 +350,21 @@ const Drumhaus = () => {
     if (toneLPFilter.current) {
       toneLPFilter.current.frequency.value = newLowPass;
     }
-  }, [lowPass, samples]);
+  }, [lowPass]);
 
   useEffect(() => {
     const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
     if (toneHPFilter.current) {
       toneHPFilter.current.frequency.value = newHiPass;
     }
-  }, [hiPass, samples]);
+  }, [hiPass]);
 
   useEffect(() => {
     const newPhaserWet = transformKnobValue(phaser, [0, 1]);
     if (tonePhaser.current) {
       tonePhaser.current.wet.value = newPhaserWet;
     }
-  }, [phaser, samples]);
+  }, [phaser]);
 
   useEffect(() => {
     const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
@@ -357,26 +373,26 @@ const Drumhaus = () => {
       toneReverb.current.wet.value = newReverbWet;
       toneReverb.current.decay = newReverbDecay;
     }
-  }, [reverb, samples]);
+  }, [reverb]);
 
   useEffect(() => {
     const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
     if (toneCompressor.current) {
       toneCompressor.current.threshold.value = newCompThreshold;
     }
-  }, [compThreshold, samples]);
+  }, [compThreshold]);
 
   useEffect(() => {
     const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
     if (toneCompressor.current) {
       toneCompressor.current.ratio.value = newCompRatio;
     }
-  }, [compRatio, samples]);
+  }, [compRatio]);
 
   useEffect(() => {
     const newMasterVolume = transformKnobValue(masterVolume, [-46, 4]);
     Tone.Destination.volume.value = newMasterVolume;
-  }, [masterVolume, preset]);
+  }, [masterVolume]);
 
   // m o b i l e   d e v i c e   w a r n i n g
   useEffect(() => {
@@ -467,7 +483,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentsGrid instruments={samples} isModal={isModal} />
+              <InstrumentsGrid instruments={instruments} isModal={isModal} />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -476,7 +492,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={handleTogglePlay}
+                    onClick={() => togglePlay(instruments)}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -504,7 +520,7 @@ const Drumhaus = () => {
                   setPreset={setPreset}
                   kit={kit}
                   setKit={setKit}
-                  togglePlay={handleTogglePlay}
+                  togglePlay={() => togglePlay(instruments)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                   setIsModal={setIsModal}

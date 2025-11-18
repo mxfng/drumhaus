@@ -47,6 +47,14 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   instrumentIndex,
   ...props
 }) => {
+  // Data flow architecture:
+  // - Store subscription (instrumentData): Source of truth for reactive instrument parameters
+  // - sample prop: Provides Tone.js runtime nodes (samplerNode, envelopeNode, filterNode, pannerNode)
+  //
+  // Why both? The sample prop contains static data from kit load time, while the store
+  // subscription provides live updates when knobs/controls change. We use the store for
+  // reading values and the sample prop for accessing audio nodes.
+
   // Subscribe only to THIS instrument's data (prevents cross-instrument re-renders!)
   const instrumentData = useInstrumentsStore(
     (state) => state.instruments[index],
@@ -71,7 +79,7 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const sampleDuration = useSampleDuration(sample.samplerNode, sample.url);
 
-  // Wrap store setters with instrument index
+  // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
     (value: number) => setInstrumentProperty(index, "attack", value),
     [index, setInstrumentProperty],
@@ -105,6 +113,7 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
     [index, toggleSoloStore],
   );
 
+  // Apply store data to Tone.js runtime nodes when parameters change
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
     sample.envelopeNode.attack = newAttackValue;
