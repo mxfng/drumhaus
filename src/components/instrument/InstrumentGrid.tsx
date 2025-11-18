@@ -3,7 +3,7 @@ import { Grid, GridItem } from "@chakra-ui/react";
 
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { InstrumentRuntime } from "@/types/types";
-import { InstrumentControls } from "./InstrumentControls";
+import { InstrumentControl } from "./InstrumentControl";
 
 const NO_OF_INSTRUMENTS = 8;
 
@@ -76,7 +76,7 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
           onMouseDown={() => toggleCurrentVoice(index)}
           transition="all 0.5s ease"
         >
-          <InstrumentControls
+          <InstrumentControl
             color={INSTRUMENT_COLORS[index]}
             key={`Instrument-${index}`}
             runtime={runtime}

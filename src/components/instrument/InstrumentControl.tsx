@@ -30,7 +30,7 @@ import {
 } from "../common/Knob";
 import Waveform from "./Waveform";
 
-type InstrumentParams = {
+type InstrumentControlParams = {
   runtime: InstrumentRuntime; // Tone.js audio nodes only
   color?: string;
   bg?: string;
@@ -39,7 +39,7 @@ type InstrumentParams = {
   instrumentIndex: number; // Currently selected instrument for keyboard shortcuts
 };
 
-export const InstrumentControls: React.FC<InstrumentParams> = ({
+export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   runtime,
   isModal,
   index,
@@ -68,6 +68,7 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
+  const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(
     runtime.samplerNode,
     instrumentData.url,
@@ -171,12 +172,19 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
 
   const playSample = () => {
     const time = Tone.now();
-    runtime.samplerNode.triggerRelease("C2", time);
+    // Should be monophonic
+    runtime.envelopeNode.triggerRelease(time);
+    // Release the specific note if we're tracking it, otherwise release all
+    if (currentPitchRef.current !== null) {
+      runtime.samplerNode.triggerRelease(currentPitchRef.current, time);
+    }
+    runtime.samplerNode.triggerRelease(time);
     runtime.envelopeNode.triggerAttack(time);
     runtime.envelopeNode.triggerRelease(
       time + transformKnobValue(release, [0, sampleDuration]),
     );
     const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
+    currentPitchRef.current = _pitch;
     runtime.samplerNode.triggerAttack(_pitch, time);
   };
 
