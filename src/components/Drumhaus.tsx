@@ -233,67 +233,15 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, instrumentRuntimes, chain, pattern]);
 
-  // Create new instrument runtimes and set up master chain when instruments change
+  // Create new instrument runtimes when instruments change
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
     // Create runtime nodes from store data
     const newRuntimes = createInstrumentRuntimes(instruments);
 
-    // Create new master FX nodes and initialize with current UI parameter values
-    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-
-    toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
-    toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
-    tonePhaser.current = new Tone.Phaser({
-      frequency: 1,
-      octaves: 3,
-      baseFrequency: 1000,
-      wet: newPhaserWet,
-    });
-    toneReverb.current = new Tone.Reverb({
-      decay: newReverbDecay,
-      wet: newReverbWet,
-    });
-    toneCompressor.current = new Tone.Compressor({
-      threshold: newCompThreshold,
-      ratio: newCompRatio,
-      attack: 0.5,
-      release: 1,
-    });
-
-    // Chain master FX to new instrument runtimes
-    if (
-      toneLPFilter.current &&
-      toneHPFilter.current &&
-      tonePhaser.current &&
-      toneReverb.current &&
-      toneCompressor.current
-    ) {
-      newRuntimes.forEach((runtime) => {
-        runtime.samplerNode.chain(
-          runtime.envelopeNode,
-          runtime.filterNode,
-          runtime.pannerNode,
-          toneLPFilter.current!!,
-          toneHPFilter.current!!,
-          tonePhaser.current!!,
-          toneReverb.current!!,
-          toneCompressor.current!!,
-          Tone.Destination,
-        );
-      });
-    }
-
     // Update local runtime state
     setInstrumentRuntimes(newRuntimes);
-    setIsLoading(false);
 
     return () => {
       instrumentRuntimes.forEach((runtime) => {
@@ -302,14 +250,77 @@ const Drumhaus = () => {
         runtime.filterNode.dispose();
         runtime.pannerNode.dispose();
       });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [instruments]);
+
+  // Set new master chain nodes to instrument runtimes when instruments change
+  useEffect(() => {
+    function setMasterChain() {
+      // Create new master FX nodes and initialize with current UI parameter values
+      const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
+      const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
+      const newPhaserWet = transformKnobValue(phaser, [0, 1]);
+      const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
+      const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
+      const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
+      const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
+
+      toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
+      toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
+      tonePhaser.current = new Tone.Phaser({
+        frequency: 1,
+        octaves: 3,
+        baseFrequency: 1000,
+        wet: newPhaserWet,
+      });
+      toneReverb.current = new Tone.Reverb({
+        decay: newReverbDecay,
+        wet: newReverbWet,
+      });
+      toneCompressor.current = new Tone.Compressor({
+        threshold: newCompThreshold,
+        ratio: newCompRatio,
+        attack: 0.5,
+        release: 1,
+      });
+
+      if (
+        toneLPFilter.current &&
+        toneHPFilter.current &&
+        tonePhaser.current &&
+        toneReverb.current &&
+        toneCompressor.current
+      ) {
+        instrumentRuntimes.forEach((runtime) => {
+          runtime.samplerNode.chain(
+            runtime.envelopeNode,
+            runtime.filterNode,
+            runtime.pannerNode,
+            toneLPFilter.current!!,
+            toneHPFilter.current!!,
+            tonePhaser.current!!,
+            toneReverb.current!!,
+            toneCompressor.current!!,
+            Tone.Destination,
+          );
+        });
+      }
+    }
+
+    setMasterChain();
+    setIsLoading(false);
+
+    return () => {
       toneLPFilter.current?.dispose();
       toneHPFilter.current?.dispose();
       tonePhaser.current?.dispose();
       toneReverb.current?.dispose();
       toneCompressor.current?.dispose();
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instruments]);
+  }, [instrumentRuntimes]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
