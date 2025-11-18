@@ -30,9 +30,7 @@ import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { Preset } from "@/types/preset";
-import { MasterCompressor } from "./controls/MasterCompressor";
-import { MasterFX } from "./controls/MasterFX";
-import { MasterVolume } from "./controls/MasterVolume";
+import { MasterControl } from "./controls/MasterControl";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
@@ -416,17 +414,7 @@ const Drumhaus = () => {
                 />
               </GridItem>
 
-              <GridItem colSpan={1} w={120} pl={8} pr={4}>
-                <MasterFX />
-              </GridItem>
-
-              <GridItem colSpan={1} px={4}>
-                <MasterCompressor />
-              </GridItem>
-
-              <GridItem colSpan={1} w={140}>
-                <MasterVolume />
-              </GridItem>
+              <MasterControl />
             </Grid>
 
             <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
