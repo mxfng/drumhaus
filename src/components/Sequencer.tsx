@@ -14,16 +14,12 @@ export const Sequencer: React.FC = () => {
   const step = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
-  // Get sequencer state from Sequencer Store - use granular selectors
+  // Get sequencer state from Sequencer Store
+  const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
-  // Only subscribe to the specific triggers we need, not the entire pattern
   const triggers = usePatternStore(
     (state) => state.pattern[voiceIndex].variations[variation].triggers,
-  );
-  // Get velocities separately to avoid re-renders when triggers change
-  const velocities = usePatternStore(
-    (state) => state.pattern[voiceIndex].variations[variation].velocities,
   );
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const setVelocity = usePatternStore((state) => state.setVelocity);
@@ -183,7 +179,11 @@ export const Sequencer: React.FC = () => {
                 <Box
                   bg="darkorange"
                   h="100%"
-                  w={`${Math.max(velocities[node] * 100, 12)}%`}
+                  w={`${Math.max(
+                    pattern[voiceIndex].variations[variation].velocities[node] *
+                      100,
+                    12,
+                  )}%`}
                   position="absolute"
                   borderRadius="200px 0 200px 0"
                   filter="blur(2px)"
@@ -197,7 +197,11 @@ export const Sequencer: React.FC = () => {
                     transition="0.5s ease"
                     filter="blur(2px)"
                   >
-                    {(velocities[node] * 100).toFixed(0)}
+                    {(
+                      pattern[voiceIndex].variations[variation].velocities[
+                        node
+                      ] * 100
+                    ).toFixed(0)}
                   </Text>
                 </Center>
               </Box>

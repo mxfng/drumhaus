@@ -19,21 +19,28 @@ export default function makeGoodMusic(
       // Get FRESH instrument parameters from store on every step (enables live mute/solo)
       const { instruments: instrumentData, durations } =
         useInstrumentsStore.getState();
-      const releases = instrumentData.map((inst) => inst.params.release);
-      const solos = instrumentData.map((inst) => inst.params.solo);
-      const mutes = instrumentData.map((inst) => inst.params.mute);
-      const pitches = instrumentData.map((inst) => inst.params.pitch);
+
+      // Access params directly instead of mapping (avoids array allocation)
+      // Only map when we actually need arrays (for hasSolos check)
+      let anySolos = false;
+      for (let i = 0; i < instrumentData.length; i++) {
+        if (instrumentData[i].params.solo) {
+          anySolos = true;
+          break;
+        }
+      }
 
       // Get FRESH pattern from store on every step
       const { pattern } = usePatternStore.getState();
 
       function triggerSample(instrumentIndex: number, velocity: number) {
+        const inst = instrumentData[instrumentIndex];
         const _pitch = transformKnobValue(
-          pitches[instrumentIndex],
+          inst.params.pitch,
           [15.4064, 115.4064],
         );
         const runtime = instrumentRuntimes[instrumentIndex];
-        const role = instrumentData[instrumentIndex].role;
+        const role = inst.role;
 
         runtime.samplerNode.triggerRelease(_pitch, time);
         if (role !== "ohat") {
@@ -41,7 +48,7 @@ export default function makeGoodMusic(
           runtime.envelopeNode.triggerAttack(time);
           runtime.envelopeNode.triggerRelease(
             time +
-              transformKnobValue(releases[instrumentIndex], [
+              transformKnobValue(inst.params.release, [
                 0,
                 durations[instrumentIndex],
               ]),
@@ -54,23 +61,27 @@ export default function makeGoodMusic(
       }
 
       function muteOHatOnHat(instrumentIndex: number) {
-        const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
+        const _pitch = transformKnobValue(
+          instrumentData[5].params.pitch,
+          [15.4064, 115.4064],
+        );
         if (instrumentIndex == 4)
           instrumentRuntimes[5].samplerNode.triggerRelease(_pitch, time);
       }
 
       function triggerOHat(velocity: number, instrumentIndex: number) {
+        const inst = instrumentData[instrumentIndex];
         const runtime = instrumentRuntimes[instrumentIndex];
         runtime.envelopeNode.triggerAttack(time);
         runtime.envelopeNode.triggerRelease(
           time +
-            transformKnobValue(releases[instrumentIndex], [
+            transformKnobValue(inst.params.release, [
               0,
               durations[instrumentIndex],
             ]),
         );
         const _pitch = transformKnobValue(
-          pitches[instrumentIndex],
+          inst.params.pitch,
           [15.4064, 115.4064],
         );
         runtime.samplerNode.triggerAttack(_pitch, time, velocity);
@@ -110,21 +121,16 @@ export default function makeGoodMusic(
         }
       }
 
-      const hasSolos = (solos: boolean[]) =>
-        solos.some((value) => value === true);
-
       updateVariationByChainAndBar();
-
-      const anySolos = hasSolos(solos);
 
       for (let voice = 0; voice < pattern.length; voice++) {
         const instrumentIndex = pattern[voice].instrumentIndex;
         const hit: boolean =
           pattern[voice].variations[currentVariation.current].triggers[step];
-        const isSolo = solos[instrumentIndex];
+        const isSolo = instrumentData[instrumentIndex].params.solo;
         if (anySolos && !isSolo) {
           continue;
-        } else if (hit && !mutes[instrumentIndex]) {
+        } else if (hit && !instrumentData[instrumentIndex].params.mute) {
           const velocity: number =
             pattern[voice].variations[currentVariation.current].velocities[
               step
@@ -134,7 +140,7 @@ export default function makeGoodMusic(
         }
       }
 
-      // Update step index in store
+      // Update step index in store every step for accurate visual feedback
       useTransportStore.getState().setStepIndex(step);
       updateBarByChain();
     },
