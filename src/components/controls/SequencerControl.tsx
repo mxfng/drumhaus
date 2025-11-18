@@ -1,6 +1,6 @@
 "use client";
 
-import { Sequences } from "@/types/types";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -10,35 +10,27 @@ import {
   GridItem,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { FaDice } from "react-icons/fa";
-import { IoCopySharp } from "react-icons/io5";
-import { IoBrushSharp } from "react-icons/io5";
 import { BsFillEraserFill } from "react-icons/bs";
+import { FaDice } from "react-icons/fa";
+import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
 
-type SequencerControlProps = {
-  variation: number;
-  setVariation: React.Dispatch<React.SetStateAction<number>>;
-  chain: number;
-  setChain: React.Dispatch<React.SetStateAction<number>>;
-  currentSequence: boolean[];
-  setCurrentSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
-  slot: number;
-  sequences: Sequences;
-  setSequences: React.Dispatch<React.SetStateAction<Sequences>>;
-};
+import { useSequencerStore } from "@/stores/useSequencerStore";
 
-export const SequencerControl: React.FC<SequencerControlProps> = ({
-  variation,
-  setVariation,
-  chain,
-  setChain,
-  currentSequence,
-  setCurrentSequence,
-  slot,
-  sequences,
-  setSequences,
-}) => {
+export const SequencerControl: React.FC = () => {
+  // Get state from Sequencer Store
+  const variation = useSequencerStore((state) => state.variation);
+  const chain = useSequencerStore((state) => state.chain);
+  const slotIndex = useSequencerStore((state) => state.slotIndex);
+  const sequences = useSequencerStore((state) => state.sequences);
+  const currentSequence = useSequencerStore(
+    (state) => state.sequences[state.slotIndex][state.variation][0],
+  );
+
+  // Get actions from store
+  const setVariation = useSequencerStore((state) => state.setVariation);
+  const setChain = useSequencerStore((state) => state.setChain);
+  const updateSequence = useSequencerStore((state) => state.updateSequence);
+  const clearSequence = useSequencerStore((state) => state.clearSequence);
   const [copiedSequence, setCopiedSequence] = useState<boolean[] | undefined>();
   const [copiedVelocities, setCopiedVelocities] = useState<
     number[] | undefined
@@ -46,48 +38,28 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
 
   const copySequence = () => {
     setCopiedSequence(currentSequence);
-    setCopiedVelocities(sequences[slot][variation][1]);
+    setCopiedVelocities(sequences[slotIndex][variation][1]);
   };
 
   const pasteSequence = () => {
     if (copiedSequence && copiedVelocities) {
-      setCurrentSequence(copiedSequence);
-      setSequences((prevSequences) => {
-        const newSequences = [...prevSequences];
-        newSequences[slot][variation][0] = copiedSequence;
-        newSequences[slot][variation][1] = copiedVelocities;
-        return newSequences;
-      });
+      updateSequence(slotIndex, variation, copiedSequence, copiedVelocities);
     }
   };
 
-  const clearSequence = () => {
-    const clearedSequence = Array(16).fill(false);
-    const clearedVelocities = Array(16).fill(1);
-    setCurrentSequence(clearedSequence);
-    setSequences((prevSequences) => {
-      const newSequences = [...prevSequences];
-      newSequences[slot][variation][0] = clearedSequence;
-      newSequences[slot][variation][1] = clearedVelocities;
-      return newSequences;
-    });
+  const handleClearSequence = () => {
+    clearSequence(slotIndex, variation);
   };
 
-  const randomSequence = () => {
-    const randomSequence: boolean[] = Array.from(
+  const handleRandomSequence = () => {
+    const randomSeq: boolean[] = Array.from(
       { length: 16 },
-      () => Math.random() < 0.5
+      () => Math.random() < 0.5,
     );
     const randomVelocities: number[] = Array.from({ length: 16 }, () =>
-      Math.random()
+      Math.random(),
     );
-    setCurrentSequence(randomSequence);
-    setSequences((prevSequences) => {
-      const newSequences = [...prevSequences];
-      newSequences[slot][variation][0] = randomSequence;
-      newSequences[slot][variation][1] = randomVelocities;
-      return newSequences;
-    });
+    updateSequence(slotIndex, variation, randomSeq, randomVelocities);
   };
 
   return (
@@ -244,7 +216,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 h="26px"
                 bg="transparent"
                 className="neumorphicRaised"
-                onClick={clearSequence}
+                onClick={handleClearSequence}
               >
                 <BsFillEraserFill color="#B09374" />
               </Button>
@@ -265,7 +237,7 @@ export const SequencerControl: React.FC<SequencerControlProps> = ({
                 h="26px"
                 bg="transparent"
                 className="neumorphicRaised"
-                onClick={randomSequence}
+                onClick={handleRandomSequence}
               >
                 <FaDice color="#B09374" />
               </Button>
