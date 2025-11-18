@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -223,7 +223,15 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, instrumentRuntimes, chain, pattern]);
 
-  // Create new instrument runtimes when instruments change
+  // Extract URLs to track when samples change (not when params change)
+  const instrumentUrls = useMemo(
+    () => instruments.map((inst) => inst.url).join(","),
+    [instruments],
+  );
+
+  // Create new instrument runtimes only when sample URLs change
+  // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
+  // They are applied to existing runtime nodes in InstrumentControls.tsx
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
@@ -241,8 +249,9 @@ const Drumhaus = () => {
         runtime.pannerNode.dispose();
       });
     };
+    // Only recreate runtimes when URLs change, not when other params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instruments]);
+  }, [instrumentUrls]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
