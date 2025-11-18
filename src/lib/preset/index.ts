@@ -1,14 +1,14 @@
-import aDrumCalledHausJson from "@/lib/preset/bin/A Drum Called Haus.dh";
-import amsterdamJson from "@/lib/preset/bin/Amsterdam.dh";
-import initJson from "@/lib/preset/bin/init.dh";
-import polaroidBounceJson from "@/lib/preset/bin/Polaroid Bounce.dh";
-import purpleHausJson from "@/lib/preset/bin/Purple Haus.dh";
-import richKidsJson from "@/lib/preset/bin/Rich Kids.dh";
-import slimeTimeJson from "@/lib/preset/bin/Slime Time.dh";
-import sunflowerJson from "@/lib/preset/bin/Sunflower.dh";
-import superDreamHausJson from "@/lib/preset/bin/Super Dream Haus.dh";
-import togetherAgainJson from "@/lib/preset/bin/Together Again.dh";
-import welcomeToTheHausJson from "@/lib/preset/bin/Welcome to the Haus.dh";
+import aDrumCalledHausJson from "@/lib/preset/defaults/A Drum Called Haus.dh";
+import amsterdamJson from "@/lib/preset/defaults/Amsterdam.dh";
+import initJson from "@/lib/preset/defaults/init.dh";
+import polaroidBounceJson from "@/lib/preset/defaults/Polaroid Bounce.dh";
+import purpleHausJson from "@/lib/preset/defaults/Purple Haus.dh";
+import richKidsJson from "@/lib/preset/defaults/Rich Kids.dh";
+import slimeTimeJson from "@/lib/preset/defaults/Slime Time.dh";
+import sunflowerJson from "@/lib/preset/defaults/Sunflower.dh";
+import superDreamHausJson from "@/lib/preset/defaults/Super Dream Haus.dh";
+import togetherAgainJson from "@/lib/preset/defaults/Together Again.dh";
+import welcomeToTheHausJson from "@/lib/preset/defaults/Welcome to the Haus.dh";
 import { validatePresetFile } from "@/lib/preset/load";
 import type { PresetFileV1 } from "@/types/preset";
 
