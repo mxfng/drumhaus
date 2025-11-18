@@ -2,13 +2,23 @@ import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { Preset } from "@/types/preset";
+import type { PresetFileV1 } from "@/types/preset";
 
 /**
  * Generate a Preset object from current store state
  * Single source of truth - reads fresh data from all stores
+ *
+ * @param presetId - The ID for this preset (use existing ID when snapshotting, generate new when saving)
+ * @param presetName - The display name for this preset
+ * @param kitId - The kit ID (use existing ID when snapshotting, generate new when creating custom kit)
+ * @param kitName - The display name for the kit
  */
-export function getCurrentPreset(name: string, kitName: string): Preset {
+export function getCurrentPreset(
+  presetId: string,
+  presetName: string,
+  kitId: string,
+  kitName: string,
+): PresetFileV1 {
   const instruments = useInstrumentsStore.getState().instruments;
   const { pattern, variationCycle } = usePatternStore.getState();
   const { bpm, swing } = useTransportStore.getState();
@@ -22,16 +32,37 @@ export function getCurrentPreset(name: string, kitName: string): Preset {
     masterVolume,
   } = useMasterChainStore.getState();
 
+  const now = new Date().toISOString();
+
   return {
-    name,
+    kind: "drumhaus.preset",
+    version: 1,
+    meta: {
+      id: presetId,
+      name: presetName,
+      createdAt: now, // TODO: track an actual creation date
+      updatedAt: now,
+    },
     kit: {
-      name: kitName,
+      kind: "drumhaus.kit",
+      version: 1,
+      meta: {
+        // TODO: track kit meta in state or retrieve from kit file for saving
+        id: kitId,
+        name: kitName,
+        createdAt: now,
+        updatedAt: now,
+      },
       instruments,
     },
-    pattern,
-    variationCycle,
-    bpm,
-    swing,
+    transport: {
+      bpm,
+      swing,
+    },
+    sequencer: {
+      pattern,
+      variationCycle,
+    },
     masterChain: {
       lowPass,
       hiPass,
@@ -54,6 +85,6 @@ export function getCurrentPreset(name: string, kitName: string): Preset {
  * - Consistent property ordering from object literals
  * - Arrays maintain order
  */
-export function arePresetsEqual(a: Preset, b: Preset): boolean {
+export function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }

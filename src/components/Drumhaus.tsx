@@ -22,14 +22,14 @@ import {
   INIT_INSTRUMENT_RUNTIMES,
 } from "@/lib/instrument/helpers";
 import makeGoodMusic from "@/lib/makeGoodMusic";
-import * as init from "@/lib/preset/dh/init";
+import * as init from "@/lib/preset/bin/ts/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import type { Preset } from "@/types/preset";
+import type { PresetFileV1 } from "@/types/preset";
 import { MasterControl } from "./controls/MasterControl";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
@@ -79,7 +79,9 @@ const Drumhaus = () => {
   // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobileWarning, setIsMobileWarning] = useState(false);
+  const [currentPresetId, setCurrentPresetId] = useState<string>("preset-init");
   const [currentPresetName, setCurrentPresetName] = useState<string>("init");
+  const [currentKitId, setCurrentKitId] = useState<string>("kit-drumhaus");
   const [currentKitName, setCurrentKitName] = useState<string>("drumhaus");
 
   // State architecture for instruments:
@@ -98,17 +100,19 @@ const Drumhaus = () => {
 
   // Load preset into all stores (single source of truth)
   const loadPreset = useCallback(
-    (preset: Preset) => {
-      setCurrentPresetName(preset.name);
-      setCurrentKitName(preset.kit.name);
+    (preset: PresetFileV1) => {
+      setCurrentPresetId(preset.meta.id);
+      setCurrentPresetName(preset.meta.name);
+      setCurrentKitId(preset.kit.meta.id);
+      setCurrentKitName(preset.kit.meta.name);
 
       // Distribute preset data to respective stores
       setVoiceIndex(0);
       setVariation(0);
-      setPattern(preset.pattern);
-      setVariationCycle(preset.variationCycle);
-      setBpm(preset.bpm);
-      setSwing(preset.swing);
+      setPattern(preset.sequencer.pattern);
+      setVariationCycle(preset.sequencer.variationCycle);
+      setBpm(preset.transport.bpm);
+      setSwing(preset.transport.swing);
       setAllMasterChain(
         preset.masterChain.lowPass,
         preset.masterChain.hiPass,
@@ -170,7 +174,7 @@ const Drumhaus = () => {
               ),
             });
           } else {
-            const newPreset: Preset = data.presets.rows[0].preset_data;
+            const newPreset: PresetFileV1 = data.presets.rows[0].preset_data;
 
             loadPreset(newPreset);
 
@@ -184,7 +188,7 @@ const Drumhaus = () => {
                   className="neumorphic"
                 >
                   <Text>
-                    {`You received a custom preset called "${newPreset.name}"!`}
+                    {`You received a custom preset called "${newPreset.meta.name}"!`}
                   </Text>
                 </Box>
               ),
@@ -228,7 +232,7 @@ const Drumhaus = () => {
 
   // Extract URLs to track when samples change (not when params change)
   const instrumentUrls = useMemo(
-    () => instruments.map((inst) => inst.url).join(","),
+    () => instruments.map((inst) => inst.sample?.path || "").join(","),
     [instruments],
   );
 
@@ -405,10 +409,15 @@ const Drumhaus = () => {
 
               <GridItem w="380px" px={2}>
                 <PresetControl
+                  currentPresetId={currentPresetId}
                   currentPresetName={currentPresetName}
+                  currentKitId={currentKitId}
                   currentKitName={currentKitName}
                   loadPreset={loadPreset}
+                  setCurrentKitId={setCurrentKitId}
                   setCurrentKitName={setCurrentKitName}
+                  setCurrentPresetId={setCurrentPresetId}
+                  setCurrentPresetName={setCurrentPresetName}
                   togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}

@@ -3,11 +3,11 @@
 import { Box, Button, Select, Text } from "@chakra-ui/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-import type { Preset } from "@/types/preset";
+import type { PresetFileV1 } from "@/types/preset";
 
 type PresetSelectorProps = {
   selectedPreset: string;
-  presetOptions: (() => Preset)[];
+  presetOptions: (() => PresetFileV1)[];
   onPresetChangeRequest: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
@@ -49,8 +49,8 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
             pl={4}
           >
             {presetOptions.map((preset) => (
-              <option key={preset().name} value={preset().name}>
-                {preset().name}
+              <option key={preset().meta.id} value={preset().meta.id}>
+                {preset().meta.name}
               </option>
             ))}
           </Select>

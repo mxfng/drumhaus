@@ -3,24 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Center } from "@chakra-ui/react";
 
-import * as kits from "@/lib/drumhausKits";
-import { a_drum_called_haus } from "@/lib/preset/dh/a_drum_called_haus";
-import { amsterdam } from "@/lib/preset/dh/amsterdam";
-import { init } from "@/lib/preset/dh/init";
-import { polaroid_bounce } from "@/lib/preset/dh/polaroid_bounce";
-import { purple_haus } from "@/lib/preset/dh/purple_haus";
-import { rich_kids } from "@/lib/preset/dh/rich_kids";
-import { slime_time } from "@/lib/preset/dh/slime_time";
-import { sunflower } from "@/lib/preset/dh/sunflower";
-import { super_dream_haus } from "@/lib/preset/dh/super_dream_haus";
-import { together_again } from "@/lib/preset/dh/together_again";
-import { welcome_to_the_haus } from "@/lib/preset/dh/welcome_to_the_haus";
+import * as kits from "@/lib/kit";
+import { init } from "@/lib/preset/bin/ts/init";
+import { welcome_to_the_haus } from "@/lib/preset/bin/ts/welcome_to_the_haus";
 import { arePresetsEqual, getCurrentPreset } from "@/lib/preset/helpers";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { Kit } from "@/types/instrument";
-import type { Preset } from "@/types/preset";
+import type { KitFileV1 } from "@/types/instrument";
+import type { PresetFileV1 } from "@/types/preset";
 import { ErrorModal } from "../modal/ErrorModal";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { ResetModal } from "../modal/ResetModal";
@@ -31,20 +22,30 @@ import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
+  currentPresetId: string;
   currentPresetName: string;
+  currentKitId: string;
   currentKitName: string;
-  loadPreset: (preset: Preset) => void;
+  loadPreset: (preset: PresetFileV1) => void;
+  setCurrentKitId: React.Dispatch<React.SetStateAction<string>>;
   setCurrentKitName: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentPresetId: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentPresetName: React.Dispatch<React.SetStateAction<string>>;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
+  currentPresetId,
   currentPresetName,
+  currentKitId,
   currentKitName,
   loadPreset,
+  setCurrentKitId,
   setCurrentKitName,
+  setCurrentPresetId,
+  setCurrentPresetName,
   togglePlay,
   isLoading,
   setIsLoading,
@@ -73,46 +74,33 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     closeErrorModal,
     closePresetChangeModal,
     closeSharePrompt,
-    openSharedModal,
+    // openSharedModal,
     openErrorModal,
     openPresetChangeModal,
     openSharePrompt,
   } = useModalStore();
 
-  const kitOptions: (() => Kit)[] = [
+  const kitOptions: (() => KitFileV1)[] = [
     kits.drumhaus,
-    kits.eighties,
-    kits.funk,
-    kits.indie,
-    kits.jungle,
-    kits.organic,
-    kits.rnb,
-    kits.tech_house,
-    kits.techno,
-    kits.trap,
+    // TODO: Add remaining kits once they are converted to .dhkit files
   ];
 
-  const defaultPresetOptions: (() => Preset)[] = [
+  const defaultPresetOptions: (() => PresetFileV1)[] = [
     init,
     welcome_to_the_haus,
-    a_drum_called_haus,
-    polaroid_bounce,
-    rich_kids,
-    slime_time,
-    purple_haus,
-    together_again,
-    amsterdam,
-    sunflower,
-    super_dream_haus,
   ];
 
-  const [selectedKit, setSelectedKit] = useState<string>(currentKitName);
-  const [selectedPreset, setSelectedPreset] =
-    useState<string>(currentPresetName);
+  const [selectedKit, setSelectedKit] = useState<string>(currentKitId);
+  const [selectedPreset, setSelectedPreset] = useState<string>(currentPresetId);
   const [presetOptions, setPresetOptions] =
-    useState<(() => Preset)[]>(defaultPresetOptions);
-  const [cleanPreset, setCleanPreset] = useState<Preset>(
-    getCurrentPreset(currentPresetName, currentKitName),
+    useState<(() => PresetFileV1)[]>(defaultPresetOptions);
+  const [cleanPreset, setCleanPreset] = useState<PresetFileV1>(
+    getCurrentPreset(
+      currentPresetId,
+      currentPresetName,
+      currentKitId,
+      currentKitName,
+    ),
   );
 
   const modalCloseRef = useRef(null);
@@ -128,9 +116,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    * Used for custom presets loaded from files or URL params.
    */
   const addOrUpdatePreset = useCallback(
-    (newOption: () => Preset) => {
+    (newOption: () => PresetFileV1) => {
       const index = presetOptions.findIndex(
-        (option) => option().name === newOption().name,
+        (option) => option().meta.id === newOption().meta.id,
       );
 
       if (index !== -1) {
@@ -153,11 +141,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    * @param functionToSave - Optional function that returns the preset, added to preset options
    */
   const updateStatesOnPresetChange = useCallback(
-    (presetToLoad: Preset, functionToSave?: () => Preset) => {
+    (presetToLoad: PresetFileV1, functionToSave?: () => PresetFileV1) => {
       loadPreset(presetToLoad);
       setCleanPreset(presetToLoad);
-      setSelectedPreset(presetToLoad.name);
-      setSelectedKit(presetToLoad.kit.name);
+      setSelectedPreset(presetToLoad.meta.id);
+      setCurrentPresetId(presetToLoad.meta.id);
+      setCurrentPresetName(presetToLoad.meta.name);
+      setSelectedKit(presetToLoad.kit.meta.id);
+      setCurrentKitId(presetToLoad.kit.meta.id);
+      setCurrentKitName(presetToLoad.kit.meta.name);
 
       // Add new presets to the list of options (if provided)
       if (functionToSave) {
@@ -168,15 +160,27 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       loadPreset,
       setCleanPreset,
       setSelectedPreset,
+      setCurrentPresetId,
+      setCurrentPresetName,
       setSelectedKit,
+      setCurrentKitId,
+      setCurrentKitName,
       addOrUpdatePreset,
     ],
   );
 
   const handleSave = (customName: string) => {
-    const presetToSave = getCurrentPreset(customName, currentKitName);
+    // TODO: extract to preset library
+    // Generate new IDs for the saved preset
+    const newPresetId = crypto.randomUUID();
+    const presetToSave = getCurrentPreset(
+      newPresetId,
+      customName,
+      currentKitId,
+      currentKitName,
+    );
 
-    const jsonPreset = JSON.stringify(presetToSave);
+    const jsonPreset = JSON.stringify(presetToSave, null, 2);
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -194,6 +198,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleLoad = () => {
+    // TODO: extract to preset library
     stopPlayingOnAction();
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -214,7 +219,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           throw new Error("Invalid file content");
         }
 
-        const jsonContent: Preset = JSON.parse(result);
+        const jsonContent: PresetFileV1 = JSON.parse(result);
         updateStatesOnPresetChange(jsonContent);
       } catch (error) {
         console.error("Error parsing preset file:", error);
@@ -236,68 +241,27 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     updateStatesOnPresetChange(init());
   };
 
-  const handleShare = async (customName: string) => {
-    const presetToSave = getCurrentPreset(customName, currentKitName);
-    const jsonPreset = JSON.stringify(presetToSave);
-    const bpm = presetToSave.bpm.toString();
-    const kitUsed = presetToSave.kit.name;
-
-    try {
-      const url = new URL("/api/presets", window.location.origin);
-      url.searchParams.append("preset_data", jsonPreset);
-      url.searchParams.append("custom_name", customName);
-      url.searchParams.append("kit_used", kitUsed);
-      url.searchParams.append("bpm", bpm);
-
-      const response = await fetch(url.href, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(
-          `Failed to add preset: ${response.status} ${errorText}`,
-        );
-      }
-
-      const data = await response.json();
-
-      if (!data.presetKey || typeof data.presetKey !== "string") {
-        throw new Error("Invalid response from server");
-      }
-
-      const shareableLink = new URL("/", window.location.origin);
-      shareableLink.searchParams.append("preset", data.presetKey);
-
-      await navigator.clipboard.writeText(shareableLink.href);
-
-      closeSharingModal();
-      setIsLoading(false);
-      openSharedModal(shareableLink.href);
-    } catch (error) {
-      closeSharingModal();
-      setIsLoading(false);
-      openErrorModal();
-      console.error("Error sharing preset:", error);
-    }
+  const handleShare = async () => {
+    // TODO: Change to URL based sharing
   };
 
   const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     stopPlayingOnAction();
 
-    const selectedKitName = event.target.value;
-    const kitOption = kitOptions.find((kit) => kit().name == selectedKitName);
+    const selectedKitId = event.target.value;
+    const kitOption = kitOptions.find((kit) => kit().meta.id === selectedKitId);
 
     if (kitOption) {
-      const newKit = kitOption();
+      const newKit: KitFileV1 = kitOption();
       // Update instruments store (single source of truth)
       setAllInstruments(newKit.instruments);
-      // Update kit name metadata
-      setCurrentKitName(newKit.name);
-      setSelectedKit(newKit.name);
+      // Update kit metadata
+      setCurrentKitId(newKit.meta.id);
+      setCurrentKitName(newKit.meta.name);
+      setSelectedKit(newKit.meta.id);
     } else {
       console.error(
-        `Kit ${selectedKitName} not found in options: ${kitOptions}`,
+        `Kit ${event.target.value} not found in options: ${kitOptions}`,
       );
     }
   };
@@ -311,33 +275,38 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     // Check if current state differs from loaded preset
-    const currentState = getCurrentPreset(currentPresetName, currentKitName);
+    const currentState = getCurrentPreset(
+      currentPresetId,
+      currentPresetName,
+      currentKitId,
+      currentKitName,
+    );
     const cp = cleanPreset;
 
     // Deep equality check using proper comparison
     const changesMade = !arePresetsEqual(currentState, cp);
 
-    const newPreset = event.target.value;
+    const newPresetId = event.target.value;
 
     if (changesMade) {
-      openPresetChangeModal(newPreset);
+      openPresetChangeModal(newPresetId);
     } else {
-      switchPreset(newPreset);
+      switchPreset(newPresetId);
     }
   };
 
   /**
-   * Switches to a different preset by name.
+   * Switches to a different preset by ID.
    * Stops playback if currently playing, then loads the new preset.
    */
   const switchPreset = useCallback(
-    (name: string) => {
+    (presetId: string) => {
       if (isPlaying) {
         togglePlay();
       }
 
       const presetOption = presetOptions.find(
-        (preset) => preset().name === name,
+        (preset) => preset().meta.id === presetId,
       );
 
       if (presetOption) {
@@ -345,7 +314,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         updateStatesOnPresetChange(newPreset, presetOption);
       } else {
         console.error(
-          `Preset ${name} was not found in options: ${presetOptions}`,
+          `Preset ${presetId} was not found in options: ${presetOptions}`,
         );
       }
     },
@@ -354,8 +323,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const handlePresetChange = useCallback(() => {
     if (isPresetChangeModalOpen) closePresetChangeModal();
-    const selectedPresetName = presetToChange;
-    switchPreset(selectedPresetName);
+    const selectedPresetId = presetToChange;
+    switchPreset(selectedPresetId);
   }, [
     presetToChange,
     isPresetChangeModalOpen,
@@ -366,17 +335,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // Add custom presets loaded via URL search params
   useEffect(() => {
     const currentPresetExists = presetOptions.some(
-      (option) => option().name === currentPresetName,
+      (option) => option().meta.id === currentPresetId,
     );
 
     if (!currentPresetExists) {
       // Create a function that returns the current preset from stores
       const customPresetFunction = () =>
-        getCurrentPreset(currentPresetName, currentKitName);
+        getCurrentPreset(
+          currentPresetId,
+          currentPresetName,
+          currentKitId,
+          currentKitName,
+        );
 
       addOrUpdatePreset(customPresetFunction);
     }
-  }, [currentPresetName, currentKitName, presetOptions, addOrUpdatePreset]);
+  }, [
+    currentPresetId,
+    currentPresetName,
+    currentKitId,
+    currentKitName,
+    presetOptions,
+    addOrUpdatePreset,
+  ]);
 
   // Effect to display share prompt to new users
   useEffect(() => {

@@ -3,11 +3,11 @@
 import { Box, Button, Select, Text } from "@chakra-ui/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 
-import type { Kit } from "@/types/instrument";
+import type { KitFileV1 } from "@/types/instrument";
 
 type KitSelectorProps = {
   selectedKit: string;
-  kitOptions: (() => Kit)[];
+  kitOptions: (() => KitFileV1)[];
   onKitChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
@@ -49,8 +49,8 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
             onKeyDown={(ev) => ev.preventDefault()}
           >
             {kitOptions.map((kit) => (
-              <option key={kit().name} value={kit().name}>
-                {kit().name}
+              <option key={kit().meta.id} value={kit().meta.id}>
+                {kit().meta.name}
               </option>
             ))}
           </Select>

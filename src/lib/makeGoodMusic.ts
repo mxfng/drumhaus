@@ -19,10 +19,10 @@ export default function makeGoodMusic(
       // Get FRESH instrument parameters from store on every step (enables live mute/solo)
       const { instruments: instrumentData, durations } =
         useInstrumentsStore.getState();
-      const releases = instrumentData.map((inst) => inst.release);
-      const solos = instrumentData.map((inst) => inst.solo);
-      const mutes = instrumentData.map((inst) => inst.mute);
-      const pitches = instrumentData.map((inst) => inst.pitch);
+      const releases = instrumentData.map((inst) => inst.params.release);
+      const solos = instrumentData.map((inst) => inst.params.solo);
+      const mutes = instrumentData.map((inst) => inst.params.mute);
+      const pitches = instrumentData.map((inst) => inst.params.pitch);
 
       // Get FRESH pattern from store on every step
       const { pattern } = usePatternStore.getState();
@@ -33,10 +33,10 @@ export default function makeGoodMusic(
           [15.4064, 115.4064],
         );
         const runtime = instrumentRuntimes[instrumentIndex];
-        const name = instrumentData[instrumentIndex].name;
+        const role = instrumentData[instrumentIndex].role;
 
         runtime.samplerNode.triggerRelease(_pitch, time);
-        if (name !== "OHat") {
+        if (role !== "ohat") {
           runtime.samplerNode.triggerRelease(_pitch, time);
           runtime.envelopeNode.triggerAttack(time);
           runtime.envelopeNode.triggerRelease(

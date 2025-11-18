@@ -1,16 +1,31 @@
 import { KitFileV1 } from "@/types/instrument";
 
-export function parseKitFile(dhkit: string): KitFileV1 {
-  const data = JSON.parse(dhkit);
+/**
+ * Validates a parsed kit file object
+ */
+export function validateKitFile(data: unknown): KitFileV1 {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("Invalid kit file: expected an object");
+  }
 
-  if (data.kind !== "drumhaus.kit") {
+  const kit = data as Record<string, unknown>;
+
+  if (kit.kind !== "drumhaus.kit") {
     throw new Error("Invalid kit file type");
   }
-  if (data.version !== 1) {
-    throw new Error(`Unsupported kit version: ${data.version}`);
+  if (kit.version !== 1) {
+    throw new Error(`Unsupported kit version: ${kit.version}`);
   }
 
   // TODO: optional: deep validation, zod, etc.
 
-  return data as KitFileV1;
+  return kit as unknown as KitFileV1;
+}
+
+/**
+ * Parses a kit file from a JSON string
+ */
+export function parseKitFile(dhkit: string): KitFileV1 {
+  const data = JSON.parse(dhkit);
+  return validateKitFile(data);
 }

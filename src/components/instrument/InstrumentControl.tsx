@@ -52,14 +52,14 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const instrumentData = useInstrumentsStore(
     (state) => state.instruments[index],
   );
-  const attack = instrumentData.attack;
-  const release = instrumentData.release;
-  const filter = instrumentData.filter;
-  const pan = instrumentData.pan;
-  const volume = instrumentData.volume;
-  const pitch = instrumentData.pitch;
-  const mute = instrumentData.mute;
-  const solo = instrumentData.solo;
+  const attack = instrumentData.params.attack;
+  const release = instrumentData.params.release;
+  const filter = instrumentData.params.filter;
+  const pan = instrumentData.params.pan;
+  const volume = instrumentData.params.volume;
+  const pitch = instrumentData.params.pitch;
+  const mute = instrumentData.params.mute;
+  const solo = instrumentData.params.solo;
 
   // Get store actions
   const setInstrumentProperty = useInstrumentsStore(
@@ -73,7 +73,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(
     runtime.samplerNode,
-    instrumentData.url,
+    instrumentData.sample?.path || "",
   );
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
@@ -194,7 +194,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     <>
       <Box
         w="100%"
-        key={`Instrument-${instrumentData.name}`}
+        key={`Instrument-${instrumentData.meta.id}-${index}`}
         py={4}
         position="relative"
         transition="all 0.5s ease-in-out"
@@ -211,7 +211,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             {index + 1}
           </Text>
           <Text fontWeight={600} fontSize="12pt" color="brown">
-            {instrumentData.name}
+            {instrumentData.meta.name}
           </Text>
         </Flex>
         <Box px={4} pt={5}>
@@ -226,14 +226,17 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             borderRadius="20px"
             overflow="hidden"
           >
-            <Waveform audioFile={instrumentData.url} width={170} />
+            <Waveform
+              audioFile={instrumentData.sample?.path || ""}
+              width={170}
+            />
           </Button>
         </Box>
 
         <Grid templateColumns="repeat(2, 1fr)" p={1}>
           <GridItem>
             <Knob
-              key={`knob-${index}-attack`}
+              key={`knob-${instrumentData.meta.id}-${index}-attack`}
               size={50}
               knobValue={attack}
               setKnobValue={setAttack}
@@ -255,7 +258,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${index}-release`}
+              key={`knob-${instrumentData.meta.id}-${index}-release`}
               size={50}
               knobValue={release}
               setKnobValue={setRelease}
@@ -266,7 +269,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
           <GridItem>
             <Knob
-              key={`knob-${index}-pitch`}
+              key={`knob-${instrumentData.meta.id}-${index}-pitch`}
               size={50}
               knobValue={pitch}
               setKnobValue={setPitch}
@@ -335,7 +338,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </GridItem>
           <GridItem>
             <Knob
-              key={`knob-${index}-volume`}
+              key={`knob-${instrumentData.meta.id}-${index}-volume`}
               size={60}
               knobValue={volume}
               setKnobValue={setVolume}

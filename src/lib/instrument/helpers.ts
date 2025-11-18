@@ -1,6 +1,6 @@
 import * as Tone from "tone/build/esm/index";
 
-import * as kits from "@/lib/drumhausKits";
+import * as kits from "@/lib/kit";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 
 /**
@@ -15,14 +15,22 @@ export const createInstrumentRuntimes = (
     const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
     const pannerNode = new Tone.Panner(0);
 
+    // Defensive: handle both old and new data structures during migration
+    const samplePath = d.sample?.path || "";
+    const instrumentId =
+      d.meta?.id || `inst-${Math.random().toString(36).substr(2, 9)}`;
+
     const samplerNode = new Tone.Sampler({
-      urls: {
-        ["C2"]: d.url,
-      },
+      urls: samplePath
+        ? {
+            ["C2"]: samplePath,
+          }
+        : {},
       baseUrl: "/samples/",
     });
 
     return {
+      instrumentId,
       samplerNode,
       envelopeNode,
       filterNode,
