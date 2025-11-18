@@ -41,9 +41,9 @@ import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
+import { InstrumentGrid } from "./instrument/InstrumentGrid";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
-import { InstrumentsGrid } from "./slots/InstrumentsGrid";
 
 const Drumhaus = () => {
   // Transport store - only subscribe to what's used in THIS component
@@ -491,7 +491,7 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentsGrid
+              <InstrumentGrid
                 instrumentRuntimes={instrumentRuntimes}
                 isModal={isModal}
               />

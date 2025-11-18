@@ -18,12 +18,12 @@ const INSTRUMENT_COLORS = [
   "#27991a",
 ];
 
-type InstrumentsGridProps = {
+type InstrumentGridProps = {
   instrumentRuntimes: InstrumentRuntime[];
   isModal: boolean;
 };
 
-export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
+export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
   instrumentRuntimes,
   isModal,
 }) => {
