@@ -24,3 +24,26 @@ export {
   type MasterChainRuntimes,
   type MasterChainParams,
 } from "./masterChain";
+
+// Buffer
+export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
+
+// Instrument Playback
+export { playInstrumentSample } from "./instrumentPlayback";
+
+// Frequency Analyzer
+export {
+  createFrequencyAnalyzer,
+  disposeFrequencyAnalyzer,
+} from "./frequencyAnalyzer";
+
+// Transport
+export {
+  startAudioContext,
+  startTransport,
+  stopTransport,
+  getCurrentTime,
+  setTransportBpm,
+  setTransportSwing,
+  releaseAllSamples,
+} from "./transport";

@@ -21,6 +21,7 @@ import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
+import { playInstrumentSample } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
@@ -94,7 +95,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const currentPitchRef = useRef<number | null>(null);
-  const sampleDuration = useSampleDuration(runtime.samplerNode, samplePath);
+  const sampleDuration = useSampleDuration(samplePath);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -233,21 +234,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   }, [instrumentIndex, index, toggleSolo, isAnyModalOpen]);
 
   const playSample = () => {
-    const time = Tone.now();
-    // Should be monophonic
-    runtime.envelopeNode.triggerRelease(time);
-    // Release the specific note if we're tracking it, otherwise release all
-    if (currentPitchRef.current !== null) {
-      runtime.samplerNode.triggerRelease(currentPitchRef.current, time);
-    }
-    runtime.samplerNode.triggerRelease(time);
-    runtime.envelopeNode.triggerAttack(time);
-    runtime.envelopeNode.triggerRelease(
-      time + transformKnobValue(release, [0, sampleDuration]),
+    const previousPitch = currentPitchRef.current;
+    const pitchValue = playInstrumentSample(
+      runtime,
+      pitch,
+      release,
+      sampleDuration,
+      previousPitch,
     );
-    const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
-    currentPitchRef.current = _pitch;
-    runtime.samplerNode.triggerAttack(_pitch, time);
+    currentPitchRef.current = pitchValue;
   };
 
   return (

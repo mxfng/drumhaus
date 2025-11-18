@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
-import * as Tone from "tone/build/esm/index";
+import type * as Tone from "tone/build/esm/index";
 
 import { useMasterChain } from "@/hooks/useMasterChain";
 import {
@@ -23,6 +23,7 @@ import {
   disposeDrumSequence,
   disposeInstrumentRuntimes,
   INIT_INSTRUMENT_RUNTIMES,
+  waitForBuffersToLoad,
 } from "@/lib/audio/engine";
 import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
@@ -252,7 +253,7 @@ const Drumhaus = () => {
     const loadBuffers = async () => {
       try {
         // Wait for all Tone.js audio files to load
-        await Tone.loaded();
+        await waitForBuffersToLoad();
         // Trigger re-render for components that need new runtime objects
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);

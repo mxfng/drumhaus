@@ -16,12 +16,8 @@ export function disposeDrumSequence(
   sequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
 ): void {
   if (sequencer.current) {
-    try {
-      // Try to stop the sequence
+    if (sequencer.current.state === "started") {
       sequencer.current.stop();
-    } catch (error) {
-      // Expect errors since we can't check if the sequence is running first
-      console.debug("Unable to stop drum sequence:", error);
     }
 
     sequencer.current.dispose();
