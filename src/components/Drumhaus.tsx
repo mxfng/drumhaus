@@ -333,23 +333,6 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModal, instrumentRuntimes]);
 
-  // r e g i s t e r   s e r v i c e   w o r k e r
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/service-worker.js")
-        .then((registration) => {
-          console.log(
-            "Service Worker registered with scope:",
-            registration.scope,
-          );
-        })
-        .catch((error) => {
-          console.error("Service Worker registration failed:", error);
-        });
-    }
-  }, []);
-
   // c o n t r o l   p r o p s
   // BPM and swing are now handled by the Transport Store
 
