@@ -46,28 +46,27 @@ import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
 
 const Drumhaus = () => {
-  // Transport store - only subscribe to what's used in THIS component
+  // Transport
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
   const setBpm = useTransportStore((state) => state.setBpm);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  // Instruments store - get batch setter for kit/preset loading
+  // Instruments
+  const instruments = useInstrumentsStore((state) => state.instruments);
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
 
-  // Sequencer store - subscribe to chain for live updates during playback
+  // Sequencer
   const chain = useSequencerStore((state) => state.chain);
   const pattern = useSequencerStore((state) => state.pattern);
-
-  // Sequencer store - get setters for preset loading
   const setPattern = useSequencerStore((state) => state.setPattern);
   const setVariation = useSequencerStore((state) => state.setVariation);
   const setChain = useSequencerStore((state) => state.setChain);
   const setVoiceIndex = useSequencerStore((state) => state.setVoiceIndex);
 
-  // Master FX store - subscribe to values for useEffect dependencies
+  // Master Chain
   const lowPass = useMasterFXStore((state) => state.lowPass);
   const hiPass = useMasterFXStore((state) => state.hiPass);
   const phaser = useMasterFXStore((state) => state.phaser);
@@ -75,17 +74,12 @@ const Drumhaus = () => {
   const compThreshold = useMasterFXStore((state) => state.compThreshold);
   const compRatio = useMasterFXStore((state) => state.compRatio);
   const masterVolume = useMasterFXStore((state) => state.masterVolume);
-
-  // Master FX store - get setter for preset loading
   const setAllMasterFX = useMasterFXStore((state) => state.setAllMasterFX);
 
+  // Local
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobileWarning, setIsMobileWarning] = useState(false);
   const [isModal, setIsModal] = useState(false);
-
-  // Preset/Kit metadata
-  // All actual data lives in stores (useInstrumentsStore, useSequencerStore, etc.)
-  // These just track which preset/kit is currently loaded for UI display
   const [currentPresetName, setCurrentPresetName] = useState<string>("init");
   const [currentKitName, setCurrentKitName] = useState<string>("drumhaus");
 
@@ -98,17 +92,22 @@ const Drumhaus = () => {
     InstrumentRuntime[]
   >(INIT_INSTRUMENT_RUNTIMES);
 
-  // r e f s
-  const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
+  // Refs
+
+  // Master Chain Nodes
+  const toneSequence = useRef<Tone.Sequence | null>(null);
   const toneLPFilter = useRef<Tone.Filter>();
   const toneHPFilter = useRef<Tone.Filter>();
   const tonePhaser = useRef<Tone.Phaser>();
   const toneReverb = useRef<Tone.Reverb>();
   const toneCompressor = useRef<Tone.Compressor>();
+
+  // Timing and variation
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
-  const customPresetAlert = useToast({
+  // Toast for warnings
+  const toast = useToast({
     position: "top",
   });
 
@@ -165,7 +164,7 @@ const Drumhaus = () => {
           const data = await response.json();
 
           if (data.presets.rows.length < 1) {
-            customPresetAlert({
+            toast({
               render: () => (
                 <Box
                   bg="silver"
@@ -183,7 +182,7 @@ const Drumhaus = () => {
 
             loadPreset(newPreset);
 
-            customPresetAlert({
+            toast({
               render: () => (
                 <Box
                   bg="silver"
@@ -234,18 +233,67 @@ const Drumhaus = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPlaying, instrumentRuntimes, chain, pattern]);
 
-  // i n s t r u m e n t s   s t o r e   c h a n g e
-  // When instruments in the store change, recreate runtime nodes
-  const instruments = useInstrumentsStore((state) => state.instruments);
-
+  // Create new instrument runtimes and set up master chain when instruments change
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
     // Create runtime nodes from store data
     const newRuntimes = createInstrumentRuntimes(instruments);
 
+    // Create new master FX nodes and initialize with current UI parameter values
+    const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
+    const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
+    const newPhaserWet = transformKnobValue(phaser, [0, 1]);
+    const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
+    const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
+    const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
+    const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
+
+    toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
+    toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
+    tonePhaser.current = new Tone.Phaser({
+      frequency: 1,
+      octaves: 3,
+      baseFrequency: 1000,
+      wet: newPhaserWet,
+    });
+    toneReverb.current = new Tone.Reverb({
+      decay: newReverbDecay,
+      wet: newReverbWet,
+    });
+    toneCompressor.current = new Tone.Compressor({
+      threshold: newCompThreshold,
+      ratio: newCompRatio,
+      attack: 0.5,
+      release: 1,
+    });
+
+    // Chain master FX to new instrument runtimes
+    if (
+      toneLPFilter.current &&
+      toneHPFilter.current &&
+      tonePhaser.current &&
+      toneReverb.current &&
+      toneCompressor.current
+    ) {
+      newRuntimes.forEach((runtime) => {
+        runtime.samplerNode.chain(
+          runtime.envelopeNode,
+          runtime.filterNode,
+          runtime.pannerNode,
+          toneLPFilter.current!!,
+          toneHPFilter.current!!,
+          tonePhaser.current!!,
+          toneReverb.current!!,
+          toneCompressor.current!!,
+          Tone.Destination,
+        );
+      });
+    }
+
     // Update local runtime state
     setInstrumentRuntimes(newRuntimes);
+    setIsLoading(false);
 
     return () => {
       instrumentRuntimes.forEach((runtime) => {
@@ -254,77 +302,14 @@ const Drumhaus = () => {
         runtime.filterNode.dispose();
         runtime.pannerNode.dispose();
       });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instruments]);
-
-  // s a m p l e s   c h a n g e
-  useEffect(() => {
-    function setMasterChain() {
-      // Create new master FX nodes and initialize with current UI parameter values
-      const newLowPass = transformKnobValueExponential(lowPass, [0, 15000]);
-      const newHiPass = transformKnobValueExponential(hiPass, [0, 15000]);
-      const newPhaserWet = transformKnobValue(phaser, [0, 1]);
-      const newReverbWet = transformKnobValue(reverb, [0, 0.5]);
-      const newReverbDecay = transformKnobValue(reverb, [0.1, 3]);
-      const newCompThreshold = transformKnobValue(compThreshold, [-40, 0]);
-      const newCompRatio = Math.floor(transformKnobValue(compRatio, [1, 8]));
-
-      toneLPFilter.current = new Tone.Filter(newLowPass, "lowpass");
-      toneHPFilter.current = new Tone.Filter(newHiPass, "highpass");
-      tonePhaser.current = new Tone.Phaser({
-        frequency: 1,
-        octaves: 3,
-        baseFrequency: 1000,
-        wet: newPhaserWet,
-      });
-      toneReverb.current = new Tone.Reverb({
-        decay: newReverbDecay,
-        wet: newReverbWet,
-      });
-      toneCompressor.current = new Tone.Compressor({
-        threshold: newCompThreshold,
-        ratio: newCompRatio,
-        attack: 0.5,
-        release: 1,
-      });
-
-      if (
-        toneLPFilter.current &&
-        toneHPFilter.current &&
-        tonePhaser.current &&
-        toneReverb.current &&
-        toneCompressor.current
-      ) {
-        instrumentRuntimes.forEach((runtime) => {
-          runtime.samplerNode.chain(
-            runtime.envelopeNode,
-            runtime.filterNode,
-            runtime.pannerNode,
-            toneLPFilter.current!!,
-            toneHPFilter.current!!,
-            tonePhaser.current!!,
-            toneReverb.current!!,
-            toneCompressor.current!!,
-            Tone.Destination,
-          );
-        });
-      }
-    }
-
-    setMasterChain();
-    setIsLoading(false);
-
-    return () => {
       toneLPFilter.current?.dispose();
       toneHPFilter.current?.dispose();
       tonePhaser.current?.dispose();
       toneReverb.current?.dispose();
       toneCompressor.current?.dispose();
     };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instrumentRuntimes]);
+  }, [instruments]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
