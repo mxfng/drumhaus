@@ -11,8 +11,6 @@ import trapKitJson from "@/lib/kit/bin/trap.dhkit";
 import { validateKitFile } from "@/lib/kit/load";
 import type { KitFileV1 } from "@/types/instrument";
 
-/* eslint-enable */
-
 /**
  * Kit loader functions
  * Each function returns a KitFileV1 object
