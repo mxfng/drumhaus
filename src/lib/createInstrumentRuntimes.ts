@@ -1,13 +1,15 @@
 import * as Tone from "tone/build/esm/index";
 
 import * as kits from "@/lib/kits";
-import { Instrument, InstrumentData } from "@/types/types";
+import { InstrumentData, InstrumentRuntime } from "@/types/types";
 
 /**
- * Creates runtime Instrument objects from serializable InstrumentData
- * Combines instrument data with Tone.js audio nodes
+ * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
+ * Only creates Tone.js audio nodes - data should be read from useInstrumentsStore
  */
-export const createInstruments = (data: InstrumentData[]): Instrument[] => {
+export const createInstrumentRuntimes = (
+  data: InstrumentData[],
+): InstrumentRuntime[] => {
   return data.map((d) => {
     const filterNode = new Tone.Filter(0, "highpass");
     const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
@@ -21,7 +23,6 @@ export const createInstruments = (data: InstrumentData[]): Instrument[] => {
     });
 
     return {
-      ...d,
       samplerNode,
       envelopeNode,
       filterNode,
@@ -30,7 +31,6 @@ export const createInstruments = (data: InstrumentData[]): Instrument[] => {
   });
 };
 
-// Create initial Drumhaus sampler objects
-export const INIT_INSTRUMENTS: Instrument[] = createInstruments(
-  kits.drumhaus().instruments,
-);
+// Create initial Drumhaus runtime nodes
+export const INIT_INSTRUMENT_RUNTIMES: InstrumentRuntime[] =
+  createInstrumentRuntimes(kits.drumhaus().instruments);

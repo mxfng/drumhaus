@@ -16,16 +16,18 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import * as Tone from "tone/build/esm/index";
 
-import { createInstruments, INIT_INSTRUMENTS } from "@/lib/createInstruments";
+import {
+  createInstrumentRuntimes,
+  INIT_INSTRUMENT_RUNTIMES,
+} from "@/lib/createInstrumentRuntimes";
 import makeGoodMusic from "@/lib/makeGoodMusic";
 import * as init from "@/lib/presets/init";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterFXStore } from "@/stores/useMasterFXStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Instrument, Kit, Preset } from "@/types/types";
+import { InstrumentRuntime, Kit, Preset } from "@/types/types";
 import {
-  Knob,
   transformKnobValue,
   transformKnobValueExponential,
 } from "./common/Knob";
@@ -85,14 +87,14 @@ const Drumhaus = () => {
   // g l o b a l
   const [kit, setKit] = useState<Kit>(preset._kit);
 
-  // NOTE: State architecture for instruments
-  // - Local state (instruments): Holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
-  //   Created fresh when kit changes, disposed on cleanup
-  // - Store (useInstrumentsStore): Holds serializable InstrumentData (attack, release, volume, etc.)
-  //   Single source of truth for instrument parameters, persisted to localStorage
-  // TODO: Consider refactoring to eliminate duplicate InstrumentData in this local state
-  const [instruments, setInstruments] =
-    useState<Instrument[]>(INIT_INSTRUMENTS);
+  // State architecture for instruments:
+  // - Local state (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
+  //   Created fresh when kit changes, disposed on cleanup. No data duplication!
+  // - Store (useInstrumentsStore): Single source of truth for serializable InstrumentData
+  //   Contains all parameters (attack, release, volume, etc.), persisted to localStorage
+  const [instrumentRuntimes, setInstrumentRuntimes] = useState<
+    InstrumentRuntime[]
+  >(INIT_INSTRUMENT_RUNTIMES);
 
   // r e f s
   const toneSequence = useRef<Tone.Sequence | null>(null); // Will migrate to store in future phases
@@ -176,14 +178,20 @@ const Drumhaus = () => {
   // m a k e   g o o d   m u s i c
   useEffect(() => {
     if (isPlaying) {
-      makeGoodMusic(toneSequence, instruments, chain, bar, chainVariation);
+      makeGoodMusic(
+        toneSequence,
+        instrumentRuntimes,
+        chain,
+        bar,
+        chainVariation,
+      );
     }
 
     return () => {
       toneSequence.current?.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, instruments, chain, pattern]);
+  }, [isPlaying, instrumentRuntimes, chain, pattern]);
 
   // p r e s e t   c h a n g e
   useEffect(() => {
@@ -223,21 +231,21 @@ const Drumhaus = () => {
   useEffect(() => {
     if (!isLoading) setIsLoading(true);
 
-    // Create runtime instruments from kit data
-    const newSamples = createInstruments(kit.instruments);
+    // Create runtime nodes from kit data
+    const newRuntimes = createInstrumentRuntimes(kit.instruments);
 
-    // Update local samples state
-    setInstruments(newSamples);
+    // Update local runtime state
+    setInstrumentRuntimes(newRuntimes);
 
-    // Update instruments store with kit data
+    // Update instruments store with kit data (single source of truth)
     setAllInstruments(kit.instruments);
 
     return () => {
-      instruments.forEach((sample) => {
-        sample.samplerNode.dispose();
-        sample.envelopeNode.dispose();
-        sample.filterNode.dispose();
-        sample.pannerNode.dispose();
+      instrumentRuntimes.forEach((runtime) => {
+        runtime.samplerNode.dispose();
+        runtime.envelopeNode.dispose();
+        runtime.filterNode.dispose();
+        runtime.pannerNode.dispose();
       });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,11 +289,11 @@ const Drumhaus = () => {
         toneReverb.current &&
         toneCompressor.current
       ) {
-        instruments.forEach((sample) => {
-          sample.samplerNode.chain(
-            sample.envelopeNode,
-            sample.filterNode,
-            sample.pannerNode,
+        instrumentRuntimes.forEach((runtime) => {
+          runtime.samplerNode.chain(
+            runtime.envelopeNode,
+            runtime.filterNode,
+            runtime.pannerNode,
             toneLPFilter.current!!,
             toneHPFilter.current!!,
             tonePhaser.current!!,
@@ -309,12 +317,12 @@ const Drumhaus = () => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [instruments]);
+  }, [instrumentRuntimes]);
 
   // p l a y   f r o m   s p a c e b a r
   useEffect(() => {
     const playViaSpacebar = (event: KeyboardEvent) => {
-      if (event.key === " " && !isModal) togglePlay(instruments);
+      if (event.key === " " && !isModal) togglePlay(instrumentRuntimes);
     };
 
     document.addEventListener("keydown", playViaSpacebar);
@@ -323,7 +331,7 @@ const Drumhaus = () => {
       document.removeEventListener("keydown", playViaSpacebar);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModal, instruments]);
+  }, [isModal, instrumentRuntimes]);
 
   // r e g i s t e r   s e r v i c e   w o r k e r
   useEffect(() => {
@@ -483,7 +491,10 @@ const Drumhaus = () => {
             </Box>
 
             <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentsGrid instruments={instruments} isModal={isModal} />
+              <InstrumentsGrid
+                instrumentRuntimes={instrumentRuntimes}
+                isModal={isModal}
+              />
             </Box>
 
             <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
@@ -492,7 +503,7 @@ const Drumhaus = () => {
                   <Button
                     h="140px"
                     w="140px"
-                    onClick={() => togglePlay(instruments)}
+                    onClick={() => togglePlay(instrumentRuntimes)}
                     className="neumorphicTallRaised"
                     outline="none"
                     onKeyDown={(ev) => ev.preventDefault()}
@@ -520,7 +531,7 @@ const Drumhaus = () => {
                   setPreset={setPreset}
                   kit={kit}
                   setKit={setKit}
-                  togglePlay={() => togglePlay(instruments)}
+                  togglePlay={() => togglePlay(instrumentRuntimes)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
                   setIsModal={setIsModal}

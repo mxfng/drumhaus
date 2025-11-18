@@ -4,11 +4,11 @@ import { transformKnobValue } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useSequencerStore } from "@/stores/useSequencerStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Instrument } from "@/types/types";
+import { InstrumentRuntime } from "@/types/types";
 
 export default function makeGoodMusic(
   tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
-  instruments: Instrument[],
+  instrumentRuntimes: InstrumentRuntime[], // Only runtime nodes, data comes from store
   currentChain: number,
   currentBar: React.MutableRefObject<number>,
   currentVariation: React.MutableRefObject<number>,
@@ -31,11 +31,14 @@ export default function makeGoodMusic(
           pitches[instrumentIndex],
           [15.4064, 115.4064],
         );
-        instruments[instrumentIndex].samplerNode.triggerRelease(_pitch, time);
-        if (instruments[instrumentIndex].name !== "OHat") {
-          instruments[instrumentIndex].samplerNode.triggerRelease(_pitch, time);
-          instruments[instrumentIndex].envelopeNode.triggerAttack(time);
-          instruments[instrumentIndex].envelopeNode.triggerRelease(
+        const runtime = instrumentRuntimes[instrumentIndex];
+        const name = instrumentData[instrumentIndex].name;
+
+        runtime.samplerNode.triggerRelease(_pitch, time);
+        if (name !== "OHat") {
+          runtime.samplerNode.triggerRelease(_pitch, time);
+          runtime.envelopeNode.triggerAttack(time);
+          runtime.envelopeNode.triggerRelease(
             time +
               transformKnobValue(releases[instrumentIndex], [
                 0,
@@ -43,11 +46,7 @@ export default function makeGoodMusic(
               ]),
           );
 
-          instruments[instrumentIndex].samplerNode.triggerAttack(
-            _pitch,
-            time,
-            velocity,
-          );
+          runtime.samplerNode.triggerAttack(_pitch, time, velocity);
         } else {
           triggerOHat(velocity, instrumentIndex);
         }
@@ -56,12 +55,13 @@ export default function makeGoodMusic(
       function muteOHatOnHat(instrumentIndex: number) {
         const _pitch = transformKnobValue(pitches[5], [15.4064, 115.4064]);
         if (instrumentIndex == 4)
-          instruments[5].samplerNode.triggerRelease(_pitch, time);
+          instrumentRuntimes[5].samplerNode.triggerRelease(_pitch, time);
       }
 
       function triggerOHat(velocity: number, instrumentIndex: number) {
-        instruments[instrumentIndex].envelopeNode.triggerAttack(time);
-        instruments[instrumentIndex].envelopeNode.triggerRelease(
+        const runtime = instrumentRuntimes[instrumentIndex];
+        runtime.envelopeNode.triggerAttack(time);
+        runtime.envelopeNode.triggerRelease(
           time +
             transformKnobValue(releases[instrumentIndex], [
               0,
@@ -72,11 +72,7 @@ export default function makeGoodMusic(
           pitches[instrumentIndex],
           [15.4064, 115.4064],
         );
-        instruments[instrumentIndex].samplerNode.triggerAttack(
-          _pitch,
-          time,
-          velocity,
-        );
+        runtime.samplerNode.triggerAttack(_pitch, time, velocity);
       }
 
       function updateBarByChain() {

@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import { Instrument } from "@/types/types";
+import { InstrumentRuntime } from "@/types/types";
 
 import "@fontsource-variable/pixelify-sans";
 
@@ -31,8 +31,8 @@ import {
 import Waveform from "./Waveform";
 
 type InstrumentParams = {
+  runtime: InstrumentRuntime; // Tone.js audio nodes only
   color?: string;
-  sample: Instrument;
   bg?: string;
   isModal: boolean;
   index: number; // Array index of this instrument (0-7)
@@ -40,22 +40,13 @@ type InstrumentParams = {
 };
 
 export const InstrumentControls: React.FC<InstrumentParams> = ({
-  color = "#ff7b00",
-  sample,
+  runtime,
   isModal,
   index,
   instrumentIndex,
+  color = "#ff7b00",
   ...props
 }) => {
-  // Data flow architecture:
-  // - Store subscription (instrumentData): Source of truth for reactive instrument parameters
-  // - sample prop: Provides Tone.js runtime nodes (samplerNode, envelopeNode, filterNode, pannerNode)
-  //
-  // Why both? The sample prop contains static data from kit load time, while the store
-  // subscription provides live updates when knobs/controls change. We use the store for
-  // reading values and the sample prop for accessing audio nodes.
-
-  // Subscribe only to THIS instrument's data (prevents cross-instrument re-renders!)
   const instrumentData = useInstrumentsStore(
     (state) => state.instruments[index],
   );
@@ -77,7 +68,10 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleDuration = useSampleDuration(sample.samplerNode, sample.url);
+  const sampleDuration = useSampleDuration(
+    runtime.samplerNode,
+    instrumentData.url,
+  );
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -116,30 +110,23 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   // Apply store data to Tone.js runtime nodes when parameters change
   useEffect(() => {
     const newAttackValue = transformKnobValue(attack, [0, 0.1]);
-    sample.envelopeNode.attack = newAttackValue;
-  }, [attack, sample.envelopeNode.attack, sample.envelopeNode, sample]);
+    runtime.envelopeNode.attack = newAttackValue;
+  }, [attack, runtime.envelopeNode]);
 
   useEffect(() => {
-    sample.filterNode.type = filter <= 49 ? "lowpass" : "highpass";
-    sample.filterNode.frequency.value = transformKnobFilterValue(filter);
-  }, [
-    filter,
-    sample.filterNode,
-    sample.filterNode.frequency.value,
-    sample.filterNode.type,
-    sample.samplerNode,
-    sample,
-  ]);
+    runtime.filterNode.type = filter <= 49 ? "lowpass" : "highpass";
+    runtime.filterNode.frequency.value = transformKnobFilterValue(filter);
+  }, [filter, runtime.filterNode]);
 
   useEffect(() => {
     const newPanValue = transformKnobValue(pan, [-1, 1]);
-    sample.pannerNode.pan.value = newPanValue;
-  }, [pan, sample.pannerNode.pan, sample]);
+    runtime.pannerNode.pan.value = newPanValue;
+  }, [pan, runtime.pannerNode]);
 
   useEffect(() => {
     const newVolumeValue = transformKnobValue(volume, [-46, 4]);
-    sample.samplerNode.volume.value = newVolumeValue;
-  }, [volume, sample.samplerNode.volume, sample]);
+    runtime.samplerNode.volume.value = newVolumeValue;
+  }, [volume, runtime.samplerNode]);
 
   // Update duration in store when sample duration changes
   useEffect(() => {
@@ -149,10 +136,10 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute) {
-      sample.samplerNode.triggerRelease("C2", Tone.now());
+      runtime.samplerNode.triggerRelease("C2", Tone.now());
     }
     toggleMute();
-  }, [toggleMute, mute, sample]);
+  }, [toggleMute, mute, runtime.samplerNode]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
@@ -184,20 +171,20 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
 
   const playSample = () => {
     const time = Tone.now();
-    sample.samplerNode.triggerRelease("C2", time);
-    sample.envelopeNode.triggerAttack(time);
-    sample.envelopeNode.triggerRelease(
+    runtime.samplerNode.triggerRelease("C2", time);
+    runtime.envelopeNode.triggerAttack(time);
+    runtime.envelopeNode.triggerRelease(
       time + transformKnobValue(release, [0, sampleDuration]),
     );
     const _pitch = transformKnobValue(pitch, [15.4064, 115.4064]);
-    sample.samplerNode.triggerAttack(_pitch, time);
+    runtime.samplerNode.triggerAttack(_pitch, time);
   };
 
   return (
     <>
       <Box
         w="100%"
-        key={`Instrument-${sample.name}`}
+        key={`Instrument-${instrumentData.name}`}
         py={4}
         position="relative"
         transition="all 0.5s ease-in-out"
@@ -214,7 +201,7 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
             {index + 1}
           </Text>
           <Text fontWeight={600} fontSize="12pt" color="brown">
-            {sample.name}
+            {instrumentData.name}
           </Text>
         </Flex>
         <Box px={4} pt={5}>
@@ -229,7 +216,7 @@ export const InstrumentControls: React.FC<InstrumentParams> = ({
             borderRadius="20px"
             overflow="hidden"
           >
-            <Waveform audioFile={sample.url} width={170} />
+            <Waveform audioFile={instrumentData.url} width={170} />
           </Button>
         </Box>
 

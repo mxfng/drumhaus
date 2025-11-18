@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
 import { useSequencerStore } from "@/stores/useSequencerStore";
-import { Instrument } from "@/types/types";
+import { InstrumentRuntime } from "@/types/types";
 import { InstrumentControls } from "./InstrumentControls";
 
 const NO_OF_INSTRUMENTS = 8;
@@ -19,12 +19,12 @@ const INSTRUMENT_COLORS = [
 ];
 
 type InstrumentsGridProps = {
-  instruments: Instrument[];
+  instrumentRuntimes: InstrumentRuntime[];
   isModal: boolean;
 };
 
 export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
-  instruments,
+  instrumentRuntimes,
   isModal,
 }) => {
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
@@ -68,7 +68,7 @@ export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
       templateColumns={`repeat(${NO_OF_INSTRUMENTS}, 1fr)`}
       boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
     >
-      {instruments.map((sample, index) => (
+      {instrumentRuntimes.map((runtime, index) => (
         <GridItem
           colSpan={1}
           key={`gridItem-${index}`}
@@ -79,7 +79,7 @@ export const InstrumentsGrid: React.FC<InstrumentsGridProps> = ({
           <InstrumentControls
             color={INSTRUMENT_COLORS[index]}
             key={`Instrument-${index}`}
-            sample={sample}
+            runtime={runtime}
             index={index}
             isModal={isModal}
             instrumentIndex={voiceIndex}

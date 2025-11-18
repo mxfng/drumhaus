@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { Instrument } from "@/types/types";
+import { InstrumentRuntime } from "@/types/types";
 
 interface TransportState {
   // Playback state
@@ -17,7 +17,10 @@ interface TransportState {
 
   // Actions
   setIsPlaying: (isPlaying: boolean) => void;
-  togglePlay: (samples: any[], onStop?: () => void) => Promise<void>;
+  togglePlay: (
+    instrumentRuntimes: InstrumentRuntime[],
+    onStop?: () => void,
+  ) => Promise<void>;
   setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
@@ -41,7 +44,7 @@ export const useTransportStore = create<TransportState>()(
           set({ isPlaying });
         },
 
-        togglePlay: async (instruments, onStop) => {
+        togglePlay: async (instrumentRuntimes, onStop) => {
           // Start Tone.js context if needed
           if (Tone.context.state !== "running") {
             await Tone.start();
@@ -57,8 +60,8 @@ export const useTransportStore = create<TransportState>()(
               state.stepIndex = 0;
 
               // Release all samples
-              instruments.forEach((instrument: Instrument) => {
-                instrument.samplerNode.triggerRelease("C2", Tone.now());
+              instrumentRuntimes.forEach((runtime: InstrumentRuntime) => {
+                runtime.samplerNode.triggerRelease("C2", Tone.now());
               });
 
               // Call optional stop callback
