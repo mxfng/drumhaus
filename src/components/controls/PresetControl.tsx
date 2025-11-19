@@ -226,6 +226,26 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
+   * Generate a unique copy-style name for the current preset
+   */
+  const generateCopyName = (baseName: string): string => {
+    const copyName = `${baseName} copy`;
+
+    // Check if base copy name exists
+    if (!allPresets.find((p) => p.meta.name === copyName)) {
+      return copyName;
+    }
+
+    // Try numbered copies (copy 1, copy 2, etc.)
+    let counter = 1;
+    while (allPresets.find((p) => p.meta.name === `${copyName} ${counter}`)) {
+      counter++;
+    }
+
+    return `${copyName} ${counter}`;
+  };
+
+  /**
    * Generate a shareable URL for the current preset
    */
   const sharePreset = async (name: string) => {
@@ -324,6 +344,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onClose={closeSaveModal}
         onSave={exportPreset}
         modalCloseRef={modalCloseRef}
+        defaultName={currentPresetMeta.name}
       />
 
       <SharingModal
@@ -331,6 +352,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onClose={closeSharingModal}
         onShare={sharePreset}
         modalCloseRef={modalCloseRef}
+        defaultName={generateCopyName(currentPresetMeta.name)}
       />
 
       <SharedModal

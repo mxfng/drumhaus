@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -17,28 +17,77 @@ import {
   Spinner,
   Text,
   useClipboard,
+  useToast,
 } from "@chakra-ui/react";
+import { z } from "zod";
 
-export const SharingModal: React.FC<any> = ({
+// Validation schema for preset names
+const presetNameSchema = z
+  .string()
+  .min(1, "Preset name cannot be empty")
+  .refine(
+    (name) => !/[/\\:*?"<>|]/.test(name),
+    'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
+  );
+
+interface SharingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onShare: (name: string) => Promise<void>;
+  modalCloseRef: React.RefObject<HTMLElement>;
+  defaultName?: string;
+}
+
+export const SharingModal: React.FC<SharingModalProps> = ({
   isOpen,
   onClose,
   onShare,
   modalCloseRef,
+  defaultName = "",
 }) => {
   const [presetName, setPresetName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
 
-  const handleShare = async () => {
-    setIsLoading(true);
-    await onShare(presetName);
+  // Auto-populate with default name when modal opens
+  useEffect(() => {
+    if (isOpen && defaultName) {
+      setPresetName(defaultName);
+    }
+  }, [isOpen, defaultName]);
+
+  const handleClose = () => {
+    setPresetName("");
     setIsLoading(false);
     onClose();
+  };
+
+  const handleShare = async () => {
+    // Validate preset name
+    const validation = presetNameSchema.safeParse(presetName.trim());
+
+    if (!validation.success) {
+      toast({
+        title: "Invalid preset name",
+        description: validation.error.issues[0].message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    await onShare(presetName.trim());
+    setIsLoading(false);
+    handleClose();
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       finalFocusRef={modalCloseRef}
       isCentered
     >
@@ -75,7 +124,12 @@ export const SharingModal: React.FC<any> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button onClick={handleShare} colorScheme="orange" mr={3}>
+          <Button
+            onClick={handleShare}
+            colorScheme="orange"
+            mr={3}
+            isDisabled={!presetName.trim() || isLoading}
+          >
             <Text>Get Link</Text>
             {isLoading ? (
               <Spinner
@@ -88,7 +142,7 @@ export const SharingModal: React.FC<any> = ({
               />
             ) : null}
           </Button>
-          <Button onClick={onClose} color="gray">
+          <Button onClick={handleClose} color="gray">
             Cancel
           </Button>
         </ModalFooter>
@@ -97,7 +151,14 @@ export const SharingModal: React.FC<any> = ({
   );
 };
 
-export const SharedModal: React.FC<any> = ({
+interface SharedModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  shareableLink: string;
+  modalCloseRef: React.RefObject<HTMLElement>;
+}
+
+export const SharedModal: React.FC<SharedModalProps> = ({
   isOpen,
   onClose,
   shareableLink,
