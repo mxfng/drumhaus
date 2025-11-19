@@ -362,7 +362,7 @@ const Drumhaus = () => {
                 borderRadius="16px"
                 overflow="hidden"
                 opacity={0.6}
-                boxShadow="0 2px 8px rgba(176, 147, 116, 0.1) inset"
+                boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
               >
                 <FrequencyAnalyzer />
               </Box>
