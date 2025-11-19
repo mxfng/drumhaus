@@ -30,6 +30,7 @@ export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
 // Cache
 export {
   getCachedAudioUrl,
+  getCachedWaveform,
   preCacheAudioFiles,
   clearAudioCache,
 } from "./cache";

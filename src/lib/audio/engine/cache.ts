@@ -1,18 +1,18 @@
 /**
- * Audio Cache Utility
+ * Audio & Waveform Cache Utility
  *
  * - Caches local audio files from /samples/ via Cache API.
- * - Returns blob URLs for cached samples so they persist across page refreshes.
- * - Works offline after first download.
+ * - Caches waveform JSON files from /waveforms/ via Cache API.
+ * - Returns blob URLs for cached samples and JSON for waveforms.
+ * - Works offline after first download and persists across page refreshes.
  */
 
 const CACHE_NAME = "drumhaus-audio-cache-v1";
 const BLOB_URL_MAP = new Map<string, string>(); // samplePath -> blob: URL
 
-function getLocalUrl(samplePath: string): string {
-  return `/samples/${samplePath}`;
-}
-
+/**
+ * Open the named Cache API store.
+ */
 async function openCache(): Promise<Cache> {
   if (typeof window === "undefined" || !("caches" in window)) {
     throw new Error("Cache API is not available in this environment");
@@ -20,6 +20,46 @@ async function openCache(): Promise<Cache> {
   return caches.open(CACHE_NAME);
 }
 
+/**
+ * Generic "cache or fetch" helper.
+ *
+ * - Uses the URL as the cache key.
+ * - On MISS: fetches from network, stores in cache, then parses.
+ * - On HIT: returns parsed cached response.
+ */
+async function cacheFetch<T>(
+  url: string,
+  parse: (response: Response) => Promise<T>,
+): Promise<T> {
+  const cache = await openCache();
+  const request = new Request(url);
+
+  let response = await cache.match(request);
+  if (!response) {
+    response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${url} (${response.status})`);
+    }
+    await cache.put(request, response.clone());
+  }
+
+  return parse(response);
+}
+
+/**
+ * URL helpers for local assets.
+ */
+function getLocalAudioUrl(samplePath: string): string {
+  return `/samples/${samplePath}`;
+}
+
+function getWaveformUrl(waveformName: string): string {
+  return `/waveforms/${waveformName}.json`;
+}
+
+/**
+ * Track and clean up blob URLs.
+ */
 function setBlobUrl(samplePath: string, blobUrl: string): void {
   const prev = BLOB_URL_MAP.get(samplePath);
   if (prev && prev.startsWith("blob:")) {
@@ -29,41 +69,20 @@ function setBlobUrl(samplePath: string, blobUrl: string): void {
 }
 
 /**
- * Core: get a Blob from Cache API or fetch from local server.
- * - If cached: use that (works offline)
- * - If not cached: fetch from /samples/, store in cache
+ * Shape of your waveform JSON.
+ * Example:
+ * { "amplitude_envelope": number[][] }
  */
-async function getOrCacheLocalBlob(samplePath: string): Promise<Blob> {
-  const cache = await openCache();
-  const localUrl = getLocalUrl(samplePath);
-  // Use the actual URL as the cache key (Cache API requires valid http/https URLs)
-  const cacheRequest = new Request(localUrl);
-
-  // 1. Try cache first (offline path)
-  let response = await cache.match(cacheRequest);
-  if (!response) {
-    // 2. Not cached: fetch from local server
-    response = await fetch(localUrl);
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch audio file: ${localUrl} (${response.status})`,
-      );
-    }
-    // Clone before consuming blob
-    const responseClone = response.clone();
-    // Cache the response using the actual URL as the key
-    await cache.put(cacheRequest, responseClone);
-    // Use original response for blob extraction
-  }
-
-  return response.blob();
+export interface WaveformData {
+  amplitude_envelope: number[][];
 }
 
 /**
  * Get a playable blob URL for a sample path.
- * - Caches local files from /samples/ in Cache API
- * - Returns blob: URLs that persist across page refreshes
- * - Works offline after first download
+ *
+ * - Caches /samples/... responses in Cache API.
+ * - Returns blob: URLs that persist across page refreshes.
+ * - Works offline after first download (as long as the app shell is loaded).
  */
 export async function getCachedAudioUrl(samplePath: string): Promise<string> {
   // In-memory fast path
@@ -71,18 +90,38 @@ export async function getCachedAudioUrl(samplePath: string): Promise<string> {
     return BLOB_URL_MAP.get(samplePath)!;
   }
 
-  // Get blob from cache or fetch and cache
+  const url = getLocalAudioUrl(samplePath);
+
   try {
-    const blob = await getOrCacheLocalBlob(samplePath);
+    const blob = await cacheFetch(url, (res) => res.blob());
     const blobUrl = URL.createObjectURL(blob);
     setBlobUrl(samplePath, blobUrl);
     return blobUrl;
   } catch (error) {
     console.error(`Failed to get cached audio for ${samplePath}`, error);
     // Fallback to direct URL (no offline guarantee)
-    const localUrl = getLocalUrl(samplePath);
-    setBlobUrl(samplePath, localUrl);
-    return localUrl;
+    setBlobUrl(samplePath, url);
+    return url;
+  }
+}
+
+/**
+ * Get cached waveform JSON data for a waveform name.
+ *
+ * - Caches /waveforms/... JSON responses in Cache API.
+ * - Returns parsed JSON data.
+ * - Works offline after first download.
+ */
+export async function getCachedWaveform(
+  waveformName: string,
+): Promise<WaveformData> {
+  const url = getWaveformUrl(waveformName);
+
+  try {
+    return await cacheFetch<WaveformData>(url, (res) => res.json());
+  } catch (error) {
+    console.error(`Failed to get cached waveform for ${waveformName}`, error);
+    throw error;
   }
 }
 
@@ -94,11 +133,22 @@ export async function preCacheAudioFiles(samplePaths: string[]): Promise<void> {
 }
 
 /**
- * Clears the audio cache (both in-memory blob URLs and Cache API storage)
+ * Optionally: pre-cache multiple waveforms.
+ * Call this if you want waveform data available offline immediately.
+ */
+export async function preCacheWaveforms(
+  waveformNames: string[],
+): Promise<void> {
+  await Promise.all(waveformNames.map((name) => getCachedWaveform(name)));
+}
+
+/**
+ * Clears the audio cache (both in-memory blob URLs and Cache API storage).
+ * Waveform data lives only in Cache API, so deleting the cache clears both.
  */
 export async function clearAudioCache(): Promise<void> {
   // Revoke all blob URLs
-  for (const blobUrl of Array.from(BLOB_URL_MAP.values())) {
+  for (const blobUrl of BLOB_URL_MAP.values()) {
     if (blobUrl.startsWith("blob:")) {
       URL.revokeObjectURL(blobUrl);
     }
