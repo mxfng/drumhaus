@@ -6,6 +6,10 @@ import { Buffer, loaded } from "tone/build/esm/index";
  * @returns The duration of the audio sample in seconds, or 0 if an error occurs
  */
 export async function getSampleDuration(url: string): Promise<number> {
+  if (!url || url.trim() === "") {
+    return 0;
+  }
+
   try {
     const buffer = await Buffer.fromUrl(`/samples/${url}`);
     return buffer.duration;

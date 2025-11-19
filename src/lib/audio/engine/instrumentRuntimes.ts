@@ -30,10 +30,11 @@ export function createInstrumentRuntimes(
     const samplePath = d.sample.path;
     const instrumentId = d.meta.id;
 
+    // Only create sampler with URLs if samplePath is not empty
+    // This prevents 404 errors on fresh page load when instruments have empty paths
+    const hasSamplePath = samplePath && samplePath.trim() !== "";
     const samplerNode = new Sampler({
-      urls: {
-        ["C2"]: samplePath,
-      },
+      urls: hasSamplePath ? { C2: samplePath } : {},
       baseUrl: "/samples/",
     });
 
