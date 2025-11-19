@@ -241,14 +241,9 @@ const Drumhaus = () => {
   // Rebuild audio engine when samples change
   useEffect(() => {
     if (instrumentSamplePaths.length === 0) {
-      console.log("no instrument sample paths, skipping rebuild");
       return;
     }
 
-    console.log(
-      "rebuilding audio engine because instrumentSamplePaths changed",
-      instrumentSamplePaths,
-    );
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
