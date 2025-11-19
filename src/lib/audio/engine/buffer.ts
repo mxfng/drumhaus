@@ -28,5 +28,5 @@ export async function getSampleDuration(url: string): Promise<number> {
  * @throws Error if loading fails
  */
 export async function waitForBuffersToLoad(): Promise<void> {
-  Buffer.loaded(); // TODO: verify this works
+  Buffer.loaded();
 }

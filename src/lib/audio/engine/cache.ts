@@ -1,53 +1,16 @@
 /**
- * Audio Cache Utility (lean version)
+ * Audio Cache Utility
  *
- * - Downloads external audio files and caches them via Cache API.
- * - Returns blob URLs for external samples, plain URLs for local ones.
- * - Cache persists across page refreshes and works offline (after first download).
+ * - Caches local audio files from /samples/ via Cache API.
+ * - Returns blob URLs for cached samples so they persist across page refreshes.
+ * - Works offline after first download.
  */
 
 const CACHE_NAME = "drumhaus-audio-cache-v1";
-const CACHE_KEY_PREFIX = "drumhaus-sample:";
-const BLOB_URL_MAP = new Map<string, string>(); // samplePath -> URL (blob: or /samples/...)
-
-/**
- * Configuration for external audio URLs.
- * Maps sample paths (e.g., "0/kick.wav") to external URLs.
- * If a path is not in this map, it will use the local /samples/ path.
- */
-export interface ExternalAudioConfig {
-  baseUrl?: string; // e.g. "https://cdn.example.com/samples"
-  pathMap?: Record<string, string>; // samplePath -> full external URL
-}
-
-let externalConfig: ExternalAudioConfig | null = null;
-
-export function setExternalAudioConfig(
-  config: ExternalAudioConfig | null,
-): void {
-  externalConfig = config;
-}
-
-function getExternalUrl(samplePath: string): string | null {
-  if (!externalConfig) return null;
-
-  if (externalConfig.pathMap && externalConfig.pathMap[samplePath]) {
-    return externalConfig.pathMap[samplePath];
-  }
-
-  if (externalConfig.baseUrl) {
-    return `${externalConfig.baseUrl}/${samplePath}`;
-  }
-
-  return null;
-}
+const BLOB_URL_MAP = new Map<string, string>(); // samplePath -> blob: URL
 
 function getLocalUrl(samplePath: string): string {
   return `/samples/${samplePath}`;
-}
-
-function getCacheKey(samplePath: string): string {
-  return `${CACHE_KEY_PREFIX}${samplePath}`;
 }
 
 async function openCache(): Promise<Cache> {
@@ -57,62 +20,50 @@ async function openCache(): Promise<Cache> {
   return caches.open(CACHE_NAME);
 }
 
-type ResolvedSample = {
-  samplePath: string;
-  url: string;
-  cacheable: boolean; // external files only
-};
-
-function resolveSample(samplePath: string): ResolvedSample {
-  const externalUrl = getExternalUrl(samplePath);
-  if (externalUrl) {
-    return { samplePath, url: externalUrl, cacheable: true };
-  }
-  return { samplePath, url: getLocalUrl(samplePath), cacheable: false };
-}
-
-function setBlobUrl(samplePath: string, url: string): void {
+function setBlobUrl(samplePath: string, blobUrl: string): void {
   const prev = BLOB_URL_MAP.get(samplePath);
   if (prev && prev.startsWith("blob:")) {
     URL.revokeObjectURL(prev);
   }
-  BLOB_URL_MAP.set(samplePath, url);
+  BLOB_URL_MAP.set(samplePath, blobUrl);
 }
 
 /**
- * Core: given a resolved external sample, get a Blob from Cache API or network.
+ * Core: get a Blob from Cache API or fetch from local server.
  * - If cached: use that (works offline)
- * - If not cached: fetch from network, store in cache
+ * - If not cached: fetch from /samples/, store in cache
  */
-async function getOrCacheExternalBlob(resolved: ResolvedSample): Promise<Blob> {
-  const { samplePath, url } = resolved;
+async function getOrCacheLocalBlob(samplePath: string): Promise<Blob> {
   const cache = await openCache();
-  const cacheKey = getCacheKey(samplePath);
-  const cacheRequest = new Request(cacheKey);
+  const localUrl = getLocalUrl(samplePath);
+  // Use the actual URL as the cache key (Cache API requires valid http/https URLs)
+  const cacheRequest = new Request(localUrl);
 
   // 1. Try cache first (offline path)
   let response = await cache.match(cacheRequest);
   if (!response) {
-    // 2. Not cached: fetch from network (requires online)
-    response = await fetch(url);
+    // 2. Not cached: fetch from local server
+    response = await fetch(localUrl);
     if (!response.ok) {
       throw new Error(
-        `Failed to download audio file: ${url} (${response.status})`,
+        `Failed to fetch audio file: ${localUrl} (${response.status})`,
       );
     }
-    // Cache a clone under our cache key (keyed by samplePath, not URL)
-    await cache.put(cacheRequest, response.clone());
+    // Clone before consuming blob
+    const responseClone = response.clone();
+    // Cache the response using the actual URL as the key
+    await cache.put(cacheRequest, responseClone);
+    // Use original response for blob extraction
   }
 
   return response.blob();
 }
 
 /**
- * Get a playable URL for a sample path.
- * - For external samples: returns a blob: URL backed by Cache API.
- * - For local samples: returns `/samples/...` directly.
- * - Persists across reloads: cached Responses are stored in Cache API.
- * - Works offline for external samples that were cached while online.
+ * Get a playable blob URL for a sample path.
+ * - Caches local files from /samples/ in Cache API
+ * - Returns blob: URLs that persist across page refreshes
+ * - Works offline after first download
  */
 export async function getCachedAudioUrl(samplePath: string): Promise<string> {
   // In-memory fast path
@@ -120,25 +71,18 @@ export async function getCachedAudioUrl(samplePath: string): Promise<string> {
     return BLOB_URL_MAP.get(samplePath)!;
   }
 
-  const resolved = resolveSample(samplePath);
-
-  // Local samples: no Cache API needed
-  if (!resolved.cacheable) {
-    setBlobUrl(samplePath, resolved.url);
-    return resolved.url;
-  }
-
-  // External + cacheable: use Cache API
+  // Get blob from cache or fetch and cache
   try {
-    const blob = await getOrCacheExternalBlob(resolved);
+    const blob = await getOrCacheLocalBlob(samplePath);
     const blobUrl = URL.createObjectURL(blob);
     setBlobUrl(samplePath, blobUrl);
     return blobUrl;
   } catch (error) {
     console.error(`Failed to get cached audio for ${samplePath}`, error);
-    // Last resort: fall back to direct URL (no offline guarantee)
-    setBlobUrl(samplePath, resolved.url);
-    return resolved.url;
+    // Fallback to direct URL (no offline guarantee)
+    const localUrl = getLocalUrl(samplePath);
+    setBlobUrl(samplePath, localUrl);
+    return localUrl;
   }
 }
 
@@ -154,7 +98,7 @@ export async function preCacheAudioFiles(samplePaths: string[]): Promise<void> {
  */
 export async function clearAudioCache(): Promise<void> {
   // Revoke all blob URLs
-  for (const blobUrl of BLOB_URL_MAP.values()) {
+  for (const blobUrl of Array.from(BLOB_URL_MAP.values())) {
     if (blobUrl.startsWith("blob:")) {
       URL.revokeObjectURL(blobUrl);
     }

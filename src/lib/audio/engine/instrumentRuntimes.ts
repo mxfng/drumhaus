@@ -35,12 +35,12 @@ export async function createInstrumentRuntimes(
       const samplePath = d.sample.path;
       const instrumentId = d.meta.id;
 
-      // Get cached URL (blob URL for external files, or local URL)
+      // Get cached URL (blob URL from Cache API for local files)
       const audioUrl = await getCachedAudioUrl(samplePath);
 
-      // Extract just the filename for Tone.Sampler
-      // If it's a blob URL, we pass the full blob URL directly
-      // If it's a local URL like /samples/0/kick.wav, we need to extract the relative path
+      // All URLs should be blob URLs after caching
+      // If it's a blob URL, use it directly (no baseUrl needed)
+      // Fallback to local URL if caching failed
       let samplerUrl: string;
       let baseUrl: string | undefined;
 
@@ -48,14 +48,10 @@ export async function createInstrumentRuntimes(
         // For blob URLs, use the full URL as the path and no baseUrl
         samplerUrl = audioUrl;
         baseUrl = undefined;
-      } else if (audioUrl.startsWith("/")) {
-        // For local URLs, extract the relative path from /samples/
-        samplerUrl = samplePath; // Use the original sample path
-        baseUrl = "/samples/";
       } else {
-        // For external URLs (shouldn't happen with our current implementation, but handle it)
+        // Fallback: use original sample path with /samples/ baseUrl
         samplerUrl = samplePath;
-        baseUrl = undefined;
+        baseUrl = "/samples/";
       }
 
       const samplerNode = new Tone.Sampler({
