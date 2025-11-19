@@ -44,14 +44,6 @@ export function createInstrumentRuntimes(
 }
 
 /**
- * Create initial Drumhaus runtime nodes
- * Note: This creates a temporary ref just for initialization
- */
-const initRef: React.MutableRefObject<InstrumentRuntime[]> = { current: [] };
-createInstrumentRuntimes(initRef, kits.drumhaus().instruments);
-export const INIT_INSTRUMENT_RUNTIMES: InstrumentRuntime[] = initRef.current;
-
-/**
  * Disposes all nodes in an instrument runtime
  */
 function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {

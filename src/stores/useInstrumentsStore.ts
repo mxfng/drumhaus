@@ -2,36 +2,8 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { drumhaus } from "@/lib/kit";
 import type { InstrumentData, InstrumentParams } from "@/types/instrument";
-
-// Default instrument parameters
-const createDefaultInstrument = (
-  name: string = "",
-  samplePath: string = "",
-): InstrumentData => ({
-  meta: {
-    id: `inst-${Math.random().toString(36).substr(2, 9)}`,
-    name,
-  },
-  role: "other",
-  sample: {
-    meta: {
-      id: `sample-${Math.random().toString(36).substr(2, 9)}`,
-      name,
-    },
-    path: samplePath,
-  },
-  params: {
-    attack: 0,
-    release: 100,
-    filter: 50,
-    volume: 92,
-    pan: 50,
-    pitch: 50,
-    solo: false,
-    mute: false,
-  },
-});
 
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters
@@ -58,13 +30,10 @@ export const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
-        // Initial state - 8 default instruments
-        instruments: Array(8)
-          .fill(null)
-          .map(() => createDefaultInstrument()),
-        durations: [0, 0, 0, 0, 0, 0, 0, 0],
+        // Initial state - "drumhaus.dhkit"
+        instruments: drumhaus().instruments,
+        durations: drumhaus().instruments.map(() => 0), // update at runtime
 
-        // Granular property setter (with Immer, we can mutate directly)
         setInstrumentProperty: (index, key, value) => {
           set((state) => {
             state.instruments[index].params[key] = value;
