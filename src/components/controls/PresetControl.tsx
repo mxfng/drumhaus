@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Center } from "@chakra-ui/react";
 
 import * as kits from "@/lib/kit";
@@ -108,6 +108,26 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   );
 
   // ============================================================================
+  // HELPER FUNCTIONS
+  // ============================================================================
+
+  /**
+   * Check if a preset with the given ID already exists in default or custom presets
+   */
+  const presetExists = useCallback(
+    (presetId: string, customPresetsList: PresetFileV1[]): boolean => {
+      const existsInDefaults = DEFAULT_PRESETS.some(
+        (p) => p.meta.id === presetId,
+      );
+      const existsInCustom = customPresetsList.some(
+        (p) => p.meta.id === presetId,
+      );
+      return existsInDefaults || existsInCustom;
+    },
+    [DEFAULT_PRESETS],
+  );
+
+  // ============================================================================
   // CORE OPERATIONS
   // ============================================================================
 
@@ -130,9 +150,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const loadPreset = (preset: PresetFileV1) => {
     // Add to custom presets if not already there
-    if (!allPresets.find((p) => p.meta.id === preset.meta.id)) {
-      setCustomPresets((prev) => [...prev, preset]);
-    }
+    setCustomPresets((prev) => {
+      if (!presetExists(preset.meta.id, prev)) {
+        return [...prev, preset];
+      }
+      return prev;
+    });
 
     // Activate the preset via parent (updates all stores, stops playback)
     loadPresetFromParent(preset);
@@ -299,11 +322,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   // Add current preset to custom presets if loaded from URL
   useEffect(() => {
-    if (!allPresets.find((p) => p.meta.id === currentPresetMeta.id)) {
-      const preset = getCurrentPreset(currentPresetMeta, currentKitMeta);
-      setCustomPresets((prev) => [...prev, preset]);
-    }
-  }, [currentPresetMeta, currentKitMeta, allPresets]);
+    setCustomPresets((prev) => {
+      // Only add if it doesn't exist in either list
+      if (!presetExists(currentPresetMeta.id, prev)) {
+        const preset = getCurrentPreset(currentPresetMeta, currentKitMeta);
+        return [...prev, preset];
+      }
+      return prev;
+    });
+  }, [currentPresetMeta, currentKitMeta, presetExists]);
 
   // ============================================================================
   // RENDER
