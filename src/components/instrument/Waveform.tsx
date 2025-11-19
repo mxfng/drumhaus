@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 
-import { getCachedWaveform } from "@/lib/audio/engine";
+import { getCachedWaveform } from "@/lib/audio/cache";
 
 interface WaveformProps {
   audioFile: string;

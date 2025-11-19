@@ -1,7 +1,7 @@
 import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
-import { getCachedAudioUrl, preCacheAudioFiles } from "./cache";
+import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
 
 /**
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData

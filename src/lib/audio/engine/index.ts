@@ -27,14 +27,6 @@ export {
 // Buffer
 export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
 
-// Cache
-export {
-  getCachedAudioUrl,
-  getCachedWaveform,
-  preCacheAudioFiles,
-  clearAudioCache,
-} from "./cache";
-
 // Instrument Playback
 export { playInstrumentSample } from "./instrumentPlayback";
 

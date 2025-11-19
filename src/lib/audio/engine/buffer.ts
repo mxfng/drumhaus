@@ -1,6 +1,6 @@
 import { Buffer } from "tone/build/esm/index";
 
-import { getCachedAudioUrl } from "./cache";
+import { getCachedAudioUrl } from "../cache";
 
 /**
  * Fetches an audio buffer from a URL and returns its duration in seconds.
