@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -52,7 +52,10 @@ const FADE_IN_VARIANTS = {
 };
 
 const Drumhaus = () => {
-  // Transport
+  // ============================================================================
+  // STORE STATE
+  // ============================================================================
+
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
   const setBpm = useTransportStore((state) => state.setBpm);
@@ -65,160 +68,151 @@ const Drumhaus = () => {
     (state) => state.setAllInstruments,
   );
 
-  // Sequencer
   const variationCycle = usePatternStore((state) => state.variationCycle);
   const setPattern = usePatternStore((state) => state.setPattern);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
   const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
 
-  // Master Chain
   const setAllMasterChain = useMasterChainStore(
     (state) => state.setAllMasterChain,
   );
 
-  // Modal store
   const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
-
-  // Preset/Kit metadata store
   const loadPresetMeta = usePresetMetaStore((state) => state.loadPreset);
 
-  // Local
+  // ============================================================================
+  // LOCAL STATE
+  // ============================================================================
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMobileWarning, setIsMobileWarning] = useState(false);
 
-  // State architecture for instruments:
-  // - Local ref (instrumentRuntimes): ONLY holds Tone.js runtime nodes (samplerNode, envelopeNode, etc.)
-  //   Created fresh when kit changes, disposed on cleanup. No data duplication!
-  //   Using ref to avoid unnecessary re-renders - components read data from store, not runtime objects
-  // - Store (useInstrumentsStore): Single source of truth for serializable InstrumentData
-  //   Contains all parameters (attack, release, volume, etc.), persisted to localStorage
+  // Audio engine refs (Tone.js runtime nodes)
   const instrumentRuntimes = useRef<InstrumentRuntime[]>(
     INIT_INSTRUMENT_RUNTIMES,
   );
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
-
-  // Refs
   const toneSequence = useRef<Tone.Sequence | null>(null);
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
-  // Load preset into all stores (single source of truth)
-  const loadPreset = useCallback(
-    (preset: PresetFileV1) => {
-      // Update preset/kit metadata store
-      loadPresetMeta(preset);
-
-      // Distribute preset data to respective stores
-      setVoiceIndex(0);
-      setVariation(0);
-      setPattern(preset.sequencer.pattern);
-      setVariationCycle(preset.sequencer.variationCycle);
-      setBpm(preset.transport.bpm);
-      setSwing(preset.transport.swing);
-      setAllMasterChain(
-        preset.masterChain.lowPass,
-        preset.masterChain.hiPass,
-        preset.masterChain.phaser,
-        preset.masterChain.reverb,
-        preset.masterChain.compThreshold,
-        preset.masterChain.compRatio,
-        preset.masterChain.masterVolume,
-      );
-      setAllInstruments(preset.kit.instruments);
-    },
-    [
-      loadPresetMeta,
-      setVoiceIndex,
-      setVariation,
-      setPattern,
-      setVariationCycle,
-      setBpm,
-      setSwing,
-      setAllMasterChain,
-      setAllInstruments,
-    ],
-  );
-
-  // Toast for warnings
-  const toast = useToast({
-    position: "top",
-  });
+  const toast = useToast({ position: "top" });
 
   useMasterChain({
     instrumentRuntimes: instrumentRuntimes.current,
     setIsLoading,
   });
 
-  // l o a d   f r o m   q u e r y   p a r a m
+  // ============================================================================
+  // CORE OPERATIONS
+  // ============================================================================
+
+  /**
+   * Load a preset into all stores.
+   * This is the single function that updates the entire app state.
+   */
+  const loadPreset = (preset: PresetFileV1) => {
+    // Stop playback if currently playing (samples will reload)
+    if (isPlaying) {
+      togglePlay(instrumentRuntimes.current);
+    }
+
+    // Update metadata
+    loadPresetMeta(preset);
+
+    // Update sequencer
+    setVoiceIndex(0);
+    setVariation(0);
+    setPattern(preset.sequencer.pattern);
+    setVariationCycle(preset.sequencer.variationCycle);
+
+    // Update transport
+    setBpm(preset.transport.bpm);
+    setSwing(preset.transport.swing);
+
+    // Update master chain
+    setAllMasterChain(
+      preset.masterChain.lowPass,
+      preset.masterChain.hiPass,
+      preset.masterChain.phaser,
+      preset.masterChain.reverb,
+      preset.masterChain.compThreshold,
+      preset.masterChain.compRatio,
+      preset.masterChain.masterVolume,
+    );
+
+    // Update instruments (triggers audio engine reload)
+    setAllInstruments(preset.kit.instruments);
+  };
+
+  /**
+   * Load preset from URL parameter or fallback to default
+   */
+  const loadFromUrlOrDefault = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const presetParam = urlParams.get("p");
+
+    if (!presetParam) {
+      loadPreset(init());
+      return;
+    }
+
+    try {
+      const { urlToPreset } = await import("@/lib/serialization");
+      const preset = urlToPreset(presetParam);
+      loadPreset(preset);
+
+      toast({
+        render: () => (
+          <Box
+            bg="silver"
+            color="gray"
+            p={3}
+            borderRadius="8px"
+            className="neumorphic"
+          >
+            <Text>{`You received a custom preset called "${preset.meta.name}"!`}</Text>
+          </Box>
+        ),
+      });
+    } catch (error) {
+      console.error("Failed to load shared preset:", error);
+
+      toast({
+        render: () => (
+          <Box
+            bg="silver"
+            color="gray"
+            p={3}
+            borderRadius="8px"
+            className="neumorphic"
+          >
+            <Text>Failed to load shared preset. Loading default.</Text>
+          </Box>
+        ),
+      });
+
+      loadPreset(init());
+    } finally {
+      // Remove URL parameter after loading preset
+      const url = new URL(window.location.href);
+      url.searchParams.delete("p");
+      window.history.replaceState({}, "", url.toString());
+    }
+  };
+
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
+
+  // Load initial preset on mount
   useEffect(() => {
-    const loadPresetData = async () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const presetKey = urlParams.get("preset");
-
-      if (presetKey) {
-        try {
-          const response = await fetch(`/api/presets?preset_key=${presetKey}`);
-
-          if (!response.ok) {
-            throw new Error("Unable to load preset from key");
-          }
-
-          const data = await response.json();
-
-          if (data.presets.rows.length < 1) {
-            toast({
-              render: () => (
-                <Box
-                  bg="silver"
-                  color="gray"
-                  p={3}
-                  borderRadius="8px"
-                  className="neumorphic"
-                >
-                  <Text>{`The preset in the provided link could not be found.`}</Text>
-                </Box>
-              ),
-            });
-          } else {
-            const newPreset: PresetFileV1 = data.presets.rows[0].preset_data;
-
-            loadPreset(newPreset);
-
-            toast({
-              render: () => (
-                <Box
-                  bg="silver"
-                  color="gray"
-                  p={3}
-                  borderRadius="8px"
-                  className="neumorphic"
-                >
-                  <Text>
-                    {`You received a custom preset called "${newPreset.meta.name}"!`}
-                  </Text>
-                </Box>
-              ),
-            });
-          }
-        } catch (error) {
-          console.error(
-            `Error fetching provided preset key ${presetKey}:`,
-            error,
-          );
-        }
-      } else {
-        // Load default preset on initial mount
-        loadPreset(init());
-      }
-    };
-
-    loadPresetData();
-
+    loadFromUrlOrDefault();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // m a k e   g o o d   m u s i c
+  // Create/update audio sequencer when playing or instruments change
   useEffect(() => {
     if (isPlaying) {
       createDrumSequence(
@@ -235,31 +229,20 @@ const Drumhaus = () => {
     };
   }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
 
-  // Create new instrument runtimes only when sample URLs change
-  // Parameter changes (attack, release, filter, etc.) should NOT trigger recreation
-  // They are applied to existing runtime nodes in InstrumentControls.tsx
+  // Rebuild audio engine when samples change
   useEffect(() => {
-    if (!isLoading) setIsLoading(true);
+    setIsLoading(true);
 
-    // Create runtime nodes from store data
-    // Use getState() to avoid subscribing to param changes
     const instruments = useInstrumentsStore.getState().instruments;
     createInstrumentRuntimes(instrumentRuntimes, instruments);
 
-    // Capture the newly created runtimes for cleanup
-    const currentRuntimes = instrumentRuntimes.current;
-
-    // Wait for all sampler buffers to load before updating state
     const loadBuffers = async () => {
       try {
-        // Wait for all Tone.js audio files to load
         await waitForBuffersToLoad();
-        // Trigger re-render for components that need new runtime objects
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error loading sampler buffers:", error);
-        // Still trigger re-render even if loading fails (graceful degradation)
+        console.error("Error loading audio buffers:", error);
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       }
@@ -268,46 +251,36 @@ const Drumhaus = () => {
     loadBuffers();
 
     return () => {
-      // Dispose runtimes on cleanup (e.g., on unmount or dependency change)
-      // Note: createInstrumentRuntimes already disposes previous runtimes when creating new ones
       disposeInstrumentRuntimes(instrumentRuntimes);
     };
-    // Only recreate runtimes when sample paths change, not when other params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instrumentSamplePaths]);
 
-  // p l a y   f r o m   s p a c e b a r
+  // Spacebar to play/pause
   useEffect(() => {
-    const playViaSpacebar = (event: KeyboardEvent) => {
-      // Block spacebar when any modal is open or when loading
-      if (event.key === " " && !isAnyModalOpen() && !isLoading) {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === " " && !isAnyModalOpen() && !isLoading) {
         togglePlay(instrumentRuntimes.current);
       }
     };
 
-    document.addEventListener("keydown", playViaSpacebar);
-
-    return () => {
-      document.removeEventListener("keydown", playViaSpacebar);
-    };
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading, instrumentRuntimesVersion]);
 
-  // m o b i l e   d e v i c e   w a r n i n g
+  // Mobile device warning
   useEffect(() => {
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent,
       );
-
-    if (isMobile) {
-      setIsMobileWarning(true);
-    }
+    if (isMobile) setIsMobileWarning(true);
   }, []);
 
-  const closeMobileWarning = () => {
-    setIsMobileWarning(false);
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <>
@@ -323,7 +296,7 @@ const Drumhaus = () => {
           initial="hidden"
           animate="visible"
           variants={FADE_IN_VARIANTS}
-          transition={{ duration: 0.5 }} // Adjust the duration as needed
+          transition={{ duration: 0.5 }}
         >
           <Box
             bg="silver"
@@ -412,12 +385,7 @@ const Drumhaus = () => {
               </GridItem>
 
               <GridItem w="380px" px={2}>
-                <PresetControl
-                  loadPreset={loadPreset}
-                  togglePlay={() => togglePlay(instrumentRuntimes.current)}
-                  isLoading={isLoading}
-                  setIsLoading={setIsLoading}
-                />
+                <PresetControl loadPreset={loadPreset} />
               </GridItem>
 
               <MasterControl />
@@ -468,7 +436,10 @@ const Drumhaus = () => {
           </Box>
         </motion.div>
       </Box>
-      <MobileModal isOpen={isMobileWarning} onClose={closeMobileWarning} />
+      <MobileModal
+        isOpen={isMobileWarning}
+        onClose={() => setIsMobileWarning(false)}
+      />
     </>
   );
 };
