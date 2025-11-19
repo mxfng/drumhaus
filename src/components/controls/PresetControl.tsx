@@ -112,8 +112,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Switch to a different kit.
-   * Creates a preset with current state + new kit, then loads it (stops playback).
+   * Switch to a different kit. Simple: update instruments + kit metadata.
    */
   const switchKit = (kitId: string) => {
     const kit = KITS.find((k) => k.meta.id === kitId);
@@ -122,11 +121,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       return;
     }
 
-    // Get current state with new kit
-    const presetWithNewKit = getCurrentPreset(currentPresetMeta, kit.meta);
-
-    // Load via parent (stops playback, updates all stores)
-    loadPresetFromParent(presetWithNewKit);
+    setAllInstruments(kit.instruments);
+    setKitMeta(kit.meta);
   };
 
   /**

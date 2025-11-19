@@ -137,7 +137,10 @@ export function createDrumSequence(
           env.triggerAttack(time);
           env.triggerRelease(time + releaseTime);
 
-          runtime.samplerNode.triggerAttack(pitch, time, velocity);
+          // Check if buffer is loaded before triggering (graceful handling during kit switch)
+          if (runtime.samplerNode.loaded) {
+            runtime.samplerNode.triggerAttack(pitch, time, velocity);
+          }
         } else {
           // --- All other instruments ---
           // Stop any ringing voice at this pitch before re-trigger
@@ -147,7 +150,10 @@ export function createDrumSequence(
           env.triggerAttack(time);
           env.triggerRelease(time + releaseTime);
 
-          runtime.samplerNode.triggerAttack(pitch, time, velocity);
+          // Check if buffer is loaded before triggering (graceful handling during kit switch)
+          if (runtime.samplerNode.loaded) {
+            runtime.samplerNode.triggerAttack(pitch, time, velocity);
+          }
         }
       }
 
