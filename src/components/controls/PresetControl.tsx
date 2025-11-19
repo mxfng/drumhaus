@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Center } from "@chakra-ui/react";
 
 import * as kits from "@/lib/kit";
@@ -13,8 +13,8 @@ import { useTransportStore } from "@/stores/useTransportStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
+import { ConfirmSelectPresetModal } from "../modal/ConfirmSelectPresetModal";
 import { ErrorModal } from "../modal/ErrorModal";
-import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SaveModal } from "../modal/SaveModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
@@ -24,24 +24,15 @@ import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
   loadPreset: (preset: PresetFileV1) => void;
-  togglePlay: () => Promise<void>;
-  isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  loadPreset,
-  togglePlay,
-  isLoading,
-  setIsLoading,
+  loadPreset: loadPresetFromParent,
 }) => {
-  // Subscribe to stores for UI updates
-  const isPlaying = useTransportStore((state) => state.isPlaying);
+  // Store state
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
-
-  // Preset metadata store
   const currentPresetMeta = usePresetMetaStore(
     (state) => state.currentPresetMeta,
   );
@@ -52,7 +43,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     (state) => state.hasUnsavedChanges,
   );
 
-  // Modal store
+  // Modal state
   const {
     isSaveModalOpen,
     isSharingModalOpen,
@@ -60,7 +51,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     isResetModalOpen,
     isErrorModalShowing,
     isPresetChangeModalOpen,
-    isSharePromptOpen,
     shareableLink,
     presetToChange,
     closeSaveModal,
@@ -69,288 +59,255 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     closeResetModal,
     closeErrorModal,
     closePresetChangeModal,
-    closeSharePrompt,
-    // openSharedModal,
+    openSharedModal,
     openErrorModal,
     openPresetChangeModal,
-    openSharePrompt,
   } = useModalStore();
-
-  const kitOptions: (() => KitFileV1)[] = [
-    kits.drumhaus,
-    kits.organic,
-    kits.funk,
-    kits.rnb,
-    kits.trap,
-    kits.eighties,
-    kits.tech_house,
-    kits.techno,
-    kits.indie,
-    kits.jungle,
-  ];
-
-  const defaultPresetOptions: (() => PresetFileV1)[] = [
-    presets.init,
-    presets.welcomeToTheHaus,
-    presets.aDrumCalledHaus,
-    presets.amsterdam,
-    presets.polaroidBounce,
-    presets.purpleHaus,
-    presets.richKids,
-    presets.slimeTime,
-    presets.sunflower,
-    presets.superDreamHaus,
-    presets.togetherAgain,
-  ];
-
-  const [selectedKit, setSelectedKit] = useState<string>(currentKitMeta.id);
-  const [selectedPreset, setSelectedPreset] = useState<string>(
-    currentPresetMeta.id,
-  );
-  const [presetOptions, setPresetOptions] =
-    useState<(() => PresetFileV1)[]>(defaultPresetOptions);
 
   const modalCloseRef = useRef(null);
 
-  const stopPlayingOnAction = () => {
-    if (isPlaying) {
-      togglePlay();
+  // Available kits and presets
+  const KITS: KitFileV1[] = useMemo(
+    () => [
+      kits.drumhaus(),
+      kits.organic(),
+      kits.funk(),
+      kits.rnb(),
+      kits.trap(),
+      kits.eighties(),
+      kits.tech_house(),
+      kits.techno(),
+      kits.indie(),
+      kits.jungle(),
+    ],
+    [],
+  );
+
+  const DEFAULT_PRESETS: PresetFileV1[] = useMemo(
+    () => [
+      presets.init(),
+      presets.welcomeToTheHaus(),
+      presets.aDrumCalledHaus(),
+      presets.amsterdam(),
+      presets.polaroidBounce(),
+      presets.purpleHaus(),
+      presets.richKids(),
+      presets.slimeTime(),
+      presets.sunflower(),
+      presets.superDreamHaus(),
+      presets.togetherAgain(),
+    ],
+    [],
+  );
+
+  // Track custom presets (loaded from file or URL)
+  const [customPresets, setCustomPresets] = useState<PresetFileV1[]>([]);
+  const allPresets = useMemo(
+    () => [...DEFAULT_PRESETS, ...customPresets],
+    [DEFAULT_PRESETS, customPresets],
+  );
+
+  // ============================================================================
+  // CORE OPERATIONS
+  // ============================================================================
+
+  /**
+   * Switch to a different kit. Simple: update instruments + kit metadata.
+   */
+  const switchKit = (kitId: string) => {
+    const kit = KITS.find((k) => k.meta.id === kitId);
+    if (!kit) {
+      console.error(`Kit ${kitId} not found`);
+      return;
     }
+
+    setAllInstruments(kit.instruments);
+    setKitMeta(kit.meta);
   };
 
   /**
-   * Adds a new preset to the options list or updates an existing one.
-   * Used for custom presets loaded from files or URL params.
+   * Load a preset into the app. Updates all state.
    */
-  const addOrUpdatePreset = useCallback(
-    (newOption: () => PresetFileV1) => {
-      const index = presetOptions.findIndex(
-        (option) => option().meta.id === newOption().meta.id,
-      );
+  const loadPreset = (preset: PresetFileV1) => {
+    // Add to custom presets if not already there
+    if (!allPresets.find((p) => p.meta.id === preset.meta.id)) {
+      setCustomPresets((prev) => [...prev, preset]);
+    }
 
-      if (index !== -1) {
-        // Update existing preset (mutating is acceptable here since we're modifying the array directly)
-        presetOptions[index] = newOption;
-      } else {
-        setPresetOptions((prevPresetOptions) => [
-          ...prevPresetOptions,
-          newOption,
-        ]);
-      }
-    },
-    [presetOptions, setPresetOptions],
-  );
+    // Activate the preset via parent (updates all stores, stops playback)
+    loadPresetFromParent(preset);
+  };
 
   /**
-   * Updates all relevant states when a preset is loaded or changed.
-   * This ensures UI state stays in sync with the loaded preset.
-   * @param presetToLoad - The preset to load
-   * @param functionToSave - Optional function that returns the preset, added to preset options
+   * Switch to a preset by ID. Checks for unsaved changes first.
    */
-  const updateStatesOnPresetChange = useCallback(
-    (presetToLoad: PresetFileV1, functionToSave?: () => PresetFileV1) => {
-      loadPreset(presetToLoad); // This calls the store's loadPreset which sets meta + cleanPreset
-      setSelectedPreset(presetToLoad.meta.id);
-      setSelectedKit(presetToLoad.kit.meta.id);
+  const switchPreset = (presetId: string) => {
+    if (hasUnsavedChanges()) {
+      openPresetChangeModal(presetId);
+      return;
+    }
 
-      // Add new presets to the list of options (if provided)
-      if (functionToSave) {
-        addOrUpdatePreset(functionToSave);
-      }
-    },
-    [loadPreset, setSelectedPreset, setSelectedKit, addOrUpdatePreset],
-  );
+    const preset = allPresets.find((p) => p.meta.id === presetId);
+    if (!preset) {
+      console.error(`Preset ${presetId} not found`);
+      return;
+    }
 
-  const handleSave = (customName: string) => {
-    // Generate new metadata for the saved preset
-    // TODO: consider checking if name changed and preserving ID and createdAt timestamp
-    // however, do not allow this for default presets (could enforce by checking UUID vs human-readable)
+    loadPreset(preset);
+  };
+
+  // ============================================================================
+  // FILE OPERATIONS
+  // ============================================================================
+
+  /**
+   * Export current state as a .dh file
+   */
+  const exportPreset = (name: string) => {
     const now = new Date().toISOString();
-    const newPresetMeta: Meta = {
+    const meta: Meta = {
       id: crypto.randomUUID(),
-      name: customName,
+      name,
       createdAt: now,
       updatedAt: now,
     };
 
-    const presetToSave = getCurrentPreset(newPresetMeta, currentKitMeta);
+    const preset = getCurrentPreset(meta, currentKitMeta);
 
-    const jsonPreset = JSON.stringify(presetToSave, null, 2);
-    const blob = new Blob([jsonPreset], { type: "application/json" });
+    // Download file
+    const json = JSON.stringify(preset, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const downloadLink = document.createElement("a");
-
-    downloadLink.href = url;
-    downloadLink.download = `${customName}.dh`;
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${name}.dh`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    // Mark preset as clean (saved) in the store
-    markPresetClean(presetToSave);
-
-    // Create a function that returns this preset
-    const presetFunction = () => presetToSave;
-    updateStatesOnPresetChange(presetToSave, presetFunction);
+    // Update state
+    markPresetClean(preset);
+    loadPreset(preset);
   };
 
-  const handleLoad = () => {
-    // TODO: extract to preset library
-    stopPlayingOnAction();
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = ".dh";
-    fileInput.onchange = (e) =>
-      handleFileChange((e.target as HTMLInputElement).files?.[0]);
-    fileInput.click();
-  };
+  /**
+   * Import a preset from a .dh file
+   */
+  const importPreset = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".dh";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
 
-  const handleFileChange = (file: File | null | undefined) => {
-    if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const result = e.target?.result;
+          if (typeof result !== "string") throw new Error("Invalid file");
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const result = e.target?.result;
-        if (typeof result !== "string") {
-          throw new Error("Invalid file content");
+          const preset: PresetFileV1 = JSON.parse(result);
+          loadPreset(preset);
+        } catch (error) {
+          console.error("Failed to import preset:", error);
+          openErrorModal();
         }
-
-        const jsonContent: PresetFileV1 = JSON.parse(result);
-        updateStatesOnPresetChange(jsonContent);
-      } catch (error) {
-        console.error("Error parsing preset file:", error);
-        openErrorModal();
-      }
+      };
+      reader.onerror = () => openErrorModal();
+      reader.readAsText(file);
     };
+    input.click();
+  };
 
-    reader.onerror = () => {
-      console.error("Error reading file");
+  // ============================================================================
+  // SHARING
+  // ============================================================================
+
+  /**
+   * Generate a unique copy-style name for the current preset
+   */
+  const generateCopyName = (baseName: string): string => {
+    const copyName = `${baseName} copy`;
+
+    // Check if base copy name exists
+    if (!allPresets.find((p) => p.meta.name === copyName)) {
+      return copyName;
+    }
+
+    // Try numbered copies (copy 1, copy 2, etc.)
+    let counter = 1;
+    while (allPresets.find((p) => p.meta.name === `${copyName} ${counter}`)) {
+      counter++;
+    }
+
+    return `${copyName} ${counter}`;
+  };
+
+  /**
+   * Generate a shareable URL for the current preset
+   */
+  const sharePreset = async (name: string) => {
+    try {
+      const now = new Date().toISOString();
+      const meta: Meta = {
+        id: crypto.randomUUID(),
+        name,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      const preset = getCurrentPreset(meta, currentKitMeta);
+      const { shareablePresetToUrl } = await import("@/lib/serialization");
+      const urlParam = shareablePresetToUrl(preset);
+      const shareUrl = `${window.location.origin}/?p=${urlParam}`;
+
+      openSharedModal(shareUrl);
+    } catch (error) {
+      console.error("Failed to share preset:", error);
       openErrorModal();
-    };
+    }
+  };
 
-    reader.readAsText(file);
+  // ============================================================================
+  // EVENT HANDLERS
+  // ============================================================================
+
+  const handleKitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    switchKit(e.target.value);
+  };
+
+  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    switchPreset(e.target.value);
+  };
+
+  const handleConfirmPresetChange = () => {
+    closePresetChangeModal();
+    const preset = allPresets.find((p) => p.meta.id === presetToChange);
+    if (preset) loadPreset(preset);
   };
 
   const handleReset = () => {
-    stopPlayingOnAction();
     closeResetModal();
-    updateStatesOnPresetChange(presets.init());
+    loadPreset(presets.init());
   };
 
-  const handleShare = async () => {
-    // TODO: Change to URL based sharing
-  };
+  // ============================================================================
+  // EFFECTS
+  // ============================================================================
 
-  const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    stopPlayingOnAction();
-
-    const selectedKitId = event.target.value;
-    const kitOption = kitOptions.find((kit) => kit().meta.id === selectedKitId);
-
-    if (kitOption) {
-      const newKit: KitFileV1 = kitOption();
-      // Update instruments store (single source of truth)
-      setAllInstruments(newKit.instruments);
-      // Update kit metadata in store
-      setKitMeta(newKit.meta);
-      setSelectedKit(newKit.meta.id);
-    } else {
-      console.error(
-        `Kit ${event.target.value} not found in options: ${kitOptions}`,
-      );
-    }
-  };
-
-  /**
-   * Handles preset change requests from the selector.
-   * If the user has unsaved changes, prompts them with a modal.
-   * Otherwise, switches to the new preset directly.
-   */
-  const handlePresetChangeRequest = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    // Check if current state has unsaved changes
-    const changesMade = hasUnsavedChanges();
-    const newPresetId = event.target.value;
-
-    if (changesMade) {
-      openPresetChangeModal(newPresetId);
-    } else {
-      switchPreset(newPresetId);
-    }
-  };
-
-  /**
-   * Switches to a different preset by ID.
-   * Stops playback if currently playing, then loads the new preset.
-   */
-  const switchPreset = useCallback(
-    (presetId: string) => {
-      if (isPlaying) {
-        togglePlay();
-      }
-
-      const presetOption = presetOptions.find(
-        (preset) => preset().meta.id === presetId,
-      );
-
-      if (presetOption) {
-        const newPreset = presetOption();
-        updateStatesOnPresetChange(newPreset, presetOption);
-      } else {
-        console.error(
-          `Preset ${presetId} was not found in options: ${presetOptions}`,
-        );
-      }
-    },
-    [presetOptions, isPlaying, togglePlay, updateStatesOnPresetChange],
-  );
-
-  const handlePresetChange = useCallback(() => {
-    if (isPresetChangeModalOpen) closePresetChangeModal();
-    const selectedPresetId = presetToChange;
-    switchPreset(selectedPresetId);
-  }, [
-    presetToChange,
-    isPresetChangeModalOpen,
-    closePresetChangeModal,
-    switchPreset,
-  ]);
-
-  // Add custom presets loaded via URL search params
+  // Add current preset to custom presets if loaded from URL
   useEffect(() => {
-    const currentPresetExists = presetOptions.some(
-      (option) => option().meta.id === currentPresetMeta.id,
-    );
-
-    if (!currentPresetExists) {
-      // Create a function that returns the current preset from stores
-      const customPresetFunction = () =>
-        getCurrentPreset(currentPresetMeta, currentKitMeta);
-
-      addOrUpdatePreset(customPresetFunction);
+    if (!allPresets.find((p) => p.meta.id === currentPresetMeta.id)) {
+      const preset = getCurrentPreset(currentPresetMeta, currentKitMeta);
+      setCustomPresets((prev) => [...prev, preset]);
     }
-  }, [currentPresetMeta, currentKitMeta, presetOptions, addOrUpdatePreset]);
+  }, [currentPresetMeta, currentKitMeta, allPresets]);
 
-  // Effect to display share prompt to new users
-  useEffect(() => {
-    const sharePromptFlag = localStorage.getItem("sharePromptSeen");
-
-    // If the flag is present, the user has visited before
-    if (!sharePromptFlag) {
-      const timer = setTimeout(() => {
-        openSharePrompt();
-      }, 60000);
-      return () => clearTimeout(timer);
-    }
-  }, [openSharePrompt]);
-
-  const handleCloseSharePrompt = () => {
-    closeSharePrompt();
-    localStorage.setItem("sharePromptSeen", "true");
-  };
+  // ============================================================================
+  // RENDER
+  // ============================================================================
 
   return (
     <>
@@ -367,56 +324,57 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           ref={modalCloseRef}
         >
           <PresetSelector
-            selectedPreset={selectedPreset}
-            presetOptions={presetOptions}
-            onPresetChangeRequest={handlePresetChangeRequest}
+            selectedPresetId={currentPresetMeta.id}
+            presets={allPresets}
+            onSelect={handlePresetChange}
           />
 
           <KitSelector
-            selectedKit={selectedKit}
-            kitOptions={kitOptions}
-            onKitChange={handleKitChange}
+            selectedKitId={currentKitMeta.id}
+            kits={KITS}
+            onSelect={handleKitChange}
           />
 
-          <PresetActions
-            onLoad={handleLoad}
-            isSharePromptOpen={isSharePromptOpen}
-            onCloseSharePrompt={handleCloseSharePrompt}
-          />
+          <PresetActions onOpenFromFile={importPreset} />
         </Box>
       </Center>
 
       <SaveModal
         isOpen={isSaveModalOpen}
         onClose={closeSaveModal}
-        onSave={handleSave}
+        onSave={exportPreset}
         modalCloseRef={modalCloseRef}
+        defaultName={currentPresetMeta.name}
       />
+
       <SharingModal
         isOpen={isSharingModalOpen}
         onClose={closeSharingModal}
-        onShare={handleShare}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
+        onShare={sharePreset}
         modalCloseRef={modalCloseRef}
+        defaultName={generateCopyName(currentPresetMeta.name)}
       />
+
       <SharedModal
         isOpen={isSharedModalOpen}
         onClose={closeSharedModal}
         shareableLink={shareableLink}
         modalCloseRef={modalCloseRef}
       />
+
       <ResetModal
         isOpen={isResetModalOpen}
         onClose={closeResetModal}
         onReset={handleReset}
         modalCloseRef={modalCloseRef}
       />
+
       <ErrorModal isOpen={isErrorModalShowing} onClose={closeErrorModal} />
-      <PresetChangeModal
+
+      <ConfirmSelectPresetModal
         isOpen={isPresetChangeModalOpen}
         onClose={closePresetChangeModal}
-        onChange={handlePresetChange}
+        onSelect={handleConfirmPresetChange}
         modalCloseRef={modalCloseRef}
       />
     </>

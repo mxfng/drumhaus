@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -17,28 +17,88 @@ import {
   Spinner,
   Text,
   useClipboard,
+  useToast,
 } from "@chakra-ui/react";
+import { z } from "zod";
 
-export const SharingModal: React.FC<any> = ({
+// Validation schema for preset names
+const presetNameSchema = z
+  .string()
+  .min(1, "Preset name cannot be empty")
+  .refine(
+    (name) => !/[/\\:*?"<>|]/.test(name),
+    'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
+  );
+
+interface SharingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onShare: (name: string) => Promise<void>;
+  modalCloseRef: React.RefObject<HTMLElement>;
+  defaultName?: string;
+}
+
+export const SharingModal: React.FC<SharingModalProps> = ({
   isOpen,
   onClose,
   onShare,
-  isLoading,
-  setIsLoading,
   modalCloseRef,
+  defaultName = "",
 }) => {
   const [presetName, setPresetName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleShare = () => {
-    // Pass the presetName to the onSave function
-    onShare(presetName);
+  // Auto-populate with default name when modal opens
+  useEffect(() => {
+    if (isOpen && defaultName) {
+      setPresetName(defaultName);
+    }
+  }, [isOpen, defaultName]);
+
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setPresetName("");
+    setIsLoading(false);
+    onClose();
+  };
+
+  const handleShare = async () => {
+    // Validate preset name
+    const validation = presetNameSchema.safeParse(presetName.trim());
+
+    if (!validation.success) {
+      toast({
+        title: "Invalid preset name",
+        description: validation.error.issues[0].message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
     setIsLoading(true);
+    await onShare(presetName.trim());
+    setIsLoading(false);
+    handleClose();
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       finalFocusRef={modalCloseRef}
       isCentered
     >
@@ -60,6 +120,7 @@ export const SharingModal: React.FC<any> = ({
             >
               <Center h="100%" pl={4}>
                 <Input
+                  ref={inputRef}
                   color="gray"
                   fontFamily={`'Pixelify Sans Variable', sans-serif`}
                   h="100%"
@@ -75,7 +136,12 @@ export const SharingModal: React.FC<any> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button onClick={handleShare} colorScheme="orange" mr={3}>
+          <Button
+            onClick={handleShare}
+            colorScheme="orange"
+            mr={3}
+            isDisabled={!presetName.trim() || isLoading}
+          >
             <Text>Get Link</Text>
             {isLoading ? (
               <Spinner
@@ -88,7 +154,7 @@ export const SharingModal: React.FC<any> = ({
               />
             ) : null}
           </Button>
-          <Button onClick={onClose} color="gray">
+          <Button onClick={handleClose} color="gray">
             Cancel
           </Button>
         </ModalFooter>
@@ -97,13 +163,20 @@ export const SharingModal: React.FC<any> = ({
   );
 };
 
-export const SharedModal: React.FC<any> = ({
+interface SharedModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  shareableLink: string;
+  modalCloseRef: React.RefObject<HTMLElement>;
+}
+
+export const SharedModal: React.FC<SharedModalProps> = ({
   isOpen,
   onClose,
   shareableLink,
   modalCloseRef,
 }) => {
-  const { onCopy, hasCopied } = useClipboard("");
+  const { onCopy, hasCopied } = useClipboard(shareableLink);
 
   return (
     <Modal
@@ -119,8 +192,7 @@ export const SharedModal: React.FC<any> = ({
         <ModalCloseButton />
         <ModalBody>
           <Text pb={6} color="gray">
-            Success! Your preset has been saved to the cloud and can be shared
-            using this link:
+            Success! Your preset can be shared using this link:
           </Text>
           <Box
             w="100%"
@@ -135,10 +207,32 @@ export const SharedModal: React.FC<any> = ({
                 userSelect="all"
                 color="gray"
                 fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
               >
-                {shareableLink}
+                <Text isTruncated w="100%">
+                  {shareableLink}
+                </Text>
               </Button>
             </Center>
+          </Box>
+          <Box
+            mt={4}
+            p={3}
+            borderRadius="6px"
+            bg="rgba(176, 147, 116, 0.1)"
+            fontSize="xs"
+          >
+            <Text color="gray" fontWeight="bold" mb={1}>
+              Did you know?
+            </Text>
+            <Text color="gray" fontSize="xs" lineHeight="1.5">
+              No database needed! Your entire preset lives in this URL using
+              DEFLATE compression (via pako), bit-packed triggers, quantized
+              velocities, and more encoding. It&apos;s like a tiny spaceship
+              carrying your beats through the internet.
+            </Text>
           </Box>
         </ModalBody>
 

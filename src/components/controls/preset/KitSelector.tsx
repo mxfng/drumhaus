@@ -6,15 +6,15 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import type { KitFileV1 } from "@/types/instrument";
 
 type KitSelectorProps = {
-  selectedKit: string;
-  kitOptions: (() => KitFileV1)[];
-  onKitChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  selectedKitId: string;
+  kits: KitFileV1[];
+  onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const KitSelector: React.FC<KitSelectorProps> = ({
-  selectedKit,
-  kitOptions,
-  onKitChange,
+  selectedKitId,
+  kits,
+  onSelect,
 }) => {
   return (
     <>
@@ -37,7 +37,7 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
           <Select
             variant="unstyled"
             icon={<></>}
-            value={selectedKit}
+            value={selectedKitId}
             fontFamily={`'Pixelify Sans Variable', sans-serif`}
             color="gray"
             w="332px"
@@ -45,12 +45,12 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
             borderRadius="8px"
             cursor="pointer"
             pl={4}
-            onChange={onKitChange}
+            onChange={onSelect}
             onKeyDown={(ev) => ev.preventDefault()}
           >
-            {kitOptions.map((kit) => (
-              <option key={kit().meta.id} value={kit().meta.id}>
-                {kit().meta.name}
+            {kits.map((kit) => (
+              <option key={kit.meta.id} value={kit.meta.id}>
+                {kit.meta.name}
               </option>
             ))}
           </Select>
