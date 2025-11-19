@@ -1,46 +1,79 @@
 import * as Tone from "tone/build/esm/index";
 
-import * as kits from "@/lib/kit";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
+import { getCachedAudioUrl, preCacheAudioFiles } from "./cache";
 
 /**
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
  * Only creates Tone.js audio nodes - data should be read from useInstrumentsStore
  *
  * Disposes existing runtimes before creating new ones to prevent memory leaks
+ *
+ * Pre-caches audio files from external URLs if configured, then creates samplers
+ * with cached blob URLs or local URLs.
  */
-export function createInstrumentRuntimes(
+export async function createInstrumentRuntimes(
   runtimes: React.MutableRefObject<InstrumentRuntime[]>,
   data: InstrumentData[],
-): void {
+): Promise<void> {
   // Dispose existing runtimes before creating new ones
   if (runtimes.current.length > 0) {
     runtimes.current.forEach(disposeInstrumentRuntime);
   }
 
-  runtimes.current = data.map((d) => {
-    const filterNode = new Tone.Filter(0, "highpass");
-    const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
-    const pannerNode = new Tone.Panner(0);
+  // Pre-cache all audio files (this will download external files if configured)
+  const samplePaths = data.map((d) => d.sample.path);
+  await preCacheAudioFiles(samplePaths);
 
-    const samplePath = d.sample.path;
-    const instrumentId = d.meta.id;
+  // Create instrument runtimes with cached URLs
+  runtimes.current = await Promise.all(
+    data.map(async (d) => {
+      const filterNode = new Tone.Filter(0, "highpass");
+      const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
+      const pannerNode = new Tone.Panner(0);
 
-    const samplerNode = new Tone.Sampler({
-      urls: {
-        ["C2"]: samplePath,
-      },
-      baseUrl: "/samples/",
-    });
+      const samplePath = d.sample.path;
+      const instrumentId = d.meta.id;
 
-    return {
-      instrumentId,
-      samplerNode,
-      envelopeNode,
-      filterNode,
-      pannerNode,
-    };
-  });
+      // Get cached URL (blob URL for external files, or local URL)
+      const audioUrl = await getCachedAudioUrl(samplePath);
+
+      // Extract just the filename for Tone.Sampler
+      // If it's a blob URL, we pass the full blob URL directly
+      // If it's a local URL like /samples/0/kick.wav, we need to extract the relative path
+      let samplerUrl: string;
+      let baseUrl: string | undefined;
+
+      if (audioUrl.startsWith("blob:")) {
+        // For blob URLs, use the full URL as the path and no baseUrl
+        samplerUrl = audioUrl;
+        baseUrl = undefined;
+      } else if (audioUrl.startsWith("/")) {
+        // For local URLs, extract the relative path from /samples/
+        samplerUrl = samplePath; // Use the original sample path
+        baseUrl = "/samples/";
+      } else {
+        // For external URLs (shouldn't happen with our current implementation, but handle it)
+        samplerUrl = samplePath;
+        baseUrl = undefined;
+      }
+
+      const samplerNode = new Tone.Sampler({
+        urls: {
+          ["C2"]: samplerUrl,
+        },
+        ...(baseUrl && { baseUrl }),
+      });
+
+      return {
+        instrumentId,
+        samplerNode,
+        envelopeNode,
+        filterNode,
+        pannerNode,
+      };
+    }),
+  );
 }
 
 /**

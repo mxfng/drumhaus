@@ -247,10 +247,11 @@ const Drumhaus = () => {
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
-    createInstrumentRuntimes(instrumentRuntimes, instruments);
+    const samplePaths = instruments.map((inst) => inst.sample.path);
 
     const loadBuffers = async () => {
       try {
+        await createInstrumentRuntimes(instrumentRuntimes, instruments);
         await waitForBuffersToLoad();
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
