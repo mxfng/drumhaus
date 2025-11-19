@@ -425,7 +425,7 @@ const Drumhaus = () => {
 
               <GridItem w="380px" px={2}>
                 <PresetControl
-                  loadPreset={loadPreset}
+                  createPresetFn={loadPreset}
                   togglePlay={() => togglePlay(instrumentRuntimes.current)}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}

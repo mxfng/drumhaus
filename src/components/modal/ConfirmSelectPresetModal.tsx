@@ -12,12 +12,16 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-export const PresetChangeModal: React.FC<any> = ({
-  isOpen,
-  onClose,
-  onChange,
-  modalCloseRef,
-}) => {
+interface ConfirmSelectPresetModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: () => void;
+  modalCloseRef: React.RefObject<HTMLDivElement>;
+}
+
+export const ConfirmSelectPresetModal: React.FC<
+  ConfirmSelectPresetModalProps
+> = ({ isOpen, onClose, onSelect, modalCloseRef }) => {
   return (
     <Modal
       isOpen={isOpen}
@@ -42,7 +46,7 @@ export const PresetChangeModal: React.FC<any> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button onClick={onChange} colorScheme="orange" mr={3}>
+          <Button onClick={onSelect} colorScheme="orange" mr={3}>
             Switch
           </Button>
           <Button onClick={onClose} color="gray">

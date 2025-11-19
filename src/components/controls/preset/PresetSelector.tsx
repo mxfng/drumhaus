@@ -6,15 +6,15 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import type { PresetFileV1 } from "@/types/preset";
 
 type PresetSelectorProps = {
-  selectedPreset: string;
-  presetOptions: (() => PresetFileV1)[];
-  onPresetChangeRequest: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  selectedPresetId: string;
+  presets: PresetFileV1[];
+  onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const PresetSelector: React.FC<PresetSelectorProps> = ({
-  selectedPreset,
-  presetOptions,
-  onPresetChangeRequest,
+  selectedPresetId,
+  presets,
+  onSelect,
 }) => {
   return (
     <>
@@ -37,20 +37,22 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
           <Select
             variant="unstyled"
             icon={<></>}
-            value={selectedPreset}
+            value={selectedPresetId}
             fontFamily={`'Pixelify Sans Variable', sans-serif`}
             color="gray"
             w="332px"
             h="40px"
             borderRadius="8px"
             cursor="pointer"
-            onChange={onPresetChangeRequest}
+            onChange={(event) => {
+              onSelect(event);
+            }}
             onKeyDown={(ev) => ev.preventDefault()}
             pl={4}
           >
-            {presetOptions.map((preset) => (
-              <option key={preset().meta.id} value={preset().meta.id}>
-                {preset().meta.name}
+            {presets.map((preset) => (
+              <option key={preset.meta.id} value={preset.meta.id}>
+                {preset.meta.name}
               </option>
             ))}
           </Select>

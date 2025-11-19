@@ -24,19 +24,18 @@ import { RxReset } from "react-icons/rx";
 import { useModalStore } from "@/stores/useModalStore";
 
 type PresetActionsProps = {
-  onLoad: () => void;
-  isSharePromptOpen: boolean;
-  onCloseSharePrompt: () => void;
+  onOpenFromFile: () => void;
 };
 
 export const PresetActions: React.FC<PresetActionsProps> = ({
-  onLoad,
-  isSharePromptOpen,
-  onCloseSharePrompt,
+  onOpenFromFile,
 }) => {
   const openSaveModal = useModalStore((state) => state.openSaveModal);
   const openSharingModal = useModalStore((state) => state.openSharingModal);
   const openResetModal = useModalStore((state) => state.openResetModal);
+
+  const sharePromptOpen = useModalStore((state) => state.isSharePromptOpen);
+  const closeSharePrompt = useModalStore((state) => state.closeSharePrompt);
 
   return (
     <Grid
@@ -69,7 +68,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         <Center>
           <Tooltip label="Load from file" color="darkorange" openDelay={500}>
             <Button
-              onClick={onLoad}
+              onClick={onOpenFromFile}
               w="100%"
               borderRadius="0 0 0 0"
               className="raised"
@@ -87,11 +86,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </GridItem>
       <GridItem>
         <Center>
-          <Popover
-            isOpen={isSharePromptOpen}
-            onClose={onCloseSharePrompt}
-            isLazy
-          >
+          <Popover isOpen={sharePromptOpen} onClose={closeSharePrompt} isLazy>
             <Tooltip label="Share as link" color="darkorange" openDelay={500}>
               <Box display="inline-block" w="100%">
                 <PopoverTrigger>
@@ -133,7 +128,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
                 <Button
                   bg="darkorange"
                   color="silver"
-                  onClick={onCloseSharePrompt}
+                  onClick={closeSharePrompt}
                 >
                   Dismiss
                 </Button>
