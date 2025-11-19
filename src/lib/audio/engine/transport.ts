@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { context, now, start, Transport } from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
 
@@ -6,8 +6,8 @@ import type { InstrumentRuntime } from "@/types/instrument";
  * Starts the Tone.js audio context if it's not already running
  */
 export async function startAudioContext(): Promise<void> {
-  if (Tone.context.state !== "running") {
-    await Tone.start();
+  if (context.state !== "running") {
+    await start();
   }
 }
 
@@ -15,7 +15,7 @@ export async function startAudioContext(): Promise<void> {
  * Starts the transport
  */
 export function startTransport(): void {
-  Tone.Transport.start();
+  Transport.start();
 }
 
 /**
@@ -23,7 +23,7 @@ export function startTransport(): void {
  * @param onStop - Optional callback to execute after stopping
  */
 export function stopTransport(onStop?: () => void): void {
-  Tone.Transport.stop();
+  Transport.stop();
   if (onStop) {
     onStop();
   }
@@ -33,14 +33,14 @@ export function stopTransport(onStop?: () => void): void {
  * Gets the current audio time
  */
 export function getCurrentTime(): number {
-  return Tone.now();
+  return now();
 }
 
 /**
  * Sets the BPM (beats per minute) of the transport
  */
 export function setTransportBpm(bpm: number): void {
-  Tone.Transport.bpm.value = bpm;
+  Transport.bpm.value = bpm;
 }
 
 /**
@@ -50,8 +50,8 @@ export function setTransportBpm(bpm: number): void {
 export function setTransportSwing(swing: number): void {
   // Transform swing value from 0-100 to 0-0.5
   const newSwing = (swing / 100) * 0.5;
-  Tone.Transport.swingSubdivision = "16n";
-  Tone.Transport.swing = newSwing;
+  Transport.swingSubdivision = "16n";
+  Transport.swing = newSwing;
 }
 
 /**

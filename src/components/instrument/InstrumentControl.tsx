@@ -18,7 +18,7 @@ import "@fontsource-variable/pixelify-sans";
 import { useCallback, useEffect, useRef } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
-import * as Tone from "tone/build/esm/index";
+import { now } from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
@@ -95,7 +95,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const currentPitchRef = useRef<number | null>(null);
-  const sampleDuration = useSampleDuration(samplePath);
+  const sampleDuration = useSampleDuration(runtime);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -200,7 +200,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute) {
-      runtime.samplerNode.triggerRelease("C2", Tone.now());
+      runtime.samplerNode.triggerRelease("C2", now());
     }
     toggleMute();
   }, [toggleMute, mute, runtime.samplerNode]);

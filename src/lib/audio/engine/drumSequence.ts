@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { Sequence } from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
@@ -13,7 +13,7 @@ const STEPS: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
  * Disposes a drum sequence, stopping it first if it's running
  */
 export function disposeDrumSequence(
-  sequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
+  sequencer: React.MutableRefObject<Sequence<any> | null>,
 ): void {
   if (sequencer.current) {
     if (sequencer.current.state === "started") {
@@ -29,7 +29,7 @@ export function disposeDrumSequence(
  * Don't forget: make good music
  */
 export function createDrumSequence(
-  tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
+  tjsSequencer: React.MutableRefObject<Sequence<any> | null>,
   instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>,
   variationCycle: VariationCycle,
   currentBar: React.MutableRefObject<number>,
@@ -38,7 +38,7 @@ export function createDrumSequence(
   // Dispose existing sequence before creating a new one
   disposeDrumSequence(tjsSequencer);
 
-  tjsSequencer.current = new Tone.Sequence(
+  tjsSequencer.current = new Sequence(
     (time, step: number) => {
       // --- Grab fresh state every 16th note (for live response) ---
       const instrumentsState = useInstrumentsStore.getState();

@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { Buffer, loaded } from "tone/build/esm/index";
 
 /**
  * Fetches an audio buffer from a URL and returns its duration in seconds.
@@ -7,7 +7,7 @@ import * as Tone from "tone/build/esm/index";
  */
 export async function getSampleDuration(url: string): Promise<number> {
   try {
-    const buffer = await Tone.Buffer.fromUrl(`/samples/${url}`);
+    const buffer = await Buffer.fromUrl(`/samples/${url}`);
     return buffer.duration;
   } catch (error) {
     console.error("Error fetching or decoding audio data:", error);
@@ -23,5 +23,5 @@ export async function getSampleDuration(url: string): Promise<number> {
  * @throws Error if loading fails
  */
 export async function waitForBuffersToLoad(): Promise<void> {
-  await Tone.loaded();
+  await loaded();
 }

@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { Analyser, Destination } from "tone/build/esm/index";
 
 /**
  * Creates a frequency analyzer and connects it to Tone.Destination
@@ -9,7 +9,7 @@ import * as Tone from "tone/build/esm/index";
  * @param type - Analysis type (default: "fft")
  */
 export function createFrequencyAnalyzer(
-  analyzer: React.MutableRefObject<Tone.Analyser | null>,
+  analyzer: React.MutableRefObject<Analyser | null>,
   size: number = 512,
   type: "fft" | "waveform" = "fft",
 ): void {
@@ -18,18 +18,18 @@ export function createFrequencyAnalyzer(
     disposeFrequencyAnalyzer(analyzer);
   }
 
-  analyzer.current = new Tone.Analyser(type, size);
-  Tone.Destination.connect(analyzer.current);
+  analyzer.current = new Analyser(type, size);
+  Destination.connect(analyzer.current);
 }
 
 /**
  * Disposes the frequency analyzer and disconnects it from Tone.Destination
  */
 export function disposeFrequencyAnalyzer(
-  analyzer: React.MutableRefObject<Tone.Analyser | null>,
+  analyzer: React.MutableRefObject<Analyser | null>,
 ): void {
   if (analyzer.current) {
-    Tone.Destination.disconnect(analyzer.current);
+    Destination.disconnect(analyzer.current);
     analyzer.current.dispose();
     analyzer.current = null;
   }

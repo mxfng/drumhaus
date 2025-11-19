@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { now } from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -20,7 +20,7 @@ export function playInstrumentSample(
   sampleDuration: number,
   previousPitch: number | null = null,
 ): number {
-  const time = Tone.now();
+  const time = now();
 
   // Release envelope
   runtime.envelopeNode.triggerRelease(time);

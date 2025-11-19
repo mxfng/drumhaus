@@ -1,6 +1,10 @@
-import * as Tone from "tone/build/esm/index";
+import {
+  AmplitudeEnvelope,
+  Filter,
+  Panner,
+  Sampler,
+} from "tone/build/esm/index";
 
-import * as kits from "@/lib/kit";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 
 /**
@@ -19,14 +23,14 @@ export function createInstrumentRuntimes(
   }
 
   runtimes.current = data.map((d) => {
-    const filterNode = new Tone.Filter(0, "highpass");
-    const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
-    const pannerNode = new Tone.Panner(0);
+    const filterNode = new Filter(0, "highpass");
+    const envelopeNode = new AmplitudeEnvelope(0, 0, 1, 0.05);
+    const pannerNode = new Panner(0);
 
     const samplePath = d.sample.path;
     const instrumentId = d.meta.id;
 
-    const samplerNode = new Tone.Sampler({
+    const samplerNode = new Sampler({
       urls: {
         ["C2"]: samplePath,
       },
@@ -44,12 +48,10 @@ export function createInstrumentRuntimes(
 }
 
 /**
- * Create initial Drumhaus runtime nodes
- * Note: This creates a temporary ref just for initialization
+ * Empty initial runtime nodes array
+ * Runtime nodes are created lazily when component mounts
  */
-const initRef: React.MutableRefObject<InstrumentRuntime[]> = { current: [] };
-createInstrumentRuntimes(initRef, kits.drumhaus().instruments);
-export const INIT_INSTRUMENT_RUNTIMES: InstrumentRuntime[] = initRef.current;
+export const INIT_INSTRUMENT_RUNTIMES: InstrumentRuntime[] = [];
 
 /**
  * Disposes all nodes in an instrument runtime

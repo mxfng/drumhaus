@@ -1,4 +1,10 @@
-import * as Tone from "tone/build/esm/index";
+import {
+  Compressor,
+  Destination,
+  Filter,
+  Phaser,
+  Reverb,
+} from "tone/build/esm/index";
 
 import {
   transformKnobValue,
@@ -7,11 +13,11 @@ import {
 import type { InstrumentRuntime } from "@/types/instrument";
 
 export interface MasterChainRuntimes {
-  lowPassFilter: Tone.Filter;
-  highPassFilter: Tone.Filter;
-  phaser: Tone.Phaser;
-  reverb: Tone.Reverb;
-  compressor: Tone.Compressor;
+  lowPassFilter: Filter;
+  highPassFilter: Filter;
+  phaser: Phaser;
+  reverb: Reverb;
+  compressor: Compressor;
 }
 
 export interface MasterChainParams {
@@ -49,9 +55,9 @@ export async function createMasterChainRuntimes(
   const compThreshold = transformKnobValue(params.compThreshold, [-40, 0]);
   const compRatio = Math.floor(transformKnobValue(params.compRatio, [1, 8]));
 
-  const lowPassFilter = new Tone.Filter(lowPassFreq, "lowpass");
-  const highPassFilter = new Tone.Filter(hiPassFreq, "highpass");
-  const phaser = new Tone.Phaser({
+  const lowPassFilter = new Filter(lowPassFreq, "lowpass");
+  const highPassFilter = new Filter(hiPassFreq, "highpass");
+  const phaser = new Phaser({
     frequency: 1,
     octaves: 3,
     baseFrequency: 1000,
@@ -59,13 +65,13 @@ export async function createMasterChainRuntimes(
   });
 
   // Reverb needs async initialization
-  const reverb = new Tone.Reverb({
+  const reverb = new Reverb({
     decay: reverbDecay,
     wet: reverbWet,
   });
   await reverb.generate();
 
-  const compressor = new Tone.Compressor({
+  const compressor = new Compressor({
     threshold: compThreshold,
     ratio: compRatio,
     attack: 0.5,
@@ -98,7 +104,7 @@ export function connectInstrumentsToMasterChain(
       masterChainRuntimes.phaser,
       masterChainRuntimes.reverb,
       masterChainRuntimes.compressor,
-      Tone.Destination,
+      Destination,
     );
   });
 }
@@ -138,11 +144,8 @@ export function updateMasterChainParams(
     transformKnobValue(params.compRatio, [1, 8]),
   );
 
-  // Master volume (Tone.Destination)
-  Tone.Destination.volume.value = transformKnobValue(
-    params.masterVolume,
-    [-46, 4],
-  );
+  // Master volume (Destination)
+  Destination.volume.value = transformKnobValue(params.masterVolume, [-46, 4]);
 }
 
 /**
