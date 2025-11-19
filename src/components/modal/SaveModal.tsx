@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -45,6 +45,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
 }) => {
   const [presetName, setPresetName] = useState("");
   const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-populate with default name when modal opens
   useEffect(() => {
@@ -52,6 +53,16 @@ export const SaveModal: React.FC<SaveModalProps> = ({
       setPresetName(defaultName);
     }
   }, [isOpen, defaultName]);
+
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setPresetName("");
@@ -102,6 +113,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
             >
               <Center h="100%" pl={4}>
                 <Input
+                  ref={inputRef}
                   color="gray"
                   fontFamily={`'Pixelify Sans Variable', sans-serif`}
                   h="100%"

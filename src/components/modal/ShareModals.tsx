@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -48,6 +48,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   const [presetName, setPresetName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-populate with default name when modal opens
   useEffect(() => {
@@ -55,6 +56,16 @@ export const SharingModal: React.FC<SharingModalProps> = ({
       setPresetName(defaultName);
     }
   }, [isOpen, defaultName]);
+
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setPresetName("");
@@ -109,6 +120,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
             >
               <Center h="100%" pl={4}>
                 <Input
+                  ref={inputRef}
                   color="gray"
                   fontFamily={`'Pixelify Sans Variable', sans-serif`}
                   h="100%"
@@ -195,10 +207,32 @@ export const SharedModal: React.FC<SharedModalProps> = ({
                 userSelect="all"
                 color="gray"
                 fontFamily={`'Pixelify Sans Variable', sans-serif`}
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
               >
-                {shareableLink}
+                <Text isTruncated w="100%">
+                  {shareableLink}
+                </Text>
               </Button>
             </Center>
+          </Box>
+          <Box
+            mt={4}
+            p={3}
+            borderRadius="6px"
+            bg="rgba(176, 147, 116, 0.1)"
+            fontSize="xs"
+          >
+            <Text color="gray" fontWeight="bold" mb={1}>
+              Did you know?
+            </Text>
+            <Text color="gray" fontSize="xs" lineHeight="1.5">
+              No database needed! Your entire preset lives in this URL using
+              DEFLATE compression (via pako), bit-packed triggers, quantized
+              velocities, and more encoding. It&apos;s like a tiny spaceship
+              carrying your beats through the internet.
+            </Text>
           </Box>
         </ModalBody>
 

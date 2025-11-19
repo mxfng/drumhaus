@@ -194,6 +194,11 @@ const Drumhaus = () => {
       });
 
       loadPreset(init());
+    } finally {
+      // Remove URL parameter after loading preset
+      const url = new URL(window.location.href);
+      url.searchParams.delete("p");
+      window.history.replaceState({}, "", url.toString());
     }
   };
 
