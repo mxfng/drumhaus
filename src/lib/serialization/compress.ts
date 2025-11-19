@@ -1,54 +1,4 @@
-import * as LZString from "lz-string";
 import * as pako from "pako";
-
-/**
- * Compression method to use
- * - "lz-string": Optimized for URL compression, smaller output
- * - "pako": Standard gzip compression
- */
-const COMPRESSION_METHOD: "lz-string" | "pako" = "lz-string";
-
-// ============================================================================
-// LZ-STRING IMPLEMENTATION (Optimized for URLs)
-// ============================================================================
-
-/**
- * Compresses a string using lz-string (optimized for URLs)
- * @param input - The string to compress
- * @returns URL-safe compressed string
- */
-export function compressLZString(input: string): string {
-  try {
-    return LZString.compressToEncodedURIComponent(input);
-  } catch (error) {
-    throw new Error(
-      `LZ-String compression failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
-  }
-}
-
-/**
- * Decompresses a lz-string compressed string
- * @param input - URL-safe compressed string
- * @returns Decompressed string
- */
-export function decompressLZString(input: string): string {
-  try {
-    const result = LZString.decompressFromEncodedURIComponent(input);
-    if (result === null || result === "") {
-      throw new Error("Decompression returned null or empty string");
-    }
-    return result;
-  } catch (error) {
-    throw new Error(
-      `LZ-String decompression failed: ${error instanceof Error ? error.message : "Unknown error"}. The URL may be corrupted or invalid.`,
-    );
-  }
-}
-
-// ============================================================================
-// PAKO IMPLEMENTATION (Standard gzip)
-// ============================================================================
 
 /**
  * Compresses a string using gzip and encodes as URL-safe base64
@@ -121,31 +71,23 @@ export function decompressPako(input: string): string {
 }
 
 // ============================================================================
-// MAIN API (uses selected compression method)
+// MAIN API
 // ============================================================================
 
 /**
- * Compresses a string using the configured compression method
+ * Compresses a string using gzip compression
  * @param input - The string to compress
  * @returns URL-safe compressed string
  */
 export function compress(input: string): string {
-  if (COMPRESSION_METHOD === "lz-string") {
-    return compressLZString(input);
-  } else {
-    return compressPako(input);
-  }
+  return compressPako(input);
 }
 
 /**
- * Decompresses a string using the configured compression method
+ * Decompresses a gzip compressed string
  * @param input - URL-safe compressed string
  * @returns Decompressed string
  */
 export function decompress(input: string): string {
-  if (COMPRESSION_METHOD === "lz-string") {
-    return decompressLZString(input);
-  } else {
-    return decompressPako(input);
-  }
+  return decompressPako(input);
 }
