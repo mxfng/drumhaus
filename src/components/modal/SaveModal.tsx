@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -14,27 +15,84 @@ import {
   ModalHeader,
   ModalOverlay,
   Text,
+  useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { z } from "zod";
 
-export const SaveModal: React.FC<any> = ({
+// Validation schema for preset names
+const presetNameSchema = z
+  .string()
+  .min(1, "Preset name cannot be empty")
+  .refine(
+    (name) => !/[/\\:*?"<>|]/.test(name),
+    'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
+  );
+
+interface SaveModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (name: string) => void;
+  modalCloseRef: React.RefObject<HTMLElement>;
+  defaultName?: string;
+}
+
+export const SaveModal: React.FC<SaveModalProps> = ({
   isOpen,
   onClose,
   onSave,
   modalCloseRef,
+  defaultName = "",
 }) => {
   const [presetName, setPresetName] = useState("");
+  const toast = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-populate with default name when modal opens
+  useEffect(() => {
+    if (isOpen && defaultName) {
+      setPresetName(defaultName);
+    }
+  }, [isOpen, defaultName]);
+
+  // Auto-focus input when modal opens
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    setPresetName("");
+    onClose();
+  };
 
   const handleSave = () => {
-    // Pass the presetName to the onSave function
-    onSave(presetName);
-    onClose(); // Close the modal
+    // Validate preset name
+    const validation = presetNameSchema.safeParse(presetName.trim());
+
+    if (!validation.success) {
+      toast({
+        title: "Invalid preset name",
+        description: validation.error.issues[0].message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
+    onSave(presetName.trim());
+    handleClose();
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       finalFocusRef={modalCloseRef}
       isCentered
     >
@@ -55,6 +113,7 @@ export const SaveModal: React.FC<any> = ({
             >
               <Center h="100%" pl={4}>
                 <Input
+                  ref={inputRef}
                   color="gray"
                   fontFamily={`'Pixelify Sans Variable', sans-serif`}
                   h="100%"
@@ -70,10 +129,15 @@ export const SaveModal: React.FC<any> = ({
         </ModalBody>
 
         <ModalFooter>
-          <Button onClick={handleSave} colorScheme="orange" mr={3}>
+          <Button
+            onClick={handleSave}
+            colorScheme="orange"
+            mr={3}
+            isDisabled={!presetName.trim()}
+          >
             Download
           </Button>
-          <Button onClick={onClose} color="gray">
+          <Button onClick={handleClose} color="gray">
             Cancel
           </Button>
         </ModalFooter>

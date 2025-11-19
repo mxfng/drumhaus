@@ -1,33 +1,28 @@
 "use client";
 
-import { Sequences } from "@/types/types";
-import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
+import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
+
+import { usePatternStore } from "@/stores/usePatternStore";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
 
-type SequencerProps = {
-  sequence: boolean[];
-  setSequence: React.Dispatch<React.SetStateAction<boolean[]>>;
-  sequences: Sequences;
-  setSequences: React.Dispatch<React.SetStateAction<Sequences>>;
-  variation: number;
-  slot: number;
-  step: number;
-  isPlaying: boolean;
-};
+export const Sequencer: React.FC = () => {
+  // Get playback state from Transport Store
+  const step = useTransportStore((state) => state.stepIndex);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
 
-export const Sequencer: React.FC<SequencerProps> = ({
-  sequence,
-  setSequence,
-  sequences,
-  setSequences,
-  variation,
-  slot,
-  step,
-  isPlaying,
-}) => {
+  // Get sequencer state from Sequencer Store
+  const pattern = usePatternStore((state) => state.pattern);
+  const variation = usePatternStore((state) => state.variation);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const triggers = usePatternStore(
+    (state) => state.pattern[voiceIndex].variations[variation].triggers,
+  );
+  const toggleStep = usePatternStore((state) => state.toggleStep);
+  const setVelocity = usePatternStore((state) => state.setVelocity);
   const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
   const [isWriting, setWriteState] = useState<boolean>(true);
   const [isVelocity, setIsVelocity] = useState<boolean>(false);
@@ -55,53 +50,37 @@ export const Sequencer: React.FC<SequencerProps> = ({
     return 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
   };
 
-  const toggleStep = (index: number) => {
-    setSequence((prevSequence: boolean[]) => {
-      const newSequence = [...prevSequence];
-      newSequence[index] = !newSequence[index];
-
-      setSequences((prevSequences: Sequences) => {
-        const newSequences = [...prevSequences];
-        newSequences[slot][variation][0] = newSequence;
-        newSequences[slot][variation][1][index] = 1;
-        return newSequences;
-      });
-
-      return newSequence;
-    });
+  const handleToggleStep = (index: number) => {
+    toggleStep(voiceIndex, variation, index);
   };
 
   const toggleStepOnMouseDown = (node: number, nodeState: boolean) => {
     setIsMouseDown(true);
     setWriteState(!nodeState);
-    toggleStep(node);
+    handleToggleStep(node);
   };
 
   const toggleStepOnMouseOver = (node: number, nodeState: boolean) => {
     if (isMouseDown && nodeState !== isWriting && !isVelocity) {
-      toggleStep(node);
+      handleToggleStep(node);
     }
   };
 
   const getVelocityValue = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     const targetDiv = event.currentTarget;
     const rect = targetDiv.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const divWidth = rect.width;
     const calculateVelocity = Math.max(Math.min(mouseX / divWidth, 100), 0);
-    setSequences((prevSequences) => {
-      const newSequences = [...prevSequences];
-      newSequences[slot][variation][1][node] = calculateVelocity;
-      return newSequences;
-    });
+    setVelocity(voiceIndex, variation, node, calculateVelocity);
   };
 
   const adjustVelocityOnMouseDown = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     setIsMouseDown(true);
     setIsVelocity(true);
@@ -110,7 +89,7 @@ export const Sequencer: React.FC<SequencerProps> = ({
 
   const adjustVelocityOnMouseMove = (
     event: React.MouseEvent<HTMLDivElement>,
-    node: number
+    node: number,
   ) => {
     if (isMouseDown && isVelocity) {
       getVelocityValue(event, node);
@@ -142,34 +121,34 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   node == step && isPlaying
                     ? 1
                     : [0, 4, 8, 12].includes(node)
-                    ? 0.6
-                    : 0.2
+                      ? 0.6
+                      : 0.2
                 }
                 bg={node == step && isPlaying ? "darkorange" : "gray"}
               />
               <Box
                 key={`sequenceNode${node}`}
-                onMouseDown={() => toggleStepOnMouseDown(node, sequence[node])}
-                onMouseEnter={() => toggleStepOnMouseOver(node, sequence[node])}
+                onMouseDown={() => toggleStepOnMouseDown(node, triggers[node])}
+                onMouseEnter={() => toggleStepOnMouseOver(node, triggers[node])}
                 onContextMenu={(e) => e.preventDefault()}
                 w="100%"
                 h={`${calculateStepsHeight()}px`}
-                bg={sequence[node] ? "darkorange" : "#E8E3DD"}
+                bg={triggers[node] ? "darkorange" : "#E8E3DD"}
                 transition="all 0.3s ease"
-                opacity={sequence[node] ? 1 : 1}
+                opacity={triggers[node] ? 1 : 1}
                 borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
                 }px`}
                 cursor="pointer"
                 _hover={{
-                  background: sequence[node] ? "darkorange" : "darkorangehover",
+                  background: triggers[node] ? "darkorange" : "darkorangehover",
                   transition: "all 0.3s ease",
-                  boxShadow: sequence[node]
+                  boxShadow: triggers[node]
                     ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
                     : "0 4px 8px rgba(176, 147, 116, 1) inset",
                 }}
                 boxShadow={
-                  sequence[node]
+                  triggers[node]
                     ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
                     : "0 4px 8px rgba(176, 147, 116, 1) inset"
                 }
@@ -179,9 +158,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
                 w="100%"
                 h="14px"
                 mt={3}
-                bg={sequence[node] ? "transparent" : "transparent"}
+                bg={triggers[node] ? "transparent" : "transparent"}
                 transition="all 0.2s ease"
-                opacity={sequence[node] ? 0.6 : 0}
+                opacity={triggers[node] ? 0.6 : 0}
                 outline="1px solid darkorange"
                 transform="opacity 0.2s ease"
                 position="relative"
@@ -201,8 +180,9 @@ export const Sequencer: React.FC<SequencerProps> = ({
                   bg="darkorange"
                   h="100%"
                   w={`${Math.max(
-                    sequences[slot][variation][1][node] * 100,
-                    12
+                    pattern[voiceIndex].variations[variation].velocities[node] *
+                      100,
+                    12,
                   )}%`}
                   position="absolute"
                   borderRadius="200px 0 200px 0"
@@ -217,12 +197,16 @@ export const Sequencer: React.FC<SequencerProps> = ({
                     transition="0.5s ease"
                     filter="blur(2px)"
                   >
-                    {(sequences[slot][variation][1][node] * 100).toFixed(0)}
+                    {(
+                      pattern[voiceIndex].variations[variation].velocities[
+                        node
+                      ] * 100
+                    ).toFixed(0)}
                   </Text>
                 </Center>
               </Box>
             </GridItem>
-          )
+          ),
         )}
       </Grid>
     </Box>

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
-import { Providers } from "./providers";
+
 import { Analytics } from "@vercel/analytics/react";
+
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: {

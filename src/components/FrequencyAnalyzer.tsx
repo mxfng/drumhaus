@@ -1,5 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import * as Tone from "tone/build/esm/index";
+import type * as Tone from "tone/build/esm/index";
+
+import {
+  createFrequencyAnalyzer,
+  disposeFrequencyAnalyzer,
+} from "@/lib/audio/engine";
 
 // Define TypeScript types
 interface FrequencyAnalyzerProps {}
@@ -10,10 +15,7 @@ const FrequencyAnalyzer: React.FC<FrequencyAnalyzerProps> = () => {
 
   useEffect(() => {
     // Create the frequency analyzer
-    analyzer.current = new Tone.Analyser("fft", 512);
-
-    // Connect the Tone.Destination to the analyzer
-    Tone.Destination.connect(analyzer.current);
+    createFrequencyAnalyzer(analyzer);
 
     // Create a canvas for visualization
     const canvas = canvasRef.current;
@@ -61,7 +63,7 @@ const FrequencyAnalyzer: React.FC<FrequencyAnalyzerProps> = () => {
     animate();
 
     return () => {
-      Tone.Destination.disconnect(analyzer.current!);
+      disposeFrequencyAnalyzer(analyzer);
     };
   }, []);
 
