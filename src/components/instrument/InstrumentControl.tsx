@@ -7,7 +7,6 @@ import {
   Flex,
   Grid,
   GridItem,
-  Spinner,
   Text,
   Tooltip,
 } from "@chakra-ui/react";
@@ -31,6 +30,7 @@ import {
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
+import { PixelatedSpinner } from "../common/PixelatedSpinner";
 import Waveform from "./Waveform";
 
 type InstrumentControlParams = {
@@ -294,7 +294,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               <Waveform audioFile={samplePath} width={170} />
             ) : (
               <Center w="100%" h="100%">
-                <Spinner size="md" color={color} thickness="3px" />
+                <PixelatedSpinner color={color} />
               </Center>
             )}
           </Button>

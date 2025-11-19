@@ -91,3 +91,17 @@ a {
     rgba(239, 228, 217, 1)
   );
 }
+
+@keyframes pixelated-spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.pixelated-spinner__pixel {
+  animation: pixelated-spinner-pulse 1s ease-in-out infinite;
+}
