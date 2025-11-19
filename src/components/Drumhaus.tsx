@@ -144,14 +144,26 @@ const Drumhaus = () => {
   };
 
   /**
-   * Load preset from URL parameter or fallback to default
+   * Load preset from URL parameter or fallback to persisted/default
    */
   const loadFromUrlOrDefault = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const presetParam = urlParams.get("p");
 
     if (!presetParam) {
-      loadPreset(init());
+      // Check if we have persisted store values in localStorage
+      const hasPersistedData =
+        typeof window !== "undefined" &&
+        localStorage.getItem("drumhaus-preset-meta-storage") !== null;
+
+      // TODO: Add validation to check if the persisted data is valid
+      // This could potentially lead to corrupted projects if any states
+      // are malformed.
+
+      if (!hasPersistedData) {
+        // No persisted data, load default init preset
+        loadPreset(init());
+      }
       return;
     }
 
@@ -287,6 +299,11 @@ const Drumhaus = () => {
   // ============================================================================
   // RENDER
   // ============================================================================
+
+  if (instrumentRuntimes.current.length === 0) {
+    // TODO: Add a fallback UI here or cover all of this with a loading screen until fade in
+    return <div></div>;
+  }
 
   return (
     <>
