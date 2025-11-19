@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { init } from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
@@ -48,21 +49,11 @@ export const usePresetMetaStore = create<PresetMetaState>()(
   devtools(
     persist(
       immer((set, get) => ({
-        // Initial state - default "init" preset
-        currentPresetMeta: {
-          id: "preset-init",
-          name: "init",
-          createdAt: "2023-11-20T16:00:00.000Z",
-          updatedAt: "2023-11-20T16:00:00.000Z",
-        },
-        currentKitMeta: {
-          id: "kit-drumhaus",
-          name: "drumhaus",
-          createdAt: "2023-11-20T16:00:00.000Z",
-          updatedAt: "2023-11-20T16:00:00.000Z",
-        },
-        cleanPreset: null,
-        recentPresets: [],
+        // Initial state - init preset "init.dh"
+        currentPresetMeta: init().meta,
+        currentKitMeta: init().kit.meta,
+        cleanPreset: init(),
+        recentPresets: [init().meta],
 
         // Actions
         setPresetMeta: (meta) => {

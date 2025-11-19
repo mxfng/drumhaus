@@ -12,7 +12,6 @@ export { createDrumSequence, disposeDrumSequence } from "./drumSequence";
 export {
   createInstrumentRuntimes,
   disposeInstrumentRuntimes,
-  INIT_INSTRUMENT_RUNTIMES,
 } from "./instrumentRuntimes";
 
 // Master Chain

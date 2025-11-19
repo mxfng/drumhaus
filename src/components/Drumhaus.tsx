@@ -22,7 +22,6 @@ import {
   createInstrumentRuntimes,
   disposeDrumSequence,
   disposeInstrumentRuntimes,
-  INIT_INSTRUMENT_RUNTIMES,
   waitForBuffersToLoad,
 } from "@/lib/audio/engine";
 import { init } from "@/lib/preset";
@@ -89,9 +88,7 @@ const Drumhaus = () => {
   const [isMobileWarning, setIsMobileWarning] = useState(false);
 
   // Audio engine refs (Tone.js runtime nodes)
-  const instrumentRuntimes = useRef<InstrumentRuntime[]>(
-    INIT_INSTRUMENT_RUNTIMES,
-  );
+  const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
   const toneSequence = useRef<Tone.Sequence | null>(null);
   const bar = useRef<number>(0);
@@ -147,14 +144,26 @@ const Drumhaus = () => {
   };
 
   /**
-   * Load preset from URL parameter or fallback to default
+   * Load preset from URL parameter or fallback to persisted/default
    */
   const loadFromUrlOrDefault = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const presetParam = urlParams.get("p");
 
     if (!presetParam) {
-      loadPreset(init());
+      // Check if we have persisted store values in localStorage
+      const hasPersistedData =
+        typeof window !== "undefined" &&
+        localStorage.getItem("drumhaus-preset-meta-storage") !== null;
+
+      // TODO: Add validation to check if the persisted data is valid
+      // This could potentially lead to corrupted projects if any states
+      // are malformed.
+
+      if (!hasPersistedData) {
+        // No persisted data, load default init preset
+        loadPreset(init());
+      }
       return;
     }
 
@@ -231,6 +240,10 @@ const Drumhaus = () => {
 
   // Rebuild audio engine when samples change
   useEffect(() => {
+    if (instrumentSamplePaths.length === 0) {
+      return;
+    }
+
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
@@ -281,6 +294,11 @@ const Drumhaus = () => {
   // ============================================================================
   // RENDER
   // ============================================================================
+
+  if (instrumentRuntimes.current.length === 0) {
+    // TODO: Add a fallback UI here or cover all of this with a loading screen until fade in
+    return <div></div>;
+  }
 
   return (
     <>
