@@ -151,64 +151,76 @@ const Drumhaus = () => {
   });
 
   // l o a d   f r o m   q u e r y   p a r a m
+  const hasLoadedFromUrl = useRef(false);
+
   useEffect(() => {
+    // Prevent multiple loads in React Strict Mode
+    if (hasLoadedFromUrl.current) return;
+
     const loadPresetData = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const presetKey = urlParams.get("preset");
+      const presetParam = urlParams.get("p");
 
-      if (presetKey) {
+      if (presetParam) {
+        hasLoadedFromUrl.current = true;
+
         try {
-          const response = await fetch(`/api/presets?preset_key=${presetKey}`);
+          const { urlToPreset, UnknownKitError, InvalidPresetError } =
+            await import("@/lib/serialization");
+          const newPreset = urlToPreset(presetParam);
 
-          if (!response.ok) {
-            throw new Error("Unable to load preset from key");
-          }
+          loadPreset(newPreset);
 
-          const data = await response.json();
-
-          if (data.presets.rows.length < 1) {
-            toast({
-              render: () => (
-                <Box
-                  bg="silver"
-                  color="gray"
-                  p={3}
-                  borderRadius="8px"
-                  className="neumorphic"
-                >
-                  <Text>{`The preset in the provided link could not be found.`}</Text>
-                </Box>
-              ),
-            });
-          } else {
-            const newPreset: PresetFileV1 = data.presets.rows[0].preset_data;
-
-            loadPreset(newPreset);
-
-            toast({
-              render: () => (
-                <Box
-                  bg="silver"
-                  color="gray"
-                  p={3}
-                  borderRadius="8px"
-                  className="neumorphic"
-                >
-                  <Text>
-                    {`You received a custom preset called "${newPreset.meta.name}"!`}
-                  </Text>
-                </Box>
-              ),
-            });
-          }
+          toast({
+            render: () => (
+              <Box
+                bg="silver"
+                color="gray"
+                p={3}
+                borderRadius="8px"
+                className="neumorphic"
+              >
+                <Text>
+                  {`You received a custom preset called "${newPreset.meta.name}"!`}
+                </Text>
+              </Box>
+            ),
+          });
         } catch (error) {
-          console.error(
-            `Error fetching provided preset key ${presetKey}:`,
-            error,
+          console.error(`Error loading shared preset:`, error);
+
+          // Show user-friendly error message
+          const { UnknownKitError, InvalidPresetError } = await import(
+            "@/lib/serialization"
           );
+          let errorMessage = "The shared preset link is invalid or corrupted.";
+          if (error instanceof UnknownKitError) {
+            errorMessage =
+              "This preset uses a kit that is not available in your version.";
+          } else if (error instanceof InvalidPresetError) {
+            errorMessage = "The shared preset data is corrupted or invalid.";
+          }
+
+          toast({
+            render: () => (
+              <Box
+                bg="silver"
+                color="gray"
+                p={3}
+                borderRadius="8px"
+                className="neumorphic"
+              >
+                <Text>{errorMessage}</Text>
+              </Box>
+            ),
+          });
+
+          // Still load default preset on error
+          loadPreset(init());
         }
-      } else {
+      } else if (!hasLoadedFromUrl.current) {
         // Load default preset on initial mount
+        hasLoadedFromUrl.current = true;
         loadPreset(init());
       }
     };

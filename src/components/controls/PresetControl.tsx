@@ -70,7 +70,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     closeErrorModal,
     closePresetChangeModal,
     closeSharePrompt,
-    // openSharedModal,
+    openSharedModal,
     openErrorModal,
     openPresetChangeModal,
     openSharePrompt,
@@ -239,8 +239,54 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     updateStatesOnPresetChange(presets.init());
   };
 
-  const handleShare = async () => {
-    // TODO: Change to URL based sharing
+  const handleShare = async (customName: string) => {
+    try {
+      // Generate a NEW UUID for this shared preset
+      const now = new Date().toISOString();
+      const sharePresetMeta: Meta = {
+        id: crypto.randomUUID(), // New UUID for this share
+        name: customName,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      // Get current preset with the new metadata
+      const currentPreset = getCurrentPreset(sharePresetMeta, currentKitMeta);
+
+      console.log("Sharing preset with name:", currentPreset.meta.name);
+
+      // Import serialization library
+      const { shareablePresetToUrl, CustomKitError } = await import(
+        "@/lib/serialization"
+      );
+
+      // Encode preset to URL parameter
+      const urlParam = shareablePresetToUrl(currentPreset);
+
+      // Generate full shareable URL
+      const shareUrl = `${window.location.origin}/?p=${urlParam}`;
+
+      console.log(
+        "Generated share URL with preset name:",
+        currentPreset.meta.name,
+      );
+
+      // Open success modal with shareable link
+      openSharedModal(shareUrl);
+    } catch (error) {
+      console.error("Error sharing preset:", error);
+
+      // Import error types
+      const { CustomKitError } = await import("@/lib/serialization");
+
+      // Show error modal
+      if (error instanceof CustomKitError) {
+        console.error(
+          "Cannot share presets with custom kits. Only presets using default kits can be shared via URL.",
+        );
+      }
+      openErrorModal();
+    }
   };
 
   const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {

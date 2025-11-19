@@ -103,7 +103,7 @@ export const SharedModal: React.FC<any> = ({
   shareableLink,
   modalCloseRef,
 }) => {
-  const { onCopy, hasCopied } = useClipboard("");
+  const { onCopy, hasCopied } = useClipboard(shareableLink);
 
   return (
     <Modal
@@ -119,8 +119,7 @@ export const SharedModal: React.FC<any> = ({
         <ModalCloseButton />
         <ModalBody>
           <Text pb={6} color="gray">
-            Success! Your preset has been saved to the cloud and can be shared
-            using this link:
+            Success! Your preset can be shared using this link:
           </Text>
           <Box
             w="100%"
