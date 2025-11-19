@@ -22,7 +22,6 @@ import {
   createInstrumentRuntimes,
   disposeDrumSequence,
   disposeInstrumentRuntimes,
-  INIT_INSTRUMENT_RUNTIMES,
   waitForBuffersToLoad,
 } from "@/lib/audio/engine";
 import { init } from "@/lib/preset";
@@ -89,9 +88,7 @@ const Drumhaus = () => {
   const [isMobileWarning, setIsMobileWarning] = useState(false);
 
   // Audio engine refs (Tone.js runtime nodes)
-  const instrumentRuntimes = useRef<InstrumentRuntime[]>(
-    INIT_INSTRUMENT_RUNTIMES,
-  );
+  const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
   const toneSequence = useRef<Tone.Sequence | null>(null);
   const bar = useRef<number>(0);
@@ -231,6 +228,15 @@ const Drumhaus = () => {
 
   // Rebuild audio engine when samples change
   useEffect(() => {
+    if (instrumentSamplePaths.length === 0) {
+      console.log("no instrument sample paths, skipping rebuild");
+      return;
+    }
+
+    console.log(
+      "rebuilding audio engine because instrumentSamplePaths changed",
+      instrumentSamplePaths,
+    );
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
