@@ -7,6 +7,7 @@ import {
   Flex,
   Grid,
   GridItem,
+  Spinner,
   Text,
   Tooltip,
 } from "@chakra-ui/react";
@@ -15,7 +16,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 
 import "@fontsource-variable/pixelify-sans";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
@@ -33,7 +34,7 @@ import {
 import Waveform from "./Waveform";
 
 type InstrumentControlParams = {
-  runtime: InstrumentRuntime; // Tone.js audio nodes only
+  runtime?: InstrumentRuntime; // Tone.js audio nodes only
   color?: string;
   bg?: string;
   index: number; // Array index of this instrument (0-7)
@@ -134,6 +135,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // Subscribe to instrument parameter changes and update audio nodes directly
   // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
+    if (!runtime) return;
+
     let prevParams: {
       attack: number;
       filter: number;
@@ -192,6 +195,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     return unsubscribe;
   }, [index, runtime]);
 
+  const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
+
   // Update duration in store when sample duration changes
   useEffect(() => {
     setDurationStore(index, sampleDuration);
@@ -199,11 +204,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
-    if (!mute) {
+    if (!mute && runtime?.samplerNode) {
       runtime.samplerNode.triggerRelease("C2", Tone.now());
     }
     toggleMute();
-  }, [toggleMute, mute, runtime.samplerNode]);
+  }, [toggleMute, mute, runtime?.samplerNode]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
@@ -234,6 +239,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   }, [instrumentIndex, index, toggleSolo, isAnyModalOpen]);
 
   const playSample = () => {
+    if (!runtime) return;
+
     const previousPitch = currentPitchRef.current;
     const pitchValue = playInstrumentSample(
       runtime,
@@ -280,12 +287,24 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             className="wavebutton"
             borderRadius="20px"
             overflow="hidden"
+            isDisabled={!isRuntimeLoaded}
+            position="relative"
           >
-            <Waveform audioFile={samplePath} width={170} />
+            {isRuntimeLoaded ? (
+              <Waveform audioFile={samplePath} width={170} />
+            ) : (
+              <Center w="100%" h="100%">
+                <Spinner size="md" color={color} thickness="3px" />
+              </Center>
+            )}
           </Button>
         </Box>
 
-        <Grid templateColumns="repeat(2, 1fr)" p={1}>
+        <Grid
+          templateColumns="repeat(2, 1fr)"
+          p={1}
+          opacity={isRuntimeLoaded ? 1 : 0.5}
+        >
           <GridItem>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-attack`}
@@ -294,6 +313,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               setKnobValue={setAttack}
               knobTitle="ATTACK"
               defaultValue={0}
+              isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
           <GridItem>
@@ -306,6 +326,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               filter={true}
               exponential={true}
               defaultValue={50}
+              isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
           <GridItem>
@@ -316,6 +337,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               setKnobValue={setRelease}
               knobTitle="RELEASE"
               defaultValue={100}
+              isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
 
@@ -328,10 +350,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobTitle="PITCH"
               knobTransformRange={[43, 88]}
               defaultValue={50}
+              isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
           <GridItem w="100%" h="100%">
-            <Box position="absolute" bottom={14}>
+            <Box
+              position="absolute"
+              bottom={14}
+              opacity={isRuntimeLoaded ? 1 : 0.5}
+            >
               <CustomSlider
                 size={85}
                 sliderValue={pan}
@@ -341,6 +368,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 centerLabel="|"
                 rightLabel="R"
                 transformRange={[-100, 100]}
+                isDisabled={!isRuntimeLoaded}
               />
             </Box>
             <Center h="100%" w="100%">
@@ -351,6 +379,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                   position="absolute"
                   left="10px"
                   bottom={6}
+                  opacity={isRuntimeLoaded ? 1 : 0.5}
                 >
                   <Tooltip label="Mute [M]" color="darkorange" openDelay={500}>
                     <Button
@@ -362,6 +391,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                       p="0px"
                       onClick={() => handleToggleMute()}
                       className="raised"
+                      isDisabled={!isRuntimeLoaded}
                     >
                       {mute ? (
                         <ImVolumeMute2 color="#B09374" />
@@ -380,6 +410,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                       p="0px"
                       onClick={() => toggleSolo()}
                       className="raised"
+                      isDisabled={!isRuntimeLoaded}
                     >
                       <MdHeadphones color={solo ? "darkorange" : "#B09374"} />
                     </Button>
@@ -398,6 +429,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobTransformRange={[-46, 4]}
               knobUnits="dB"
               defaultValue={92}
+              isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
         </Grid>

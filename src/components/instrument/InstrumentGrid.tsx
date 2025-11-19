@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -70,24 +71,28 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
       templateColumns={`repeat(${NO_OF_INSTRUMENTS}, 1fr)`}
       boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
     >
-      {instrumentRuntimes.map((runtime, index) => (
-        <GridItem
-          colSpan={1}
-          key={`gridItem-${index}`}
-          w={`193px`}
-          onMouseDown={() => toggleCurrentVoice(index)}
-          transition="all 0.5s ease"
-        >
-          <InstrumentControl
-            color={INSTRUMENT_COLORS[index]}
-            key={`Instrument-${index}`}
-            runtime={runtime}
-            index={index}
-            instrumentIndex={voiceIndex}
-            bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
-          />
-        </GridItem>
-      ))}
+      {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
+        const runtime = instrumentRuntimes[index];
+
+        return (
+          <GridItem
+            colSpan={1}
+            key={`gridItem-${index}`}
+            w={`193px`}
+            onMouseDown={() => toggleCurrentVoice(index)}
+            transition="all 0.5s ease"
+          >
+            <InstrumentControl
+              color={INSTRUMENT_COLORS[index]}
+              key={`Instrument-${index}`}
+              runtime={runtime}
+              index={index}
+              instrumentIndex={voiceIndex}
+              bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
+            />
+          </GridItem>
+        );
+      })}
     </Grid>
   );
 };

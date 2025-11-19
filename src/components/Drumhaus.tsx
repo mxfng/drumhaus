@@ -296,11 +296,6 @@ const Drumhaus = () => {
   // RENDER
   // ============================================================================
 
-  if (instrumentRuntimes.current.length === 0) {
-    // TODO: Add a fallback UI here or cover all of this with a loading screen until fade in
-    return <div></div>;
-  }
-
   return (
     <>
       <Box
