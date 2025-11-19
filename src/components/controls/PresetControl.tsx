@@ -23,20 +23,13 @@ import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
-  createPresetFn: (preset: PresetFileV1) => void;
-  togglePlay: () => Promise<void>;
-  isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  loadPreset: (preset: PresetFileV1) => void;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  createPresetFn,
-  togglePlay,
-  isLoading,
-  setIsLoading,
+  loadPreset: loadPresetFromParent,
 }) => {
   // Store state
-  const isPlaying = useTransportStore((state) => state.isPlaying);
   const setAllInstruments = useInstrumentsStore(
     (state) => state.setAllInstruments,
   );
@@ -69,8 +62,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     openSharedModal,
     openErrorModal,
     openPresetChangeModal,
-    openSharePrompt,
-    closeSharePrompt,
   } = useModalStore();
 
   const modalCloseRef = useRef(null);
@@ -121,7 +112,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Switch to a different kit. Simple: update instruments + kit metadata.
+   * Switch to a different kit.
+   * Creates a preset with current state + new kit, then loads it (stops playback).
    */
   const switchKit = (kitId: string) => {
     const kit = KITS.find((k) => k.meta.id === kitId);
@@ -130,24 +122,24 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       return;
     }
 
-    if (isPlaying) togglePlay();
-    setAllInstruments(kit.instruments);
-    setKitMeta(kit.meta);
+    // Get current state with new kit
+    const presetWithNewKit = getCurrentPreset(currentPresetMeta, kit.meta);
+
+    // Load via parent (stops playback, updates all stores)
+    loadPresetFromParent(presetWithNewKit);
   };
 
   /**
    * Load a preset into the app. Updates all state.
    */
   const loadPreset = (preset: PresetFileV1) => {
-    if (isPlaying) togglePlay();
-
     // Add to custom presets if not already there
     if (!allPresets.find((p) => p.meta.id === preset.meta.id)) {
       setCustomPresets((prev) => [...prev, preset]);
     }
 
-    // Activate the preset (updates instruments, meta, etc.)
-    createPresetFn(preset);
+    // Activate the preset via parent (updates all stores, stops playback)
+    loadPresetFromParent(preset);
   };
 
   /**
@@ -207,8 +199,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    * Import a preset from a .dh file
    */
   const importPreset = () => {
-    if (isPlaying) togglePlay();
-
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".dh";
@@ -344,8 +334,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         isOpen={isSharingModalOpen}
         onClose={closeSharingModal}
         onShare={sharePreset}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
         modalCloseRef={modalCloseRef}
       />
 

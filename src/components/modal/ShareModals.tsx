@@ -23,16 +23,16 @@ export const SharingModal: React.FC<any> = ({
   isOpen,
   onClose,
   onShare,
-  isLoading,
-  setIsLoading,
   modalCloseRef,
 }) => {
   const [presetName, setPresetName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleShare = () => {
-    // Pass the presetName to the onSave function
-    onShare(presetName);
+  const handleShare = async () => {
     setIsLoading(true);
+    await onShare(presetName);
+    setIsLoading(false);
+    onClose();
   };
 
   return (
