@@ -30,7 +30,7 @@ export const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
-        // Initial state - 8 default instruments
+        // Initial state - "drumhaus.dhkit"
         instruments: drumhaus().instruments,
         durations: drumhaus().instruments.map(() => 0), // update at runtime
 

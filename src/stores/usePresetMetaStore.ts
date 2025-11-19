@@ -49,8 +49,7 @@ export const usePresetMetaStore = create<PresetMetaState>()(
   devtools(
     persist(
       immer((set, get) => ({
-        // Initial state - default "init" preset
-        // Must match the UUID from init.dh to avoid duplicates
+        // Initial state - init preset "init.dh"
         currentPresetMeta: init().meta,
         currentKitMeta: init().kit.meta,
         cleanPreset: init(),
