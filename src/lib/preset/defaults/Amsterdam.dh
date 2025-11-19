@@ -1,0 +1,881 @@
+{
+  "kind": "drumhaus.preset",
+  "version": 1,
+  "meta": {
+    "id": "7097df47-0f63-4081-8134-91fac2d05f62",
+    "name": "Amsterdam",
+    "createdAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2023-11-20T16:00:00.000Z"
+  },
+  "kit": {
+    "kind": "drumhaus.kit",
+    "version": 1,
+    "meta": {
+      "id": "kit-techno",
+      "name": "techno",
+      "createdAt": "2023-11-20T16:00:00.000Z",
+      "updatedAt": "2023-11-20T16:00:00.000Z",
+      "author": "Max Fung"
+    },
+    "instruments": [
+      {
+        "meta": {
+          "id": "kit-techno-inst-0",
+          "name": "Kick"
+        },
+        "role": "kick",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-0",
+            "name": "Kick"
+          },
+          "path": "7/berlin_kick.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 49,
+          "filter": 50,
+          "volume": 92,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-1",
+          "name": "Bass"
+        },
+        "role": "bass",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-1",
+            "name": "Bass"
+          },
+          "path": "7/berlin_bass.wav"
+        },
+        "params": {
+          "attack": 100,
+          "release": 19,
+          "filter": 4,
+          "volume": 90,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-2",
+          "name": "Snare"
+        },
+        "role": "snare",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-2",
+            "name": "Snare"
+          },
+          "path": "7/berlin_snare.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 42,
+          "filter": 54,
+          "volume": 85,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-3",
+          "name": "Clap"
+        },
+        "role": "clap",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-3",
+            "name": "Clap"
+          },
+          "path": "7/berlin_clap.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 40,
+          "filter": 50,
+          "volume": 78,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-4",
+          "name": "Hat"
+        },
+        "role": "hat",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-4",
+            "name": "Hat"
+          },
+          "path": "7/berlin_hat.wav"
+        },
+        "params": {
+          "attack": 4,
+          "release": 43,
+          "filter": 50,
+          "volume": 74,
+          "pan": 36,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-5",
+          "name": "OHat"
+        },
+        "role": "ohat",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-5",
+            "name": "OHat"
+          },
+          "path": "7/berlin_ohat.wav"
+        },
+        "params": {
+          "attack": 33,
+          "release": 12,
+          "filter": 50,
+          "volume": 73,
+          "pan": 62,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-6",
+          "name": "Synth"
+        },
+        "role": "synth",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-6",
+            "name": "Synth"
+          },
+          "path": "7/berlin_stab.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 79,
+          "filter": 55,
+          "volume": 85,
+          "pan": 35,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-techno-inst-7",
+          "name": "Synth2"
+        },
+        "role": "synth",
+        "sample": {
+          "meta": {
+            "id": "kit-techno-sample-7",
+            "name": "Synth2"
+          },
+          "path": "7/berlin_loop.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 100,
+          "filter": 50,
+          "volume": 88,
+          "pan": 66,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      }
+    ]
+  },
+  "transport": {
+    "bpm": 125,
+    "swing": 0
+  },
+  "sequencer": {
+    "pattern": [
+      {
+        "instrumentIndex": 0,
+        "variations": [
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 1,
+        "variations": [
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 2,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 3,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 4,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 5,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 6,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 7,
+        "variations": [
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "variationCycle": "AAAB"
+  },
+  "masterChain": {
+    "lowPass": 100,
+    "hiPass": 0,
+    "phaser": 0,
+    "reverb": 53,
+    "compThreshold": 43,
+    "compRatio": 40,
+    "masterVolume": 92
+  }
+}

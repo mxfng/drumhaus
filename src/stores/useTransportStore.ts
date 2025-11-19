@@ -1,7 +1,16 @@
-import * as Tone from "tone/build/esm/index";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+
+import {
+  releaseAllSamples,
+  setTransportBpm,
+  setTransportSwing,
+  startAudioContext,
+  startTransport,
+  stopTransport,
+} from "@/lib/audio/engine";
+import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
   // Playback state
@@ -10,17 +19,14 @@ interface TransportState {
   bpm: number;
   swing: number;
 
-  // Tone.js refs (stored but don't trigger re-renders)
-  toneSequence: Tone.Sequence | null;
-
   // Actions
-  setIsPlaying: (isPlaying: boolean) => void;
-  togglePlay: (samples: any[], onStop?: () => void) => Promise<void>;
+  togglePlay: (
+    instrumentRuntimes: InstrumentRuntime[],
+    onStop?: () => void,
+  ) => Promise<void>;
   setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
-  setToneSequence: (sequence: Tone.Sequence | null) => void;
-  disposeToneSequence: () => void;
 }
 
 export const useTransportStore = create<TransportState>()(
@@ -32,35 +38,28 @@ export const useTransportStore = create<TransportState>()(
         stepIndex: 0,
         bpm: 120,
         swing: 50,
-        toneSequence: null,
 
         // Actions
-        setIsPlaying: (isPlaying) => {
-          set({ isPlaying });
-        },
-
-        togglePlay: async (samples, onStop) => {
+        togglePlay: async (instrumentRuntimes, onStop) => {
           // Start Tone.js context if needed
-          if (Tone.context.state !== "running") {
-            await Tone.start();
-          }
+          await startAudioContext();
 
           set((state) => {
             const newIsPlaying = !state.isPlaying;
 
             if (newIsPlaying) {
-              Tone.Transport.start();
+              startTransport();
             } else {
-              Tone.Transport.stop();
-              state.stepIndex = 0;
+              // Stop transport and reset step index
+              stopTransport(() => {
+                state.stepIndex = 0;
 
-              // Release all samples
-              samples.forEach((sample) => {
-                sample.sampler.triggerRelease("C2", Tone.now());
+                // Release all samples
+                releaseAllSamples(instrumentRuntimes);
+
+                // Call optional stop callback
+                if (onStop) onStop();
               });
-
-              // Call optional stop callback
-              if (onStop) onStop();
             }
 
             state.isPlaying = newIsPlaying;
@@ -73,28 +72,12 @@ export const useTransportStore = create<TransportState>()(
 
         setBpm: (bpm) => {
           set({ bpm });
-          Tone.Transport.bpm.value = bpm;
+          setTransportBpm(bpm);
         },
 
         setSwing: (swing) => {
           set({ swing });
-
-          // Transform swing value from 0-100 to 0-0.5
-          const newSwing = (swing / 100) * 0.5;
-          Tone.Transport.swingSubdivision = "16n";
-          Tone.Transport.swing = newSwing;
-        },
-
-        setToneSequence: (sequence) => {
-          set({ toneSequence: sequence });
-        },
-
-        disposeToneSequence: () => {
-          const { toneSequence } = get();
-          if (toneSequence) {
-            toneSequence.dispose();
-            set({ toneSequence: null });
-          }
+          setTransportSwing(swing);
         },
       })),
       {
