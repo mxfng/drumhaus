@@ -14,52 +14,53 @@ import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
 
-import { useSequencerStore } from "@/stores/useSequencerStore";
+import { usePatternStore } from "@/stores/usePatternStore";
 
 export const SequencerControl: React.FC = () => {
   // Get state from Sequencer Store
-  const variation = useSequencerStore((state) => state.variation);
-  const chain = useSequencerStore((state) => state.chain);
-  const slotIndex = useSequencerStore((state) => state.slotIndex);
-  const sequences = useSequencerStore((state) => state.sequences);
-  const currentSequence = useSequencerStore(
-    (state) => state.sequences[state.slotIndex][state.variation][0],
+  const variation = usePatternStore((state) => state.variation);
+  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const pattern = usePatternStore((state) => state.pattern);
+  const currentTriggers = usePatternStore(
+    (state) =>
+      state.pattern[state.voiceIndex].variations[state.variation].triggers,
   );
 
   // Get actions from store
-  const setVariation = useSequencerStore((state) => state.setVariation);
-  const setChain = useSequencerStore((state) => state.setChain);
-  const updateSequence = useSequencerStore((state) => state.updateSequence);
-  const clearSequence = useSequencerStore((state) => state.clearSequence);
-  const [copiedSequence, setCopiedSequence] = useState<boolean[] | undefined>();
+  const setVariation = usePatternStore((state) => state.setVariation);
+  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
+  const updateSequence = usePatternStore((state) => state.updatePattern);
+  const clearSequence = usePatternStore((state) => state.clearPattern);
+  const [copiedTriggers, setCopiedTriggers] = useState<boolean[] | undefined>();
   const [copiedVelocities, setCopiedVelocities] = useState<
     number[] | undefined
   >();
 
   const copySequence = () => {
-    setCopiedSequence(currentSequence);
-    setCopiedVelocities(sequences[slotIndex][variation][1]);
+    setCopiedTriggers(currentTriggers);
+    setCopiedVelocities(pattern[voiceIndex].variations[variation].velocities);
   };
 
   const pasteSequence = () => {
-    if (copiedSequence && copiedVelocities) {
-      updateSequence(slotIndex, variation, copiedSequence, copiedVelocities);
+    if (copiedTriggers && copiedVelocities) {
+      updateSequence(voiceIndex, variation, copiedTriggers, copiedVelocities);
     }
   };
 
   const handleClearSequence = () => {
-    clearSequence(slotIndex, variation);
+    clearSequence(voiceIndex, variation);
   };
 
   const handleRandomSequence = () => {
-    const randomSeq: boolean[] = Array.from(
+    const randomTriggers: boolean[] = Array.from(
       { length: 16 },
       () => Math.random() < 0.5,
     );
     const randomVelocities: number[] = Array.from({ length: 16 }, () =>
       Math.random(),
     );
-    updateSequence(slotIndex, variation, randomSeq, randomVelocities);
+    updateSequence(voiceIndex, variation, randomTriggers, randomVelocities);
   };
 
   return (
@@ -115,7 +116,7 @@ export const SequencerControl: React.FC = () => {
                 bottom={-3}
                 left={1}
               >
-                CHAIN
+                VAR CYC
               </Text>
               <Center>
                 <Flex className="neumorphic" borderRadius="8px">
@@ -124,9 +125,9 @@ export const SequencerControl: React.FC = () => {
                     w="40px"
                     className="raised"
                     borderRadius="8px 0 0 8px"
-                    color={chain == 0 ? "darkorange" : "gray"}
+                    color={variationCycle === "A" ? "darkorange" : "gray"}
                     fontSize={12}
-                    onClick={() => setChain(0)}
+                    onClick={() => setVariationCycle("A")}
                   >
                     A
                   </Button>
@@ -135,9 +136,9 @@ export const SequencerControl: React.FC = () => {
                     w="40px"
                     className="raised"
                     borderRadius="0 0 0 0"
-                    color={chain == 1 ? "darkorange" : "gray"}
+                    color={variationCycle === "B" ? "darkorange" : "gray"}
                     fontSize={12}
-                    onClick={() => setChain(1)}
+                    onClick={() => setVariationCycle("B")}
                   >
                     B
                   </Button>
@@ -146,9 +147,9 @@ export const SequencerControl: React.FC = () => {
                     w="40px"
                     className="raised"
                     borderRadius="0 0 0 0"
-                    color={chain == 2 ? "darkorange" : "gray"}
+                    color={variationCycle === "AB" ? "darkorange" : "gray"}
                     fontSize={12}
-                    onClick={() => setChain(2)}
+                    onClick={() => setVariationCycle("AB")}
                   >
                     AB
                   </Button>
@@ -157,9 +158,9 @@ export const SequencerControl: React.FC = () => {
                     w="40px"
                     className="raised"
                     borderRadius="0 8px 8px 0"
-                    color={chain == 3 ? "darkorange" : "gray"}
+                    color={variationCycle === "AAAB" ? "darkorange" : "gray"}
                     fontSize={12}
-                    onClick={() => setChain(3)}
+                    onClick={() => setVariationCycle("AAAB")}
                   >
                     AAAB
                   </Button>

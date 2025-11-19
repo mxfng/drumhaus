@@ -1,0 +1,881 @@
+{
+  "kind": "drumhaus.preset",
+  "version": 1,
+  "meta": {
+    "id": "369ff62c-c195-4ccd-ad03-e5c52510335a",
+    "name": "Rich Kids",
+    "createdAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2023-11-20T16:00:00.000Z"
+  },
+  "kit": {
+    "kind": "drumhaus.kit",
+    "version": 1,
+    "meta": {
+      "id": "kit-rnb",
+      "name": "rnb",
+      "createdAt": "2023-11-20T16:00:00.000Z",
+      "updatedAt": "2023-11-20T16:00:00.000Z",
+      "author": "Max Fung"
+    },
+    "instruments": [
+      {
+        "meta": {
+          "id": "kit-rnb-inst-0",
+          "name": "Kick"
+        },
+        "role": "kick",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-0",
+            "name": "Kick"
+          },
+          "path": "6/superich_kick.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 49,
+          "filter": 50,
+          "volume": 100,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-1",
+          "name": "Kick2"
+        },
+        "role": "kick",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-1",
+            "name": "Kick2"
+          },
+          "path": "6/superich_kick2.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 10,
+          "filter": 50,
+          "volume": 97,
+          "pan": 70,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-2",
+          "name": "Snare"
+        },
+        "role": "snare",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-2",
+            "name": "Snare"
+          },
+          "path": "6/superich_snare.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 42,
+          "filter": 56,
+          "volume": 99,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-3",
+          "name": "Snare2"
+        },
+        "role": "snare",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-3",
+            "name": "Snare2"
+          },
+          "path": "6/superich_tap.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 10,
+          "filter": 50,
+          "volume": 100,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-4",
+          "name": "Hat"
+        },
+        "role": "hat",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-4",
+            "name": "Hat"
+          },
+          "path": "6/superich_hat.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 10,
+          "filter": 50,
+          "volume": 97,
+          "pan": 36,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-5",
+          "name": "OHat"
+        },
+        "role": "ohat",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-5",
+            "name": "OHat"
+          },
+          "path": "6/superich_ohat.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 100,
+          "filter": 50,
+          "volume": 97,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-6",
+          "name": "Perc"
+        },
+        "role": "perc",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-6",
+            "name": "Perc"
+          },
+          "path": "6/superich_clav.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 40,
+          "filter": 56,
+          "volume": 85,
+          "pan": 62,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      },
+      {
+        "meta": {
+          "id": "kit-rnb-inst-7",
+          "name": "Crash"
+        },
+        "role": "crash",
+        "sample": {
+          "meta": {
+            "id": "kit-rnb-sample-7",
+            "name": "Crash"
+          },
+          "path": "6/superich_ride.wav"
+        },
+        "params": {
+          "attack": 0,
+          "release": 100,
+          "filter": 50,
+          "volume": 100,
+          "pan": 50,
+          "pitch": 50,
+          "solo": false,
+          "mute": false
+        }
+      }
+    ]
+  },
+  "transport": {
+    "bpm": 60,
+    "swing": 0
+  },
+  "sequencer": {
+    "pattern": [
+      {
+        "instrumentIndex": 0,
+        "variations": [
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 1,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.20865533230293662,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              true,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.23338485316846985,
+              1,
+              0.5950540958268934,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 2,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 3,
+        "variations": [
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              0.2534775888717156,
+              1,
+              1,
+              0.20865533230293662,
+              1,
+              1,
+              0.18856259659969088,
+              1,
+              1,
+              0.16846986089644514,
+              1,
+              0.3075734157650695,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true,
+              false,
+              false,
+              true,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              0.2534775888717156,
+              1,
+              1,
+              0.20865533230293662,
+              1,
+              1,
+              0.18856259659969088,
+              1,
+              1,
+              0.16846986089644514,
+              1,
+              0.3075734157650695,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 4,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              0.1437403400309119,
+              0.15765069551777433,
+              1,
+              0.11128284389489954,
+              0.17465224111282843,
+              1,
+              0.15301391035548687,
+              0.21638330757341576,
+              0.7372488408037094,
+              0.14528593508500773,
+              0.23338485316846985,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 5,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              true,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              0.125193199381762,
+              1,
+              1
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 6,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              false,
+              true,
+              true,
+              true,
+              true
+            ],
+            "velocities": [
+              1,
+              0.7001545595054096,
+              0.4420401854714065,
+              1,
+              0.5811437403400309,
+              0.33539412673879443,
+              1,
+              0.5734157650695518,
+              0.31530139103554866,
+              1,
+              0.5533230293663061,
+              1,
+              0.5935085007727975,
+              0.3848531684698609,
+              0.5224111282843895,
+              0.3384853168469861
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              true,
+              false,
+              true,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              0.7001545595054096,
+              0.4420401854714065,
+              1,
+              0.5811437403400309,
+              0.33539412673879443,
+              1,
+              0.5734157650695518,
+              0.31530139103554866,
+              1,
+              0.5533230293663061,
+              1,
+              0.5935085007727975,
+              0.3848531684698609,
+              0.5224111282843895,
+              0.3384853168469861
+            ]
+          }
+        ]
+      },
+      {
+        "instrumentIndex": 7,
+        "variations": [
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "triggers": [
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "velocities": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ],
+    "variationCycle": "AAAB"
+  },
+  "masterChain": {
+    "lowPass": 100,
+    "hiPass": 0,
+    "phaser": 0,
+    "reverb": 25,
+    "compThreshold": 39,
+    "compRatio": 42,
+    "masterVolume": 92
+  }
+}

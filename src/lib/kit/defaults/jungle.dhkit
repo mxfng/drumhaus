@@ -1,0 +1,205 @@
+{
+  "kind": "drumhaus.kit",
+  "version": 1,
+  "meta": {
+    "id": "kit-jungle",
+    "name": "jungle",
+    "createdAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "author": "Max Fung"
+  },
+  "instruments": [
+    {
+      "meta": {
+        "id": "kit-jungle-inst-0",
+        "name": "Kick"
+      },
+      "role": "kick",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-0",
+          "name": "Kick"
+        },
+        "path": "8/indie_kick.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 31,
+        "filter": 13,
+        "volume": 94,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-1",
+        "name": "Kick2"
+      },
+      "role": "kick",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-1",
+          "name": "Kick2"
+        },
+        "path": "8/indie_kick2.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 100,
+        "filter": 55,
+        "volume": 81,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-2",
+        "name": "Snare"
+      },
+      "role": "snare",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-2",
+          "name": "Snare"
+        },
+        "path": "8/indie_snare.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 100,
+        "filter": 58,
+        "volume": 95,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-3",
+        "name": "Snare2"
+      },
+      "role": "snare",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-3",
+          "name": "Snare2"
+        },
+        "path": "8/indie_snare2.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 43,
+        "filter": 50,
+        "volume": 76,
+        "pan": 37,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-4",
+        "name": "Hat"
+      },
+      "role": "hat",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-4",
+          "name": "Hat"
+        },
+        "path": "8/indie_hat.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 29,
+        "filter": 50,
+        "volume": 84,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-5",
+        "name": "OHat"
+      },
+      "role": "ohat",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-5",
+          "name": "OHat"
+        },
+        "path": "8/indie_ohat.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 100,
+        "filter": 50,
+        "volume": 75,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-6",
+        "name": "Cymbal"
+      },
+      "role": "crash",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-6",
+          "name": "Cymbal"
+        },
+        "path": "8/indie_cymbal.wav"
+      },
+      "params": {
+        "attack": 0,
+        "release": 54,
+        "filter": 50,
+        "volume": 92,
+        "pan": 33,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "kit-jungle-inst-7",
+        "name": "Crash"
+      },
+      "role": "crash",
+      "sample": {
+        "meta": {
+          "id": "kit-jungle-sample-7",
+          "name": "Crash"
+        },
+        "path": "8/indie_crash.wav"
+      },
+      "params": {
+        "attack": 15,
+        "release": 90,
+        "filter": 26,
+        "volume": 76,
+        "pan": 50,
+        "pitch": 50,
+        "solo": false,
+        "mute": false
+      }
+    }
+  ]
+}

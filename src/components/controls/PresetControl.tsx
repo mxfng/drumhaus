@@ -1,185 +1,116 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverFooter,
-  PopoverHeader,
-  PopoverTrigger,
-  Select,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
-import { FaFolderOpen } from "react-icons/fa";
-import { IoIosShareAlt, IoMdArrowDropdown } from "react-icons/io";
-import { MdOutlineSaveAlt } from "react-icons/md";
-import { RxReset } from "react-icons/rx";
+import { Box, Center } from "@chakra-ui/react";
 
-import * as kits from "@/lib/kits";
-import { a_drum_called_haus } from "@/lib/presets/a_drum_called_haus";
-import { amsterdam } from "@/lib/presets/amsterdam";
-import { init } from "@/lib/presets/init";
-import { polaroid_bounce } from "@/lib/presets/polaroid_bounce";
-import { purple_haus } from "@/lib/presets/purple_haus";
-import { rich_kids } from "@/lib/presets/rich_kids";
-import { slime_time } from "@/lib/presets/slime_time";
-import { sunflower } from "@/lib/presets/sunflower";
-import { super_dream_haus } from "@/lib/presets/super_dream_haus";
-import { together_again } from "@/lib/presets/together_again";
-import { welcome_to_the_haus } from "@/lib/presets/welcome_to_the_haus";
-import { useMasterFXStore } from "@/stores/useMasterFXStore";
-import { useSequencerStore } from "@/stores/useSequencerStore";
-import { useSlotsStore } from "@/stores/useSlotsStore";
+import * as kits from "@/lib/kit";
+import * as presets from "@/lib/preset";
+import { getCurrentPreset } from "@/lib/preset/helpers";
+import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useModalStore } from "@/stores/useModalStore";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { Kit, Preset } from "@/types/types";
+import type { KitFileV1 } from "@/types/instrument";
+import type { Meta } from "@/types/meta";
+import type { PresetFileV1 } from "@/types/preset";
 import { ErrorModal } from "../modal/ErrorModal";
 import { PresetChangeModal } from "../modal/PresetChangeModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SaveModal } from "../modal/SaveModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
+import { KitSelector } from "./preset/KitSelector";
+import { PresetActions } from "./preset/PresetActions";
+import { PresetSelector } from "./preset/PresetSelector";
 
 type PresetControlProps = {
-  preset: Preset;
-  setPreset: React.Dispatch<React.SetStateAction<Preset>>;
-  kit: Kit;
-  setKit: React.Dispatch<React.SetStateAction<Kit>>;
+  loadPreset: (preset: PresetFileV1) => void;
   togglePlay: () => Promise<void>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const PresetControl: React.FC<PresetControlProps> = ({
-  preset,
-  setPreset,
-  kit,
-  setKit,
+  loadPreset,
   togglePlay,
   isLoading,
   setIsLoading,
-  setIsModal,
 }) => {
-  // Get transport state from store
-  const bpm = useTransportStore((state) => state.bpm);
-  const swing = useTransportStore((state) => state.swing);
+  // Subscribe to stores for UI updates
   const isPlaying = useTransportStore((state) => state.isPlaying);
+  const setAllInstruments = useInstrumentsStore(
+    (state) => state.setAllInstruments,
+  );
 
-  // Get slot state from store
-  const attacks = useSlotsStore((state) => state.attacks);
-  const releases = useSlotsStore((state) => state.releases);
-  const filters = useSlotsStore((state) => state.filters);
-  const volumes = useSlotsStore((state) => state.volumes);
-  const pans = useSlotsStore((state) => state.pans);
-  const solos = useSlotsStore((state) => state.solos);
-  const mutes = useSlotsStore((state) => state.mutes);
-  const pitches = useSlotsStore((state) => state.pitches);
+  // Preset metadata store
+  const currentPresetMeta = usePresetMetaStore(
+    (state) => state.currentPresetMeta,
+  );
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
+  const setKitMeta = usePresetMetaStore((state) => state.setKitMeta);
+  const markPresetClean = usePresetMetaStore((state) => state.markPresetClean);
+  const hasUnsavedChanges = usePresetMetaStore(
+    (state) => state.hasUnsavedChanges,
+  );
 
-  // Get sequencer state from store
-  const sequences = useSequencerStore((state) => state.sequences);
-  const chain = useSequencerStore((state) => state.chain);
+  // Modal store
+  const {
+    isSaveModalOpen,
+    isSharingModalOpen,
+    isSharedModalOpen,
+    isResetModalOpen,
+    isErrorModalShowing,
+    isPresetChangeModalOpen,
+    isSharePromptOpen,
+    shareableLink,
+    presetToChange,
+    closeSaveModal,
+    closeSharingModal,
+    closeSharedModal,
+    closeResetModal,
+    closeErrorModal,
+    closePresetChangeModal,
+    closeSharePrompt,
+    // openSharedModal,
+    openErrorModal,
+    openPresetChangeModal,
+    openSharePrompt,
+  } = useModalStore();
 
-  // Get master FX state from store
-  const lowPass = useMasterFXStore((state) => state.lowPass);
-  const hiPass = useMasterFXStore((state) => state.hiPass);
-  const phaser = useMasterFXStore((state) => state.phaser);
-  const reverb = useMasterFXStore((state) => state.reverb);
-  const compThreshold = useMasterFXStore((state) => state.compThreshold);
-  const compRatio = useMasterFXStore((state) => state.compRatio);
-  const masterVolume = useMasterFXStore((state) => state.masterVolume);
-  const kitOptions: (() => Kit)[] = [
+  const kitOptions: (() => KitFileV1)[] = [
     kits.drumhaus,
-    kits.eighties,
-    kits.funk,
-    kits.indie,
-    kits.jungle,
     kits.organic,
+    kits.funk,
     kits.rnb,
+    kits.trap,
+    kits.eighties,
     kits.tech_house,
     kits.techno,
-    kits.trap,
+    kits.indie,
+    kits.jungle,
   ];
 
-  const _presetOptions: (() => Preset)[] = [
-    init,
-    welcome_to_the_haus,
-    a_drum_called_haus,
-    polaroid_bounce,
-    rich_kids,
-    slime_time,
-    purple_haus,
-    together_again,
-    amsterdam,
-    sunflower,
-    super_dream_haus,
+  const defaultPresetOptions: (() => PresetFileV1)[] = [
+    presets.init,
+    presets.welcomeToTheHaus,
+    presets.aDrumCalledHaus,
+    presets.amsterdam,
+    presets.polaroidBounce,
+    presets.purpleHaus,
+    presets.richKids,
+    presets.slimeTime,
+    presets.sunflower,
+    presets.superDreamHaus,
+    presets.togetherAgain,
   ];
 
-  const [selectedKit, setSelectedKit] = useState<string>(kit.name);
-  const [selectedPreset, setSelectedPreset] = useState<string>(preset.name);
+  const [selectedKit, setSelectedKit] = useState<string>(currentKitMeta.id);
+  const [selectedPreset, setSelectedPreset] = useState<string>(
+    currentPresetMeta.id,
+  );
   const [presetOptions, setPresetOptions] =
-    useState<(() => Preset)[]>(_presetOptions);
-  const [cleanPreset, setCleanPreset] = useState<Preset>(preset);
-  const [isSharedModalOpen, setIsSharedModalOpen] = useState(false);
-  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isSharingModalOpen, setIsSharingModalOpen] = useState(false);
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-  const [isErrorModalShowing, setIsErrorModalShowing] = useState(false);
-  const [isPresetChangeModalOpen, setIsPresetChangeModalOpen] = useState(false);
-  const [shareableLink, setShareableLink] = useState("");
-  const [isSharePromptOpen, setIsSharePromptOpen] = useState(false);
+    useState<(() => PresetFileV1)[]>(defaultPresetOptions);
 
   const modalCloseRef = useRef(null);
-
-  const createPresetFunction = (name: string) => () => ({
-    name: name,
-    _kit: {
-      name: kit.name,
-      samples: kit.samples,
-      _attacks: attacks,
-      _releases: releases,
-      _filters: filters,
-      _pitches: pitches,
-      _pans: pans,
-      _volumes: volumes,
-      _mutes: mutes,
-      _solos: solos,
-    },
-    _sequences: sequences,
-    _variation: 0,
-    _chain: chain,
-    _bpm: bpm,
-    _swing: swing,
-    _lowPass: lowPass,
-    _hiPass: hiPass,
-    _phaser: phaser,
-    _reverb: reverb,
-    _compThreshold: compThreshold,
-    _compRatio: compRatio,
-    _masterVolume: masterVolume,
-  });
-
-  const updateStatesOnPresetChange = (
-    presetToSave: Preset,
-    functionToSave?: () => Preset,
-  ) => {
-    setPreset(presetToSave);
-    setCleanPreset(presetToSave);
-    setSelectedPreset(presetToSave.name);
-    setSelectedKit(presetToSave._kit.name);
-
-    // Add new presets to the list of options (if provided)
-    if (functionToSave) {
-      addOrUpdatePreset(functionToSave);
-    }
-  };
 
   const stopPlayingOnAction = () => {
     if (isPlaying) {
@@ -187,11 +118,64 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     }
   };
 
-  const handleSave = (customName: string) => {
-    const presetFunctionToSave = createPresetFunction(customName);
-    const presetToSave = presetFunctionToSave();
+  /**
+   * Adds a new preset to the options list or updates an existing one.
+   * Used for custom presets loaded from files or URL params.
+   */
+  const addOrUpdatePreset = useCallback(
+    (newOption: () => PresetFileV1) => {
+      const index = presetOptions.findIndex(
+        (option) => option().meta.id === newOption().meta.id,
+      );
 
-    const jsonPreset = JSON.stringify(presetToSave);
+      if (index !== -1) {
+        // Update existing preset (mutating is acceptable here since we're modifying the array directly)
+        presetOptions[index] = newOption;
+      } else {
+        setPresetOptions((prevPresetOptions) => [
+          ...prevPresetOptions,
+          newOption,
+        ]);
+      }
+    },
+    [presetOptions, setPresetOptions],
+  );
+
+  /**
+   * Updates all relevant states when a preset is loaded or changed.
+   * This ensures UI state stays in sync with the loaded preset.
+   * @param presetToLoad - The preset to load
+   * @param functionToSave - Optional function that returns the preset, added to preset options
+   */
+  const updateStatesOnPresetChange = useCallback(
+    (presetToLoad: PresetFileV1, functionToSave?: () => PresetFileV1) => {
+      loadPreset(presetToLoad); // This calls the store's loadPreset which sets meta + cleanPreset
+      setSelectedPreset(presetToLoad.meta.id);
+      setSelectedKit(presetToLoad.kit.meta.id);
+
+      // Add new presets to the list of options (if provided)
+      if (functionToSave) {
+        addOrUpdatePreset(functionToSave);
+      }
+    },
+    [loadPreset, setSelectedPreset, setSelectedKit, addOrUpdatePreset],
+  );
+
+  const handleSave = (customName: string) => {
+    // Generate new metadata for the saved preset
+    // TODO: consider checking if name changed and preserving ID and createdAt timestamp
+    // however, do not allow this for default presets (could enforce by checking UUID vs human-readable)
+    const now = new Date().toISOString();
+    const newPresetMeta: Meta = {
+      id: crypto.randomUUID(),
+      name: customName,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const presetToSave = getCurrentPreset(newPresetMeta, currentKitMeta);
+
+    const jsonPreset = JSON.stringify(presetToSave, null, 2);
     const blob = new Blob([jsonPreset], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const downloadLink = document.createElement("a");
@@ -203,10 +187,16 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(url);
 
-    updateStatesOnPresetChange(presetToSave, presetFunctionToSave);
+    // Mark preset as clean (saved) in the store
+    markPresetClean(presetToSave);
+
+    // Create a function that returns this preset
+    const presetFunction = () => presetToSave;
+    updateStatesOnPresetChange(presetToSave, presetFunction);
   };
 
   const handleLoad = () => {
+    // TODO: extract to preset library
     stopPlayingOnAction();
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -222,11 +212,22 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const jsonContent: Preset = JSON.parse(e.target?.result as string);
+        const result = e.target?.result;
+        if (typeof result !== "string") {
+          throw new Error("Invalid file content");
+        }
+
+        const jsonContent: PresetFileV1 = JSON.parse(result);
         updateStatesOnPresetChange(jsonContent);
       } catch (error) {
-        console.error("Error parsing DH JSON:", error);
+        console.error("Error parsing preset file:", error);
+        openErrorModal();
       }
+    };
+
+    reader.onerror = () => {
+      console.error("Error reading file");
+      openErrorModal();
     };
 
     reader.readAsText(file);
@@ -234,136 +235,65 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const handleReset = () => {
     stopPlayingOnAction();
-    setIsResetModalOpen(false);
-    updateStatesOnPresetChange(init());
+    closeResetModal();
+    updateStatesOnPresetChange(presets.init());
   };
 
-  const handleShare = async (customName: string) => {
-    const presetFunctionToSave = createPresetFunction(customName);
-    const presetToSave = presetFunctionToSave();
-    const jsonPreset = JSON.stringify(presetToSave);
-    const bpm = presetToSave._bpm.toString();
-    const kitUsed = presetToSave._kit.name;
-
-    try {
-      const url = new URL("/api/presets", window.location.origin);
-      url.searchParams.append("preset_data", jsonPreset);
-      url.searchParams.append("custom_name", customName);
-      url.searchParams.append("kit_used", kitUsed);
-      url.searchParams.append("bpm", bpm);
-
-      const response = await fetch(url.href, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add preset");
-      }
-
-      const { presetKey } = await response.json();
-
-      const _shareableLink = new URL("/", window.location.origin);
-      _shareableLink.searchParams.append("preset", presetKey);
-
-      navigator.clipboard.writeText(_shareableLink.href);
-      setShareableLink(_shareableLink.href);
-
-      setIsSharingModalOpen(false);
-      setIsLoading(false);
-      setIsSharedModalOpen(true);
-    } catch (error) {
-      setIsSharingModalOpen(false);
-      setIsLoading(false);
-      setIsErrorModalShowing(true);
-      console.error("Error adding preset:", error);
-    }
+  const handleShare = async () => {
+    // TODO: Change to URL based sharing
   };
 
   const handleKitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     stopPlayingOnAction();
 
-    const selectedKitName = event.target.value;
-    const kitOption = kitOptions.find((kit) => kit().name == selectedKitName);
+    const selectedKitId = event.target.value;
+    const kitOption = kitOptions.find((kit) => kit().meta.id === selectedKitId);
 
     if (kitOption) {
-      const newKit = kitOption();
-      setKit(newKit);
-      setSelectedKit(newKit.name);
+      const newKit: KitFileV1 = kitOption();
+      // Update instruments store (single source of truth)
+      setAllInstruments(newKit.instruments);
+      // Update kit metadata in store
+      setKitMeta(newKit.meta);
+      setSelectedKit(newKit.meta.id);
     } else {
       console.error(
-        `Kit ${selectedKitName} not found in options: ${kitOptions}`,
+        `Kit ${event.target.value} not found in options: ${kitOptions}`,
       );
     }
   };
 
-  const closeSaveModal = () => {
-    setIsSaveModalOpen(false);
-  };
-
-  const closeSharingModal = () => {
-    setIsSharingModalOpen(false);
-  };
-
-  const closeSharedModal = () => {
-    setIsSharedModalOpen(false);
-  };
-
-  const closeResetModal = () => {
-    setIsResetModalOpen(false);
-  };
-
-  const closeErrorModal = () => {
-    setIsErrorModalShowing(false);
-  };
-
-  const closePresetChangeModal = () => {
-    setIsPresetChangeModalOpen(false);
-  };
-
-  const [presetToChange, setPresetToChange] = useState<string>("");
-
+  /**
+   * Handles preset change requests from the selector.
+   * If the user has unsaved changes, prompts them with a modal.
+   * Otherwise, switches to the new preset directly.
+   */
   const handlePresetChangeRequest = (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    // Deep equality check between current states and cached preset states
-    const cp = cleanPreset;
-    const changesMade =
-      kit.name !== cp._kit.name ||
-      !attacks.every((v, i) => v == cp._kit._attacks[i]) ||
-      !releases.every((v, i) => v == cp._kit._releases[i]) ||
-      !filters.every((v, i) => v == cp._kit._filters[i]) ||
-      !volumes.every((v, i) => v == cp._kit._volumes[i]) ||
-      !pans.every((v, i) => v == cp._kit._pans[i]) ||
-      !releases.every((v, i) => v == cp._kit._releases[i]) ||
-      !pitches.every((v, i) => v == cp._kit._pitches[i]) ||
-      bpm !== cp._bpm ||
-      swing !== cp._swing ||
-      lowPass !== cp._lowPass ||
-      hiPass !== cp._hiPass ||
-      phaser !== cp._phaser ||
-      reverb !== cp._reverb ||
-      compThreshold !== cp._compThreshold ||
-      compRatio !== cp._compRatio ||
-      masterVolume !== cp._masterVolume ||
-      sequences !== cp._sequences ||
-      chain !== cp._chain;
-
-    const newPreset = event.target.value;
+    // Check if current state has unsaved changes
+    const changesMade = hasUnsavedChanges();
+    const newPresetId = event.target.value;
 
     if (changesMade) {
-      setIsPresetChangeModalOpen(true);
-      setPresetToChange(newPreset);
+      openPresetChangeModal(newPresetId);
     } else {
-      switchPreset(newPreset);
+      switchPreset(newPresetId);
     }
   };
 
+  /**
+   * Switches to a different preset by ID.
+   * Stops playback if currently playing, then loads the new preset.
+   */
   const switchPreset = useCallback(
-    (name: string) => {
-      stopPlayingOnAction();
+    (presetId: string) => {
+      if (isPlaying) {
+        togglePlay();
+      }
 
       const presetOption = presetOptions.find(
-        (preset) => preset().name === name,
+        (preset) => preset().meta.id === presetId,
       );
 
       if (presetOption) {
@@ -371,84 +301,38 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         updateStatesOnPresetChange(newPreset, presetOption);
       } else {
         console.error(
-          `Preset ${name} was not found in options: ${presetOptions}`,
+          `Preset ${presetId} was not found in options: ${presetOptions}`,
         );
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [presetOptions, stopPlayingOnAction],
+    [presetOptions, isPlaying, togglePlay, updateStatesOnPresetChange],
   );
 
-  const addOrUpdatePreset = (newOption: () => Preset) => {
-    const index = presetOptions.findIndex(
-      (option) => option().name == newOption().name,
+  const handlePresetChange = useCallback(() => {
+    if (isPresetChangeModalOpen) closePresetChangeModal();
+    const selectedPresetId = presetToChange;
+    switchPreset(selectedPresetId);
+  }, [
+    presetToChange,
+    isPresetChangeModalOpen,
+    closePresetChangeModal,
+    switchPreset,
+  ]);
+
+  // Add custom presets loaded via URL search params
+  useEffect(() => {
+    const currentPresetExists = presetOptions.some(
+      (option) => option().meta.id === currentPresetMeta.id,
     );
 
-    if (index !== -1) {
-      presetOptions[index] = newOption;
-    } else {
-      setPresetOptions((prevPresetOptions) => {
-        const newPresetOptions = [...prevPresetOptions, newOption];
-        return newPresetOptions;
-      });
+    if (!currentPresetExists) {
+      // Create a function that returns the current preset from stores
+      const customPresetFunction = () =>
+        getCurrentPreset(currentPresetMeta, currentKitMeta);
+
+      addOrUpdatePreset(customPresetFunction);
     }
-  };
-
-  const handlePresetChange = useCallback(() => {
-    if (isPresetChangeModalOpen) setIsPresetChangeModalOpen(false);
-    const selectedPresetName = presetToChange;
-    switchPreset(selectedPresetName);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetToChange, isPresetChangeModalOpen]);
-
-  useEffect(() => {
-    // Add custom presets loaded via URL search params
-    if (!presetOptions.some((option) => option().name == preset.name)) {
-      const presetFunctionToSave = (): Preset => ({
-        name: preset.name,
-        _kit: {
-          name: preset._kit.name,
-          samples: preset._kit.samples,
-          _attacks: preset._kit._attacks,
-          _releases: preset._kit._releases,
-          _filters: preset._kit._filters,
-          _pitches: preset._kit._pitches,
-          _pans: preset._kit._pans,
-          _volumes: preset._kit._volumes,
-          _mutes: preset._kit._mutes,
-          _solos: preset._kit._solos,
-        },
-        _sequences: preset._sequences,
-        _variation: 0,
-        _chain: preset._chain,
-        _bpm: preset._bpm,
-        _swing: preset._swing,
-        _lowPass: preset._lowPass,
-        _hiPass: preset._hiPass,
-        _phaser: preset._phaser,
-        _reverb: preset._reverb,
-        _compThreshold: preset._compThreshold,
-        _compRatio: preset._compRatio,
-        _masterVolume: preset._masterVolume,
-      });
-
-      console.log(preset.name);
-      console.log(preset._sequences);
-      console.log(presetFunctionToSave);
-
-      updateStatesOnPresetChange(preset, presetFunctionToSave);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset]);
-
-  // block the spacebar from playing
-  useEffect(() => {
-    if (isLoading || isSaveModalOpen || isSharingModalOpen) {
-      setIsModal(true);
-    } else {
-      setIsModal(false);
-    }
-  }, [isLoading, isSaveModalOpen, isSharingModalOpen, setIsModal]);
+  }, [currentPresetMeta, currentKitMeta, presetOptions, addOrUpdatePreset]);
 
   // Effect to display share prompt to new users
   useEffect(() => {
@@ -457,14 +341,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     // If the flag is present, the user has visited before
     if (!sharePromptFlag) {
       const timer = setTimeout(() => {
-        setIsSharePromptOpen(true);
+        openSharePrompt();
       }, 60000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [openSharePrompt]);
 
-  const closeSharePrompt = () => {
-    setIsSharePromptOpen(false);
+  const handleCloseSharePrompt = () => {
+    closeSharePrompt();
     localStorage.setItem("sharePromptSeen", "true");
   };
 
@@ -476,274 +360,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           h="195px"
           className="neumorphicExtraTall"
           borderRadius="8px"
-          p={3}
+          pt={2}
+          pb={1}
+          px={3}
           position="relative"
           ref={modalCloseRef}
         >
-          <Box
-            w="100%"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <Box h="40px" w="100%" id="kit" mb={4} position="relative">
-              <Select
-                variant="unstyled"
-                icon={<></>}
-                border="none"
-                outline="none"
-                value={selectedKit}
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="gray"
-                w="332px"
-                h="40px"
-                borderRadius="8px"
-                cursor="pointer"
-                pl={4}
-                onChange={handleKitChange}
-                onKeyDown={(ev) => ev.preventDefault()}
-              >
-                {kitOptions.map((kit) => (
-                  <option key={kit().name} value={kit().name}>
-                    {kit().name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                bg="transparent"
-                position="absolute"
-                right={0}
-                top={0}
-                pointerEvents="none"
-              >
-                <Box>
-                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                  <Box h="50%">
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                </Box>
-              </Button>
-            </Box>
-          </Box>
+          <PresetSelector
+            selectedPreset={selectedPreset}
+            presetOptions={presetOptions}
+            onPresetChangeRequest={handlePresetChangeRequest}
+          />
 
-          <Text fontSize={12} color="gray" my={-3}>
-            KIT
-          </Text>
+          <KitSelector
+            selectedKit={selectedKit}
+            kitOptions={kitOptions}
+            onKitChange={handleKitChange}
+          />
 
-          <Box
-            w="100%"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            _hover={{
-              "& .icon": {
-                fill: "darkorange",
-                transition: "all 0.2s ease",
-              },
-            }}
-          >
-            <Box id="preset" h="40px" mt={4} mb={4} position="relative">
-              <Select
-                variant="unstyled"
-                icon={<></>}
-                value={selectedPreset}
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                color="gray"
-                w="332px"
-                h="40px"
-                borderRadius="8px"
-                cursor="pointer"
-                onChange={handlePresetChangeRequest}
-                onKeyDown={(ev) => ev.preventDefault()}
-                pl={4}
-              >
-                {presetOptions.map((preset) => (
-                  <option key={preset().name} value={preset().name}>
-                    {preset().name}
-                  </option>
-                ))}
-              </Select>
-              <Button
-                bg="transparent"
-                position="absolute"
-                right={0}
-                top={0}
-                pointerEvents="none"
-              >
-                <Box>
-                  <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                  <Box h="50%">
-                    <IoMdArrowDropdown className="icon" color="#B09374" />
-                  </Box>
-                </Box>
-              </Button>
-            </Box>
-          </Box>
-
-          <Text fontSize={12} color="gray" my={-3} mb={-1}>
-            PRESET
-          </Text>
-
-          <Grid
-            templateColumns="repeat(4, 1fr)"
-            className="neumorphic"
-            borderRadius="8px"
-            mt={2}
-          >
-            <GridItem>
-              <Center>
-                <Tooltip
-                  label="Download to file"
-                  color="darkorange"
-                  openDelay={500}
-                >
-                  <Button
-                    onClick={() => setIsSaveModalOpen(true)}
-                    w="100%"
-                    borderRadius="8px 0 0 8px"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <MdOutlineSaveAlt
-                      className="icon"
-                      color="#B09374"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Tooltip
-                  label="Load from file"
-                  color="darkorange"
-                  openDelay={500}
-                >
-                  <Button
-                    onClick={handleLoad}
-                    w="100%"
-                    borderRadius="0 0 0 0"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <FaFolderOpen
-                      className="icon"
-                      color="#B09374"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Popover
-                  isOpen={isSharePromptOpen}
-                  onClose={closeSharePrompt}
-                  isLazy
-                >
-                  <Tooltip
-                    label="Share as link"
-                    color="darkorange"
-                    openDelay={500}
-                  >
-                    <Box display="inline-block" w="100%">
-                      <PopoverTrigger>
-                        <Button
-                          onClick={() => setIsSharingModalOpen(true)}
-                          w="100%"
-                          borderRadius="0 0 0 0"
-                          className="raised"
-                          _hover={{
-                            "& .icon": {
-                              fill: "darkorange",
-                              transition: "all 0.2s ease",
-                            },
-                          }}
-                        >
-                          <IoIosShareAlt
-                            className="icon"
-                            fill="#B09374"
-                            transition="all 0.2s ease"
-                            size="26px"
-                          />
-                        </Button>
-                      </PopoverTrigger>
-                    </Box>
-                  </Tooltip>
-
-                  <PopoverContent
-                    bg="silver"
-                    className="neumorphic"
-                    borderColor="silver"
-                  >
-                    <PopoverArrow bg="silver" className="neumorphic" />
-                    <PopoverCloseButton color="gray" />
-                    <PopoverHeader color="gray">
-                      Enjoying Drumhaus?
-                    </PopoverHeader>
-                    <PopoverBody color="gray">
-                      You can save your preset to the cloud and share it with a
-                      link using the share button!
-                    </PopoverBody>
-                    <PopoverFooter color="transparent">
-                      <Button
-                        bg="darkorange"
-                        color="silver"
-                        onClick={closeSharePrompt}
-                      >
-                        Dismiss
-                      </Button>
-                    </PopoverFooter>
-                  </PopoverContent>
-                </Popover>
-              </Center>
-            </GridItem>
-            <GridItem>
-              <Center>
-                <Tooltip label="Reset all" color="darkorange" openDelay={500}>
-                  <Button
-                    onClick={() => setIsResetModalOpen(true)}
-                    w="100%"
-                    borderRadius="0 8px 8px 0"
-                    className="raised"
-                    _hover={{
-                      "& .iconReset": {
-                        color: "#ff7b00",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <RxReset
-                      className="iconReset"
-                      color="#B09374"
-                      transition="all 0.2s ease"
-                      size="20px"
-                    />
-                  </Button>
-                </Tooltip>
-              </Center>
-            </GridItem>
-          </Grid>
+          <PresetActions
+            onLoad={handleLoad}
+            isSharePromptOpen={isSharePromptOpen}
+            onCloseSharePrompt={handleCloseSharePrompt}
+          />
         </Box>
       </Center>
 
