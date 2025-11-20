@@ -14,9 +14,10 @@ import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 
 import { useAudioEngine } from "@/hooks/useAudioEngine";
-import { useDrumhausPresetLoading } from "@/hooks/useDrumhausPresetLoading";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useLayoutScale } from "@/hooks/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
+import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
@@ -43,12 +44,14 @@ const Drumhaus = () => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
+  const { scale } = useLayoutScale();
+
   // --- Audio Engine and Preset Loading ---
 
   const { instrumentRuntimes, instrumentRuntimesVersion, isLoading } =
     useAudioEngine();
 
-  const { loadPreset } = useDrumhausPresetLoading({ instrumentRuntimes });
+  const { loadPreset } = usePresetLoading({ instrumentRuntimes });
 
   // --- Keyboard and Mobile Hooks ---
 
@@ -65,7 +68,10 @@ const Drumhaus = () => {
   return (
     <>
       <div className="drumhaus-root">
-        <div className="drumhaus-scale-wrapper">
+        <div
+          className="drumhaus-scale-wrapper"
+          style={{ transform: `scale(${scale})` }}
+        >
           <motion.div
             initial="hidden"
             animate="visible"
