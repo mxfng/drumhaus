@@ -48,8 +48,6 @@ export interface MasterChainParams {
 /**
  * Creates and initializes all master chain audio runtimes
  * Disposes existing runtimes before creating new ones to prevent memory leaks
- * @param runtimes - The ref object to store the master chain runtimes
- * @param params - The initial parameters for the master chain
  */
 export async function createMasterChainRuntimes(
   runtimes: MutableRefObject<MasterChainRuntimes | null>,
@@ -62,8 +60,6 @@ export async function createMasterChainRuntimes(
 
 /**
  * Connects all instrument runtimes to the master chain
- * @param instrumentRuntimes - The instrument runtimes to connect
- * @param masterChainRuntimes - The master chain runtimes to connect to
  */
 export function connectInstrumentsToMasterChain(
   instrumentRuntimes: InstrumentRuntime[],

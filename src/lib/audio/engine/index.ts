@@ -44,5 +44,5 @@ export {
   getCurrentTime,
   setTransportBpm,
   setTransportSwing,
-  releaseAllSamples,
+  releaseAllRuntimes,
 } from "./transport";

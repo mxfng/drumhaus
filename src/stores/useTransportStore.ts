@@ -3,7 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import {
-  releaseAllSamples,
+  releaseAllRuntimes,
   setTransportBpm,
   setTransportSwing,
   startAudioContext,
@@ -51,11 +51,11 @@ export const useTransportStore = create<TransportState>()(
               startTransport();
             } else {
               // Stop transport and reset step index
-              stopTransport(() => {
+              stopTransport(undefined, () => {
                 state.stepIndex = 0;
 
                 // Release all samples
-                releaseAllSamples(instrumentRuntimes);
+                releaseAllRuntimes(instrumentRuntimes);
 
                 // Call optional stop callback
                 if (onStop) onStop();

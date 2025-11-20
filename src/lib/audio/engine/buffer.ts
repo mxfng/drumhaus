@@ -5,10 +5,10 @@ import { getCachedAudioUrl } from "../cache";
 /**
  * Fetches an audio buffer from a URL and returns its duration in seconds.
  */
-export async function getSampleDuration(url: string): Promise<number> {
+export async function getSampleDuration(samplePath: string): Promise<number> {
   try {
     // Get cached URL (blob URL for external files, or local URL)
-    const cachedUrl = await getCachedAudioUrl(url);
+    const cachedUrl = await getCachedAudioUrl(samplePath);
     const buffer = await Buffer.fromUrl(cachedUrl);
     return buffer.duration;
   } catch (error) {

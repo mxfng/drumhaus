@@ -14,8 +14,8 @@ export async function startAudioContext(): Promise<void> {
 
 /**
  * Start the transport and all sources synced to the transport
- * @param time — The time when the transport should start.
- * @param offset — The timeline offset to start the transport.
+ * @param time The time when the transport should start.
+ * @param offset The timeline offset to start the transport.
  */
 export function startTransport(time?: number, offset?: number): void {
   Tone.Transport.start(time, offset);
@@ -23,11 +23,11 @@ export function startTransport(time?: number, offset?: number): void {
 
 /**
  * Stop the transport and all sources synced to the transport.
- * @param time — The time when the transport should stop.
- * @param onStop — Optional callback to execute after stopping the transport.
+ * @param time The time when the transport should stop.
+ * @param onStop Optional callback to execute after stopping the transport.
  */
-export function stopTransport(onStop?: () => void): void {
-  Tone.Transport.stop();
+export function stopTransport(time?: number, onStop?: () => void): void {
+  Tone.Transport.stop(time);
   if (onStop) {
     onStop();
   }
@@ -35,7 +35,6 @@ export function stopTransport(onStop?: () => void): void {
 
 /**
  * Set the transport BPM
- * @param bpm - The BPM to set the transport to
  */
 export function setTransportBpm(bpm: number): void {
   Tone.Transport.bpm.value = bpm;
@@ -43,7 +42,6 @@ export function setTransportBpm(bpm: number): void {
 
 /**
  * Set the transport swing
- * @param swing - The swing to set the transport to
  */
 export function setTransportSwing(swing: number): void {
   const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
@@ -52,14 +50,11 @@ export function setTransportSwing(swing: number): void {
 }
 
 /**
- * Releases all samples on all instrument runtimes
- * Used when stopping playback to prevent audio from continuing
+ * Releases all samples on all instrument runtimes. Used when stopping playback to prevent audio from continuing
  */
-export function releaseAllSamples(
-  instrumentRuntimes: InstrumentRuntime[],
-): void {
+export function releaseAllRuntimes(runtimes: InstrumentRuntime[]): void {
   const time = getCurrentTime();
-  instrumentRuntimes.forEach((runtime) => {
+  runtimes.forEach((runtime) => {
     runtime.samplerNode.releaseAll(time);
   });
 }
