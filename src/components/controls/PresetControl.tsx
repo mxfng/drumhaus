@@ -283,23 +283,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Generate a unique copy-style name for the current preset
+   * Generate a new preset name in the format of "Untitled-YYYYMMDD-HHMM".
    */
-  const generateCopyName = (baseName: string): string => {
-    const copyName = `${baseName} copy`;
+  const generateNewPresetName = (): string => {
+    const now = new Date();
+    const date = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+    const time = `${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
 
-    // Check if base copy name exists
-    if (!allPresets.find((p) => p.meta.name === copyName)) {
-      return copyName;
-    }
-
-    // Try numbered copies (copy 1, copy 2, etc.)
-    let counter = 1;
-    while (allPresets.find((p) => p.meta.name === `${copyName} ${counter}`)) {
-      counter++;
-    }
-
-    return `${copyName} ${counter}`;
+    return `Untitled-${date}-${time}`;
   };
 
   /**
@@ -410,7 +401,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onClose={closeSaveModal}
         onSave={exportPreset}
         modalCloseRef={modalCloseRef}
-        defaultName={currentPresetMeta.name}
+        defaultName={generateNewPresetName()}
       />
 
       <SharingModal
@@ -418,7 +409,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onClose={closeSharingModal}
         onShare={sharePreset}
         modalCloseRef={modalCloseRef}
-        defaultName={generateCopyName(currentPresetMeta.name)}
+        defaultName={generateNewPresetName()}
       />
 
       <SharedModal
