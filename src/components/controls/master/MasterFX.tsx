@@ -1,18 +1,23 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 
+import {
+  MASTER_FILTER_RANGE,
+  MASTER_PHASER_WET_RANGE,
+  MASTER_REVERB_WET_RANGE,
+} from "@/lib/audio/engine/constants";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { Knob } from "../../common/Knob";
 
 export const MasterFX: React.FC = () => {
   // Get state from Master FX Store
   const lowPass = useMasterChainStore((state) => state.lowPass);
-  const hiPass = useMasterChainStore((state) => state.hiPass);
+  const highPass = useMasterChainStore((state) => state.highPass);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
   // Get actions from store
   const setLowPass = useMasterChainStore((state) => state.setLowPass);
-  const setHiPass = useMasterChainStore((state) => state.setHiPass);
+  const setHighPass = useMasterChainStore((state) => state.setHighPass);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
   const setReverb = useMasterChainStore((state) => state.setReverb);
   return (
@@ -40,7 +45,7 @@ export const MasterFX: React.FC = () => {
                 knobValue={lowPass}
                 setKnobValue={setLowPass}
                 knobTitle="LP FILTER"
-                knobTransformRange={[0, 15000]}
+                knobTransformRange={MASTER_FILTER_RANGE}
                 knobUnits="Hz"
                 exponential={true}
                 defaultValue={100}
@@ -52,16 +57,18 @@ export const MasterFX: React.FC = () => {
                 knobValue={phaser}
                 setKnobValue={setPhaser}
                 knobTitle="PHASER"
+                knobTransformRange={MASTER_PHASER_WET_RANGE}
+                knobUnits="mix"
                 defaultValue={0}
               />
             </GridItem>
             <GridItem>
               <Knob
                 size={60}
-                knobValue={hiPass}
-                setKnobValue={setHiPass}
+                knobValue={highPass}
+                setKnobValue={setHighPass}
                 knobTitle="HP FILTER"
-                knobTransformRange={[0, 15000]}
+                knobTransformRange={MASTER_FILTER_RANGE}
                 knobUnits="Hz"
                 exponential={true}
                 defaultValue={0}
@@ -73,6 +80,8 @@ export const MasterFX: React.FC = () => {
                 knobValue={reverb}
                 setKnobValue={setReverb}
                 knobTitle="REVERB"
+                knobTransformRange={MASTER_REVERB_WET_RANGE}
+                knobUnits="mix"
                 defaultValue={0}
               />
             </GridItem>

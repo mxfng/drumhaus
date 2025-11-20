@@ -911,7 +911,7 @@
   },
   "masterChain": {
     "lowPass": 77,
-    "hiPass": 0,
+    "highPass": 0,
     "phaser": 0,
     "reverb": 32,
     "compThreshold": 58,

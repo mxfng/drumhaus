@@ -2,10 +2,12 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import type { MasterChainParams } from "@/types/preset";
+
 interface MasterChainState {
   // Filter effects
   lowPass: number;
-  hiPass: number;
+  highPass: number;
   phaser: number;
   reverb: number;
 
@@ -18,7 +20,7 @@ interface MasterChainState {
 
   // Actions
   setLowPass: (lowPass: number) => void;
-  setHiPass: (hiPass: number) => void;
+  setHighPass: (highPass: number) => void;
   setPhaser: (phaser: number) => void;
   setReverb: (reverb: number) => void;
   setCompThreshold: (compThreshold: number) => void;
@@ -26,15 +28,7 @@ interface MasterChainState {
   setMasterVolume: (masterVolume: number) => void;
 
   // Batch setters for preset loading
-  setAllMasterChain: (
-    lowPass: number,
-    hiPass: number,
-    phaser: number,
-    reverb: number,
-    compThreshold: number,
-    compRatio: number,
-    masterVolume: number,
-  ) => void;
+  setAllMasterChain: (params: MasterChainParams) => void;
 }
 
 export const useMasterChainStore = create<MasterChainState>()(
@@ -43,7 +37,7 @@ export const useMasterChainStore = create<MasterChainState>()(
       immer((set) => ({
         // Initial state (default/init preset values)
         lowPass: 100,
-        hiPass: 0,
+        highPass: 0,
         phaser: 0,
         reverb: 0,
         compThreshold: 50,
@@ -55,8 +49,8 @@ export const useMasterChainStore = create<MasterChainState>()(
           set({ lowPass });
         },
 
-        setHiPass: (hiPass) => {
-          set({ hiPass });
+        setHighPass: (highPass) => {
+          set({ highPass });
         },
 
         setPhaser: (phaser) => {
@@ -80,23 +74,15 @@ export const useMasterChainStore = create<MasterChainState>()(
         },
 
         // Batch setter for preset loading
-        setAllMasterChain: (
-          lowPass,
-          hiPass,
-          phaser,
-          reverb,
-          compThreshold,
-          compRatio,
-          masterVolume,
-        ) => {
+        setAllMasterChain: (params) => {
           set({
-            lowPass,
-            hiPass,
-            phaser,
-            reverb,
-            compThreshold,
-            compRatio,
-            masterVolume,
+            lowPass: params.lowPass,
+            highPass: params.highPass,
+            phaser: params.phaser,
+            reverb: params.reverb,
+            compThreshold: params.compThreshold,
+            compRatio: params.compRatio,
+            masterVolume: params.masterVolume,
           });
         },
       })),
@@ -105,7 +91,7 @@ export const useMasterChainStore = create<MasterChainState>()(
         // Persist all master FX settings
         partialize: (state) => ({
           lowPass: state.lowPass,
-          hiPass: state.hiPass,
+          highPass: state.highPass,
           phaser: state.phaser,
           reverb: state.reverb,
           compThreshold: state.compThreshold,

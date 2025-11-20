@@ -14,6 +14,7 @@ import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
 
+import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 
 export const SequencerControl: React.FC = () => {
@@ -54,10 +55,10 @@ export const SequencerControl: React.FC = () => {
 
   const handleRandomSequence = () => {
     const randomTriggers: boolean[] = Array.from(
-      { length: 16 },
+      { length: STEP_COUNT },
       () => Math.random() < 0.5,
     );
-    const randomVelocities: number[] = Array.from({ length: 16 }, () =>
+    const randomVelocities: number[] = Array.from({ length: STEP_COUNT }, () =>
       Math.random(),
     );
     updateSequence(voiceIndex, variation, randomTriggers, randomVelocities);

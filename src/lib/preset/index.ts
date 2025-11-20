@@ -9,7 +9,7 @@ import sunflowerJson from "@/lib/preset/defaults/Sunflower.dh";
 import superDreamHausJson from "@/lib/preset/defaults/Super Dream Haus.dh";
 import togetherAgainJson from "@/lib/preset/defaults/Together Again.dh";
 import welcomeToTheHausJson from "@/lib/preset/defaults/Welcome to the Haus.dh";
-import { validatePresetFile } from "@/lib/preset/load";
+import { validatePresetFile } from "@/lib/preset/helpers";
 import type { PresetFileV1 } from "@/types/preset";
 
 /**

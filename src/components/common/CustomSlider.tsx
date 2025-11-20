@@ -13,7 +13,23 @@ import {
 
 import { transformKnobValue } from "./Knob";
 
-export const CustomSlider: React.FC<any> = ({
+type CustomSliderProps = {
+  size: number;
+  title?: string;
+  sliderValue: number;
+  setSliderValue: (value: number) => void;
+  defaultValue: number;
+  leftLabel?: string;
+  rightLabel?: string;
+  centerLabel?: string;
+  transformRange?: [number, number];
+  displayRange?: [number, number];
+  isDisabled?: boolean;
+  valueStep?: number;
+  valueDecimals?: number;
+};
+
+export const CustomSlider: React.FC<CustomSliderProps> = ({
   size,
   title,
   sliderValue,
@@ -23,15 +39,29 @@ export const CustomSlider: React.FC<any> = ({
   rightLabel = "",
   centerLabel = "",
   transformRange = [0, 100],
+  displayRange,
   isDisabled = false,
+  valueStep = 1,
+  valueDecimals = 0,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const immutableDefaultValue = defaultValue;
+  const step = valueStep > 0 ? valueStep : 1;
 
   const handleDoubleClick = () => {
     setSliderValue(immutableDefaultValue);
   };
+
+  const handleChange = (value: number) => {
+    const quantizedValue = Math.round(value / step) * step;
+    setSliderValue(quantizedValue);
+  };
+
+  const formattedTransformedValue = transformKnobValue(
+    sliderValue,
+    displayRange ?? transformRange,
+  ).toFixed(valueDecimals);
 
   return (
     <Box position="relative" onDoubleClick={handleDoubleClick}>
@@ -51,7 +81,8 @@ export const CustomSlider: React.FC<any> = ({
             focusThumbOnChange={false}
             min={0}
             max={100}
-            onChange={(v) => setSliderValue(v)}
+            step={step}
+            onChange={handleChange}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
             isDisabled={isDisabled}
@@ -64,7 +95,7 @@ export const CustomSlider: React.FC<any> = ({
               placement="top"
               isOpen={showTooltip}
               fontSize={10}
-              label={`${transformKnobValue(sliderValue, transformRange)}`}
+              label={formattedTransformedValue}
             >
               <SliderThumb
                 width={`${size / 4}px`}

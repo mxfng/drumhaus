@@ -22,11 +22,20 @@ import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
+import {
+  INSTRUMENT_ATTACK_RANGE,
+  INSTRUMENT_PAN_RANGE,
+  INSTRUMENT_PITCH_SEMITONE_RANGE,
+  INSTRUMENT_VOLUME_RANGE,
+  SAMPLER_ROOT_NOTE,
+} from "@/lib/audio/engine/constants";
+import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
+  KNOB_ROTATION_THRESHOLD_L,
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
@@ -96,7 +105,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
 
@@ -133,6 +141,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     () => toggleSoloStore(index),
     [index, toggleSoloStore],
   );
+  const formatPitchLabel = useCallback((value: number) => {
+    const semitoneOffset =
+      ((value - 50) / 50) * INSTRUMENT_PITCH_SEMITONE_RANGE;
+    const signedOffset =
+      semitoneOffset > 0
+        ? `+${semitoneOffset.toFixed(0)}`
+        : semitoneOffset.toFixed(0);
+    return `${signedOffset} st`;
+  }, []);
 
   // Subscribe to instrument parameter changes and update audio nodes directly
   // This avoids multiple useEffects and updates audio without causing re-renders
@@ -168,25 +185,30 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         // Update attack
         const newAttackValue = transformKnobValue(
           currentParams.attack,
-          [0, 0.1],
+          INSTRUMENT_ATTACK_RANGE,
         );
         runtime.envelopeNode.attack = newAttackValue;
 
         // Update filter
         runtime.filterNode.type =
-          currentParams.filter <= 49 ? "lowpass" : "highpass";
+          currentParams.filter <= KNOB_ROTATION_THRESHOLD_L
+            ? "lowpass"
+            : "highpass";
         runtime.filterNode.frequency.value = transformKnobFilterValue(
           currentParams.filter,
         );
 
         // Update pan
-        const newPanValue = transformKnobValue(currentParams.pan, [-1, 1]);
+        const newPanValue = transformKnobValue(
+          currentParams.pan,
+          INSTRUMENT_PAN_RANGE,
+        );
         runtime.pannerNode.pan.value = newPanValue;
 
         // Update volume
         const newVolumeValue = transformKnobValue(
           currentParams.volume,
-          [-46, 4],
+          INSTRUMENT_VOLUME_RANGE,
         );
         runtime.samplerNode.volume.value = newVolumeValue;
 
@@ -216,7 +238,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
-      runtime.samplerNode.triggerRelease("C2", Tone.now());
+      runtime.samplerNode.triggerRelease(SAMPLER_ROOT_NOTE, Tone.now());
     }
     toggleMute();
   }, [toggleMute, mute, runtime?.samplerNode]);
@@ -252,15 +274,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const playSample = () => {
     if (!runtime) return;
 
-    const previousPitch = currentPitchRef.current;
-    const pitchValue = playInstrumentSample(
-      runtime,
-      pitch,
-      release,
-      sampleDuration,
-      previousPitch,
-    );
-    currentPitchRef.current = pitchValue;
+    playInstrumentSample(runtime, pitch, release, sampleDuration);
   };
 
   return (
@@ -367,8 +381,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobValue={pitch}
               setKnobValue={setPitch}
               knobTitle="PITCH"
-              knobTransformRange={[43, 88]}
               defaultValue={50}
+              valueStep={PITCH_KNOB_STEP}
+              displayValueFormatter={formatPitchLabel}
               isDisabled={!isRuntimeLoaded}
             />
           </GridItem>
@@ -386,7 +401,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 leftLabel="L"
                 centerLabel="|"
                 rightLabel="R"
-                transformRange={[-100, 100]}
+                transformRange={INSTRUMENT_PAN_RANGE}
+                displayRange={[-100, 100]}
                 isDisabled={!isRuntimeLoaded}
               />
             </Box>
@@ -445,7 +461,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobValue={volume}
               setKnobValue={setVolume}
               knobTitle="VOLUME"
-              knobTransformRange={[-46, 4]}
+              knobTransformRange={INSTRUMENT_VOLUME_RANGE}
               knobUnits="dB"
               defaultValue={92}
               isDisabled={!isRuntimeLoaded}

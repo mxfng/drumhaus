@@ -4,9 +4,9 @@ import { Meta } from "./meta";
 
 export type VariationCycle = "A" | "B" | "AB" | "AAAB";
 
-export interface MasterChainData {
+export interface MasterChainParams {
   lowPass: number;
-  hiPass: number;
+  highPass: number;
   phaser: number;
   reverb: number;
   compThreshold: number;
@@ -14,7 +14,7 @@ export interface MasterChainData {
   masterVolume: number;
 }
 
-export interface TransportData {
+export interface TransportParams {
   bpm: number;
   swing: number;
 }
@@ -31,7 +31,7 @@ export interface PresetFileV1 {
   version: 1;
   meta: Meta;
   kit: KitFileV1;
-  transport: TransportData;
+  transport: TransportParams;
   sequencer: SequencerData;
-  masterChain: MasterChainData;
+  masterChain: MasterChainParams;
 }

@@ -70,9 +70,7 @@ export function decompressPako(input: string): string {
   }
 }
 
-// ============================================================================
-// MAIN API
-// ============================================================================
+// --- MAIN API ---
 
 /**
  * Compresses a string using gzip compression

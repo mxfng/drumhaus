@@ -2,50 +2,32 @@ import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { transformPitchKnobToFrequency } from "./pitch";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
- * Ensures monophonic behavior by releasing any currently playing notes.
- *
- * @param runtime - The instrument runtime containing audio nodes
- * @param pitch - The pitch value (0-100 knob value)
- * @param release - The release value (0-100 knob value)
- * @param sampleDuration - The duration of the sample in seconds
- * @param previousPitch - Optional previous pitch to release specifically
  */
 export function playInstrumentSample(
   runtime: InstrumentRuntime,
   pitch: number,
   release: number,
   sampleDuration: number,
-  previousPitch: number | null = null,
 ): number {
   const time = Tone.now();
+  const pitchValue = transformPitchKnobToFrequency(pitch);
+  const releaseTime = transformKnobValue(release, [0, sampleDuration]);
 
-  // Release envelope
+  // Enforce monophonic behavior
   runtime.envelopeNode.triggerRelease(time);
-
-  // Release previous note if tracking it
-  if (previousPitch !== null) {
-    const prevPitchValue = transformKnobValue(
-      previousPitch,
-      [15.4064, 115.4064],
-    );
-    runtime.samplerNode.triggerRelease(prevPitchValue, time);
-  }
-
-  // Release all sampler notes (monophonic behavior)
   runtime.samplerNode.triggerRelease(time);
 
-  // Trigger envelope attack
+  // Skip triggering if the buffer is not ready yet
+  if (!runtime.samplerNode.loaded) {
+    return pitchValue;
+  }
+
   runtime.envelopeNode.triggerAttack(time);
-
-  // Schedule envelope release
-  const releaseTime = transformKnobValue(release, [0, sampleDuration]);
   runtime.envelopeNode.triggerRelease(time + releaseTime);
-
-  // Trigger sampler attack with transformed pitch
-  const pitchValue = transformKnobValue(pitch, [15.4064, 115.4064]);
   runtime.samplerNode.triggerAttack(pitchValue, time);
 
   return pitchValue;
