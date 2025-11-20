@@ -8,7 +8,6 @@ interface ModalState {
   isSharingModalOpen: boolean;
   isSharedModalOpen: boolean;
   isResetModalOpen: boolean;
-  isErrorModalShowing: boolean;
   isPresetChangeModalOpen: boolean;
   isSharePromptOpen: boolean;
 
@@ -28,9 +27,6 @@ interface ModalState {
 
   openResetModal: () => void;
   closeResetModal: () => void;
-
-  openErrorModal: () => void;
-  closeErrorModal: () => void;
 
   openPresetChangeModal: (presetName: string) => void;
   closePresetChangeModal: () => void;
@@ -53,7 +49,6 @@ export const useModalStore = create<ModalState>()(
       isSharingModalOpen: false,
       isSharedModalOpen: false,
       isResetModalOpen: false,
-      isErrorModalShowing: false,
       isPresetChangeModalOpen: false,
       isSharePromptOpen: false,
       shareableLink: "",
@@ -109,18 +104,6 @@ export const useModalStore = create<ModalState>()(
         });
       },
 
-      openErrorModal: () => {
-        set((state) => {
-          state.isErrorModalShowing = true;
-        });
-      },
-
-      closeErrorModal: () => {
-        set((state) => {
-          state.isErrorModalShowing = false;
-        });
-      },
-
       openPresetChangeModal: (presetName: string) => {
         set((state) => {
           state.isPresetChangeModalOpen = true;
@@ -154,7 +137,6 @@ export const useModalStore = create<ModalState>()(
           state.isSharingModalOpen ||
           state.isSharedModalOpen ||
           state.isResetModalOpen ||
-          state.isErrorModalShowing ||
           state.isPresetChangeModalOpen ||
           state.isSharePromptOpen
         );
@@ -166,7 +148,6 @@ export const useModalStore = create<ModalState>()(
           state.isSharingModalOpen = false;
           state.isSharedModalOpen = false;
           state.isResetModalOpen = false;
-          state.isErrorModalShowing = false;
           state.isPresetChangeModalOpen = false;
           state.isSharePromptOpen = false;
           state.shareableLink = "";
