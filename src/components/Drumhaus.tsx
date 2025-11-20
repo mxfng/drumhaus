@@ -94,6 +94,9 @@ const Drumhaus = () => {
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
+  // Scale Drumhaus "hardware" to fit viewport while keeping aspect ratio
+  const [scale, setScale] = useState(1);
+
   const toast = useToast({ position: "top" });
 
   useMasterChain({
@@ -215,6 +218,33 @@ const Drumhaus = () => {
   // EFFECTS
   // ============================================================================
 
+  // Compute a scale factor so the fixed-size UI fits (within reason) in the viewport
+  useEffect(() => {
+    const DESIGN_WIDTH = 1538;
+    const DESIGN_HEIGHT = 1030;
+    const MIN_SCALE = 0.6; // allow some overflow on very small screens
+    const MAX_SCALE = 1; // don't upscale past the original pixel-perfect size
+    const PADDING = 32; // breathing room around the UI
+
+    const updateScale = () => {
+      if (typeof window === "undefined") return;
+
+      const { innerWidth, innerHeight } = window;
+      const availableWidth = innerWidth - PADDING;
+      const availableHeight = innerHeight - PADDING;
+
+      const scaleX = availableWidth / DESIGN_WIDTH;
+      const scaleY = availableHeight / DESIGN_HEIGHT;
+
+      const nextScale = Math.min(scaleX, scaleY, MAX_SCALE);
+      setScale(Math.max(nextScale, MIN_SCALE));
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
+
   // Load initial preset on mount
   useEffect(() => {
     loadFromUrlOrDefault();
@@ -298,158 +328,156 @@ const Drumhaus = () => {
 
   return (
     <>
-      <Box
-        w={1538}
-        h={1030}
-        m="auto"
-        position="absolute"
-        inset={0}
-        userSelect="none"
-      >
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={FADE_IN_VARIANTS}
-          transition={{ duration: 0.5 }}
+      <div className="drumhaus-root">
+        <div
+          className="drumhaus-scale-wrapper"
+          style={{ transform: `scale(${scale})` }}
         >
-          <Box
-            bg="silver"
-            w={1538}
-            h={1000}
-            borderRadius="12px"
-            className="neumorphicExtraTall"
-            overflow="clip"
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={FADE_IN_VARIANTS}
+            transition={{ duration: 0.5 }}
           >
             <Box
-              h="120px"
-              boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
-              position="relative"
+              bg="silver"
+              w={1538}
+              h={1000}
+              borderRadius="12px"
+              className="neumorphicExtraTall"
+              overflow="clip"
             >
-              <Flex
-                position="relative"
+              <Box
                 h="120px"
-                w="750px"
-                flexDir="row"
-                alignItems="flex-end"
-                pl="26px"
-                pb="20px"
+                boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
+                position="relative"
               >
-                <Box display="flex" alignItems="flex-end">
-                  <DrumhausLogo size={46} color="#ff7b00" />
+                <Flex
+                  position="relative"
+                  h="120px"
+                  w="750px"
+                  flexDir="row"
+                  alignItems="flex-end"
+                  pl="26px"
+                  pb="20px"
+                >
+                  <Box display="flex" alignItems="flex-end">
+                    <DrumhausLogo size={46} color="#ff7b00" />
+                  </Box>
+                  <Box ml={2} display="flex" alignItems="flex-end">
+                    <DrumhausTypographyLogo color="#ff7b00" size={420} />
+                  </Box>
+                  <Box mb={-1} ml={4}>
+                    <Text color="gray" opacity={0.7}>
+                      Browser Controlled
+                    </Text>
+                    <Text color="gray" opacity={0.7}>
+                      Rhythmic Groove Machine
+                    </Text>
+                  </Box>
+                </Flex>
+
+                <Box
+                  position="absolute"
+                  right="26px"
+                  bottom="18px"
+                  borderRadius="16px"
+                  overflow="hidden"
+                  opacity={0.6}
+                  boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+                >
+                  <FrequencyAnalyzer />
                 </Box>
-                <Box ml={2} display="flex" alignItems="flex-end">
-                  <DrumhausTypographyLogo color="#ff7b00" size={420} />
-                </Box>
-                <Box mb={-1} ml={4}>
-                  <Text color="gray" opacity={0.7}>
-                    Browser Controlled
-                  </Text>
-                  <Text color="gray" opacity={0.7}>
-                    Rhythmic Groove Machine
-                  </Text>
-                </Box>
-              </Flex>
+              </Box>
+
+              <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+                <InstrumentGrid
+                  key={instrumentRuntimesVersion}
+                  instrumentRuntimes={instrumentRuntimes.current}
+                />
+              </Box>
+
+              <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
+                <GridItem colSpan={1} w="160px" mr={6}>
+                  <Center w="100%" h="100%">
+                    <Button
+                      h="140px"
+                      w="140px"
+                      onClick={() => togglePlay(instrumentRuntimes.current)}
+                      className="neumorphicTallRaised"
+                      outline="none"
+                      onKeyDown={(ev) => ev.preventDefault()}
+                    >
+                      {isPlaying ? (
+                        <IoPauseSharp size={50} color="#ff7b00" />
+                      ) : (
+                        <IoPlaySharp size={50} color="#B09374" />
+                      )}
+                    </Button>
+                  </Center>
+                </GridItem>
+
+                <GridItem colSpan={1} mx={0} ml={-3}>
+                  <SequencerControl />
+                </GridItem>
+
+                <GridItem colSpan={1} px={2}>
+                  <TransportControl />
+                </GridItem>
+
+                <GridItem w="380px" px={2}>
+                  <PresetControl loadPreset={loadPreset} />
+                </GridItem>
+
+                <MasterControl />
+              </Grid>
+
+              <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+                <Sequencer />
+              </Box>
 
               <Box
                 position="absolute"
                 right="26px"
-                bottom="18px"
-                borderRadius="16px"
-                overflow="hidden"
-                opacity={0.6}
-                boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
+                bottom={10}
+                opacity={0.2}
+                as="a"
+                href="https://fung.studio/"
+                target="_blank"
               >
-                <FrequencyAnalyzer />
+                <FungPeaceLogo color="#B09374" size={80} />
               </Box>
             </Box>
-
-            <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <InstrumentGrid
-                key={instrumentRuntimesVersion}
-                instrumentRuntimes={instrumentRuntimes.current}
-              />
-            </Box>
-
-            <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
-              <GridItem colSpan={1} w="160px" mr={6}>
-                <Center w="100%" h="100%">
-                  <Button
-                    h="140px"
-                    w="140px"
-                    onClick={() => togglePlay(instrumentRuntimes.current)}
-                    className="neumorphicTallRaised"
-                    outline="none"
-                    onKeyDown={(ev) => ev.preventDefault()}
+            <Box h="20px" w="100%" position="relative">
+              <Center w="100%" h="100%">
+                <Flex mt={8}>
+                  <Text color="gray" fontSize={14}>
+                    Designed with love by
+                  </Text>
+                  <Link
+                    href="https://fung.studio/"
+                    target="_blank"
+                    color="gray"
+                    ml={1}
+                    fontSize={14}
                   >
-                    {isPlaying ? (
-                      <IoPauseSharp size={50} color="#ff7b00" />
-                    ) : (
-                      <IoPlaySharp size={50} color="#B09374" />
-                    )}
-                  </Button>
-                </Center>
-              </GridItem>
-
-              <GridItem colSpan={1} mx={0} ml={-3}>
-                <SequencerControl />
-              </GridItem>
-
-              <GridItem colSpan={1} px={2}>
-                <TransportControl />
-              </GridItem>
-
-              <GridItem w="380px" px={2}>
-                <PresetControl loadPreset={loadPreset} />
-              </GridItem>
-
-              <MasterControl />
-            </Grid>
-
-            <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
-              <Sequencer />
+                    Max Fung.
+                  </Link>
+                  <Link
+                    href="https://ko-fi.com/maxfung"
+                    target="_blank"
+                    color="gray"
+                    ml={1}
+                    fontSize={14}
+                  >
+                    Support on ko-fi.
+                  </Link>
+                </Flex>
+              </Center>
             </Box>
-
-            <Box
-              position="absolute"
-              right="26px"
-              bottom={10}
-              opacity={0.2}
-              as="a"
-              href="https://fung.studio/"
-              target="_blank"
-            >
-              <FungPeaceLogo color="#B09374" size={80} />
-            </Box>
-          </Box>
-          <Box h="20px" w="100%" position="relative">
-            <Center w="100%" h="100%">
-              <Flex mt={8}>
-                <Text color="gray" fontSize={14}>
-                  Designed with love by
-                </Text>
-                <Link
-                  href="https://fung.studio/"
-                  target="_blank"
-                  color="gray"
-                  ml={1}
-                  fontSize={14}
-                >
-                  Max Fung.
-                </Link>
-                <Link
-                  href="https://ko-fi.com/maxfung"
-                  target="_blank"
-                  color="gray"
-                  ml={1}
-                  fontSize={14}
-                >
-                  Support on ko-fi.
-                </Link>
-              </Flex>
-            </Center>
-          </Box>
-        </motion.div>
-      </Box>
+          </motion.div>
+        </div>
+      </div>
       <MobileModal
         isOpen={isMobileWarning}
         onClose={() => setIsMobileWarning(false)}

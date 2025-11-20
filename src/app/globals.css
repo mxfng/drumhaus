@@ -105,3 +105,19 @@ a {
 .pixelated-spinner__pixel {
   animation: pixelated-spinner-pulse 1s ease-in-out infinite;
 }
+
+.drumhaus-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.drumhaus-scale-wrapper {
+  width: 1538px;
+  height: 1030px;
+  transform-origin: center center;
+}
