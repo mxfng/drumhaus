@@ -36,7 +36,6 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/stats.js": "^0.17.4",
-    "@welldone-software/why-did-you-render": "^8.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.0.2",
     "eslint-config-prettier": "^10.1.8",
