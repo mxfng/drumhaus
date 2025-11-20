@@ -161,9 +161,10 @@ export function useDrumhausPresetLoading({
       showSharedPresetErrorToast();
       loadPreset(init());
     } finally {
-      // Remove URL parameter after loading preset
+      // Remove URL parameters after loading preset
       const url = new URL(window.location.href);
       url.searchParams.delete("p");
+      url.searchParams.delete("n");
       window.history.replaceState({}, "", url.toString());
     }
   }, [loadPreset, showSharedPresetErrorToast, showSharedPresetToast]);

@@ -23,6 +23,7 @@ import { z } from "zod";
 const presetNameSchema = z
   .string()
   .min(1, "Preset name cannot be empty")
+  .max(20, "Preset name must be at most 20 characters")
   .refine(
     (name) => !/[/\\:*?"<>|]/.test(name),
     'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',

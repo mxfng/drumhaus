@@ -119,7 +119,6 @@ a {
   width: 1538px;
   height: 1030px;
   transform-origin: center center;
-  /* viewport-based scaling with min/max limits */
   --drumhaus-padding: 32px;
   --drumhaus-available-width: calc(100vw - var(--drumhaus-padding));
   --drumhaus-available-height: calc(100vh - var(--drumhaus-padding));
@@ -128,4 +127,21 @@ a {
   --drumhaus-scale-raw: min(var(--drumhaus-scale-x), var(--drumhaus-scale-y));
   --drumhaus-scale: clamp(0.6, var(--drumhaus-scale-raw), 1);
   transform: scale(var(--drumhaus-scale));
+}
+
+@media (max-width: 900px) {
+  .drumhaus-root {
+    position: static;
+    inset: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 16px 16px 32px;
+  }
+
+  .drumhaus-scale-wrapper {
+    /* Disable scaling on smaller screens and allow scrolling instead */
+    transform: none;
+    width: 1538px;
+    height: 1030px;
+  }
 }
