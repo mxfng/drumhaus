@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Center } from "@chakra-ui/react";
+import { Box, Center, useToast } from "@chakra-ui/react";
 
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
@@ -9,12 +9,10 @@ import { getCurrentPreset } from "@/lib/preset/helpers";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
-import { useTransportStore } from "@/stores/useTransportStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
 import { ConfirmSelectPresetModal } from "../modal/ConfirmSelectPresetModal";
-import { ErrorModal } from "../modal/ErrorModal";
 import { ResetModal } from "../modal/ResetModal";
 import { SaveModal } from "../modal/SaveModal";
 import { SharedModal, SharingModal } from "../modal/ShareModals";
@@ -68,7 +66,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     isSharingModalOpen,
     isSharedModalOpen,
     isResetModalOpen,
-    isErrorModalShowing,
     isPresetChangeModalOpen,
     shareableLink,
     presetToChange,
@@ -76,12 +73,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     closeSharingModal,
     closeSharedModal,
     closeResetModal,
-    closeErrorModal,
     closePresetChangeModal,
     openSharedModal,
-    openErrorModal,
     openPresetChangeModal,
   } = useModalStore();
+
+  const toast = useToast();
 
   const modalCloseRef = useRef(null);
 
@@ -233,10 +230,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           loadPreset(preset);
         } catch (error) {
           console.error("Failed to import preset:", error);
-          openErrorModal();
+          toast({
+            title: "Something went wrong.",
+            description:
+              error instanceof Error
+                ? error.message
+                : "Failed to import preset",
+            status: "error",
+            duration: 8000,
+            isClosable: true,
+            position: "top",
+          });
         }
       };
-      reader.onerror = () => openErrorModal();
+      reader.onerror = () => {
+        toast({
+          title: "Something went wrong.",
+          description: "Failed to import preset",
+          status: "error",
+          duration: 8000,
+          isClosable: true,
+          position: "top",
+        });
+      };
       reader.readAsText(file);
     };
     input.click();
@@ -290,7 +306,15 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       openSharedModal(shareUrl);
     } catch (error) {
       console.error("Failed to share preset:", error);
-      openErrorModal();
+      toast({
+        title: "Something went wrong.",
+        description:
+          error instanceof Error ? error.message : "Failed to share preset",
+        status: "error",
+        duration: 8000,
+        isClosable: true,
+        position: "top",
+      });
     }
   };
 
@@ -392,8 +416,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         onReset={handleReset}
         modalCloseRef={modalCloseRef}
       />
-
-      <ErrorModal isOpen={isErrorModalShowing} onClose={closeErrorModal} />
 
       <ConfirmSelectPresetModal
         isOpen={isPresetChangeModalOpen}
