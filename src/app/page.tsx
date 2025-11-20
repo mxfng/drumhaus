@@ -99,8 +99,8 @@ export async function generateMetadata({
 
 export default function Home() {
   return (
-    <Box w="100%" h="100%">
-      <Box w="100%" h="100vh" minW={1538} minH={1050} position="relative">
+    <Box w="100%" h="100%" overflow="hidden">
+      <Box w="100%" h="100vh" minW={1538} minH={1050}>
         <Suspense fallback={<DrumhausFallback />}>
           <Drumhaus />
         </Suspense>
