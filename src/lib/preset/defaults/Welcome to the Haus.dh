@@ -40,7 +40,7 @@
           "attack": 0,
           "release": 100,
           "filter": 50,
-          "volume": 71,
+          "volume": 92,
           "pan": 50,
           "pitch": 50,
           "solo": false,
@@ -68,8 +68,8 @@
         "params": {
           "attack": 0,
           "release": 100,
-          "filter": 60,
-          "volume": 82,
+          "filter": 50,
+          "volume": 92,
           "pan": 50,
           "pitch": 50,
           "solo": false,
@@ -96,11 +96,11 @@
         },
         "params": {
           "attack": 0,
-          "release": 32,
+          "release": 100,
           "filter": 50,
-          "volume": 83,
+          "volume": 92,
           "pan": 50,
-          "pitch": 42,
+          "pitch": 50,
           "solo": false,
           "mute": false
         }
@@ -213,7 +213,7 @@
         "params": {
           "attack": 0,
           "release": 100,
-          "filter": 56,
+          "filter": 50,
           "volume": 92,
           "pan": 50,
           "pitch": 50,
