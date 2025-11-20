@@ -94,9 +94,6 @@ const Drumhaus = () => {
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
-  // Scale Drumhaus "hardware" to fit viewport while keeping aspect ratio
-  const [scale, setScale] = useState(1);
-
   const toast = useToast({ position: "top" });
 
   useMasterChain({
@@ -214,37 +211,6 @@ const Drumhaus = () => {
     }
   };
 
-  // ============================================================================
-  // EFFECTS
-  // ============================================================================
-
-  // Compute a scale factor so the fixed-size UI fits (within reason) in the viewport
-  useEffect(() => {
-    const DESIGN_WIDTH = 1538;
-    const DESIGN_HEIGHT = 1030;
-    const MIN_SCALE = 0.6; // allow some overflow on very small screens
-    const MAX_SCALE = 1; // don't upscale past the original pixel-perfect size
-    const PADDING = 32; // breathing room around the UI
-
-    const updateScale = () => {
-      if (typeof window === "undefined") return;
-
-      const { innerWidth, innerHeight } = window;
-      const availableWidth = innerWidth - PADDING;
-      const availableHeight = innerHeight - PADDING;
-
-      const scaleX = availableWidth / DESIGN_WIDTH;
-      const scaleY = availableHeight / DESIGN_HEIGHT;
-
-      const nextScale = Math.min(scaleX, scaleY, MAX_SCALE);
-      setScale(Math.max(nextScale, MIN_SCALE));
-    };
-
-    updateScale();
-    window.addEventListener("resize", updateScale);
-    return () => window.removeEventListener("resize", updateScale);
-  }, []);
-
   // Load initial preset on mount
   useEffect(() => {
     loadFromUrlOrDefault();
@@ -329,10 +295,7 @@ const Drumhaus = () => {
   return (
     <>
       <div className="drumhaus-root">
-        <div
-          className="drumhaus-scale-wrapper"
-          style={{ transform: `scale(${scale})` }}
-        >
+        <div className="drumhaus-scale-wrapper">
           <motion.div
             initial="hidden"
             animate="visible"
