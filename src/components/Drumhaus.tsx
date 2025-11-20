@@ -247,10 +247,11 @@ const Drumhaus = () => {
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
-    createInstrumentRuntimes(instrumentRuntimes, instruments);
+    const samplePaths = instruments.map((inst) => inst.sample.path);
 
     const loadBuffers = async () => {
       try {
+        await createInstrumentRuntimes(instrumentRuntimes, instruments);
         await waitForBuffersToLoad();
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
@@ -294,11 +295,6 @@ const Drumhaus = () => {
   // ============================================================================
   // RENDER
   // ============================================================================
-
-  if (instrumentRuntimes.current.length === 0) {
-    // TODO: Add a fallback UI here or cover all of this with a loading screen until fade in
-    return <div></div>;
-  }
 
   return (
     <>
@@ -361,7 +357,7 @@ const Drumhaus = () => {
                 borderRadius="16px"
                 overflow="hidden"
                 opacity={0.6}
-                boxShadow="0 2px 8px rgba(176, 147, 116, 0.1) inset"
+                boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
               >
                 <FrequencyAnalyzer />
               </Box>

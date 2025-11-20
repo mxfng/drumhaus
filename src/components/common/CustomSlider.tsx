@@ -23,6 +23,7 @@ export const CustomSlider: React.FC<any> = ({
   rightLabel = "",
   centerLabel = "",
   transformRange = [0, 100],
+  isDisabled = false,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -53,6 +54,7 @@ export const CustomSlider: React.FC<any> = ({
             onChange={(v) => setSliderValue(v)}
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
+            isDisabled={isDisabled}
           >
             <SliderTrack></SliderTrack>
             <Tooltip
