@@ -226,13 +226,13 @@ export const SharedModal: React.FC<SharedModalProps> = ({
             fontSize="xs"
           >
             <Text color="gray" fontWeight="bold" mb={1}>
-              Did you know?
+              Fun Fact
             </Text>
             <Text color="gray" fontSize="xs" lineHeight="1.5">
-              No database needed! Your entire preset lives in this URL using
-              DEFLATE compression (via pako), bit-packed triggers, quantized
-              velocities, and more encoding. It&apos;s like a tiny spaceship
-              carrying your beats through the internet.
+              Your preset lives in this URL using DEFLATE compression (via
+              pako), bit-packed triggers, quantized velocities, and more
+              compression and encoding. It&apos;s a tiny spaceship carrying your
+              beats through the web.
             </Text>
           </Box>
         </ModalBody>
