@@ -34,7 +34,7 @@ import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
-  KNOB_NEUTRAL_BREAKPOINT_LOW,
+  KNOB_ROTATION_THRESHOLD_L,
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
@@ -181,7 +181,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
         // Update filter
         runtime.filterNode.type =
-          currentParams.filter <= KNOB_NEUTRAL_BREAKPOINT_LOW
+          currentParams.filter <= KNOB_ROTATION_THRESHOLD_L
             ? "lowpass"
             : "highpass";
         runtime.filterNode.frequency.value = transformKnobFilterValue(
