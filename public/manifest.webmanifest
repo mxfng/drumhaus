@@ -4,7 +4,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#c0c0c0",
-  "theme_color": "#c0c0c0",
+  "theme_color": "#c0c0c0xz",
   "icons": [
     {
       "src": "/opengraph-image.png",
