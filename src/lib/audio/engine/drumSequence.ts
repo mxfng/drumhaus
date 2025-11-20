@@ -94,8 +94,13 @@ export function createDrumSequence(
         const instrumentIndex = voice.instrumentIndex;
 
         const inst = instrumentData[instrumentIndex];
-        const params = inst.params;
         const runtime = currentRuntimes[instrumentIndex];
+
+        // If the instrument or its runtime is missing (e.g. during a kit switch),
+        // skip scheduling for this voice to avoid transient runtime errors.
+        if (!inst || !runtime) continue;
+
+        const params = inst.params;
 
         const variation = voice.variations[variationIndex];
         const triggers = variation.triggers;

@@ -10,17 +10,17 @@ import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 
-interface UseDrumhausPresetLoadingProps {
+interface UsePresetLoadingProps {
   instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>;
 }
 
-interface UseDrumhausPresetLoadingResult {
+interface UsePresetLoadingResult {
   loadPreset: (preset: PresetFileV1) => void;
 }
 
-export function useDrumhausPresetLoading({
+export function usePresetLoading({
   instrumentRuntimes,
-}: UseDrumhausPresetLoadingProps): UseDrumhausPresetLoadingResult {
+}: UsePresetLoadingProps): UsePresetLoadingResult {
   const toast = useToast({ position: "top" });
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
