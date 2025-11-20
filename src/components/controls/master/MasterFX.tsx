@@ -1,5 +1,10 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 
+import {
+  MASTER_FILTER_RANGE,
+  MASTER_PHASER_WET_RANGE,
+  MASTER_REVERB_WET_RANGE,
+} from "@/lib/audio/engine/constants";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { Knob } from "../../common/Knob";
 
@@ -40,7 +45,7 @@ export const MasterFX: React.FC = () => {
                 knobValue={lowPass}
                 setKnobValue={setLowPass}
                 knobTitle="LP FILTER"
-                knobTransformRange={[0, 15000]}
+                knobTransformRange={MASTER_FILTER_RANGE}
                 knobUnits="Hz"
                 exponential={true}
                 defaultValue={100}
@@ -52,6 +57,8 @@ export const MasterFX: React.FC = () => {
                 knobValue={phaser}
                 setKnobValue={setPhaser}
                 knobTitle="PHASER"
+                knobTransformRange={MASTER_PHASER_WET_RANGE}
+                knobUnits="mix"
                 defaultValue={0}
               />
             </GridItem>
@@ -61,7 +68,7 @@ export const MasterFX: React.FC = () => {
                 knobValue={highPass}
                 setKnobValue={setHighPass}
                 knobTitle="HP FILTER"
-                knobTransformRange={[0, 15000]}
+                knobTransformRange={MASTER_FILTER_RANGE}
                 knobUnits="Hz"
                 exponential={true}
                 defaultValue={0}
@@ -73,6 +80,8 @@ export const MasterFX: React.FC = () => {
                 knobValue={reverb}
                 setKnobValue={setReverb}
                 knobTitle="REVERB"
+                knobTransformRange={MASTER_REVERB_WET_RANGE}
+                knobUnits="mix"
                 defaultValue={0}
               />
             </GridItem>

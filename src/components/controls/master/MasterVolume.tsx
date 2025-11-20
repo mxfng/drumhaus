@@ -1,3 +1,4 @@
+import { MASTER_VOLUME_RANGE } from "@/lib/audio/engine/constants";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { Knob } from "../../common/Knob";
 
@@ -14,7 +15,7 @@ export const MasterVolume: React.FC = () => {
       knobValue={masterVolume}
       setKnobValue={setMasterVolume}
       knobTitle="MASTER VOLUME"
-      knobTransformRange={[-46, 4]}
+      knobTransformRange={MASTER_VOLUME_RANGE}
       knobUnits="dB"
       defaultValue={92}
     />

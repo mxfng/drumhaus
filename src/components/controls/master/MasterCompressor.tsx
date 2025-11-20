@@ -1,5 +1,9 @@
 import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
 
+import {
+  MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_THRESHOLD_RANGE,
+} from "@/lib/audio/engine/constants";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { Knob } from "../../common/Knob";
 
@@ -33,7 +37,7 @@ export const MasterCompressor: React.FC = () => {
             knobValue={threshold}
             setKnobValue={setThreshold}
             knobTitle="THRESHOLD"
-            knobTransformRange={[-30, 0]}
+            knobTransformRange={MASTER_COMP_THRESHOLD_RANGE}
             knobUnits="dB"
             defaultValue={100}
           />
@@ -42,7 +46,7 @@ export const MasterCompressor: React.FC = () => {
             knobValue={ratio}
             setKnobValue={setRatio}
             knobTitle="RATIO"
-            knobTransformRange={[1, 8]}
+            knobTransformRange={MASTER_COMP_RATIO_RANGE}
             knobUnits=": 1"
             defaultValue={43}
           />

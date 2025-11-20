@@ -22,7 +22,12 @@ import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
-import { SAMPLER_ROOT_NOTE } from "@/lib/audio/engine/constants";
+import {
+  INSTRUMENT_PAN_RANGE,
+  INSTRUMENT_PITCH_RANGE,
+  INSTRUMENT_VOLUME_RANGE,
+  SAMPLER_ROOT_NOTE,
+} from "@/lib/audio/engine/constants";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
@@ -359,7 +364,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobValue={pitch}
               setKnobValue={setPitch}
               knobTitle="PITCH"
-              knobTransformRange={[43, 88]}
+              knobTransformRange={INSTRUMENT_PITCH_RANGE}
+              knobUnits="Hz"
               defaultValue={50}
               isDisabled={!isRuntimeLoaded}
             />
@@ -378,7 +384,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 leftLabel="L"
                 centerLabel="|"
                 rightLabel="R"
-                transformRange={[-100, 100]}
+                transformRange={INSTRUMENT_PAN_RANGE}
                 isDisabled={!isRuntimeLoaded}
               />
             </Box>
@@ -437,7 +443,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobValue={volume}
               setKnobValue={setVolume}
               knobTitle="VOLUME"
-              knobTransformRange={[-46, 4]}
+              knobTransformRange={INSTRUMENT_VOLUME_RANGE}
               knobUnits="dB"
               defaultValue={92}
               isDisabled={!isRuntimeLoaded}

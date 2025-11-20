@@ -45,9 +45,7 @@ const DEFAULT_MASTER_CHAIN: MasterChainParams = {
   masterVolume: 92,
 };
 
-// ============================================================================
-// BIT PACKING FOR TRIGGERS
-// ============================================================================
+// --- BIT PACKING FOR TRIGGERS ---
 
 /**
  * Pack 16 boolean triggers into a 4-character hex string
@@ -84,9 +82,7 @@ function unpackTriggers(hex: string): boolean[] {
   return triggers;
 }
 
-// ============================================================================
-// VELOCITY QUANTIZATION
-// ============================================================================
+// --- VELOCITY QUANTIZATION ---
 
 /**
  * Quantize velocity from float (0.0-1.0) to int (0-100)
@@ -104,9 +100,7 @@ function dequantizeVelocity(quantized: number): number {
   return quantized / 100;
 }
 
-// ============================================================================
-// COMPACT ENCODING
-// ============================================================================
+// --- COMPACT ENCODING ---
 
 /**
  * Compact step sequence format
@@ -166,9 +160,7 @@ type CompactMasterChain = Partial<{
   mv: number; // masterVolume
 }>;
 
-// ============================================================================
-// ENCODE FUNCTIONS
-// ============================================================================
+// --- ENCODE FUNCTIONS ---
 
 function encodeStepSequence(seq: StepSequence): CompactStepSequence {
   const compact: CompactStepSequence = {
@@ -265,9 +257,7 @@ export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
   return compact;
 }
 
-// ============================================================================
-// DECODE FUNCTIONS
-// ============================================================================
+// --- DECODE FUNCTIONS ---
 
 function decodeStepSequence(compact: CompactStepSequence): StepSequence {
   const triggers = unpackTriggers(compact.t);

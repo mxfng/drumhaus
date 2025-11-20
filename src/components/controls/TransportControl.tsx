@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";
 
-import { TRANSPORT_BPM_RANGE } from "@/lib/audio/engine/constants";
+import {
+  TRANSPORT_BPM_RANGE,
+  TRANSPORT_SWING_RANGE,
+} from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { CustomSlider } from "../common/CustomSlider";
 
@@ -176,6 +179,7 @@ export const TransportControl: React.FC = () => {
               setSliderValue={setSwing}
               title="SWING"
               defaultValue={0}
+              transformRange={TRANSPORT_SWING_RANGE}
             />
           </Box>
         </Box>

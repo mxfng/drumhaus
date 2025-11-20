@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Box, Center, Text } from "@chakra-ui/react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
+import { MASTER_FILTER_RANGE } from "@/lib/audio/engine/constants";
+
 type KnobProps = {
   color?: string;
   size: number;
@@ -30,8 +32,8 @@ export const transformKnobValue = (
 
 export const transformKnobFilterValue = (
   input: number,
-  rangeLow: [number, number] = [0, 15000],
-  rangeHigh: [number, number] = [0, 15000],
+  rangeLow: [number, number] = MASTER_FILTER_RANGE,
+  rangeHigh: [number, number] = MASTER_FILTER_RANGE,
 ): number => {
   const [min, max] = input <= 49 ? rangeLow : rangeHigh;
   const newInput = ((input <= 49 ? input : input - 50) / 49) * 100;
