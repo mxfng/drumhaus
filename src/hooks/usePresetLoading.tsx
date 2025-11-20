@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Box, Text, useToast } from "@chakra-ui/react";
 
 import { init } from "@/lib/preset";
@@ -22,6 +22,7 @@ export function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
   const toast = useToast({ position: "top" });
+  const hasLoadedFromUrlRef = useRef(false);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
@@ -46,6 +47,7 @@ export function usePresetLoading({
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
       toast({
+        id: "shared-preset-received",
         render: () => (
           <Box
             bg="silver"
@@ -64,17 +66,12 @@ export function usePresetLoading({
 
   const showSharedPresetErrorToast = useCallback(() => {
     toast({
-      render: () => (
-        <Box
-          bg="silver"
-          color="gray"
-          p={3}
-          borderRadius="8px"
-          className="neumorphic"
-        >
-          <Text>Failed to load shared preset. Loading default.</Text>
-        </Box>
-      ),
+      title: "Something went wrong.",
+      description: "Failed to load shared preset. Loading default.",
+      status: "error",
+      duration: 8000,
+      isClosable: true,
+      position: "top",
     });
   }, [toast]);
 
@@ -129,6 +126,11 @@ export function usePresetLoading({
   );
 
   const loadFromUrlOrDefault = useCallback(async () => {
+    // Prevent duplicate execution
+    if (hasLoadedFromUrlRef.current) {
+      return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const presetParam = urlParams.get("p");
 
@@ -146,8 +148,12 @@ export function usePresetLoading({
         // No persisted data, load default init preset
         loadPreset(init());
       }
+      hasLoadedFromUrlRef.current = true;
       return;
     }
+
+    // Mark as loaded before async operations to prevent race conditions
+    hasLoadedFromUrlRef.current = true;
 
     try {
       const { urlToPreset } = await import("@/lib/serialization");
