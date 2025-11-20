@@ -140,8 +140,8 @@ a {
 
   .drumhaus-scale-wrapper {
     /* Disable scaling on smaller screens and allow scrolling instead */
-    transform: none;
-    width: 1538px;
-    height: 1030px;
+    transform-origin: top left;
+    width: 923px;
+    height: 618px;
   }
 }
