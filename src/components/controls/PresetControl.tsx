@@ -26,6 +26,25 @@ type PresetControlProps = {
   loadPreset: (preset: PresetFileV1) => void;
 };
 
+const MAX_PRESET_NAME_LENGTH = 20;
+
+const normalizePresetName = (name: string): string => {
+  const trimmed = name.trim();
+  const limited = trimmed.slice(0, MAX_PRESET_NAME_LENGTH);
+  return limited || "Untitled";
+};
+
+const toPresetSlug = (name: string): string => {
+  const base = normalizePresetName(name)
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return base || "preset";
+};
+
 export const PresetControl: React.FC<PresetControlProps> = ({
   loadPreset: loadPresetFromParent,
 }) => {
@@ -164,10 +183,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    * Export current state as a .dh file
    */
   const exportPreset = (name: string) => {
+    const normalizedName = normalizePresetName(name);
+
     const now = new Date().toISOString();
     const meta: Meta = {
       id: crypto.randomUUID(),
-      name,
+      name: normalizedName,
       createdAt: now,
       updatedAt: now,
     };
@@ -250,10 +271,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const sharePreset = async (name: string) => {
     try {
+      const normalizedName = normalizePresetName(name);
+      const slug = toPresetSlug(normalizedName);
+
       const now = new Date().toISOString();
       const meta: Meta = {
         id: crypto.randomUUID(),
-        name,
+        name: normalizedName,
         createdAt: now,
         updatedAt: now,
       };
@@ -261,7 +285,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       const preset = getCurrentPreset(meta, currentKitMeta);
       const { shareablePresetToUrl } = await import("@/lib/serialization");
       const urlParam = shareablePresetToUrl(preset);
-      const shareUrl = `${window.location.origin}/?p=${urlParam}`;
+      const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
 
       openSharedModal(shareUrl);
     } catch (error) {
