@@ -41,13 +41,9 @@ export function createDrumSequence(
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
       // --- Grab fresh state every 16th note (for live response) ---
-      const instrumentsState = useInstrumentsStore.getState();
-      const patternState = usePatternStore.getState();
-      const transportState = useTransportStore.getState();
-
-      const instrumentData = instrumentsState.instruments;
-      const durations = instrumentsState.durations;
-      const pattern = patternState.pattern;
+      const { instruments, durations } = useInstrumentsStore.getState();
+      const { pattern } = usePatternStore.getState();
+      const { setStepIndex } = useTransportStore.getState();
 
       // Get current instrument runtimes from ref (may have changed since sequence creation)
       const currentRuntimes = instrumentRuntimes.current;
@@ -57,32 +53,42 @@ export function createDrumSequence(
 
       // --- Determine if any instruments are soloed (cheap small loop) ---
       let anySolos = false;
-      for (let i = 0; i < instrumentData.length; i++) {
-        if (instrumentData[i].params.solo) {
+      for (let i = 0; i < instruments.length; i++) {
+        if (instruments[i].params.solo) {
           anySolos = true;
           break;
         }
       }
 
       // --- Precompute open hat index (for closed hat muting) ---
-      const ohatIndex = instrumentData.findIndex((i) => i.role === "ohat");
+      const ohatIndex = instruments.findIndex((i) => i.role === "ohat");
       const hasOhat = ohatIndex !== -1 && currentRuntimes[ohatIndex];
 
       // --- Update variation at the *start* of the bar ---
       if (isFirstStep) {
+        let nextVariationIndex = currentVariation.current;
+
         switch (variationCycle) {
           case "A":
-            currentVariation.current = 0;
+            nextVariationIndex = 0;
             break;
           case "B":
-            currentVariation.current = 1;
+            nextVariationIndex = 1;
             break;
           case "AB":
-            currentVariation.current = currentBar.current === 0 ? 0 : 1;
+            nextVariationIndex = currentBar.current === 0 ? 0 : 1;
             break;
           case "AAAB":
-            currentVariation.current = currentBar.current === 3 ? 1 : 0;
+            nextVariationIndex = currentBar.current === 3 ? 1 : 0;
             break;
+        }
+
+        // -- Keep UI in sync with current variation --
+        currentVariation.current = nextVariationIndex;
+        const { playbackVariation, setPlaybackVariation } =
+          usePatternStore.getState();
+        if (playbackVariation !== nextVariationIndex) {
+          setPlaybackVariation(nextVariationIndex);
         }
       }
 
@@ -93,7 +99,7 @@ export function createDrumSequence(
         const voice = pattern[voiceIndex];
         const instrumentIndex = voice.instrumentIndex;
 
-        const inst = instrumentData[instrumentIndex];
+        const inst = instruments[instrumentIndex];
         const runtime = currentRuntimes[instrumentIndex];
 
         // If the instrument or its runtime is missing (e.g. during a kit switch),
@@ -127,7 +133,7 @@ export function createDrumSequence(
 
         // Closed-hat mutes open-hat when triggered
         if (inst.role === "hat" && hasOhat) {
-          const ohInst = instrumentData[ohatIndex];
+          const ohInst = instruments[ohatIndex];
           const ohRuntime = currentRuntimes[ohatIndex];
           const ohPitch = transformKnobValue(
             ohInst.params.pitch,
@@ -163,7 +169,7 @@ export function createDrumSequence(
       }
 
       // --- Keep UI in sync with transport ---
-      transportState.setStepIndex(step);
+      setStepIndex(step);
 
       // --- Update bar index at the *end* of the bar ---
       if (isLastStep) {

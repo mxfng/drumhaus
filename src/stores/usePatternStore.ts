@@ -15,11 +15,15 @@ interface PatternState {
   variationCycle: VariationCycle; // A = 0, B = 1, AB = 2, AAAB = 3
   voiceIndex: number; // Currently selected voice (0-7)
 
+  // Playback context (which variation is actually being played by the engine)
+  playbackVariation: number; // Mirrors the engine's active variation (A = 0, B = 1)
+
   // Actions
   setVariation: (variation: number) => void;
   setVariationCycle: (variationCycle: VariationCycle) => void;
   setVoiceIndex: (voiceIndex: number) => void;
   setPattern: (pattern: Pattern) => void;
+  setPlaybackVariation: (variation: number) => void;
 
   // Pattern manipulation
   toggleStep: (voiceIndex: number, variation: number, step: number) => void;
@@ -47,6 +51,7 @@ export const usePatternStore = create<PatternState>()(
         variation: 0,
         variationCycle: "A",
         voiceIndex: 0,
+        playbackVariation: 0,
 
         // Actions
         setVariation: (variation) => {
@@ -63,6 +68,10 @@ export const usePatternStore = create<PatternState>()(
 
         setPattern: (pattern) => {
           set({ pattern });
+        },
+
+        setPlaybackVariation: (variation) => {
+          set({ playbackVariation: variation });
         },
 
         toggleStep: (voiceIndex, variation, step) => {
