@@ -119,7 +119,6 @@ a {
   width: 1538px;
   height: 1030px;
   transform-origin: center center;
-  /* viewport-based scaling with min/max limits */
   --drumhaus-padding: 32px;
   --drumhaus-available-width: calc(100vw - var(--drumhaus-padding));
   --drumhaus-available-height: calc(100vh - var(--drumhaus-padding));
