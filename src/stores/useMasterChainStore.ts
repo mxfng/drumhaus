@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { MasterChainParams } from "@/lib/audio/engine";
+import type { MasterChainParams } from "@/types/preset";
 
 interface MasterChainState {
   // Filter effects

@@ -1,4 +1,5 @@
-// Shared numeric ranges for the audio engine.
+// --- Shared numeric constants and ranges for the audio engine ---
+
 // Keeping them here avoids magic numbers scattered across runtime code.
 export const ENGINE_PITCH_RANGE: [number, number] = [15.4064, 115.4064];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
@@ -9,9 +10,13 @@ export const MASTER_COMP_THRESHOLD_RANGE: [number, number] = [-40, 0];
 export const MASTER_COMP_RATIO_RANGE: [number, number] = [1, 8];
 export const MASTER_VOLUME_RANGE: [number, number] = [-46, 4];
 export const TRANSPORT_SWING_RANGE: [number, number] = [0, 100];
-export const TRANSPORT_BPM_RANGE: [number, number] = [40, 240];
+export const TRANSPORT_BPM_RANGE: [number, number] = [1, 300];
+
+// Sequencer constants
+export const STEP_COUNT = 16;
+export const DEFAULT_VELOCITY = 1.0;
 
 // Shared musical constants
 export const SAMPLER_ROOT_NOTE = "C2";
 export const SEQUENCE_SUBDIVISION = "16n";
-export const SEQUENCE_EVENTS: number[] = [...Array(16).keys()];
+export const SEQUENCE_EVENTS: number[] = [...Array(STEP_COUNT).keys()];

@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";
 
+import { TRANSPORT_BPM_RANGE } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { CustomSlider } from "../common/CustomSlider";
 
 // Constants
-const MIN_BPM = 1;
-const MAX_BPM = 300;
+const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
 const HOLD_INTERVAL = 130;
 
 export const TransportControl: React.FC = () => {
@@ -28,7 +28,7 @@ export const TransportControl: React.FC = () => {
 
     if (/^\d+$/.test(value)) {
       const numericValue = parseInt(value, 10);
-      if (numericValue >= 0 && numericValue <= 300) {
+      if (numericValue >= 0 && numericValue <= MAX_BPM) {
         setBpmInputValue(numericValue);
       }
     }

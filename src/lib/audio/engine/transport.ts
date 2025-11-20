@@ -1,7 +1,7 @@
 import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
-import { TRANSPORT_SWING_RANGE } from "./constants";
+import { SEQUENCE_SUBDIVISION, TRANSPORT_SWING_RANGE } from "./constants";
 
 /**
  * Start the audio context
@@ -45,7 +45,7 @@ export function setTransportBpm(bpm: number): void {
  */
 export function setTransportSwing(swing: number): void {
   const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
-  Tone.Transport.swingSubdivision = "16n";
+  Tone.Transport.swingSubdivision = SEQUENCE_SUBDIVISION;
   Tone.Transport.swing = newSwing;
 }
 

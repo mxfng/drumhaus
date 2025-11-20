@@ -5,11 +5,11 @@ import {
   createMasterChainRuntimes,
   disposeMasterChainRuntimes,
   updateMasterChainParams,
-  type MasterChainParams,
   type MasterChainRuntimes,
 } from "@/lib/audio/engine";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { MasterChainParams } from "@/types/preset";
 
 interface UseMasterChainProps {
   instrumentRuntimes: InstrumentRuntime[];

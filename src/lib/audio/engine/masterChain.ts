@@ -6,6 +6,7 @@ import {
   transformKnobValueExponential,
 } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { MasterChainParams } from "@/types/preset";
 import {
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_THRESHOLD_RANGE,
@@ -34,16 +35,6 @@ type MasterChainSettings = {
   compRatio: number;
   masterVolume: number;
 };
-
-export interface MasterChainParams {
-  lowPass: number;
-  highPass: number;
-  phaser: number;
-  reverb: number;
-  compThreshold: number;
-  compRatio: number;
-  masterVolume: number;
-}
 
 /**
  * Creates and initializes all master chain audio runtimes

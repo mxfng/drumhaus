@@ -21,7 +21,6 @@ export {
   updateMasterChainParams,
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,
-  type MasterChainParams,
 } from "./masterChain";
 
 // Buffer

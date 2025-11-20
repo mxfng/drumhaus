@@ -22,6 +22,7 @@ import * as Tone from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
+import { SAMPLER_ROOT_NOTE } from "@/lib/audio/engine/constants";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
@@ -215,7 +216,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
-      runtime.samplerNode.triggerRelease("C2", Tone.now());
+      runtime.samplerNode.triggerRelease(SAMPLER_ROOT_NOTE, Tone.now());
     }
     toggleMute();
   }, [toggleMute, mute, runtime?.samplerNode]);
