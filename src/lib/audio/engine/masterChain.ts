@@ -5,6 +5,15 @@ import {
   transformKnobValueExponential,
 } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
+import {
+  MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_THRESHOLD_RANGE,
+  MASTER_FILTER_RANGE,
+  MASTER_PHASER_WET_RANGE,
+  MASTER_REVERB_DECAY_RANGE,
+  MASTER_REVERB_WET_RANGE,
+  MASTER_VOLUME_RANGE,
+} from "./constants";
 
 export interface MasterChainRuntimes {
   lowPassFilter: Tone.Filter;
@@ -41,13 +50,27 @@ export async function createMasterChainRuntimes(
     runtimes.current.compressor.dispose();
   }
 
-  const lowPassFreq = transformKnobValueExponential(params.lowPass, [0, 15000]);
-  const hiPassFreq = transformKnobValueExponential(params.hiPass, [0, 15000]);
-  const phaserWet = transformKnobValue(params.phaser, [0, 1]);
-  const reverbWet = transformKnobValue(params.reverb, [0, 0.5]);
-  const reverbDecay = transformKnobValue(params.reverb, [0.1, 3]);
-  const compThreshold = transformKnobValue(params.compThreshold, [-40, 0]);
-  const compRatio = Math.floor(transformKnobValue(params.compRatio, [1, 8]));
+  const lowPassFreq = transformKnobValueExponential(
+    params.lowPass,
+    MASTER_FILTER_RANGE,
+  );
+  const hiPassFreq = transformKnobValueExponential(
+    params.hiPass,
+    MASTER_FILTER_RANGE,
+  );
+  const phaserWet = transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE);
+  const reverbWet = transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE);
+  const reverbDecay = transformKnobValue(
+    params.reverb,
+    MASTER_REVERB_DECAY_RANGE,
+  );
+  const compThreshold = transformKnobValue(
+    params.compThreshold,
+    MASTER_COMP_THRESHOLD_RANGE,
+  );
+  const compRatio = Math.floor(
+    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
+  );
 
   const lowPassFilter = new Tone.Filter(lowPassFreq, "lowpass");
   const highPassFilter = new Tone.Filter(hiPassFreq, "highpass");
@@ -124,35 +147,44 @@ export function updateMasterChainParams(
   // Low pass filter
   runtimes.lowPassFilter.frequency.value = transformKnobValueExponential(
     params.lowPass,
-    [0, 15000],
+    MASTER_FILTER_RANGE,
   );
 
   // High pass filter
   runtimes.highPassFilter.frequency.value = transformKnobValueExponential(
     params.hiPass,
-    [0, 15000],
+    MASTER_FILTER_RANGE,
   );
 
   // Phaser
-  runtimes.phaser.wet.value = transformKnobValue(params.phaser, [0, 1]);
+  runtimes.phaser.wet.value = transformKnobValue(
+    params.phaser,
+    MASTER_PHASER_WET_RANGE,
+  );
 
   // Reverb
-  runtimes.reverb.wet.value = transformKnobValue(params.reverb, [0, 0.5]);
-  runtimes.reverb.decay = transformKnobValue(params.reverb, [0.1, 3]);
+  runtimes.reverb.wet.value = transformKnobValue(
+    params.reverb,
+    MASTER_REVERB_WET_RANGE,
+  );
+  runtimes.reverb.decay = transformKnobValue(
+    params.reverb,
+    MASTER_REVERB_DECAY_RANGE,
+  );
 
   // Compressor
   runtimes.compressor.threshold.value = transformKnobValue(
     params.compThreshold,
-    [-40, 0],
+    MASTER_COMP_THRESHOLD_RANGE,
   );
   runtimes.compressor.ratio.value = Math.floor(
-    transformKnobValue(params.compRatio, [1, 8]),
+    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
   );
 
   // Master volume (Tone.Destination)
   Tone.Destination.volume.value = transformKnobValue(
     params.masterVolume,
-    [-46, 4],
+    MASTER_VOLUME_RANGE,
   );
 }
 

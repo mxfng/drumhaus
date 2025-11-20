@@ -2,6 +2,7 @@ import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
+import { SAMPLER_ROOT_NOTE } from "./constants";
 
 /**
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
@@ -58,7 +59,7 @@ export async function createInstrumentRuntimes(
 
       const samplerNode = new Tone.Sampler({
         urls: {
-          ["C2"]: samplerUrl,
+          [SAMPLER_ROOT_NOTE]: samplerUrl,
         },
         ...(baseUrl && { baseUrl }),
       });
