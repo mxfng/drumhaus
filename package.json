@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/pixelify-sans": "^5.2.7",
     "@vercel/analytics": "^1.5.0",
-    "framer-motion": "^10.16.4",
+    "framer-motion": "^12.23.24",
     "nanoid": "^5.0.3",
     "next": "14.0.2",
     "pako": "^2.1.0",
