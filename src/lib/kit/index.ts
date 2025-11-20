@@ -8,7 +8,7 @@ import rnbKitJson from "@/lib/kit/defaults/rnb.dhkit";
 import techHouseKitJson from "@/lib/kit/defaults/tech_house.dhkit";
 import technoKitJson from "@/lib/kit/defaults/techno.dhkit";
 import trapKitJson from "@/lib/kit/defaults/trap.dhkit";
-import { validateKitFile } from "@/lib/kit/load";
+import { validateKitFile } from "@/lib/kit/helpers";
 import type { KitFileV1 } from "@/types/instrument";
 
 /**

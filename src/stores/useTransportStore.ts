@@ -3,13 +3,14 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import {
-  releaseAllSamples,
+  releaseAllRuntimes,
   setTransportBpm,
   setTransportSwing,
   startAudioContext,
   startTransport,
   stopTransport,
 } from "@/lib/audio/engine";
+import { init } from "@/lib/preset";
 import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
@@ -32,12 +33,12 @@ interface TransportState {
 export const useTransportStore = create<TransportState>()(
   devtools(
     persist(
-      immer((set, get) => ({
+      immer((set) => ({
         // Initial state
         isPlaying: false,
         stepIndex: 0,
-        bpm: 120,
-        swing: 50,
+        bpm: init().transport.bpm,
+        swing: init().transport.swing,
 
         // Actions
         togglePlay: async (instrumentRuntimes, onStop) => {
@@ -51,11 +52,11 @@ export const useTransportStore = create<TransportState>()(
               startTransport();
             } else {
               // Stop transport and reset step index
-              stopTransport(() => {
+              stopTransport(undefined, () => {
                 state.stepIndex = 0;
 
                 // Release all samples
-                releaseAllSamples(instrumentRuntimes);
+                releaseAllRuntimes(instrumentRuntimes);
 
                 // Call optional stop callback
                 if (onStop) onStop();

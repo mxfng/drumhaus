@@ -1,191 +1,271 @@
+import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentRuntime } from "@/types/instrument";
+import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
+import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
+import { SEQUENCE_EVENTS, SEQUENCE_SUBDIVISION } from "./constants";
+import { transformPitchKnobToFrequency } from "./pitch";
 
-const STEPS: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
-/**
- * Disposes a drum sequence, stopping it first if it's running
- */
-export function disposeDrumSequence(
-  sequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
-): void {
-  if (sequencer.current) {
-    if (sequencer.current.state === "started") {
-      sequencer.current.stop();
-    }
-
-    sequencer.current.dispose();
-    sequencer.current = null;
-  }
-}
+type ScheduleContext = {
+  time: Tone.Unit.Time;
+  step: number;
+  variationIndex: number;
+  instruments: InstrumentData[];
+  durations: number[];
+  runtimes: InstrumentRuntime[];
+  anySolos: boolean;
+  hasOhat: boolean;
+  ohatIndex: number;
+};
 
 /**
  * Don't forget: make good music
  */
 export function createDrumSequence(
-  tjsSequencer: React.MutableRefObject<Tone.Sequence<any> | null>,
-  instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>,
+  tjsSequencer: MutableRefObject<Tone.Sequence<any> | null>,
+  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>,
   variationCycle: VariationCycle,
-  currentBar: React.MutableRefObject<number>,
-  currentVariation: React.MutableRefObject<number>,
-) {
-  // Dispose existing sequence before creating a new one
+  currentBar: MutableRefObject<number>,
+  currentVariation: MutableRefObject<number>,
+): void {
   disposeDrumSequence(tjsSequencer);
 
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
-      // --- Grab fresh state every 16th note (for live response) ---
+      // Grab fresh state every 16th note for responsive UI + audio
       const { instruments, durations } = useInstrumentsStore.getState();
       const { pattern } = usePatternStore.getState();
       const { setStepIndex } = useTransportStore.getState();
 
-      // Get current instrument runtimes from ref (may have changed since sequence creation)
       const currentRuntimes = instrumentRuntimes.current;
+      const isFirstStep = step === SEQUENCE_EVENTS[0];
+      const isLastStep = step === SEQUENCE_EVENTS[SEQUENCE_EVENTS.length - 1];
 
-      const isFirstStep = step === 0;
-      const isLastStep = step === 15;
+      const anySolos = hasAnySolo(instruments);
+      const { hasOhat, ohatIndex } = findOpenHatIndex(
+        instruments,
+        currentRuntimes,
+      );
 
-      // --- Determine if any instruments are soloed (cheap small loop) ---
-      let anySolos = false;
-      for (let i = 0; i < instruments.length; i++) {
-        if (instruments[i].params.solo) {
-          anySolos = true;
-          break;
-        }
-      }
-
-      // --- Precompute open hat index (for closed hat muting) ---
-      const ohatIndex = instruments.findIndex((i) => i.role === "ohat");
-      const hasOhat = ohatIndex !== -1 && currentRuntimes[ohatIndex];
-
-      // --- Update variation at the *start* of the bar ---
       if (isFirstStep) {
-        let nextVariationIndex = currentVariation.current;
-
-        switch (variationCycle) {
-          case "A":
-            nextVariationIndex = 0;
-            break;
-          case "B":
-            nextVariationIndex = 1;
-            break;
-          case "AB":
-            nextVariationIndex = currentBar.current === 0 ? 0 : 1;
-            break;
-          case "AAAB":
-            nextVariationIndex = currentBar.current === 3 ? 1 : 0;
-            break;
-        }
-
-        // -- Keep UI in sync with current variation --
-        currentVariation.current = nextVariationIndex;
-        const { playbackVariation, setPlaybackVariation } =
-          usePatternStore.getState();
-        if (playbackVariation !== nextVariationIndex) {
-          setPlaybackVariation(nextVariationIndex);
-        }
+        updateVariationForBarStart(
+          variationCycle,
+          currentBar,
+          currentVariation,
+        );
       }
 
       const variationIndex = currentVariation.current;
 
-      // --- Main per-step scheduling loop ---
       for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
         const voice = pattern[voiceIndex];
-        const instrumentIndex = voice.instrumentIndex;
-
-        const inst = instruments[instrumentIndex];
-        const runtime = currentRuntimes[instrumentIndex];
-
-        // If the instrument or its runtime is missing (e.g. during a kit switch),
-        // skip scheduling for this voice to avoid transient runtime errors.
-        if (!inst || !runtime) continue;
-
-        const params = inst.params;
-
-        const variation = voice.variations[variationIndex];
-        const triggers = variation.triggers;
-        const velocities = variation.velocities;
-
-        // No hit on this step → skip ASAP
-        if (!triggers[step]) continue;
-
-        const isSolo = params.solo;
-        const isMuted = params.mute;
-
-        // Solos override everything else
-        if (anySolos && !isSolo) continue;
-        if (isMuted) continue;
-
-        const velocity = velocities[step];
-
-        // Compute engine values from current knob state (live)
-        const pitch = transformKnobValue(params.pitch, [15.4064, 115.4064]);
-        const releaseTime = transformKnobValue(params.release, [
-          0,
-          durations[instrumentIndex],
-        ]);
-
-        // Closed-hat mutes open-hat when triggered
-        if (inst.role === "hat" && hasOhat) {
-          const ohInst = instruments[ohatIndex];
-          const ohRuntime = currentRuntimes[ohatIndex];
-          const ohPitch = transformKnobValue(
-            ohInst.params.pitch,
-            [15.4064, 115.4064],
-          );
-          ohRuntime.samplerNode.triggerRelease(ohPitch, time);
-        }
-
-        if (inst.role === "ohat") {
-          // --- Open hat behavior ---
-          const env = runtime.envelopeNode;
-          env.triggerAttack(time);
-          env.triggerRelease(time + releaseTime);
-
-          // Check if buffer is loaded before triggering (graceful handling during kit switch)
-          if (runtime.samplerNode.loaded) {
-            runtime.samplerNode.triggerAttack(pitch, time, velocity);
-          }
-        } else {
-          // --- All other instruments ---
-          // Stop any ringing voice at this pitch before re-trigger
-          runtime.samplerNode.triggerRelease(pitch, time);
-
-          const env = runtime.envelopeNode;
-          env.triggerAttack(time);
-          env.triggerRelease(time + releaseTime);
-
-          // Check if buffer is loaded before triggering (graceful handling during kit switch)
-          if (runtime.samplerNode.loaded) {
-            runtime.samplerNode.triggerAttack(pitch, time, velocity);
-          }
-        }
+        scheduleVoiceForStep(voice, {
+          time,
+          step,
+          variationIndex,
+          instruments,
+          durations,
+          runtimes: currentRuntimes,
+          anySolos,
+          hasOhat,
+          ohatIndex,
+        });
       }
 
-      // --- Keep UI in sync with transport ---
       setStepIndex(step);
 
-      // --- Update bar index at the *end* of the bar ---
       if (isLastStep) {
-        if (
-          variationCycle === "A" ||
-          variationCycle === "B" ||
-          (variationCycle === "AB" && currentBar.current > 0) ||
-          (variationCycle === "AAAB" && currentBar.current > 2)
-        ) {
-          currentBar.current = 0;
-        } else {
-          currentBar.current++;
-        }
+        updateBarIndexAtEndOfBar(variationCycle, currentBar);
       }
     },
-    STEPS,
-    "16n",
+    SEQUENCE_EVENTS,
+    SEQUENCE_SUBDIVISION,
   ).start(0);
+}
+
+/**
+ * Disposes a drum sequence, stopping it first if it's running
+ */
+export function disposeDrumSequence(
+  sequencer: MutableRefObject<Tone.Sequence<any> | null>,
+): void {
+  if (!sequencer.current) return;
+
+  if (sequencer.current.state === "started") {
+    sequencer.current.stop();
+  }
+
+  sequencer.current.dispose();
+  sequencer.current = null;
+}
+
+function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
+  const {
+    time,
+    step,
+    variationIndex,
+    instruments,
+    durations,
+    runtimes,
+    anySolos,
+    hasOhat,
+    ohatIndex,
+  } = context;
+
+  const instrumentIndex = voice.instrumentIndex;
+  const inst = instruments[instrumentIndex];
+  const runtime = runtimes[instrumentIndex];
+
+  // If the instrument or its runtime is missing (e.g. during a kit switch),
+  // skip scheduling for this voice to avoid transient runtime errors.
+  if (!inst || !runtime) return;
+
+  const params = inst.params;
+  const variation = voice.variations[variationIndex];
+  const triggers = variation.triggers;
+  const velocities = variation.velocities;
+
+  if (!triggers[step]) return;
+  if ((anySolos && !params.solo) || params.mute) return;
+
+  const velocity = velocities[step];
+  const pitch = transformPitchKnobToFrequency(params.pitch);
+  const releaseTime = transformKnobValue(params.release, [
+    0,
+    durations[instrumentIndex],
+  ]);
+
+  if (inst.role === "hat" && hasOhat) {
+    muteOpenHat(time, instruments, runtimes, ohatIndex);
+  }
+
+  if (inst.role === "ohat") {
+    triggerOpenHat(time, runtime, pitch, releaseTime, velocity);
+  } else {
+    triggerStandardInstrument(time, runtime, pitch, releaseTime, velocity);
+  }
+}
+
+function hasAnySolo(instruments: InstrumentData[]): boolean {
+  return instruments.some((instrument) => instrument.params.solo);
+}
+
+function findOpenHatIndex(
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+): { hasOhat: boolean; ohatIndex: number } {
+  const ohatIndex = instruments.findIndex(
+    (instrument) => instrument.role === "ohat",
+  );
+  return {
+    hasOhat: ohatIndex !== -1 && Boolean(runtimes[ohatIndex]),
+    ohatIndex,
+  };
+}
+
+function computeNextVariationIndex(
+  variationCycle: VariationCycle,
+  currentBarIndex: number,
+  currentVariationIndex: number,
+): number {
+  switch (variationCycle) {
+    case "A":
+      return 0;
+    case "B":
+      return 1;
+    case "AB":
+      return currentBarIndex === 0 ? 0 : 1;
+    case "AAAB":
+      return currentBarIndex === 3 ? 1 : 0;
+    default:
+      return currentVariationIndex;
+  }
+}
+
+function updateVariationForBarStart(
+  variationCycle: VariationCycle,
+  currentBar: MutableRefObject<number>,
+  currentVariation: MutableRefObject<number>,
+): void {
+  const nextVariationIndex = computeNextVariationIndex(
+    variationCycle,
+    currentBar.current,
+    currentVariation.current,
+  );
+  currentVariation.current = nextVariationIndex;
+
+  const { playbackVariation, setPlaybackVariation } =
+    usePatternStore.getState();
+  if (playbackVariation !== nextVariationIndex) {
+    setPlaybackVariation(nextVariationIndex);
+  }
+}
+
+function updateBarIndexAtEndOfBar(
+  variationCycle: VariationCycle,
+  currentBar: MutableRefObject<number>,
+): void {
+  if (
+    variationCycle === "A" ||
+    variationCycle === "B" ||
+    (variationCycle === "AB" && currentBar.current > 0) ||
+    (variationCycle === "AAAB" && currentBar.current > 2)
+  ) {
+    currentBar.current = 0;
+  } else {
+    currentBar.current += 1;
+  }
+}
+
+function muteOpenHat(
+  time: Tone.Unit.Time,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+  ohatIndex: number,
+): void {
+  const ohInst = instruments[ohatIndex];
+  const ohRuntime = runtimes[ohatIndex];
+  if (!ohInst || !ohRuntime) return;
+
+  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
+  ohRuntime.samplerNode.triggerRelease(ohPitch, time);
+}
+
+function triggerOpenHat(
+  time: Tone.Unit.Time,
+  runtime: InstrumentRuntime,
+  pitch: number,
+  releaseTime: number,
+  velocity: number,
+): void {
+  const env = runtime.envelopeNode;
+  env.triggerAttack(time);
+  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+
+  if (runtime.samplerNode.loaded) {
+    runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  }
+}
+
+function triggerStandardInstrument(
+  time: Tone.Unit.Time,
+  runtime: InstrumentRuntime,
+  pitch: number,
+  releaseTime: number,
+  velocity: number,
+): void {
+  runtime.samplerNode.triggerRelease(pitch, time);
+
+  const env = runtime.envelopeNode;
+  env.triggerAttack(time);
+  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+
+  if (runtime.samplerNode.loaded) {
+    runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  }
 }

@@ -2,7 +2,7 @@ import { extendTheme } from "@chakra-ui/react";
 
 const theme = extendTheme({
   colors: {
-    brown: "#000000", // slot titles
+    brown: "#000000", // instrument titles
     gray: "#B09374", // text colors
     silver: "#F7F1EA", // background
     darksilver: "#d4cdc5", // lowlight background

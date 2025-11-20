@@ -1,7 +1,7 @@
-import * as kitLoaders from "@/lib/kit";
 import type { KitFileV1 } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 import { decodeCompactPreset, type CompactPreset } from "./compact";
+import { getDefaultKitLoader } from "./defaultKits";
 
 /**
  * Error thrown when a kit ID is not found in the default kit registry
@@ -26,26 +26,10 @@ export class InvalidPresetError extends Error {
 }
 
 /**
- * Registry mapping kit IDs to their loader functions
- */
-const KIT_REGISTRY: Record<string, () => KitFileV1> = {
-  "kit-drumhaus": kitLoaders.drumhaus,
-  "kit-organic": kitLoaders.organic,
-  "kit-funk": kitLoaders.funk,
-  "kit-rnb": kitLoaders.rnb,
-  "kit-trap": kitLoaders.trap,
-  "kit-eighties": kitLoaders.eighties,
-  "kit-tech-house": kitLoaders.tech_house,
-  "kit-techno": kitLoaders.techno,
-  "kit-indie": kitLoaders.indie,
-  "kit-jungle": kitLoaders.jungle,
-};
-
-/**
  * Loads a default kit by ID from the registry
  */
 function loadDefaultKit(kitId: string): KitFileV1 {
-  const loader = KIT_REGISTRY[kitId];
+  const loader = getDefaultKitLoader(kitId);
   if (!loader) {
     throw new UnknownKitError(kitId);
   }

@@ -229,10 +229,11 @@ export const SharedModal: React.FC<SharedModalProps> = ({
               Fun Fact
             </Text>
             <Text color="gray" fontSize="xs" lineHeight="1.5">
-              Your preset lives in this URL using DEFLATE compression (via
-              pako), bit-packed triggers, quantized velocities, and more
-              compression and encoding. It&apos;s a tiny spaceship carrying your
-              beats through the web.
+              Your entire preset is packed into this URL, squeezed from 900+
+              lines of JSON down to a few hundred characters using DEFLATE (via
+              pako), bit-packed triggers, quantized velocities, and a handful of
+              custom compression tricks. It&apos;s basically a tiny spacecraft
+              carrying your beats through the web.
             </Text>
           </Box>
         </ModalBody>

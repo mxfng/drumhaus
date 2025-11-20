@@ -1,8 +1,8 @@
 import type { InstrumentParams } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type {
-  MasterChainData,
-  TransportData,
+  MasterChainParams,
+  TransportParams,
   VariationCycle,
 } from "@/types/preset";
 
@@ -23,12 +23,12 @@ export interface ShareablePreset {
   kit: ShareableKit;
 
   // Fully mutable data (store as-is)
-  transport: TransportData; // bpm, swing
+  transport: TransportParams; // bpm, swing
   sequencer: {
     pattern: OptimizedPattern;
     variationCycle: VariationCycle;
   };
-  masterChain: MasterChainData; // All 7 effect params
+  masterChain: MasterChainParams; // All 7 effect params
 }
 
 /**

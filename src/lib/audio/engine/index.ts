@@ -21,7 +21,6 @@ export {
   updateMasterChainParams,
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,
-  type MasterChainParams,
 } from "./masterChain";
 
 // Buffer
@@ -44,5 +43,5 @@ export {
   getCurrentTime,
   setTransportBpm,
   setTransportSwing,
-  releaseAllSamples,
+  releaseAllRuntimes,
 } from "./transport";

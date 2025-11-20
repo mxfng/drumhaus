@@ -1,4 +1,5 @@
 import type { Pattern, StepSequence, Voice } from "@/types/pattern";
+import { STEP_COUNT } from "../audio/engine/constants";
 import type {
   OptimizedPattern,
   OptimizedStepSequence,
@@ -65,7 +66,7 @@ function hydrateStepSequence(
   optimizedSequence: OptimizedStepSequence,
 ): StepSequence {
   // Create array of 16 velocities, all defaulting to 1.0
-  const velocities = Array(16).fill(1.0);
+  const velocities = Array(STEP_COUNT).fill(1.0);
 
   // Apply sparse velocity overrides
   Object.entries(optimizedSequence.velocities).forEach(([index, value]) => {

@@ -96,15 +96,7 @@ export function usePresetLoading({
       setSwing(preset.transport.swing);
 
       // Update master chain
-      setAllMasterChain(
-        preset.masterChain.lowPass,
-        preset.masterChain.hiPass,
-        preset.masterChain.phaser,
-        preset.masterChain.reverb,
-        preset.masterChain.compThreshold,
-        preset.masterChain.compRatio,
-        preset.masterChain.masterVolume,
-      );
+      setAllMasterChain(preset.masterChain);
 
       // Update instruments (triggers audio engine reload)
       setAllInstruments(preset.kit.instruments);

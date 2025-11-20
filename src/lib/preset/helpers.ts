@@ -21,7 +21,7 @@ export function getCurrentPreset(
   const { bpm, swing } = useTransportStore.getState();
   const {
     lowPass,
-    hiPass,
+    highPass,
     phaser,
     reverb,
     compThreshold,
@@ -52,7 +52,7 @@ export function getCurrentPreset(
     },
     masterChain: {
       lowPass,
-      hiPass,
+      highPass,
       phaser,
       reverb,
       compThreshold,
@@ -74,4 +74,24 @@ export function getCurrentPreset(
  */
 export function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/**
+ * Validates a parsed preset file object
+ */
+export function validatePresetFile(data: unknown): PresetFileV1 {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("Invalid preset file: expected an object");
+  }
+
+  const preset = data as Record<string, unknown>;
+
+  if (preset.kind !== "drumhaus.preset") {
+    throw new Error("Invalid preset file type");
+  }
+  if (preset.version !== 1) {
+    throw new Error(`Unsupported preset version: ${preset.version}`);
+  }
+
+  return preset as unknown as PresetFileV1;
 }

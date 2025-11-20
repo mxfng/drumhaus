@@ -3,11 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 
+import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
 const STEP_BOXES_GAP = 12;
-const NUM_OF_STEPS = 16;
 
 interface StepMusicalState {
   isTriggerOn: boolean;
@@ -41,10 +41,10 @@ export const Sequencer: React.FC = () => {
 
   const currentVariation = pattern[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;
-  const stepHeight = 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
+  const stepHeight = 1538 / STEP_COUNT - STEP_BOXES_GAP;
   const stepRadius = `${stepHeight / 4}px`;
   const steps: number[] = Array.from(
-    { length: NUM_OF_STEPS },
+    { length: STEP_COUNT },
     (_, index) => index,
   );
 
@@ -167,7 +167,7 @@ export const Sequencer: React.FC = () => {
     <Box w="100%" ref={sequencerRef}>
       <Grid
         key="sequence-grid"
-        templateColumns={`repeat(${NUM_OF_STEPS}, 1fr)`}
+        templateColumns={`repeat(${STEP_COUNT}, 1fr)`}
         w="100%"
         h="100%"
         gap={`${STEP_BOXES_GAP}px`}

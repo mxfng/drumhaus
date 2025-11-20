@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { createEmptyPattern } from "@/lib/pattern/helpers";
 import { Pattern } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
@@ -106,9 +107,9 @@ export const usePatternStore = create<PatternState>()(
         clearPattern: (voiceIndex, variation) => {
           set((state) => {
             state.pattern[voiceIndex].variations[variation].triggers =
-              Array(16).fill(false);
+              Array(STEP_COUNT).fill(false);
             state.pattern[voiceIndex].variations[variation].velocities =
-              Array(16).fill(1);
+              Array(STEP_COUNT).fill(1);
           });
         },
       })),
