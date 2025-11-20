@@ -9,6 +9,15 @@ import { useTransportStore } from "@/stores/useTransportStore";
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
 
+interface StepMusicalState {
+  isTriggerOn: boolean;
+  isStepPlaying: boolean;
+  isAccentBeat: boolean;
+  isAccentPlayingOtherVariation: boolean;
+  isGhosted: boolean;
+  velocityValue: number;
+}
+
 export const Sequencer: React.FC = () => {
   // Get playback state from Transport Store
   const currentStepIndex = useTransportStore((state) => state.stepIndex);
@@ -34,7 +43,10 @@ export const Sequencer: React.FC = () => {
   const velocities = currentVariation.velocities;
   const stepHeight = 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
   const stepRadius = `${stepHeight / 4}px`;
-  const steps = Array.from({ length: NUM_OF_STEPS }, (_, index) => index);
+  const steps: number[] = Array.from(
+    { length: NUM_OF_STEPS },
+    (_, index) => index,
+  );
 
   const updateVelocityFromPointer = (
     event: React.MouseEvent<HTMLDivElement>,
@@ -88,31 +100,46 @@ export const Sequencer: React.FC = () => {
     }
   };
 
-  const getStepVisualState = (step: number) => {
+  const getStepMusicalState = (step: number): StepMusicalState => {
     const isTriggerOn = triggers[step];
-    const isActiveStep =
+    const isStepPlaying =
       isPlaying && playbackVariation === variation && currentStepIndex === step;
-    const isAccentStep = step % 4 === 0;
-    const isAccentHitInOtherVariation =
+    const isAccentBeat = step % 4 === 0;
+    const isAccentPlayingOtherVariation =
       isPlaying &&
       playbackVariation !== variation &&
-      isAccentStep &&
+      isAccentBeat &&
       currentStepIndex === step;
     const isGhosted =
       isPlaying && playbackVariation !== variation && isTriggerOn;
 
-    const indicatorIsOn = isActiveStep || isAccentHitInOtherVariation;
-
     return {
       isTriggerOn,
-      indicatorBg: indicatorIsOn ? "darkorange" : "gray",
-      indicatorOpacity: indicatorIsOn ? 1 : isAccentStep ? 0.6 : 0.2,
-      triggerBg: isTriggerOn ? "darkorange" : "#E8E3DD",
-      triggerOpacity: isGhosted ? 0.7 : 1,
-      triggerShadow: isTriggerOn
+      isStepPlaying,
+      isAccentBeat,
+      isAccentPlayingOtherVariation,
+      isGhosted,
+      velocityValue: velocities[step],
+    };
+  };
+
+  const getIndicatorStyles = (state: StepMusicalState) => {
+    const indicatorIsOn =
+      state.isStepPlaying || state.isAccentPlayingOtherVariation;
+
+    return {
+      bg: indicatorIsOn ? "darkorange" : "gray",
+      opacity: indicatorIsOn ? 1 : state.isAccentBeat ? 0.6 : 0.2,
+    };
+  };
+
+  const getTriggerStyles = (state: StepMusicalState) => {
+    return {
+      bg: state.isTriggerOn ? "darkorange" : "#E8E3DD",
+      opacity: state.isGhosted ? 0.7 : 1,
+      boxShadow: state.isTriggerOn
         ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
         : "0 4px 8px rgba(176, 147, 116, 1) inset",
-      velocityValue: velocities[step],
     };
   };
 
@@ -146,17 +173,10 @@ export const Sequencer: React.FC = () => {
         gap={`${STEP_BOXES_GAP}px`}
       >
         {steps.map((step) => {
-          const {
-            indicatorBg,
-            indicatorOpacity,
-            isTriggerOn,
-            triggerBg,
-            triggerOpacity,
-            triggerShadow,
-            velocityValue,
-          } = getStepVisualState(step);
-
-          const velocityWidth = Math.max(velocityValue * 100, 12);
+          const state = getStepMusicalState(step);
+          const indicatorStyles = getIndicatorStyles(state);
+          const triggerStyles = getTriggerStyles(state);
+          const velocityWidth = Math.max(state.velocityValue * 100, 12);
 
           return (
             <GridItem key={`sequence-step-item-${step}`} colSpan={1}>
@@ -165,27 +185,31 @@ export const Sequencer: React.FC = () => {
                 mb={4}
                 h="4px"
                 w="100%"
-                opacity={indicatorOpacity}
-                bg={indicatorBg}
+                opacity={indicatorStyles.opacity}
+                bg={indicatorStyles.bg}
               />
               <Box
                 key={`sequence-step-trigger-${step}`}
-                onMouseDown={() => handleStepMouseDown(step, isTriggerOn)}
-                onMouseEnter={() => handleStepMouseEnter(step, isTriggerOn)}
+                onMouseDown={() => handleStepMouseDown(step, state.isTriggerOn)}
+                onMouseEnter={() =>
+                  handleStepMouseEnter(step, state.isTriggerOn)
+                }
                 onContextMenu={(e) => e.preventDefault()}
                 w="100%"
                 h={`${stepHeight}px`}
-                bg={triggerBg}
+                bg={triggerStyles.bg}
                 transition="all 0.3s ease"
-                opacity={triggerOpacity}
+                opacity={triggerStyles.opacity}
                 borderRadius={`0 ${stepRadius} 0 ${stepRadius}`}
                 cursor="pointer"
                 _hover={{
-                  background: isTriggerOn ? "darkorange" : "darkorangehover",
+                  background: state.isTriggerOn
+                    ? "darkorange"
+                    : "darkorangehover",
                   transition: "all 0.3s ease",
-                  boxShadow: triggerShadow,
+                  boxShadow: triggerStyles.boxShadow,
                 }}
-                boxShadow={triggerShadow}
+                boxShadow={triggerStyles.boxShadow}
               />
               <Box
                 key={`sequence-step-velocity-${step}`}
@@ -194,7 +218,7 @@ export const Sequencer: React.FC = () => {
                 mt={3}
                 bg="transparent"
                 transition="all 0.2s ease"
-                opacity={isTriggerOn ? 0.6 : 0}
+                opacity={state.isTriggerOn ? 0.6 : 0}
                 outline="1px solid darkorange"
                 transform="opacity 0.2s ease"
                 position="relative"
@@ -227,7 +251,7 @@ export const Sequencer: React.FC = () => {
                     transition="0.5s ease"
                     filter="blur(2px)"
                   >
-                    {(velocityValue * 100).toFixed(0)}
+                    {(state.velocityValue * 100).toFixed(0)}
                   </Text>
                 </Center>
               </Box>
