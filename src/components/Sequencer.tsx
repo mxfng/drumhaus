@@ -146,7 +146,9 @@ export const Sequencer: React.FC = () => {
                 bg={triggers[step] ? "darkorange" : "#E8E3DD"}
                 transition="all 0.3s ease"
                 opacity={
-                  playbackVariation !== variation && triggers[step] ? 0.7 : 1
+                  playbackVariation !== variation && triggers[step] && isPlaying
+                    ? 0.7
+                    : 1
                 }
                 borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
