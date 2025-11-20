@@ -58,22 +58,6 @@ const KNOB_TICK_Z_INDEX = 3;
 const KNOB_FILTER_LOW_LABEL = "LP";
 const KNOB_FILTER_HIGH_LABEL = "HP";
 
-type KnobProps = {
-  color?: string;
-  size: number;
-  knobValue: number;
-  setKnobValue: (newState: number) => void;
-  knobTitle?: string;
-  knobTransformRange?: [number, number];
-  knobUnits?: string;
-  exponential?: boolean;
-  filter?: boolean;
-  defaultValue?: number;
-  isDisabled?: boolean;
-  valueStep?: number;
-  displayValueFormatter?: (value: number) => string;
-};
-
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -124,24 +108,71 @@ export const transformKnobValueExponential = (
   return mappedValue;
 };
 
+export type KnobScale = "linear" | "exp" | "split-filter";
+export type KnobSize = "sm" | "md" | "lg";
+
+type KnobProps = {
+  value: number;
+  onChange: (newState: number) => void;
+
+  label?: string;
+  units?: string;
+
+  range?: [number, number];
+  min?: number;
+  max?: number;
+
+  scale?: KnobScale;
+
+  step?: number;
+  defaultValue?: number;
+
+  disabled?: boolean;
+  size?: KnobSize;
+
+  formatValue?: (value: number) => string;
+  onDoubleClickReset?: () => void;
+
+  ariaLabel?: string;
+};
+
 export const Knob: React.FC<KnobProps> = ({
-  size,
-  knobValue,
-  setKnobValue,
-  knobTitle,
-  knobTransformRange = KNOB_DEFAULT_TRANSFORM_RANGE,
-  knobUnits = "",
-  exponential = false,
-  filter = false,
+  value,
+  onChange,
+  label,
+  units = "",
+  range,
+  min,
+  max,
+  scale = "linear",
+  step: valueStep = 1,
   defaultValue = KNOB_DEFAULT_VALUE,
-  isDisabled = false,
-  valueStep = 1,
-  displayValueFormatter,
+  disabled: isDisabled = false,
+  size = "md",
+  formatValue,
+  onDoubleClickReset,
+  ariaLabel,
 }) => {
+  // Convert size enum to pixel values
+  const sizeInPixels = size === "lg" ? 140 : size === "md" ? 60 : 50;
+
+  const explicitRange: [number, number] | undefined =
+    range && range.length === 2
+      ? [range[0], range[1]]
+      : min !== undefined && max !== undefined
+        ? [min, max]
+        : undefined;
+  const knobTransformRange: [number, number] =
+    explicitRange ?? KNOB_DEFAULT_TRANSFORM_RANGE;
+  const filterTransformRange: [number, number] =
+    explicitRange ?? MASTER_FILTER_RANGE;
+  const isSplitFilterScale = scale === "split-filter";
+  const isExponentialScale = scale === "exp";
+
   const [isMoving, setIsMoving] = useState(false);
   const moveStartYRef = useRef(0);
   const stepSize = valueStep > 0 ? valueStep : 1;
-  const initialQuantizedValue = quantizeToStep(knobValue, stepSize);
+  const initialQuantizedValue = quantizeToStep(value, stepSize);
   const startValueRef = useRef(initialQuantizedValue);
 
   const moveY = useMotionValue(initialQuantizedValue);
@@ -160,10 +191,10 @@ export const Knob: React.FC<KnobProps> = ({
     // Sync motion value when knob is updated externally (e.g. presets/kits)
     if (isMoving) return;
 
-    const quantizedValue = quantizeToStep(knobValue, stepSize);
+    const quantizedValue = quantizeToStep(value, stepSize);
     moveY.set(quantizedValue);
     startValueRef.current = quantizedValue;
-  }, [isMoving, knobValue, moveY, stepSize]);
+  }, [isMoving, value, moveY, stepSize]);
 
   useEffect(() => {
     const setValueOnMove = (ev: MouseEvent | TouchEvent) => {
@@ -180,7 +211,7 @@ export const Knob: React.FC<KnobProps> = ({
       const quantizedKnobValue = quantizeToStep(newKnobValue, stepSize);
 
       moveY.set(quantizedKnobValue);
-      setKnobValue(quantizedKnobValue);
+      onChange(quantizedKnobValue);
     };
 
     if (isMoving && !isDisabled) {
@@ -213,7 +244,7 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("mouseup", handleMoveEnd);
       window.removeEventListener("touchend", handleMoveEnd);
     };
-  }, [handleMoveEnd, isDisabled, isMoving, moveY, setKnobValue, stepSize]);
+  }, [handleMoveEnd, isDisabled, isMoving, moveY, onChange, stepSize]);
 
   useEffect(() => {
     return () => {
@@ -228,23 +259,27 @@ export const Knob: React.FC<KnobProps> = ({
     setIsMoving(true);
     moveStartYRef.current =
       "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-    startValueRef.current = quantizeToStep(knobValue, stepSize);
+    startValueRef.current = quantizeToStep(value, stepSize);
   };
 
   const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
     if (isDisabled) return;
     ev.preventDefault();
-    setKnobValue(immutableDefaultValue);
+    if (onDoubleClickReset) {
+      onDoubleClickReset();
+      return;
+    }
+    onChange(immutableDefaultValue);
   };
 
   const formatWithUnits = (value: string | number) =>
-    `${value}${knobUnits ? ` ${knobUnits}` : ""}`;
+    `${value}${units ? ` ${units}` : ""}`;
 
   const formatScaledValue = (value: number) => {
-    const transform = exponential
+    const transform = isExponentialScale
       ? transformKnobValueExponential
       : transformKnobValue;
-    const decimals = knobUnits ? 1 : 0;
+    const decimals = units ? 1 : 0;
     const transformedValue = transform(value, knobTransformRange).toFixed(
       decimals,
     );
@@ -252,7 +287,11 @@ export const Knob: React.FC<KnobProps> = ({
   };
 
   const formatFilterValue = (value: number) => {
-    const filterValue = transformKnobFilterValue(value).toFixed(0);
+    const filterValue = transformKnobFilterValue(
+      value,
+      filterTransformRange,
+      filterTransformRange,
+    ).toFixed(0);
     const modeLabel =
       value <= KNOB_ROTATION_THRESHOLD_L
         ? KNOB_FILTER_LOW_LABEL
@@ -262,14 +301,14 @@ export const Knob: React.FC<KnobProps> = ({
   };
 
   const getDisplayLabel = (value: number) => {
-    if (!isMoving) return knobTitle;
-    if (displayValueFormatter) return displayValueFormatter(value);
-    if (filter) return formatFilterValue(value);
+    if (!isMoving) return label;
+    if (formatValue) return formatValue(value);
+    if (isSplitFilterScale) return formatFilterValue(value);
     return formatScaledValue(value);
   };
 
-  const knobContainerHeight = size + KNOB_CONTAINER_PADDING;
-  const knobMaskSize = size + KNOB_MASK_PADDING;
+  const knobContainerHeight = sizeInPixels + KNOB_CONTAINER_PADDING;
+  const knobMaskSize = sizeInPixels + KNOB_MASK_PADDING;
 
   return (
     <div style={{ height: `${knobContainerHeight}px` }}>
@@ -298,15 +337,20 @@ export const Knob: React.FC<KnobProps> = ({
               onMouseDown={isDisabled ? undefined : captureMoveStartY}
               onTouchStart={isDisabled ? undefined : captureMoveStartY}
               onDoubleClick={isDisabled ? undefined : handleDoubleClick}
+              role="slider"
+              aria-label={ariaLabel ?? label}
+              aria-valuemin={KNOB_MIN_VALUE}
+              aria-valuemax={KNOB_MAX_VALUE}
+              aria-valuenow={value}
               style={{
                 rotate: rotation,
-                width: `${size}px`,
-                height: `${size}px`,
+                width: `${sizeInPixels}px`,
+                height: `${sizeInPixels}px`,
                 originX: KNOB_ROTATION_ORIGIN,
                 originY: KNOB_ROTATION_ORIGIN,
                 position: "absolute",
                 zIndex: KNOB_HITBOX_Z_INDEX,
-                borderRadius: size,
+                borderRadius: sizeInPixels,
                 pointerEvents: isDisabled ? "none" : "auto",
               }}
             >
@@ -315,8 +359,8 @@ export const Knob: React.FC<KnobProps> = ({
                   className="knob-tick"
                   style={{
                     ...CENTER_FLEX_STYLE,
-                    height: `${size}px`,
-                    width: `${size}px`,
+                    height: `${sizeInPixels}px`,
+                    width: `${sizeInPixels}px`,
                     position: "absolute",
                     pointerEvents: "none",
                     zIndex: KNOB_TICK_Z_INDEX,
@@ -324,8 +368,8 @@ export const Knob: React.FC<KnobProps> = ({
                 >
                   <div
                     style={{
-                      width: `${size / KNOB_TICK_WIDTH_DIVISOR}px`,
-                      height: `${Math.floor(size / KNOB_TICK_HEIGHT_DIVISOR)}px`,
+                      width: `${sizeInPixels / KNOB_TICK_WIDTH_DIVISOR}px`,
+                      height: `${Math.floor(sizeInPixels / KNOB_TICK_HEIGHT_DIVISOR)}px`,
                       background: "darkorange",
                       transform: "rotate(90deg) translate(50%, 50%)",
                       borderRadius: KNOB_TICK_BORDER_RADIUS,
@@ -337,8 +381,8 @@ export const Knob: React.FC<KnobProps> = ({
             <div
               className="neumorphicTallRaised"
               style={{
-                width: `${size}px`,
-                height: `${size}px`,
+                width: `${sizeInPixels}px`,
+                height: `${sizeInPixels}px`,
                 position: "relative",
                 borderRadius: FULL_BORDER_RADIUS,
                 boxShadow: KNOB_BOX_SHADOW,
@@ -348,8 +392,8 @@ export const Knob: React.FC<KnobProps> = ({
               className="knob-dot-min-transform"
               style={{
                 rotate: KNOB_DOT_MIN_ROTATION,
-                width: `${size}px`,
-                height: `${size}px`,
+                width: `${sizeInPixels}px`,
+                height: `${sizeInPixels}px`,
                 originX: KNOB_ROTATION_ORIGIN,
                 originY: KNOB_ROTATION_ORIGIN,
                 position: "absolute",
@@ -371,8 +415,8 @@ export const Knob: React.FC<KnobProps> = ({
               className="knob-dot-max-transform"
               style={{
                 rotate: KNOB_DOT_MAX_ROTATION,
-                width: `${size}px`,
-                height: `${size}px`,
+                width: `${sizeInPixels}px`,
+                height: `${sizeInPixels}px`,
                 originX: KNOB_ROTATION_ORIGIN,
                 originY: KNOB_ROTATION_ORIGIN,
                 position: "absolute",
@@ -403,7 +447,7 @@ export const Knob: React.FC<KnobProps> = ({
             marginBottom: `${KNOB_LABEL_MARGIN_Y}px`,
           }}
         >
-          {getDisplayLabel(knobValue)}
+          {getDisplayLabel(value)}
         </div>
       </div>
     </div>

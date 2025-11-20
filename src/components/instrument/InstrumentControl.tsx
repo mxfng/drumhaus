@@ -341,50 +341,49 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           <GridItem>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-attack`}
-              size={50}
-              knobValue={attack}
-              setKnobValue={setAttack}
-              knobTitle="ATTACK"
+              value={attack}
+              onChange={setAttack}
+              label="ATTACK"
               defaultValue={0}
-              isDisabled={!isRuntimeLoaded}
+              disabled={!isRuntimeLoaded}
+              size="sm"
             />
           </GridItem>
           <GridItem>
             <Knob
               key={`knob-${index}-filter`}
-              size={50}
-              knobValue={filter}
-              setKnobValue={setFilter}
-              knobTitle="TONE"
-              filter={true}
-              exponential={true}
+              value={filter}
+              onChange={setFilter}
+              label="TONE"
+              scale="split-filter"
               defaultValue={50}
-              isDisabled={!isRuntimeLoaded}
+              disabled={!isRuntimeLoaded}
+              size="sm"
             />
           </GridItem>
           <GridItem>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-release`}
-              size={50}
-              knobValue={release}
-              setKnobValue={setRelease}
-              knobTitle="RELEASE"
+              value={release}
+              onChange={setRelease}
+              label="RELEASE"
               defaultValue={100}
-              isDisabled={!isRuntimeLoaded}
+              disabled={!isRuntimeLoaded}
+              size="sm"
             />
           </GridItem>
 
           <GridItem>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-pitch`}
-              size={50}
-              knobValue={pitch}
-              setKnobValue={setPitch}
-              knobTitle="PITCH"
+              value={pitch}
+              onChange={setPitch}
+              label="PITCH"
+              step={PITCH_KNOB_STEP}
               defaultValue={50}
-              valueStep={PITCH_KNOB_STEP}
-              displayValueFormatter={formatPitchLabel}
-              isDisabled={!isRuntimeLoaded}
+              disabled={!isRuntimeLoaded}
+              formatValue={formatPitchLabel}
+              size="sm"
             />
           </GridItem>
           <GridItem w="100%" h="100%">
@@ -457,14 +456,21 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           <GridItem>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-volume`}
-              size={60}
-              knobValue={volume}
-              setKnobValue={setVolume}
-              knobTitle="VOLUME"
-              knobTransformRange={INSTRUMENT_VOLUME_RANGE}
-              knobUnits="dB"
+              value={volume}
+              onChange={setVolume}
+              label="VOLUME"
+              units="dB"
+              range={INSTRUMENT_VOLUME_RANGE}
               defaultValue={92}
-              isDisabled={!isRuntimeLoaded}
+              disabled={!isRuntimeLoaded}
+              formatValue={(knobValue) =>
+                knobValue <= 0
+                  ? "-∞ dB"
+                  : `${transformKnobValue(
+                      knobValue,
+                      INSTRUMENT_VOLUME_RANGE,
+                    ).toFixed(1)} dB`
+              }
             />
           </GridItem>
         </Grid>
