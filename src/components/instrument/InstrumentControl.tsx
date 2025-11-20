@@ -96,7 +96,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
 
@@ -252,15 +251,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const playSample = () => {
     if (!runtime) return;
 
-    const previousPitch = currentPitchRef.current;
-    const pitchValue = playInstrumentSample(
-      runtime,
-      pitch,
-      release,
-      sampleDuration,
-      previousPitch,
-    );
-    currentPitchRef.current = pitchValue;
+    playInstrumentSample(runtime, pitch, release, sampleDuration);
   };
 
   return (

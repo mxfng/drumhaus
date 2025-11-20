@@ -6,12 +6,6 @@ import { SAMPLER_ROOT_NOTE } from "./constants";
 
 /**
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
- * Only creates Tone.js audio nodes - data should be read from useInstrumentsStore
- *
- * Disposes existing runtimes before creating new ones to prevent memory leaks
- *
- * Pre-caches audio files from external URLs if configured, then creates samplers
- * with cached blob URLs or local URLs.
  */
 export async function createInstrumentRuntimes(
   runtimes: React.MutableRefObject<InstrumentRuntime[]>,
