@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
-import { Analytics } from "@vercel/analytics/react";
-
 import { PixelatedSpinner } from "../components/common/PixelatedSpinner";
 import { Providers } from "./providers";
 
@@ -70,10 +68,7 @@ export default function RootLayout({
         <div id="initial-loader" className="initial-loader">
           <PixelatedSpinner size={64} />
         </div>
-        <Providers>
-          {children}
-          <Analytics />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
