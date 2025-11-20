@@ -10,13 +10,13 @@
   "icons": [
     {
       "src": "/pwa-icon.png",
-      "sizes": "420x420",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "/pwa-icon.png",
-      "sizes": "420x420",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
