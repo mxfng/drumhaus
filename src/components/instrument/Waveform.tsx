@@ -8,12 +8,14 @@ interface WaveformProps {
   audioFile: string;
   width: number;
   color?: string;
+  onError?: (error: Error) => void;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
   audioFile,
   width,
   color = "#ff7b00",
+  onError,
 }) => {
   // Remove the leading directory and .wav file type from string
   // Filenames for waveforms are auto-generated and thus have the same name as the audio file
@@ -80,8 +82,11 @@ const Waveform: React.FC<WaveformProps> = ({
       })
       .catch((error) => {
         console.error(`Failed to load waveform for ${sampleFilename}`, error);
+        if (onError) {
+          onError(error instanceof Error ? error : new Error(String(error)));
+        }
       });
-  }, [sampleFilename, width, color]);
+  }, [sampleFilename, width, color, onError]);
 
   return <canvas ref={canvasRef} />;
 };
