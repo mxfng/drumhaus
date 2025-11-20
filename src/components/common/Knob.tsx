@@ -68,10 +68,16 @@ type KnobProps = {
   filter?: boolean;
   defaultValue?: number;
   isDisabled?: boolean;
+  valueStep?: number;
 };
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
+
+const quantizeToStep = (value: number, step: number) => {
+  const normalizedStep = step > 0 ? step : 1;
+  return Math.round(value / normalizedStep) * normalizedStep;
+};
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
 export const transformKnobValue = (
@@ -126,12 +132,15 @@ export const Knob: React.FC<KnobProps> = ({
   filter = false,
   defaultValue = KNOB_DEFAULT_VALUE,
   isDisabled = false,
+  valueStep = 1,
 }) => {
   const [isMoving, setIsMoving] = useState(false);
   const moveStartYRef = useRef(0);
-  const startValueRef = useRef(knobValue);
+  const stepSize = valueStep > 0 ? valueStep : 1;
+  const initialQuantizedValue = quantizeToStep(knobValue, stepSize);
+  const startValueRef = useRef(initialQuantizedValue);
 
-  const moveY = useMotionValue(knobValue);
+  const moveY = useMotionValue(initialQuantizedValue);
   const rotation = useTransform(
     moveY,
     [KNOB_MIN_VALUE, KNOB_MAX_VALUE],
@@ -147,9 +156,10 @@ export const Knob: React.FC<KnobProps> = ({
     // Sync motion value when knob is updated externally (e.g. presets/kits)
     if (isMoving) return;
 
-    moveY.set(knobValue);
-    startValueRef.current = knobValue;
-  }, [isMoving, knobValue, moveY]);
+    const quantizedValue = quantizeToStep(knobValue, stepSize);
+    moveY.set(quantizedValue);
+    startValueRef.current = quantizedValue;
+  }, [isMoving, knobValue, moveY, stepSize]);
 
   useEffect(() => {
     const setValueOnMove = (ev: MouseEvent | TouchEvent) => {
@@ -163,9 +173,10 @@ export const Knob: React.FC<KnobProps> = ({
         KNOB_MIN_VALUE,
         KNOB_MAX_VALUE,
       );
+      const quantizedKnobValue = quantizeToStep(newKnobValue, stepSize);
 
-      moveY.set(newKnobValue);
-      setKnobValue(newKnobValue);
+      moveY.set(quantizedKnobValue);
+      setKnobValue(quantizedKnobValue);
     };
 
     if (isMoving && !isDisabled) {
@@ -213,7 +224,7 @@ export const Knob: React.FC<KnobProps> = ({
     setIsMoving(true);
     moveStartYRef.current =
       "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-    startValueRef.current = knobValue;
+    startValueRef.current = quantizeToStep(knobValue, stepSize);
   };
 
   const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
