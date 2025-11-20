@@ -93,13 +93,20 @@ export const Sequencer: React.FC = () => {
     const isActiveStep =
       isPlaying && playbackVariation === variation && currentStepIndex === step;
     const isAccentStep = step % 4 === 0;
+    const isAccentHitInOtherVariation =
+      isPlaying &&
+      playbackVariation !== variation &&
+      isAccentStep &&
+      currentStepIndex === step;
     const isGhosted =
       isPlaying && playbackVariation !== variation && isTriggerOn;
 
+    const indicatorIsOn = isActiveStep || isAccentHitInOtherVariation;
+
     return {
       isTriggerOn,
-      indicatorBg: isActiveStep ? "darkorange" : "gray",
-      indicatorOpacity: isActiveStep ? 1 : isAccentStep ? 0.6 : 0.2,
+      indicatorBg: indicatorIsOn ? "darkorange" : "gray",
+      indicatorOpacity: indicatorIsOn ? 1 : isAccentStep ? 0.6 : 0.2,
       triggerBg: isTriggerOn ? "darkorange" : "#E8E3DD",
       triggerOpacity: isGhosted ? 0.7 : 1,
       triggerShadow: isTriggerOn
