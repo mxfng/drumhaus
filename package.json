@@ -14,10 +14,10 @@
   "dependencies": {
     "@chakra-ui/next-js": "^2.2.0",
     "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@fontsource-variable/pixelify-sans": "^5.0.1",
-    "@vercel/analytics": "^1.1.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource-variable/pixelify-sans": "^5.2.7",
+    "@vercel/analytics": "^1.5.0",
     "framer-motion": "^10.16.4",
     "nanoid": "^5.0.3",
     "next": "14.0.2",
@@ -42,7 +42,7 @@
     "eslint-config-next": "14.0.2",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
+    "lint-staged": "^16.2.7",
     "prettier": "3.6.2",
     "stats.js": "^0.17.0",
     "typescript": "^5"
