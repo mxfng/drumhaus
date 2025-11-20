@@ -63,6 +63,6 @@ export function releaseAllSamples(
 ): void {
   const time = getCurrentTime();
   instrumentRuntimes.forEach((runtime) => {
-    runtime.samplerNode.triggerRelease("C2", time);
+    runtime.samplerNode.releaseAll(time);
   });
 }

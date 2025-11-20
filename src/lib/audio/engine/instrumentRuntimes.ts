@@ -18,7 +18,9 @@ export async function createInstrumentRuntimes(
 ): Promise<void> {
   // Dispose existing runtimes before creating new ones
   if (runtimes.current.length > 0) {
-    runtimes.current.forEach(disposeInstrumentRuntime);
+    const existingRuntimes = runtimes.current;
+    runtimes.current = [];
+    existingRuntimes.forEach(disposeInstrumentRuntime);
   }
 
   // Pre-cache all audio files (this will download external files if configured)

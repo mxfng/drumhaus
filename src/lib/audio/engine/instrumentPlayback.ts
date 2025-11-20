@@ -2,6 +2,7 @@ import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { ENGINE_PITCH_RANGE } from "./constants";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
@@ -29,7 +30,7 @@ export function playInstrumentSample(
   if (previousPitch !== null) {
     const prevPitchValue = transformKnobValue(
       previousPitch,
-      [15.4064, 115.4064],
+      ENGINE_PITCH_RANGE,
     );
     runtime.samplerNode.triggerRelease(prevPitchValue, time);
   }
@@ -45,7 +46,12 @@ export function playInstrumentSample(
   runtime.envelopeNode.triggerRelease(time + releaseTime);
 
   // Trigger sampler attack with transformed pitch
-  const pitchValue = transformKnobValue(pitch, [15.4064, 115.4064]);
+  const pitchValue = transformKnobValue(pitch, ENGINE_PITCH_RANGE);
+
+  // Skip triggering if the buffer is not ready yet to avoid runtime errors
+  if (!runtime.samplerNode.loaded) {
+    return pitchValue;
+  }
   runtime.samplerNode.triggerAttack(pitchValue, time);
 
   return pitchValue;

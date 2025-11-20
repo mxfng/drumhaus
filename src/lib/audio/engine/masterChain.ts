@@ -72,6 +72,11 @@ export async function createMasterChainRuntimes(
     release: 1,
   });
 
+  Tone.Destination.volume.value = transformKnobValue(
+    params.masterVolume,
+    [-46, 4],
+  );
+
   runtimes.current = {
     lowPassFilter,
     highPassFilter,
@@ -89,6 +94,12 @@ export function connectInstrumentsToMasterChain(
   masterChainRuntimes: MasterChainRuntimes,
 ): void {
   instrumentRuntimes.forEach((inst) => {
+    // Disconnect existing links to avoid duplicated chains when re-connecting
+    inst.samplerNode.disconnect();
+    inst.envelopeNode.disconnect();
+    inst.filterNode.disconnect();
+    inst.pannerNode.disconnect();
+
     inst.samplerNode.chain(
       inst.envelopeNode,
       inst.filterNode,

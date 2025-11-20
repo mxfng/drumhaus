@@ -6,6 +6,7 @@ import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { VariationCycle } from "@/types/preset";
+import { ENGINE_PITCH_RANGE } from "./constants";
 
 const STEPS: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
@@ -70,19 +71,30 @@ export function createDrumSequence(
 
       // --- Update variation at the *start* of the bar ---
       if (isFirstStep) {
+        let nextVariationIndex = currentVariation.current;
+
         switch (variationCycle) {
           case "A":
-            currentVariation.current = 0;
+            nextVariationIndex = 0;
             break;
           case "B":
-            currentVariation.current = 1;
+            nextVariationIndex = 1;
             break;
           case "AB":
-            currentVariation.current = currentBar.current === 0 ? 0 : 1;
+            nextVariationIndex = currentBar.current === 0 ? 0 : 1;
             break;
           case "AAAB":
-            currentVariation.current = currentBar.current === 3 ? 1 : 0;
+            nextVariationIndex = currentBar.current === 3 ? 1 : 0;
             break;
+        }
+
+        currentVariation.current = nextVariationIndex;
+
+        // -- Keep UI in sync with current variation
+        const { playbackVariation, setPlaybackVariation } =
+          usePatternStore.getState();
+        if (playbackVariation !== nextVariationIndex) {
+          setPlaybackVariation(nextVariationIndex);
         }
       }
 
@@ -119,7 +131,7 @@ export function createDrumSequence(
         const velocity = velocities[step];
 
         // Compute engine values from current knob state (live)
-        const pitch = transformKnobValue(params.pitch, [15.4064, 115.4064]);
+        const pitch = transformKnobValue(params.pitch, ENGINE_PITCH_RANGE);
         const releaseTime = transformKnobValue(params.release, [
           0,
           durations[instrumentIndex],
@@ -131,7 +143,7 @@ export function createDrumSequence(
           const ohRuntime = currentRuntimes[ohatIndex];
           const ohPitch = transformKnobValue(
             ohInst.params.pitch,
-            [15.4064, 115.4064],
+            ENGINE_PITCH_RANGE,
           );
           ohRuntime.samplerNode.triggerRelease(ohPitch, time);
         }
