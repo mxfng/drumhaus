@@ -392,6 +392,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 centerLabel="|"
                 rightLabel="R"
                 transformRange={INSTRUMENT_PAN_RANGE}
+                displayRange={[-100, 100]}
                 isDisabled={!isRuntimeLoaded}
               />
             </Box>
