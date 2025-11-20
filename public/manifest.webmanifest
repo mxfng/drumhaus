@@ -1,5 +1,6 @@
 {
   "name": "Drumhaus",
+  "description": "The ultimate browser controlled rhythmic groove machine.",
   "short_name": "Drumhaus",
   "start_url": "/",
   "display": "standalone",
