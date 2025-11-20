@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
   Box,
   Button,
@@ -62,6 +63,23 @@ const Drumhaus = () => {
   });
 
   const { isMobileWarning, setIsMobileWarning } = useMobileWarning();
+
+  // --- Initial Loader Cleanup ---
+
+  useEffect(() => {
+    const loader = document.getElementById("initial-loader");
+    if (!loader) return;
+
+    loader.classList.add("initial-loader--hidden");
+
+    const timeout = window.setTimeout(() => {
+      loader.remove();
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, []);
 
   // --- Render ---
 
