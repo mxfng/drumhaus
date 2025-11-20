@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Analytics } from "@vercel/analytics/react";
 
+import { PixelatedSpinner } from "../components/common/PixelatedSpinner";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
@@ -65,6 +66,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body style={{ background: "#e8e3dd" }}>
+        <div id="initial-loader" className="initial-loader">
+          <PixelatedSpinner size={64} />
+        </div>
         <Providers>
           {children}
           <Analytics />

@@ -3,6 +3,8 @@ import { Box } from "@chakra-ui/react";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
+import { PixelatedSpinner } from "../components/common/PixelatedSpinner";
+
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
@@ -13,7 +15,17 @@ const Drumhaus = dynamic(() => import("../components/Drumhaus"), {
 });
 
 function DrumhausFallback() {
-  return <></>;
+  return (
+    <Box
+      w="100%"
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <PixelatedSpinner size={64} />
+    </Box>
+  );
 }
 
 function getPresetTitleFromSlug(slug: string | string[] | undefined): string {
