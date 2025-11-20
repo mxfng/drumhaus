@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Center, useToast } from "@chakra-ui/react";
 
 import * as kits from "@/lib/kit";
@@ -128,6 +128,28 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
+   * Add a preset to custom presets if it's not already in DEFAULT_PRESETS or customPresets.
+   * This prevents duplicates when loading presets from URLs or files.
+   */
+  const addToCustomPresetsIfNeeded = useCallback(
+    (preset: PresetFileV1) => {
+      const isInDefaults = DEFAULT_PRESETS.some(
+        (p) => p.meta.id === preset.meta.id,
+      );
+      if (!isInDefaults) {
+        setCustomPresets((prev) => {
+          const isInCustom = prev.some((p) => p.meta.id === preset.meta.id);
+          if (!isInCustom) {
+            return [...prev, preset];
+          }
+          return prev;
+        });
+      }
+    },
+    [DEFAULT_PRESETS],
+  );
+
+  /**
    * Switch to a different kit. Simple: update instruments + kit metadata.
    */
   const switchKit = (kitId: string) => {
@@ -146,9 +168,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const loadPreset = (preset: PresetFileV1) => {
     // Add to custom presets if not already there
-    if (!allPresets.find((p) => p.meta.id === preset.meta.id)) {
-      setCustomPresets((prev) => [...prev, preset]);
-    }
+    addToCustomPresetsIfNeeded(preset);
 
     // Activate the preset via parent (updates all stores, stops playback)
     loadPresetFromParent(preset);
@@ -347,11 +367,9 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   // Add current preset to custom presets if loaded from URL
   useEffect(() => {
-    if (!allPresets.find((p) => p.meta.id === currentPresetMeta.id)) {
-      const preset = getCurrentPreset(currentPresetMeta, currentKitMeta);
-      setCustomPresets((prev) => [...prev, preset]);
-    }
-  }, [currentPresetMeta, currentKitMeta, allPresets]);
+    const preset = getCurrentPreset(currentPresetMeta, currentKitMeta);
+    addToCustomPresetsIfNeeded(preset);
+  }, [currentPresetMeta, currentKitMeta, addToCustomPresetsIfNeeded]);
 
   // ============================================================================
   // RENDER
