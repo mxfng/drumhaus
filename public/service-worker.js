@@ -84,16 +84,21 @@ self.addEventListener("fetch", (event) => {
   }
 
   const url = new URL(request.url);
+  const isDevelopment =
+    self.location.hostname === "localhost" ||
+    self.location.hostname === "127.0.0.1";
 
   // Network-first strategy for navigations (HTML documents)
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches
-            .open(APP_SHELL_CACHE)
-            .then((cache) => cache.put(request, copy));
+          if (!isDevelopment) {
+            const copy = response.clone();
+            caches
+              .open(APP_SHELL_CACHE)
+              .then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() =>
@@ -103,10 +108,40 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for static assets from same origin
+  // In development, bypass cache for scripts/styles to enable hot reload
   if (
     url.origin === self.location.origin &&
-    ["script", "style", "image", "font"].includes(request.destination)
+    ["script", "style"].includes(request.destination)
+  ) {
+    if (isDevelopment) {
+      // Network-only in development for hot reload
+      event.respondWith(fetch(request));
+      return;
+    }
+
+    // Cache-first for static assets in production
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) {
+          return cached;
+        }
+
+        return fetch(request).then((response) => {
+          const copy = response.clone();
+          caches
+            .open(APP_SHELL_CACHE)
+            .then((cache) => cache.put(request, copy));
+          return response;
+        });
+      }),
+    );
+    return;
+  }
+
+  // Cache-first for images and fonts (both dev and prod)
+  if (
+    url.origin === self.location.origin &&
+    ["image", "font"].includes(request.destination)
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
