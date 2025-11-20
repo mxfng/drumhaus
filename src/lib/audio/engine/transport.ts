@@ -1,6 +1,7 @@
 import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
+import { TRANSPORT_SWING_RANGE } from "./constants";
 
 /**
  * Starts the Tone.js audio context if it's not already running
@@ -45,11 +46,9 @@ export function setTransportBpm(bpm: number): void {
 
 /**
  * Sets the swing amount for the transport
- * @param swing - Swing value from 0-100 (will be transformed to 0-0.5)
  */
 export function setTransportSwing(swing: number): void {
-  // Transform swing value from 0-100 to 0-0.5
-  const newSwing = (swing / 100) * 0.5;
+  const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
   Tone.Transport.swingSubdivision = "16n";
   Tone.Transport.swing = newSwing;
 }

@@ -168,14 +168,6 @@ export const TransportControl: React.FC = () => {
                 </Center>
               </Box>
             </Center>
-
-            {/* <Knob
-            size={60}
-            knobValue={swing}
-            setKnobValue={setSwing}
-            knobTitle="SWING"
-            defaultValue={0}
-          /> */}
           </Flex>
           <Box position="absolute" bottom={6} left={0}>
             <CustomSlider

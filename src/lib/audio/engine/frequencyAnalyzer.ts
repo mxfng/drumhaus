@@ -1,10 +1,11 @@
+import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
 /**
  * Creates a frequency analyzer and connects it to Tone.Destination
  */
 export function createFrequencyAnalyzer(
-  analyzer: React.MutableRefObject<Tone.Analyser | null>,
+  analyzer: MutableRefObject<Tone.Analyser | null>,
   size: number = 512,
   type: "fft" | "waveform" = "fft",
 ): void {
@@ -20,7 +21,7 @@ export function createFrequencyAnalyzer(
  * Disposes the frequency analyzer and disconnects it from Tone.Destination
  */
 export function disposeFrequencyAnalyzer(
-  analyzer: React.MutableRefObject<Tone.Analyser | null>,
+  analyzer: MutableRefObject<Tone.Analyser | null>,
 ): void {
   if (analyzer.current) {
     Tone.Destination.disconnect(analyzer.current);

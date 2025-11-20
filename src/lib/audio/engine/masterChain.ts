@@ -1,3 +1,4 @@
+import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
 import {
@@ -38,75 +39,12 @@ export interface MasterChainParams {
  * Disposes existing runtimes before creating new ones to prevent memory leaks
  */
 export async function createMasterChainRuntimes(
-  runtimes: React.MutableRefObject<MasterChainRuntimes | null>,
+  runtimes: MutableRefObject<MasterChainRuntimes | null>,
   params: MasterChainParams,
 ): Promise<void> {
-  // Dispose existing runtimes before creating new ones
-  if (runtimes.current) {
-    runtimes.current.lowPassFilter.dispose();
-    runtimes.current.highPassFilter.dispose();
-    runtimes.current.phaser.dispose();
-    runtimes.current.reverb.dispose();
-    runtimes.current.compressor.dispose();
-  }
+  disposeMasterChainRuntimes(runtimes);
 
-  const lowPassFreq = transformKnobValueExponential(
-    params.lowPass,
-    MASTER_FILTER_RANGE,
-  );
-  const hiPassFreq = transformKnobValueExponential(
-    params.hiPass,
-    MASTER_FILTER_RANGE,
-  );
-  const phaserWet = transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE);
-  const reverbWet = transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE);
-  const reverbDecay = transformKnobValue(
-    params.reverb,
-    MASTER_REVERB_DECAY_RANGE,
-  );
-  const compThreshold = transformKnobValue(
-    params.compThreshold,
-    MASTER_COMP_THRESHOLD_RANGE,
-  );
-  const compRatio = Math.floor(
-    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-  );
-
-  const lowPassFilter = new Tone.Filter(lowPassFreq, "lowpass");
-  const highPassFilter = new Tone.Filter(hiPassFreq, "highpass");
-  const phaser = new Tone.Phaser({
-    frequency: 1,
-    octaves: 3,
-    baseFrequency: 1000,
-    wet: phaserWet,
-  });
-
-  // Reverb needs async initialization
-  const reverb = new Tone.Reverb({
-    decay: reverbDecay,
-    wet: reverbWet,
-  });
-  await reverb.generate();
-
-  const compressor = new Tone.Compressor({
-    threshold: compThreshold,
-    ratio: compRatio,
-    attack: 0.5,
-    release: 1,
-  });
-
-  Tone.Destination.volume.value = transformKnobValue(
-    params.masterVolume,
-    [-46, 4],
-  );
-
-  runtimes.current = {
-    lowPassFilter,
-    highPassFilter,
-    phaser,
-    reverb,
-    compressor,
-  };
+  runtimes.current = await buildMasterChain(params);
 }
 
 /**
@@ -192,7 +130,7 @@ export function updateMasterChainParams(
  * Disposes all master chain runtimes and clears the ref
  */
 export function disposeMasterChainRuntimes(
-  runtimes: React.MutableRefObject<MasterChainRuntimes | null>,
+  runtimes: MutableRefObject<MasterChainRuntimes | null>,
 ): void {
   if (runtimes.current) {
     runtimes.current.lowPassFilter.dispose();
@@ -202,4 +140,65 @@ export function disposeMasterChainRuntimes(
     runtimes.current.compressor.dispose();
     runtimes.current = null;
   }
+}
+
+async function buildMasterChain(
+  params: MasterChainParams,
+): Promise<MasterChainRuntimes> {
+  const lowPassFreq = transformKnobValueExponential(
+    params.lowPass,
+    MASTER_FILTER_RANGE,
+  );
+  const highPassFreq = transformKnobValueExponential(
+    params.hiPass,
+    MASTER_FILTER_RANGE,
+  );
+  const phaserWet = transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE);
+  const reverbWet = transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE);
+  const reverbDecay = transformKnobValue(
+    params.reverb,
+    MASTER_REVERB_DECAY_RANGE,
+  );
+  const compThreshold = transformKnobValue(
+    params.compThreshold,
+    MASTER_COMP_THRESHOLD_RANGE,
+  );
+  const compRatio = Math.floor(
+    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
+  );
+
+  const lowPassFilter = new Tone.Filter(lowPassFreq, "lowpass");
+  const highPassFilter = new Tone.Filter(highPassFreq, "highpass");
+  const phaser = new Tone.Phaser({
+    frequency: 1,
+    octaves: 3,
+    baseFrequency: 1000,
+    wet: phaserWet,
+  });
+
+  const reverb = new Tone.Reverb({
+    decay: reverbDecay,
+    wet: reverbWet,
+  });
+  await reverb.generate(); // Required before first use
+
+  const compressor = new Tone.Compressor({
+    threshold: compThreshold,
+    ratio: compRatio,
+    attack: 0.5,
+    release: 1,
+  });
+
+  Tone.Destination.volume.value = transformKnobValue(
+    params.masterVolume,
+    MASTER_VOLUME_RANGE,
+  );
+
+  return {
+    lowPassFilter,
+    highPassFilter,
+    phaser,
+    reverb,
+    compressor,
+  };
 }

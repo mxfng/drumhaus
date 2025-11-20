@@ -6,7 +6,6 @@ import { ENGINE_PITCH_RANGE } from "./constants";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
- * Ensures monophonic behavior by releasing any currently playing notes.
  */
 export function playInstrumentSample(
   runtime: InstrumentRuntime,
@@ -22,18 +21,13 @@ export function playInstrumentSample(
   runtime.envelopeNode.triggerRelease(time);
   runtime.samplerNode.triggerRelease(time);
 
-  // Skip triggering if the buffer is not ready yet to avoid runtime errors
+  // Skip triggering if the buffer is not ready yet
   if (!runtime.samplerNode.loaded) {
     return pitchValue;
   }
 
-  // Trigger envelope attack
   runtime.envelopeNode.triggerAttack(time);
-
-  // Schedule envelope release
   runtime.envelopeNode.triggerRelease(time + releaseTime);
-
-  // Trigger sampler attack with transformed pitch
   runtime.samplerNode.triggerAttack(pitchValue, time);
 
   return pitchValue;

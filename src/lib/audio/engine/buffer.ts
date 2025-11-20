@@ -4,7 +4,6 @@ import { getCachedAudioUrl } from "../cache";
 
 /**
  * Fetches an audio buffer from a URL and returns its duration in seconds.
- * Uses cached URLs (blob URLs for external files or local URLs for local files).
  */
 export async function getSampleDuration(url: string): Promise<number> {
   try {
@@ -20,6 +19,7 @@ export async function getSampleDuration(url: string): Promise<number> {
 
 /**
  * Waits for all Tone.js audio buffers to load.
+ *
  * This should be called after creating instrument runtimes to ensure
  * all sampler buffers are ready before playback.
  */

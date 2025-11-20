@@ -8,6 +8,8 @@ export const MASTER_REVERB_DECAY_RANGE: [number, number] = [0.1, 3];
 export const MASTER_COMP_THRESHOLD_RANGE: [number, number] = [-40, 0];
 export const MASTER_COMP_RATIO_RANGE: [number, number] = [1, 8];
 export const MASTER_VOLUME_RANGE: [number, number] = [-46, 4];
+export const TRANSPORT_SWING_RANGE: [number, number] = [0, 100];
+export const TRANSPORT_BPM_RANGE: [number, number] = [40, 240];
 
 // Shared musical constants
 export const SAMPLER_ROOT_NOTE = "C2";
