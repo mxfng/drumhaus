@@ -1,0 +1,33 @@
+{
+  "name": "Drumhaus",
+  "description": "The ultimate browser controlled rhythmic groove machine.",
+  "short_name": "Drumhaus",
+  "id": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e8e3dd",
+  "theme_color": "#e8e3dd",
+  "icons": [
+    {
+      "src": "/pwa-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1954x1355",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Drumhaus interface"
+    }
+  ]
+}

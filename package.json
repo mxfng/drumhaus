@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 4444",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4444",
     "format": "npx prettier . --write",
     "lint": "next lint",
     "prepare": "husky",
@@ -17,7 +17,6 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/pixelify-sans": "^5.2.7",
-    "@vercel/analytics": "^1.5.0",
     "framer-motion": "^12.23.24",
     "nanoid": "^5.0.3",
     "next": "14.0.2",

@@ -1,7 +1,5 @@
 import { extendTheme } from "@chakra-ui/react";
 
-import "../theme/fonts.css";
-
 const theme = extendTheme({
   colors: {
     brown: "#000000", // slot titles
