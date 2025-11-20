@@ -17,15 +17,5 @@ export function validateKitFile(data: unknown): KitFileV1 {
     throw new Error(`Unsupported kit version: ${kit.version}`);
   }
 
-  // TODO: optional: deep validation, zod, etc.
-
   return kit as unknown as KitFileV1;
-}
-
-/**
- * Parses a kit file from a JSON string
- */
-export function parseKitFile(dhkit: string): KitFileV1 {
-  const data = JSON.parse(dhkit);
-  return validateKitFile(data);
 }
