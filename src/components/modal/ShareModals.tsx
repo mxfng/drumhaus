@@ -14,12 +14,13 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Spinner,
   Text,
   useClipboard,
   useToast,
 } from "@chakra-ui/react";
 import { z } from "zod";
+
+import { PixelatedSpinner } from "../common/PixelatedSpinner";
 
 // Validation schema for preset names
 const presetNameSchema = z
@@ -143,16 +144,9 @@ export const SharingModal: React.FC<SharingModalProps> = ({
             mr={3}
             isDisabled={!presetName.trim() || isLoading}
           >
-            <Text>Get Link</Text>
+            <Text mr={2}>Get Link</Text>
             {isLoading ? (
-              <Spinner
-                ml={2}
-                thickness="4px"
-                speed="0.65s"
-                emptyColor="transparent"
-                color="silver"
-                size="md"
-              />
+              <PixelatedSpinner color="white" size={20} pixelSize={2} gap={2} />
             ) : null}
           </Button>
           <Button onClick={handleClose} color="gray">

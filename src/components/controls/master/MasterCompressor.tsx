@@ -33,21 +33,19 @@ export const MasterCompressor: React.FC = () => {
         </GridItem>
         <GridItem>
           <Knob
-            size={60}
-            knobValue={threshold}
-            setKnobValue={setThreshold}
-            knobTitle="THRESHOLD"
-            knobTransformRange={MASTER_COMP_THRESHOLD_RANGE}
-            knobUnits="dB"
+            value={threshold}
+            onChange={setThreshold}
+            label="THRESHOLD"
+            units="dB"
+            range={MASTER_COMP_THRESHOLD_RANGE}
             defaultValue={100}
           />
           <Knob
-            size={60}
-            knobValue={ratio}
-            setKnobValue={setRatio}
-            knobTitle="RATIO"
-            knobTransformRange={MASTER_COMP_RATIO_RANGE}
-            knobUnits=": 1"
+            value={ratio}
+            onChange={setRatio}
+            label="RATIO"
+            units=": 1"
+            range={MASTER_COMP_RATIO_RANGE}
             defaultValue={43}
           />
         </GridItem>

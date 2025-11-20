@@ -41,47 +41,43 @@ export const MasterFX: React.FC = () => {
           <Grid templateColumns="repeat(2, 1fr)">
             <GridItem>
               <Knob
-                size={60}
-                knobValue={lowPass}
-                setKnobValue={setLowPass}
-                knobTitle="LP FILTER"
-                knobTransformRange={MASTER_FILTER_RANGE}
-                knobUnits="Hz"
-                exponential={true}
+                value={lowPass}
+                onChange={setLowPass}
+                label="LP FILTER"
+                units="Hz"
+                range={MASTER_FILTER_RANGE}
+                scale="exp"
                 defaultValue={100}
               />
             </GridItem>
             <GridItem>
               <Knob
-                size={60}
-                knobValue={phaser}
-                setKnobValue={setPhaser}
-                knobTitle="PHASER"
-                knobTransformRange={MASTER_PHASER_WET_RANGE}
-                knobUnits="mix"
+                value={phaser}
+                onChange={setPhaser}
+                label="PHASER"
+                units="mix"
+                range={MASTER_PHASER_WET_RANGE}
                 defaultValue={0}
               />
             </GridItem>
             <GridItem>
               <Knob
-                size={60}
-                knobValue={highPass}
-                setKnobValue={setHighPass}
-                knobTitle="HP FILTER"
-                knobTransformRange={MASTER_FILTER_RANGE}
-                knobUnits="Hz"
-                exponential={true}
+                value={highPass}
+                onChange={setHighPass}
+                label="HP FILTER"
+                units="Hz"
+                range={MASTER_FILTER_RANGE}
+                scale="exp"
                 defaultValue={0}
               />
             </GridItem>
             <GridItem>
               <Knob
-                size={60}
-                knobValue={reverb}
-                setKnobValue={setReverb}
-                knobTitle="REVERB"
-                knobTransformRange={MASTER_REVERB_WET_RANGE}
-                knobUnits="mix"
+                value={reverb}
+                onChange={setReverb}
+                label="REVERB"
+                units="mix"
+                range={MASTER_REVERB_WET_RANGE}
                 defaultValue={0}
               />
             </GridItem>
