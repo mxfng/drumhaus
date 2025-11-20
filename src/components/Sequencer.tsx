@@ -9,27 +9,143 @@ import { useTransportStore } from "@/stores/useTransportStore";
 const STEP_BOXES_GAP = 12;
 const NUM_OF_STEPS = 16;
 
+interface StepMusicalState {
+  isTriggerOn: boolean;
+  isStepPlaying: boolean;
+  isAccentBeat: boolean;
+  isAccentPlayingOtherVariation: boolean;
+  isGhosted: boolean;
+  velocityValue: number;
+}
+
 export const Sequencer: React.FC = () => {
   // Get playback state from Transport Store
-  const step = useTransportStore((state) => state.stepIndex);
+  const currentStepIndex = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
   // Get sequencer state from Sequencer Store
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
+  const playbackVariation = usePatternStore((state) => state.playbackVariation);
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
   const triggers = usePatternStore(
     (state) => state.pattern[voiceIndex].variations[variation].triggers,
   );
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const setVelocity = usePatternStore((state) => state.setVelocity);
-  const [isMouseDown, setIsMouseDown] = useState<boolean>(false);
-  const [isWriting, setWriteState] = useState<boolean>(true);
-  const [isVelocity, setIsVelocity] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragWriteTargetOn, setDragWriteTargetOn] = useState<boolean>(true);
+  const [isAdjustingVelocity, setIsAdjustingVelocity] =
+    useState<boolean>(false);
   const sequencerRef = useRef<HTMLDivElement | null>(null);
 
+  const currentVariation = pattern[voiceIndex].variations[variation];
+  const velocities = currentVariation.velocities;
+  const stepHeight = 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
+  const stepRadius = `${stepHeight / 4}px`;
+  const steps: number[] = Array.from(
+    { length: NUM_OF_STEPS },
+    (_, index) => index,
+  );
+
+  const updateVelocityFromPointer = (
+    event: React.MouseEvent<HTMLDivElement>,
+    stepIndex: number,
+  ) => {
+    const targetDiv = event.currentTarget;
+    const rect = targetDiv.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const divWidth = rect.width;
+    const normalizedVelocity = Math.max(Math.min(mouseX / divWidth, 1), 0);
+    setVelocity(voiceIndex, variation, stepIndex, normalizedVelocity);
+  };
+
+  const handleVelocityMouseDown = (
+    event: React.MouseEvent<HTMLDivElement>,
+    stepIndex: number,
+  ) => {
+    setIsDragging(true);
+    setIsAdjustingVelocity(true);
+    updateVelocityFromPointer(event, stepIndex);
+  };
+
+  const handleVelocityMouseMove = (
+    event: React.MouseEvent<HTMLDivElement>,
+    stepIndex: number,
+  ) => {
+    if (isDragging && isAdjustingVelocity) {
+      updateVelocityFromPointer(event, stepIndex);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsAdjustingVelocity(false);
+  };
+
+  const handleToggleStep = (index: number) => {
+    toggleStep(voiceIndex, variation, index);
+  };
+
+  const handleStepMouseDown = (stepIndex: number, isCurrentlyOn: boolean) => {
+    setIsDragging(true);
+    setDragWriteTargetOn(!isCurrentlyOn);
+    handleToggleStep(stepIndex);
+  };
+
+  const handleStepMouseEnter = (stepIndex: number, isCurrentlyOn: boolean) => {
+    const isStateChanging = isCurrentlyOn !== dragWriteTargetOn;
+    if (isDragging && isStateChanging && !isAdjustingVelocity) {
+      handleToggleStep(stepIndex);
+    }
+  };
+
+  const getStepMusicalState = (step: number): StepMusicalState => {
+    const isTriggerOn = triggers[step];
+    const isStepPlaying =
+      isPlaying && playbackVariation === variation && currentStepIndex === step;
+    const isAccentBeat = step % 4 === 0;
+    const isAccentPlayingOtherVariation =
+      isPlaying &&
+      playbackVariation !== variation &&
+      isAccentBeat &&
+      currentStepIndex === step;
+    const isGhosted =
+      isPlaying && playbackVariation !== variation && isTriggerOn;
+
+    return {
+      isTriggerOn,
+      isStepPlaying,
+      isAccentBeat,
+      isAccentPlayingOtherVariation,
+      isGhosted,
+      velocityValue: velocities[step],
+    };
+  };
+
+  const getIndicatorStyles = (state: StepMusicalState) => {
+    const indicatorIsOn =
+      state.isStepPlaying || state.isAccentPlayingOtherVariation;
+
+    return {
+      bg: indicatorIsOn ? "darkorange" : "gray",
+      opacity: indicatorIsOn ? 1 : state.isAccentBeat ? 0.6 : 0.2,
+    };
+  };
+
+  const getTriggerStyles = (state: StepMusicalState) => {
+    return {
+      bg: state.isTriggerOn ? "darkorange" : "#E8E3DD",
+      opacity: state.isGhosted ? 0.7 : 1,
+      boxShadow: state.isTriggerOn
+        ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
+        : "0 4px 8px rgba(176, 147, 116, 1) inset",
+    };
+  };
+
+  // Track mouseup events for drag painting step triggers.
   useEffect(() => {
-    if (isMouseDown) {
+    if (isDragging) {
       window.addEventListener("mouseup", handleMouseUp);
     } else {
       window.removeEventListener("mouseup", handleMouseUp);
@@ -38,134 +154,76 @@ export const Sequencer: React.FC = () => {
     return () => {
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isMouseDown]);
+  }, [isDragging]);
 
+  // Reset mouse down state when the component unmounts.
   useEffect(() => {
     return () => {
-      setIsMouseDown(false);
+      setIsDragging(false);
     };
   }, []);
-
-  const calculateStepsHeight = () => {
-    return 1538 / NUM_OF_STEPS - STEP_BOXES_GAP;
-  };
-
-  const handleToggleStep = (index: number) => {
-    toggleStep(voiceIndex, variation, index);
-  };
-
-  const toggleStepOnMouseDown = (node: number, nodeState: boolean) => {
-    setIsMouseDown(true);
-    setWriteState(!nodeState);
-    handleToggleStep(node);
-  };
-
-  const toggleStepOnMouseOver = (node: number, nodeState: boolean) => {
-    if (isMouseDown && nodeState !== isWriting && !isVelocity) {
-      handleToggleStep(node);
-    }
-  };
-
-  const getVelocityValue = (
-    event: React.MouseEvent<HTMLDivElement>,
-    node: number,
-  ) => {
-    const targetDiv = event.currentTarget;
-    const rect = targetDiv.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const divWidth = rect.width;
-    const calculateVelocity = Math.max(Math.min(mouseX / divWidth, 100), 0);
-    setVelocity(voiceIndex, variation, node, calculateVelocity);
-  };
-
-  const adjustVelocityOnMouseDown = (
-    event: React.MouseEvent<HTMLDivElement>,
-    node: number,
-  ) => {
-    setIsMouseDown(true);
-    setIsVelocity(true);
-    getVelocityValue(event, node);
-  };
-
-  const adjustVelocityOnMouseMove = (
-    event: React.MouseEvent<HTMLDivElement>,
-    node: number,
-  ) => {
-    if (isMouseDown && isVelocity) {
-      getVelocityValue(event, node);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsMouseDown(false);
-    setIsVelocity(false);
-  };
 
   return (
     <Box w="100%" ref={sequencerRef}>
       <Grid
+        key="sequence-grid"
         templateColumns={`repeat(${NUM_OF_STEPS}, 1fr)`}
         w="100%"
         h="100%"
         gap={`${STEP_BOXES_GAP}px`}
       >
-        {Array.from({ length: NUM_OF_STEPS }, (_, index) => index).map(
-          (node) => (
-            <GridItem key={`sequenceNodeGridItem${node}`} colSpan={1}>
+        {steps.map((step) => {
+          const state = getStepMusicalState(step);
+          const indicatorStyles = getIndicatorStyles(state);
+          const triggerStyles = getTriggerStyles(state);
+          const velocityWidth = Math.max(state.velocityValue * 100, 12);
+
+          return (
+            <GridItem key={`sequence-step-item-${step}`} colSpan={1}>
               <Box
-                key={`sequenceNodeStepIndicator${node}`}
+                key={`sequence-step-indicator-${step}`}
                 mb={4}
                 h="4px"
                 w="100%"
-                opacity={
-                  node == step && isPlaying
-                    ? 1
-                    : [0, 4, 8, 12].includes(node)
-                      ? 0.6
-                      : 0.2
-                }
-                bg={node == step && isPlaying ? "darkorange" : "gray"}
+                opacity={indicatorStyles.opacity}
+                bg={indicatorStyles.bg}
               />
               <Box
-                key={`sequenceNode${node}`}
-                onMouseDown={() => toggleStepOnMouseDown(node, triggers[node])}
-                onMouseEnter={() => toggleStepOnMouseOver(node, triggers[node])}
+                key={`sequence-step-trigger-${step}`}
+                onMouseDown={() => handleStepMouseDown(step, state.isTriggerOn)}
+                onMouseEnter={() =>
+                  handleStepMouseEnter(step, state.isTriggerOn)
+                }
                 onContextMenu={(e) => e.preventDefault()}
                 w="100%"
-                h={`${calculateStepsHeight()}px`}
-                bg={triggers[node] ? "darkorange" : "#E8E3DD"}
+                h={`${stepHeight}px`}
+                bg={triggerStyles.bg}
                 transition="all 0.3s ease"
-                opacity={triggers[node] ? 1 : 1}
-                borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
-                  calculateStepsHeight() / 4
-                }px`}
+                opacity={triggerStyles.opacity}
+                borderRadius={`0 ${stepRadius} 0 ${stepRadius}`}
                 cursor="pointer"
                 _hover={{
-                  background: triggers[node] ? "darkorange" : "darkorangehover",
+                  background: state.isTriggerOn
+                    ? "darkorange"
+                    : "darkorangehover",
                   transition: "all 0.3s ease",
-                  boxShadow: triggers[node]
-                    ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
-                    : "0 4px 8px rgba(176, 147, 116, 1) inset",
+                  boxShadow: triggerStyles.boxShadow,
                 }}
-                boxShadow={
-                  triggers[node]
-                    ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
-                    : "0 4px 8px rgba(176, 147, 116, 1) inset"
-                }
+                boxShadow={triggerStyles.boxShadow}
               />
               <Box
-                key={`sequenceNodeVelocity${node}`}
+                key={`sequence-step-velocity-${step}`}
                 w="100%"
                 h="14px"
                 mt={3}
-                bg={triggers[node] ? "transparent" : "transparent"}
+                bg="transparent"
                 transition="all 0.2s ease"
-                opacity={triggers[node] ? 0.6 : 0}
+                opacity={state.isTriggerOn ? 0.6 : 0}
                 outline="1px solid darkorange"
                 transform="opacity 0.2s ease"
                 position="relative"
-                onMouseDown={(ev) => adjustVelocityOnMouseDown(ev, node)}
-                onMouseMove={(ev) => adjustVelocityOnMouseMove(ev, node)}
+                onMouseDown={(ev) => handleVelocityMouseDown(ev, step)}
+                onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
                 _hover={{
                   "& p": {
                     opacity: 1,
@@ -179,11 +237,7 @@ export const Sequencer: React.FC = () => {
                 <Box
                   bg="darkorange"
                   h="100%"
-                  w={`${Math.max(
-                    pattern[voiceIndex].variations[variation].velocities[node] *
-                      100,
-                    12,
-                  )}%`}
+                  w={`${velocityWidth}%`}
                   position="absolute"
                   borderRadius="200px 0 200px 0"
                   filter="blur(2px)"
@@ -197,17 +251,13 @@ export const Sequencer: React.FC = () => {
                     transition="0.5s ease"
                     filter="blur(2px)"
                   >
-                    {(
-                      pattern[voiceIndex].variations[variation].velocities[
-                        node
-                      ] * 100
-                    ).toFixed(0)}
+                    {(state.velocityValue * 100).toFixed(0)}
                   </Text>
                 </Center>
               </Box>
             </GridItem>
-          ),
-        )}
+          );
+        })}
       </Grid>
     </Box>
   );

@@ -10,10 +10,6 @@ import {
 } from "@/components/common/AppErrorBoundary";
 import theme from "@/theme/theme";
 
-if (process.env.NODE_ENV === "development") {
-  require("../wdyr");
-}
-
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <CacheProvider>
