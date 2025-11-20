@@ -43,7 +43,7 @@ export function createDrumSequence(
       // --- Grab fresh state every 16th note (for live response) ---
       const instrumentsState = useInstrumentsStore.getState();
       const patternState = usePatternStore.getState();
-      const transportState = useTransportStore.getState();
+      const { setStepIndex } = useTransportStore.getState();
 
       const instrumentData = instrumentsState.instruments;
       const durations = instrumentsState.durations;
@@ -70,19 +70,28 @@ export function createDrumSequence(
 
       // --- Update variation at the *start* of the bar ---
       if (isFirstStep) {
+        let nextVariationIndex = currentVariation.current;
+
         switch (variationCycle) {
           case "A":
-            currentVariation.current = 0;
+            nextVariationIndex = 0;
             break;
           case "B":
-            currentVariation.current = 1;
+            nextVariationIndex = 1;
             break;
           case "AB":
-            currentVariation.current = currentBar.current === 0 ? 0 : 1;
+            nextVariationIndex = currentBar.current === 0 ? 0 : 1;
             break;
           case "AAAB":
-            currentVariation.current = currentBar.current === 3 ? 1 : 0;
+            nextVariationIndex = currentBar.current === 3 ? 1 : 0;
             break;
+        }
+
+        // -- Keep UI in sync with current variation --
+        currentVariation.current = nextVariationIndex;
+        const { playbackVariation, setPlaybackVariation } = patternState;
+        if (playbackVariation !== nextVariationIndex) {
+          setPlaybackVariation(nextVariationIndex);
         }
       }
 
@@ -163,7 +172,7 @@ export function createDrumSequence(
       }
 
       // --- Keep UI in sync with transport ---
-      transportState.setStepIndex(step);
+      setStepIndex(step);
 
       // --- Update bar index at the *end* of the bar ---
       if (isLastStep) {

@@ -11,12 +11,13 @@ const NUM_OF_STEPS = 16;
 
 export const Sequencer: React.FC = () => {
   // Get playback state from Transport Store
-  const step = useTransportStore((state) => state.stepIndex);
+  const currentStepIndex = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
   // Get sequencer state from Sequencer Store
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
+  const playbackVariation = usePatternStore((state) => state.playbackVariation);
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
   const triggers = usePatternStore(
     (state) => state.pattern[voiceIndex].variations[variation].triggers,
@@ -104,68 +105,79 @@ export const Sequencer: React.FC = () => {
   return (
     <Box w="100%" ref={sequencerRef}>
       <Grid
+        key="sequence-grid"
         templateColumns={`repeat(${NUM_OF_STEPS}, 1fr)`}
         w="100%"
         h="100%"
         gap={`${STEP_BOXES_GAP}px`}
       >
         {Array.from({ length: NUM_OF_STEPS }, (_, index) => index).map(
-          (node) => (
-            <GridItem key={`sequenceNodeGridItem${node}`} colSpan={1}>
+          (step) => (
+            <GridItem key={`sequence-step-item-${step}`} colSpan={1}>
               <Box
-                key={`sequenceNodeStepIndicator${node}`}
+                key={`sequence-step-indicator-${step}`}
                 mb={4}
                 h="4px"
                 w="100%"
                 opacity={
-                  node == step && isPlaying
+                  currentStepIndex === step &&
+                  isPlaying &&
+                  playbackVariation === variation
                     ? 1
-                    : [0, 4, 8, 12].includes(node)
+                    : [0, 4, 8, 12].includes(step)
                       ? 0.6
                       : 0.2
                 }
-                bg={node == step && isPlaying ? "darkorange" : "gray"}
+                bg={
+                  currentStepIndex === step &&
+                  isPlaying &&
+                  playbackVariation === variation
+                    ? "darkorange"
+                    : "gray"
+                }
               />
               <Box
-                key={`sequenceNode${node}`}
-                onMouseDown={() => toggleStepOnMouseDown(node, triggers[node])}
-                onMouseEnter={() => toggleStepOnMouseOver(node, triggers[node])}
+                key={`sequence-step-trigger-${step}`}
+                onMouseDown={() => toggleStepOnMouseDown(step, triggers[step])}
+                onMouseEnter={() => toggleStepOnMouseOver(step, triggers[step])}
                 onContextMenu={(e) => e.preventDefault()}
                 w="100%"
                 h={`${calculateStepsHeight()}px`}
-                bg={triggers[node] ? "darkorange" : "#E8E3DD"}
+                bg={triggers[step] ? "darkorange" : "#E8E3DD"}
                 transition="all 0.3s ease"
-                opacity={triggers[node] ? 1 : 1}
+                opacity={
+                  playbackVariation !== variation && triggers[step] ? 0.7 : 1
+                }
                 borderRadius={`0 ${calculateStepsHeight() / 4}px 0 ${
                   calculateStepsHeight() / 4
                 }px`}
                 cursor="pointer"
                 _hover={{
-                  background: triggers[node] ? "darkorange" : "darkorangehover",
+                  background: triggers[step] ? "darkorange" : "darkorangehover",
                   transition: "all 0.3s ease",
-                  boxShadow: triggers[node]
+                  boxShadow: triggers[step]
                     ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
                     : "0 4px 8px rgba(176, 147, 116, 1) inset",
                 }}
                 boxShadow={
-                  triggers[node]
+                  triggers[step]
                     ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
                     : "0 4px 8px rgba(176, 147, 116, 1) inset"
                 }
               />
               <Box
-                key={`sequenceNodeVelocity${node}`}
+                key={`sequence-step-velocity-${step}`}
                 w="100%"
                 h="14px"
                 mt={3}
-                bg={triggers[node] ? "transparent" : "transparent"}
+                bg={triggers[step] ? "transparent" : "transparent"}
                 transition="all 0.2s ease"
-                opacity={triggers[node] ? 0.6 : 0}
+                opacity={triggers[step] ? 0.6 : 0}
                 outline="1px solid darkorange"
                 transform="opacity 0.2s ease"
                 position="relative"
-                onMouseDown={(ev) => adjustVelocityOnMouseDown(ev, node)}
-                onMouseMove={(ev) => adjustVelocityOnMouseMove(ev, node)}
+                onMouseDown={(ev) => adjustVelocityOnMouseDown(ev, step)}
+                onMouseMove={(ev) => adjustVelocityOnMouseMove(ev, step)}
                 _hover={{
                   "& p": {
                     opacity: 1,
@@ -180,7 +192,7 @@ export const Sequencer: React.FC = () => {
                   bg="darkorange"
                   h="100%"
                   w={`${Math.max(
-                    pattern[voiceIndex].variations[variation].velocities[node] *
+                    pattern[voiceIndex].variations[variation].velocities[step] *
                       100,
                     12,
                   )}%`}
@@ -199,7 +211,7 @@ export const Sequencer: React.FC = () => {
                   >
                     {(
                       pattern[voiceIndex].variations[variation].velocities[
-                        node
+                        step
                       ] * 100
                     ).toFixed(0)}
                   </Text>
