@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 
+import { getCachedWaveform } from "@/lib/audio/cache";
+
 interface WaveformProps {
   audioFile: string;
   width: number;
@@ -14,7 +16,8 @@ const Waveform: React.FC<WaveformProps> = ({
   color = "#ff7b00",
 }) => {
   // Remove the leading directory and .wav file type from string
-  const sample_name = (audioFile.split("/").pop() || "").split(".")[0] || "";
+  // Filenames for waveforms are auto-generated and thus have the same name as the audio file
+  const sampleFilename = (audioFile.split("/").pop() || "").split(".")[0] || "";
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -69,30 +72,16 @@ const Waveform: React.FC<WaveformProps> = ({
     canvas.width = width;
     canvas.height = 60;
 
-    // Try to get the waveform data from localStorage
-    const cachedWaveform = localStorage.getItem(`${sample_name}.json`);
-
-    if (cachedWaveform) {
-      // If cached data exists, parse and use it
-      const amplitudeData = JSON.parse(cachedWaveform);
-      draw(amplitudeData, ctx, canvas.width, canvas.height);
-    } else {
-      fetch(`/waveforms/${sample_name}.json`)
-        .then((response) => response.json())
-        .then((data) => {
-          const amplitudeData: number[][] = data.amplitude_envelope;
-
-          // Cache the waveform data in localStorage
-          localStorage.setItem(
-            `${sample_name}.json`,
-            JSON.stringify(amplitudeData),
-          );
-
-          // Call the draw function to draw the waveform
-          draw(amplitudeData, ctx, canvas.width, canvas.height);
-        });
-    }
-  }, [sample_name, width, color]);
+    // Load waveform data using Cache API
+    getCachedWaveform(sampleFilename)
+      .then((data) => {
+        const amplitudeData: number[][] = data.amplitude_envelope;
+        draw(amplitudeData, ctx, canvas.width, canvas.height);
+      })
+      .catch((error) => {
+        console.error(`Failed to load waveform for ${sampleFilename}`, error);
+      });
+  }, [sampleFilename, width, color]);
 
   return <canvas ref={canvasRef} />;
 };

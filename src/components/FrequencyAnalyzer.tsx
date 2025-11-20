@@ -6,68 +6,96 @@ import {
   disposeFrequencyAnalyzer,
 } from "@/lib/audio/engine";
 
-// Define TypeScript types
-interface FrequencyAnalyzerProps {}
+const NUM_BARS = 128; // how many chunky bars
+const PIXEL_SIZE = 2; // quantized height step (px)
+const BAR_GAP = 2; // gap between bars (px)
 
-const FrequencyAnalyzer: React.FC<FrequencyAnalyzerProps> = () => {
-  const analyzer = useRef<Tone.Analyser | null>(null);
+const ACTIVE_FRACTION_X = 2 / 3; // use lowest 2/3 of spectrum
+const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
+
+export function FrequencyAnalyzer() {
+  const analyzerRef = useRef<Tone.Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animationFrameId = useRef<number | null>(null);
 
   useEffect(() => {
-    // Create the frequency analyzer
-    createFrequencyAnalyzer(analyzer);
+    createFrequencyAnalyzer(analyzerRef);
 
-    // Create a canvas for visualization
     const canvas = canvasRef.current;
-    const canvasContext = canvas?.getContext("2d");
+    const ctx = canvas?.getContext("2d");
 
-    if (!canvas || !canvasContext) {
+    if (!canvas || !ctx) {
       console.error("Canvas or context not available.");
-      return;
+      return () => {
+        disposeFrequencyAnalyzer(analyzerRef);
+      };
     }
 
-    // Inside the animate function
-    const animate = () => {
-      requestAnimationFrame(animate);
+    const drawFrame = () => {
+      const analyzer = analyzerRef.current;
+      if (!analyzer) return;
 
-      // Get the frequency data
-      const dataArray = analyzer.current?.getValue();
+      const dataArray = analyzer.getValue();
+      const length = dataArray.length;
 
-      if (!dataArray) {
-        console.error("Frequency data not available.");
-        return;
+      // Only look at the lower ACTIVE_FRACTION_X of the spectrum
+      const activeLength = Math.floor(length * ACTIVE_FRACTION_X);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Split canvas into NUM_BARS equal bands
+      const bandWidth = canvas.width / NUM_BARS;
+      const barWidth = Math.max(1, bandWidth - BAR_GAP); // keep at least 1px
+
+      for (let barIndex = 0; barIndex < NUM_BARS; barIndex++) {
+        const start = Math.floor((barIndex / NUM_BARS) * activeLength);
+        const end = Math.floor(((barIndex + 1) / NUM_BARS) * activeLength);
+
+        let sum = 0;
+        let count = 0;
+
+        for (let i = start; i < end; i++) {
+          const value = Number(dataArray[i]) || 0;
+          sum += value;
+          count++;
+        }
+
+        const avg = count > 0 ? sum / count : 0;
+
+        // Normalize dB-ish [-100, 0] → [0, 1]
+        const normalized = Math.max(0, Math.min(1, (avg + 100) / 100));
+
+        // Vertical zoom: treat bottom ACTIVE_FRACTION_Y as the whole visible range
+        const boosted = Math.min(1, normalized / ACTIVE_FRACTION_Y);
+
+        let barHeight = boosted * canvas.height;
+
+        // Quantize height to pixel steps for “pixel” look
+        const pixelsHigh = Math.round(barHeight / PIXEL_SIZE);
+        barHeight = pixelsHigh * PIXEL_SIZE;
+
+        const x = barIndex * bandWidth;
+        const y = canvas.height - barHeight;
+
+        ctx.fillStyle = "#ff7b00";
+        ctx.fillRect(x, y, barWidth, barHeight);
       }
 
-      // Clear the canvas
-      const canvas = canvasRef.current;
-      const canvasContext = canvas?.getContext("2d");
-      if (!canvas || !canvasContext) {
-        console.error("Canvas or context not available.");
-        return;
-      }
-      canvasContext.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw the frequency data as bars
-      const barWidth = canvas.width / dataArray.length;
-      const gapWidth = barWidth; // Set the gap width to one bar width
-      dataArray.forEach((value, index) => {
-        const barHeight = (typeof value === "number" ? value : 0) + 80; // Adjust for visualization
-        const x = index * (barWidth + gapWidth); // Add the gap width to the x-position calculation
-        const y = canvas.height - barHeight; // Calculate the y position based on the bar height
-        canvasContext.fillStyle = "#ff7b00";
-        canvasContext.fillRect(x, y, barWidth, barHeight);
-      });
+      animationFrameId.current = requestAnimationFrame(drawFrame);
     };
 
-    // Start the animation
-    animate();
+    animationFrameId.current = requestAnimationFrame(drawFrame);
 
     return () => {
-      disposeFrequencyAnalyzer(analyzer);
+      if (animationFrameId.current !== null) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
+      }
+      disposeFrequencyAnalyzer(analyzerRef);
     };
   }, []);
 
   return <canvas ref={canvasRef} width={470} height={60} />;
-};
+}
 
 export default FrequencyAnalyzer;

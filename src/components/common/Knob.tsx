@@ -15,6 +15,7 @@ type KnobProps = {
   exponential?: boolean;
   filter?: boolean;
   defaultValue?: number;
+  isDisabled?: boolean;
 };
 
 // Transform knob values (0-100) to any Tone.js parameter range [min, max]
@@ -64,6 +65,7 @@ export const Knob: React.FC<KnobProps> = ({
   exponential = false,
   filter = false,
   defaultValue = 50,
+  isDisabled = false,
 }) => {
   const [isMoving, setIsMoving] = useState(false);
   const [moveStartY, setMoveStartY] = useState({ x: 0, y: 0 });
@@ -84,7 +86,7 @@ export const Knob: React.FC<KnobProps> = ({
   useEffect(() => {
     const setValueOnMove = (ev: MouseEvent | TouchEvent) => {
       ev.preventDefault();
-      if (isMoving) {
+      if (isMoving && !isDisabled) {
         const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
         const newKnobValue = Math.max(
           0,
@@ -114,7 +116,7 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("touchend", handleMoveEnd);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMoving]);
+  }, [isMoving, isDisabled]);
 
   useEffect(() => {
     return () => {
@@ -125,6 +127,7 @@ export const Knob: React.FC<KnobProps> = ({
   const captureMoveStartY = (
     ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ) => {
+    if (isDisabled) return;
     setIsMoving(true);
     setMoveStartY({
       x: "touches" in ev ? ev.touches[0].clientX : ev.clientX,
@@ -137,6 +140,7 @@ export const Knob: React.FC<KnobProps> = ({
   };
 
   const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    if (isDisabled) return;
     ev.preventDefault();
     setKnobValue(immutableDefaultValue);
   };
@@ -152,12 +156,17 @@ export const Knob: React.FC<KnobProps> = ({
             m={2}
             position="relative"
           >
-            <Center w="100%" h="100%" borderRadius="full" cursor="grab">
+            <Center
+              w="100%"
+              h="100%"
+              borderRadius="full"
+              cursor={isDisabled ? "not-allowed" : "grab"}
+            >
               <motion.div
                 className="knob-hitbox"
-                onMouseDown={captureMoveStartY}
-                onTouchStart={captureMoveStartY}
-                onDoubleClick={handleDoubleClick}
+                onMouseDown={isDisabled ? undefined : captureMoveStartY}
+                onTouchStart={isDisabled ? undefined : captureMoveStartY}
+                onDoubleClick={isDisabled ? undefined : handleDoubleClick}
                 style={{
                   rotate: rotation,
                   width: `${size}px`,
@@ -167,6 +176,7 @@ export const Knob: React.FC<KnobProps> = ({
                   position: "absolute",
                   zIndex: 2,
                   borderRadius: size,
+                  pointerEvents: isDisabled ? "none" : "auto",
                 }}
               >
                 <Center h="100%" w="100%">
