@@ -15,7 +15,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 
 import "@fontsource-variable/pixelify-sans";
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
 import * as Tone from "tone/build/esm/index";
@@ -30,6 +30,7 @@ import {
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
+import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
 import Waveform from "./Waveform";
 
@@ -97,6 +98,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const currentPitchRef = useRef<number | null>(null);
   const sampleDuration = useSampleDuration(samplePath);
+  const [waveformError, setWaveformError] = useState<Error | null>(null);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -197,6 +199,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
 
+  // Reset waveform error when sample path changes (retry on new sample)
+  useEffect(() => {
+    setWaveformError(null);
+  }, [samplePath]);
+
+  const handleWaveformError = useCallback((error: Error) => {
+    setWaveformError(error);
+  }, []);
+
   // Update duration in store when sample duration changes
   useEffect(() => {
     setDurationStore(index, sampleDuration);
@@ -290,8 +301,16 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             isDisabled={!isRuntimeLoaded}
             position="relative"
           >
-            {isRuntimeLoaded ? (
-              <Waveform audioFile={samplePath} width={170} />
+            {isRuntimeLoaded && !waveformError ? (
+              <Waveform
+                audioFile={samplePath}
+                width={170}
+                onError={handleWaveformError}
+              />
+            ) : waveformError ? (
+              <Center w="100%" h="100%">
+                <PixelatedFrowny color={color} />
+              </Center>
             ) : (
               <Center w="100%" h="100%">
                 <PixelatedSpinner color={color} />
