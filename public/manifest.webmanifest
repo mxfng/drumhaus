@@ -1,0 +1,16 @@
+{
+  "name": "Drumhaus",
+  "short_name": "Drumhaus",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#c0c0c0",
+  "theme_color": "#ff7b00",
+  "icons": [
+    {
+      "src": "/opengraph-image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

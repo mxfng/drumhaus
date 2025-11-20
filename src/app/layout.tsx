@@ -56,6 +56,7 @@ export const metadata: Metadata = {
   },
 
   metadataBase: new URL("https://www.drumha.us/"),
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
