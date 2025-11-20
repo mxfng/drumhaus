@@ -79,6 +79,7 @@ const Drumhaus = () => {
               borderRadius="12px"
               className="neumorphicExtraTall"
               overflow="clip"
+              position="relative"
             >
               <TopBar />
 
@@ -232,7 +233,7 @@ const BrandingLink = () => {
     <Box
       position="absolute"
       right="26px"
-      bottom={10}
+      bottom={3}
       opacity={0.2}
       as="a"
       href="https://fung.studio/"

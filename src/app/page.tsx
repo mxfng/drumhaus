@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Box } from "@chakra-ui/react";
-import { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 
 type Props = {
@@ -16,44 +16,38 @@ function DrumhausFallback() {
   return <></>;
 }
 
+function getPresetTitleFromSlug(slug: string | string[] | undefined): string {
+  if (!slug) return "Drumhaus";
+
+  const raw =
+    typeof slug === "string" ? slug : slug.length > 0 ? slug[0] : undefined;
+
+  if (!raw) return "Drumhaus";
+
+  try {
+    const decoded = decodeURIComponent(raw);
+    const words = decoded
+      .split("-")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+
+    if (words.length === 0) return "Drumhaus";
+
+    return `Drumhaus | ${words.join(" ")}`;
+  } catch {
+    return "Drumhaus";
+  }
+}
+
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  let title: string;
-
-  const presetKey = searchParams.preset;
-
-  try {
-    if (presetKey) {
-      // This depends on the availability of Drumhaus' host
-      const response = await fetch(
-        `https://www.drumha.us/api/presets?preset_key=${presetKey}`,
-      );
-
-      const data = await response.json();
-
-      if (data.presets.rows[0]) {
-        title = `Drumhaus | ${data.presets.rows[0].preset_data.name}`;
-      } else {
-        title = "Drumhaus";
-      }
-    } else {
-      title = "Drumhaus";
-    }
-  } catch (error) {
-    title = "Drumhaus";
-    console.error(
-      `There was an error while fetching the title for the provided preset_key ${presetKey}`,
-      error,
-    );
-  }
+  const title = getPresetTitleFromSlug(searchParams.n);
 
   return {
-    title: title,
-
+    title,
     description:
       "Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends.",
-
     keywords: [
       "Drumhaus",
       "drum machine",
@@ -81,25 +75,21 @@ export async function generateMetadata({
       "software",
       "Max Fung",
     ],
-
     creator: "Max Fung",
-
     category: "music",
-
     openGraph: {
-      title: title,
+      title,
       description:
         "Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends.",
       images: "/opengraph-image.png",
     },
-
     metadataBase: new URL("https://www.drumha.us/"),
   };
 }
 
 export default function Home() {
   return (
-    <Box w="100vw" h="100vh">
+    <Box w="100vw" minH="100vh" overflow="auto">
       <Suspense fallback={<DrumhausFallback />}>
         <Drumhaus />
       </Suspense>

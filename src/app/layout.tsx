@@ -64,7 +64,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body style={{ background: "#e8e3dd" }}>
         <Providers>
           {children}
           <Analytics />

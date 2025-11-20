@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev -p 4444",
     "build": "next build",
     "start": "next start",
     "format": "npx prettier . --write",
