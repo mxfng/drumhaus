@@ -4,7 +4,10 @@
 export const ENGINE_PITCH_RANGE: [number, number] = [15.4064, 115.4064];
 export const INSTRUMENT_PITCH_RANGE: [number, number] = ENGINE_PITCH_RANGE;
 export const INSTRUMENT_VOLUME_RANGE: [number, number] = [-46, 4];
-export const INSTRUMENT_PAN_RANGE: [number, number] = [-100, 100];
+export const INSTRUMENT_PAN_RANGE: [number, number] = [-1, 1];
+export const INSTRUMENT_ATTACK_RANGE: [number, number] = [0, 0.1];
+export const INSTRUMENT_RELEASE_RANGE: [number, number] = [0, 100];
+export const INSTRUMENT_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_PHASER_WET_RANGE: [number, number] = [0, 1];
 export const MASTER_REVERB_WET_RANGE: [number, number] = [0, 0.5];

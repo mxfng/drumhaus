@@ -29,8 +29,6 @@ class AppErrorBoundaryInner extends React.Component<
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Surface the error in the console for debugging.
-    // eslint-disable-next-line no-console
     console.error("Uncaught application error:", error, info);
 
     if (this.props.onError) {
@@ -40,7 +38,6 @@ class AppErrorBoundaryInner extends React.Component<
 
   render() {
     if (this.state.hasError) {
-      // Keep the fallback minimal; the important UX is the toast.
       return null;
     }
 

@@ -6,6 +6,31 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import { MASTER_FILTER_RANGE } from "@/lib/audio/engine/constants";
 
+export const KNOB_NEUTRAL_BREAKPOINT_LOW = 49;
+const KNOB_NEUTRAL_BREAKPOINT_HIGH = 50;
+const KNOB_FILTER_MODE_THRESHOLD = KNOB_NEUTRAL_BREAKPOINT_LOW;
+const KNOB_MAX_VALUE = 100;
+const KNOB_MIN_VALUE = 0;
+const DEFAULT_KNOB_VALUE = 50;
+const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-225, 45];
+const KNOB_ROTATION_ORIGIN = 0.5;
+const KNOB_CONTAINER_PADDING = 30;
+const KNOB_MASK_PADDING = 10;
+const KNOB_WRAPPER_MARGIN = 2;
+const KNOB_TICK_WIDTH_DIVISOR = 4;
+const KNOB_TICK_HEIGHT_DIVISOR = 12;
+const KNOB_TICK_BORDER_RADIUS = "8px 0 0 8px";
+const KNOB_DOT_SIZE = 4;
+const KNOB_DOT_OPACITY = 0.3;
+const KNOB_DOT_SHADOW = "0 4px 12px rgba(176, 147, 116, 0.6)";
+const KNOB_LABEL_FONT_SIZE = 12;
+const KNOB_LABEL_MARGIN_Y = -3;
+const KNOB_MIN_DOT_ROTATION = -180;
+const KNOB_MAX_DOT_ROTATION = 90;
+const KNOB_HITBOX_Z_INDEX = 2;
+const KNOB_TICK_Z_INDEX = 3;
+const KNOB_EXPONENTIAL_CURVE_POWER = 2;
+
 type KnobProps = {
   color?: string;
   size: number;
@@ -26,7 +51,7 @@ export const transformKnobValue = (
   range: [number, number],
 ): number => {
   const [newRangeMin, newRangeMax] = range;
-  const scalingFactor = (newRangeMax - newRangeMin) / MAX_KNOB_VALUE;
+  const scalingFactor = (newRangeMax - newRangeMin) / KNOB_MAX_VALUE;
   return scalingFactor * input + newRangeMin;
 };
 
@@ -35,8 +60,12 @@ export const transformKnobFilterValue = (
   rangeLow: [number, number] = MASTER_FILTER_RANGE,
   rangeHigh: [number, number] = MASTER_FILTER_RANGE,
 ): number => {
-  const [min, max] = input <= 49 ? rangeLow : rangeHigh;
-  const newInput = ((input <= 49 ? input : input - 50) / 49) * 100;
+  const shouldUseLowRange = input <= KNOB_FILTER_MODE_THRESHOLD;
+  const [min, max] = shouldUseLowRange ? rangeLow : rangeHigh;
+  const newInput =
+    ((shouldUseLowRange ? input : input - KNOB_NEUTRAL_BREAKPOINT_HIGH) /
+      KNOB_NEUTRAL_BREAKPOINT_LOW) *
+    KNOB_MAX_VALUE;
   return transformKnobValueExponential(newInput, [min, max]);
 };
 
@@ -44,36 +73,41 @@ export const transformKnobValueExponential = (
   input: number,
   range: [number, number],
 ): number => {
-  const inputMin = 0;
-  const inputMax = MAX_KNOB_VALUE;
+  const inputMin = KNOB_MIN_VALUE;
+  const inputMax = KNOB_MAX_VALUE;
   const [outputMin, outputMax] = range;
 
   const normalizedInput = (input - inputMin) / (inputMax - inputMin);
-  const exponentialValue = Math.pow(normalizedInput, 2);
+  const exponentialValue = Math.pow(
+    normalizedInput,
+    KNOB_EXPONENTIAL_CURVE_POWER,
+  );
   const mappedValue = outputMin + exponentialValue * (outputMax - outputMin);
 
   return mappedValue;
 };
-
-const MAX_KNOB_VALUE = 100;
 
 export const Knob: React.FC<KnobProps> = ({
   size,
   knobValue,
   setKnobValue,
   knobTitle,
-  knobTransformRange = [0, MAX_KNOB_VALUE],
+  knobTransformRange = [0, KNOB_MAX_VALUE],
   knobUnits = "",
   exponential = false,
   filter = false,
-  defaultValue = 50,
+  defaultValue = DEFAULT_KNOB_VALUE,
   isDisabled = false,
 }) => {
   const [isMoving, setIsMoving] = useState(false);
   const [moveStartY, setMoveStartY] = useState({ x: 0, y: 0 });
 
   const moveY = useMotionValue(knobValue);
-  const rotation = useTransform(moveY, [0, MAX_KNOB_VALUE], [-225, 45]);
+  const rotation = useTransform(
+    moveY,
+    [KNOB_MIN_VALUE, KNOB_MAX_VALUE],
+    KNOB_ROTATION_RANGE_DEGREES,
+  );
 
   const immutableDefaultValue = defaultValue;
 
@@ -91,8 +125,8 @@ export const Knob: React.FC<KnobProps> = ({
       if (isMoving && !isDisabled) {
         const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
         const newKnobValue = Math.max(
-          0,
-          Math.min(moveStartY.y - clientY + knobValue, MAX_KNOB_VALUE),
+          KNOB_MIN_VALUE,
+          Math.min(moveStartY.y - clientY + knobValue, KNOB_MAX_VALUE),
         );
         moveY.set(newKnobValue);
         setKnobValue(newKnobValue);
@@ -149,13 +183,13 @@ export const Knob: React.FC<KnobProps> = ({
 
   return (
     <>
-      <Box h={`${size + 30}px`}>
+      <Box h={`${size + KNOB_CONTAINER_PADDING}px`}>
         <Center>
           <Box
             key="knob-mask"
-            w={`${size + 10}px`}
-            h={`${size + 10}px`}
-            m={2}
+            w={`${size + KNOB_MASK_PADDING}px`}
+            h={`${size + KNOB_MASK_PADDING}px`}
+            m={KNOB_WRAPPER_MARGIN}
             position="relative"
           >
             <Center
@@ -173,10 +207,10 @@ export const Knob: React.FC<KnobProps> = ({
                   rotate: rotation,
                   width: `${size}px`,
                   height: `${size}px`,
-                  originX: 0.5,
-                  originY: 0.5,
+                  originX: KNOB_ROTATION_ORIGIN,
+                  originY: KNOB_ROTATION_ORIGIN,
                   position: "absolute",
-                  zIndex: 2,
+                  zIndex: KNOB_HITBOX_Z_INDEX,
                   borderRadius: size,
                   pointerEvents: isDisabled ? "none" : "auto",
                 }}
@@ -188,15 +222,15 @@ export const Knob: React.FC<KnobProps> = ({
                     w={`${size}px`}
                     position="absolute"
                     pointerEvents="none"
-                    zIndex={3}
+                    zIndex={KNOB_TICK_Z_INDEX}
                   >
                     <Box
-                      w={`${size / 4}px`}
-                      h={`${Math.floor(size / 12)}px`}
+                      w={`${size / KNOB_TICK_WIDTH_DIVISOR}px`}
+                      h={`${Math.floor(size / KNOB_TICK_HEIGHT_DIVISOR)}px`}
                       bg="darkorange"
                       position="absolute"
                       right={0}
-                      borderRadius="8px 0 0 8px"
+                      borderRadius={KNOB_TICK_BORDER_RADIUS}
                     />
                   </Center>
                 </Center>
@@ -211,58 +245,62 @@ export const Knob: React.FC<KnobProps> = ({
               <motion.div
                 className="knob-dot-min-transform"
                 style={{
-                  rotate: -180,
+                  rotate: KNOB_MIN_DOT_ROTATION,
                   width: `${size}px`,
                   height: `${size}px`,
-                  originX: 0.5,
-                  originY: 0.5,
+                  originX: KNOB_ROTATION_ORIGIN,
+                  originY: KNOB_ROTATION_ORIGIN,
                   position: "absolute",
                 }}
               >
                 <Box
                   className="knob-dot-min"
-                  w={`4px`}
-                  h={`4px`}
+                  w={`${KNOB_DOT_SIZE}px`}
+                  h={`${KNOB_DOT_SIZE}px`}
                   bg="gray"
                   position="absolute"
                   borderRadius="full"
-                  opacity={0.3}
+                  opacity={KNOB_DOT_OPACITY}
                   right={0}
                 />
               </motion.div>
               <motion.div
                 className="knob-dot-max-transform"
                 style={{
-                  rotate: 90,
+                  rotate: KNOB_MAX_DOT_ROTATION,
                   width: `${size}px`,
                   height: `${size}px`,
-                  originX: 0.5,
-                  originY: 0.5,
+                  originX: KNOB_ROTATION_ORIGIN,
+                  originY: KNOB_ROTATION_ORIGIN,
                   position: "absolute",
                 }}
               >
                 <Box
                   className="knob-dot-max"
-                  w={`4px`}
-                  h={`4px`}
+                  w={`${KNOB_DOT_SIZE}px`}
+                  h={`${KNOB_DOT_SIZE}px`}
                   bg="gray"
                   position="absolute"
                   borderRadius="full"
-                  opacity={0.3}
+                  opacity={KNOB_DOT_OPACITY}
                   right={0}
-                  boxShadow="0 4px 12px rgba(176, 147, 116, 0.6)"
+                  boxShadow={KNOB_DOT_SHADOW}
                 />
               </motion.div>
             </Center>
           </Box>
         </Center>
         <Center>
-          <Text fontSize={12} color="gray" my={-3}>
+          <Text
+            fontSize={KNOB_LABEL_FONT_SIZE}
+            color="gray"
+            my={KNOB_LABEL_MARGIN_Y}
+          >
             {isMoving
               ? filter
                 ? `${transformKnobFilterValue(knobValue).toFixed(
                     0,
-                  )} ${knobUnits} ${knobValue <= 49 ? "LP" : "HP"}`
+                  )} ${knobUnits} ${knobValue <= KNOB_FILTER_MODE_THRESHOLD ? "LP" : "HP"}`
                 : exponential
                   ? `${
                       knobUnits

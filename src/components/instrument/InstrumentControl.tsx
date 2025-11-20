@@ -23,6 +23,7 @@ import * as Tone from "tone/build/esm/index";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import {
+  INSTRUMENT_ATTACK_RANGE,
   INSTRUMENT_PAN_RANGE,
   INSTRUMENT_PITCH_RANGE,
   INSTRUMENT_VOLUME_RANGE,
@@ -33,6 +34,7 @@ import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
+  KNOB_NEUTRAL_BREAKPOINT_LOW,
   transformKnobFilterValue,
   transformKnobValue,
 } from "../common/Knob";
@@ -173,25 +175,30 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         // Update attack
         const newAttackValue = transformKnobValue(
           currentParams.attack,
-          [0, 0.1],
+          INSTRUMENT_ATTACK_RANGE,
         );
         runtime.envelopeNode.attack = newAttackValue;
 
         // Update filter
         runtime.filterNode.type =
-          currentParams.filter <= 49 ? "lowpass" : "highpass";
+          currentParams.filter <= KNOB_NEUTRAL_BREAKPOINT_LOW
+            ? "lowpass"
+            : "highpass";
         runtime.filterNode.frequency.value = transformKnobFilterValue(
           currentParams.filter,
         );
 
         // Update pan
-        const newPanValue = transformKnobValue(currentParams.pan, [-1, 1]);
+        const newPanValue = transformKnobValue(
+          currentParams.pan,
+          INSTRUMENT_PAN_RANGE,
+        );
         runtime.pannerNode.pan.value = newPanValue;
 
         // Update volume
         const newVolumeValue = transformKnobValue(
           currentParams.volume,
-          [-46, 4],
+          INSTRUMENT_VOLUME_RANGE,
         );
         runtime.samplerNode.volume.value = newVolumeValue;
 
