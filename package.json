@@ -18,7 +18,7 @@
     "@emotion/styled": "^11.14.1",
     "@fontsource-variable/pixelify-sans": "^5.2.7",
     "framer-motion": "^12.23.24",
-    "next": "14.0.2",
+    "next": "16.0.3",
     "pako": "^2.1.0",
     "react": "^18",
     "react-dom": "^18",
