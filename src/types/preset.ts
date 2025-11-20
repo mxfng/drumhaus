@@ -6,7 +6,7 @@ export type VariationCycle = "A" | "B" | "AB" | "AAAB";
 
 export interface MasterChainData {
   lowPass: number;
-  hiPass: number;
+  highPass: number;
   phaser: number;
   reverb: number;
   compThreshold: number;

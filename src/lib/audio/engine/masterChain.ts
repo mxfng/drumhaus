@@ -24,9 +24,20 @@ export interface MasterChainRuntimes {
   compressor: Tone.Compressor;
 }
 
+type MasterChainSettings = {
+  lowPassFrequency: number;
+  highPassFrequency: number;
+  phaserWet: number;
+  reverbWet: number;
+  reverbDecay: number;
+  compThreshold: number;
+  compRatio: number;
+  masterVolume: number;
+};
+
 export interface MasterChainParams {
   lowPass: number;
-  hiPass: number;
+  highPass: number;
   phaser: number;
   reverb: number;
   compThreshold: number;
@@ -37,6 +48,8 @@ export interface MasterChainParams {
 /**
  * Creates and initializes all master chain audio runtimes
  * Disposes existing runtimes before creating new ones to prevent memory leaks
+ * @param runtimes - The ref object to store the master chain runtimes
+ * @param params - The initial parameters for the master chain
  */
 export async function createMasterChainRuntimes(
   runtimes: MutableRefObject<MasterChainRuntimes | null>,
@@ -49,81 +62,28 @@ export async function createMasterChainRuntimes(
 
 /**
  * Connects all instrument runtimes to the master chain
+ * @param instrumentRuntimes - The instrument runtimes to connect
+ * @param masterChainRuntimes - The master chain runtimes to connect to
  */
 export function connectInstrumentsToMasterChain(
   instrumentRuntimes: InstrumentRuntime[],
   masterChainRuntimes: MasterChainRuntimes,
 ): void {
-  instrumentRuntimes.forEach((inst) => {
-    // Disconnect existing links to avoid duplicated chains when re-connecting
-    inst.samplerNode.disconnect();
-    inst.envelopeNode.disconnect();
-    inst.filterNode.disconnect();
-    inst.pannerNode.disconnect();
-
-    inst.samplerNode.chain(
-      inst.envelopeNode,
-      inst.filterNode,
-      inst.pannerNode,
-      masterChainRuntimes.lowPassFilter,
-      masterChainRuntimes.highPassFilter,
-      masterChainRuntimes.phaser,
-      masterChainRuntimes.reverb,
-      masterChainRuntimes.compressor,
-      Tone.Destination,
-    );
-  });
+  instrumentRuntimes.forEach((inst) =>
+    connectInstrumentRuntime(inst, masterChainRuntimes),
+  );
 }
 
 /**
  * Updates master chain parameter values on existing runtimes
+ *
  */
 export function updateMasterChainParams(
   runtimes: MasterChainRuntimes,
   params: MasterChainParams,
 ): void {
-  // Low pass filter
-  runtimes.lowPassFilter.frequency.value = transformKnobValueExponential(
-    params.lowPass,
-    MASTER_FILTER_RANGE,
-  );
-
-  // High pass filter
-  runtimes.highPassFilter.frequency.value = transformKnobValueExponential(
-    params.hiPass,
-    MASTER_FILTER_RANGE,
-  );
-
-  // Phaser
-  runtimes.phaser.wet.value = transformKnobValue(
-    params.phaser,
-    MASTER_PHASER_WET_RANGE,
-  );
-
-  // Reverb
-  runtimes.reverb.wet.value = transformKnobValue(
-    params.reverb,
-    MASTER_REVERB_WET_RANGE,
-  );
-  runtimes.reverb.decay = transformKnobValue(
-    params.reverb,
-    MASTER_REVERB_DECAY_RANGE,
-  );
-
-  // Compressor
-  runtimes.compressor.threshold.value = transformKnobValue(
-    params.compThreshold,
-    MASTER_COMP_THRESHOLD_RANGE,
-  );
-  runtimes.compressor.ratio.value = Math.floor(
-    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-  );
-
-  // Master volume (Tone.Destination)
-  Tone.Destination.volume.value = transformKnobValue(
-    params.masterVolume,
-    MASTER_VOLUME_RANGE,
-  );
+  const settings = mapParamsToSettings(params);
+  applySettingsToRuntimes(runtimes, settings);
 }
 
 /**
@@ -145,53 +105,42 @@ export function disposeMasterChainRuntimes(
 async function buildMasterChain(
   params: MasterChainParams,
 ): Promise<MasterChainRuntimes> {
-  const lowPassFreq = transformKnobValueExponential(
-    params.lowPass,
-    MASTER_FILTER_RANGE,
-  );
-  const highPassFreq = transformKnobValueExponential(
-    params.hiPass,
-    MASTER_FILTER_RANGE,
-  );
-  const phaserWet = transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE);
-  const reverbWet = transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE);
-  const reverbDecay = transformKnobValue(
-    params.reverb,
-    MASTER_REVERB_DECAY_RANGE,
-  );
-  const compThreshold = transformKnobValue(
-    params.compThreshold,
-    MASTER_COMP_THRESHOLD_RANGE,
-  );
-  const compRatio = Math.floor(
-    transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-  );
+  const settings = mapParamsToSettings(params);
 
-  const lowPassFilter = new Tone.Filter(lowPassFreq, "lowpass");
-  const highPassFilter = new Tone.Filter(highPassFreq, "highpass");
+  const lowPassFilter = new Tone.Filter(settings.lowPassFrequency, "lowpass");
+  const highPassFilter = new Tone.Filter(
+    settings.highPassFrequency,
+    "highpass",
+  );
   const phaser = new Tone.Phaser({
     frequency: 1,
     octaves: 3,
     baseFrequency: 1000,
-    wet: phaserWet,
+    wet: settings.phaserWet,
   });
 
   const reverb = new Tone.Reverb({
-    decay: reverbDecay,
-    wet: reverbWet,
+    decay: settings.reverbDecay,
+    wet: settings.reverbWet,
   });
   await reverb.generate(); // Required before first use
 
   const compressor = new Tone.Compressor({
-    threshold: compThreshold,
-    ratio: compRatio,
+    threshold: settings.compThreshold,
+    ratio: settings.compRatio,
     attack: 0.5,
     release: 1,
   });
 
-  Tone.Destination.volume.value = transformKnobValue(
-    params.masterVolume,
-    MASTER_VOLUME_RANGE,
+  applySettingsToRuntimes(
+    {
+      lowPassFilter,
+      highPassFilter,
+      phaser,
+      reverb,
+      compressor,
+    },
+    settings,
   );
 
   return {
@@ -201,4 +150,65 @@ async function buildMasterChain(
     reverb,
     compressor,
   };
+}
+
+function mapParamsToSettings(params: MasterChainParams): MasterChainSettings {
+  return {
+    lowPassFrequency: transformKnobValueExponential(
+      params.lowPass,
+      MASTER_FILTER_RANGE,
+    ),
+    highPassFrequency: transformKnobValueExponential(
+      params.highPass,
+      MASTER_FILTER_RANGE,
+    ),
+    phaserWet: transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE),
+    reverbWet: transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE),
+    reverbDecay: transformKnobValue(params.reverb, MASTER_REVERB_DECAY_RANGE),
+    compThreshold: transformKnobValue(
+      params.compThreshold,
+      MASTER_COMP_THRESHOLD_RANGE,
+    ),
+    compRatio: Math.floor(
+      transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
+    ),
+    masterVolume: transformKnobValue(params.masterVolume, MASTER_VOLUME_RANGE),
+  };
+}
+
+function applySettingsToRuntimes(
+  runtimes: MasterChainRuntimes,
+  settings: MasterChainSettings,
+): void {
+  runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
+  runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
+  runtimes.phaser.wet.value = settings.phaserWet;
+  runtimes.reverb.wet.value = settings.reverbWet;
+  runtimes.reverb.decay = settings.reverbDecay;
+  runtimes.compressor.threshold.value = settings.compThreshold;
+  runtimes.compressor.ratio.value = settings.compRatio;
+  Tone.Destination.volume.value = settings.masterVolume;
+}
+
+function connectInstrumentRuntime(
+  instrument: InstrumentRuntime,
+  master: MasterChainRuntimes,
+): void {
+  // Disconnect existing links to avoid duplicated chains when re-connecting
+  instrument.samplerNode.disconnect();
+  instrument.envelopeNode.disconnect();
+  instrument.filterNode.disconnect();
+  instrument.pannerNode.disconnect();
+
+  instrument.samplerNode.chain(
+    instrument.envelopeNode,
+    instrument.filterNode,
+    instrument.pannerNode,
+    master.lowPassFilter,
+    master.highPassFilter,
+    master.phaser,
+    master.reverb,
+    master.compressor,
+    Tone.Destination,
+  );
 }

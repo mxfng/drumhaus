@@ -27,6 +27,19 @@ export async function createInstrumentRuntimes(
   runtimes.current = await Promise.all(data.map(buildInstrumentRuntime));
 }
 
+/**
+ * Disposes all instrument runtimes and clears the ref
+ */
+export function disposeInstrumentRuntimes(
+  runtimes: MutableRefObject<InstrumentRuntime[]>,
+): void {
+  if (runtimes.current.length === 0) return;
+
+  const existingRuntimes = runtimes.current;
+  runtimes.current = [];
+  existingRuntimes.forEach(disposeInstrumentRuntime);
+}
+
 async function buildInstrumentRuntime(
   instrument: InstrumentData,
 ): Promise<InstrumentRuntime> {
@@ -67,25 +80,9 @@ async function resolveSamplerSource(
   return { url: samplePath, baseUrl: "/samples/" };
 }
 
-/**
- * Disposes all nodes in an instrument runtime
- */
 function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {
   runtime.samplerNode.dispose();
   runtime.envelopeNode.dispose();
   runtime.filterNode.dispose();
   runtime.pannerNode.dispose();
-}
-
-/**
- * Disposes all instrument runtimes and clears the ref
- */
-export function disposeInstrumentRuntimes(
-  runtimes: MutableRefObject<InstrumentRuntime[]>,
-): void {
-  if (runtimes.current.length === 0) return;
-
-  const existingRuntimes = runtimes.current;
-  runtimes.current = [];
-  existingRuntimes.forEach(disposeInstrumentRuntime);
 }

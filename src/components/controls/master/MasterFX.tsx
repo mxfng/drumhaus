@@ -6,13 +6,13 @@ import { Knob } from "../../common/Knob";
 export const MasterFX: React.FC = () => {
   // Get state from Master FX Store
   const lowPass = useMasterChainStore((state) => state.lowPass);
-  const hiPass = useMasterChainStore((state) => state.hiPass);
+  const highPass = useMasterChainStore((state) => state.highPass);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
   // Get actions from store
   const setLowPass = useMasterChainStore((state) => state.setLowPass);
-  const setHiPass = useMasterChainStore((state) => state.setHiPass);
+  const setHighPass = useMasterChainStore((state) => state.setHighPass);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
   const setReverb = useMasterChainStore((state) => state.setReverb);
   return (
@@ -58,8 +58,8 @@ export const MasterFX: React.FC = () => {
             <GridItem>
               <Knob
                 size={60}
-                knobValue={hiPass}
-                setKnobValue={setHiPass}
+                knobValue={highPass}
+                setKnobValue={setHighPass}
                 knobTitle="HP FILTER"
                 knobTransformRange={[0, 15000]}
                 knobUnits="Hz"

@@ -4,7 +4,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import { TRANSPORT_SWING_RANGE } from "./constants";
 
 /**
- * Starts the Tone.js audio context if it's not already running
+ * Start the audio context
  */
 export async function startAudioContext(): Promise<void> {
   if (Tone.context.state !== "running") {
@@ -13,15 +13,18 @@ export async function startAudioContext(): Promise<void> {
 }
 
 /**
- * Starts the transport
+ * Start the transport and all sources synced to the transport
+ * @param time — The time when the transport should start.
+ * @param offset — The timeline offset to start the transport.
  */
-export function startTransport(): void {
-  Tone.Transport.start();
+export function startTransport(time?: number, offset?: number): void {
+  Tone.Transport.start(time, offset);
 }
 
 /**
- * Stops the transport
- * @param onStop - Optional callback to execute after stopping
+ * Stop the transport and all sources synced to the transport.
+ * @param time — The time when the transport should stop.
+ * @param onStop — Optional callback to execute after stopping the transport.
  */
 export function stopTransport(onStop?: () => void): void {
   Tone.Transport.stop();
@@ -31,21 +34,16 @@ export function stopTransport(onStop?: () => void): void {
 }
 
 /**
- * Gets the current audio time
- */
-export function getCurrentTime(): number {
-  return Tone.now();
-}
-
-/**
- * Sets the BPM (beats per minute) of the transport
+ * Set the transport BPM
+ * @param bpm - The BPM to set the transport to
  */
 export function setTransportBpm(bpm: number): void {
   Tone.Transport.bpm.value = bpm;
 }
 
 /**
- * Sets the swing amount for the transport
+ * Set the transport swing
+ * @param swing - The swing to set the transport to
  */
 export function setTransportSwing(swing: number): void {
   const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
@@ -64,4 +62,11 @@ export function releaseAllSamples(
   instrumentRuntimes.forEach((runtime) => {
     runtime.samplerNode.releaseAll(time);
   });
+}
+
+/**
+ * The current audio context time of the global context.
+ */
+export function getCurrentTime(): number {
+  return Tone.now();
 }

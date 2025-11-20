@@ -21,7 +21,7 @@ export function getCurrentPreset(
   const { bpm, swing } = useTransportStore.getState();
   const {
     lowPass,
-    hiPass,
+    highPass,
     phaser,
     reverb,
     compThreshold,
@@ -52,7 +52,7 @@ export function getCurrentPreset(
     },
     masterChain: {
       lowPass,
-      hiPass,
+      highPass,
       phaser,
       reverb,
       compThreshold,

@@ -58,7 +58,7 @@ const DEFAULT_PARAMS: InstrumentParams = {
 
 const DEFAULT_MASTER_CHAIN = {
   lowPass: 100,
-  hiPass: 0,
+  highPass: 0,
   phaser: 0,
   reverb: 0,
   compThreshold: 0,
@@ -167,9 +167,8 @@ export type CompactPreset = {
   bpm?: number; // bpm (omit if 120)
   sw?: number; // swing (omit if 0)
   mc?: Partial<{
-    // master chain (omit defaults)
     lp: number; // lowPass
-    hp: number; // hiPass
+    hp: number; // highPass
     ph: number; // phaser
     rv: number; // reverb
     ct: number; // compThreshold
@@ -255,7 +254,7 @@ export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
   const mc: any = {};
   const chain = preset.masterChain;
   if (chain.lowPass !== DEFAULT_MASTER_CHAIN.lowPass) mc.lp = chain.lowPass;
-  if (chain.hiPass !== DEFAULT_MASTER_CHAIN.hiPass) mc.hp = chain.hiPass;
+  if (chain.highPass !== DEFAULT_MASTER_CHAIN.highPass) mc.hp = chain.highPass;
   if (chain.phaser !== DEFAULT_MASTER_CHAIN.phaser) mc.ph = chain.phaser;
   if (chain.reverb !== DEFAULT_MASTER_CHAIN.reverb) mc.rv = chain.reverb;
   if (chain.compThreshold !== DEFAULT_MASTER_CHAIN.compThreshold)
@@ -348,7 +347,7 @@ export function decodeCompactPreset(
     },
     masterChain: {
       lowPass: compact.mc?.lp ?? DEFAULT_MASTER_CHAIN.lowPass,
-      hiPass: compact.mc?.hp ?? DEFAULT_MASTER_CHAIN.hiPass,
+      highPass: compact.mc?.hp ?? DEFAULT_MASTER_CHAIN.highPass,
       phaser: compact.mc?.ph ?? DEFAULT_MASTER_CHAIN.phaser,
       reverb: compact.mc?.rv ?? DEFAULT_MASTER_CHAIN.reverb,
       compThreshold: compact.mc?.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,

@@ -5,6 +5,7 @@ import {
   createMasterChainRuntimes,
   disposeMasterChainRuntimes,
   updateMasterChainParams,
+  type MasterChainParams,
   type MasterChainRuntimes,
 } from "@/lib/audio/engine";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
@@ -33,7 +34,7 @@ export function useMasterChain({
       const initialState = useMasterChainStore.getState();
       await createMasterChainRuntimes(masterChainRuntimes, {
         lowPass: initialState.lowPass,
-        hiPass: initialState.hiPass,
+        highPass: initialState.highPass,
         phaser: initialState.phaser,
         reverb: initialState.reverb,
         compThreshold: initialState.compThreshold,
@@ -45,23 +46,15 @@ export function useMasterChain({
       setIsLoading(false);
 
       // Set up subscription after initialization
-      let prevParams: {
-        lowPass: number;
-        hiPass: number;
-        phaser: number;
-        reverb: number;
-        compThreshold: number;
-        compRatio: number;
-        masterVolume: number;
-      } | null = null;
+      let prevParams: MasterChainParams | null = null;
 
       unsubscribeRef.current = useMasterChainStore.subscribe((state) => {
         if (!masterChainRuntimes.current) return;
 
         // Extract current params
-        const currentParams = {
+        const currentParams: MasterChainParams = {
           lowPass: state.lowPass,
-          hiPass: state.hiPass,
+          highPass: state.highPass,
           phaser: state.phaser,
           reverb: state.reverb,
           compThreshold: state.compThreshold,
@@ -73,7 +66,7 @@ export function useMasterChain({
         if (
           !prevParams ||
           prevParams.lowPass !== currentParams.lowPass ||
-          prevParams.hiPass !== currentParams.hiPass ||
+          prevParams.highPass !== currentParams.highPass ||
           prevParams.phaser !== currentParams.phaser ||
           prevParams.reverb !== currentParams.reverb ||
           prevParams.compThreshold !== currentParams.compThreshold ||

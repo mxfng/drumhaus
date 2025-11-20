@@ -8,16 +8,28 @@
  */
 
 const CACHE_NAME = "drumhaus-audio-cache-v1";
-const BLOB_URL_MAP = new Map<string, string>(); // samplePath -> blob: URL
+const AUDIO_PREFIX = "/samples/";
+const WAVEFORM_PREFIX = "/waveforms/";
+
+const blobUrlBySamplePath = new Map<string, string>(); // samplePath -> blob: URL
+const inFlightResponses = new Map<string, Promise<Response>>(); // url -> response promise
+
+const hasCacheAPI = (): boolean =>
+  typeof window !== "undefined" && "caches" in window;
 
 /**
- * Open the named Cache API store.
+ * Open the named Cache API store (null when unavailable or disallowed).
  */
-async function openCache(): Promise<Cache> {
-  if (typeof window === "undefined" || !("caches" in window)) {
-    throw new Error("Cache API is not available in this environment");
+async function getCacheStore(): Promise<Cache | null> {
+  if (!hasCacheAPI()) {
+    return null;
   }
-  return caches.open(CACHE_NAME);
+  try {
+    return await caches.open(CACHE_NAME);
+  } catch (error) {
+    console.warn("Cache API unavailable, falling back to direct fetch", error);
+    return null;
+  }
 }
 
 /**
@@ -31,17 +43,42 @@ async function cacheFetch<T>(
   url: string,
   parse: (response: Response) => Promise<T>,
 ): Promise<T> {
-  const cache = await openCache();
+  const cache = await getCacheStore();
   const request = new Request(url);
 
-  let response = await cache.match(request);
-  if (!response) {
-    response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch: ${url} (${response.status})`);
+  const fetchOnce = (): Promise<Response> => {
+    const existing = inFlightResponses.get(url);
+    if (existing) return existing.then((res) => res.clone());
+
+    const pending = (async () => {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${url} (${res.status})`);
+      }
+      return res;
+    })();
+
+    inFlightResponses.set(url, pending);
+    return pending.finally(() => {
+      inFlightResponses.delete(url);
+    });
+  };
+
+  // Prefer Cache API if available, but fall back to direct fetch when running
+  // in environments without it (older browsers, etc).
+  if (cache) {
+    const cached = await cache.match(request);
+    if (cached) {
+      return parse(cached);
     }
+
+    const response = await fetchOnce();
     await cache.put(request, response.clone());
+
+    return parse(response);
   }
+
+  const response = await fetchOnce();
 
   return parse(response);
 }
@@ -50,31 +87,22 @@ async function cacheFetch<T>(
  * URL helpers for local assets.
  */
 function getLocalAudioUrl(samplePath: string): string {
-  return `/samples/${samplePath}`;
+  return `${AUDIO_PREFIX}${samplePath}`;
 }
 
 function getWaveformUrl(waveformName: string): string {
-  return `/waveforms/${waveformName}.json`;
+  return `${WAVEFORM_PREFIX}${waveformName}.json`;
 }
 
 /**
  * Track and clean up blob URLs.
  */
 function setBlobUrl(samplePath: string, blobUrl: string): void {
-  const prev = BLOB_URL_MAP.get(samplePath);
+  const prev = blobUrlBySamplePath.get(samplePath);
   if (prev && prev.startsWith("blob:")) {
     URL.revokeObjectURL(prev);
   }
-  BLOB_URL_MAP.set(samplePath, blobUrl);
-}
-
-/**
- * Shape of your waveform JSON.
- * Example:
- * { "amplitude_envelope": number[][] }
- */
-export interface WaveformData {
-  amplitude_envelope: number[][];
+  blobUrlBySamplePath.set(samplePath, blobUrl);
 }
 
 /**
@@ -86,8 +114,8 @@ export interface WaveformData {
  */
 export async function getCachedAudioUrl(samplePath: string): Promise<string> {
   // In-memory fast path
-  if (BLOB_URL_MAP.has(samplePath)) {
-    return BLOB_URL_MAP.get(samplePath)!;
+  if (blobUrlBySamplePath.has(samplePath)) {
+    return blobUrlBySamplePath.get(samplePath)!;
   }
 
   const url = getLocalAudioUrl(samplePath);
@@ -105,12 +133,14 @@ export async function getCachedAudioUrl(samplePath: string): Promise<string> {
   }
 }
 
+// --- Waveform Data ---
+
+export interface WaveformData {
+  amplitude_envelope: number[][];
+}
+
 /**
  * Get cached waveform JSON data for a waveform name.
- *
- * - Caches /waveforms/... JSON responses in Cache API.
- * - Returns parsed JSON data.
- * - Works offline after first download.
  */
 export async function getCachedWaveform(
   waveformName: string,
@@ -126,15 +156,14 @@ export async function getCachedWaveform(
 }
 
 /**
- * Pre-cache multiple audio files (typically call this while online after kit load).
+ * Pre-cache multiple audio files
  */
 export async function preCacheAudioFiles(samplePaths: string[]): Promise<void> {
   await Promise.all(samplePaths.map((path) => getCachedAudioUrl(path)));
 }
 
 /**
- * Optionally: pre-cache multiple waveforms.
- * Call this if you want waveform data available offline immediately.
+ * Optionally pre-cache waveforms for offline use.
  */
 export async function preCacheWaveforms(
   waveformNames: string[],
@@ -143,20 +172,17 @@ export async function preCacheWaveforms(
 }
 
 /**
- * Clears the audio cache (both in-memory blob URLs and Cache API storage).
- * Waveform data lives only in Cache API, so deleting the cache clears both.
+ * Clears in-memory blob URLs and Cache API storage.
  */
 export async function clearAudioCache(): Promise<void> {
-  // Revoke all blob URLs
-  for (const blobUrl of BLOB_URL_MAP.values()) {
+  for (const blobUrl of blobUrlBySamplePath.values()) {
     if (blobUrl.startsWith("blob:")) {
       URL.revokeObjectURL(blobUrl);
     }
   }
-  BLOB_URL_MAP.clear();
+  blobUrlBySamplePath.clear();
 
-  // Clear Cache API
-  if (typeof window !== "undefined" && "caches" in window) {
+  if (hasCacheAPI()) {
     try {
       await caches.delete(CACHE_NAME);
     } catch (error) {
