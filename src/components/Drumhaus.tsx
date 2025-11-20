@@ -19,6 +19,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
+import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
@@ -46,6 +47,10 @@ const Drumhaus = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
   const { scale } = useLayoutScale();
+
+  // --- Service Worker Registration ---
+
+  useServiceWorker();
 
   // --- Audio Engine and Preset Loading ---
 
