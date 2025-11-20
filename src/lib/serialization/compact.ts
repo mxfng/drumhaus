@@ -1,6 +1,7 @@
 import type { InstrumentParams } from "@/types/instrument";
 import type { Pattern, StepSequence } from "@/types/pattern";
 import type { PresetFileV1 } from "@/types/preset";
+import { compactCodeToKitId, kitIdToCompactCode } from "./defaultKits";
 
 /**
  * Ultra-compact preset format with aggressive optimizations:
@@ -10,36 +11,6 @@ import type { PresetFileV1 } from "@/types/preset";
  * - Kit ID as single digit (0-9)
  * - Omit default values
  */
-
-// ============================================================================
-// KIT ID MAPPING (10 default kits → 0-9)
-// ============================================================================
-
-const KIT_ID_MAP: Record<string, string> = {
-  "kit-drumhaus": "0",
-  "kit-organic": "1",
-  "kit-funk": "2",
-  "kit-rnb": "3",
-  "kit-trap": "4",
-  "kit-eighties": "5",
-  "kit-tech-house": "6",
-  "kit-techno": "7",
-  "kit-indie": "8",
-  "kit-jungle": "9",
-};
-
-const KIT_ID_REVERSE: Record<string, string> = {
-  "0": "kit-drumhaus",
-  "1": "kit-organic",
-  "2": "kit-funk",
-  "3": "kit-rnb",
-  "4": "kit-trap",
-  "5": "kit-eighties",
-  "6": "kit-tech-house",
-  "7": "kit-techno",
-  "8": "kit-indie",
-  "9": "kit-jungle",
-};
 
 // ============================================================================
 // DEFAULT VALUES (omit these to save space)
@@ -217,7 +188,7 @@ function encodeParams(params: InstrumentParams): CompactParams {
 }
 
 export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
-  const kitId = KIT_ID_MAP[preset.kit.meta.id];
+  const kitId = kitIdToCompactCode(preset.kit.meta.id);
   if (!kitId) {
     throw new Error(
       `Unknown kit ID: ${preset.kit.meta.id}. Only default kits can be shared.`,
@@ -305,7 +276,7 @@ export function decodeCompactPreset(
   compact: CompactPreset,
   kitLoader: (kitId: string) => any,
 ): PresetFileV1 {
-  const kitId = KIT_ID_REVERSE[compact.k];
+  const kitId = compactCodeToKitId(compact.k);
   if (!kitId) {
     throw new Error(`Unknown kit code: ${compact.k}`);
   }
