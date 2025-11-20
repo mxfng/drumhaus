@@ -105,3 +105,28 @@ a {
 .pixelated-spinner__pixel {
   animation: pixelated-spinner-pulse 1s ease-in-out infinite;
 }
+
+.drumhaus-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.drumhaus-scale-wrapper {
+  width: 1538px;
+  height: 1030px;
+  transform-origin: center center;
+  /* viewport-based scaling with min/max limits */
+  --drumhaus-padding: 32px;
+  --drumhaus-available-width: calc(100vw - var(--drumhaus-padding));
+  --drumhaus-available-height: calc(100vh - var(--drumhaus-padding));
+  --drumhaus-scale-x: calc(var(--drumhaus-available-width) / 1538px);
+  --drumhaus-scale-y: calc(var(--drumhaus-available-height) / 1030px);
+  --drumhaus-scale-raw: min(var(--drumhaus-scale-x), var(--drumhaus-scale-y));
+  --drumhaus-scale: clamp(0.6, var(--drumhaus-scale-raw), 1);
+  transform: scale(var(--drumhaus-scale));
+}
