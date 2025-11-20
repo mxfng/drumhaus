@@ -35,7 +35,7 @@ const KIT_REGISTRY: Record<string, () => KitFileV1> = {
   "kit-rnb": kitLoaders.rnb,
   "kit-trap": kitLoaders.trap,
   "kit-eighties": kitLoaders.eighties,
-  "kit-tech_house": kitLoaders.tech_house,
+  "kit-tech-house": kitLoaders.tech_house,
   "kit-techno": kitLoaders.techno,
   "kit-indie": kitLoaders.indie,
   "kit-jungle": kitLoaders.jungle,
