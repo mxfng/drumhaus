@@ -2,7 +2,7 @@ import * as Tone from "tone/build/esm/index";
 
 import { transformKnobValue } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { ENGINE_PITCH_RANGE } from "./constants";
+import { transformPitchKnobToFrequency } from "./pitch";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
@@ -14,7 +14,7 @@ export function playInstrumentSample(
   sampleDuration: number,
 ): number {
   const time = Tone.now();
-  const pitchValue = transformKnobValue(pitch, ENGINE_PITCH_RANGE);
+  const pitchValue = transformPitchKnobToFrequency(pitch);
   const releaseTime = transformKnobValue(release, [0, sampleDuration]);
 
   // Enforce monophonic behavior

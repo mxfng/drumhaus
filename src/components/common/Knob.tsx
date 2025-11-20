@@ -46,7 +46,7 @@ const KNOB_DOT_SHADOW = "0 4px 12px rgba(176, 147, 116, 0.6)";
 
 // Label Styling
 const KNOB_LABEL_FONT_SIZE = 12;
-const KNOB_LABEL_MARGIN_Y = -3;
+const KNOB_LABEL_MARGIN_Y = -10;
 
 // Z-Index
 const KNOB_HITBOX_Z_INDEX = 2;
@@ -69,6 +69,7 @@ type KnobProps = {
   defaultValue?: number;
   isDisabled?: boolean;
   valueStep?: number;
+  displayValueFormatter?: (value: number) => string;
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -133,6 +134,7 @@ export const Knob: React.FC<KnobProps> = ({
   defaultValue = KNOB_DEFAULT_VALUE,
   isDisabled = false,
   valueStep = 1,
+  displayValueFormatter,
 }) => {
   const [isMoving, setIsMoving] = useState(false);
   const moveStartYRef = useRef(0);
@@ -209,7 +211,7 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("mouseup", handleMoveEnd);
       window.removeEventListener("touchend", handleMoveEnd);
     };
-  }, [handleMoveEnd, isDisabled, isMoving, moveY, setKnobValue]);
+  }, [handleMoveEnd, isDisabled, isMoving, moveY, setKnobValue, stepSize]);
 
   useEffect(() => {
     return () => {
@@ -259,6 +261,7 @@ export const Knob: React.FC<KnobProps> = ({
 
   const getDisplayLabel = (value: number) => {
     if (!isMoving) return knobTitle;
+    if (displayValueFormatter) return displayValueFormatter(value);
     if (filter) return formatFilterValue(value);
     return formatScaledValue(value);
   };
@@ -392,7 +395,7 @@ export const Knob: React.FC<KnobProps> = ({
         <div
           style={{
             fontSize: `${KNOB_LABEL_FONT_SIZE}px`,
-            color: "gray",
+            color: "#B09374",
             marginTop: `${KNOB_LABEL_MARGIN_Y}px`,
             marginBottom: `${KNOB_LABEL_MARGIN_Y}px`,
           }}

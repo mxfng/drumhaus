@@ -25,10 +25,11 @@ import { playInstrumentSample } from "@/lib/audio/engine";
 import {
   INSTRUMENT_ATTACK_RANGE,
   INSTRUMENT_PAN_RANGE,
-  INSTRUMENT_PITCH_RANGE,
+  INSTRUMENT_PITCH_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "@/lib/audio/engine/constants";
+import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
@@ -140,6 +141,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     () => toggleSoloStore(index),
     [index, toggleSoloStore],
   );
+  const formatPitchLabel = useCallback((value: number) => {
+    const semitoneOffset =
+      ((value - 50) / 50) * INSTRUMENT_PITCH_SEMITONE_RANGE;
+    const signedOffset =
+      semitoneOffset > 0
+        ? `+${semitoneOffset.toFixed(0)}`
+        : semitoneOffset.toFixed(0);
+    return `${signedOffset} st`;
+  }, []);
 
   // Subscribe to instrument parameter changes and update audio nodes directly
   // This avoids multiple useEffects and updates audio without causing re-renders
@@ -371,9 +381,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               knobValue={pitch}
               setKnobValue={setPitch}
               knobTitle="PITCH"
-              knobTransformRange={INSTRUMENT_PITCH_RANGE}
-              knobUnits="Hz"
               defaultValue={50}
+              valueStep={PITCH_KNOB_STEP}
+              displayValueFormatter={formatPitchLabel}
               isDisabled={!isRuntimeLoaded}
             />
           </GridItem>

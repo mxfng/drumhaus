@@ -8,11 +8,8 @@ import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
-import {
-  ENGINE_PITCH_RANGE,
-  SEQUENCE_EVENTS,
-  SEQUENCE_SUBDIVISION,
-} from "./constants";
+import { SEQUENCE_EVENTS, SEQUENCE_SUBDIVISION } from "./constants";
+import { transformPitchKnobToFrequency } from "./pitch";
 
 type ScheduleContext = {
   time: Tone.Unit.Time;
@@ -137,7 +134,7 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
   if ((anySolos && !params.solo) || params.mute) return;
 
   const velocity = velocities[step];
-  const pitch = transformKnobValue(params.pitch, ENGINE_PITCH_RANGE);
+  const pitch = transformPitchKnobToFrequency(params.pitch);
   const releaseTime = transformKnobValue(params.release, [
     0,
     durations[instrumentIndex],
@@ -235,7 +232,7 @@ function muteOpenHat(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  const ohPitch = transformKnobValue(ohInst.params.pitch, ENGINE_PITCH_RANGE);
+  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 

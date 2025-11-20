@@ -1,8 +1,12 @@
 // --- Shared numeric constants and ranges for the audio engine ---
 
 // Keeping them here avoids magic numbers scattered across runtime code.
-export const ENGINE_PITCH_RANGE: [number, number] = [15.4064, 115.4064];
-export const INSTRUMENT_PITCH_RANGE: [number, number] = ENGINE_PITCH_RANGE;
+export const INSTRUMENT_PITCH_BASE_FREQUENCY = 65.4064; // C2
+export const INSTRUMENT_PITCH_SEMITONE_RANGE = 24;
+export const INSTRUMENT_PITCH_RANGE: [number, number] = [
+  INSTRUMENT_PITCH_BASE_FREQUENCY / 4,
+  INSTRUMENT_PITCH_BASE_FREQUENCY * 4,
+];
 export const INSTRUMENT_VOLUME_RANGE: [number, number] = [-46, 4];
 export const INSTRUMENT_PAN_RANGE: [number, number] = [-1, 1];
 export const INSTRUMENT_ATTACK_RANGE: [number, number] = [0, 0.1];
