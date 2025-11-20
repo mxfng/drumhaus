@@ -4,6 +4,10 @@
 import { CacheProvider } from "@chakra-ui/next-js";
 import { ChakraProvider } from "@chakra-ui/react";
 
+import {
+  AppErrorBoundary,
+  GlobalErrorHandler,
+} from "@/components/common/AppErrorBoundary";
 import theme from "@/theme/theme";
 
 if (process.env.NODE_ENV === "development") {
@@ -13,7 +17,12 @@ if (process.env.NODE_ENV === "development") {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <CacheProvider>
-      <ChakraProvider theme={theme}>{children}</ChakraProvider>
+      <ChakraProvider theme={theme}>
+        <AppErrorBoundary>
+          <GlobalErrorHandler />
+          {children}
+        </AppErrorBoundary>
+      </ChakraProvider>
     </CacheProvider>
   );
 }

@@ -99,6 +99,7 @@ export const useModalStore = create<ModalState>()(
 
       openResetModal: () => {
         set((state) => {
+          throw new Error("Test error");
           state.isResetModalOpen = true;
         });
       },
