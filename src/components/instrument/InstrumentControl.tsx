@@ -107,7 +107,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleDuration = useSampleDuration(samplePath);
+  const { duration: sampleDuration } = useSampleDuration(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces

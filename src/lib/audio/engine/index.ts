@@ -42,7 +42,13 @@ export {
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,
 } from "./masterChain";
-export { releaseNonSoloRuntimes } from "./solo";
+export {
+  releaseNonSoloRuntimes,
+  hasAnySolo,
+  getSoloStates,
+  soloStatesChanged,
+  createSoloChangeHandler,
+} from "./solo";
 
 // Buffer
 export {

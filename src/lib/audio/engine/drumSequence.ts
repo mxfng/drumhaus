@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import { defaultSequencerFactory, defaultStateProvider } from "./factory";
 import { transformPitchKnobToFrequency } from "./pitch";
+import { hasAnySolo } from "./solo";
 import type {
   DrumSequenceStateProvider,
   Ref,
@@ -161,10 +162,6 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
   } else {
     triggerStandardInstrument(time, runtime, pitch, releaseTime, velocity);
   }
-}
-
-function hasAnySolo(instruments: InstrumentData[]): boolean {
-  return instruments.some((instrument) => instrument.params.solo);
 }
 
 function findOpenHatIndex(

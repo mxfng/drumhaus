@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   createDrumSequence,
   createInstrumentRuntimes,
+  createSoloChangeHandler,
   disposeDrumSequence,
   disposeInstrumentRuntimes,
   releaseNonSoloRuntimes,
@@ -63,21 +64,16 @@ export function useAudioEngine(): UseAudioEngineResult {
 
   // When any instrument is soloed, immediately release all non-solo runtimes
   useEffect(() => {
-    let prevSoloState = useInstrumentsStore
-      .getState()
-      .instruments.map((inst) => inst.params.solo);
+    const soloHandler = createSoloChangeHandler(
+      () => instrumentRuntimes.current,
+      releaseNonSoloRuntimes,
+    );
+
+    // Initialize with current state
+    soloHandler.getInitialState(useInstrumentsStore.getState().instruments);
 
     const unsubscribe = useInstrumentsStore.subscribe((state) => {
-      const instruments = state.instruments;
-      const solos = instruments.map((inst) => inst.params.solo);
-      const hasSolo = solos.some(Boolean);
-      const soloChanged = solos.some((val, idx) => val !== prevSoloState[idx]);
-
-      if (hasSolo && soloChanged) {
-        releaseNonSoloRuntimes(instruments, instrumentRuntimes.current);
-      }
-
-      prevSoloState = solos;
+      soloHandler.handleStateChange(state.instruments);
     });
 
     return unsubscribe;
@@ -89,6 +85,7 @@ export function useAudioEngine(): UseAudioEngineResult {
       return;
     }
 
+    let cancelled = false;
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
@@ -97,11 +94,12 @@ export function useAudioEngine(): UseAudioEngineResult {
       try {
         await createInstrumentRuntimes(instrumentRuntimes, instruments);
         await waitForBuffersToLoad();
+        if (cancelled) return;
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       } catch (error) {
+        if (cancelled) return;
         console.error("Error loading audio buffers:", error);
-        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       }
     };
@@ -109,6 +107,7 @@ export function useAudioEngine(): UseAudioEngineResult {
     void loadBuffers();
 
     return () => {
+      cancelled = true;
       disposeInstrumentRuntimes(instrumentRuntimes);
     };
   }, [instrumentSamplePaths]);
