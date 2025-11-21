@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect } from "react";
 import {
   Box,
@@ -138,9 +136,7 @@ const Drumhaus = () => {
   );
 };
 
-interface TopBarProps {}
-
-const TopBar = ({}: TopBarProps) => {
+const TopBar = () => {
   return (
     <Box
       h="120px"

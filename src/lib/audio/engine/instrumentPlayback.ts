@@ -1,6 +1,6 @@
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValueExponential } from "@/components/common/Knob";
+import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { INSTRUMENT_RELEASE_RANGE } from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";

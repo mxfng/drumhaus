@@ -1,6 +1,6 @@
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValueExponential } from "@/components/common/Knob";
+import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
@@ -123,7 +123,6 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
     step,
     variationIndex,
     instruments,
-    durations,
     runtimes,
     anySolos,
     hasOhat,

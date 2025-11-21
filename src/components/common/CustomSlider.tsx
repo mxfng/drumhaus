@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Box,
@@ -11,7 +9,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import { transformKnobValue } from "./Knob";
+import { transformKnobValue } from "./knobTransforms";
 
 type CustomSliderProps = {
   size: number;
