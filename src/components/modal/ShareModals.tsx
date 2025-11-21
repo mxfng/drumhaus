@@ -236,7 +236,9 @@ export const SharedModal: React.FC<SharedModalProps> = ({
           <Button onClick={onCopy} colorScheme="orange" mr={3}>
             {hasCopied ? "Copied!" : "Copy Link"}
           </Button>
-          <Button onClick={onClose}>Close</Button>
+          <Button onClick={onClose} color="gray">
+            Close
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

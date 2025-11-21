@@ -10,7 +10,7 @@ export const INSTRUMENT_PITCH_RANGE: [number, number] = [
 export const INSTRUMENT_VOLUME_RANGE: [number, number] = [-46, 4];
 export const INSTRUMENT_PAN_RANGE: [number, number] = [-1, 1];
 export const INSTRUMENT_ATTACK_RANGE: [number, number] = [0, 0.1];
-export const INSTRUMENT_RELEASE_RANGE: [number, number] = [0, 100];
+export const INSTRUMENT_RELEASE_RANGE: [number, number] = [0.005, 5];
 export const INSTRUMENT_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_PHASER_WET_RANGE: [number, number] = [0, 1];
@@ -29,4 +29,6 @@ export const DEFAULT_VELOCITY = 1.0;
 // Shared musical constants
 export const SAMPLER_ROOT_NOTE = "C2";
 export const SEQUENCE_SUBDIVISION = "16n";
-export const SEQUENCE_EVENTS: number[] = [...Array(STEP_COUNT).keys()];
+export const SEQUENCE_EVENTS: number[] = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+];

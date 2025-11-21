@@ -37,7 +37,7 @@ const KNOB_TICK_WIDTH_DIVISOR = 4;
 const KNOB_TICK_HEIGHT_DIVISOR = 12;
 const KNOB_TICK_BORDER_RADIUS = "0 8px 8px 0";
 const KNOB_BOX_SHADOW =
-  "12px -12px 18px rgba(176, 147, 116, 0.5), -16px 16px 24px rgba(251, 245, 255, 0.3)";
+  "14px -9px 9px rgba(176, 147, 116, 0.3), 4px -5px 5px rgba(251, 245, 255, 0.17)";
 
 // Dot Indicator
 const KNOB_DOT_MIN_ROTATION = -180;
@@ -404,7 +404,7 @@ export const Knob: React.FC<KnobProps> = ({
                 style={{
                   width: `${KNOB_DOT_SIZE}px`,
                   height: `${KNOB_DOT_SIZE}px`,
-                  background: "gray",
+                  background: "#B09374",
                   position: "absolute",
                   borderRadius: FULL_BORDER_RADIUS,
                   opacity: KNOB_DOT_OPACITY,
@@ -427,7 +427,7 @@ export const Knob: React.FC<KnobProps> = ({
                 style={{
                   width: `${KNOB_DOT_SIZE}px`,
                   height: `${KNOB_DOT_SIZE}px`,
-                  background: "gray",
+                  background: "#B09374",
                   position: "absolute",
                   borderRadius: FULL_BORDER_RADIUS,
                   opacity: KNOB_DOT_OPACITY,

@@ -74,17 +74,29 @@ export function updateMasterChainParams(
 }
 
 /**
- * Disposes all master chain runtimes and clears the ref
+ * Disposes all master chain runtimes and clears the ref.
+ * Handles errors gracefully to prevent crashes during cleanup.
  */
 export function disposeMasterChainRuntimes(
   runtimes: MutableRefObject<MasterChainRuntimes | null>,
 ): void {
   if (runtimes.current) {
-    runtimes.current.lowPassFilter.dispose();
-    runtimes.current.highPassFilter.dispose();
-    runtimes.current.phaser.dispose();
-    runtimes.current.reverb.dispose();
-    runtimes.current.compressor.dispose();
+    const nodesToDispose = [
+      { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
+      { name: "highPassFilter", node: runtimes.current.highPassFilter },
+      { name: "phaser", node: runtimes.current.phaser },
+      { name: "reverb", node: runtimes.current.reverb },
+      { name: "compressor", node: runtimes.current.compressor },
+    ];
+
+    for (const { name, node } of nodesToDispose) {
+      try {
+        node.dispose();
+      } catch (error) {
+        console.warn(`Error disposing ${name}:`, error);
+      }
+    }
+
     runtimes.current = null;
   }
 }

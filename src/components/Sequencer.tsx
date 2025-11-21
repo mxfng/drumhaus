@@ -210,7 +210,20 @@ export const Sequencer: React.FC = () => {
                   boxShadow: triggerStyles.boxShadow,
                 }}
                 boxShadow={triggerStyles.boxShadow}
-              />
+                position="relative"
+                overflow="hidden"
+              >
+                {state.isTriggerOn && (
+                  <Box
+                    key={`sequence-step-trigger-glow-${step}`}
+                    position="absolute"
+                    inset={0}
+                    pointerEvents="none"
+                    borderRadius={`0 ${stepRadius} 0 ${stepRadius}`}
+                    background="radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 55%)"
+                  />
+                )}
+              </Box>
               <Box
                 key={`sequence-step-velocity-${step}`}
                 w="100%"

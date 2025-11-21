@@ -13,6 +13,9 @@ const BAR_GAP = 2; // gap between bars (px)
 const ACTIVE_FRACTION_X = 2 / 3; // use lowest 2/3 of spectrum
 const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
 
+// Logarithmic scaling factor - higher = more space for low frequencies
+const LOG_SCALE_BASE = 10;
+
 export function FrequencyAnalyzer() {
   const analyzerRef = useRef<Tone.Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -47,14 +50,29 @@ export function FrequencyAnalyzer() {
       const bandWidth = canvas.width / NUM_BARS;
       const barWidth = Math.max(1, bandWidth - BAR_GAP); // keep at least 1px
 
+      // Helper to map bar index to frequency bin using logarithmic scale
+      // This gives more visual space to lower frequencies
+      const logScale = (barIdx: number) => {
+        const normalized = barIdx / NUM_BARS; // 0 to 1
+        // Logarithmic mapping: more bins for low frequencies
+        const logPos =
+          (Math.pow(LOG_SCALE_BASE, normalized) - 1) / (LOG_SCALE_BASE - 1);
+        return Math.floor(logPos * activeLength);
+      };
+
       for (let barIndex = 0; barIndex < NUM_BARS; barIndex++) {
-        const start = Math.floor((barIndex / NUM_BARS) * activeLength);
-        const end = Math.floor(((barIndex + 1) / NUM_BARS) * activeLength);
+        let start = logScale(barIndex);
+        let end = logScale(barIndex + 1);
+
+        // Ensure each bar covers at least one bin to prevent duplicates
+        if (end <= start) {
+          end = start + 1;
+        }
 
         let sum = 0;
         let count = 0;
 
-        for (let i = start; i < end; i++) {
+        for (let i = start; i < end && i < activeLength; i++) {
           const value = Number(dataArray[i]) || 0;
           sum += value;
           count++;
