@@ -1,14 +1,18 @@
 import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValue } from "@/components/common/Knob";
+import { transformKnobValueExponential } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
-import { SEQUENCE_EVENTS, SEQUENCE_SUBDIVISION } from "./constants";
+import {
+  INSTRUMENT_RELEASE_RANGE,
+  SEQUENCE_EVENTS,
+  SEQUENCE_SUBDIVISION,
+} from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";
 
 type ScheduleContext = {
@@ -135,10 +139,10 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
 
   const velocity = velocities[step];
   const pitch = transformPitchKnobToFrequency(params.pitch);
-  const releaseTime = transformKnobValue(params.release, [
-    0,
-    durations[instrumentIndex],
-  ]);
+  const releaseTime = transformKnobValueExponential(
+    params.release,
+    INSTRUMENT_RELEASE_RANGE,
+  );
 
   if (inst.role === "hat" && hasOhat) {
     muteOpenHat(time, instruments, runtimes, ohatIndex);
