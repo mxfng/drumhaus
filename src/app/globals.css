@@ -1,3 +1,85 @@
+@import "tailwindcss";
+
+/*
+  Drumhaus Color System
+
+  All colors are centralized here for easy tweaking.
+  The neumorphic design uses shadow/highlight pairs derived from the base palette.
+*/
+
+@theme {
+  /* === BRAND COLORS === */
+
+  /* Primary accent - orange */
+  --color-accent: #ff7b00;
+  --color-accent-hover: #f5b67a;
+  --color-accent-muted: #f2aa77;
+
+  /* Text colors - warm brown/tan */
+  --color-text: #b09374;
+  --color-text-dark: #000000;
+  --color-text-light: #d0bdad;
+
+  /* Background colors - warm neutrals */
+  --color-body: #e8e3dd;
+  --color-surface: #f7f1ea;
+  --color-surface-alt: #e8e3dd;
+  --color-lowlight: #d4cdc5;
+  --color-instrument: #e4dfd9;
+  --color-groove: #efe6de;
+
+  /* Instrument track colors */
+  --color-track-blue: #213062;
+  --color-track-orange: #e9902f;
+  --color-track-red: #d72529;
+  --color-track-green: #27991a;
+
+  /* === NEUMORPHIC SYSTEM COLORS === */
+  /* These are the core colors used in all neumorphic effects */
+
+  /* Shadow (dark side) - derived from --color-text (#B09374 = rgb 176,147,116) */
+  --color-shadow: rgb(176 147 116);
+  --color-shadow-10: rgb(176 147 116 / 0.1);
+  --color-shadow-30: rgb(176 147 116 / 0.3);
+  --color-shadow-50: rgb(176 147 116 / 0.5);
+  --color-shadow-60: rgb(176 147 116 / 0.6);
+
+  /* Highlight (light side) - off-white */
+  --color-highlight: rgb(251 245 255);
+  --color-highlight-17: rgb(251 245 255 / 0.17);
+  --color-highlight-20: rgb(251 245 255 / 0.2);
+  --color-highlight-30: rgb(251 245 255 / 0.3);
+  --color-highlight-40: rgb(251 245 255 / 0.4);
+
+  /* Gradient endpoints for raised surfaces */
+  --color-gradient-light: rgb(251 245 255);
+  --color-gradient-dark: rgb(239 228 217);
+
+  /* === CUSTOM SHADOWS === */
+  --shadow-neu:
+    3px 3px 9px var(--color-shadow-60), -3px -3px 9px var(--color-highlight-30);
+  --shadow-neu-tall:
+    10px 12px 18px var(--color-shadow-50),
+    -10px -20px 20px var(--color-highlight-30);
+  --shadow-neu-xl:
+    20px 20px 50px var(--color-shadow-50),
+    -30px -30px 60px var(--color-highlight-40);
+  --shadow-neu-raised:
+    3px 3px 6px var(--color-shadow-60), -3px -3px 9px var(--color-highlight-30);
+  --shadow-neu-md:
+    6px 6px 9px var(--color-shadow-50),
+    -10px -10px 24px var(--color-highlight-20);
+  --shadow-neu-tall-raised:
+    12px 12px 18px var(--color-shadow-50),
+    -16px -16px 24px var(--color-highlight-30);
+  --shadow-inset:
+    inset 2px 2px 4px var(--color-shadow-60),
+    inset -1px -1px 3px var(--color-highlight-30);
+
+  /* === FONTS === */
+  --font-pixel: "Pixelify Sans Variable", sans-serif;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -5,8 +87,8 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: #e8e3dd;
+  background: var(--color-body);
+  color: var(--color-text);
 }
 
 a {
@@ -14,81 +96,69 @@ a {
   text-decoration: none;
 }
 
+/* Neumorphic utility classes - now using centralized color variables */
+
 .neumorphic {
-  box-shadow:
-    3px 3px 9px rgba(176, 147, 116, 0.6),
-    -3px -3px 9px rgba(251, 245, 255, 0.3);
+  box-shadow: var(--shadow-neu);
 }
 
 .neumorphicTall {
-  box-shadow:
-    10px 12px 18px rgba(176, 147, 116, 0.5),
-    -10px -20px 20px rgba(251, 245, 255, 0.3);
+  box-shadow: var(--shadow-neu-tall);
 }
 
 .neumorphicExtraTall {
-  box-shadow:
-    20px 20px 50px rgba(176, 147, 116, 0.5),
-    -30px -30px 60px rgba(251, 245, 255, 0.4);
+  box-shadow: var(--shadow-neu-xl);
 }
 
 .neumorphicRaised {
-  box-shadow:
-    3px 3px 6px rgba(176, 147, 116, 0.6),
-    -3px -3px 9px rgba(251, 245, 255, 0.3);
+  box-shadow: var(--shadow-neu-raised);
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(239, 228, 217, 1)
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
   );
 }
 
 .raised {
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(239, 228, 217, 1)
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
   );
 }
 
 .raisedInside {
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(251, 245, 255, 0.3)
+    var(--color-gradient-light),
+    var(--color-highlight-30)
   );
 }
 
 .neumorphicMediumRaised {
-  box-shadow:
-    6px 6px 9px rgba(176, 147, 116, 0.5),
-    -10px -10px 24px rgba(251, 245, 255, 0.2);
+  box-shadow: var(--shadow-neu-md);
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(239, 228, 217, 1)
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
   );
 }
 
 .neumorphicTallRaised {
-  box-shadow:
-    12px 12px 18px rgba(176, 147, 116, 0.5),
-    -16px -16px 24px rgba(251, 245, 255, 0.3);
+  box-shadow: var(--shadow-neu-tall-raised);
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(239, 228, 217, 1)
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
   );
 }
 
 .neumorphicExtraTallRaised {
-  box-shadow:
-    20px 20px 50px rgba(176, 147, 116, 0.5),
-    -30px -30px 60px rgba(251, 245, 255, 0.4);
+  box-shadow: var(--shadow-neu-xl);
   background: linear-gradient(
     160deg,
-    rgba(251, 245, 255, 1),
-    rgba(239, 228, 217, 1)
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
   );
 }
 
@@ -112,7 +182,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #e8e3dd;
+  background: var(--color-body);
   z-index: 9999;
   transition: opacity 0.3s ease;
 }

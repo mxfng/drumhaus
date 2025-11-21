@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, Plugin } from "vite";
 
@@ -21,7 +22,7 @@ function dhFilesPlugin(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), dhFilesPlugin()],
+  plugins: [react(), dhFilesPlugin(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
