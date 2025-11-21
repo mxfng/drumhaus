@@ -2,17 +2,42 @@ import { useEffect, useState } from "react";
 
 import { getSampleDuration } from "@/lib/audio/engine";
 
-export const useSampleDuration = (url: string) => {
-  const [sampleDuration, setSampleDuration] = useState<number>(0);
+interface UseSampleDurationResult {
+  duration: number;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const useSampleDuration = (url: string): UseSampleDurationResult => {
+  const [duration, setDuration] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+
     const updateSampleDuration = async () => {
-      const duration = await getSampleDuration(url);
-      setSampleDuration(duration);
+      const result = await getSampleDuration(url);
+      if (cancelled) return;
+
+      if (result.success) {
+        setDuration(result.duration);
+        setError(null);
+      } else {
+        setDuration(0);
+        setError(result.error ?? "Failed to load sample");
+      }
+      setIsLoading(false);
     };
 
     updateSampleDuration();
+
+    return () => {
+      cancelled = true;
+    };
   }, [url]);
 
-  return sampleDuration;
+  return { duration, isLoading, error };
 };

@@ -1,8 +1,10 @@
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValue } from "@/components/common/Knob";
+import { transformKnobValueExponential } from "@/components/common/Knob";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { INSTRUMENT_RELEASE_RANGE } from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";
+import { stopRuntimeAtTime } from "./runtimeStops";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
@@ -11,15 +13,16 @@ export function playInstrumentSample(
   runtime: InstrumentRuntime,
   pitch: number,
   release: number,
-  sampleDuration: number,
 ): number {
   const time = Tone.now();
   const pitchValue = transformPitchKnobToFrequency(pitch);
-  const releaseTime = transformKnobValue(release, [0, sampleDuration]);
+  const releaseTime = transformKnobValueExponential(
+    release,
+    INSTRUMENT_RELEASE_RANGE,
+  );
 
-  // Enforce monophonic behavior
-  runtime.envelopeNode.triggerRelease(time);
-  runtime.samplerNode.triggerRelease(time);
+  // Enforce monophonic behavior; mirrors transport stop logic
+  stopRuntimeAtTime(runtime, time);
 
   // Skip triggering if the buffer is not ready yet
   if (!runtime.samplerNode.loaded) {

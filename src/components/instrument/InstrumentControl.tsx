@@ -26,18 +26,20 @@ import {
   INSTRUMENT_ATTACK_RANGE,
   INSTRUMENT_PAN_RANGE,
   INSTRUMENT_PITCH_SEMITONE_RANGE,
+  INSTRUMENT_RELEASE_RANGE,
   INSTRUMENT_VOLUME_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "@/lib/audio/engine/constants";
+import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
+import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
-  KNOB_ROTATION_THRESHOLD_L,
-  transformKnobFilterValue,
   transformKnobValue,
+  transformKnobValueExponential,
 } from "../common/Knob";
 import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
@@ -105,7 +107,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const sampleDuration = useSampleDuration(samplePath);
+  const { duration: sampleDuration } = useSampleDuration(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
@@ -150,73 +152,35 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         : semitoneOffset.toFixed(0);
     return `${signedOffset} st`;
   }, []);
+  const formatDurationLabel = useCallback((seconds: number) => {
+    if (!seconds || !Number.isFinite(seconds)) return "0 ms";
+    if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
+    if (seconds < 10) return `${seconds.toFixed(2)} s`;
+    return `${seconds.toFixed(1)} s`;
+  }, []);
+  const formatAttackLabel = useCallback(
+    (value: number) => {
+      const attackSeconds = transformKnobValue(value, INSTRUMENT_ATTACK_RANGE);
+      return formatDurationLabel(attackSeconds);
+    },
+    [formatDurationLabel],
+  );
+  const formatReleaseLabel = useCallback(
+    (value: number) => {
+      const releaseSeconds = transformKnobValueExponential(
+        value,
+        INSTRUMENT_RELEASE_RANGE,
+      );
+      return formatDurationLabel(releaseSeconds);
+    },
+    [formatDurationLabel],
+  );
 
   // Subscribe to instrument parameter changes and update audio nodes directly
   // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
     if (!runtime) return;
-
-    let prevParams: {
-      attack: number;
-      filter: number;
-      pan: number;
-      volume: number;
-    } | null = null;
-
-    const unsubscribe = useInstrumentsStore.subscribe((state) => {
-      const instrument = state.instruments[index];
-      if (!instrument) return;
-
-      const currentParams = {
-        attack: instrument.params.attack,
-        filter: instrument.params.filter,
-        pan: instrument.params.pan,
-        volume: instrument.params.volume,
-      };
-
-      // Only update if params actually changed
-      if (
-        !prevParams ||
-        prevParams.attack !== currentParams.attack ||
-        prevParams.filter !== currentParams.filter ||
-        prevParams.pan !== currentParams.pan ||
-        prevParams.volume !== currentParams.volume
-      ) {
-        // Update attack
-        const newAttackValue = transformKnobValue(
-          currentParams.attack,
-          INSTRUMENT_ATTACK_RANGE,
-        );
-        runtime.envelopeNode.attack = newAttackValue;
-
-        // Update filter
-        runtime.filterNode.type =
-          currentParams.filter <= KNOB_ROTATION_THRESHOLD_L
-            ? "lowpass"
-            : "highpass";
-        runtime.filterNode.frequency.value = transformKnobFilterValue(
-          currentParams.filter,
-        );
-
-        // Update pan
-        const newPanValue = transformKnobValue(
-          currentParams.pan,
-          INSTRUMENT_PAN_RANGE,
-        );
-        runtime.pannerNode.pan.value = newPanValue;
-
-        // Update volume
-        const newVolumeValue = transformKnobValue(
-          currentParams.volume,
-          INSTRUMENT_VOLUME_RANGE,
-        );
-        runtime.samplerNode.volume.value = newVolumeValue;
-
-        prevParams = currentParams;
-      }
-    });
-
-    return unsubscribe;
+    return subscribeRuntimeToInstrumentParams(index, runtime);
   }, [index, runtime]);
 
   const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
@@ -238,10 +202,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
-      runtime.samplerNode.triggerRelease(SAMPLER_ROOT_NOTE, Tone.now());
+      stopRuntimeAtTime(runtime, Tone.now());
     }
     toggleMute();
-  }, [toggleMute, mute, runtime?.samplerNode]);
+  }, [toggleMute, mute, runtime]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
@@ -274,7 +238,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const playSample = () => {
     if (!runtime) return;
 
-    playInstrumentSample(runtime, pitch, release, sampleDuration);
+    playInstrumentSample(runtime, pitch, release);
   };
 
   return (
@@ -347,6 +311,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               defaultValue={0}
               disabled={!isRuntimeLoaded}
               size="sm"
+              formatValue={formatAttackLabel}
             />
           </GridItem>
           <GridItem>
@@ -370,6 +335,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               defaultValue={100}
               disabled={!isRuntimeLoaded}
               size="sm"
+              formatValue={formatReleaseLabel}
             />
           </GridItem>
 

@@ -18,14 +18,26 @@ export function createFrequencyAnalyzer(
 }
 
 /**
- * Disposes the frequency analyzer and disconnects it from Tone.Destination
+ * Disposes the frequency analyzer and disconnects it from Tone.Destination.
+ * Handles errors gracefully to prevent crashes during cleanup.
  */
 export function disposeFrequencyAnalyzer(
   analyzer: MutableRefObject<Tone.Analyser | null>,
 ): void {
   if (analyzer.current) {
-    Tone.Destination.disconnect(analyzer.current);
-    analyzer.current.dispose();
+    try {
+      Tone.Destination.disconnect(analyzer.current);
+    } catch (error) {
+      // Disconnection may fail if already disconnected or destination changed
+      console.warn("Error disconnecting analyzer from destination:", error);
+    }
+
+    try {
+      analyzer.current.dispose();
+    } catch (error) {
+      console.warn("Error disposing analyzer:", error);
+    }
+
     analyzer.current = null;
   }
 }

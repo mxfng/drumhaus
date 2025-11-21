@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import type * as Tone from "tone/build/esm/index";
 
 import {
   createDrumSequence,
   createInstrumentRuntimes,
+  createSoloChangeHandler,
   disposeDrumSequence,
   disposeInstrumentRuntimes,
+  releaseNonSoloRuntimes,
   waitForBuffersToLoad,
+  type SequenceInstance,
 } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -27,7 +29,7 @@ export function useAudioEngine(): UseAudioEngineResult {
   // Audio engine refs (Tone.js runtime nodes)
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
-  const toneSequence = useRef<Tone.Sequence | null>(null);
+  const toneSequence = useRef<SequenceInstance | null>(null);
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 
@@ -60,12 +62,30 @@ export function useAudioEngine(): UseAudioEngineResult {
     };
   }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
 
+  // When any instrument is soloed, immediately release all non-solo runtimes
+  useEffect(() => {
+    const soloHandler = createSoloChangeHandler(
+      () => instrumentRuntimes.current,
+      releaseNonSoloRuntimes,
+    );
+
+    // Initialize with current state
+    soloHandler.getInitialState(useInstrumentsStore.getState().instruments);
+
+    const unsubscribe = useInstrumentsStore.subscribe((state) => {
+      soloHandler.handleStateChange(state.instruments);
+    });
+
+    return unsubscribe;
+  }, []);
+
   // Rebuild audio engine when samples change
   useEffect(() => {
     if (instrumentSamplePaths.length === 0) {
       return;
     }
 
+    let cancelled = false;
     setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
@@ -74,11 +94,12 @@ export function useAudioEngine(): UseAudioEngineResult {
       try {
         await createInstrumentRuntimes(instrumentRuntimes, instruments);
         await waitForBuffersToLoad();
+        if (cancelled) return;
         setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       } catch (error) {
+        if (cancelled) return;
         console.error("Error loading audio buffers:", error);
-        setInstrumentRuntimesVersion((v) => v + 1);
         setIsLoading(false);
       }
     };
@@ -86,6 +107,7 @@ export function useAudioEngine(): UseAudioEngineResult {
     void loadBuffers();
 
     return () => {
+      cancelled = true;
       disposeInstrumentRuntimes(instrumentRuntimes);
     };
   }, [instrumentSamplePaths]);

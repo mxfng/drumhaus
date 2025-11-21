@@ -2,6 +2,7 @@ import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
 import { SEQUENCE_SUBDIVISION, TRANSPORT_SWING_RANGE } from "./constants";
+import { stopRuntimeAtTime } from "./runtimeStops";
 
 /**
  * Start the audio context
@@ -52,10 +53,12 @@ export function setTransportSwing(swing: number): void {
 /**
  * Releases all samples on all instrument runtimes. Used when stopping playback to prevent audio from continuing
  */
-export function releaseAllRuntimes(runtimes: InstrumentRuntime[]): void {
-  const time = getCurrentTime();
+export function releaseAllRuntimes(
+  runtimes: InstrumentRuntime[],
+  time: number = getCurrentTime(),
+): void {
   runtimes.forEach((runtime) => {
-    runtime.samplerNode.releaseAll(time);
+    stopRuntimeAtTime(runtime, time);
   });
 }
 

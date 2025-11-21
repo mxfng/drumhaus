@@ -5,7 +5,7 @@
     "id": "7097df47-0f63-4081-8134-91fac2d05f62",
     "name": "Amsterdam",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z"
+    "updatedAt": "2025-11-21T02:20:58.962Z"
   },
   "kit": {
     "kind": "drumhaus.kit",
@@ -33,7 +33,7 @@
         },
         "params": {
           "attack": 0,
-          "release": 49,
+          "release": 60,
           "filter": 50,
           "volume": 92,
           "pan": 50,
@@ -56,8 +56,8 @@
           "path": "7/berlin_bass.wav"
         },
         "params": {
-          "attack": 100,
-          "release": 19,
+          "attack": 46,
+          "release": 56,
           "filter": 4,
           "volume": 90,
           "pan": 50,
@@ -81,7 +81,7 @@
         },
         "params": {
           "attack": 0,
-          "release": 42,
+          "release": 65,
           "filter": 54,
           "volume": 85,
           "pan": 50,
@@ -105,9 +105,9 @@
         },
         "params": {
           "attack": 0,
-          "release": 40,
+          "release": 49,
           "filter": 50,
-          "volume": 78,
+          "volume": 76,
           "pan": 50,
           "pitch": 50,
           "solo": false,
@@ -129,9 +129,9 @@
         },
         "params": {
           "attack": 4,
-          "release": 43,
+          "release": 51,
           "filter": 50,
-          "volume": 74,
+          "volume": 75,
           "pan": 36,
           "pitch": 50,
           "solo": false,
@@ -152,10 +152,10 @@
           "path": "7/berlin_ohat.wav"
         },
         "params": {
-          "attack": 33,
-          "release": 12,
+          "attack": 0,
+          "release": 83,
           "filter": 50,
-          "volume": 73,
+          "volume": 69,
           "pan": 62,
           "pitch": 50,
           "solo": false,
@@ -204,7 +204,7 @@
           "release": 100,
           "filter": 50,
           "volume": 88,
-          "pan": 66,
+          "pan": 54,
           "pitch": 50,
           "solo": false,
           "mute": false

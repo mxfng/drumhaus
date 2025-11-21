@@ -5,6 +5,25 @@
  * All Tone.js object creation should happen in this directory.
  */
 
+// Types
+export type {
+  Ref,
+  SequenceInstance,
+  DrumSequenceStateProvider,
+  SequencerFactory,
+  TimeUtils,
+} from "./types";
+
+// Factory
+export {
+  createStateProvider,
+  createSequencerFactory,
+  createTimeUtils,
+  defaultStateProvider,
+  defaultSequencerFactory,
+  defaultTimeUtils,
+} from "./factory";
+
 // Drum Sequence
 export { createDrumSequence, disposeDrumSequence } from "./drumSequence";
 
@@ -13,6 +32,7 @@ export {
   createInstrumentRuntimes,
   disposeInstrumentRuntimes,
 } from "./instrumentRuntimes";
+export { subscribeRuntimeToInstrumentParams } from "./instrumentParams";
 
 // Master Chain
 export {
@@ -22,9 +42,20 @@ export {
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,
 } from "./masterChain";
+export {
+  releaseNonSoloRuntimes,
+  hasAnySolo,
+  getSoloStates,
+  soloStatesChanged,
+  createSoloChangeHandler,
+} from "./solo";
 
 // Buffer
-export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
+export {
+  getSampleDuration,
+  waitForBuffersToLoad,
+  type SampleDurationResult,
+} from "./buffer";
 
 // Instrument Playback
 export { playInstrumentSample } from "./instrumentPlayback";
@@ -45,3 +76,4 @@ export {
   setTransportSwing,
   releaseAllRuntimes,
 } from "./transport";
+export { stopRuntimeAtTime } from "./runtimeStops";
