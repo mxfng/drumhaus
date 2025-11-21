@@ -105,7 +105,17 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const { duration: sampleDuration } = useSampleDuration(samplePath);
+  // Reset waveform error when sample path changes (retry on new sample)
+  // Using a ref to track previous sample path avoids setState in effect
+  const prevSamplePathRef = useRef(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
+
+  if (prevSamplePathRef.current !== samplePath) {
+    prevSamplePathRef.current = samplePath;
+    if (waveformError !== null) {
+      setWaveformError(null);
+    }
+  }
 
   // Wrap store setters with instrument index for convenient prop-based interfaces
   const setAttack = useCallback(
@@ -181,11 +191,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   }, [index, runtime]);
 
   const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
-
-  // Reset waveform error when sample path changes (retry on new sample)
-  useEffect(() => {
-    setWaveformError(null);
-  }, [samplePath]);
 
   const handleWaveformError = useCallback((error: Error) => {
     setWaveformError(error);

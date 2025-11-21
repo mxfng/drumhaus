@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -49,23 +49,22 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const prevIsOpenRef = useRef(isOpen);
 
   // Auto-populate with default name when modal opens
-  useEffect(() => {
-    if (isOpen && defaultName) {
-      setPresetName(defaultName);
-    }
-  }, [isOpen, defaultName]);
+  // Using ref comparison during render avoids setState in effect
+  if (isOpen && !prevIsOpenRef.current && defaultName) {
+    setPresetName(defaultName);
+  }
+  prevIsOpenRef.current = isOpen;
 
   // Auto-focus input when modal opens
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 100);
-    }
-  }, [isOpen]);
+  if (isOpen && inputRef.current) {
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }, 100);
+  }
 
   const handleClose = () => {
     setPresetName("");
