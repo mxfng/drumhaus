@@ -1,4 +1,4 @@
-import { Buffer } from "tone/build/esm/index";
+import { ToneAudioBuffer } from "tone/build/esm/index";
 
 import { getCachedAudioUrl } from "../cache";
 
@@ -18,7 +18,7 @@ export async function getSampleDuration(
   try {
     // Get cached URL (blob URL for external files, or local URL)
     const cachedUrl = await getCachedAudioUrl(samplePath);
-    const buffer = await Buffer.fromUrl(cachedUrl);
+    const buffer = await ToneAudioBuffer.fromUrl(cachedUrl);
     return { success: true, duration: buffer.duration };
   } catch (error) {
     const errorMessage =
@@ -35,5 +35,5 @@ export async function getSampleDuration(
  * all sampler buffers are ready before playback.
  */
 export async function waitForBuffersToLoad(): Promise<void> {
-  await Buffer.loaded();
+  await ToneAudioBuffer.loaded();
 }

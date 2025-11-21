@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { RefObject, useEffect } from "react";
 
 import { useModalStore } from "@/stores/useModalStore";
 import { useTransportStore } from "@/stores/useTransportStore";
@@ -6,7 +6,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 
 interface UseKeyboardShortcutsProps {
   isLoading: boolean;
-  instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>;
+  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
 }
 

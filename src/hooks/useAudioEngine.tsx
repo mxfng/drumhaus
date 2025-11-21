@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 
 import {
   createDrumSequence,
@@ -17,7 +17,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import { useMasterChain } from "./useMasterChain";
 
 interface UseAudioEngineResult {
-  instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>;
+  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
   isLoading: boolean;
   setIsLoading: (isLoading: boolean) => void;
