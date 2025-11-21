@@ -78,7 +78,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   const toast = useToast();
 
-  const modalCloseRef = useRef(null);
+  const modalCloseRef = useRef<HTMLDivElement>(null);
 
   // Available kits and presets
   const KITS: KitFileV1[] = useMemo(
