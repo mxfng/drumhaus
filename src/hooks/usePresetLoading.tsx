@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { RefObject, useCallback, useEffect, useRef } from "react";
 import { Box, Text, useToast } from "@chakra-ui/react";
 
 import { init } from "@/lib/preset";
@@ -11,7 +11,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 
 interface UsePresetLoadingProps {
-  instrumentRuntimes: React.MutableRefObject<InstrumentRuntime[]>;
+  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
 }
 
 interface UsePresetLoadingResult {

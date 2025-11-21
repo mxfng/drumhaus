@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type * as Tone from "tone/build/esm/index";
+import { Analyser } from "tone/build/esm/index";
 
 import {
   createFrequencyAnalyzer,
@@ -17,7 +17,7 @@ const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
 const LOG_SCALE_BASE = 10;
 
 export function FrequencyAnalyzer() {
-  const analyzerRef = useRef<Tone.Analyser | null>(null);
+  const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
 

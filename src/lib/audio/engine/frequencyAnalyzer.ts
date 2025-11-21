@@ -1,11 +1,11 @@
-import type { MutableRefObject } from "react";
-import * as Tone from "tone/build/esm/index";
+import type { RefObject } from "react";
+import { Analyser, getDestination } from "tone/build/esm/index";
 
 /**
  * Creates a frequency analyzer and connects it to Tone.Destination
  */
 export function createFrequencyAnalyzer(
-  analyzer: MutableRefObject<Tone.Analyser | null>,
+  analyzer: RefObject<Analyser | null>,
   size: number = 512,
   type: "fft" | "waveform" = "fft",
 ): void {
@@ -13,8 +13,8 @@ export function createFrequencyAnalyzer(
     disposeFrequencyAnalyzer(analyzer);
   }
 
-  analyzer.current = new Tone.Analyser(type, size);
-  Tone.Destination.connect(analyzer.current);
+  analyzer.current = new Analyser(type, size);
+  getDestination().connect(analyzer.current);
 }
 
 /**
@@ -22,11 +22,11 @@ export function createFrequencyAnalyzer(
  * Handles errors gracefully to prevent crashes during cleanup.
  */
 export function disposeFrequencyAnalyzer(
-  analyzer: MutableRefObject<Tone.Analyser | null>,
+  analyzer: RefObject<Analyser | null>,
 ): void {
   if (analyzer.current) {
     try {
-      Tone.Destination.disconnect(analyzer.current);
+      getDestination().disconnect(analyzer.current);
     } catch (error) {
       // Disconnection may fail if already disconnected or destination changed
       console.warn("Error disconnecting analyzer from destination:", error);

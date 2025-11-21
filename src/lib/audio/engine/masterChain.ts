@@ -1,5 +1,11 @@
-import type { MutableRefObject } from "react";
-import * as Tone from "tone/build/esm/index";
+import type { RefObject } from "react";
+import {
+  Compressor,
+  Filter,
+  getDestination,
+  Phaser,
+  Reverb,
+} from "tone/build/esm/index";
 
 import {
   transformKnobValue,
@@ -18,11 +24,11 @@ import {
 } from "./constants";
 
 export interface MasterChainRuntimes {
-  lowPassFilter: Tone.Filter;
-  highPassFilter: Tone.Filter;
-  phaser: Tone.Phaser;
-  reverb: Tone.Reverb;
-  compressor: Tone.Compressor;
+  lowPassFilter: Filter;
+  highPassFilter: Filter;
+  phaser: Phaser;
+  reverb: Reverb;
+  compressor: Compressor;
 }
 
 type MasterChainSettings = {
@@ -41,7 +47,7 @@ type MasterChainSettings = {
  * Disposes existing runtimes before creating new ones to prevent memory leaks
  */
 export async function createMasterChainRuntimes(
-  runtimes: MutableRefObject<MasterChainRuntimes | null>,
+  runtimes: RefObject<MasterChainRuntimes | null>,
   params: MasterChainParams,
 ): Promise<void> {
   disposeMasterChainRuntimes(runtimes);
@@ -78,7 +84,7 @@ export function updateMasterChainParams(
  * Handles errors gracefully to prevent crashes during cleanup.
  */
 export function disposeMasterChainRuntimes(
-  runtimes: MutableRefObject<MasterChainRuntimes | null>,
+  runtimes: RefObject<MasterChainRuntimes | null>,
 ): void {
   if (runtimes.current) {
     const nodesToDispose = [
@@ -106,25 +112,22 @@ async function buildMasterChain(
 ): Promise<MasterChainRuntimes> {
   const settings = mapParamsToSettings(params);
 
-  const lowPassFilter = new Tone.Filter(settings.lowPassFrequency, "lowpass");
-  const highPassFilter = new Tone.Filter(
-    settings.highPassFrequency,
-    "highpass",
-  );
-  const phaser = new Tone.Phaser({
+  const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
+  const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
+  const phaser = new Phaser({
     frequency: 1,
     octaves: 3,
     baseFrequency: 1000,
     wet: settings.phaserWet,
   });
 
-  const reverb = new Tone.Reverb({
+  const reverb = new Reverb({
     decay: settings.reverbDecay,
     wet: settings.reverbWet,
   });
   await reverb.generate(); // Required before first use
 
-  const compressor = new Tone.Compressor({
+  const compressor = new Compressor({
     threshold: settings.compThreshold,
     ratio: settings.compRatio,
     attack: 0.5,
@@ -186,7 +189,7 @@ function applySettingsToRuntimes(
   runtimes.reverb.decay = settings.reverbDecay;
   runtimes.compressor.threshold.value = settings.compThreshold;
   runtimes.compressor.ratio.value = settings.compRatio;
-  Tone.Destination.volume.value = settings.masterVolume;
+  getDestination().volume.value = settings.masterVolume;
 }
 
 function connectInstrumentRuntime(
@@ -208,6 +211,6 @@ function connectInstrumentRuntime(
     master.phaser,
     master.reverb,
     master.compressor,
-    Tone.Destination,
+    getDestination(),
   );
 }

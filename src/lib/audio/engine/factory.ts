@@ -5,7 +5,7 @@
  * Tone.js and Zustand stores.
  */
 
-import * as Tone from "tone/build/esm/index";
+import { now, Sequence, Time } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -58,7 +58,7 @@ export function createSequencerFactory(): SequencerFactory {
       events: number[],
       subdivision: string,
     ): SequenceInstance {
-      const sequence = new Tone.Sequence(
+      const sequence = new Sequence(
         (time, step: number) => callback(time, step),
         events,
         subdivision,
@@ -93,10 +93,10 @@ export function createSequencerFactory(): SequencerFactory {
 export function createTimeUtils(): TimeUtils {
   return {
     toSeconds(time) {
-      return Tone.Time(time).toSeconds();
+      return Time(time).toSeconds();
     },
     now() {
-      return Tone.now();
+      return now();
     },
   };
 }

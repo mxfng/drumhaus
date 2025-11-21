@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { now } from "tone/build/esm/index";
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import { stopRuntimeAtTime } from "./runtimeStops";
@@ -9,7 +9,7 @@ import { stopRuntimeAtTime } from "./runtimeStops";
 export function releaseNonSoloRuntimes(
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
-  time: number = Tone.now(),
+  time: number = now(),
 ): void {
   if (runtimes.length === 0) return;
 

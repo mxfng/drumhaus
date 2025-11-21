@@ -9,11 +9,11 @@ import type { InstrumentData } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 
 // =============================================================================
-// Generic Types (replaces React's MutableRefObject)
+// Generic Types (replaces React's RefObject)
 // =============================================================================
 
 /**
- * A mutable reference container. Framework-agnostic replacement for React's MutableRefObject.
+ * A mutable reference container. Framework-agnostic replacement for React's RefObject.
  */
 export interface Ref<T> {
   current: T;

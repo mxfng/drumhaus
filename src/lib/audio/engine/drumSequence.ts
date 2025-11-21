@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { Time, type Unit } from "tone/build/esm/index";
 
 import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
@@ -20,7 +20,7 @@ import type {
 } from "./types";
 
 type ScheduleContext = {
-  time: Tone.Unit.Time;
+  time: Unit.Time;
   step: number;
   variationIndex: number;
   instruments: InstrumentData[];
@@ -77,7 +77,7 @@ export function createDrumSequence(
         for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
           const voice = pattern[voiceIndex];
           scheduleVoiceForStep(voice, {
-            time: time as Tone.Unit.Time,
+            time: time as Unit.Time,
             step,
             variationIndex,
             instruments,
@@ -231,7 +231,7 @@ function updateBarIndexAtEndOfBar(
 }
 
 function muteOpenHat(
-  time: Tone.Unit.Time,
+  time: Unit.Time,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   ohatIndex: number,
@@ -245,7 +245,7 @@ function muteOpenHat(
 }
 
 function triggerOpenHat(
-  time: Tone.Unit.Time,
+  time: Unit.Time,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
@@ -253,7 +253,7 @@ function triggerOpenHat(
 ): void {
   const env = runtime.envelopeNode;
   env.triggerAttack(time);
-  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+  env.triggerRelease(Time(time).toSeconds() + releaseTime);
 
   if (runtime.samplerNode.loaded) {
     runtime.samplerNode.triggerAttack(pitch, time, velocity);
@@ -261,7 +261,7 @@ function triggerOpenHat(
 }
 
 function triggerStandardInstrument(
-  time: Tone.Unit.Time,
+  time: Unit.Time,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
@@ -271,7 +271,7 @@ function triggerStandardInstrument(
 
   const env = runtime.envelopeNode;
   env.triggerAttack(time);
-  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+  env.triggerRelease(Time(time).toSeconds() + releaseTime);
 
   if (runtime.samplerNode.loaded) {
     runtime.samplerNode.triggerAttack(pitch, time, velocity);

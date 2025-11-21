@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { getContext, getTransport, now, start } from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
 import { SEQUENCE_SUBDIVISION, TRANSPORT_SWING_RANGE } from "./constants";
@@ -8,8 +8,8 @@ import { stopRuntimeAtTime } from "./runtimeStops";
  * Start the audio context
  */
 export async function startAudioContext(): Promise<void> {
-  if (Tone.context.state !== "running") {
-    await Tone.start();
+  if (getContext().state !== "running") {
+    await start();
   }
 }
 
@@ -19,7 +19,7 @@ export async function startAudioContext(): Promise<void> {
  * @param offset The timeline offset to start the transport.
  */
 export function startTransport(time?: number, offset?: number): void {
-  Tone.Transport.start(time, offset);
+  getTransport().start(time, offset);
 }
 
 /**
@@ -28,7 +28,7 @@ export function startTransport(time?: number, offset?: number): void {
  * @param onStop Optional callback to execute after stopping the transport.
  */
 export function stopTransport(time?: number, onStop?: () => void): void {
-  Tone.Transport.stop(time);
+  getTransport().stop(time);
   if (onStop) {
     onStop();
   }
@@ -38,7 +38,7 @@ export function stopTransport(time?: number, onStop?: () => void): void {
  * Set the transport BPM
  */
 export function setTransportBpm(bpm: number): void {
-  Tone.Transport.bpm.value = bpm;
+  getTransport().bpm.value = bpm;
 }
 
 /**
@@ -46,8 +46,8 @@ export function setTransportBpm(bpm: number): void {
  */
 export function setTransportSwing(swing: number): void {
   const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
-  Tone.Transport.swingSubdivision = SEQUENCE_SUBDIVISION;
-  Tone.Transport.swing = newSwing;
+  getTransport().swingSubdivision = SEQUENCE_SUBDIVISION;
+  getTransport().swing = newSwing;
 }
 
 /**
@@ -66,5 +66,5 @@ export function releaseAllRuntimes(
  * The current audio context time of the global context.
  */
 export function getCurrentTime(): number {
-  return Tone.now();
+  return now();
 }

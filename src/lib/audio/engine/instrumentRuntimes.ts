@@ -1,5 +1,10 @@
-import type { MutableRefObject } from "react";
-import * as Tone from "tone/build/esm/index";
+import type { RefObject } from "react";
+import {
+  AmplitudeEnvelope,
+  Filter,
+  Panner,
+  Sampler,
+} from "tone/build/esm/index";
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
@@ -14,7 +19,7 @@ type SamplerSource = {
  * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
  */
 export async function createInstrumentRuntimes(
-  runtimes: MutableRefObject<InstrumentRuntime[]>,
+  runtimes: RefObject<InstrumentRuntime[]>,
   data: InstrumentData[],
 ): Promise<void> {
   disposeInstrumentRuntimes(runtimes);
@@ -31,7 +36,7 @@ export async function createInstrumentRuntimes(
  * Disposes all instrument runtimes and clears the ref
  */
 export function disposeInstrumentRuntimes(
-  runtimes: MutableRefObject<InstrumentRuntime[]>,
+  runtimes: RefObject<InstrumentRuntime[]>,
 ): void {
   if (runtimes.current.length === 0) return;
 
@@ -43,13 +48,13 @@ export function disposeInstrumentRuntimes(
 async function buildInstrumentRuntime(
   instrument: InstrumentData,
 ): Promise<InstrumentRuntime> {
-  const filterNode = new Tone.Filter(0, "highpass");
-  const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
-  const pannerNode = new Tone.Panner(0);
+  const filterNode = new Filter(0, "highpass");
+  const envelopeNode = new AmplitudeEnvelope(0, 0, 1, 0.05);
+  const pannerNode = new Panner(0);
 
   const { url, baseUrl } = await resolveSamplerSource(instrument.sample.path);
 
-  const samplerNode = new Tone.Sampler({
+  const samplerNode = new Sampler({
     urls: { [SAMPLER_ROOT_NOTE]: url },
     ...(baseUrl ? { baseUrl } : {}),
   });

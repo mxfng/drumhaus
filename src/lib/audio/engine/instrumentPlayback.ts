@@ -1,4 +1,4 @@
-import * as Tone from "tone/build/esm/index";
+import { now } from "tone/build/esm/index";
 
 import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -14,7 +14,7 @@ export function playInstrumentSample(
   pitch: number,
   release: number,
 ): number {
-  const time = Tone.now();
+  const time = now();
   const pitchValue = transformPitchKnobToFrequency(pitch);
   const releaseTime = transformKnobValueExponential(
     release,

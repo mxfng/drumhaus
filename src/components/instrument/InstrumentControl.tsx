@@ -16,7 +16,7 @@ import "@fontsource-variable/pixelify-sans";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
-import * as Tone from "tone/build/esm/index";
+import { now } from "tone/build/esm/index";
 
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
@@ -199,7 +199,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
-      stopRuntimeAtTime(runtime, Tone.now());
+      stopRuntimeAtTime(runtime, now());
     }
     toggleMute();
   }, [toggleMute, mute, runtime]);
