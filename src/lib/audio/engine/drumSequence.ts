@@ -14,10 +14,11 @@ import {
   SEQUENCE_SUBDIVISION,
 } from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";
+import { stopRuntimeAtTime } from "./runtimeStops";
 import { triggerSamplerHit } from "./triggers";
 
 type ScheduleContext = {
-  time: Tone.Unit.Time;
+  time: number;
   step: number;
   variationIndex: number;
   instruments: InstrumentData[];
@@ -40,7 +41,7 @@ export function createDrumSequence(
   disposeDrumSequence(tjsSequencer);
 
   tjsSequencer.current = new Tone.Sequence(
-    (time, step: number) => {
+    (time: number, step: number) => {
       // Grab fresh state every 16th note for responsive UI + audio
       const { instruments } = useInstrumentsStore.getState();
       const { pattern } = usePatternStore.getState();
@@ -226,7 +227,7 @@ function updateBarIndexAtEndOfBar(
 
 // Small gate keeps the transient before the decay starts; padding avoids abrupt sampler stops.
 function muteOpenHat(
-  time: Tone.Unit.Time,
+  time: number,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   ohatIndex: number,
@@ -235,13 +236,12 @@ function muteOpenHat(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
-  ohRuntime.envelopeNode.triggerRelease(time);
-  ohRuntime.samplerNode.triggerRelease(ohPitch, time);
+  // Hard-stop any ringing open-hat voice so the closed hat is crisp
+  stopRuntimeAtTime(ohRuntime, time);
 }
 
 function triggerOpenHat(
-  time: Tone.Unit.Time,
+  time: number,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
@@ -253,7 +253,7 @@ function triggerOpenHat(
 }
 
 function triggerStandardInstrument(
-  time: Tone.Unit.Time,
+  time: number,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,

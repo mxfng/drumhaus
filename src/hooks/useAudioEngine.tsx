@@ -6,6 +6,7 @@ import {
   createInstrumentRuntimes,
   disposeDrumSequence,
   disposeInstrumentRuntimes,
+  releaseNonSoloRuntimes,
   waitForBuffersToLoad,
 } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
@@ -59,6 +60,28 @@ export function useAudioEngine(): UseAudioEngineResult {
       disposeDrumSequence(toneSequence);
     };
   }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
+
+  // When any instrument is soloed, immediately release all non-solo runtimes
+  useEffect(() => {
+    let prevSoloState = useInstrumentsStore
+      .getState()
+      .instruments.map((inst) => inst.params.solo);
+
+    const unsubscribe = useInstrumentsStore.subscribe((state) => {
+      const instruments = state.instruments;
+      const solos = instruments.map((inst) => inst.params.solo);
+      const hasSolo = solos.some(Boolean);
+      const soloChanged = solos.some((val, idx) => val !== prevSoloState[idx]);
+
+      if (hasSolo && soloChanged) {
+        releaseNonSoloRuntimes(instruments, instrumentRuntimes.current);
+      }
+
+      prevSoloState = solos;
+    });
+
+    return unsubscribe;
+  }, []);
 
   // Rebuild audio engine when samples change
   useEffect(() => {

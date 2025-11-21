@@ -30,14 +30,14 @@ import {
   INSTRUMENT_VOLUME_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "@/lib/audio/engine/constants";
+import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
+import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
 import {
   Knob,
-  KNOB_ROTATION_THRESHOLD_L,
-  transformKnobFilterValue,
   transformKnobValue,
   transformKnobValueExponential,
 } from "../common/Knob";
@@ -180,68 +180,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
     if (!runtime) return;
-
-    let prevParams: {
-      attack: number;
-      filter: number;
-      pan: number;
-      volume: number;
-    } | null = null;
-
-    const unsubscribe = useInstrumentsStore.subscribe((state) => {
-      const instrument = state.instruments[index];
-      if (!instrument) return;
-
-      const currentParams = {
-        attack: instrument.params.attack,
-        filter: instrument.params.filter,
-        pan: instrument.params.pan,
-        volume: instrument.params.volume,
-      };
-
-      // Only update if params actually changed
-      if (
-        !prevParams ||
-        prevParams.attack !== currentParams.attack ||
-        prevParams.filter !== currentParams.filter ||
-        prevParams.pan !== currentParams.pan ||
-        prevParams.volume !== currentParams.volume
-      ) {
-        // Update attack
-        const newAttackValue = transformKnobValue(
-          currentParams.attack,
-          INSTRUMENT_ATTACK_RANGE,
-        );
-        runtime.envelopeNode.attack = newAttackValue;
-
-        // Update filter
-        runtime.filterNode.type =
-          currentParams.filter <= KNOB_ROTATION_THRESHOLD_L
-            ? "lowpass"
-            : "highpass";
-        runtime.filterNode.frequency.value = transformKnobFilterValue(
-          currentParams.filter,
-        );
-
-        // Update pan
-        const newPanValue = transformKnobValue(
-          currentParams.pan,
-          INSTRUMENT_PAN_RANGE,
-        );
-        runtime.pannerNode.pan.value = newPanValue;
-
-        // Update volume
-        const newVolumeValue = transformKnobValue(
-          currentParams.volume,
-          INSTRUMENT_VOLUME_RANGE,
-        );
-        runtime.samplerNode.volume.value = newVolumeValue;
-
-        prevParams = currentParams;
-      }
-    });
-
-    return unsubscribe;
+    return subscribeRuntimeToInstrumentParams(index, runtime);
   }, [index, runtime]);
 
   const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
@@ -263,10 +202,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const handleToggleMute = useCallback(() => {
     // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
-      runtime.samplerNode.triggerRelease(SAMPLER_ROOT_NOTE, Tone.now());
+      stopRuntimeAtTime(runtime, Tone.now());
     }
     toggleMute();
-  }, [toggleMute, mute, runtime?.samplerNode]);
+  }, [toggleMute, mute, runtime]);
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {

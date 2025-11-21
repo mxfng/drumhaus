@@ -1,6 +1,7 @@
 import * as Tone from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
+import { stopRuntimeAtTime } from "./runtimeStops";
 
 // Small gate keeps the transient before the decay starts; padding avoids abrupt sampler stops.
 export const RELEASE_GATE_SECONDS = 0.005;
@@ -14,14 +15,14 @@ type TriggerOptions = {
 };
 
 export function computeReleaseTimes(
-  time: Tone.Unit.Time,
+  timeSeconds: number,
   releaseTime: number,
 ): { releaseStartAt: number; samplerReleaseAt: number } {
   const gateSeconds =
     releaseTime >= LONG_RELEASE_GATELESS_THRESHOLD
       ? Math.max(LONG_RELEASE_MIN_HOLD, releaseTime * LONG_RELEASE_HOLD_RATIO)
       : RELEASE_GATE_SECONDS;
-  const releaseStartAt = Tone.Time(time).toSeconds() + gateSeconds;
+  const releaseStartAt = timeSeconds + gateSeconds;
   const samplerReleaseAt =
     releaseStartAt + releaseTime + SAMPLER_RELEASE_PADDING;
 
@@ -30,31 +31,31 @@ export function computeReleaseTimes(
 
 export function triggerSamplerHit(
   runtime: InstrumentRuntime,
-  time: Tone.Unit.Time,
+  timeSeconds: number,
   pitch: number,
   releaseTime: number,
   velocity: number,
   options: TriggerOptions = {},
 ): void {
   const { monophonic = true } = options;
+  const startTime = timeSeconds;
   const { releaseStartAt, samplerReleaseAt } = computeReleaseTimes(
-    time,
+    startTime,
     releaseTime,
   );
 
-  runtime.envelopeNode.release = releaseTime;
+  const env = runtime.envelopeNode;
+  env.release = releaseTime;
 
   if (monophonic) {
-    runtime.envelopeNode.triggerRelease(time);
-    runtime.samplerNode.triggerRelease(pitch, time);
+    stopRuntimeAtTime(runtime, startTime);
   }
 
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
+  env.triggerAttack(startTime);
   env.triggerRelease(releaseStartAt);
 
   if (runtime.samplerNode.loaded) {
-    runtime.samplerNode.triggerAttack(pitch, time, velocity);
-    runtime.samplerNode.triggerRelease(samplerReleaseAt);
+    runtime.samplerNode.triggerAttack(pitch, startTime, velocity);
+    runtime.samplerNode.triggerRelease(pitch, samplerReleaseAt);
   }
 }

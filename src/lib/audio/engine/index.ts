@@ -13,6 +13,7 @@ export {
   createInstrumentRuntimes,
   disposeInstrumentRuntimes,
 } from "./instrumentRuntimes";
+export { subscribeRuntimeToInstrumentParams } from "./instrumentParams";
 
 // Master Chain
 export {
@@ -22,6 +23,7 @@ export {
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,
 } from "./masterChain";
+export { releaseNonSoloRuntimes } from "./solo";
 
 // Buffer
 export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
@@ -45,3 +47,4 @@ export {
   setTransportSwing,
   releaseAllRuntimes,
 } from "./transport";
+export { stopRuntimeAtTime } from "./runtimeStops";
