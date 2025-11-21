@@ -65,7 +65,7 @@ Real-time frequency analyzer and per-sample waveform displays. Frequency respons
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International License.
-See the [LICENSE](./LICENSE) file for details.
+See the [LICENSE](./LICENSE.md) file for details.
 
 ## Author
 
