@@ -31,7 +31,7 @@ interface SaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
-  modalCloseRef: React.RefObject<HTMLElement>;
+  modalCloseRef: React.RefObject<HTMLDivElement | null>;
   defaultName?: string;
 }
 
