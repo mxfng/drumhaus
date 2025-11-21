@@ -2,8 +2,8 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-rnb",
-    "name": "rnb",
+    "id": "kit-tech-house",
+    "name": "Tech House",
     "createdAt": "2023-11-20T16:00:00.000Z",
     "updatedAt": "2023-11-20T16:00:00.000Z",
     "author": "Max Fung"
@@ -11,22 +11,22 @@
   "instruments": [
     {
       "meta": {
-        "id": "kit-rnb-inst-0",
+        "id": "kit-tech-house-inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-0",
+          "id": "kit-tech-house-sample-0",
           "name": "Kick"
         },
-        "path": "6/superich_kick.wav"
+        "path": "2/paris_kick.wav"
       },
       "params": {
         "attack": 0,
         "release": 49,
         "filter": 50,
-        "volume": 100,
+        "volume": 83,
         "pan": 50,
         "pitch": 50,
         "solo": false,
@@ -35,23 +35,23 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-1",
-        "name": "Kick2"
+        "id": "kit-tech-house-inst-1",
+        "name": "Bass"
       },
-      "role": "kick",
+      "role": "bass",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-1",
-          "name": "Kick2"
+          "id": "kit-tech-house-sample-1",
+          "name": "Bass"
         },
-        "path": "6/superich_kick2.wav"
+        "path": "2/paris_bass.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 10,
+        "attack": 20,
+        "release": 63,
         "filter": 50,
-        "volume": 97,
-        "pan": 70,
+        "volume": 83,
+        "pan": 50,
         "pitch": 50,
         "solo": false,
         "mute": false
@@ -59,22 +59,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-2",
+        "id": "kit-tech-house-inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-2",
+          "id": "kit-tech-house-sample-2",
           "name": "Snare"
         },
-        "path": "6/superich_snare.wav"
+        "path": "2/paris_snare.wav"
       },
       "params": {
         "attack": 0,
         "release": 42,
-        "filter": 56,
-        "volume": 99,
+        "filter": 54,
+        "volume": 85,
         "pan": 50,
         "pitch": 50,
         "solo": false,
@@ -83,22 +83,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-3",
-        "name": "Snare2"
+        "id": "kit-tech-house-inst-3",
+        "name": "Clap"
       },
-      "role": "snare",
+      "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-3",
-          "name": "Snare2"
+          "id": "kit-tech-house-sample-3",
+          "name": "Clap"
         },
-        "path": "6/superich_tap.wav"
+        "path": "2/paris_clap.wav"
       },
       "params": {
         "attack": 0,
-        "release": 10,
+        "release": 40,
         "filter": 50,
-        "volume": 100,
+        "volume": 87,
         "pan": 50,
         "pitch": 50,
         "solo": false,
@@ -107,23 +107,23 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-4",
+        "id": "kit-tech-house-inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-4",
+          "id": "kit-tech-house-sample-4",
           "name": "Hat"
         },
-        "path": "6/superich_hat.wav"
+        "path": "2/paris_hat.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 10,
+        "attack": 4,
+        "release": 43,
         "filter": 50,
-        "volume": 97,
-        "pan": 36,
+        "volume": 70,
+        "pan": 50,
         "pitch": 50,
         "solo": false,
         "mute": false
@@ -131,22 +131,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-5",
+        "id": "kit-tech-house-inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-5",
+          "id": "kit-tech-house-sample-5",
           "name": "OHat"
         },
-        "path": "6/superich_ohat.wav"
+        "path": "2/paris_ohat.wav"
       },
       "params": {
         "attack": 0,
         "release": 100,
         "filter": 50,
-        "volume": 97,
+        "volume": 82,
         "pan": 50,
         "pitch": 50,
         "solo": false,
@@ -155,23 +155,23 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-6",
-        "name": "Perc"
+        "id": "kit-tech-house-inst-6",
+        "name": "Piano"
       },
-      "role": "perc",
+      "role": "synth",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-6",
-          "name": "Perc"
+          "id": "kit-tech-house-sample-6",
+          "name": "Piano"
         },
-        "path": "6/superich_clav.wav"
+        "path": "2/paris_p_E.wav"
       },
       "params": {
         "attack": 0,
-        "release": 40,
-        "filter": 56,
-        "volume": 85,
-        "pan": 62,
+        "release": 79,
+        "filter": 55,
+        "volume": 80,
+        "pan": 35,
         "pitch": 50,
         "solo": false,
         "mute": false
@@ -179,23 +179,23 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-7",
-        "name": "Crash"
+        "id": "kit-tech-house-inst-7",
+        "name": "Piano2"
       },
-      "role": "crash",
+      "role": "synth",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-7",
-          "name": "Crash"
+          "id": "kit-tech-house-sample-7",
+          "name": "Piano2"
         },
-        "path": "6/superich_ride.wav"
+        "path": "2/paris_p_Abm.wav"
       },
       "params": {
         "attack": 0,
         "release": 100,
         "filter": 50,
-        "volume": 100,
-        "pan": 50,
+        "volume": 79,
+        "pan": 66,
         "pitch": 50,
         "solo": false,
         "mute": false
