@@ -1,22 +1,26 @@
 import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValue } from "@/components/common/Knob";
+import { transformKnobValueExponential } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
-import { SEQUENCE_EVENTS, SEQUENCE_SUBDIVISION } from "./constants";
+import {
+  INSTRUMENT_RELEASE_RANGE,
+  SEQUENCE_EVENTS,
+  SEQUENCE_SUBDIVISION,
+} from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";
+import { triggerSamplerHit } from "./triggers";
 
 type ScheduleContext = {
   time: Tone.Unit.Time;
   step: number;
   variationIndex: number;
   instruments: InstrumentData[];
-  durations: number[];
   runtimes: InstrumentRuntime[];
   anySolos: boolean;
   hasOhat: boolean;
@@ -38,7 +42,7 @@ export function createDrumSequence(
   tjsSequencer.current = new Tone.Sequence(
     (time, step: number) => {
       // Grab fresh state every 16th note for responsive UI + audio
-      const { instruments, durations } = useInstrumentsStore.getState();
+      const { instruments } = useInstrumentsStore.getState();
       const { pattern } = usePatternStore.getState();
       const { setStepIndex } = useTransportStore.getState();
 
@@ -69,7 +73,6 @@ export function createDrumSequence(
           step,
           variationIndex,
           instruments,
-          durations,
           runtimes: currentRuntimes,
           anySolos,
           hasOhat,
@@ -110,7 +113,6 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
     step,
     variationIndex,
     instruments,
-    durations,
     runtimes,
     anySolos,
     hasOhat,
@@ -135,10 +137,10 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
 
   const velocity = velocities[step];
   const pitch = transformPitchKnobToFrequency(params.pitch);
-  const releaseTime = transformKnobValue(params.release, [
-    0,
-    durations[instrumentIndex],
-  ]);
+  const releaseTime = transformKnobValueExponential(
+    params.release,
+    INSTRUMENT_RELEASE_RANGE,
+  );
 
   if (inst.role === "hat" && hasOhat) {
     muteOpenHat(time, instruments, runtimes, ohatIndex);
@@ -222,6 +224,7 @@ function updateBarIndexAtEndOfBar(
   }
 }
 
+// Small gate keeps the transient before the decay starts; padding avoids abrupt sampler stops.
 function muteOpenHat(
   time: Tone.Unit.Time,
   instruments: InstrumentData[],
@@ -233,6 +236,7 @@ function muteOpenHat(
   if (!ohInst || !ohRuntime) return;
 
   const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
+  ohRuntime.envelopeNode.triggerRelease(time);
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 
@@ -243,13 +247,9 @@ function triggerOpenHat(
   releaseTime: number,
   velocity: number,
 ): void {
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
-
-  if (runtime.samplerNode.loaded) {
-    runtime.samplerNode.triggerAttack(pitch, time, velocity);
-  }
+  triggerSamplerHit(runtime, time, pitch, releaseTime, velocity, {
+    monophonic: false,
+  });
 }
 
 function triggerStandardInstrument(
@@ -259,13 +259,7 @@ function triggerStandardInstrument(
   releaseTime: number,
   velocity: number,
 ): void {
-  runtime.samplerNode.triggerRelease(pitch, time);
-
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
-
-  if (runtime.samplerNode.loaded) {
-    runtime.samplerNode.triggerAttack(pitch, time, velocity);
-  }
+  triggerSamplerHit(runtime, time, pitch, releaseTime, velocity, {
+    monophonic: true,
+  });
 }

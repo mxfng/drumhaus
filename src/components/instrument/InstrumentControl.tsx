@@ -26,6 +26,7 @@ import {
   INSTRUMENT_ATTACK_RANGE,
   INSTRUMENT_PAN_RANGE,
   INSTRUMENT_PITCH_SEMITONE_RANGE,
+  INSTRUMENT_RELEASE_RANGE,
   INSTRUMENT_VOLUME_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "@/lib/audio/engine/constants";
@@ -38,6 +39,7 @@ import {
   KNOB_ROTATION_THRESHOLD_L,
   transformKnobFilterValue,
   transformKnobValue,
+  transformKnobValueExponential,
 } from "../common/Knob";
 import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
@@ -150,6 +152,29 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         : semitoneOffset.toFixed(0);
     return `${signedOffset} st`;
   }, []);
+  const formatDurationLabel = useCallback((seconds: number) => {
+    if (!seconds || !Number.isFinite(seconds)) return "0 ms";
+    if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
+    if (seconds < 10) return `${seconds.toFixed(2)} s`;
+    return `${seconds.toFixed(1)} s`;
+  }, []);
+  const formatAttackLabel = useCallback(
+    (value: number) => {
+      const attackSeconds = transformKnobValue(value, INSTRUMENT_ATTACK_RANGE);
+      return formatDurationLabel(attackSeconds);
+    },
+    [formatDurationLabel],
+  );
+  const formatReleaseLabel = useCallback(
+    (value: number) => {
+      const releaseSeconds = transformKnobValueExponential(
+        value,
+        INSTRUMENT_RELEASE_RANGE,
+      );
+      return formatDurationLabel(releaseSeconds);
+    },
+    [formatDurationLabel],
+  );
 
   // Subscribe to instrument parameter changes and update audio nodes directly
   // This avoids multiple useEffects and updates audio without causing re-renders
@@ -274,7 +299,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const playSample = () => {
     if (!runtime) return;
 
-    playInstrumentSample(runtime, pitch, release, sampleDuration);
+    playInstrumentSample(runtime, pitch, release);
   };
 
   return (
@@ -347,6 +372,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               defaultValue={0}
               disabled={!isRuntimeLoaded}
               size="sm"
+              formatValue={formatAttackLabel}
             />
           </GridItem>
           <GridItem>
@@ -370,6 +396,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               defaultValue={100}
               disabled={!isRuntimeLoaded}
               size="sm"
+              formatValue={formatReleaseLabel}
             />
           </GridItem>
 
