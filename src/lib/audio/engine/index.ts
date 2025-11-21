@@ -26,7 +26,11 @@ export {
 export { releaseNonSoloRuntimes } from "./solo";
 
 // Buffer
-export { getSampleDuration, waitForBuffersToLoad } from "./buffer";
+export {
+  getSampleDuration,
+  waitForBuffersToLoad,
+  type SampleDurationResult,
+} from "./buffer";
 
 // Instrument Playback
 export { playInstrumentSample } from "./instrumentPlayback";

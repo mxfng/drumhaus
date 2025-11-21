@@ -7,8 +7,8 @@ export const useSampleDuration = (url: string) => {
 
   useEffect(() => {
     const updateSampleDuration = async () => {
-      const duration = await getSampleDuration(url);
-      setSampleDuration(duration);
+      const result = await getSampleDuration(url);
+      setSampleDuration(result.duration);
     };
 
     updateSampleDuration();

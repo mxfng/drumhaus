@@ -29,4 +29,6 @@ export const DEFAULT_VELOCITY = 1.0;
 // Shared musical constants
 export const SAMPLER_ROOT_NOTE = "C2";
 export const SEQUENCE_SUBDIVISION = "16n";
-export const SEQUENCE_EVENTS: number[] = [...Array(STEP_COUNT).keys()];
+export const SEQUENCE_EVENTS: number[] = [
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+];
