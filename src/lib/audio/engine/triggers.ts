@@ -5,8 +5,8 @@ import type { InstrumentRuntime } from "@/types/instrument";
 // Small gate keeps the transient before the decay starts; padding avoids abrupt sampler stops.
 export const RELEASE_GATE_SECONDS = 0.005;
 export const LONG_RELEASE_GATELESS_THRESHOLD = 1.5;
-export const LONG_RELEASE_HOLD_RATIO = 0.5;
-export const LONG_RELEASE_MIN_HOLD = 0.75;
+export const LONG_RELEASE_HOLD_RATIO = 0.85;
+export const LONG_RELEASE_MIN_HOLD = 1;
 export const SAMPLER_RELEASE_PADDING = 0.02;
 
 type TriggerOptions = {
