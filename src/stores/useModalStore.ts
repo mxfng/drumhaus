@@ -9,7 +9,6 @@ interface ModalState {
   isSharedModalOpen: boolean;
   isResetModalOpen: boolean;
   isPresetChangeModalOpen: boolean;
-  isSharePromptOpen: boolean;
 
   // Modal data
   shareableLink: string;
@@ -30,9 +29,6 @@ interface ModalState {
 
   openPresetChangeModal: (presetName: string) => void;
   closePresetChangeModal: () => void;
-
-  openSharePrompt: () => void;
-  closeSharePrompt: () => void;
 
   // Helper to check if any modal is open (for blocking spacebar)
   isAnyModalOpen: () => boolean;
@@ -118,18 +114,6 @@ export const useModalStore = create<ModalState>()(
         });
       },
 
-      openSharePrompt: () => {
-        set((state) => {
-          state.isSharePromptOpen = true;
-        });
-      },
-
-      closeSharePrompt: () => {
-        set((state) => {
-          state.isSharePromptOpen = false;
-        });
-      },
-
       isAnyModalOpen: () => {
         const state = get();
         return (
@@ -137,8 +121,7 @@ export const useModalStore = create<ModalState>()(
           state.isSharingModalOpen ||
           state.isSharedModalOpen ||
           state.isResetModalOpen ||
-          state.isPresetChangeModalOpen ||
-          state.isSharePromptOpen
+          state.isPresetChangeModalOpen
         );
       },
 
@@ -149,7 +132,6 @@ export const useModalStore = create<ModalState>()(
           state.isSharedModalOpen = false;
           state.isResetModalOpen = false;
           state.isPresetChangeModalOpen = false;
-          state.isSharePromptOpen = false;
           state.shareableLink = "";
           state.presetToChange = "";
         });
