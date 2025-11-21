@@ -58,6 +58,7 @@ export const MasterFX: React.FC = () => {
                 units="mix"
                 range={MASTER_PHASER_WET_RANGE}
                 defaultValue={0}
+                formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
               />
             </GridItem>
             <GridItem>
@@ -79,6 +80,7 @@ export const MasterFX: React.FC = () => {
                 units="mix"
                 range={MASTER_REVERB_WET_RANGE}
                 defaultValue={0}
+                formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
               />
             </GridItem>
           </Grid>
