@@ -22,4 +22,4 @@ soundfile==0.12.1
 soxr==0.3.7
 threadpoolctl==3.2.0
 typing_extensions==4.8.0
-urllib3==2.1.0
+urllib3==2.5.0
