@@ -1,5 +1,3 @@
-import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
-
 import {
   MASTER_FILTER_RANGE,
   MASTER_PHASER_WET_RANGE,
@@ -20,26 +18,18 @@ export const MasterFX: React.FC = () => {
   const setHighPass = useMasterChainStore((state) => state.setHighPass);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
   const setReverb = useMasterChainStore((state) => state.setReverb);
+
   return (
-    <Box>
-      <Grid templateColumns="repeat(2, 1fr)">
-        <GridItem position="relative">
-          <Text
-            transform="rotate(-90deg)"
-            position="absolute"
-            left={-10}
-            w="70px"
-            bottom="70px"
-            color="gray"
-            fontSize={12}
-            opacity={0.5}
-          >
+    <div>
+      <div className="grid grid-cols-2">
+        <div className="relative">
+          <span className="absolute -left-10 bottom-[70px] w-[70px] -rotate-90 font-pixel text-xs text-text opacity-50">
             MASTER FX
-          </Text>
-        </GridItem>
-        <GridItem>
-          <Grid templateColumns="repeat(2, 1fr)">
-            <GridItem>
+          </span>
+        </div>
+        <div>
+          <div className="grid grid-cols-2">
+            <div>
               <Knob
                 value={lowPass}
                 onChange={setLowPass}
@@ -49,8 +39,8 @@ export const MasterFX: React.FC = () => {
                 scale="exp"
                 defaultValue={100}
               />
-            </GridItem>
-            <GridItem>
+            </div>
+            <div>
               <Knob
                 value={phaser}
                 onChange={setPhaser}
@@ -60,8 +50,8 @@ export const MasterFX: React.FC = () => {
                 defaultValue={0}
                 formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
               />
-            </GridItem>
-            <GridItem>
+            </div>
+            <div>
               <Knob
                 value={highPass}
                 onChange={setHighPass}
@@ -71,8 +61,8 @@ export const MasterFX: React.FC = () => {
                 scale="exp"
                 defaultValue={0}
               />
-            </GridItem>
-            <GridItem>
+            </div>
+            <div>
               <Knob
                 value={reverb}
                 onChange={setReverb}
@@ -82,10 +72,10 @@ export const MasterFX: React.FC = () => {
                 defaultValue={0}
                 formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
               />
-            </GridItem>
-          </Grid>
-        </GridItem>
-      </Grid>
-    </Box>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };

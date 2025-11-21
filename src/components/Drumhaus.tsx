@@ -1,15 +1,4 @@
 import { useEffect } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Grid,
-  GridItem,
-  Link,
-  Text,
-} from "@chakra-ui/react";
-import { motion } from "framer-motion";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 
 import { useAudioEngine } from "@/hooks/useAudioEngine";
@@ -32,11 +21,6 @@ import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { InstrumentGrid } from "./instrument/InstrumentGrid";
 import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
-
-const FADE_IN_VARIANTS = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-};
 
 const Drumhaus = () => {
   // --- Store State ---
@@ -93,21 +77,8 @@ const Drumhaus = () => {
           className="drumhaus-scale-wrapper"
           style={{ transform: `scale(${scale})` }}
         >
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={FADE_IN_VARIANTS}
-            transition={{ duration: 0.5 }}
-          >
-            <Box
-              bg="silver"
-              w={1538}
-              h={1000}
-              borderRadius="12px"
-              className="neumorphicExtraTall"
-              overflow="clip"
-              position="relative"
-            >
+          <div className="animate-fade-in">
+            <div className="neumorphicExtraTall relative h-[1000px] w-[1538px] overflow-clip rounded-xl bg-[silver]">
               <TopBar />
 
               <MainControls
@@ -121,11 +92,11 @@ const Drumhaus = () => {
               <SequencerSection />
 
               <BrandingLink />
-            </Box>
-            <Box h="20px" w="100%" position="relative">
+            </div>
+            <div className="relative h-5 w-full">
               <Footer />
-            </Box>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
       <MobileModal
@@ -138,48 +109,24 @@ const Drumhaus = () => {
 
 const TopBar = () => {
   return (
-    <Box
-      h="120px"
-      boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)"
-      position="relative"
-    >
-      <Flex
-        position="relative"
-        h="120px"
-        w="750px"
-        flexDir="row"
-        alignItems="flex-end"
-        pl="26px"
-        pb="20px"
-      >
-        <Box display="flex" alignItems="flex-end">
+    <div className="relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
+      <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
+        <div className="flex items-end">
           <DrumhausLogo size={46} color="#ff7b00" />
-        </Box>
-        <Box ml={2} display="flex" alignItems="flex-end">
+        </div>
+        <div className="ml-2 flex items-end">
           <DrumhausTypographyLogo color="#ff7b00" size={420} />
-        </Box>
-        <Box mb={-1} ml={4}>
-          <Text color="gray" opacity={0.7}>
-            Browser Controlled
-          </Text>
-          <Text color="gray" opacity={0.7}>
-            Rhythmic Groove Machine
-          </Text>
-        </Box>
-      </Flex>
+        </div>
+        <div className="-mb-1 ml-4">
+          <p className="text-gray-500 opacity-70">Browser Controlled</p>
+          <p className="text-gray-500 opacity-70">Rhythmic Groove Machine</p>
+        </div>
+      </div>
 
-      <Box
-        position="absolute"
-        right="26px"
-        bottom="18px"
-        borderRadius="16px"
-        overflow="hidden"
-        opacity={0.6}
-        boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-      >
+      <div className="absolute bottom-[18px] right-[26px] overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
         <FrequencyAnalyzer />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 
@@ -200,22 +147,19 @@ const MainControls = ({
 }: MainControlsProps) => {
   return (
     <>
-      <Box boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+      <div className="shadow-[0_4px_8px_var(--color-shadow-60)]">
         <InstrumentGrid
           key={instrumentRuntimesVersion}
           instrumentRuntimes={instrumentRuntimes}
         />
-      </Box>
+      </div>
 
-      <Grid templateColumns="repeat(7, 1fr)" pl={4} py={4} w="100%">
-        <GridItem colSpan={1} w="160px" mr={6}>
-          <Center w="100%" h="100%">
-            <Button
-              h="140px"
-              w="140px"
+      <div className="grid w-full grid-cols-7 py-4 pl-4">
+        <div className="col-span-1 mr-6 w-[160px]">
+          <div className="flex h-full w-full items-center justify-center">
+            <button
+              className="neumorphicTallRaised h-[140px] w-[140px] outline-none"
               onClick={() => togglePlay(instrumentRuntimes)}
-              className="neumorphicTallRaised"
-              outline="none"
               onKeyDown={(ev) => ev.preventDefault()}
             >
               {isPlaying ? (
@@ -223,79 +167,72 @@ const MainControls = ({
               ) : (
                 <IoPlaySharp size={50} color="#B09374" />
               )}
-            </Button>
-          </Center>
-        </GridItem>
+            </button>
+          </div>
+        </div>
 
-        <GridItem colSpan={1} mx={0} ml={-3}>
+        <div className="col-span-1 -ml-3 mx-0">
           <SequencerControl />
-        </GridItem>
+        </div>
 
-        <GridItem colSpan={1} px={2}>
+        <div className="col-span-1 px-2">
           <TransportControl />
-        </GridItem>
+        </div>
 
-        <GridItem w="380px" px={2}>
+        <div className="w-[380px] px-2">
           <PresetControl loadPreset={loadPreset} />
-        </GridItem>
+        </div>
 
         <MasterControl />
-      </Grid>
+      </div>
     </>
   );
 };
 
 const SequencerSection = () => {
   return (
-    <Box p={8} boxShadow="0 4px 8px rgba(176, 147, 116, 0.6)">
+    <div className="p-8 shadow-[0_4px_8px_var(--color-shadow-60)]">
       <Sequencer />
-    </Box>
+    </div>
   );
 };
 
 const BrandingLink = () => {
   return (
-    <Box
-      position="absolute"
-      right="26px"
-      bottom={3}
-      opacity={0.2}
-      as="a"
+    <a
+      className="absolute bottom-3 right-[26px] opacity-20"
       href="https://fung.studio/"
       target="_blank"
+      rel="noreferrer"
     >
       <FungPeaceLogo color="#B09374" size={80} />
-    </Box>
+    </a>
   );
 };
 
 const Footer = () => {
   return (
-    <Center w="100%" h="100%">
-      <Flex mt={8}>
-        <Text color="gray" fontSize={14}>
-          Designed with love by
-        </Text>
-        <Link
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="mt-8 flex">
+        <p className="text-sm text-gray-500">Designed with love by</p>
+        <a
           href="https://fung.studio/"
           target="_blank"
-          color="gray"
-          ml={1}
-          fontSize={14}
+          rel="noreferrer"
+          className="ml-1 text-sm text-gray-500"
         >
           Max Fung.
-        </Link>
-        <Link
+        </a>
+        <a
           href="https://ko-fi.com/maxfung"
           target="_blank"
-          color="gray"
-          ml={1}
-          fontSize={14}
+          rel="noreferrer"
+          className="ml-1 text-sm text-gray-500"
         >
           Support on ko-fi.
-        </Link>
-      </Flex>
-    </Center>
+        </a>
+      </div>
+    </div>
   );
 };
 

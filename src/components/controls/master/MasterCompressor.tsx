@@ -1,5 +1,3 @@
-import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
-
 import {
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_THRESHOLD_RANGE,
@@ -15,23 +13,16 @@ export const MasterCompressor: React.FC = () => {
   // Get actions from store
   const setThreshold = useMasterChainStore((state) => state.setCompThreshold);
   const setRatio = useMasterChainStore((state) => state.setCompRatio);
+
   return (
-    <Box h="100%" w="130px">
-      <Grid templateColumns="repeat(2, 1fr)">
-        <GridItem position="relative">
-          <Text
-            transform="rotate(-90deg)"
-            position="absolute"
-            left={-2}
-            bottom="70px"
-            color="gray"
-            fontSize={12}
-            opacity={0.5}
-          >
+    <div className="h-full w-[130px]">
+      <div className="grid grid-cols-2">
+        <div className="relative">
+          <span className="absolute -left-0.5 bottom-[70px] -rotate-90 font-pixel text-xs text-text opacity-50">
             COMPRESSOR
-          </Text>
-        </GridItem>
-        <GridItem>
+          </span>
+        </div>
+        <div>
           <Knob
             value={threshold}
             onChange={setThreshold}
@@ -48,8 +39,8 @@ export const MasterCompressor: React.FC = () => {
             range={MASTER_COMP_RATIO_RANGE}
             defaultValue={43}
           />
-        </GridItem>
-      </Grid>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 };

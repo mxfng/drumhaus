@@ -1,4 +1,3 @@
-import { Box, Button, Select, Text } from "@chakra-ui/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 
 import type { PresetFileV1 } from "@/types/preset";
@@ -16,62 +15,34 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 }) => {
   return (
     <>
-      <Text fontSize={12} color="gray">
-        PRESET
-      </Text>
+      <span className="font-pixel text-xs text-text">PRESET</span>
 
-      <Box
-        w="100%"
-        borderRadius="8px"
-        boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-        _hover={{
-          "& .icon": {
-            fill: "darkorange",
-            transition: "all 0.2s ease",
-          },
-        }}
-      >
-        <Box id="preset" h="40px" mb={2} position="relative">
-          <Select
-            variant="unstyled"
-            icon={<div></div>}
+      <div className="group w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+        <div id="preset" className="relative mb-2 h-10">
+          <select
             value={selectedPresetId}
-            fontFamily={`'Pixelify Sans Variable', sans-serif`}
-            color="gray"
-            w="332px"
-            h="40px"
-            borderRadius="8px"
-            cursor="pointer"
-            onChange={(event) => {
-              onSelect(event);
-            }}
+            className="h-10 w-[332px] cursor-pointer rounded-lg bg-transparent pl-4 font-pixel text-text outline-none"
+            onChange={onSelect}
             onKeyDown={(ev) => ev.preventDefault()}
-            pl={4}
           >
             {presets.map((preset) => (
               <option key={preset.meta.id} value={preset.meta.id}>
                 {preset.meta.name}
               </option>
             ))}
-          </Select>
-          <Button
-            bg="transparent"
-            position="absolute"
-            right={0}
-            top={0}
-            pointerEvents="none"
-          >
-            <Box>
-              <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                <IoMdArrowDropdown className="icon" color="#B09374" />
-              </Box>
-              <Box h="50%">
-                <IoMdArrowDropdown className="icon" color="#B09374" />
-              </Box>
-            </Box>
-          </Button>
-        </Box>
-      </Box>
+          </select>
+          <div className="pointer-events-none absolute right-0 top-0 bg-transparent p-2">
+            <div>
+              <div className="-mb-1 h-1/2 rotate-180">
+                <IoMdArrowDropdown className="text-text transition-all duration-200 group-hover:text-accent" />
+              </div>
+              <div className="h-1/2">
+                <IoMdArrowDropdown className="text-text transition-all duration-200 group-hover:text-accent" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

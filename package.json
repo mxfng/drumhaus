@@ -1,6 +1,6 @@
 {
   "name": "drumhaus",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,9 +13,6 @@
     "kit:new": "tsx scripts/new-kit.ts"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@fontsource-variable/pixelify-sans": "^5.2.7",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-dialog": "^1.1.15",

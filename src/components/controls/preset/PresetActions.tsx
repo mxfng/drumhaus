@@ -1,9 +1,9 @@
-import { Box, Button, Center, Grid, GridItem, Tooltip } from "@chakra-ui/react";
 import { FaFolderOpen } from "react-icons/fa";
 import { IoIosShareAlt } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
+import { Tooltip } from "@/components/ui";
 import { useModalStore } from "@/stores/useModalStore";
 
 type PresetActionsProps = {
@@ -18,94 +18,62 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openResetModal = useModalStore((state) => state.openResetModal);
 
   return (
-    <Grid
-      templateColumns="repeat(4, 1fr)"
-      className="neumorphic"
-      borderRadius="8px"
-      mt={2}
-    >
-      <GridItem>
-        <Center>
-          <Tooltip label="Download to file" color="darkorange" openDelay={500}>
-            <Button
-              onClick={openSaveModal}
-              w="100%"
-              borderRadius="8px 0 0 8px"
-              className="raised"
-              _hover={{
-                "& .icon": {
-                  fill: "darkorange",
-                  transition: "all 0.2s ease",
-                },
-              }}
-            >
-              <MdOutlineSaveAlt className="icon" color="#B09374" size="20px" />
-            </Button>
-          </Tooltip>
-        </Center>
-      </GridItem>
-      <GridItem>
-        <Center>
-          <Tooltip label="Load from file" color="darkorange" openDelay={500}>
-            <Button
-              onClick={onOpenFromFile}
-              w="100%"
-              borderRadius="0 0 0 0"
-              className="raised"
-              _hover={{
-                "& .icon": {
-                  fill: "darkorange",
-                  transition: "all 0.2s ease",
-                },
-              }}
-            >
-              <FaFolderOpen className="icon" color="#B09374" size="20px" />
-            </Button>
-          </Tooltip>
-        </Center>
-      </GridItem>
-      <GridItem>
-        <Center>
-          <Tooltip label="Share as link" color="darkorange" openDelay={500}>
-            <Box display="inline-block" w="100%">
-              <Button
-                onClick={openSharingModal}
-                w="100%"
-                borderRadius="0 0 0 0"
-                className="raised"
-                _hover={{
-                  "& .icon": {
-                    fill: "darkorange",
-                    transition: "all 0.2s ease",
-                  },
-                }}
-              >
-                <IoIosShareAlt className="icon" fill="#B09374" size="26px" />
-              </Button>
-            </Box>
-          </Tooltip>
-        </Center>
-      </GridItem>
-      <GridItem>
-        <Center>
-          <Tooltip label="Reset all" color="darkorange" openDelay={500}>
-            <Button
-              onClick={openResetModal}
-              w="100%"
-              borderRadius="0 8px 8px 0"
-              className="raised"
-              _hover={{
-                "& .iconReset": {
-                  color: "#ff7b00",
-                  transition: "all 0.2s ease",
-                },
-              }}
-            >
-              <RxReset className="iconReset" color="#B09374" size="20px" />
-            </Button>
-          </Tooltip>
-        </Center>
-      </GridItem>
-    </Grid>
+    <div className="neumorphic mt-2 grid grid-cols-4 rounded-lg">
+      <div className="flex items-center justify-center">
+        <Tooltip content="Download to file" delayDuration={500}>
+          <button
+            onClick={openSaveModal}
+            className="raised group flex w-full items-center justify-center rounded-l-lg p-2"
+          >
+            <MdOutlineSaveAlt
+              className="text-text transition-all duration-200 group-hover:text-accent"
+              size="20px"
+            />
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="flex items-center justify-center">
+        <Tooltip content="Load from file" delayDuration={500}>
+          <button
+            onClick={onOpenFromFile}
+            className="raised group flex w-full items-center justify-center p-2"
+          >
+            <FaFolderOpen
+              className="text-text transition-all duration-200 group-hover:text-accent"
+              size="20px"
+            />
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="flex items-center justify-center">
+        <Tooltip content="Share as link" delayDuration={500}>
+          <button
+            onClick={openSharingModal}
+            className="raised group flex w-full items-center justify-center p-2"
+          >
+            <IoIosShareAlt
+              className="text-text transition-all duration-200 group-hover:text-accent"
+              size="26px"
+            />
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="flex items-center justify-center">
+        <Tooltip content="Reset all" delayDuration={500}>
+          <button
+            onClick={openResetModal}
+            className="raised group flex w-full items-center justify-center rounded-r-lg p-2"
+          >
+            <RxReset
+              className="text-text transition-all duration-200 group-hover:text-accent"
+              size="20px"
+            />
+          </button>
+        </Tooltip>
+      </div>
+    </div>
   );
 };

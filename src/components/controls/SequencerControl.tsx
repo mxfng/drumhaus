@@ -1,13 +1,4 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Grid,
-  GridItem,
-  Text,
-} from "@chakra-ui/react";
 import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
@@ -64,197 +55,127 @@ export const SequencerControl: React.FC = () => {
 
   return (
     <>
-      <Center h="100%" w="280px" px={4}>
-        <Box>
-          <Text fontSize={12} color="gray" pb={4} opacity={0.5}>
+      <div className="flex h-full w-[280px] items-center justify-center px-4">
+        <div>
+          <span className="block pb-4 font-pixel text-xs text-text opacity-50">
             SEQUENCER
-          </Text>
-          <Grid templateColumns="repeat(3,1fr)" pb={8}>
-            <GridItem colSpan={1} position="relative" pr={2}>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+          </span>
+          <div className="grid grid-cols-3 pb-8">
+            <div className="relative col-span-1 pr-2">
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 SHOW
-              </Text>
-              <Center>
-                <Flex className="neumorphic" borderRadius="8px">
-                  <Button
-                    h="30px"
-                    w="30px"
-                    className="raised"
-                    borderRadius="8px 0 0 8px"
-                    color={variation == 0 ? "darkorange" : "#B09374"}
+              </span>
+              <div className="flex items-center justify-center">
+                <div className="neumorphic flex rounded-lg">
+                  <button
+                    className={`raised h-[30px] w-[30px] rounded-l-lg font-pixel ${
+                      variation == 0 ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariation(0)}
                   >
                     A
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="30px"
-                    className="raised"
-                    borderRadius="0 8px 8px 0"
-                    color={variation == 1 ? "darkorange" : "#B09374"}
+                  </button>
+                  <button
+                    className={`raised h-[30px] w-[30px] rounded-r-lg font-pixel ${
+                      variation == 1 ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariation(1)}
                   >
                     B
-                  </Button>
-                </Flex>
-              </Center>
-            </GridItem>
-            <GridItem colSpan={1} position="relative">
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="relative col-span-1">
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 VAR CYC
-              </Text>
-              <Center>
-                <Flex className="neumorphic" borderRadius="8px">
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="8px 0 0 8px"
-                    color={variationCycle === "A" ? "darkorange" : "gray"}
-                    fontSize={12}
+              </span>
+              <div className="flex items-center justify-center">
+                <div className="neumorphic flex rounded-lg">
+                  <button
+                    className={`raised h-[30px] w-[40px] rounded-l-lg font-pixel text-xs ${
+                      variationCycle === "A" ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariationCycle("A")}
                   >
                     A
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 0 0 0"
-                    color={variationCycle === "B" ? "darkorange" : "gray"}
-                    fontSize={12}
+                  </button>
+                  <button
+                    className={`raised h-[30px] w-[40px] font-pixel text-xs ${
+                      variationCycle === "B" ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariationCycle("B")}
                   >
                     B
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 0 0 0"
-                    color={variationCycle === "AB" ? "darkorange" : "gray"}
-                    fontSize={12}
+                  </button>
+                  <button
+                    className={`raised h-[30px] w-[40px] font-pixel text-xs ${
+                      variationCycle === "AB" ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariationCycle("AB")}
                   >
                     AB
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 8px 8px 0"
-                    color={variationCycle === "AAAB" ? "darkorange" : "gray"}
-                    fontSize={12}
+                  </button>
+                  <button
+                    className={`raised h-[30px] w-[40px] rounded-r-lg font-pixel text-xs ${
+                      variationCycle === "AAAB" ? "text-accent" : "text-text"
+                    }`}
                     onClick={() => setVariationCycle("AAAB")}
                   >
                     AAAB
-                  </Button>
-                </Flex>
-              </Center>
-            </GridItem>
-          </Grid>
-          <Grid templateColumns="repeat(4, 1fr)" gap={2} pb={4}>
-            <GridItem position="relative">
-              <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-2 pb-4">
+            <div className="relative">
+              <button
+                className="neumorphicRaised h-[26px] w-full bg-transparent"
                 onClick={copySequence}
               >
-                <IoCopySharp color="#B09374" />
-              </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+                <IoCopySharp className="mx-auto text-text" />
+              </button>
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 COPY
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
-              <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
+              </span>
+            </div>
+            <div className="relative">
+              <button
+                className="neumorphicRaised h-[26px] w-full bg-transparent"
                 onClick={pasteSequence}
               >
-                <IoBrushSharp color="#B09374" />
-              </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+                <IoBrushSharp className="mx-auto text-text" />
+              </button>
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 PASTE
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
-              <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
+              </span>
+            </div>
+            <div className="relative">
+              <button
+                className="neumorphicRaised h-[26px] w-full bg-transparent"
                 onClick={handleClearSequence}
               >
-                <BsFillEraserFill color="#B09374" />
-              </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+                <BsFillEraserFill className="mx-auto text-text" />
+              </button>
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 CLEAR
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
-              <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
+              </span>
+            </div>
+            <div className="relative">
+              <button
+                className="neumorphicRaised h-[26px] w-full bg-transparent"
                 onClick={handleRandomSequence}
               >
-                <FaDice color="#B09374" />
-              </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
+                <FaDice className="mx-auto text-text" />
+              </button>
+              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
                 RAND
-              </Text>
-            </GridItem>
-          </Grid>
-        </Box>
-      </Center>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

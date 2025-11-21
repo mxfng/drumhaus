@@ -1,24 +1,18 @@
 import { useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  FormControl,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  useClipboard,
-  useToast,
-} from "@chakra-ui/react";
 import { z } from "zod";
 
-import { PixelatedSpinner } from "../common/PixelatedSpinner";
+import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  useToast,
+} from "@/components/ui";
+import { useClipboard } from "@/hooks/useClipboard";
 
 // Validation schema for preset names
 const presetNameSchema = z
@@ -34,7 +28,6 @@ interface SharingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onShare: (name: string) => Promise<void>;
-  modalCloseRef: React.RefObject<HTMLDivElement | null>;
   defaultName?: string;
 }
 
@@ -42,12 +35,11 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   isOpen,
   onClose,
   onShare,
-  modalCloseRef,
   defaultName = "",
 }) => {
   const [presetName, setPresetName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const toast = useToast();
+  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const prevIsOpenRef = useRef(isOpen);
 
@@ -82,8 +74,6 @@ export const SharingModal: React.FC<SharingModalProps> = ({
         description: validation.error.issues[0].message,
         status: "error",
         duration: 3000,
-        isClosable: true,
-        position: "top",
       });
       return;
     }
@@ -95,63 +85,52 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      finalFocusRef={modalCloseRef}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Share Preset</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={6} color="gray">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Share Preset</DialogTitle>
+        </DialogHeader>
+        <DialogCloseButton />
+
+        <div className="pb-6">
+          <DialogDescription className="pb-6">
             Drumhaus can generate a custom link for you to share your presets
             with.
-          </Text>
-          <FormControl>
-            <Box
-              w="80%"
-              h="40px"
-              borderRadius="8px"
-              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            >
-              <Center h="100%" pl={4}>
-                <Input
-                  ref={inputRef}
-                  color="gray"
-                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                  h="100%"
-                  w="100%"
-                  variant="unstyled"
-                  placeholder="Enter a custom preset name"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                />
-              </Center>
-            </Box>
-          </FormControl>
-        </ModalBody>
+          </DialogDescription>
 
-        <ModalFooter>
-          <Button
+          <div className="h-10 w-4/5 rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+            <div className="flex h-full items-center pl-4">
+              <input
+                ref={inputRef}
+                className="h-full w-full bg-transparent font-pixel text-text outline-none placeholder:text-text-light"
+                placeholder="Enter a custom preset name"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <button
             onClick={handleShare}
-            colorScheme="orange"
-            mr={3}
-            isDisabled={!presetName.trim() || isLoading}
+            disabled={!presetName.trim() || isLoading}
+            className="flex items-center rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Text mr={2}>Get Link</Text>
-            {isLoading ? (
+            <span className="mr-2">Get Link</span>
+            {isLoading && (
               <PixelatedSpinner color="white" size={20} pixelSize={2} gap={2} />
-            ) : null}
-          </Button>
-          <Button onClick={handleClose} color="gray">
+            )}
+          </button>
+          <button
+            onClick={handleClose}
+            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+          >
             Cancel
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -159,85 +138,68 @@ interface SharedModalProps {
   isOpen: boolean;
   onClose: () => void;
   shareableLink: string;
-  modalCloseRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const SharedModal: React.FC<SharedModalProps> = ({
   isOpen,
   onClose,
   shareableLink,
-  modalCloseRef,
 }) => {
-  const { onCopy, hasCopied } = useClipboard(shareableLink);
+  const { onCopy, hasCopied } = useClipboard();
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="md"
-      finalFocusRef={modalCloseRef}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader>Shareable Link</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Text pb={6} color="gray">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Shareable Link</DialogTitle>
+        </DialogHeader>
+        <DialogCloseButton />
+
+        <div>
+          <DialogDescription className="pb-6">
             Success! Your preset can be shared using this link:
-          </Text>
-          <Box
-            w="100%"
-            h="40px"
-            borderRadius="8px"
-            boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-          >
-            <Center h="100%">
-              <Button
-                onClick={onCopy}
-                w="100%"
-                userSelect="all"
-                color="gray"
-                fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                overflow="hidden"
-                textOverflow="ellipsis"
-                whiteSpace="nowrap"
+          </DialogDescription>
+
+          <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+            <div className="flex h-full items-center justify-center">
+              <button
+                onClick={() => onCopy(shareableLink)}
+                className="w-full select-all truncate px-3 font-pixel text-sm text-text"
               >
-                <Text isTruncated w="100%">
-                  {shareableLink}
-                </Text>
-              </Button>
-            </Center>
-          </Box>
-          <Box
-            mt={4}
-            p={3}
-            borderRadius="6px"
-            bg="rgba(176, 147, 116, 0.1)"
-            fontSize="xs"
-          >
-            <Text color="gray" fontWeight="bold" mb={1}>
+                {shareableLink}
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-md bg-shadow-10 p-3">
+            <p className="mb-1 font-pixel text-xs font-bold text-text">
               Fun Fact
-            </Text>
-            <Text color="gray" fontSize="xs" lineHeight="1.5">
+            </p>
+            <p className="font-pixel text-xs leading-relaxed text-text">
               Your entire preset is packed into this URL, squeezed from 900+
               lines of JSON down to a few hundred characters using DEFLATE (via
               pako), bit-packed triggers, quantized velocities, and a handful of
               custom compression tricks. It&apos;s basically a tiny spacecraft
               carrying your beats through the web.
-            </Text>
-          </Box>
-        </ModalBody>
+            </p>
+          </div>
+        </div>
 
-        <ModalFooter>
-          <Button onClick={onCopy} colorScheme="orange" mr={3}>
+        <DialogFooter>
+          <button
+            onClick={() => onCopy(shareableLink)}
+            className="rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover"
+          >
             {hasCopied ? "Copied!" : "Copy Link"}
-          </Button>
-          <Button onClick={onClose} color="gray">
+          </button>
+          <button
+            onClick={onClose}
+            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+          >
             Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

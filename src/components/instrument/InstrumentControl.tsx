@@ -1,23 +1,11 @@
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Grid,
-  GridItem,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
-
-import type { InstrumentRuntime } from "@/types/instrument";
-
-import "@fontsource-variable/pixelify-sans";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
 import { now } from "tone/build/esm/index";
 
+import "@fontsource-variable/pixelify-sans";
+
+import { Tooltip } from "@/components/ui";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import {
@@ -32,6 +20,7 @@ import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
+import type { InstrumentRuntime } from "@/types/instrument";
 import { CustomSlider } from "../common/CustomSlider";
 import { Knob } from "../common/Knob";
 import {
@@ -43,11 +32,11 @@ import { PixelatedSpinner } from "../common/PixelatedSpinner";
 import Waveform from "./Waveform";
 
 type InstrumentControlParams = {
-  runtime?: InstrumentRuntime; // Tone.js audio nodes only
+  runtime?: InstrumentRuntime;
   color?: string;
   bg?: string;
-  index: number; // Array index of this instrument (0-7)
-  instrumentIndex: number; // Currently selected instrument for keyboard shortcuts
+  index: number;
+  instrumentIndex: number;
 };
 
 export const InstrumentControl: React.FC<InstrumentControlParams> = ({
@@ -55,13 +44,12 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   index,
   instrumentIndex,
   color = "#ff7b00",
-  ...props
+  bg,
 }) => {
   // Modal store
   const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
 
-  // Use granular selectors - only re-render when specific params change
-  // This prevents unnecessary re-renders when other instrument params change
+  // Use granular selectors
   const attack = useInstrumentsStore(
     (state) => state.instruments[index].params.attack,
   );
@@ -87,7 +75,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     (state) => state.instruments[index].params.solo,
   );
 
-  // Get sample path and meta separately (these change less frequently)
   const samplePath = useInstrumentsStore(
     (state) => state.instruments[index].sample.path,
   );
@@ -105,8 +92,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const { duration: sampleDuration } = useSampleDuration(samplePath);
-  // Reset waveform error when sample path changes (retry on new sample)
-  // Using a ref to track previous sample path avoids setState in effect
   const prevSamplePathRef = useRef(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
 
@@ -117,7 +102,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     }
   }
 
-  // Wrap store setters with instrument index for convenient prop-based interfaces
+  // Wrap store setters with instrument index
   const setAttack = useCallback(
     (value: number) => setInstrumentProperty(index, "attack", value),
     [index, setInstrumentProperty],
@@ -150,6 +135,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     () => toggleSoloStore(index),
     [index, toggleSoloStore],
   );
+
   const formatPitchLabel = useCallback((value: number) => {
     const semitoneOffset =
       ((value - 50) / 50) * INSTRUMENT_PITCH_SEMITONE_RANGE;
@@ -159,12 +145,14 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         : semitoneOffset.toFixed(0);
     return `${signedOffset} st`;
   }, []);
+
   const formatDurationLabel = useCallback((seconds: number) => {
     if (!seconds || !Number.isFinite(seconds)) return "0 ms";
     if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
     if (seconds < 10) return `${seconds.toFixed(2)} s`;
     return `${seconds.toFixed(1)} s`;
   }, []);
+
   const formatAttackLabel = useCallback(
     (value: number) => {
       const attackSeconds = transformKnobValue(value, INSTRUMENT_ATTACK_RANGE);
@@ -172,6 +160,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     },
     [formatDurationLabel],
   );
+
   const formatReleaseLabel = useCallback(
     (value: number) => {
       const releaseSeconds = transformKnobValueExponential(
@@ -183,8 +172,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     [formatDurationLabel],
   );
 
-  // Subscribe to instrument parameter changes and update audio nodes directly
-  // This avoids multiple useEffects and updates audio without causing re-renders
   useEffect(() => {
     if (!runtime) return;
     return subscribeRuntimeToInstrumentParams(index, runtime);
@@ -196,13 +183,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     setWaveformError(error);
   }, []);
 
-  // Update duration in store when sample duration changes
   useEffect(() => {
     setDurationStore(index, sampleDuration);
   }, [sampleDuration, index, setDurationStore]);
 
   const handleToggleMute = useCallback(() => {
-    // Release the sample when muting (before toggling state)
     if (!mute && runtime?.samplerNode) {
       stopRuntimeAtTime(runtime, now());
     }
@@ -217,7 +202,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     };
 
     window.addEventListener("keydown", muteOnKeyInput);
-
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
@@ -231,7 +215,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     };
 
     window.addEventListener("keydown", soloOnKeyInput);
-
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
@@ -239,47 +222,33 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const playSample = () => {
     if (!runtime) return;
-
     playInstrumentSample(runtime, pitch, release);
   };
 
   return (
     <>
-      <Box
-        w="100%"
+      <div
+        className="group relative mt-2 w-full py-4 transition-all duration-500"
+        style={{ backgroundColor: bg }}
         key={`Instrument-${instrumentMeta.id}-${index}`}
-        py={4}
-        position="relative"
-        transition="all 0.5s ease-in-out"
-        mt={2}
-        _hover={{
-          "& .wavebutton": {
-            opacity: 1,
-          },
-        }}
-        {...props}
       >
-        <Flex px={4}>
-          <Text pr={2} color={color} fontSize="12pt" fontWeight={900}>
+        <div className="flex px-4">
+          <span
+            className="pr-2 font-pixel text-xs font-black"
+            style={{ color }}
+          >
             {index + 1}
-          </Text>
-          <Text fontWeight={600} fontSize="12pt" color="brown">
+          </span>
+          <span className="font-pixel text-xs font-semibold text-text-dark">
             {instrumentMeta.name}
-          </Text>
-        </Flex>
-        <Box px={4} pt={5}>
-          <Button
+          </span>
+        </div>
+        <div className="px-4 pt-5">
+          <button
             ref={waveButtonRef}
-            w="100%"
-            h="60px"
+            className="wavebutton relative h-[60px] w-full overflow-hidden rounded-[20px] bg-transparent opacity-80 group-hover:opacity-100"
             onMouseDown={() => playSample()}
-            bg="transparent"
-            opacity={0.8}
-            className="wavebutton"
-            borderRadius="20px"
-            overflow="hidden"
-            isDisabled={!isRuntimeLoaded}
-            position="relative"
+            disabled={!isRuntimeLoaded}
           >
             {isRuntimeLoaded && !waveformError ? (
               <Waveform
@@ -288,23 +257,21 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 onError={handleWaveformError}
               />
             ) : waveformError ? (
-              <Center w="100%" h="100%">
+              <div className="flex h-full w-full items-center justify-center">
                 <PixelatedFrowny color={color} />
-              </Center>
+              </div>
             ) : (
-              <Center w="100%" h="100%">
+              <div className="flex h-full w-full items-center justify-center">
                 <PixelatedSpinner color={color} />
-              </Center>
+              </div>
             )}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        <Grid
-          templateColumns="repeat(2, 1fr)"
-          p={1}
-          opacity={isRuntimeLoaded ? 1 : 0.5}
+        <div
+          className={`grid grid-cols-2 p-1 ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
         >
-          <GridItem>
+          <div>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-attack`}
               value={attack}
@@ -315,8 +282,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               size="sm"
               formatValue={formatAttackLabel}
             />
-          </GridItem>
-          <GridItem>
+          </div>
+          <div>
             <Knob
               key={`knob-${index}-filter`}
               value={filter}
@@ -327,8 +294,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               disabled={!isRuntimeLoaded}
               size="sm"
             />
-          </GridItem>
-          <GridItem>
+          </div>
+          <div>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-release`}
               value={release}
@@ -339,9 +306,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               size="sm"
               formatValue={formatReleaseLabel}
             />
-          </GridItem>
+          </div>
 
-          <GridItem>
+          <div>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-pitch`}
               value={pitch}
@@ -353,12 +320,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               formatValue={formatPitchLabel}
               size="sm"
             />
-          </GridItem>
-          <GridItem w="100%" h="100%">
-            <Box
-              position="absolute"
-              bottom={14}
-              opacity={isRuntimeLoaded ? 1 : 0.5}
+          </div>
+          <div className="h-full w-full">
+            <div
+              className={`absolute bottom-14 ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
             >
               <CustomSlider
                 size={85}
@@ -372,56 +337,43 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                 displayRange={[-100, 100]}
                 isDisabled={!isRuntimeLoaded}
               />
-            </Box>
-            <Center h="100%" w="100%">
-              <Box>
-                <Flex
-                  boxShadow="0 2px 4px rgba(176, 147, 116, 0.6)"
-                  borderRadius="8px"
-                  position="absolute"
-                  left="10px"
-                  bottom={6}
-                  opacity={isRuntimeLoaded ? 1 : 0.5}
+            </div>
+            <div className="flex h-full w-full items-center justify-center">
+              <div>
+                <div
+                  className={`absolute bottom-6 left-[10px] flex rounded-lg shadow-[0_2px_4px_var(--color-shadow-60)] ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
                 >
-                  <Tooltip label="Mute [M]" color="darkorange" openDelay={500}>
-                    <Button
+                  <Tooltip content="Mute [M]" delayDuration={500}>
+                    <button
                       title="Mute"
-                      h="30px"
-                      w="30px"
-                      bg="transparent"
-                      borderRadius="8px 0 0 8px"
-                      p="0px"
+                      className="raised h-[30px] w-[30px] rounded-l-lg bg-transparent p-0"
                       onClick={() => handleToggleMute()}
-                      className="raised"
-                      isDisabled={!isRuntimeLoaded}
+                      disabled={!isRuntimeLoaded}
                     >
                       {mute ? (
-                        <ImVolumeMute2 color="#B09374" />
+                        <ImVolumeMute2 className="mx-auto text-text" />
                       ) : (
-                        <ImVolumeMute color="#B09374" />
+                        <ImVolumeMute className="mx-auto text-text" />
                       )}
-                    </Button>
+                    </button>
                   </Tooltip>
-                  <Tooltip label="Solo [S]" color="darkorange" openDelay={500}>
-                    <Button
+                  <Tooltip content="Solo [S]" delayDuration={500}>
+                    <button
                       title="Solo"
-                      h="30px"
-                      w="30px"
-                      bg="transparent"
-                      borderRadius="0 8px 8px 0"
-                      p="0px"
+                      className="raised h-[30px] w-[30px] rounded-r-lg bg-transparent p-0"
                       onClick={() => toggleSolo()}
-                      className="raised"
-                      isDisabled={!isRuntimeLoaded}
+                      disabled={!isRuntimeLoaded}
                     >
-                      <MdHeadphones color={solo ? "darkorange" : "#B09374"} />
-                    </Button>
+                      <MdHeadphones
+                        className={`mx-auto ${solo ? "text-accent" : "text-text"}`}
+                      />
+                    </button>
                   </Tooltip>
-                </Flex>
-              </Box>
-            </Center>
-          </GridItem>
-          <GridItem>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
             <Knob
               key={`knob-${instrumentMeta.id}-${index}-volume`}
               value={volume}
@@ -440,9 +392,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                     ).toFixed(1)} dB`
               }
             />
-          </GridItem>
-        </Grid>
-      </Box>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

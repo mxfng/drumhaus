@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";
 
 import {
@@ -95,82 +94,48 @@ export const TransportControl: React.FC = () => {
 
   return (
     <>
-      <Center h="100%" w="150px" position="relative">
-        <Box>
-          <Flex>
-            <Center>
-              <Box
-                w="150px"
-                h="70px"
-                borderRadius="8px"
-                p={3}
-                top={10}
-                position="absolute"
-                className="neumorphicExtraTall"
-              >
-                <Center h="100%" position="relative" zIndex={3}>
-                  <Flex h="100%">
-                    <Input
+      <div className="relative flex h-full w-[150px] items-center justify-center">
+        <div>
+          <div className="flex">
+            <div className="flex items-center justify-center">
+              <div className="neumorphicExtraTall absolute top-10 h-[70px] w-[150px] rounded-lg p-3">
+                <div className="relative z-[3] flex h-full items-center justify-center">
+                  <div className="flex h-full">
+                    <input
                       ref={inputRef}
-                      fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                      fontSize={40}
-                      color="gray"
-                      w="98px"
-                      h="100%"
-                      boxShadow="0 4px 8px rgba(176, 147, 116, 0.6) inset"
-                      position="absolute"
-                      left={0}
-                      borderRadius="8px 0 0 8px"
+                      className="absolute left-0 h-full w-[98px] rounded-l-lg border-0 text-center font-pixel text-[40px] leading-none text-text shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
                       type="number"
                       value={bpmInputValue}
                       onChange={handleBpmChange}
                       onBlur={handleBlur}
-                      border="0px solid transparent"
-                      focusBorderColor="transparent"
-                      _focus={{
-                        boxShadow: "0 4px 8px rgba(176, 147, 116, 0.6) inset",
-                      }}
                       onFocus={(e) => e.target.select()}
-                      _selection={{ background: "rgba(255, 140, 0, 0.5)" }}
-                      textAlign="center"
-                      lineHeight="100%"
                     />
-                    <Button
-                      w="10px"
-                      h="35px"
-                      borderRadius="0 8px 0 0"
-                      position="absolute"
-                      top={-3}
-                      right={-3}
+                    <button
+                      className="absolute -right-3 -top-3 h-[35px] w-[10px] rounded-tr-lg bg-transparent"
                       ref={upButtonRef}
                     >
-                      <IoTriangleSharp color="#B09374" />
-                    </Button>
-                    <Button
-                      w="20px"
-                      h="35px"
-                      borderRadius="0 0 8px 0"
-                      position="absolute"
-                      right={-3}
-                      bottom={-3}
+                      <IoTriangleSharp className="text-text" />
+                    </button>
+                    <button
+                      className="absolute -bottom-3 -right-3 h-[35px] w-[20px] rounded-br-lg bg-transparent"
                       ref={downButtonRef}
                     >
                       <IoTriangleSharp
-                        color="#B09374"
+                        className="text-text"
                         style={{ transform: "rotate(180deg)" }}
                       />
-                    </Button>
-                  </Flex>
-                  <Center position="absolute" left={-1} bottom={-6}>
-                    <Text fontSize={12} color="gray" my={-3}>
+                    </button>
+                  </div>
+                  <div className="absolute -left-1 -bottom-6 flex items-center justify-center">
+                    <span className="-my-3 font-pixel text-xs text-text">
                       TEMPO
-                    </Text>
-                  </Center>
-                </Center>
-              </Box>
-            </Center>
-          </Flex>
-          <Box position="absolute" bottom={6} left={0}>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-6 left-0">
             <CustomSlider
               size={146}
               sliderValue={swing}
@@ -179,9 +144,9 @@ export const TransportControl: React.FC = () => {
               defaultValue={0}
               transformRange={TRANSPORT_SWING_RANGE}
             />
-          </Box>
-        </Box>
-      </Center>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

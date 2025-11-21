@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from "react";
-import { Grid, GridItem } from "@chakra-ui/react";
 
 import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -63,23 +62,15 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
   }, [handleArrowKeyPress]);
 
   return (
-    <Grid
-      ref={instrumentsRef}
-      key="instruments-grid"
-      w="100%"
-      templateColumns={`repeat(${NO_OF_INSTRUMENTS}, 1fr)`}
-      boxShadow="0 4px 4px rgba(176, 147, 116, 0.0)"
-    >
+    <div ref={instrumentsRef} className="grid w-full grid-cols-8">
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes[index];
 
         return (
-          <GridItem
-            colSpan={1}
+          <div
             key={`gridItem-${index}`}
-            w={`193px`}
+            className="col-span-1 w-[193px] transition-all duration-500"
             onMouseDown={() => toggleCurrentVoice(index)}
-            transition="all 0.5s ease"
           >
             <InstrumentControl
               color={INSTRUMENT_COLORS[index]}
@@ -89,9 +80,9 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
               instrumentIndex={voiceIndex}
               bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
             />
-          </GridItem>
+          </div>
         );
       })}
-    </Grid>
+    </div>
   );
 };

@@ -1,5 +1,3 @@
-import { GridItem } from "@chakra-ui/react";
-
 import { MasterCompressor } from "./master/MasterCompressor";
 import { MasterFX } from "./master/MasterFX";
 import { MasterVolume } from "./master/MasterVolume";
@@ -7,17 +5,17 @@ import { MasterVolume } from "./master/MasterVolume";
 export const MasterControl: React.FC = () => {
   return (
     <>
-      <GridItem colSpan={1} w={120} pl={8} pr={4}>
+      <div className="col-span-1 w-[120px] pl-8 pr-4">
         <MasterFX />
-      </GridItem>
+      </div>
 
-      <GridItem colSpan={1} px={4}>
+      <div className="col-span-1 px-4">
         <MasterCompressor />
-      </GridItem>
+      </div>
 
-      <GridItem colSpan={1} w={140}>
+      <div className="col-span-1 w-[140px]">
         <MasterVolume />
-      </GridItem>
+      </div>
     </>
   );
 };

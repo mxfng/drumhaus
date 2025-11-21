@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -162,13 +161,14 @@ export const Sequencer: React.FC = () => {
   }, []);
 
   return (
-    <Box w="100%" ref={sequencerRef}>
-      <Grid
+    <div className="w-full" ref={sequencerRef}>
+      <div
         key="sequence-grid"
-        templateColumns={`repeat(${STEP_COUNT}, 1fr)`}
-        w="100%"
-        h="100%"
-        gap={`${STEP_BOXES_GAP}px`}
+        className="grid h-full w-full"
+        style={{
+          gridTemplateColumns: `repeat(${STEP_COUNT}, 1fr)`,
+          gap: `${STEP_BOXES_GAP}px`,
+        }}
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
@@ -177,99 +177,72 @@ export const Sequencer: React.FC = () => {
           const velocityWidth = Math.max(state.velocityValue * 100, 12);
 
           return (
-            <GridItem key={`sequence-step-item-${step}`} colSpan={1}>
-              <Box
+            <div key={`sequence-step-item-${step}`} className="col-span-1">
+              <div
                 key={`sequence-step-indicator-${step}`}
-                mb={4}
-                h="4px"
-                w="100%"
-                opacity={indicatorStyles.opacity}
-                bg={indicatorStyles.bg}
+                className="mb-4 h-1 w-full"
+                style={{
+                  opacity: indicatorStyles.opacity,
+                  backgroundColor: indicatorStyles.bg,
+                }}
               />
-              <Box
+              <div
                 key={`sequence-step-trigger-${step}`}
                 onMouseDown={() => handleStepMouseDown(step, state.isTriggerOn)}
                 onMouseEnter={() =>
                   handleStepMouseEnter(step, state.isTriggerOn)
                 }
                 onContextMenu={(e) => e.preventDefault()}
-                w="100%"
-                h={`${stepHeight}px`}
-                bg={triggerStyles.bg}
-                transition="all 0.3s ease"
-                opacity={triggerStyles.opacity}
-                borderRadius={`0 ${stepRadius} 0 ${stepRadius}`}
-                cursor="pointer"
-                _hover={{
-                  background: state.isTriggerOn
-                    ? "darkorange"
-                    : "darkorangehover",
-                  transition: "all 0.3s ease",
+                className="relative w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out hover:transition-all hover:duration-300 hover:ease-in-out"
+                style={{
+                  height: `${stepHeight}px`,
+                  backgroundColor: triggerStyles.bg,
+                  opacity: triggerStyles.opacity,
+                  borderRadius: `0 ${stepRadius} 0 ${stepRadius}`,
                   boxShadow: triggerStyles.boxShadow,
                 }}
-                boxShadow={triggerStyles.boxShadow}
-                position="relative"
-                overflow="hidden"
               >
                 {state.isTriggerOn && (
-                  <Box
+                  <div
                     key={`sequence-step-trigger-glow-${step}`}
-                    position="absolute"
-                    inset={0}
-                    pointerEvents="none"
-                    borderRadius={`0 ${stepRadius} 0 ${stepRadius}`}
-                    background="radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 55%)"
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      borderRadius: `0 ${stepRadius} 0 ${stepRadius}`,
+                      background:
+                        "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 55%)",
+                    }}
                   />
                 )}
-              </Box>
-              <Box
+              </div>
+              <div
                 key={`sequence-step-velocity-${step}`}
-                w="100%"
-                h="14px"
-                mt={3}
-                bg="transparent"
-                transition="all 0.2s ease"
-                opacity={state.isTriggerOn ? 0.6 : 0}
-                outline="1px solid darkorange"
-                transform="opacity 0.2s ease"
-                position="relative"
+                className="group relative mt-3 h-3.5 w-full bg-transparent transition-all duration-200 ease-in-out"
+                style={{
+                  opacity: state.isTriggerOn ? 0.6 : 0,
+                  outline: "1px solid darkorange",
+                  borderRadius: "200px 0 200px 0",
+                }}
                 onMouseDown={(ev) => handleVelocityMouseDown(ev, step)}
                 onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
-                _hover={{
-                  "& p": {
-                    opacity: 1,
-                  },
-                  "& .text": {
-                    filter: "blur(0px)",
-                  },
-                }}
-                borderRadius="200px 0 200px 0"
               >
-                <Box
-                  bg="darkorange"
-                  h="100%"
-                  w={`${velocityWidth}%`}
-                  position="absolute"
-                  borderRadius="200px 0 200px 0"
-                  filter="blur(2px)"
+                <div
+                  className="absolute h-full blur-sm"
+                  style={{
+                    backgroundColor: "darkorange",
+                    width: `${velocityWidth}%`,
+                    borderRadius: "200px 0 200px 0",
+                  }}
                 />
-                <Center position="absolute" h="100%" w="100%">
-                  <Text
-                    className="text"
-                    color="brown"
-                    fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                    opacity={0}
-                    transition="0.5s ease"
-                    filter="blur(2px)"
-                  >
+                <div className="absolute flex h-full w-full items-center justify-center">
+                  <span className="font-pixel text-[#8B4513] opacity-0 blur-sm transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:blur-none">
                     {(state.velocityValue * 100).toFixed(0)}
-                  </Text>
-                </Center>
-              </Box>
-            </GridItem>
+                  </span>
+                </div>
+              </div>
+            </div>
           );
         })}
-      </Grid>
-    </Box>
+      </div>
+    </div>
   );
 };
