@@ -1,13 +1,13 @@
-import drumhausKitJson from "@/lib/kit/defaults/drumhaus.dhkit";
-import eightiesKitJson from "@/lib/kit/defaults/eighties.dhkit";
-import funkKitJson from "@/lib/kit/defaults/funk.dhkit";
-import indieKitJson from "@/lib/kit/defaults/indie.dhkit";
-import jungleKitJson from "@/lib/kit/defaults/jungle.dhkit";
-import organicKitJson from "@/lib/kit/defaults/organic.dhkit";
-import rnbKitJson from "@/lib/kit/defaults/rnb.dhkit";
-import techHouseKitJson from "@/lib/kit/defaults/tech_house.dhkit";
-import technoKitJson from "@/lib/kit/defaults/techno.dhkit";
-import trapKitJson from "@/lib/kit/defaults/trap.dhkit";
+import drumhausKitJson from "@/lib/kit/defaults/Drumhaus.dhkit";
+import eightiesKitJson from "@/lib/kit/defaults/Eighties.dhkit";
+import funkKitJson from "@/lib/kit/defaults/Funk.dhkit";
+import indieKitJson from "@/lib/kit/defaults/Indie.dhkit";
+import jungleKitJson from "@/lib/kit/defaults/Jungle.dhkit";
+import organicKitJson from "@/lib/kit/defaults/Organic.dhkit";
+import rnbKitJson from "@/lib/kit/defaults/R&B.dhkit";
+import techHouseKitJson from "@/lib/kit/defaults/Tech House.dhkit";
+import technoKitJson from "@/lib/kit/defaults/Techno.dhkit";
+import trapKitJson from "@/lib/kit/defaults/Trap.dhkit";
 import { validateKitFile } from "@/lib/kit/helpers";
 import type { KitFileV1 } from "@/types/instrument";
 
