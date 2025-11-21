@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
 import { Box, ChakraProvider } from "@chakra-ui/react";
-import { Helmet } from "react-helmet-async";
 
 import {
   AppErrorBoundary,
@@ -61,18 +60,16 @@ export function App() {
 
   return (
     <ChakraProvider theme={theme}>
-      <Helmet>
-        <title>{title}</title>
-        <meta
-          name="description"
-          content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
-        />
-        <meta property="og:title" content={title} />
-        <meta
-          property="og:description"
-          content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
-        />
-      </Helmet>
+      <title>{title}</title>
+      <meta
+        name="description"
+        content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
+      />
+      <meta property="og:title" content={title} />
+      <meta
+        property="og:description"
+        content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
+      />
       <AppErrorBoundary>
         <GlobalErrorHandler />
         <Box w="100vw" minH="100vh" overflow="auto">

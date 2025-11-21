@@ -34,7 +34,7 @@ interface SharingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onShare: (name: string) => Promise<void>;
-  modalCloseRef: React.RefObject<HTMLElement>;
+  modalCloseRef: React.RefObject<HTMLDivElement | null>;
   defaultName?: string;
 }
 
@@ -160,7 +160,7 @@ interface SharedModalProps {
   isOpen: boolean;
   onClose: () => void;
   shareableLink: string;
-  modalCloseRef: React.RefObject<HTMLElement>;
+  modalCloseRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const SharedModal: React.FC<SharedModalProps> = ({

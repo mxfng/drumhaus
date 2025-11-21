@@ -14,7 +14,7 @@ interface ResetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onReset: () => void;
-  modalCloseRef: React.RefObject<HTMLElement>;
+  modalCloseRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const ResetModal: React.FC<ResetModalProps> = ({

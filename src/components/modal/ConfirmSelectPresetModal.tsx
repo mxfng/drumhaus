@@ -14,7 +14,7 @@ interface ConfirmSelectPresetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: () => void;
-  modalCloseRef: React.RefObject<HTMLDivElement>;
+  modalCloseRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const ConfirmSelectPresetModal: React.FC<
