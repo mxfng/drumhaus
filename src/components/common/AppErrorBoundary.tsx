@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect } from "react";
 import { useToast } from "@chakra-ui/react";
 

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Box,
   Button,
@@ -28,7 +26,6 @@ import {
   INSTRUMENT_PITCH_SEMITONE_RANGE,
   INSTRUMENT_RELEASE_RANGE,
   INSTRUMENT_VOLUME_RANGE,
-  SAMPLER_ROOT_NOTE,
 } from "@/lib/audio/engine/constants";
 import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";

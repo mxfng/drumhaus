@@ -46,7 +46,7 @@ interface PatternState {
 export const usePatternStore = create<PatternState>()(
   devtools(
     persist(
-      immer((set, get) => ({
+      immer((set, _get) => ({
         // Initial state
         pattern: createEmptyPattern(),
         variation: 0,

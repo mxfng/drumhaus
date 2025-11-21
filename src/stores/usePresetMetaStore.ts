@@ -118,7 +118,7 @@ export const usePresetMetaStore = create<PresetMetaState>()(
           set((state) => {
             // Remove if already exists
             const filtered = state.recentPresets.filter(
-              (p) => p.id !== meta.id,
+              (p: Meta) => p.id !== meta.id,
             );
             // Add to front, keep max 10
             state.recentPresets = [meta, ...filtered].slice(0, 10);

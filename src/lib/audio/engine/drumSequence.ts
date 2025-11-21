@@ -123,7 +123,6 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
     step,
     variationIndex,
     instruments,
-    durations,
     runtimes,
     anySolos,
     hasOhat,
