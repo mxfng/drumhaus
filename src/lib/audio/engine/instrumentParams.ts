@@ -2,7 +2,7 @@ import {
   KNOB_ROTATION_THRESHOLD_L,
   transformKnobFilterValue,
   transformKnobValue,
-} from "@/components/common/Knob";
+} from "@/components/common/knobTransforms";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import {

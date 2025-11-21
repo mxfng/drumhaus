@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";

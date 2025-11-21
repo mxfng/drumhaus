@@ -1,5 +1,3 @@
-"use client";
-
 import { Box, Button, Select, Text } from "@chakra-ui/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 

@@ -1,6 +1,7 @@
+import { transformKnobValue } from "@/components/common/knobTransforms";
 import { MASTER_VOLUME_RANGE } from "@/lib/audio/engine/constants";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { Knob, transformKnobValue } from "../../common/Knob";
+import { Knob } from "../../common/Knob";
 
 export const MasterVolume: React.FC = () => {
   // Get state from Master FX Store

@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Box, Center, useToast } from "@chakra-ui/react";
 

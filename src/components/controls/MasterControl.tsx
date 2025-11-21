@@ -1,4 +1,4 @@
-import { Grid, GridItem } from "@chakra-ui/react";
+import { GridItem } from "@chakra-ui/react";
 
 import { MasterCompressor } from "./master/MasterCompressor";
 import { MasterFX } from "./master/MasterFX";

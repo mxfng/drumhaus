@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";

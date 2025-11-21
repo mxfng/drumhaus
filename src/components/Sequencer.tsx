@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Center, Grid, GridItem, Text } from "@chakra-ui/react";
 
