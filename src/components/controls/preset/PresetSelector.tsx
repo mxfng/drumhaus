@@ -34,7 +34,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
         <Box id="preset" h="40px" mb={2} position="relative">
           <Select
             variant="unstyled"
-            icon={<></>}
+            icon={<div></div>}
             value={selectedPresetId}
             fontFamily={`'Pixelify Sans Variable', sans-serif`}
             color="gray"

@@ -1,19 +1,4 @@
-import {
-  Box,
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverFooter,
-  PopoverHeader,
-  PopoverTrigger,
-  Tooltip,
-} from "@chakra-ui/react";
+import { Box, Button, Center, Grid, GridItem, Tooltip } from "@chakra-ui/react";
 import { FaFolderOpen } from "react-icons/fa";
 import { IoIosShareAlt } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
@@ -31,9 +16,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openSaveModal = useModalStore((state) => state.openSaveModal);
   const openSharingModal = useModalStore((state) => state.openSharingModal);
   const openResetModal = useModalStore((state) => state.openResetModal);
-
-  const sharePromptOpen = useModalStore((state) => state.isSharePromptOpen);
-  const closeSharePrompt = useModalStore((state) => state.closeSharePrompt);
 
   return (
     <Grid
@@ -84,55 +66,24 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </GridItem>
       <GridItem>
         <Center>
-          <Popover isOpen={sharePromptOpen} onClose={closeSharePrompt} isLazy>
-            <Tooltip label="Share as link" color="darkorange" openDelay={500}>
-              <Box display="inline-block" w="100%">
-                <PopoverTrigger>
-                  <Button
-                    onClick={openSharingModal}
-                    w="100%"
-                    borderRadius="0 0 0 0"
-                    className="raised"
-                    _hover={{
-                      "& .icon": {
-                        fill: "darkorange",
-                        transition: "all 0.2s ease",
-                      },
-                    }}
-                  >
-                    <IoIosShareAlt
-                      className="icon"
-                      fill="#B09374"
-                      size="26px"
-                    />
-                  </Button>
-                </PopoverTrigger>
-              </Box>
-            </Tooltip>
-
-            <PopoverContent
-              bg="silver"
-              className="neumorphic"
-              borderColor="silver"
-            >
-              <PopoverArrow bg="silver" className="neumorphic" />
-              <PopoverCloseButton color="gray" />
-              <PopoverHeader color="gray">Enjoying Drumhaus?</PopoverHeader>
-              <PopoverBody color="gray">
-                You can save your preset to the cloud and share it with a link
-                using the share button!
-              </PopoverBody>
-              <PopoverFooter color="transparent">
-                <Button
-                  bg="darkorange"
-                  color="silver"
-                  onClick={closeSharePrompt}
-                >
-                  Dismiss
-                </Button>
-              </PopoverFooter>
-            </PopoverContent>
-          </Popover>
+          <Tooltip label="Share as link" color="darkorange" openDelay={500}>
+            <Box display="inline-block" w="100%">
+              <Button
+                onClick={openSharingModal}
+                w="100%"
+                borderRadius="0 0 0 0"
+                className="raised"
+                _hover={{
+                  "& .icon": {
+                    fill: "darkorange",
+                    transition: "all 0.2s ease",
+                  },
+                }}
+              >
+                <IoIosShareAlt className="icon" fill="#B09374" size="26px" />
+              </Button>
+            </Box>
+          </Tooltip>
         </Center>
       </GridItem>
       <GridItem>

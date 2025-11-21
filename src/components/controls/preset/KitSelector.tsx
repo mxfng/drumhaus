@@ -34,7 +34,7 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
         <Box h="40px" w="100%" id="kit" mb={2} position="relative">
           <Select
             variant="unstyled"
-            icon={<></>}
+            icon={<div></div>}
             value={selectedKitId}
             fontFamily={`'Pixelify Sans Variable', sans-serif`}
             color="gray"

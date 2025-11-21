@@ -296,7 +296,6 @@ export const Knob: React.FC<KnobProps> = ({
               onMouseDown={isDisabled ? undefined : captureMoveStartY}
               onTouchStart={isDisabled ? undefined : captureMoveStartY}
               onDoubleClick={isDisabled ? undefined : handleDoubleClick}
-              role="slider"
               aria-label={ariaLabel ?? label}
               aria-valuemin={KNOB_MIN_VALUE}
               aria-valuemax={KNOB_MAX_VALUE}
