@@ -2,19 +2,22 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import { MASTER_FILTER_RANGE } from "@/lib/audio/engine/constants";
+import {
+  KNOB_ROTATION_THRESHOLD_L,
+  transformKnobFilterValue,
+  transformKnobValue,
+  transformKnobValueExponential,
+} from "./knobTransforms";
 
 // Knob Value & Transform Constants
 const KNOB_MAX_VALUE = 100;
 const KNOB_MIN_VALUE = 0;
 const KNOB_DEFAULT_VALUE = 50;
 const KNOB_DEFAULT_TRANSFORM_RANGE: [number, number] = [0, KNOB_MAX_VALUE];
-const KNOB_EXPONENTIAL_CURVE_POWER = 2;
 
 // Knob Rotation & Range Constants
 const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-225, 45];
 const KNOB_ROTATION_ORIGIN = 0.5;
-export const KNOB_ROTATION_THRESHOLD_L = 49;
-export const KNOB_ROTATION_THRESHOLD_R = 50;
 
 // Move/Event Options
 const KNOB_MOVE_EVENT_OPTIONS: AddEventListenerOptions = { passive: false };
@@ -62,48 +65,6 @@ const clamp = (value: number, min: number, max: number) =>
 const quantizeToStep = (value: number, step: number) => {
   const normalizedStep = step > 0 ? step : 1;
   return Math.round(value / normalizedStep) * normalizedStep;
-};
-
-// Transform knob values (0-100) to any Tone.js parameter range [min, max]
-export const transformKnobValue = (
-  input: number,
-  range: [number, number],
-): number => {
-  const [newRangeMin, newRangeMax] = range;
-  const scalingFactor = (newRangeMax - newRangeMin) / KNOB_MAX_VALUE;
-  return scalingFactor * input + newRangeMin;
-};
-
-export const transformKnobFilterValue = (
-  input: number,
-  rangeLow: [number, number] = MASTER_FILTER_RANGE,
-  rangeHigh: [number, number] = MASTER_FILTER_RANGE,
-): number => {
-  const shouldUseLowRange = input <= KNOB_ROTATION_THRESHOLD_L;
-  const [min, max] = shouldUseLowRange ? rangeLow : rangeHigh;
-  const newInput =
-    ((shouldUseLowRange ? input : input - KNOB_ROTATION_THRESHOLD_R) /
-      KNOB_ROTATION_THRESHOLD_L) *
-    KNOB_MAX_VALUE;
-  return transformKnobValueExponential(newInput, [min, max]);
-};
-
-export const transformKnobValueExponential = (
-  input: number,
-  range: [number, number],
-): number => {
-  const inputMin = KNOB_MIN_VALUE;
-  const inputMax = KNOB_MAX_VALUE;
-  const [outputMin, outputMax] = range;
-
-  const normalizedInput = (input - inputMin) / (inputMax - inputMin);
-  const exponentialValue = Math.pow(
-    normalizedInput,
-    KNOB_EXPONENTIAL_CURVE_POWER,
-  );
-  const mappedValue = outputMin + exponentialValue * (outputMax - outputMin);
-
-  return mappedValue;
 };
 
 export type KnobScale = "linear" | "exp" | "split-filter";

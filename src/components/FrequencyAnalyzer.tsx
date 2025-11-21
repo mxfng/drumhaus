@@ -61,7 +61,7 @@ export function FrequencyAnalyzer() {
       };
 
       for (let barIndex = 0; barIndex < NUM_BARS; barIndex++) {
-        let start = logScale(barIndex);
+        const start = logScale(barIndex);
         let end = logScale(barIndex + 1);
 
         // Ensure each bar covers at least one bin to prevent duplicates

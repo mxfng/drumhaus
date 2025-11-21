@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "@chakra-ui/react";
 
-import { transformKnobValue } from "./Knob";
+import { transformKnobValue } from "./knobTransforms";
 
 type CustomSliderProps = {
   size: number;

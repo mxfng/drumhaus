@@ -101,15 +101,13 @@ export const usePresetMetaStore = create<PresetMetaState>()(
           );
 
           // Compare by stringifying (exclude updatedAt since that's only for saves)
-          const cleanCopy = { ...cleanPreset, meta: { ...cleanPreset.meta } };
-          const currentCopy = {
-            ...currentPreset,
-            meta: { ...currentPreset.meta },
-          };
-
-          // Exclude updatedAt from comparison
-          delete (cleanCopy.meta as any).updatedAt;
-          delete (currentCopy.meta as any).updatedAt;
+          const cleanMetaRest = (({ updatedAt: _updatedAt, ...rest }) => rest)(
+            cleanPreset.meta,
+          );
+          const currentMetaRest = (({ updatedAt: _updatedAt, ...rest }) =>
+            rest)(currentPreset.meta);
+          const cleanCopy = { ...cleanPreset, meta: cleanMetaRest };
+          const currentCopy = { ...currentPreset, meta: currentMetaRest };
 
           return JSON.stringify(cleanCopy) !== JSON.stringify(currentCopy);
         },

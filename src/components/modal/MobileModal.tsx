@@ -10,7 +10,15 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-export const MobileModal: React.FC<any> = ({ isOpen, onClose }) => {
+interface MobileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const MobileModal: React.FC<MobileModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />

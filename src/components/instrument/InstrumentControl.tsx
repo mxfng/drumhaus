@@ -33,11 +33,11 @@ import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import { CustomSlider } from "../common/CustomSlider";
+import { Knob } from "../common/Knob";
 import {
-  Knob,
   transformKnobValue,
   transformKnobValueExponential,
-} from "../common/Knob";
+} from "../common/knobTransforms";
 import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
 import Waveform from "./Waveform";

@@ -10,7 +10,14 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-export const ResetModal: React.FC<any> = ({
+interface ResetModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onReset: () => void;
+  modalCloseRef: React.RefObject<HTMLElement>;
+}
+
+export const ResetModal: React.FC<ResetModalProps> = ({
   isOpen,
   onClose,
   onReset,

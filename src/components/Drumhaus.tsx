@@ -136,9 +136,7 @@ const Drumhaus = () => {
   );
 };
 
-interface TopBarProps {}
-
-const TopBar = ({}: TopBarProps) => {
+const TopBar = () => {
   return (
     <Box
       h="120px"

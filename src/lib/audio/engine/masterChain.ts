@@ -4,7 +4,7 @@ import * as Tone from "tone/build/esm/index";
 import {
   transformKnobValue,
   transformKnobValueExponential,
-} from "@/components/common/Knob";
+} from "@/components/common/knobTransforms";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 import {
