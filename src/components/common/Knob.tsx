@@ -386,6 +386,8 @@ export const Knob: React.FC<KnobProps> = ({
                 position: "relative",
                 borderRadius: FULL_BORDER_RADIUS,
                 boxShadow: KNOB_BOX_SHADOW,
+                background:
+                  "linear-gradient(70deg,rgba(251, 245, 255, 1),rgba(239, 228, 217, 1))",
               }}
             />
             <motion.div
