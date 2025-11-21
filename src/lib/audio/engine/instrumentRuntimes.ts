@@ -44,7 +44,6 @@ async function buildInstrumentRuntime(
   instrument: InstrumentData,
 ): Promise<InstrumentRuntime> {
   const filterNode = new Tone.Filter(0, "highpass");
-  // Use a short release to prevent clipping while allowing smooth fade-out
   const envelopeNode = new Tone.AmplitudeEnvelope(0, 0, 1, 0.05);
   const pannerNode = new Tone.Panner(0);
 

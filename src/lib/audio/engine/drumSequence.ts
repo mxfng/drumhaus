@@ -1,27 +1,22 @@
 import type { MutableRefObject } from "react";
 import * as Tone from "tone/build/esm/index";
 
-import { transformKnobValueExponential } from "@/components/common/Knob";
+import { transformKnobValue } from "@/components/common/Knob";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
-import {
-  INSTRUMENT_RELEASE_RANGE,
-  SEQUENCE_EVENTS,
-  SEQUENCE_SUBDIVISION,
-} from "./constants";
+import { SEQUENCE_EVENTS, SEQUENCE_SUBDIVISION } from "./constants";
 import { transformPitchKnobToFrequency } from "./pitch";
-import { stopRuntimeAtTime } from "./runtimeStops";
-import { triggerSamplerHit } from "./triggers";
 
 type ScheduleContext = {
-  time: number;
+  time: Tone.Unit.Time;
   step: number;
   variationIndex: number;
   instruments: InstrumentData[];
+  durations: number[];
   runtimes: InstrumentRuntime[];
   anySolos: boolean;
   hasOhat: boolean;
@@ -41,9 +36,9 @@ export function createDrumSequence(
   disposeDrumSequence(tjsSequencer);
 
   tjsSequencer.current = new Tone.Sequence(
-    (time: number, step: number) => {
+    (time, step: number) => {
       // Grab fresh state every 16th note for responsive UI + audio
-      const { instruments } = useInstrumentsStore.getState();
+      const { instruments, durations } = useInstrumentsStore.getState();
       const { pattern } = usePatternStore.getState();
       const { setStepIndex } = useTransportStore.getState();
 
@@ -74,6 +69,7 @@ export function createDrumSequence(
           step,
           variationIndex,
           instruments,
+          durations,
           runtimes: currentRuntimes,
           anySolos,
           hasOhat,
@@ -114,6 +110,7 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
     step,
     variationIndex,
     instruments,
+    durations,
     runtimes,
     anySolos,
     hasOhat,
@@ -138,10 +135,10 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
 
   const velocity = velocities[step];
   const pitch = transformPitchKnobToFrequency(params.pitch);
-  const releaseTime = transformKnobValueExponential(
-    params.release,
-    INSTRUMENT_RELEASE_RANGE,
-  );
+  const releaseTime = transformKnobValue(params.release, [
+    0,
+    durations[instrumentIndex],
+  ]);
 
   if (inst.role === "hat" && hasOhat) {
     muteOpenHat(time, instruments, runtimes, ohatIndex);
@@ -225,9 +222,8 @@ function updateBarIndexAtEndOfBar(
   }
 }
 
-// Small gate keeps the transient before the decay starts; padding avoids abrupt sampler stops.
 function muteOpenHat(
-  time: number,
+  time: Tone.Unit.Time,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   ohatIndex: number,
@@ -236,30 +232,40 @@ function muteOpenHat(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  // Hard-stop any ringing open-hat voice so the closed hat is crisp
-  stopRuntimeAtTime(ohRuntime, time);
+  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
+  ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 
 function triggerOpenHat(
-  time: number,
+  time: Tone.Unit.Time,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
   velocity: number,
 ): void {
-  triggerSamplerHit(runtime, time, pitch, releaseTime, velocity, {
-    monophonic: false,
-  });
+  const env = runtime.envelopeNode;
+  env.triggerAttack(time);
+  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+
+  if (runtime.samplerNode.loaded) {
+    runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  }
 }
 
 function triggerStandardInstrument(
-  time: number,
+  time: Tone.Unit.Time,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
   velocity: number,
 ): void {
-  triggerSamplerHit(runtime, time, pitch, releaseTime, velocity, {
-    monophonic: true,
-  });
+  runtime.samplerNode.triggerRelease(pitch, time);
+
+  const env = runtime.envelopeNode;
+  env.triggerAttack(time);
+  env.triggerRelease(Tone.Time(time).toSeconds() + releaseTime);
+
+  if (runtime.samplerNode.loaded) {
+    runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  }
 }

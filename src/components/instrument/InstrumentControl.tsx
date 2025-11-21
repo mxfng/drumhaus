@@ -238,7 +238,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const playSample = () => {
     if (!runtime) return;
 
-    playInstrumentSample(runtime, pitch, release);
+    playInstrumentSample(runtime, pitch, release, sampleDuration);
   };
 
   return (
