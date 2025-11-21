@@ -283,14 +283,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Generate a new preset name in the format of "Untitled-YYYYMMDD-HHMM".
+   * Generate a new preset name
    */
   const generateNewPresetName = (): string => {
-    const now = new Date();
-    const date = `${String(now.getFullYear()).slice(-2)}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
-    const time = `${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}`;
-
-    return `Untitled-${date}-${time}`;
+    return "Untitled";
   };
 
   /**
