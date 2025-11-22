@@ -54,7 +54,14 @@ export const Sequencer: React.FC = () => {
     const rect = targetDiv.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const divWidth = rect.width;
-    const normalizedVelocity = Math.max(Math.min(mouseX / divWidth, 1), 0);
+    // Use a small inset to ensure 0 and 100 are reachable at the edges
+    const inset = 2;
+    const adjustedX = mouseX - inset;
+    const adjustedWidth = divWidth - inset * 2;
+    const normalizedVelocity = Math.max(
+      Math.min(adjustedX / adjustedWidth, 1),
+      0,
+    );
     setVelocity(voiceIndex, variation, stepIndex, normalizedVelocity);
   };
 
@@ -211,7 +218,7 @@ export const Sequencer: React.FC = () => {
               <div
                 key={`sequence-step-velocity-${step}`}
                 className={cn(
-                  "group outline-primary relative mt-3 h-3.5 w-full rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
+                  "group outline-primary relative mt-3 h-3.5 w-full rounded-tl-full rounded-br-full bg-transparent outline-1 transition-all duration-200 ease-in-out",
                   state.isTriggerOn
                     ? "cursor-grab"
                     : "pointer-events-none cursor-default",
@@ -221,7 +228,7 @@ export const Sequencer: React.FC = () => {
                 onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
               >
                 <div
-                  className="bg-primary absolute h-full rounded-[200px_0_200px_0] blur-xs"
+                  className="bg-primary absolute h-full rounded-tl-full rounded-br-full blur-xs"
                   style={{ width: `${velocityWidth}%` }}
                 />
                 <div className="absolute flex h-full w-full items-center justify-center">

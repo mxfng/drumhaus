@@ -113,7 +113,7 @@ const Drumhaus = () => {
 
 const TopBar = () => {
   return (
-    <div className="surface-raised relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
+    <div className="surface relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
       <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
         <div className="flex items-end">
           <DrumhausLogo size={46} color="#ff7b00" />
@@ -159,7 +159,7 @@ const MainControls = ({
       </div>
 
       <div className="flex w-full flex-row items-center justify-between px-8 py-4">
-        <Tooltip content={isPlaying ? "Pause (Space)" : "Play (Space)"}>
+        <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
           <Button
             variant="hardware"
             className="neu-tall-raised h-[140px] w-[140px] rounded-lg"

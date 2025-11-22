@@ -247,11 +247,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       </div>
 
       {/* Waveform */}
-      <div className="px-4 pt-5">
+      <div className="overflow-visible px-4 pt-5">
         <button
           ref={waveButtonRef}
           className={cn(
-            "flex h-[60px] w-full items-center justify-center overflow-hidden rounded-full opacity-80 group-hover:opacity-100",
+            "flex h-[60px] w-full items-center justify-center opacity-80 transition-opacity duration-300 group-hover:opacity-100",
             {
               "cursor-pointer": isRuntimeLoaded && !waveformError,
             },
