@@ -39,10 +39,10 @@ export const ConfirmSelectPresetModal: React.FC<
         </div>
 
         <DialogFooter>
-          <Button onClick={onSelect}>Switch</Button>
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
+          <Button onClick={onSelect}>Switch</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

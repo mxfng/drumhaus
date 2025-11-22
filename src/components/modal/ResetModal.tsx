@@ -36,10 +36,10 @@ export const ResetModal: React.FC<ResetModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button onClick={onReset}>Reset</Button>
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
+          <Button onClick={onReset}>Reset</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

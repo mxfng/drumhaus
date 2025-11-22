@@ -186,11 +186,11 @@ export const SharedModal: React.FC<SharedModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button onClick={() => onCopy(shareableLink)}>
-            {hasCopied ? "Copied!" : "Copy Link"}
-          </Button>
           <Button variant="secondary" onClick={onClose}>
             Close
+          </Button>
+          <Button onClick={() => onCopy(shareableLink)}>
+            {hasCopied ? "Copied!" : "Copy Link"}
           </Button>
         </DialogFooter>
       </DialogContent>

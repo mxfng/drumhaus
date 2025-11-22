@@ -110,11 +110,11 @@ export const SaveModal: React.FC<SaveModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button onClick={handleSave} disabled={!presetName.trim()}>
-            Download
-          </Button>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!presetName.trim()}>
+            Download
           </Button>
         </DialogFooter>
       </DialogContent>
