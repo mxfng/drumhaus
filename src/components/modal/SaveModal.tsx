@@ -1,21 +1,17 @@
-import { useRef, useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  FormControl,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-  useToast,
-} from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+
+import {
+  Button,
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  useToast,
+} from "@/components/ui";
 
 // Validation schema for preset names
 const presetNameSchema = z
@@ -31,7 +27,6 @@ interface SaveModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
-  modalCloseRef: React.RefObject<HTMLDivElement | null>;
   defaultName?: string;
 }
 
@@ -39,28 +34,31 @@ export const SaveModal: React.FC<SaveModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  modalCloseRef,
   defaultName = "",
 }) => {
   const [presetName, setPresetName] = useState("");
-  const toast = useToast();
+  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
-  const prevIsOpenRef = useRef(isOpen);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
   // Auto-populate with default name when modal opens
-  // Using ref comparison during render avoids setState in effect
-  if (isOpen && !prevIsOpenRef.current && defaultName) {
+  if (isOpen && !wasOpen && defaultName) {
     setPresetName(defaultName);
   }
-  prevIsOpenRef.current = isOpen;
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+  }
 
   // Auto-focus input when modal opens
-  if (isOpen && inputRef.current) {
-    setTimeout(() => {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }, 100);
-  }
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setPresetName("");
@@ -77,8 +75,6 @@ export const SaveModal: React.FC<SaveModalProps> = ({
         description: validation.error.issues[0].message,
         status: "error",
         duration: 3000,
-        isClosable: true,
-        position: "top",
       });
       return;
     }
@@ -88,58 +84,40 @@ export const SaveModal: React.FC<SaveModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      finalFocusRef={modalCloseRef}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Download</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={6} color="gray">
-            To download your preset, enter a custom preset name.
-          </Text>
-          <FormControl>
-            <Box
-              w="80%"
-              h="40px"
-              borderRadius="8px"
-              boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-            >
-              <Center h="100%" pl={4}>
-                <Input
-                  ref={inputRef}
-                  color="gray"
-                  fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                  h="100%"
-                  w="100%"
-                  variant="unstyled"
-                  placeholder="Preset name"
-                  value={presetName}
-                  onChange={(e) => setPresetName(e.target.value)}
-                />
-              </Center>
-            </Box>
-          </FormControl>
-        </ModalBody>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Download</DialogTitle>
+        </DialogHeader>
+        <DialogCloseButton />
 
-        <ModalFooter>
-          <Button
-            onClick={handleSave}
-            colorScheme="orange"
-            mr={3}
-            isDisabled={!presetName.trim()}
-          >
+        <div className="pb-6">
+          <DialogDescription className="pb-6">
+            To download your preset, enter a custom preset name.
+          </DialogDescription>
+
+          <div className="h-10 w-4/5 rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+            <div className="flex h-full items-center pl-4">
+              <input
+                ref={inputRef}
+                className="font-pixel placeholder:-light h-full w-full bg-transparent outline-none"
+                placeholder="Preset name"
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button onClick={handleSave} disabled={!presetName.trim()}>
             Download
           </Button>
-          <Button onClick={handleClose} color="gray">
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

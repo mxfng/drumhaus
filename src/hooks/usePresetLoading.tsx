@@ -1,6 +1,6 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
-import { Box, Text, useToast } from "@chakra-ui/react";
 
+import { useToast } from "@/components/ui";
 import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
@@ -21,7 +21,7 @@ interface UsePresetLoadingResult {
 export function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
-  const toast = useToast({ position: "top" });
+  const { toast } = useToast();
   const hasLoadedFromUrlRef = useRef(false);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
@@ -47,18 +47,7 @@ export function usePresetLoading({
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
       toast({
-        id: "shared-preset-received",
-        render: () => (
-          <Box
-            bg="silver"
-            color="gray"
-            p={3}
-            borderRadius="8px"
-            className="neumorphic"
-          >
-            <Text>{`You received a custom preset called "${presetName}"!`}</Text>
-          </Box>
-        ),
+        title: `You received a custom preset called "${presetName}"!`,
       });
     },
     [toast],
@@ -70,8 +59,6 @@ export function usePresetLoading({
       description: "Failed to load shared preset. Loading default.",
       status: "error",
       duration: 8000,
-      isClosable: true,
-      position: "top",
     });
   }, [toast]);
 

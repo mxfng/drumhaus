@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { useToast } from "@chakra-ui/react";
+
+import { useToast } from "@/components/ui";
 
 type AppErrorBoundaryProps = {
   children: React.ReactNode;
@@ -44,7 +45,7 @@ class AppErrorBoundaryInner extends React.Component<
 }
 
 export function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
-  const toast = useToast();
+  const { toast } = useToast();
 
   return (
     <AppErrorBoundaryInner
@@ -54,8 +55,6 @@ export function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
           description: error.message,
           status: "error",
           duration: 8000,
-          isClosable: true,
-          position: "top",
         });
       }}
     >
@@ -67,7 +66,7 @@ export function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
 // Global handler for errors that React error boundaries cannot catch,
 // such as event handler errors and unhandled promise rejections.
 export function GlobalErrorHandler() {
-  const toast = useToast();
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
@@ -81,8 +80,6 @@ export function GlobalErrorHandler() {
         description: message,
         status: "error",
         duration: 8000,
-        isClosable: true,
-        position: "top",
       });
     };
 
@@ -98,8 +95,6 @@ export function GlobalErrorHandler() {
         description: message,
         status: "error",
         duration: 8000,
-        isClosable: true,
-        position: "top",
       });
     };
 

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Center, useToast } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useToast } from "@/components/ui";
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
@@ -76,9 +76,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     openPresetChangeModal,
   } = useModalStore();
 
-  const toast = useToast();
-
-  const modalCloseRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   // Available kits and presets
   const KITS: KitFileV1[] = useMemo(
@@ -256,8 +254,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
                 : "Failed to import preset",
             status: "error",
             duration: 8000,
-            isClosable: true,
-            position: "top",
           });
         }
       };
@@ -267,8 +263,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           description: "Failed to import preset",
           status: "error",
           duration: 8000,
-          isClosable: true,
-          position: "top",
         });
       };
       reader.readAsText(file);
@@ -317,8 +311,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
           error instanceof Error ? error.message : "Failed to share preset",
         status: "error",
         duration: 8000,
-        isClosable: true,
-        position: "top",
       });
     }
   };
@@ -327,12 +319,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // EVENT HANDLERS
   // ============================================================================
 
-  const handleKitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switchKit(e.target.value);
+  const handleKitChange = (value: string) => {
+    switchKit(value);
   };
 
-  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switchPreset(e.target.value);
+  const handlePresetChange = (value: string) => {
+    switchPreset(value);
   };
 
   const handleConfirmPresetChange = () => {
@@ -362,18 +354,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   return (
     <>
-      <Center h="100%">
-        <Box
-          w="100%"
-          h="195px"
-          className="neumorphicExtraTall"
-          borderRadius="8px"
-          pt={2}
-          pb={1}
-          px={3}
-          position="relative"
-          ref={modalCloseRef}
-        >
+      <div className="mx-4 flex h-full items-center justify-center">
+        <div className="neu-tall-raised relative h-[195px] w-[332px] rounded-lg px-3 pb-3">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
             presets={allPresets}
@@ -385,16 +367,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             kits={KITS}
             onSelect={handleKitChange}
           />
-
           <PresetActions onOpenFromFile={importPreset} />
-        </Box>
-      </Center>
+        </div>
+      </div>
 
       <SaveModal
         isOpen={isSaveModalOpen}
         onClose={closeSaveModal}
         onSave={exportPreset}
-        modalCloseRef={modalCloseRef}
         defaultName={generateNewPresetName()}
       />
 
@@ -402,7 +382,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         isOpen={isSharingModalOpen}
         onClose={closeSharingModal}
         onShare={sharePreset}
-        modalCloseRef={modalCloseRef}
         defaultName={generateNewPresetName()}
       />
 
@@ -410,21 +389,18 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         isOpen={isSharedModalOpen}
         onClose={closeSharedModal}
         shareableLink={shareableLink}
-        modalCloseRef={modalCloseRef}
       />
 
       <ResetModal
         isOpen={isResetModalOpen}
         onClose={closeResetModal}
         onReset={handleReset}
-        modalCloseRef={modalCloseRef}
       />
 
       <ConfirmSelectPresetModal
         isOpen={isPresetChangeModalOpen}
         onClose={closePresetChangeModal}
         onSelect={handleConfirmPresetChange}
-        modalCloseRef={modalCloseRef}
       />
     </>
   );

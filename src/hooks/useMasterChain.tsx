@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef } from "react";
 
 import {
   connectInstrumentsToMasterChain,
@@ -12,12 +12,14 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 
 interface UseMasterChainProps {
-  instrumentRuntimes: InstrumentRuntime[];
+  instrumentRuntimesRef: RefObject<InstrumentRuntime[]>;
+  instrumentRuntimesVersion: number;
   setIsLoading: (isLoading: boolean) => void;
 }
 
 export function useMasterChain({
-  instrumentRuntimes,
+  instrumentRuntimesRef,
+  instrumentRuntimesVersion,
   setIsLoading,
 }: UseMasterChainProps) {
   // Master Chain Runtimes
@@ -101,8 +103,8 @@ export function useMasterChain({
     if (!isInitialized.current || !masterChainRuntimes.current) return;
 
     connectInstrumentsToMasterChain(
-      instrumentRuntimes,
+      instrumentRuntimesRef.current,
       masterChainRuntimes.current,
     );
-  }, [instrumentRuntimes]);
+  }, [instrumentRuntimesRef, instrumentRuntimesVersion]);
 }

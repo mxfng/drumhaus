@@ -1,27 +1,22 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
-import { Box, ChakraProvider } from "@chakra-ui/react";
+
+import "@fontsource-variable/albert-sans";
 
 import {
   AppErrorBoundary,
   GlobalErrorHandler,
 } from "@/components/common/AppErrorBoundary";
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
-import theme from "@/theme/theme";
+import { ToastProvider, TooltipProvider } from "@/components/ui";
 
 // Dynamically import Drumhaus component
 const Drumhaus = lazy(() => import("./components/Drumhaus"));
 
 function DrumhausFallback() {
   return (
-    <Box
-      w="100%"
-      minH="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-    >
+    <div className="flex min-h-screen w-full items-center justify-center">
       <PixelatedSpinner size={64} />
-    </Box>
+    </div>
   );
 }
 
@@ -59,25 +54,27 @@ export function App() {
   }, []);
 
   return (
-    <ChakraProvider theme={theme}>
-      <title>{title}</title>
-      <meta
-        name="description"
-        content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
-      />
-      <meta property="og:title" content={title} />
-      <meta
-        property="og:description"
-        content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
-      />
-      <AppErrorBoundary>
-        <GlobalErrorHandler />
-        <Box w="100vw" minH="100vh" overflow="auto">
-          <Suspense fallback={<DrumhausFallback />}>
-            <Drumhaus />
-          </Suspense>
-        </Box>
-      </AppErrorBoundary>
-    </ChakraProvider>
+    <TooltipProvider>
+      <ToastProvider>
+        <title>{title}</title>
+        <meta
+          name="description"
+          content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
+        />
+        <meta property="og:title" content={title} />
+        <meta
+          property="og:description"
+          content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
+        />
+        <AppErrorBoundary>
+          <GlobalErrorHandler />
+          <div className="h-screen w-screen overflow-auto">
+            <Suspense fallback={<DrumhausFallback />}>
+              <Drumhaus />
+            </Suspense>
+          </div>
+        </AppErrorBoundary>
+      </ToastProvider>
+    </TooltipProvider>
   );
 }

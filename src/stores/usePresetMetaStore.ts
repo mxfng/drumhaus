@@ -101,9 +101,11 @@ export const usePresetMetaStore = create<PresetMetaState>()(
           );
 
           // Compare by stringifying (exclude updatedAt since that's only for saves)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const cleanMetaRest = (({ updatedAt: _updatedAt, ...rest }) => rest)(
             cleanPreset.meta,
           );
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const currentMetaRest = (({ updatedAt: _updatedAt, ...rest }) =>
             rest)(currentPreset.meta);
           const cleanCopy = { ...cleanPreset, meta: cleanMetaRest };
