@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Box, Button, Center, Flex, Input, Text } from "@chakra-ui/react";
 import { IoTriangleSharp } from "react-icons/io5";
 
 import {
@@ -8,10 +7,11 @@ import {
 } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { CustomSlider } from "../common/CustomSlider";
+import { Label } from "../ui";
 
 // Constants
 const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
-const HOLD_INTERVAL = 130;
+const HOLD_INTERVAL = 100;
 
 export const TransportControl: React.FC = () => {
   // Get transport state from store
@@ -21,8 +21,7 @@ export const TransportControl: React.FC = () => {
   const setSwing = useTransportStore((state) => state.setSwing);
   const [bpmInputValue, setBpmInputValue] = useState<number>(bpm);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const upButtonRef = useRef<HTMLButtonElement | null>(null);
-  const downButtonRef = useRef<HTMLButtonElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleBpmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -40,50 +39,34 @@ export const TransportControl: React.FC = () => {
     setBpm(bpmInputValue);
   };
 
-  // Handle mouse hold on BPM buttons
+  const handleMouseDown = (modifier: number) => {
+    // Immediate update
+    setBpmInputValue((prev) =>
+      Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
+    );
+    // Start interval for hold
+    intervalRef.current = setInterval(() => {
+      setBpmInputValue((prev) =>
+        Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
+      );
+    }, HOLD_INTERVAL);
+  };
+
+  const handleMouseUp = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  // Cleanup on unmount
   useEffect(() => {
-    const updateBpm = (modifier: number) => {
-      setBpmInputValue((prevBpmInputValue) => {
-        const newBpmInputValue = Math.min(
-          Math.max(prevBpmInputValue + modifier, MIN_BPM),
-          MAX_BPM,
-        );
-        return newBpmInputValue;
-      });
-    };
-
-    let intervalId: NodeJS.Timeout;
-    const upButton = upButtonRef.current;
-    const downButton = downButtonRef.current;
-
-    const handleUpButtonMouseDown = () => {
-      updateBpm(1);
-      intervalId = setInterval(() => updateBpm(1), HOLD_INTERVAL);
-    };
-
-    const handleDownButtonMouseDown = () => {
-      updateBpm(-1);
-      intervalId = setInterval(() => updateBpm(-1), HOLD_INTERVAL);
-    };
-
-    const handleMouseUp = () => {
-      clearInterval(intervalId);
-    };
-
-    if (upButton)
-      upButton.addEventListener("mousedown", handleUpButtonMouseDown);
-    if (downButton)
-      downButton.addEventListener("mousedown", handleDownButtonMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-
     return () => {
-      if (upButton)
-        upButton.removeEventListener("mousedown", handleUpButtonMouseDown);
-      if (downButton)
-        downButton.removeEventListener("mousedown", handleDownButtonMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
-  }, [setBpm]);
+  }, []);
 
   useEffect(() => {
     setBpm(bpmInputValue);
@@ -94,94 +77,48 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <>
-      <Center h="100%" w="150px" position="relative">
-        <Box>
-          <Flex>
-            <Center>
-              <Box
-                w="150px"
-                h="70px"
-                borderRadius="8px"
-                p={3}
-                top={10}
-                position="absolute"
-                className="neumorphicExtraTall"
-              >
-                <Center h="100%" position="relative" zIndex={3}>
-                  <Flex h="100%">
-                    <Input
-                      ref={inputRef}
-                      fontFamily={`'Pixelify Sans Variable', sans-serif`}
-                      fontSize={40}
-                      color="gray"
-                      w="98px"
-                      h="100%"
-                      boxShadow="0 4px 8px rgba(176, 147, 116, 0.6) inset"
-                      position="absolute"
-                      left={0}
-                      borderRadius="8px 0 0 8px"
-                      type="number"
-                      value={bpmInputValue}
-                      onChange={handleBpmChange}
-                      onBlur={handleBlur}
-                      border="0px solid transparent"
-                      focusBorderColor="transparent"
-                      _focus={{
-                        boxShadow: "0 4px 8px rgba(176, 147, 116, 0.6) inset",
-                      }}
-                      onFocus={(e) => e.target.select()}
-                      _selection={{ background: "rgba(255, 140, 0, 0.5)" }}
-                      textAlign="center"
-                      lineHeight="100%"
-                    />
-                    <Button
-                      w="10px"
-                      h="35px"
-                      borderRadius="0 8px 0 0"
-                      position="absolute"
-                      top={-3}
-                      right={-3}
-                      ref={upButtonRef}
-                    >
-                      <IoTriangleSharp color="#B09374" />
-                    </Button>
-                    <Button
-                      w="20px"
-                      h="35px"
-                      borderRadius="0 0 8px 0"
-                      position="absolute"
-                      right={-3}
-                      bottom={-3}
-                      ref={downButtonRef}
-                    >
-                      <IoTriangleSharp
-                        color="#B09374"
-                        style={{ transform: "rotate(180deg)" }}
-                      />
-                    </Button>
-                  </Flex>
-                  <Center position="absolute" left={-1} bottom={-6}>
-                    <Text fontSize={12} color="gray" my={-3}>
-                      TEMPO
-                    </Text>
-                  </Center>
-                </Center>
-              </Box>
-            </Center>
-          </Flex>
-          <Box position="absolute" bottom={6} left={0}>
-            <CustomSlider
-              size={146}
-              sliderValue={swing}
-              setSliderValue={setSwing}
-              title="SWING"
-              defaultValue={0}
-              transformRange={TRANSPORT_SWING_RANGE}
-            />
-          </Box>
-        </Box>
-      </Center>
-    </>
+    <div className="flex flex-col items-center justify-center gap-10">
+      <div className="neu-tall relative w-full rounded-lg">
+        <div className="surface-raised relative flex h-full items-center rounded-lg">
+          <input
+            ref={inputRef}
+            className="font-pixel my-3 ml-3 h-full w-[103px] rounded-l-lg border-0 bg-transparent text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            value={bpmInputValue}
+            onChange={handleBpmChange}
+            onBlur={handleBlur}
+            onFocus={(e) => e.target.select()}
+          />
+          <div className="text-foreground-muted absolute right-0 flex h-full w-8 flex-col justify-between text-xs">
+            <button
+              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              onMouseDown={() => handleMouseDown(1)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
+              <IoTriangleSharp />
+            </button>
+            <button
+              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              onMouseDown={() => handleMouseDown(-1)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
+              <IoTriangleSharp className="rotate-180" />
+            </button>
+          </div>
+        </div>
+        <Label className="absolute -bottom-5 left-3">TEMPO</Label>
+      </div>
+      <div className="pb-4">
+        <CustomSlider
+          size={146}
+          sliderValue={swing}
+          setSliderValue={setSwing}
+          title="SWING"
+          defaultValue={0}
+          transformRange={TRANSPORT_SWING_RANGE}
+        />
+      </div>
+    </div>
   );
 };

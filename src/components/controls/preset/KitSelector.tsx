@@ -1,12 +1,19 @@
-import { Box, Button, Select, Text } from "@chakra-ui/react";
 import { IoMdArrowDropdown } from "react-icons/io";
 
+import {
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
 import type { KitFileV1 } from "@/types/instrument";
 
 type KitSelectorProps = {
   selectedKitId: string;
   kits: KitFileV1[];
-  onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onSelect: (value: string) => void;
 };
 
 export const KitSelector: React.FC<KitSelectorProps> = ({
@@ -15,61 +22,33 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
   onSelect,
 }) => {
   return (
-    <>
-      <Text fontSize={12} color="gray">
-        KIT
-      </Text>
+    <div className="-mt-2">
+      <Label>KIT</Label>
 
-      <Box
-        w="100%"
-        borderRadius="8px"
-        boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-        _hover={{
-          "& .icon": {
-            fill: "darkorange",
-            transition: "all 0.2s ease",
-          },
-        }}
-      >
-        <Box h="40px" w="100%" id="kit" mb={2} position="relative">
-          <Select
-            variant="unstyled"
-            icon={<div></div>}
-            value={selectedKitId}
-            fontFamily={`'Pixelify Sans Variable', sans-serif`}
-            color="gray"
-            w="332px"
-            h="40px"
-            borderRadius="8px"
-            cursor="pointer"
-            pl={4}
-            onChange={onSelect}
-            onKeyDown={(ev) => ev.preventDefault()}
-          >
-            {kits.map((kit) => (
-              <option key={kit.meta.id} value={kit.meta.id}>
-                {kit.meta.name}
-              </option>
-            ))}
+      <div className="group w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+        <div id="kit" className="relative mb-2 h-10 w-full">
+          <Select value={selectedKitId} onValueChange={onSelect}>
+            <SelectTrigger className="h-10 cursor-pointer rounded-lg bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">
+              <SelectValue />
+              <div className="pointer-events-none">
+                <div className="-mb-1 h-1/2 rotate-180">
+                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
+                </div>
+                <div className="h-1/2">
+                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
+                </div>
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {kits.map((kit) => (
+                <SelectItem key={kit.meta.id} value={kit.meta.id}>
+                  {kit.meta.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
           </Select>
-          <Button
-            bg="transparent"
-            position="absolute"
-            right={0}
-            top={0}
-            pointerEvents="none"
-          >
-            <Box>
-              <Box h="50%" transform="rotate(180deg)" mb={-1}>
-                <IoMdArrowDropdown className="icon" color="#B09374" />
-              </Box>
-              <Box h="50%">
-                <IoMdArrowDropdown className="icon" color="#B09374" />
-              </Box>
-            </Box>
-          </Button>
-        </Box>
-      </Box>
-    </>
+        </div>
+      </div>
+    </div>
   );
 };

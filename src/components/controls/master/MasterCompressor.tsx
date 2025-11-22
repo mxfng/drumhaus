@@ -1,5 +1,4 @@
-import { Box, Grid, GridItem, Text } from "@chakra-ui/react";
-
+import { Label } from "@/components/ui";
 import {
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_THRESHOLD_RANGE,
@@ -15,41 +14,30 @@ export const MasterCompressor: React.FC = () => {
   // Get actions from store
   const setThreshold = useMasterChainStore((state) => state.setCompThreshold);
   const setRatio = useMasterChainStore((state) => state.setCompRatio);
+
   return (
-    <Box h="100%" w="130px">
-      <Grid templateColumns="repeat(2, 1fr)">
-        <GridItem position="relative">
-          <Text
-            transform="rotate(-90deg)"
-            position="absolute"
-            left={-2}
-            bottom="70px"
-            color="gray"
-            fontSize={12}
-            opacity={0.5}
-          >
-            COMPRESSOR
-          </Text>
-        </GridItem>
-        <GridItem>
-          <Knob
-            value={threshold}
-            onChange={setThreshold}
-            label="THRESHOLD"
-            units="dB"
-            range={MASTER_COMP_THRESHOLD_RANGE}
-            defaultValue={100}
-          />
-          <Knob
-            value={ratio}
-            onChange={setRatio}
-            label="RATIO"
-            units=": 1"
-            range={MASTER_COMP_RATIO_RANGE}
-            defaultValue={43}
-          />
-        </GridItem>
-      </Grid>
-    </Box>
+    <div className="relative flex items-center">
+      <Label className="text-foreground-muted absolute -left-10 w-[85px] -rotate-90">
+        COMPRESSOR
+      </Label>
+      <div className="flex flex-col gap-2 pl-4">
+        <Knob
+          value={threshold}
+          onChange={setThreshold}
+          label="THRESHOLD"
+          units="dB"
+          range={MASTER_COMP_THRESHOLD_RANGE}
+          defaultValue={100}
+        />
+        <Knob
+          value={ratio}
+          onChange={setRatio}
+          label="RATIO"
+          units=": 1"
+          range={MASTER_COMP_RATIO_RANGE}
+          defaultValue={43}
+        />
+      </div>
+    </div>
   );
 };

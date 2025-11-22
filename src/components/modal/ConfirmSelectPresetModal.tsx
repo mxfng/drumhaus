@@ -1,57 +1,50 @@
 import {
   Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Text,
-} from "@chakra-ui/react";
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui";
 
 interface ConfirmSelectPresetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: () => void;
-  modalCloseRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const ConfirmSelectPresetModal: React.FC<
   ConfirmSelectPresetModalProps
-> = ({ isOpen, onClose, onSelect, modalCloseRef }) => {
+> = ({ isOpen, onClose, onSelect }) => {
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      finalFocusRef={modalCloseRef}
-      isCentered
-    >
-      <ModalOverlay />
-      <ModalContent bg="silver">
-        <ModalHeader color="brown">Confirmation</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <Text pb={2} color="gray">
-            Are you sure you want to switch to a new preset?
-          </Text>
-          <Text pb={2} color="gray">
-            You will lose any unsaved work on the current preset.
-          </Text>
-          <Text pb={2} color="gray">
-            {`You can download your work as a .dh file using the 'Download to file' button, or share it with a friend using the 'Share as link' button.`}
-          </Text>
-        </ModalBody>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Confirmation</DialogTitle>
+        </DialogHeader>
+        <DialogCloseButton />
 
-        <ModalFooter>
-          <Button onClick={onSelect} colorScheme="orange" mr={3}>
-            Switch
-          </Button>
-          <Button onClick={onClose} color="gray">
+        <div className="space-y-2 pb-4">
+          <DialogDescription>
+            Are you sure you want to switch to a new preset?
+          </DialogDescription>
+          <DialogDescription>
+            You will lose any unsaved work on the current preset.
+          </DialogDescription>
+          <DialogDescription>
+            {`You can download your work as a .dh file using the 'Download to file' button, or share it with a friend using the 'Share as link' button.`}
+          </DialogDescription>
+        </div>
+
+        <DialogFooter>
+          <Button onClick={onSelect}>Switch</Button>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

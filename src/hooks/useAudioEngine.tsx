@@ -39,9 +39,24 @@ export function useAudioEngine(): UseAudioEngineResult {
   const instrumentSamplePaths = useInstrumentsStore((state) =>
     state.instruments.map((inst) => inst.sample.path).join(","),
   );
+  const [trackedSamplePaths, setTrackedSamplePaths] = useState(
+    instrumentSamplePaths,
+  );
+
+  // Set loading state when sample paths change during render
+  if (
+    instrumentSamplePaths !== trackedSamplePaths &&
+    instrumentSamplePaths.length > 0
+  ) {
+    setTrackedSamplePaths(instrumentSamplePaths);
+    if (!isLoading) {
+      setIsLoading(true);
+    }
+  }
 
   useMasterChain({
-    instrumentRuntimes: instrumentRuntimes.current,
+    instrumentRuntimesRef: instrumentRuntimes,
+    instrumentRuntimesVersion,
     setIsLoading,
   });
 
@@ -86,7 +101,6 @@ export function useAudioEngine(): UseAudioEngineResult {
     }
 
     let cancelled = false;
-    setIsLoading(true);
 
     const instruments = useInstrumentsStore.getState().instruments;
 

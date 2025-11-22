@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getSampleDuration } from "@/lib/audio/engine";
 
@@ -12,11 +12,11 @@ export const useSampleDuration = (url: string): UseSampleDurationResult => {
   const [duration, setDuration] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const prevUrlRef = useRef(url);
+  const [trackedUrl, setTrackedUrl] = useState(url);
 
   // Reset loading state when URL changes during render
-  if (prevUrlRef.current !== url) {
-    prevUrlRef.current = url;
+  if (trackedUrl !== url) {
+    setTrackedUrl(url);
     if (!isLoading) {
       setIsLoading(true);
     }

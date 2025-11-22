@@ -1,14 +1,7 @@
 import { useState } from "react";
-import {
-  Box,
-  Center,
-  Slider,
-  SliderThumb,
-  SliderTrack,
-  Text,
-  Tooltip,
-} from "@chakra-ui/react";
+import * as SliderPrimitive from "@radix-ui/react-slider";
 
+import { Label, Tooltip } from "@/components/ui";
 import { transformKnobValue } from "./knobTransforms";
 
 type CustomSliderProps = {
@@ -42,17 +35,16 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
   valueStep = 1,
   valueDecimals = 0,
 }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-
   const immutableDefaultValue = defaultValue;
   const step = valueStep > 0 ? valueStep : 1;
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleDoubleClick = () => {
     setSliderValue(immutableDefaultValue);
   };
 
-  const handleChange = (value: number) => {
-    const quantizedValue = Math.round(value / step) * step;
+  const handleChange = (value: number[]) => {
+    const quantizedValue = Math.round(value[0] / step) * step;
     setSliderValue(quantizedValue);
   };
 
@@ -62,87 +54,53 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
   ).toFixed(valueDecimals);
 
   return (
-    <Box position="relative" onDoubleClick={handleDoubleClick}>
-      <Box
-        w={`${size}px`}
-        h="10px"
-        position="relative"
-        left={1}
-        bottom={2}
-        borderRadius="8px"
-        boxShadow="0 2px 8px rgba(176, 147, 116, 0.6) inset"
-      >
-        <Center w="100%" h="100%">
-          <Slider
-            w={`${size - size / 4}px`}
-            value={sliderValue}
-            focusThumbOnChange={false}
-            min={0}
-            max={100}
-            step={step}
-            onChange={handleChange}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
-            isDisabled={isDisabled}
-          >
-            <SliderTrack></SliderTrack>
-            <Tooltip
-              hasArrow
-              bg="darkorange"
-              color="white"
-              placement="top"
-              isOpen={showTooltip}
-              fontSize={10}
-              label={formattedTransformedValue}
-            >
-              <SliderThumb
-                width={`${size / 4}px`}
-                borderRadius="8px"
-                className="neumorphicRaised"
-              />
-            </Tooltip>
-          </Slider>
-        </Center>
-      </Box>
+    <div
+      className="flex flex-col gap-0.5"
+      style={{ width: `${size}px` }}
+      onDoubleClick={handleDoubleClick}
+    >
+      {/* Labels */}
+      <div className="relative flex items-end justify-between px-1">
+        <Label className="text-[10px]">{leftLabel}</Label>
+        <Label className="absolute inset-x-0 text-center text-[8px] opacity-60">
+          {centerLabel}
+        </Label>
+        <Label className="text-[10px]">{rightLabel}</Label>
+      </div>
 
-      <Text fontSize={10} color="gray" position="absolute" left={2} bottom={5}>
-        {leftLabel}
-      </Text>
-      <Text
-        fontSize={8}
-        w={`${size}px`}
-        color="gray"
-        position="absolute"
-        left={1}
-        bottom="22px"
-        align="center"
-      >
-        {centerLabel}
-      </Text>
-      <Text
-        fontSize={10}
-        w={`${size}px`}
-        color="gray"
-        position="absolute"
-        left={1}
-        bottom={5}
-        align="right"
-      >
-        {rightLabel}
-      </Text>
-      {title ? (
-        <Text
-          fontSize={10}
-          color="gray"
-          w={`${size}px`}
-          align="center"
-          left={1}
-          bottom={-3}
-          position="absolute"
+      {/* Slider track */}
+      <div className="flex h-[10px] items-center rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+        <SliderPrimitive.Root
+          className="relative flex w-full touch-none items-center select-none"
+          value={[sliderValue]}
+          min={0}
+          max={100}
+          step={step}
+          onValueChange={handleChange}
+          onPointerDown={() => setIsDragging(true)}
+          onPointerUp={() => setIsDragging(false)}
+          disabled={isDisabled}
         >
-          {title}
-        </Text>
-      ) : null}
-    </Box>
+          <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-transparent">
+            <SliderPrimitive.Range className="absolute h-full bg-transparent" />
+          </SliderPrimitive.Track>
+          <Tooltip
+            content={formattedTransformedValue}
+            delayDuration={0}
+            side="top"
+            open={isDragging ? true : undefined}
+          >
+            <SliderPrimitive.Thumb
+              className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
+              style={{ width: `${size / 4}px`, height: "16px" }}
+              aria-label="Slider thumb"
+            />
+          </Tooltip>
+        </SliderPrimitive.Root>
+      </div>
+
+      {/* Title */}
+      {title && <Label className="text-center">{title}</Label>}
+    </div>
   );
 };

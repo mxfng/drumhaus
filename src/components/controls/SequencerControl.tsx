@@ -1,19 +1,26 @@
 import { useState } from "react";
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  Grid,
-  GridItem,
-  Text,
-} from "@chakra-ui/react";
 import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
 
+import { Button, Label, Tooltip } from "@/components/ui";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
+
+// Tooltip constants
+const TOOLTIPS = {
+  VARIATION_A: "Select variation A",
+  VARIATION_B: "Select variation B",
+  CYCLE_A: "Play only variation A",
+  CYCLE_B: "Play only variation B",
+  CYCLE_AB: "Alternate A and B each bar",
+  CYCLE_AAAB: "Play A three times, then B",
+  COPY: "Copy current sequence",
+  PASTE: "Paste copied sequence",
+  CLEAR: "Clear current sequence",
+  RANDOM: "Generate random sequence",
+} as const;
 
 export const SequencerControl: React.FC = () => {
   // Get state from Sequencer Store
@@ -63,198 +70,150 @@ export const SequencerControl: React.FC = () => {
   };
 
   return (
-    <>
-      <Center h="100%" w="280px" px={4}>
-        <Box>
-          <Text fontSize={12} color="gray" pb={4} opacity={0.5}>
-            SEQUENCER
-          </Text>
-          <Grid templateColumns="repeat(3,1fr)" pb={8}>
-            <GridItem colSpan={1} position="relative" pr={2}>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
-                SHOW
-              </Text>
-              <Center>
-                <Flex className="neumorphic" borderRadius="8px">
-                  <Button
-                    h="30px"
-                    w="30px"
-                    className="raised"
-                    borderRadius="8px 0 0 8px"
-                    color={variation == 0 ? "darkorange" : "#B09374"}
-                    onClick={() => setVariation(0)}
-                  >
-                    A
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="30px"
-                    className="raised"
-                    borderRadius="0 8px 8px 0"
-                    color={variation == 1 ? "darkorange" : "#B09374"}
-                    onClick={() => setVariation(1)}
-                  >
-                    B
-                  </Button>
-                </Flex>
-              </Center>
-            </GridItem>
-            <GridItem colSpan={1} position="relative">
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
-                VAR CYC
-              </Text>
-              <Center>
-                <Flex className="neumorphic" borderRadius="8px">
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="8px 0 0 8px"
-                    color={variationCycle === "A" ? "darkorange" : "gray"}
-                    fontSize={12}
-                    onClick={() => setVariationCycle("A")}
-                  >
-                    A
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 0 0 0"
-                    color={variationCycle === "B" ? "darkorange" : "gray"}
-                    fontSize={12}
-                    onClick={() => setVariationCycle("B")}
-                  >
-                    B
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 0 0 0"
-                    color={variationCycle === "AB" ? "darkorange" : "gray"}
-                    fontSize={12}
-                    onClick={() => setVariationCycle("AB")}
-                  >
-                    AB
-                  </Button>
-                  <Button
-                    h="30px"
-                    w="40px"
-                    className="raised"
-                    borderRadius="0 8px 8px 0"
-                    color={variationCycle === "AAAB" ? "darkorange" : "gray"}
-                    fontSize={12}
-                    onClick={() => setVariationCycle("AAAB")}
-                  >
-                    AAAB
-                  </Button>
-                </Flex>
-              </Center>
-            </GridItem>
-          </Grid>
-          <Grid templateColumns="repeat(4, 1fr)" gap={2} pb={4}>
-            <GridItem position="relative">
+    <div className="flex flex-col px-4">
+      <Label className="text-foreground-muted pb-2">SEQUENCER</Label>
+
+      <div className="flex justify-between gap-4 pb-8">
+        <div className="relative">
+          <div className="neu flex rounded-lg">
+            <Tooltip content={TOOLTIPS.VARIATION_A}>
               <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
-                onClick={copySequence}
+                variant="hardware"
+                size="sm"
+                className={cn("neu w-8 rounded-l-lg rounded-r-none", {
+                  "text-primary": variation === 0,
+                })}
+                onClick={() => setVariation(0)}
               >
-                <IoCopySharp color="#B09374" />
+                A
               </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
-                COPY
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.VARIATION_B}>
               <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
-                onClick={pasteSequence}
+                variant="hardware"
+                size="sm"
+                className={cn("w-8 rounded-l-none rounded-r-lg", {
+                  "text-primary": variation === 1,
+                })}
+                onClick={() => setVariation(1)}
               >
-                <IoBrushSharp color="#B09374" />
+                B
               </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
-                PASTE
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
+            </Tooltip>
+          </div>
+          <Label className="absolute -bottom-5 left-1">VARI</Label>
+        </div>
+
+        <div className="relative">
+          <div className="neu flex rounded-lg">
+            <Tooltip content={TOOLTIPS.CYCLE_A}>
               <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
-                onClick={handleClearSequence}
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-l-lg rounded-r-none", {
+                  "text-primary": variationCycle === "A",
+                })}
+                onClick={() => setVariationCycle("A")}
               >
-                <BsFillEraserFill color="#B09374" />
+                A
               </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
-              >
-                CLEAR
-              </Text>
-            </GridItem>
-            <GridItem position="relative">
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_B}>
               <Button
-                w="100%"
-                h="26px"
-                bg="transparent"
-                className="neumorphicRaised"
-                onClick={handleRandomSequence}
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-none", {
+                  "text-primary": variationCycle === "B",
+                })}
+                onClick={() => setVariationCycle("B")}
               >
-                <FaDice color="#B09374" />
+                B
               </Button>
-              <Text
-                fontSize={12}
-                color="gray"
-                my={-3}
-                position="absolute"
-                bottom={-3}
-                left={1}
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_AB}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-none", {
+                  "text-primary": variationCycle === "AB",
+                })}
+                onClick={() => setVariationCycle("AB")}
               >
-                RAND
-              </Text>
-            </GridItem>
-          </Grid>
-        </Box>
-      </Center>
-    </>
+                AB
+              </Button>
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_AAAB}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn(
+                  "w-10 rounded-l-none rounded-r-lg text-[10px] leading-tight",
+                  {
+                    "text-primary": variationCycle === "AAAB",
+                  },
+                )}
+                onClick={() => setVariationCycle("AAAB")}
+              >
+                AA
+                <br />
+                AB
+              </Button>
+            </Tooltip>
+          </div>
+          <Label className="absolute -bottom-5 left-1">CYCLE</Label>
+        </div>
+      </div>
+
+      <div className="pb-4">
+        <div className="neu grid grid-cols-4 rounded-lg">
+          <Tooltip content={TOOLTIPS.COPY}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-l-lg rounded-r-none"
+              onClick={copySequence}
+            >
+              <IoCopySharp />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.PASTE}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-none"
+              onClick={pasteSequence}
+            >
+              <IoBrushSharp />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.CLEAR}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-none"
+              onClick={handleClearSequence}
+            >
+              <BsFillEraserFill />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.RANDOM}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-l-none rounded-r-lg"
+              onClick={handleRandomSequence}
+            >
+              <FaDice />
+            </Button>
+          </Tooltip>
+        </div>
+        <div className="mt-1 grid grid-cols-4 text-center">
+          <Label>COPY</Label>
+          <Label>PASTE</Label>
+          <Label>CLEAR</Label>
+          <Label>RAND</Label>
+        </div>
+      </div>
+    </div>
   );
 };
