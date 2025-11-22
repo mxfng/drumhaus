@@ -79,8 +79,8 @@
 
   /* Sequencer component */
   --step-shadow-ring: 0 0 1px 2px var(--color-shadow-30);
-  --step-shadow-inset-highlight: inset 1px -1px 1px var(--color-highlight-30);
-  --step-shadow-inset-shadow: inset -1px 1px 1px var(--color-shadow-30);
+  --step-shadow-inset-highlight: inset 2px 2px 2px var(--color-highlight-40);
+  --step-shadow-inset-shadow: inset -2px -2px 2px var(--color-shadow-50);
   --step-shadow-on:
     var(--shadow-neu), var(--step-shadow-ring),
     var(--step-shadow-inset-highlight), var(--step-shadow-inset-shadow);
