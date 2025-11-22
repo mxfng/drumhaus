@@ -3,7 +3,7 @@ import { IoIosShareAlt } from "react-icons/io";
 import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
-import { Tooltip } from "@/components/ui";
+import { Button, Tooltip } from "@/components/ui";
 import { useModalStore } from "@/stores/useModalStore";
 
 type PresetActionsProps = {
@@ -21,57 +21,65 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
     <div className="neu mt-2 grid grid-cols-4 rounded-lg">
       <div className="flex items-center justify-center">
         <Tooltip content="Download to file" delayDuration={500}>
-          <button
+          <Button
+            variant="hardware"
+            size="icon"
             onClick={openSaveModal}
-            className="raised group flex w-full items-center justify-center rounded-l-lg p-2"
+            className="w-full rounded-l-lg"
           >
             <MdOutlineSaveAlt
-              className="text-text group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-accent transition-all duration-200"
               size="20px"
             />
-          </button>
+          </Button>
         </Tooltip>
       </div>
 
       <div className="flex items-center justify-center">
         <Tooltip content="Load from file" delayDuration={500}>
-          <button
+          <Button
+            variant="hardware"
+            size="icon"
             onClick={onOpenFromFile}
-            className="raised group flex w-full items-center justify-center p-2"
+            className="w-full"
           >
             <FaFolderOpen
-              className="text-text group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-accent transition-all duration-200"
               size="20px"
             />
-          </button>
+          </Button>
         </Tooltip>
       </div>
 
       <div className="flex items-center justify-center">
         <Tooltip content="Share as link" delayDuration={500}>
-          <button
+          <Button
+            variant="hardware"
+            size="icon"
             onClick={openSharingModal}
-            className="raised group flex w-full items-center justify-center p-2"
+            className="w-full"
           >
             <IoIosShareAlt
-              className="text-text group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-accent transition-all duration-200"
               size="26px"
             />
-          </button>
+          </Button>
         </Tooltip>
       </div>
 
       <div className="flex items-center justify-center">
         <Tooltip content="Reset all" delayDuration={500}>
-          <button
+          <Button
+            variant="hardware"
+            size="icon"
             onClick={openResetModal}
-            className="raised group flex w-full items-center justify-center rounded-r-lg p-2"
+            className="w-full rounded-r-lg"
           >
             <RxReset
-              className="text-text group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-accent transition-all duration-200"
               size="20px"
             />
-          </button>
+          </Button>
         </Tooltip>
       </div>
     </div>

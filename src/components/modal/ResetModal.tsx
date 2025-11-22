@@ -1,4 +1,5 @@
 import {
+  Button,
   Dialog,
   DialogCloseButton,
   DialogContent,
@@ -35,18 +36,10 @@ export const ResetModal: React.FC<ResetModalProps> = ({
         </div>
 
         <DialogFooter>
-          <button
-            onClick={onReset}
-            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
-          >
-            Reset
-          </button>
-          <button
-            onClick={onClose}
-            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
-          >
+          <Button onClick={onReset}>Reset</Button>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

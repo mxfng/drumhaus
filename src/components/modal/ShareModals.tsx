@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import {
+  Button,
   Dialog,
   DialogCloseButton,
   DialogContent,
@@ -106,7 +107,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
             <div className="flex h-full items-center pl-4">
               <input
                 ref={inputRef}
-                className="font-pixel text-text placeholder:text-text-light h-full w-full bg-transparent outline-none"
+                className="font-pixel placeholder:-light h-full w-full bg-transparent outline-none"
                 placeholder="Enter a custom preset name"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
@@ -116,22 +117,19 @@ export const SharingModal: React.FC<SharingModalProps> = ({
         </div>
 
         <DialogFooter>
-          <button
+          <Button
             onClick={handleShare}
             disabled={!presetName.trim() || isLoading}
-            className="bg-accent font-pixel hover:bg-accent-hover flex items-center rounded-md px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center"
           >
             <span className="mr-2">Get Link</span>
             {isLoading && (
               <PixelatedSpinner color="white" size={20} pixelSize={2} gap={2} />
             )}
-          </button>
-          <button
-            onClick={handleClose}
-            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
-          >
+          </Button>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -168,7 +166,7 @@ export const SharedModal: React.FC<SharedModalProps> = ({
             <div className="flex h-full items-center justify-center">
               <button
                 onClick={() => onCopy(shareableLink)}
-                className="font-pixel text-text w-full truncate px-3 text-sm select-all"
+                className="font-pixel w-full truncate px-3 text-sm select-all"
               >
                 {shareableLink}
               </button>
@@ -176,10 +174,8 @@ export const SharedModal: React.FC<SharedModalProps> = ({
           </div>
 
           <div className="bg-shadow-10 mt-4 rounded-md p-3">
-            <p className="font-pixel text-text mb-1 text-xs font-bold">
-              Fun Fact
-            </p>
-            <p className="font-pixel text-text text-xs leading-relaxed">
+            <p className="font-pixel mb-1 text-xs font-bold">Fun Fact</p>
+            <p className="font-pixel text-xs leading-relaxed">
               Your entire preset is packed into this URL, squeezed from 900+
               lines of JSON down to a few hundred characters using DEFLATE (via
               pako), bit-packed triggers, quantized velocities, and a handful of
@@ -190,18 +186,12 @@ export const SharedModal: React.FC<SharedModalProps> = ({
         </div>
 
         <DialogFooter>
-          <button
-            onClick={() => onCopy(shareableLink)}
-            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
-          >
+          <Button onClick={() => onCopy(shareableLink)}>
             {hasCopied ? "Copied!" : "Copy Link"}
-          </button>
-          <button
-            onClick={onClose}
-            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
-          >
+          </Button>
+          <Button variant="secondary" onClick={onClose}>
             Close
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

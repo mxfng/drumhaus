@@ -7,10 +7,11 @@ import {
 } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { CustomSlider } from "../common/CustomSlider";
+import { Label } from "../ui";
 
 // Constants
 const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
-const HOLD_INTERVAL = 130;
+const HOLD_INTERVAL = 100;
 
 export const TransportControl: React.FC = () => {
   // Get transport state from store
@@ -20,8 +21,7 @@ export const TransportControl: React.FC = () => {
   const setSwing = useTransportStore((state) => state.setSwing);
   const [bpmInputValue, setBpmInputValue] = useState<number>(bpm);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const upButtonRef = useRef<HTMLButtonElement | null>(null);
-  const downButtonRef = useRef<HTMLButtonElement | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleBpmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -39,50 +39,34 @@ export const TransportControl: React.FC = () => {
     setBpm(bpmInputValue);
   };
 
-  // Handle mouse hold on BPM buttons
+  const handleMouseDown = (modifier: number) => {
+    // Immediate update
+    setBpmInputValue((prev) =>
+      Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
+    );
+    // Start interval for hold
+    intervalRef.current = setInterval(() => {
+      setBpmInputValue((prev) =>
+        Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
+      );
+    }, HOLD_INTERVAL);
+  };
+
+  const handleMouseUp = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  // Cleanup on unmount
   useEffect(() => {
-    const updateBpm = (modifier: number) => {
-      setBpmInputValue((prevBpmInputValue) => {
-        const newBpmInputValue = Math.min(
-          Math.max(prevBpmInputValue + modifier, MIN_BPM),
-          MAX_BPM,
-        );
-        return newBpmInputValue;
-      });
-    };
-
-    let intervalId: NodeJS.Timeout;
-    const upButton = upButtonRef.current;
-    const downButton = downButtonRef.current;
-
-    const handleUpButtonMouseDown = () => {
-      updateBpm(1);
-      intervalId = setInterval(() => updateBpm(1), HOLD_INTERVAL);
-    };
-
-    const handleDownButtonMouseDown = () => {
-      updateBpm(-1);
-      intervalId = setInterval(() => updateBpm(-1), HOLD_INTERVAL);
-    };
-
-    const handleMouseUp = () => {
-      clearInterval(intervalId);
-    };
-
-    if (upButton)
-      upButton.addEventListener("mousedown", handleUpButtonMouseDown);
-    if (downButton)
-      downButton.addEventListener("mousedown", handleDownButtonMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-
     return () => {
-      if (upButton)
-        upButton.removeEventListener("mousedown", handleUpButtonMouseDown);
-      if (downButton)
-        downButton.removeEventListener("mousedown", handleDownButtonMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
-  }, [setBpm]);
+  }, []);
 
   useEffect(() => {
     setBpm(bpmInputValue);
@@ -93,60 +77,48 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <>
-      <div className="relative flex h-full w-[150px] items-center justify-center">
-        <div>
-          <div className="flex">
-            <div className="flex items-center justify-center">
-              <div className="neu-extra-tall absolute top-10 h-[70px] w-[150px] rounded-lg p-3">
-                <div className="relative z-[3] flex h-full items-center justify-center">
-                  <div className="flex h-full">
-                    <input
-                      ref={inputRef}
-                      className="font-pixel text-text absolute left-0 h-full w-[98px] rounded-l-lg border-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
-                      type="number"
-                      value={bpmInputValue}
-                      onChange={handleBpmChange}
-                      onBlur={handleBlur}
-                      onFocus={(e) => e.target.select()}
-                    />
-                    <button
-                      className="absolute -top-3 -right-3 h-[35px] w-[10px] rounded-tr-lg bg-transparent"
-                      ref={upButtonRef}
-                    >
-                      <IoTriangleSharp className="text-text" />
-                    </button>
-                    <button
-                      className="absolute -right-3 -bottom-3 h-[35px] w-[20px] rounded-br-lg bg-transparent"
-                      ref={downButtonRef}
-                    >
-                      <IoTriangleSharp
-                        className="text-text"
-                        style={{ transform: "rotate(180deg)" }}
-                      />
-                    </button>
-                  </div>
-                  <div className="absolute -bottom-6 -left-1 flex items-center justify-center">
-                    <span className="font-pixel text-text -my-3 text-xs">
-                      TEMPO
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="absolute bottom-6 left-0">
-            <CustomSlider
-              size={146}
-              sliderValue={swing}
-              setSliderValue={setSwing}
-              title="SWING"
-              defaultValue={0}
-              transformRange={TRANSPORT_SWING_RANGE}
-            />
+    <div className="flex flex-col items-center justify-center gap-10">
+      <div className="neu-tall relative w-full rounded-lg">
+        <div className="surface-raised relative flex h-full items-center rounded-lg">
+          <input
+            ref={inputRef}
+            className="font-pixel my-3 ml-3 h-full w-[103px] rounded-l-lg border-0 bg-transparent text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            value={bpmInputValue}
+            onChange={handleBpmChange}
+            onBlur={handleBlur}
+            onFocus={(e) => e.target.select()}
+          />
+          <div className="text-foreground-muted absolute right-0 flex h-full w-8 flex-col justify-between text-xs">
+            <button
+              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              onMouseDown={() => handleMouseDown(1)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
+              <IoTriangleSharp />
+            </button>
+            <button
+              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              onMouseDown={() => handleMouseDown(-1)}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+            >
+              <IoTriangleSharp className="rotate-180" />
+            </button>
           </div>
         </div>
+        <Label className="absolute -bottom-5 left-3">TEMPO</Label>
       </div>
-    </>
+      <div className="pb-4">
+        <CustomSlider
+          size={146}
+          sliderValue={swing}
+          setSliderValue={setSwing}
+          title="SWING"
+          defaultValue={0}
+          transformRange={TRANSPORT_SWING_RANGE}
+        />
+      </div>
+    </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
@@ -125,18 +126,17 @@ export const Sequencer: React.FC = () => {
       state.isStepPlaying || state.isAccentPlayingOtherVariation;
 
     return {
-      bg: indicatorIsOn ? "darkorange" : "gray",
+      className: indicatorIsOn ? "bg-primary" : "bg-foreground",
       opacity: indicatorIsOn ? 1 : state.isAccentBeat ? 0.6 : 0.2,
     };
   };
 
   const getTriggerStyles = (state: StepMusicalState) => {
     return {
-      bg: state.isTriggerOn ? "darkorange" : "#E8E3DD",
+      className: state.isTriggerOn
+        ? "bg-primary shadow-neu hover:primary-muted"
+        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40",
       opacity: state.isGhosted ? 0.7 : 1,
-      boxShadow: state.isTriggerOn
-        ? "3px 3px 9px rgba(176, 147, 116, 0.6), -3px -3px 9px rgba(251, 245, 255, 0.3)"
-        : "0 4px 8px rgba(176, 147, 116, 1) inset",
     };
   };
 
@@ -180,11 +180,8 @@ export const Sequencer: React.FC = () => {
             <div key={`sequence-step-item-${step}`} className="col-span-1">
               <div
                 key={`sequence-step-indicator-${step}`}
-                className="mb-4 h-1 w-full"
-                style={{
-                  opacity: indicatorStyles.opacity,
-                  backgroundColor: indicatorStyles.bg,
-                }}
+                className={cn("mb-4 h-1 w-full", indicatorStyles.className)}
+                style={{ opacity: indicatorStyles.opacity }}
               />
               <div
                 key={`sequence-step-trigger-${step}`}
@@ -193,48 +190,42 @@ export const Sequencer: React.FC = () => {
                   handleStepMouseEnter(step, state.isTriggerOn)
                 }
                 onContextMenu={(e) => e.preventDefault()}
-                className="relative w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out hover:transition-all hover:duration-300 hover:ease-in-out"
+                className={cn(
+                  "relative w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
+                  triggerStyles.className,
+                )}
                 style={{
                   height: `${stepHeight}px`,
-                  backgroundColor: triggerStyles.bg,
                   opacity: triggerStyles.opacity,
                   borderRadius: `0 ${stepRadius} 0 ${stepRadius}`,
-                  boxShadow: triggerStyles.boxShadow,
                 }}
               >
                 {state.isTriggerOn && (
                   <div
                     key={`sequence-step-trigger-glow-${step}`}
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      borderRadius: `0 ${stepRadius} 0 ${stepRadius}`,
-                      background:
-                        "radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 55%)",
-                    }}
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]"
+                    style={{ borderRadius: `0 ${stepRadius} 0 ${stepRadius}` }}
                   />
                 )}
               </div>
               <div
                 key={`sequence-step-velocity-${step}`}
-                className="group relative mt-3 h-3.5 w-full bg-transparent transition-all duration-200 ease-in-out"
-                style={{
-                  opacity: state.isTriggerOn ? 0.6 : 0,
-                  outline: "1px solid darkorange",
-                  borderRadius: "200px 0 200px 0",
-                }}
+                className={cn(
+                  "group outline-primary relative mt-3 h-3.5 w-full rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
+                  state.isTriggerOn
+                    ? "cursor-grab"
+                    : "pointer-events-none cursor-default",
+                )}
+                style={{ opacity: state.isTriggerOn ? 0.6 : 0 }}
                 onMouseDown={(ev) => handleVelocityMouseDown(ev, step)}
                 onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
               >
                 <div
-                  className="absolute h-full blur-sm"
-                  style={{
-                    backgroundColor: "darkorange",
-                    width: `${velocityWidth}%`,
-                    borderRadius: "200px 0 200px 0",
-                  }}
+                  className="bg-primary absolute h-full rounded-[200px_0_200px_0] blur-xs"
+                  style={{ width: `${velocityWidth}%` }}
                 />
                 <div className="absolute flex h-full w-full items-center justify-center">
-                  <span className="font-pixel text-[#8B4513] opacity-0 blur-sm transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:blur-none">
+                  <span className="font-pixel text-foreground-emphasis opacity-0 blur-xs transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:blur-none">
                     {(state.velocityValue * 100).toFixed(0)}
                   </span>
                 </div>

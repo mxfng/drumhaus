@@ -1,11 +1,19 @@
 import { IoMdArrowDropdown } from "react-icons/io";
 
+import {
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
 import type { PresetFileV1 } from "@/types/preset";
 
 type PresetSelectorProps = {
   selectedPresetId: string;
   presets: PresetFileV1[];
-  onSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onSelect: (value: string) => void;
 };
 
 export const PresetSelector: React.FC<PresetSelectorProps> = ({
@@ -15,32 +23,30 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 }) => {
   return (
     <>
-      <span className="font-pixel text-text text-xs">PRESET</span>
+      <Label>PRESET</Label>
 
       <div className="group w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
         <div id="preset" className="relative mb-2 h-10">
-          <select
-            value={selectedPresetId}
-            className="font-pixel text-text h-10 w-[332px] cursor-pointer rounded-lg bg-transparent pl-4 outline-none"
-            onChange={onSelect}
-            onKeyDown={(ev) => ev.preventDefault()}
-          >
-            {presets.map((preset) => (
-              <option key={preset.meta.id} value={preset.meta.id}>
-                {preset.meta.name}
-              </option>
-            ))}
-          </select>
-          <div className="pointer-events-none absolute top-0 right-0 bg-transparent p-2">
-            <div>
-              <div className="-mb-1 h-1/2 rotate-180">
-                <IoMdArrowDropdown className="text-text group-hover:text-accent transition-all duration-200" />
+          <Select value={selectedPresetId} onValueChange={onSelect}>
+            <SelectTrigger className="h-10 cursor-pointer rounded-lg bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">
+              <SelectValue />
+              <div className="pointer-events-none">
+                <div className="-mb-1 h-1/2 rotate-180">
+                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
+                </div>
+                <div className="h-1/2">
+                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
+                </div>
               </div>
-              <div className="h-1/2">
-                <IoMdArrowDropdown className="text-text group-hover:text-accent transition-all duration-200" />
-              </div>
-            </div>
-          </div>
+            </SelectTrigger>
+            <SelectContent>
+              {presets.map((preset) => (
+                <SelectItem key={preset.meta.id} value={preset.meta.id}>
+                  {preset.meta.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </>

@@ -1,4 +1,5 @@
 import {
+  Button,
   Dialog,
   DialogCloseButton,
   DialogContent,
@@ -38,18 +39,10 @@ export const ConfirmSelectPresetModal: React.FC<
         </div>
 
         <DialogFooter>
-          <button
-            onClick={onSelect}
-            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
-          >
-            Switch
-          </button>
-          <button
-            onClick={onClose}
-            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
-          >
+          <Button onClick={onSelect}>Switch</Button>
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

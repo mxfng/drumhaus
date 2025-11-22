@@ -319,12 +319,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // EVENT HANDLERS
   // ============================================================================
 
-  const handleKitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switchKit(e.target.value);
+  const handleKitChange = (value: string) => {
+    switchKit(value);
   };
 
-  const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switchPreset(e.target.value);
+  const handlePresetChange = (value: string) => {
+    switchPreset(value);
   };
 
   const handleConfirmPresetChange = () => {
@@ -354,8 +354,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   return (
     <>
-      <div className="flex h-full items-center justify-center">
-        <div className="neu-extra-tall relative h-[195px] w-full rounded-lg px-3 pt-2 pb-1">
+      <div className="mx-4 flex h-full items-center justify-center">
+        <div className="neu-tall-raised relative h-[195px] w-[332px] rounded-lg px-3 pb-3">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
             presets={allPresets}
@@ -367,7 +367,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             kits={KITS}
             onSelect={handleKitChange}
           />
-
           <PresetActions onOpenFromFile={importPreset} />
         </div>
       </div>

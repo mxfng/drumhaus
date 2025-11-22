@@ -1,3 +1,4 @@
+import { Label } from "@/components/ui";
 import {
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_THRESHOLD_RANGE,
@@ -15,31 +16,27 @@ export const MasterCompressor: React.FC = () => {
   const setRatio = useMasterChainStore((state) => state.setCompRatio);
 
   return (
-    <div className="h-full w-[130px]">
-      <div className="grid grid-cols-2">
-        <div className="relative">
-          <span className="font-pixel text-text absolute bottom-[70px] -left-0.5 -rotate-90 text-xs opacity-50">
-            COMPRESSOR
-          </span>
-        </div>
-        <div>
-          <Knob
-            value={threshold}
-            onChange={setThreshold}
-            label="THRESHOLD"
-            units="dB"
-            range={MASTER_COMP_THRESHOLD_RANGE}
-            defaultValue={100}
-          />
-          <Knob
-            value={ratio}
-            onChange={setRatio}
-            label="RATIO"
-            units=": 1"
-            range={MASTER_COMP_RATIO_RANGE}
-            defaultValue={43}
-          />
-        </div>
+    <div className="relative flex items-center">
+      <Label className="text-foreground-muted absolute -left-10 w-[85px] -rotate-90">
+        COMPRESSOR
+      </Label>
+      <div className="flex flex-col gap-2 pl-4">
+        <Knob
+          value={threshold}
+          onChange={setThreshold}
+          label="THRESHOLD"
+          units="dB"
+          range={MASTER_COMP_THRESHOLD_RANGE}
+          defaultValue={100}
+        />
+        <Knob
+          value={ratio}
+          onChange={setRatio}
+          label="RATIO"
+          units=": 1"
+          range={MASTER_COMP_RATIO_RANGE}
+          defaultValue={43}
+        />
       </div>
     </div>
   );

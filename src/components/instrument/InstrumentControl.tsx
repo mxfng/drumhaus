@@ -5,7 +5,7 @@ import { now } from "tone/build/esm/index";
 
 import "@fontsource-variable/pixelify-sans";
 
-import { Tooltip } from "@/components/ui";
+import { Button, Label, Tooltip } from "@/components/ui";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import {
@@ -18,6 +18,7 @@ import {
 import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
+import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useModalStore } from "@/stores/useModalStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -227,175 +228,169 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   };
 
   return (
-    <>
-      <div
-        className="group relative mt-2 w-full py-4 transition-all duration-500"
-        style={{ backgroundColor: bg }}
-        key={`Instrument-${instrumentMeta.id}-${index}`}
-      >
-        <div className="flex px-4">
-          <span
-            className="font-pixel pr-2 text-xs font-black"
-            style={{ color }}
-          >
-            {index + 1}
-          </span>
-          <span className="font-pixel text-text-dark text-xs font-semibold">
-            {instrumentMeta.name}
-          </span>
-        </div>
-        <div className="px-4 pt-5">
-          <button
-            ref={waveButtonRef}
-            className="wavebutton relative h-[60px] w-full overflow-hidden rounded-[20px] bg-transparent opacity-80 group-hover:opacity-100"
-            onMouseDown={() => playSample()}
-            disabled={!isRuntimeLoaded}
-          >
-            {isRuntimeLoaded && !waveformError ? (
-              <Waveform
-                audioFile={samplePath}
-                width={170}
-                onError={handleWaveformError}
-              />
-            ) : waveformError ? (
-              <div className="flex h-full w-full items-center justify-center">
-                <PixelatedFrowny color={color} />
-              </div>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <PixelatedSpinner color={color} />
-              </div>
-            )}
-          </button>
-        </div>
+    <div
+      className={cn(
+        "group relative mt-2 w-full py-4 transition-all duration-500",
+        {
+          "cursor-pointer": isRuntimeLoaded && !waveformError,
+        },
+      )}
+      style={{ backgroundColor: bg }}
+      key={`Instrument-${instrumentMeta.id}-${index}`}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4">
+        <span className="font-pixel text-lg" style={{ color }}>
+          {index + 1}
+        </span>
+        <Label className="text-foreground-emphasis text-lg font-medium">
+          {instrumentMeta.name}
+        </Label>
+      </div>
 
-        <div
-          className={`grid grid-cols-2 p-1 ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
+      {/* Waveform */}
+      <div className="px-4 pt-5">
+        <button
+          ref={waveButtonRef}
+          className={cn(
+            "flex h-[60px] w-full items-center justify-center overflow-hidden rounded-full opacity-80 group-hover:opacity-100",
+            {
+              "cursor-pointer": isRuntimeLoaded && !waveformError,
+            },
+          )}
+          onMouseDown={playSample}
+          disabled={!isRuntimeLoaded}
         >
-          <div>
-            <Knob
-              key={`knob-${instrumentMeta.id}-${index}-attack`}
-              value={attack}
-              onChange={setAttack}
-              label="ATTACK"
-              defaultValue={0}
-              disabled={!isRuntimeLoaded}
-              size="sm"
-              formatValue={formatAttackLabel}
+          {isRuntimeLoaded && !waveformError ? (
+            <Waveform
+              audioFile={samplePath}
+              width={170}
+              onError={handleWaveformError}
             />
-          </div>
-          <div>
-            <Knob
-              key={`knob-${index}-filter`}
-              value={filter}
-              onChange={setFilter}
-              label="TONE"
-              scale="split-filter"
+          ) : waveformError ? (
+            <PixelatedFrowny color={color} />
+          ) : (
+            <PixelatedSpinner color={color} />
+          )}
+        </button>
+      </div>
+
+      {/* Controls */}
+      <div className={isRuntimeLoaded ? "opacity-100" : "opacity-50"}>
+        {/* Top knobs - 2x2 grid */}
+        <div className="grid grid-cols-2 p-1">
+          <Knob
+            key={`knob-${instrumentMeta.id}-${index}-attack`}
+            value={attack}
+            onChange={setAttack}
+            label="ATTACK"
+            defaultValue={0}
+            disabled={!isRuntimeLoaded}
+            size="sm"
+            formatValue={formatAttackLabel}
+          />
+          <Knob
+            key={`knob-${index}-filter`}
+            value={filter}
+            onChange={setFilter}
+            label="TONE"
+            scale="split-filter"
+            defaultValue={50}
+            disabled={!isRuntimeLoaded}
+            size="sm"
+          />
+          <Knob
+            key={`knob-${instrumentMeta.id}-${index}-release`}
+            value={release}
+            onChange={setRelease}
+            label="RELEASE"
+            defaultValue={100}
+            disabled={!isRuntimeLoaded}
+            size="sm"
+            formatValue={formatReleaseLabel}
+          />
+          <Knob
+            key={`knob-${instrumentMeta.id}-${index}-pitch`}
+            value={pitch}
+            onChange={setPitch}
+            label="PITCH"
+            step={PITCH_KNOB_STEP}
+            defaultValue={50}
+            disabled={!isRuntimeLoaded}
+            formatValue={formatPitchLabel}
+            size="sm"
+          />
+        </div>
+
+        {/* Bottom controls */}
+        <div className="grid grid-cols-2 p-1">
+          {/* Left: Pan + Mute/Solo */}
+          <div className="flex flex-col items-center justify-between pt-4">
+            <CustomSlider
+              size={85}
+              sliderValue={pan}
+              setSliderValue={setPan}
               defaultValue={50}
-              disabled={!isRuntimeLoaded}
-              size="sm"
+              leftLabel="L"
+              centerLabel="|"
+              rightLabel="R"
+              transformRange={INSTRUMENT_PAN_RANGE}
+              displayRange={[-100, 100]}
+              isDisabled={!isRuntimeLoaded}
             />
-          </div>
-          <div>
-            <Knob
-              key={`knob-${instrumentMeta.id}-${index}-release`}
-              value={release}
-              onChange={setRelease}
-              label="RELEASE"
-              defaultValue={100}
-              disabled={!isRuntimeLoaded}
-              size="sm"
-              formatValue={formatReleaseLabel}
-            />
+            <div className="flex rounded-lg shadow-[0_2px_4px_var(--color-shadow-60)]">
+              <Tooltip content="Mute [M]" delayDuration={500}>
+                <Button
+                  variant="hardware"
+                  size="sm"
+                  className={cn("w-8 rounded-l-lg rounded-r-none p-2 text-lg", {
+                    "text-primary": mute,
+                  })}
+                  title="Mute"
+                  onClick={handleToggleMute}
+                  disabled={!isRuntimeLoaded}
+                >
+                  {mute ? <ImVolumeMute2 /> : <ImVolumeMute />}
+                </Button>
+              </Tooltip>
+              <Tooltip content="Solo [S]" delayDuration={500}>
+                <Button
+                  variant="hardware"
+                  size="sm"
+                  className={cn("w-8 rounded-l-none rounded-r-lg p-0", {
+                    "text-primary": solo,
+                  })}
+                  title="Solo"
+                  onClick={toggleSolo}
+                  disabled={!isRuntimeLoaded}
+                >
+                  <MdHeadphones className={cn({ "text-primary": solo })} />
+                </Button>
+              </Tooltip>
+            </div>
           </div>
 
-          <div>
-            <Knob
-              key={`knob-${instrumentMeta.id}-${index}-pitch`}
-              value={pitch}
-              onChange={setPitch}
-              label="PITCH"
-              step={PITCH_KNOB_STEP}
-              defaultValue={50}
-              disabled={!isRuntimeLoaded}
-              formatValue={formatPitchLabel}
-              size="sm"
-            />
-          </div>
-          <div className="h-full w-full">
-            <div
-              className={`absolute bottom-14 ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
-            >
-              <CustomSlider
-                size={85}
-                sliderValue={pan}
-                setSliderValue={setPan}
-                defaultValue={50}
-                leftLabel="L"
-                centerLabel="|"
-                rightLabel="R"
-                transformRange={INSTRUMENT_PAN_RANGE}
-                displayRange={[-100, 100]}
-                isDisabled={!isRuntimeLoaded}
-              />
-            </div>
-            <div className="flex h-full w-full items-center justify-center">
-              <div>
-                <div
-                  className={`absolute bottom-6 left-[10px] flex rounded-lg shadow-[0_2px_4px_var(--color-shadow-60)] ${isRuntimeLoaded ? "opacity-100" : "opacity-50"}`}
-                >
-                  <Tooltip content="Mute [M]" delayDuration={500}>
-                    <button
-                      title="Mute"
-                      className="raised h-[30px] w-[30px] rounded-l-lg bg-transparent p-0"
-                      onClick={() => handleToggleMute()}
-                      disabled={!isRuntimeLoaded}
-                    >
-                      {mute ? (
-                        <ImVolumeMute2 className="text-text mx-auto" />
-                      ) : (
-                        <ImVolumeMute className="text-text mx-auto" />
-                      )}
-                    </button>
-                  </Tooltip>
-                  <Tooltip content="Solo [S]" delayDuration={500}>
-                    <button
-                      title="Solo"
-                      className="raised h-[30px] w-[30px] rounded-r-lg bg-transparent p-0"
-                      onClick={() => toggleSolo()}
-                      disabled={!isRuntimeLoaded}
-                    >
-                      <MdHeadphones
-                        className={`mx-auto ${solo ? "text-accent" : "text-text"}`}
-                      />
-                    </button>
-                  </Tooltip>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <Knob
-              key={`knob-${instrumentMeta.id}-${index}-volume`}
-              value={volume}
-              onChange={setVolume}
-              label="VOLUME"
-              units="dB"
-              range={INSTRUMENT_VOLUME_RANGE}
-              defaultValue={92}
-              disabled={!isRuntimeLoaded}
-              formatValue={(knobValue) =>
-                knobValue <= 0
-                  ? "-∞ dB"
-                  : `${transformKnobValue(
-                      knobValue,
-                      INSTRUMENT_VOLUME_RANGE,
-                    ).toFixed(1)} dB`
-              }
-            />
-          </div>
+          {/* Right: Volume */}
+          <Knob
+            key={`knob-${instrumentMeta.id}-${index}-volume`}
+            value={volume}
+            onChange={setVolume}
+            label="VOLUME"
+            units="dB"
+            range={INSTRUMENT_VOLUME_RANGE}
+            defaultValue={92}
+            disabled={!isRuntimeLoaded}
+            formatValue={(knobValue) =>
+              knobValue <= 0
+                ? "-∞ dB"
+                : `${transformKnobValue(
+                    knobValue,
+                    INSTRUMENT_VOLUME_RANGE,
+                  ).toFixed(1)} dB`
+            }
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 };

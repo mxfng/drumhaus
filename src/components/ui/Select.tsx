@@ -2,6 +2,8 @@ import { forwardRef } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { IoCheckmark, IoChevronDown, IoChevronUp } from "react-icons/io5";
 
+import { cn } from "@/lib/utils";
+
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;
@@ -12,13 +14,13 @@ export const SelectTrigger = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={`font-pixel text-text placeholder:text-text-light focus:ring-accent flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className ?? ""} `}
+    className={cn(
+      "font-pixel placeholder:-light focus:ring-accent flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+      className,
+    )}
     {...props}
   >
     {children}
-    <SelectPrimitive.Icon asChild>
-      <IoChevronDown className="text-text h-4 w-4" />
-    </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
 SelectTrigger.displayName = "SelectTrigger";
@@ -29,10 +31,13 @@ export const SelectScrollUpButton = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={`flex cursor-default items-center justify-center py-1 ${className ?? ""}`}
+    className={cn(
+      "flex cursor-default items-center justify-center py-1",
+      className,
+    )}
     {...props}
   >
-    <IoChevronUp className="text-text h-4 w-4" />
+    <IoChevronUp className="h-4 w-4" />
   </SelectPrimitive.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
@@ -43,10 +48,13 @@ export const SelectScrollDownButton = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={`flex cursor-default items-center justify-center py-1 ${className ?? ""}`}
+    className={cn(
+      "flex cursor-default items-center justify-center py-1",
+      className,
+    )}
     {...props}
   >
-    <IoChevronDown className="text-text h-4 w-4" />
+    <IoChevronDown className="h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
@@ -58,13 +66,24 @@ export const SelectContent = forwardRef<
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
-      className={`shadow-neu data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] ${position === "popper" ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1" : ""} ${className ?? ""} `}
+      className={cn(
+        "shadow-neu data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 bg-primary relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md text-white",
+        position === "popper"
+          ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1"
+          : "",
+        className,
+      )}
       position={position}
       {...props}
     >
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
-        className={`p-1 ${position === "popper" ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]" : ""}`}
+        className={cn(
+          "p-1",
+          position === "popper"
+            ? "h-[--radix-select-trigger-height] w-full min-w-[--radix-select-trigger-width]"
+            : "",
+        )}
       >
         {children}
       </SelectPrimitive.Viewport>
@@ -80,7 +99,7 @@ export const SelectLabel = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={`font-pixel text-text py-1.5 pr-2 pl-8 text-sm font-semibold ${className ?? ""}`}
+    className={`font-pixel py-1.5 pr-2 pl-8 text-sm font-semibold ${className ?? ""}`}
     {...props}
   />
 ));
@@ -92,7 +111,7 @@ export const SelectItem = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={`font-pixel text-text focus:bg-accent relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className ?? ""} `}
+    className={`font-pixel focus:bg-primary-muted relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none focus:text-white data-disabled:pointer-events-none data-disabled:opacity-50 ${className ?? ""} `}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -111,7 +130,7 @@ export const SelectSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={`bg-text-light -mx-1 my-1 h-px ${className ?? ""}`}
+    className={cn("bg-foreground-muted -mx-1 my-1 h-px", className)}
     {...props}
   />
 ));

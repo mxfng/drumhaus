@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import { MASTER_FILTER_RANGE } from "@/lib/audio/engine/constants";
+import { Label } from "../ui";
 import {
   KNOB_ROTATION_THRESHOLD_L,
   transformKnobFilterValue,
@@ -48,8 +49,7 @@ const KNOB_DOT_OPACITY = 0.3;
 const KNOB_DOT_SHADOW = "0 4px 12px rgba(176, 147, 116, 0.6)";
 
 // Label Styling
-const KNOB_LABEL_FONT_SIZE = 12;
-const KNOB_LABEL_MARGIN_Y = -10;
+const KNOB_LABEL_MARGIN_Y = -6;
 
 // Z-Index
 const KNOB_HITBOX_Z_INDEX = 2;
@@ -399,16 +399,14 @@ export const Knob: React.FC<KnobProps> = ({
         </div>
       </div>
       <div style={CENTER_FLEX_STYLE}>
-        <div
+        <Label
           style={{
-            fontSize: `${KNOB_LABEL_FONT_SIZE}px`,
-            color: "#B09374",
             marginTop: `${KNOB_LABEL_MARGIN_Y}px`,
             marginBottom: `${KNOB_LABEL_MARGIN_Y}px`,
           }}
         >
           {getDisplayLabel(value)}
-        </div>
+        </Label>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import {
+  Button,
   Dialog,
   DialogCloseButton,
   DialogContent,
@@ -40,12 +41,7 @@ export const MobileModal: React.FC<MobileModalProps> = ({
         </div>
 
         <DialogFooter>
-          <button
-            onClick={onClose}
-            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
-          >
-            Dismiss
-          </button>
+          <Button onClick={onClose}>Dismiss</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

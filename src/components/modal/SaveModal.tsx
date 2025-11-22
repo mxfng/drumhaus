@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import {
+  Button,
   Dialog,
   DialogCloseButton,
   DialogContent,
@@ -99,7 +100,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
             <div className="flex h-full items-center pl-4">
               <input
                 ref={inputRef}
-                className="font-pixel text-text placeholder:text-text-light h-full w-full bg-transparent outline-none"
+                className="font-pixel placeholder:-light h-full w-full bg-transparent outline-none"
                 placeholder="Preset name"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
@@ -109,19 +110,12 @@ export const SaveModal: React.FC<SaveModalProps> = ({
         </div>
 
         <DialogFooter>
-          <button
-            onClick={handleSave}
-            disabled={!presetName.trim()}
-            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          <Button onClick={handleSave} disabled={!presetName.trim()}>
             Download
-          </button>
-          <button
-            onClick={handleClose}
-            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
-          >
+          </Button>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
-          </button>
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

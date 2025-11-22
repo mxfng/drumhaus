@@ -3,8 +3,24 @@ import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
 import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
 
+import { Button, Label, Tooltip } from "@/components/ui";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
+
+// Tooltip constants
+const TOOLTIPS = {
+  VARIATION_A: "Select variation A",
+  VARIATION_B: "Select variation B",
+  CYCLE_A: "Play only variation A",
+  CYCLE_B: "Play only variation B",
+  CYCLE_AB: "Alternate A and B each bar",
+  CYCLE_AAAB: "Play A three times, then B",
+  COPY: "Copy current sequence",
+  PASTE: "Paste copied sequence",
+  CLEAR: "Clear current sequence",
+  RANDOM: "Generate random sequence",
+} as const;
 
 export const SequencerControl: React.FC = () => {
   // Get state from Sequencer Store
@@ -54,128 +70,150 @@ export const SequencerControl: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="flex h-full w-[280px] items-center justify-center px-4">
-        <div>
-          <span className="font-pixel text-text block pb-4 text-xs opacity-50">
-            SEQUENCER
-          </span>
-          <div className="grid grid-cols-3 pb-8">
-            <div className="relative col-span-1 pr-2">
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                SHOW
-              </span>
-              <div className="flex items-center justify-center">
-                <div className="neu flex rounded-lg">
-                  <button
-                    className={`raised font-pixel h-[30px] w-[30px] rounded-l-lg ${
-                      variation == 0 ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariation(0)}
-                  >
-                    A
-                  </button>
-                  <button
-                    className={`raised font-pixel h-[30px] w-[30px] rounded-r-lg ${
-                      variation == 1 ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariation(1)}
-                  >
-                    B
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="relative col-span-1">
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                VAR CYC
-              </span>
-              <div className="flex items-center justify-center">
-                <div className="neu flex rounded-lg">
-                  <button
-                    className={`raised font-pixel h-[30px] w-[40px] rounded-l-lg text-xs ${
-                      variationCycle === "A" ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariationCycle("A")}
-                  >
-                    A
-                  </button>
-                  <button
-                    className={`raised font-pixel h-[30px] w-[40px] text-xs ${
-                      variationCycle === "B" ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariationCycle("B")}
-                  >
-                    B
-                  </button>
-                  <button
-                    className={`raised font-pixel h-[30px] w-[40px] text-xs ${
-                      variationCycle === "AB" ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariationCycle("AB")}
-                  >
-                    AB
-                  </button>
-                  <button
-                    className={`raised font-pixel h-[30px] w-[40px] rounded-r-lg text-xs ${
-                      variationCycle === "AAAB" ? "text-accent" : "text-text"
-                    }`}
-                    onClick={() => setVariationCycle("AAAB")}
-                  >
-                    AAAB
-                  </button>
-                </div>
-              </div>
-            </div>
+    <div className="flex flex-col px-4">
+      <Label className="text-foreground-muted pb-2">SEQUENCER</Label>
+
+      <div className="flex justify-between gap-4 pb-8">
+        <div className="relative">
+          <div className="neu flex rounded-lg">
+            <Tooltip content={TOOLTIPS.VARIATION_A}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("neu w-8 rounded-l-lg rounded-r-none", {
+                  "text-primary": variation === 0,
+                })}
+                onClick={() => setVariation(0)}
+              >
+                A
+              </Button>
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.VARIATION_B}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("w-8 rounded-l-none rounded-r-lg", {
+                  "text-primary": variation === 1,
+                })}
+                onClick={() => setVariation(1)}
+              >
+                B
+              </Button>
+            </Tooltip>
           </div>
-          <div className="grid grid-cols-4 gap-2 pb-4">
-            <div className="relative">
-              <button
-                className="neu-raised h-[26px] w-full bg-transparent"
-                onClick={copySequence}
+          <Label className="absolute -bottom-5 left-1">VARI</Label>
+        </div>
+
+        <div className="relative">
+          <div className="neu flex rounded-lg">
+            <Tooltip content={TOOLTIPS.CYCLE_A}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-l-lg rounded-r-none", {
+                  "text-primary": variationCycle === "A",
+                })}
+                onClick={() => setVariationCycle("A")}
               >
-                <IoCopySharp className="text-text mx-auto" />
-              </button>
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                COPY
-              </span>
-            </div>
-            <div className="relative">
-              <button
-                className="neu-raised h-[26px] w-full bg-transparent"
-                onClick={pasteSequence}
+                A
+              </Button>
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_B}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-none", {
+                  "text-primary": variationCycle === "B",
+                })}
+                onClick={() => setVariationCycle("B")}
               >
-                <IoBrushSharp className="text-text mx-auto" />
-              </button>
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                PASTE
-              </span>
-            </div>
-            <div className="relative">
-              <button
-                className="neu-raised h-[26px] w-full bg-transparent"
-                onClick={handleClearSequence}
+                B
+              </Button>
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_AB}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn("w-10 rounded-none", {
+                  "text-primary": variationCycle === "AB",
+                })}
+                onClick={() => setVariationCycle("AB")}
               >
-                <BsFillEraserFill className="text-text mx-auto" />
-              </button>
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                CLEAR
-              </span>
-            </div>
-            <div className="relative">
-              <button
-                className="neu-raised h-[26px] w-full bg-transparent"
-                onClick={handleRandomSequence}
+                AB
+              </Button>
+            </Tooltip>
+            <Tooltip content={TOOLTIPS.CYCLE_AAAB}>
+              <Button
+                variant="hardware"
+                size="sm"
+                className={cn(
+                  "w-10 rounded-l-none rounded-r-lg text-[10px] leading-tight",
+                  {
+                    "text-primary": variationCycle === "AAAB",
+                  },
+                )}
+                onClick={() => setVariationCycle("AAAB")}
               >
-                <FaDice className="text-text mx-auto" />
-              </button>
-              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
-                RAND
-              </span>
-            </div>
+                AA
+                <br />
+                AB
+              </Button>
+            </Tooltip>
           </div>
+          <Label className="absolute -bottom-5 left-1">CYCLE</Label>
         </div>
       </div>
-    </>
+
+      <div className="pb-4">
+        <div className="neu grid grid-cols-4 rounded-lg">
+          <Tooltip content={TOOLTIPS.COPY}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-l-lg rounded-r-none"
+              onClick={copySequence}
+            >
+              <IoCopySharp />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.PASTE}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-none"
+              onClick={pasteSequence}
+            >
+              <IoBrushSharp />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.CLEAR}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-none"
+              onClick={handleClearSequence}
+            >
+              <BsFillEraserFill />
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.RANDOM}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className="rounded-l-none rounded-r-lg"
+              onClick={handleRandomSequence}
+            >
+              <FaDice />
+            </Button>
+          </Tooltip>
+        </div>
+        <div className="mt-1 grid grid-cols-4 text-center">
+          <Label>COPY</Label>
+          <Label>PASTE</Label>
+          <Label>CLEAR</Label>
+          <Label>RAND</Label>
+        </div>
+      </div>
+    </div>
   );
 };

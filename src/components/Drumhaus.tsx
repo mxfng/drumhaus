@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 
+import { Button } from "@/components/ui";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/useLayoutScale";
@@ -10,7 +11,9 @@ import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
-import { MasterControl } from "./controls/MasterControl";
+import { MasterCompressor } from "./controls/master/MasterCompressor";
+import { MasterFX } from "./controls/master/MasterFX";
+import { MasterVolume } from "./controls/master/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
@@ -109,7 +112,7 @@ const Drumhaus = () => {
 
 const TopBar = () => {
   return (
-    <div className="relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
+    <div className="surface-raised relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
       <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
         <div className="flex items-end">
           <DrumhausLogo size={46} color="#ff7b00" />
@@ -154,36 +157,27 @@ const MainControls = ({
         />
       </div>
 
-      <div className="grid w-full grid-cols-7 py-4 pl-4">
-        <div className="col-span-1 mr-6 w-[160px]">
-          <div className="flex h-full w-full items-center justify-center">
-            <button
-              className="neu-tall-raised h-[140px] w-[140px] outline-none"
-              onClick={() => togglePlay(instrumentRuntimes)}
-              onKeyDown={(ev) => ev.preventDefault()}
-            >
-              {isPlaying ? (
-                <IoPauseSharp size={50} color="#ff7b00" />
-              ) : (
-                <IoPlaySharp size={50} color="#B09374" />
-              )}
-            </button>
-          </div>
-        </div>
+      <div className="flex w-full flex-row items-center justify-between px-8 py-4">
+        <Button
+          variant="hardware"
+          className="neu-tall-raised h-[140px] w-[140px] rounded-lg"
+          onClick={() => togglePlay(instrumentRuntimes)}
+          onKeyDown={(ev) => ev.preventDefault()}
+        >
+          {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
+        </Button>
 
-        <div className="col-span-1 mx-0 -ml-3">
-          <SequencerControl />
-        </div>
+        <SequencerControl />
 
-        <div className="col-span-1 px-2">
-          <TransportControl />
-        </div>
+        <TransportControl />
 
-        <div className="w-[380px] px-2">
-          <PresetControl loadPreset={loadPreset} />
-        </div>
+        <PresetControl loadPreset={loadPreset} />
 
-        <MasterControl />
+        <MasterFX />
+
+        <MasterCompressor />
+
+        <MasterVolume />
       </div>
     </>
   );
@@ -213,7 +207,7 @@ const BrandingLink = () => {
 const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="flex flex-row gap-1">
+      <div className="text-foreground-muted mt-8 flex">
         <p className="text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"

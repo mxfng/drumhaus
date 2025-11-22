@@ -1,6 +1,7 @@
+import { useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
-import { Tooltip } from "@/components/ui";
+import { Label, Tooltip } from "@/components/ui";
 import { transformKnobValue } from "./knobTransforms";
 
 type CustomSliderProps = {
@@ -36,6 +37,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
 }) => {
   const immutableDefaultValue = defaultValue;
   const step = valueStep > 0 ? valueStep : 1;
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleDoubleClick = () => {
     setSliderValue(immutableDefaultValue);
@@ -52,63 +54,53 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
   ).toFixed(valueDecimals);
 
   return (
-    <div className="relative" onDoubleClick={handleDoubleClick}>
-      <div
-        className="relative -bottom-2 left-px rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]"
-        style={{ width: `${size}px`, height: "10px" }}
-      >
-        <div className="flex h-full w-full items-center justify-center">
-          <SliderPrimitive.Root
-            className="relative flex touch-none items-center select-none"
-            style={{ width: `${size - size / 4}px` }}
-            value={[sliderValue]}
-            min={0}
-            max={100}
-            step={step}
-            onValueChange={handleChange}
-            disabled={isDisabled}
-          >
-            <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-transparent">
-              <SliderPrimitive.Range className="absolute h-full bg-transparent" />
-            </SliderPrimitive.Track>
-            <Tooltip
-              content={formattedTransformedValue}
-              delayDuration={0}
-              side="top"
-            >
-              <SliderPrimitive.Thumb
-                className="neu-raised block cursor-pointer rounded-lg focus:outline-none"
-                style={{ width: `${size / 4}px`, height: "16px" }}
-                aria-label="Slider thumb"
-              />
-            </Tooltip>
-          </SliderPrimitive.Root>
-        </div>
+    <div
+      className="flex flex-col gap-0.5"
+      style={{ width: `${size}px` }}
+      onDoubleClick={handleDoubleClick}
+    >
+      {/* Labels */}
+      <div className="relative flex items-end justify-between px-1">
+        <Label className="text-[10px]">{leftLabel}</Label>
+        <Label className="absolute inset-x-0 text-center text-[8px] opacity-60">
+          {centerLabel}
+        </Label>
+        <Label className="text-[10px]">{rightLabel}</Label>
       </div>
 
-      <span className="font-pixel text-text absolute bottom-5 left-2 text-[10px]">
-        {leftLabel}
-      </span>
-      <span
-        className="font-pixel text-text absolute bottom-[22px] left-px text-center text-[8px]"
-        style={{ width: `${size}px` }}
-      >
-        {centerLabel}
-      </span>
-      <span
-        className="font-pixel text-text absolute bottom-5 left-px text-right text-[10px]"
-        style={{ width: `${size}px` }}
-      >
-        {rightLabel}
-      </span>
-      {title && (
-        <span
-          className="font-pixel text-text absolute -bottom-3 left-px text-center text-[10px]"
-          style={{ width: `${size}px` }}
+      {/* Slider track */}
+      <div className="flex h-[10px] items-center rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+        <SliderPrimitive.Root
+          className="relative flex w-full touch-none items-center select-none"
+          value={[sliderValue]}
+          min={0}
+          max={100}
+          step={step}
+          onValueChange={handleChange}
+          onPointerDown={() => setIsDragging(true)}
+          onPointerUp={() => setIsDragging(false)}
+          disabled={isDisabled}
         >
-          {title}
-        </span>
-      )}
+          <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-transparent">
+            <SliderPrimitive.Range className="absolute h-full bg-transparent" />
+          </SliderPrimitive.Track>
+          <Tooltip
+            content={formattedTransformedValue}
+            delayDuration={0}
+            side="top"
+            open={isDragging ? true : undefined}
+          >
+            <SliderPrimitive.Thumb
+              className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
+              style={{ width: `${size / 4}px`, height: "16px" }}
+              aria-label="Slider thumb"
+            />
+          </Tooltip>
+        </SliderPrimitive.Root>
+      </div>
+
+      {/* Title */}
+      {title && <Label className="text-center">{title}</Label>}
     </div>
   );
 };
