@@ -137,7 +137,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 <Input
                   id="presetName"
                   ref={inputRef}
-                  placeholder="Enter preset name"
                   value={presetName}
                   onChange={handleChange}
                 />

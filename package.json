@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@fontsource-variable/albert-sans": "^5.2.8",
-    "@fontsource-variable/pixelify-sans": "^5.2.7",
+    "@fontsource/fusion-pixel-12px-monospaced-sc": "^5.2.5",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-form": "^0.1.8",

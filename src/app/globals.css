@@ -54,7 +54,7 @@
 
   /* Fonts */
   --font-sans: "Albert Sans Variable", system-ui, sans-serif;
-  --font-pixel: "Pixelify Sans Variable", sans-serif;
+  --font-pixel: "Fusion Pixel 12px Monospaced SC", sans-serif;
 
   /* Font utilities */
   --font-family-pixel: var(--font-pixel);

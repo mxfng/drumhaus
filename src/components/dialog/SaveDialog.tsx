@@ -103,7 +103,6 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
             <Input
               id="presetName"
               ref={inputRef}
-              placeholder="Enter preset name"
               value={presetName}
               onChange={handleChange}
             />

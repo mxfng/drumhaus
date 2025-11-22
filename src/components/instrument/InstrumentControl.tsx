@@ -3,8 +3,6 @@ import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
 import { MdHeadphones } from "react-icons/md";
 import { now } from "tone/build/esm/index";
 
-import "@fontsource-variable/pixelify-sans";
-
 import { Button, Label, Tooltip } from "@/components/ui";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";

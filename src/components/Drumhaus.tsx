@@ -210,7 +210,7 @@ const BrandingLink = () => {
 const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="text-foreground-muted mt-8 flex">
+      <div className="text-foreground mt-8 flex">
         <p className="text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"
