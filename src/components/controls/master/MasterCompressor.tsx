@@ -18,7 +18,7 @@ export const MasterCompressor: React.FC = () => {
     <div className="h-full w-[130px]">
       <div className="grid grid-cols-2">
         <div className="relative">
-          <span className="absolute -left-0.5 bottom-[70px] -rotate-90 font-pixel text-xs text-text opacity-50">
+          <span className="font-pixel text-text absolute bottom-[70px] -left-0.5 -rotate-90 text-xs opacity-50">
             COMPRESSOR
           </span>
         </div>

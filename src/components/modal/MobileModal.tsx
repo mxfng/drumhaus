@@ -42,7 +42,7 @@ export const MobileModal: React.FC<MobileModalProps> = ({
         <DialogFooter>
           <button
             onClick={onClose}
-            className="rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover"
+            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
           >
             Dismiss
           </button>

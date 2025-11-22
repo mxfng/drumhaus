@@ -37,13 +37,13 @@ export const ResetModal: React.FC<ResetModalProps> = ({
         <DialogFooter>
           <button
             onClick={onReset}
-            className="rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover"
+            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
           >
             Reset
           </button>
           <button
             onClick={onClose}
-            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
           >
             Cancel
           </button>

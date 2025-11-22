@@ -213,13 +213,13 @@ const BrandingLink = () => {
 const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="mt-8 flex">
-        <p className="text-muted text-sm">Designed with love by</p>
+      <div className="flex flex-row gap-1">
+        <p className="text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"
           target="_blank"
           rel="noreferrer"
-          className="ml-1 text-sm text-gray-500"
+          className="ml-1 text-sm"
         >
           Max Fung.
         </a>

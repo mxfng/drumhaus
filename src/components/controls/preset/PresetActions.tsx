@@ -18,7 +18,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openResetModal = useModalStore((state) => state.openResetModal);
 
   return (
-    <div className="neumorphic mt-2 grid grid-cols-4 rounded-lg">
+    <div className="neu mt-2 grid grid-cols-4 rounded-lg">
       <div className="flex items-center justify-center">
         <Tooltip content="Download to file" delayDuration={500}>
           <button
@@ -26,7 +26,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="raised group flex w-full items-center justify-center rounded-l-lg p-2"
           >
             <MdOutlineSaveAlt
-              className="text-text transition-all duration-200 group-hover:text-accent"
+              className="text-text group-hover:text-accent transition-all duration-200"
               size="20px"
             />
           </button>
@@ -40,7 +40,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="raised group flex w-full items-center justify-center p-2"
           >
             <FaFolderOpen
-              className="text-text transition-all duration-200 group-hover:text-accent"
+              className="text-text group-hover:text-accent transition-all duration-200"
               size="20px"
             />
           </button>
@@ -54,7 +54,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="raised group flex w-full items-center justify-center p-2"
           >
             <IoIosShareAlt
-              className="text-text transition-all duration-200 group-hover:text-accent"
+              className="text-text group-hover:text-accent transition-all duration-200"
               size="26px"
             />
           </button>
@@ -68,7 +68,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="raised group flex w-full items-center justify-center rounded-r-lg p-2"
           >
             <RxReset
-              className="text-text transition-all duration-200 group-hover:text-accent"
+              className="text-text group-hover:text-accent transition-all duration-200"
               size="20px"
             />
           </button>

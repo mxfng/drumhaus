@@ -355,7 +355,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   return (
     <>
       <div className="flex h-full items-center justify-center">
-        <div className="neumorphicExtraTall relative h-[195px] w-full rounded-lg px-3 pb-1 pt-2">
+        <div className="neu-extra-tall relative h-[195px] w-full rounded-lg px-3 pt-2 pb-1">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
             presets={allPresets}

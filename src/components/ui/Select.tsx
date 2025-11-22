@@ -12,20 +12,12 @@ export const SelectTrigger = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={`
-      flex h-10 w-full items-center justify-between rounded-md
-      bg-transparent px-3 py-2
-      font-pixel text-sm text-text
-      placeholder:text-text-light
-      focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2
-      disabled:cursor-not-allowed disabled:opacity-50
-      ${className ?? ""}
-    `}
+    className={`font-pixel text-text placeholder:text-text-light focus:ring-accent flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${className ?? ""} `}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <IoChevronDown className="h-4 w-4 text-text" />
+      <IoChevronDown className="text-text h-4 w-4" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -40,7 +32,7 @@ export const SelectScrollUpButton = forwardRef<
     className={`flex cursor-default items-center justify-center py-1 ${className ?? ""}`}
     {...props}
   >
-    <IoChevronUp className="h-4 w-4 text-text" />
+    <IoChevronUp className="text-text h-4 w-4" />
   </SelectPrimitive.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
@@ -54,7 +46,7 @@ export const SelectScrollDownButton = forwardRef<
     className={`flex cursor-default items-center justify-center py-1 ${className ?? ""}`}
     {...props}
   >
-    <IoChevronDown className="h-4 w-4 text-text" />
+    <IoChevronDown className="text-text h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
@@ -66,19 +58,7 @@ export const SelectContent = forwardRef<
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
-      className={`
-        relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md
-        shadow-neu
-        bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))]
-        data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95
-        data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95
-        data-[side=bottom]:slide-in-from-top-2
-        data-[side=left]:slide-in-from-right-2
-        data-[side=right]:slide-in-from-left-2
-        data-[side=top]:slide-in-from-bottom-2
-        ${position === "popper" ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1" : ""}
-        ${className ?? ""}
-      `}
+      className={`shadow-neu data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] ${position === "popper" ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1" : ""} ${className ?? ""} `}
       position={position}
       {...props}
     >
@@ -100,7 +80,7 @@ export const SelectLabel = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={`py-1.5 pl-8 pr-2 font-pixel text-sm font-semibold text-text ${className ?? ""}`}
+    className={`font-pixel text-text py-1.5 pr-2 pl-8 text-sm font-semibold ${className ?? ""}`}
     {...props}
   />
 ));
@@ -112,15 +92,7 @@ export const SelectItem = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={`
-      relative flex w-full cursor-default select-none items-center
-      rounded-sm py-1.5 pl-8 pr-2
-      font-pixel text-sm text-text
-      outline-none
-      focus:bg-accent focus:text-white
-      data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-      ${className ?? ""}
-    `}
+    className={`font-pixel text-text focus:bg-accent relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none focus:text-white data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className ?? ""} `}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -139,7 +111,7 @@ export const SelectSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={`-mx-1 my-1 h-px bg-text-light ${className ?? ""}`}
+    className={`bg-text-light -mx-1 my-1 h-px ${className ?? ""}`}
     {...props}
   />
 ));

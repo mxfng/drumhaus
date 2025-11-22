@@ -337,7 +337,7 @@ export const Knob: React.FC<KnobProps> = ({
               </div>
             </motion.div>
             <div
-              className="neumorphicTallRaised"
+              className="neu-tall-raised"
               style={{
                 width: `${sizeInPixels}px`,
                 height: `${sizeInPixels}px`,

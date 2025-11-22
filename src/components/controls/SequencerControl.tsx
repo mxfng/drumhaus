@@ -57,18 +57,18 @@ export const SequencerControl: React.FC = () => {
     <>
       <div className="flex h-full w-[280px] items-center justify-center px-4">
         <div>
-          <span className="block pb-4 font-pixel text-xs text-text opacity-50">
+          <span className="font-pixel text-text block pb-4 text-xs opacity-50">
             SEQUENCER
           </span>
           <div className="grid grid-cols-3 pb-8">
             <div className="relative col-span-1 pr-2">
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 SHOW
               </span>
               <div className="flex items-center justify-center">
-                <div className="neumorphic flex rounded-lg">
+                <div className="neu flex rounded-lg">
                   <button
-                    className={`raised h-[30px] w-[30px] rounded-l-lg font-pixel ${
+                    className={`raised font-pixel h-[30px] w-[30px] rounded-l-lg ${
                       variation == 0 ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariation(0)}
@@ -76,7 +76,7 @@ export const SequencerControl: React.FC = () => {
                     A
                   </button>
                   <button
-                    className={`raised h-[30px] w-[30px] rounded-r-lg font-pixel ${
+                    className={`raised font-pixel h-[30px] w-[30px] rounded-r-lg ${
                       variation == 1 ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariation(1)}
@@ -87,13 +87,13 @@ export const SequencerControl: React.FC = () => {
               </div>
             </div>
             <div className="relative col-span-1">
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 VAR CYC
               </span>
               <div className="flex items-center justify-center">
-                <div className="neumorphic flex rounded-lg">
+                <div className="neu flex rounded-lg">
                   <button
-                    className={`raised h-[30px] w-[40px] rounded-l-lg font-pixel text-xs ${
+                    className={`raised font-pixel h-[30px] w-[40px] rounded-l-lg text-xs ${
                       variationCycle === "A" ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariationCycle("A")}
@@ -101,7 +101,7 @@ export const SequencerControl: React.FC = () => {
                     A
                   </button>
                   <button
-                    className={`raised h-[30px] w-[40px] font-pixel text-xs ${
+                    className={`raised font-pixel h-[30px] w-[40px] text-xs ${
                       variationCycle === "B" ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariationCycle("B")}
@@ -109,7 +109,7 @@ export const SequencerControl: React.FC = () => {
                     B
                   </button>
                   <button
-                    className={`raised h-[30px] w-[40px] font-pixel text-xs ${
+                    className={`raised font-pixel h-[30px] w-[40px] text-xs ${
                       variationCycle === "AB" ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariationCycle("AB")}
@@ -117,7 +117,7 @@ export const SequencerControl: React.FC = () => {
                     AB
                   </button>
                   <button
-                    className={`raised h-[30px] w-[40px] rounded-r-lg font-pixel text-xs ${
+                    className={`raised font-pixel h-[30px] w-[40px] rounded-r-lg text-xs ${
                       variationCycle === "AAAB" ? "text-accent" : "text-text"
                     }`}
                     onClick={() => setVariationCycle("AAAB")}
@@ -131,45 +131,45 @@ export const SequencerControl: React.FC = () => {
           <div className="grid grid-cols-4 gap-2 pb-4">
             <div className="relative">
               <button
-                className="neumorphicRaised h-[26px] w-full bg-transparent"
+                className="neu-raised h-[26px] w-full bg-transparent"
                 onClick={copySequence}
               >
-                <IoCopySharp className="mx-auto text-text" />
+                <IoCopySharp className="text-text mx-auto" />
               </button>
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 COPY
               </span>
             </div>
             <div className="relative">
               <button
-                className="neumorphicRaised h-[26px] w-full bg-transparent"
+                className="neu-raised h-[26px] w-full bg-transparent"
                 onClick={pasteSequence}
               >
-                <IoBrushSharp className="mx-auto text-text" />
+                <IoBrushSharp className="text-text mx-auto" />
               </button>
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 PASTE
               </span>
             </div>
             <div className="relative">
               <button
-                className="neumorphicRaised h-[26px] w-full bg-transparent"
+                className="neu-raised h-[26px] w-full bg-transparent"
                 onClick={handleClearSequence}
               >
-                <BsFillEraserFill className="mx-auto text-text" />
+                <BsFillEraserFill className="text-text mx-auto" />
               </button>
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 CLEAR
               </span>
             </div>
             <div className="relative">
               <button
-                className="neumorphicRaised h-[26px] w-full bg-transparent"
+                className="neu-raised h-[26px] w-full bg-transparent"
                 onClick={handleRandomSequence}
               >
-                <FaDice className="mx-auto text-text" />
+                <FaDice className="text-text mx-auto" />
               </button>
-              <span className="absolute -bottom-3 left-1 -my-3 font-pixel text-xs text-text">
+              <span className="font-pixel text-text absolute -bottom-3 left-1 -my-3 text-xs">
                 RAND
               </span>
             </div>

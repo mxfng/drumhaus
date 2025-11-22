@@ -98,12 +98,12 @@ export const TransportControl: React.FC = () => {
         <div>
           <div className="flex">
             <div className="flex items-center justify-center">
-              <div className="neumorphicExtraTall absolute top-10 h-[70px] w-[150px] rounded-lg p-3">
+              <div className="neu-extra-tall absolute top-10 h-[70px] w-[150px] rounded-lg p-3">
                 <div className="relative z-[3] flex h-full items-center justify-center">
                   <div className="flex h-full">
                     <input
                       ref={inputRef}
-                      className="absolute left-0 h-full w-[98px] rounded-l-lg border-0 text-center font-pixel text-[40px] leading-none text-text shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+                      className="font-pixel text-text absolute left-0 h-full w-[98px] rounded-l-lg border-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
                       type="number"
                       value={bpmInputValue}
                       onChange={handleBpmChange}
@@ -111,13 +111,13 @@ export const TransportControl: React.FC = () => {
                       onFocus={(e) => e.target.select()}
                     />
                     <button
-                      className="absolute -right-3 -top-3 h-[35px] w-[10px] rounded-tr-lg bg-transparent"
+                      className="absolute -top-3 -right-3 h-[35px] w-[10px] rounded-tr-lg bg-transparent"
                       ref={upButtonRef}
                     >
                       <IoTriangleSharp className="text-text" />
                     </button>
                     <button
-                      className="absolute -bottom-3 -right-3 h-[35px] w-[20px] rounded-br-lg bg-transparent"
+                      className="absolute -right-3 -bottom-3 h-[35px] w-[20px] rounded-br-lg bg-transparent"
                       ref={downButtonRef}
                     >
                       <IoTriangleSharp
@@ -126,8 +126,8 @@ export const TransportControl: React.FC = () => {
                       />
                     </button>
                   </div>
-                  <div className="absolute -left-1 -bottom-6 flex items-center justify-center">
-                    <span className="-my-3 font-pixel text-xs text-text">
+                  <div className="absolute -bottom-6 -left-1 flex items-center justify-center">
+                    <span className="font-pixel text-text -my-3 text-xs">
                       TEMPO
                     </span>
                   </div>

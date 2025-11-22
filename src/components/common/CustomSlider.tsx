@@ -59,7 +59,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
       >
         <div className="flex h-full w-full items-center justify-center">
           <SliderPrimitive.Root
-            className="relative flex touch-none select-none items-center"
+            className="relative flex touch-none items-center select-none"
             style={{ width: `${size - size / 4}px` }}
             value={[sliderValue]}
             min={0}
@@ -77,7 +77,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
               side="top"
             >
               <SliderPrimitive.Thumb
-                className="neumorphicRaised block cursor-pointer rounded-lg focus:outline-none"
+                className="neu-raised block cursor-pointer rounded-lg focus:outline-none"
                 style={{ width: `${size / 4}px`, height: "16px" }}
                 aria-label="Slider thumb"
               />
@@ -86,24 +86,24 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
         </div>
       </div>
 
-      <span className="absolute bottom-5 left-2 font-pixel text-[10px] text-text">
+      <span className="font-pixel text-text absolute bottom-5 left-2 text-[10px]">
         {leftLabel}
       </span>
       <span
-        className="absolute bottom-[22px] left-px text-center font-pixel text-[8px] text-text"
+        className="font-pixel text-text absolute bottom-[22px] left-px text-center text-[8px]"
         style={{ width: `${size}px` }}
       >
         {centerLabel}
       </span>
       <span
-        className="absolute bottom-5 left-px text-right font-pixel text-[10px] text-text"
+        className="font-pixel text-text absolute bottom-5 left-px text-right text-[10px]"
         style={{ width: `${size}px` }}
       >
         {rightLabel}
       </span>
       {title && (
         <span
-          className="absolute -bottom-3 left-px text-center font-pixel text-[10px] text-text"
+          className="font-pixel text-text absolute -bottom-3 left-px text-center text-[10px]"
           style={{ width: `${size}px` }}
         >
           {title}
