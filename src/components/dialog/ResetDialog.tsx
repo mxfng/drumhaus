@@ -9,13 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui";
 
-interface ResetModalProps {
+interface ResetDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onReset: () => void;
 }
 
-export const ResetModal: React.FC<ResetModalProps> = ({
+export const ResetDialog: React.FC<ResetDialogProps> = ({
   isOpen,
   onClose,
   onReset,

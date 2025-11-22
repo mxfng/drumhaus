@@ -19,8 +19,8 @@ import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumen
 import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import { cn } from "@/lib/utils";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useModalStore } from "@/stores/useModalStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { CustomSlider } from "../common/CustomSlider";
 import { Knob } from "../common/Knob";
@@ -47,8 +47,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   color = "#ff7b00",
   bg,
 }) => {
-  // Modal store
-  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
+  // Dialog store
+  const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Use granular selectors
   const attack = useInstrumentsStore(
@@ -198,7 +198,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isAnyModalOpen() && instrumentIndex == index) {
+      if (event.key === "m" && !isAnyDialogOpen() && instrumentIndex == index) {
         handleToggleMute();
       }
     };
@@ -207,11 +207,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [instrumentIndex, index, handleToggleMute, isAnyModalOpen]);
+  }, [instrumentIndex, index, handleToggleMute, isAnyDialogOpen]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isAnyModalOpen() && instrumentIndex == index) {
+      if (event.key === "s" && !isAnyDialogOpen() && instrumentIndex == index) {
         toggleSolo();
       }
     };
@@ -220,7 +220,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [instrumentIndex, index, toggleSolo, isAnyModalOpen]);
+  }, [instrumentIndex, index, toggleSolo, isAnyDialogOpen]);
 
   const playSample = () => {
     if (!runtime) return;

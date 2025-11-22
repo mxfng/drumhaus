@@ -9,14 +9,14 @@ import {
   DialogTitle,
 } from "@/components/ui";
 
-interface ConfirmSelectPresetModalProps {
+interface ConfirmSelectPresetDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: () => void;
 }
 
-export const ConfirmSelectPresetModal: React.FC<
-  ConfirmSelectPresetModalProps
+export const ConfirmSelectPresetDialog: React.FC<
+  ConfirmSelectPresetDialogProps
 > = ({ isOpen, onClose, onSelect }) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

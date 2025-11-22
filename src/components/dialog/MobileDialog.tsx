@@ -9,12 +9,12 @@ import {
   DialogTitle,
 } from "@/components/ui";
 
-interface MobileModalProps {
+interface MobileDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const MobileModal: React.FC<MobileModalProps> = ({
+export const MobileDialog: React.FC<MobileDialogProps> = ({
   isOpen,
   onClose,
 }) => {

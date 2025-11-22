@@ -25,14 +25,14 @@ const presetNameSchema = z
     'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
   );
 
-interface SharingModalProps {
+interface SharingDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onShare: (name: string) => Promise<void>;
   defaultName?: string;
 }
 
-export const SharingModal: React.FC<SharingModalProps> = ({
+export const SharingDialog: React.FC<SharingDialogProps> = ({
   isOpen,
   onClose,
   onShare,
@@ -44,7 +44,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [wasOpen, setWasOpen] = useState(isOpen);
 
-  // Auto-populate with default name when modal opens
+  // Auto-populate with default name when dialog opens
   if (isOpen && !wasOpen && defaultName) {
     setPresetName(defaultName);
   }
@@ -52,7 +52,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
     setWasOpen(isOpen);
   }
 
-  // Auto-focus input when modal opens
+  // Auto-focus input when dialog opens
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {
@@ -117,6 +117,9 @@ export const SharingModal: React.FC<SharingModalProps> = ({
         </div>
 
         <DialogFooter>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
           <Button
             onClick={handleShare}
             disabled={!presetName.trim() || isLoading}
@@ -127,22 +130,19 @@ export const SharingModal: React.FC<SharingModalProps> = ({
               <PixelatedSpinner color="white" size={20} pixelSize={2} gap={2} />
             )}
           </Button>
-          <Button variant="secondary" onClick={handleClose}>
-            Cancel
-          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-interface SharedModalProps {
+interface SharedDialogProps {
   isOpen: boolean;
   onClose: () => void;
   shareableLink: string;
 }
 
-export const SharedModal: React.FC<SharedModalProps> = ({
+export const SharedDialog: React.FC<SharedDialogProps> = ({
   isOpen,
   onClose,
   shareableLink,

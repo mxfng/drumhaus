@@ -4,16 +4,16 @@ import { useToast } from "@/components/ui";
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useModalStore } from "@/stores/useModalStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
-import { ConfirmSelectPresetModal } from "../modal/ConfirmSelectPresetModal";
-import { ResetModal } from "../modal/ResetModal";
-import { SaveModal } from "../modal/SaveModal";
-import { SharedModal, SharingModal } from "../modal/ShareModals";
+import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";
+import { ResetDialog } from "../dialog/ResetDialog";
+import { SaveDialog } from "../dialog/SaveDialog";
+import { SharedDialog, SharingDialog } from "../dialog/ShareDialogs";
 import { KitSelector } from "./preset/KitSelector";
 import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
@@ -58,23 +58,23 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     (state) => state.hasUnsavedChanges,
   );
 
-  // Modal state
+  // Dialog state
   const {
-    isSaveModalOpen,
-    isSharingModalOpen,
-    isSharedModalOpen,
-    isResetModalOpen,
-    isPresetChangeModalOpen,
+    isSaveDialogOpen,
+    isSharingDialogOpen,
+    isSharedDialogOpen,
+    isResetDialogOpen,
+    isPresetChangeDialogOpen,
     shareableLink,
     presetToChange,
-    closeSaveModal,
-    closeSharingModal,
-    closeSharedModal,
-    closeResetModal,
-    closePresetChangeModal,
-    openSharedModal,
-    openPresetChangeModal,
-  } = useModalStore();
+    closeSaveDialog,
+    closeSharingDialog,
+    closeSharedDialog,
+    closeResetDialog,
+    closePresetChangeDialog,
+    openSharedDialog,
+    openPresetChangeDialog,
+  } = useDialogStore();
 
   const { toast } = useToast();
 
@@ -175,7 +175,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const switchPreset = (presetId: string) => {
     if (hasUnsavedChanges()) {
-      openPresetChangeModal(presetId);
+      openPresetChangeDialog(presetId);
       return;
     }
 
@@ -302,7 +302,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       const urlParam = shareablePresetToUrl(preset);
       const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
 
-      openSharedModal(shareUrl);
+      openSharedDialog(shareUrl);
     } catch (error) {
       console.error("Failed to share preset:", error);
       toast({
@@ -328,13 +328,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleConfirmPresetChange = () => {
-    closePresetChangeModal();
+    closePresetChangeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
     if (preset) loadPreset(preset);
   };
 
   const handleReset = () => {
-    closeResetModal();
+    closeResetDialog();
     loadPreset(presets.init());
   };
 
@@ -371,35 +371,35 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         </div>
       </div>
 
-      <SaveModal
-        isOpen={isSaveModalOpen}
-        onClose={closeSaveModal}
+      <SaveDialog
+        isOpen={isSaveDialogOpen}
+        onClose={closeSaveDialog}
         onSave={exportPreset}
         defaultName={generateNewPresetName()}
       />
 
-      <SharingModal
-        isOpen={isSharingModalOpen}
-        onClose={closeSharingModal}
+      <SharingDialog
+        isOpen={isSharingDialogOpen}
+        onClose={closeSharingDialog}
         onShare={sharePreset}
         defaultName={generateNewPresetName()}
       />
 
-      <SharedModal
-        isOpen={isSharedModalOpen}
-        onClose={closeSharedModal}
+      <SharedDialog
+        isOpen={isSharedDialogOpen}
+        onClose={closeSharedDialog}
         shareableLink={shareableLink}
       />
 
-      <ResetModal
-        isOpen={isResetModalOpen}
-        onClose={closeResetModal}
+      <ResetDialog
+        isOpen={isResetDialogOpen}
+        onClose={closeResetDialog}
         onReset={handleReset}
       />
 
-      <ConfirmSelectPresetModal
-        isOpen={isPresetChangeModalOpen}
-        onClose={closePresetChangeModal}
+      <ConfirmSelectPresetDialog
+        isOpen={isPresetChangeDialogOpen}
+        onClose={closePresetChangeDialog}
         onSelect={handleConfirmPresetChange}
       />
     </>

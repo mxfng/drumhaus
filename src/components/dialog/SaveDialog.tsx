@@ -23,14 +23,14 @@ const presetNameSchema = z
     'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
   );
 
-interface SaveModalProps {
+interface SaveDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
   defaultName?: string;
 }
 
-export const SaveModal: React.FC<SaveModalProps> = ({
+export const SaveDialog: React.FC<SaveDialogProps> = ({
   isOpen,
   onClose,
   onSave,
@@ -41,7 +41,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const [wasOpen, setWasOpen] = useState(isOpen);
 
-  // Auto-populate with default name when modal opens
+  // Auto-populate with default name when dialog opens
   if (isOpen && !wasOpen && defaultName) {
     setPresetName(defaultName);
   }
@@ -49,7 +49,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
     setWasOpen(isOpen);
   }
 
-  // Auto-focus input when modal opens
+  // Auto-focus input when dialog opens
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => {

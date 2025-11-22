@@ -4,7 +4,7 @@ import { MdOutlineSaveAlt } from "react-icons/md";
 import { RxReset } from "react-icons/rx";
 
 import { Button, Tooltip } from "@/components/ui";
-import { useModalStore } from "@/stores/useModalStore";
+import { useDialogStore } from "@/stores/useDialogStore";
 
 type PresetActionsProps = {
   onOpenFromFile: () => void;
@@ -13,9 +13,9 @@ type PresetActionsProps = {
 export const PresetActions: React.FC<PresetActionsProps> = ({
   onOpenFromFile,
 }) => {
-  const openSaveModal = useModalStore((state) => state.openSaveModal);
-  const openSharingModal = useModalStore((state) => state.openSharingModal);
-  const openResetModal = useModalStore((state) => state.openResetModal);
+  const openSaveDialog = useDialogStore((state) => state.openSaveDialog);
+  const openSharingDialog = useDialogStore((state) => state.openSharingDialog);
+  const openResetDialog = useDialogStore((state) => state.openResetDialog);
 
   return (
     <div className="neu mt-2 grid grid-cols-4 rounded-lg">
@@ -24,7 +24,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openSaveModal}
+            onClick={openSaveDialog}
             className="w-full rounded-l-lg"
           >
             <MdOutlineSaveAlt
@@ -56,7 +56,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openSharingModal}
+            onClick={openSharingDialog}
             className="w-full"
           >
             <IoIosShareAlt
@@ -72,7 +72,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openResetModal}
+            onClick={openResetDialog}
             className="w-full rounded-r-lg"
           >
             <RxReset
