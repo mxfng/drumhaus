@@ -8,6 +8,7 @@ import { useLayoutScale } from "@/hooks/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
@@ -52,7 +53,10 @@ const Drumhaus = () => {
     instrumentRuntimesVersion,
   });
 
-  const { isMobileWarning, setIsMobileWarning } = useMobileWarning();
+  useMobileWarning();
+
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
 
   // --- Initial Loader Cleanup ---
 
@@ -102,10 +106,7 @@ const Drumhaus = () => {
           </div>
         </div>
       </div>
-      <MobileDialog
-        isOpen={isMobileWarning}
-        onClose={() => setIsMobileWarning(false)}
-      />
+      <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
     </>
   );
 };

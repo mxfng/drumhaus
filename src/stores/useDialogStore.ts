@@ -1,143 +1,49 @@
+import { produce } from "immer";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
-import { immer } from "zustand/middleware/immer";
 
-interface DialogState {
-  // Dialog visibility states
-  isSaveDialogOpen: boolean;
-  isSharingDialogOpen: boolean;
-  isSharedDialogOpen: boolean;
-  isResetDialogOpen: boolean;
-  isPresetChangeDialogOpen: boolean;
+// Add new dialog names here as needed
+export type DialogName = "save" | "share" | "reset" | "presetChange" | "mobile";
 
-  // Dialog data
-  shareableLink: string;
+interface DialogData {
   presetToChange: string;
-
-  // Actions
-  openSaveDialog: () => void;
-  closeSaveDialog: () => void;
-
-  openSharingDialog: () => void;
-  closeSharingDialog: () => void;
-
-  openSharedDialog: (link: string) => void;
-  closeSharedDialog: () => void;
-
-  openResetDialog: () => void;
-  closeResetDialog: () => void;
-
-  openPresetChangeDialog: (presetName: string) => void;
-  closePresetChangeDialog: () => void;
-
-  // Helper to check if any dialog is open (for blocking spacebar)
-  isAnyDialogOpen: () => boolean;
-
-  // Reset all dialogs
-  closeAllDialogs: () => void;
 }
 
-export const useDialogStore = create<DialogState>()(
-  devtools(
-    immer((set, get) => ({
-      // Initial state
-      isSaveDialogOpen: false,
-      isSharingDialogOpen: false,
-      isSharedDialogOpen: false,
-      isResetDialogOpen: false,
-      isPresetChangeDialogOpen: false,
-      shareableLink: "",
-      presetToChange: "",
+type DialogStoreType = {
+  activeDialog: DialogName | null;
+  dialogData: DialogData;
+  openDialog: (name: DialogName, data?: Partial<DialogData>) => void;
+  closeDialog: () => void;
+  isAnyDialogOpen: () => boolean;
+};
 
-      // Actions
-      openSaveDialog: () => {
-        set((state) => {
-          state.isSaveDialogOpen = true;
-        });
-      },
-
-      closeSaveDialog: () => {
-        set((state) => {
-          state.isSaveDialogOpen = false;
-        });
-      },
-
-      openSharingDialog: () => {
-        set((state) => {
-          state.isSharingDialogOpen = true;
-        });
-      },
-
-      closeSharingDialog: () => {
-        set((state) => {
-          state.isSharingDialogOpen = false;
-        });
-      },
-
-      openSharedDialog: (link: string) => {
-        set((state) => {
-          state.isSharedDialogOpen = true;
-          state.shareableLink = link;
-        });
-      },
-
-      closeSharedDialog: () => {
-        set((state) => {
-          state.isSharedDialogOpen = false;
-        });
-      },
-
-      openResetDialog: () => {
-        set((state) => {
-          state.isResetDialogOpen = true;
-        });
-      },
-
-      closeResetDialog: () => {
-        set((state) => {
-          state.isResetDialogOpen = false;
-        });
-      },
-
-      openPresetChangeDialog: (presetName: string) => {
-        set((state) => {
-          state.isPresetChangeDialogOpen = true;
-          state.presetToChange = presetName;
-        });
-      },
-
-      closePresetChangeDialog: () => {
-        set((state) => {
-          state.isPresetChangeDialogOpen = false;
-          state.presetToChange = "";
-        });
-      },
-
-      isAnyDialogOpen: () => {
-        const state = get();
-        return (
-          state.isSaveDialogOpen ||
-          state.isSharingDialogOpen ||
-          state.isSharedDialogOpen ||
-          state.isResetDialogOpen ||
-          state.isPresetChangeDialogOpen
-        );
-      },
-
-      closeAllDialogs: () => {
-        set((state) => {
-          state.isSaveDialogOpen = false;
-          state.isSharingDialogOpen = false;
-          state.isSharedDialogOpen = false;
-          state.isResetDialogOpen = false;
-          state.isPresetChangeDialogOpen = false;
-          state.shareableLink = "";
-          state.presetToChange = "";
-        });
-      },
-    })),
-    {
-      name: "DialogStore",
-    },
-  ),
-);
+export const useDialogStore = create<DialogStoreType>((set, get) => ({
+  activeDialog: null,
+  dialogData: {
+    presetToChange: "",
+  },
+  openDialog: (name, data) => {
+    set(
+      produce((state: DialogStoreType) => {
+        state.activeDialog = name;
+        if (data) {
+          state.dialogData = { ...state.dialogData, ...data };
+        }
+      }),
+    );
+  },
+  closeDialog: () => {
+    set(
+      produce((state: DialogStoreType) => {
+        const current = state.activeDialog;
+        state.activeDialog = null;
+        // Clear associated data when closing specific dialogs
+        if (current === "presetChange") {
+          state.dialogData.presetToChange = "";
+        }
+      }),
+    );
+  },
+  isAnyDialogOpen: () => {
+    return get().activeDialog !== null;
+  },
+}));

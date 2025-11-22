@@ -13,7 +13,7 @@ import type { PresetFileV1 } from "@/types/preset";
 import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";
 import { ResetDialog } from "../dialog/ResetDialog";
 import { SaveDialog } from "../dialog/SaveDialog";
-import { SharedDialog, SharingDialog } from "../dialog/ShareDialogs";
+import { ShareDialog } from "../dialog/ShareDialog";
 import { KitSelector } from "./preset/KitSelector";
 import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
@@ -59,22 +59,12 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   );
 
   // Dialog state
-  const {
-    isSaveDialogOpen,
-    isSharingDialogOpen,
-    isSharedDialogOpen,
-    isResetDialogOpen,
-    isPresetChangeDialogOpen,
-    shareableLink,
-    presetToChange,
-    closeSaveDialog,
-    closeSharingDialog,
-    closeSharedDialog,
-    closeResetDialog,
-    closePresetChangeDialog,
-    openSharedDialog,
-    openPresetChangeDialog,
-  } = useDialogStore();
+  const openDialog = useDialogStore((state) => state.openDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const presetToChange = useDialogStore(
+    (state) => state.dialogData.presetToChange,
+  );
 
   const { toast } = useToast();
 
@@ -175,7 +165,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const switchPreset = (presetId: string) => {
     if (hasUnsavedChanges()) {
-      openPresetChangeDialog(presetId);
+      openDialog("presetChange", { presetToChange: presetId });
       return;
     }
 
@@ -284,35 +274,24 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   /**
    * Generate a shareable URL for the current preset
    */
-  const sharePreset = async (name: string) => {
-    try {
-      const normalizedName = normalizePresetName(name);
-      const slug = toPresetSlug(normalizedName);
+  const sharePreset = async (name: string): Promise<string> => {
+    const normalizedName = normalizePresetName(name);
+    const slug = toPresetSlug(normalizedName);
 
-      const now = new Date().toISOString();
-      const meta: Meta = {
-        id: crypto.randomUUID(),
-        name: normalizedName,
-        createdAt: now,
-        updatedAt: now,
-      };
+    const now = new Date().toISOString();
+    const meta: Meta = {
+      id: crypto.randomUUID(),
+      name: normalizedName,
+      createdAt: now,
+      updatedAt: now,
+    };
 
-      const preset = getCurrentPreset(meta, currentKitMeta);
-      const { shareablePresetToUrl } = await import("@/lib/serialization");
-      const urlParam = shareablePresetToUrl(preset);
-      const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
+    const preset = getCurrentPreset(meta, currentKitMeta);
+    const { shareablePresetToUrl } = await import("@/lib/serialization");
+    const urlParam = shareablePresetToUrl(preset);
+    const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
 
-      openSharedDialog(shareUrl);
-    } catch (error) {
-      console.error("Failed to share preset:", error);
-      toast({
-        title: "Something went wrong.",
-        description:
-          error instanceof Error ? error.message : "Failed to share preset",
-        status: "error",
-        duration: 8000,
-      });
-    }
+    return shareUrl;
   };
 
   // ============================================================================
@@ -328,13 +307,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleConfirmPresetChange = () => {
-    closePresetChangeDialog();
+    closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
     if (preset) loadPreset(preset);
   };
 
   const handleReset = () => {
-    closeResetDialog();
+    closeDialog();
     loadPreset(presets.init());
   };
 
@@ -372,34 +351,28 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       </div>
 
       <SaveDialog
-        isOpen={isSaveDialogOpen}
-        onClose={closeSaveDialog}
+        isOpen={activeDialog === "save"}
+        onClose={closeDialog}
         onSave={exportPreset}
         defaultName={generateNewPresetName()}
       />
 
-      <SharingDialog
-        isOpen={isSharingDialogOpen}
-        onClose={closeSharingDialog}
+      <ShareDialog
+        isOpen={activeDialog === "share"}
+        onClose={closeDialog}
         onShare={sharePreset}
         defaultName={generateNewPresetName()}
       />
 
-      <SharedDialog
-        isOpen={isSharedDialogOpen}
-        onClose={closeSharedDialog}
-        shareableLink={shareableLink}
-      />
-
       <ResetDialog
-        isOpen={isResetDialogOpen}
-        onClose={closeResetDialog}
+        isOpen={activeDialog === "reset"}
+        onClose={closeDialog}
         onReset={handleReset}
       />
 
       <ConfirmSelectPresetDialog
-        isOpen={isPresetChangeDialogOpen}
-        onClose={closePresetChangeDialog}
+        isOpen={activeDialog === "presetChange"}
+        onClose={closeDialog}
         onSelect={handleConfirmPresetChange}
       />
     </>

@@ -13,9 +13,7 @@ type PresetActionsProps = {
 export const PresetActions: React.FC<PresetActionsProps> = ({
   onOpenFromFile,
 }) => {
-  const openSaveDialog = useDialogStore((state) => state.openSaveDialog);
-  const openSharingDialog = useDialogStore((state) => state.openSharingDialog);
-  const openResetDialog = useDialogStore((state) => state.openResetDialog);
+  const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
     <div className="neu mt-2 grid grid-cols-4 rounded-lg">
@@ -24,7 +22,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openSaveDialog}
+            onClick={() => openDialog("save")}
             className="w-full rounded-l-lg"
           >
             <MdOutlineSaveAlt
@@ -56,7 +54,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openSharingDialog}
+            onClick={() => openDialog("share")}
             className="w-full"
           >
             <IoIosShareAlt
@@ -72,7 +70,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             variant="hardware"
             size="icon"
-            onClick={openResetDialog}
+            onClick={() => openDialog("reset")}
             className="w-full rounded-r-lg"
           >
             <RxReset
