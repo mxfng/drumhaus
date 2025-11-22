@@ -87,14 +87,14 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Download</DialogTitle>
+          <DialogTitle>Save Preset</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
         <form onSubmit={handleSubmit}>
           <div className="pb-6">
             <DialogDescription className="pb-6">
-              To download your preset, enter a custom preset name.
+              To save your preset, enter a custom preset name.
             </DialogDescription>
 
             <Label htmlFor="presetName" className="mb-2 block">
@@ -115,7 +115,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={!isValid}>
-              Download
+              Save
             </Button>
           </DialogFooter>
         </form>

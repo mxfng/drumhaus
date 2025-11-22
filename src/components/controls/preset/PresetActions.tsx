@@ -18,7 +18,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   return (
     <div className="neu mt-2 grid grid-cols-4 rounded-lg">
       <div className="flex items-center justify-center">
-        <Tooltip content="Download to file" delayDuration={500}>
+        <Tooltip content="Save preset" delayDuration={500}>
           <Button
             variant="hardware"
             size="icon"
@@ -34,7 +34,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </div>
 
       <div className="flex items-center justify-center">
-        <Tooltip content="Load from file" delayDuration={500}>
+        <Tooltip content="Load preset" delayDuration={500}>
           <Button
             variant="hardware"
             size="icon"
@@ -50,7 +50,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </div>
 
       <div className="flex items-center justify-center">
-        <Tooltip content="Share as link" delayDuration={500}>
+        <Tooltip content="Share preset" delayDuration={500}>
           <Button
             variant="hardware"
             size="icon"

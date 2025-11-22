@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 
-import { Button } from "@/components/ui";
+import { Button, Tooltip } from "@/components/ui";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/useLayoutScale";
@@ -159,14 +159,16 @@ const MainControls = ({
       </div>
 
       <div className="flex w-full flex-row items-center justify-between px-8 py-4">
-        <Button
-          variant="hardware"
-          className="neu-tall-raised h-[140px] w-[140px] rounded-lg"
-          onClick={() => togglePlay(instrumentRuntimes)}
-          onKeyDown={(ev) => ev.preventDefault()}
-        >
-          {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
-        </Button>
+        <Tooltip content={isPlaying ? "Pause (Space)" : "Play (Space)"}>
+          <Button
+            variant="hardware"
+            className="neu-tall-raised h-[140px] w-[140px] rounded-lg"
+            onClick={() => togglePlay(instrumentRuntimes)}
+            onKeyDown={(ev) => ev.preventDefault()}
+          >
+            {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
+          </Button>
+        </Tooltip>
 
         <SequencerControl />
 
