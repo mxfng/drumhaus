@@ -68,8 +68,14 @@
     var(--color-gradient-light),
     var(--color-gradient-dark)
   );
-  --knob-shadow:
+  --knob-shadow-outer:
     14px -9px 9px var(--color-shadow-30), 4px -5px 5px var(--color-highlight-17);
+  --knob-shadow-ring: 0 0 2px 3px var(--color-shadow-30);
+  --knob-shadow-inset-highlight: inset 2px -2px 4px var(--color-highlight-30);
+  --knob-shadow-inset-shadow: inset -2px 2px 4px var(--color-shadow-60);
+  --knob-shadow:
+    var(--knob-shadow-outer), var(--knob-shadow-ring),
+    var(--knob-shadow-inset-highlight), var(--knob-shadow-inset-shadow);
 
   /* Sequencer component */
   --shadow-step-inset: inset 0 4px 8px var(--color-shadow);
@@ -374,6 +380,5 @@ a {
     transform-origin: top left;
     width: 923px;
     height: 618px;
-    transform: scale(0.6);
   }
 }

@@ -26,31 +26,14 @@ const KNOB_MOVE_EVENT_OPTIONS: AddEventListenerOptions = { passive: false };
 // Layout & Sizing Constants
 const KNOB_CONTAINER_PADDING = 30;
 const KNOB_MASK_PADDING = 10;
-const KNOB_WRAPPER_MARGIN = 8; // equivalent to Chakra m={2}
-const FULL_BORDER_RADIUS = 9999;
-const CENTER_FLEX_STYLE: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
 
 // Ticking/Markings
 const KNOB_TICK_WIDTH_DIVISOR = 4;
 const KNOB_TICK_HEIGHT_DIVISOR = 12;
-const KNOB_TICK_BORDER_RADIUS = "0 8px 8px 0";
 
 // Dot Indicator
 const KNOB_DOT_MIN_ROTATION = -180;
 const KNOB_DOT_MAX_ROTATION = 90;
-const KNOB_DOT_SIZE = 4;
-const KNOB_DOT_OPACITY = 0.3;
-
-// Label Styling
-const KNOB_LABEL_MARGIN_Y = -6;
-
-// Z-Index
-const KNOB_HITBOX_Z_INDEX = 2;
-const KNOB_TICK_Z_INDEX = 3;
 
 // Filter Labels
 const KNOB_FILTER_LOW_LABEL = "LP";
@@ -63,6 +46,74 @@ const quantizeToStep = (value: number, step: number) => {
   const normalizedStep = step > 0 ? step : 1;
   return Math.round(value / normalizedStep) * normalizedStep;
 };
+
+// Sub-components for better readability
+type KnobTickProps = {
+  size: number;
+};
+
+const KnobTick: React.FC<KnobTickProps> = ({ size }) => (
+  <div className="flex items-center justify-center">
+    <div
+      className="pointer-events-none absolute z-[3] flex items-center justify-center"
+      style={{ height: `${size}px`, width: `${size}px` }}
+    >
+      <div
+        className="bg-primary rounded-[0_8px_8px_0]"
+        style={{
+          width: `${size / KNOB_TICK_WIDTH_DIVISOR}px`,
+          height: `${Math.floor(size / KNOB_TICK_HEIGHT_DIVISOR)}px`,
+          transform: "rotate(90deg) translate(50%, 50%)",
+          boxShadow: `
+            inset -1px -1px 2px var(--color-shadow-60),
+            inset 1px 1px 1px var(--color-highlight-30)
+          `,
+        }}
+      />
+    </div>
+  </div>
+);
+
+type KnobDotProps = {
+  size: number;
+  rotation: number;
+  withShadow?: boolean;
+};
+
+const KnobDot: React.FC<KnobDotProps> = ({ size, rotation, withShadow }) => (
+  <motion.div
+    className="absolute"
+    style={{
+      rotate: rotation,
+      width: `${size}px`,
+      height: `${size}px`,
+      originX: KNOB_ROTATION_ORIGIN,
+      originY: KNOB_ROTATION_ORIGIN,
+    }}
+  >
+    <div
+      className={`bg-shadow absolute h-1 w-1 rounded-full opacity-30 ${
+        withShadow ? "shadow-[0_4px_12px_var(--color-shadow-60)]" : ""
+      }`}
+    />
+  </motion.div>
+);
+
+type KnobBodyProps = {
+  size: number;
+};
+
+const KnobBody: React.FC<KnobBodyProps> = ({ size }) => (
+  <div
+    className="relative rounded-full"
+    style={{
+      width: `${size}px`,
+      height: `${size}px`,
+      boxShadow: "var(--knob-shadow)",
+      background: "var(--knob-gradient)",
+    }}
+  />
+);
 
 export type KnobScale = "linear" | "exp" | "split-filter";
 export type KnobSize = "sm" | "md" | "lg";
@@ -263,33 +314,32 @@ export const Knob: React.FC<KnobProps> = ({
     return formatScaledValue(value);
   };
 
-  const knobContainerHeight = sizeInPixels + KNOB_CONTAINER_PADDING;
-  const knobMaskSize = sizeInPixels + KNOB_MASK_PADDING;
+  // Computed sizes
+  const containerHeight = sizeInPixels + KNOB_CONTAINER_PADDING;
+  const maskSize = sizeInPixels + KNOB_MASK_PADDING;
+
+  // Shared size style for elements that need dynamic pixel dimensions
+  const sizeStyle = { width: `${sizeInPixels}px`, height: `${sizeInPixels}px` };
 
   return (
-    <div style={{ height: `${knobContainerHeight}px` }}>
-      <div style={CENTER_FLEX_STYLE}>
+    <div style={{ height: `${containerHeight}px` }}>
+      {/* Knob Container */}
+      <div className="flex items-center justify-center">
         <div
-          key="knob-mask"
-          style={{
-            width: `${knobMaskSize}px`,
-            height: `${knobMaskSize}px`,
-            margin: `${KNOB_WRAPPER_MARGIN}px`,
-            position: "relative",
-            rotate: "90deg",
-          }}
+          className="relative m-2 rotate-90"
+          style={{ width: `${maskSize}px`, height: `${maskSize}px` }}
         >
+          {/* Interaction Area */}
           <div
-            style={{
-              ...CENTER_FLEX_STYLE,
-              width: "100%",
-              height: "100%",
-              borderRadius: FULL_BORDER_RADIUS,
-              cursor: isDisabled ? "not-allowed" : "grab",
-            }}
+            className={`flex h-full w-full items-center justify-center rounded-full ${
+              isDisabled ? "cursor-not-allowed" : "cursor-grab"
+            }`}
           >
+            {/* Rotatable Hitbox */}
             <motion.div
-              className="knob-hitbox"
+              className={`absolute z-2 rounded-full ${
+                isDisabled ? "pointer-events-none" : "pointer-events-auto"
+              }`}
               onMouseDown={isDisabled ? undefined : captureMoveStartY}
               onTouchStart={isDisabled ? undefined : captureMoveStartY}
               onDoubleClick={isDisabled ? undefined : handleDoubleClick}
@@ -299,110 +349,29 @@ export const Knob: React.FC<KnobProps> = ({
               aria-valuenow={value}
               style={{
                 rotate: rotation,
-                width: `${sizeInPixels}px`,
-                height: `${sizeInPixels}px`,
                 originX: KNOB_ROTATION_ORIGIN,
                 originY: KNOB_ROTATION_ORIGIN,
-                position: "absolute",
-                zIndex: KNOB_HITBOX_Z_INDEX,
-                borderRadius: sizeInPixels,
-                pointerEvents: isDisabled ? "none" : "auto",
+                ...sizeStyle,
               }}
             >
-              <div style={CENTER_FLEX_STYLE}>
-                <div
-                  className="knob-tick"
-                  style={{
-                    ...CENTER_FLEX_STYLE,
-                    height: `${sizeInPixels}px`,
-                    width: `${sizeInPixels}px`,
-                    position: "absolute",
-                    pointerEvents: "none",
-                    zIndex: KNOB_TICK_Z_INDEX,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${sizeInPixels / KNOB_TICK_WIDTH_DIVISOR}px`,
-                      height: `${Math.floor(sizeInPixels / KNOB_TICK_HEIGHT_DIVISOR)}px`,
-                      background: "var(--color-primary)",
-                      transform: "rotate(90deg) translate(50%, 50%)",
-                      borderRadius: KNOB_TICK_BORDER_RADIUS,
-                    }}
-                  />
-                </div>
-              </div>
+              <KnobTick size={sizeInPixels} />
             </motion.div>
-            <div
-              className="neu-tall-raised"
-              style={{
-                width: `${sizeInPixels}px`,
-                height: `${sizeInPixels}px`,
-                position: "relative",
-                borderRadius: FULL_BORDER_RADIUS,
-                boxShadow: "var(--knob-shadow)",
-                background: "var(--knob-gradient)",
-              }}
+
+            {/* Visual Elements */}
+            <KnobBody size={sizeInPixels} />
+            <KnobDot size={sizeInPixels} rotation={KNOB_DOT_MIN_ROTATION} />
+            <KnobDot
+              size={sizeInPixels}
+              rotation={KNOB_DOT_MAX_ROTATION}
+              withShadow
             />
-            <motion.div
-              className="knob-dot-min-transform"
-              style={{
-                rotate: KNOB_DOT_MIN_ROTATION,
-                width: `${sizeInPixels}px`,
-                height: `${sizeInPixels}px`,
-                originX: KNOB_ROTATION_ORIGIN,
-                originY: KNOB_ROTATION_ORIGIN,
-                position: "absolute",
-              }}
-            >
-              <div
-                className="knob-dot-min"
-                style={{
-                  width: `${KNOB_DOT_SIZE}px`,
-                  height: `${KNOB_DOT_SIZE}px`,
-                  background: "var(--color-shadow)",
-                  position: "absolute",
-                  borderRadius: FULL_BORDER_RADIUS,
-                  opacity: KNOB_DOT_OPACITY,
-                }}
-              />
-            </motion.div>
-            <motion.div
-              className="knob-dot-max-transform"
-              style={{
-                rotate: KNOB_DOT_MAX_ROTATION,
-                width: `${sizeInPixels}px`,
-                height: `${sizeInPixels}px`,
-                originX: KNOB_ROTATION_ORIGIN,
-                originY: KNOB_ROTATION_ORIGIN,
-                position: "absolute",
-              }}
-            >
-              <div
-                className="knob-dot-max"
-                style={{
-                  width: `${KNOB_DOT_SIZE}px`,
-                  height: `${KNOB_DOT_SIZE}px`,
-                  background: "var(--color-shadow)",
-                  position: "absolute",
-                  borderRadius: FULL_BORDER_RADIUS,
-                  opacity: KNOB_DOT_OPACITY,
-                  boxShadow: "0 4px 12px var(--color-shadow-60)",
-                }}
-              />
-            </motion.div>
           </div>
         </div>
       </div>
-      <div style={CENTER_FLEX_STYLE}>
-        <Label
-          style={{
-            marginTop: `${KNOB_LABEL_MARGIN_Y}px`,
-            marginBottom: `${KNOB_LABEL_MARGIN_Y}px`,
-          }}
-        >
-          {getDisplayLabel(value)}
-        </Label>
+
+      {/* Label */}
+      <div className="flex items-center justify-center">
+        <Label className="-my-1.5">{getDisplayLabel(value)}</Label>
       </div>
     </div>
   );
