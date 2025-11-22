@@ -38,15 +38,12 @@ const CENTER_FLEX_STYLE: React.CSSProperties = {
 const KNOB_TICK_WIDTH_DIVISOR = 4;
 const KNOB_TICK_HEIGHT_DIVISOR = 12;
 const KNOB_TICK_BORDER_RADIUS = "0 8px 8px 0";
-const KNOB_BOX_SHADOW =
-  "14px -9px 9px rgba(176, 147, 116, 0.3), 4px -5px 5px rgba(251, 245, 255, 0.17)";
 
 // Dot Indicator
 const KNOB_DOT_MIN_ROTATION = -180;
 const KNOB_DOT_MAX_ROTATION = 90;
 const KNOB_DOT_SIZE = 4;
 const KNOB_DOT_OPACITY = 0.3;
-const KNOB_DOT_SHADOW = "0 4px 12px rgba(176, 147, 116, 0.6)";
 
 // Label Styling
 const KNOB_LABEL_MARGIN_Y = -6;
@@ -328,7 +325,7 @@ export const Knob: React.FC<KnobProps> = ({
                     style={{
                       width: `${sizeInPixels / KNOB_TICK_WIDTH_DIVISOR}px`,
                       height: `${Math.floor(sizeInPixels / KNOB_TICK_HEIGHT_DIVISOR)}px`,
-                      background: "darkorange",
+                      background: "var(--color-primary)",
                       transform: "rotate(90deg) translate(50%, 50%)",
                       borderRadius: KNOB_TICK_BORDER_RADIUS,
                     }}
@@ -343,9 +340,8 @@ export const Knob: React.FC<KnobProps> = ({
                 height: `${sizeInPixels}px`,
                 position: "relative",
                 borderRadius: FULL_BORDER_RADIUS,
-                boxShadow: KNOB_BOX_SHADOW,
-                background:
-                  "linear-gradient(70deg,rgba(251, 245, 255, 1),rgba(239, 228, 217, 1))",
+                boxShadow: "var(--knob-shadow)",
+                background: "var(--knob-gradient)",
               }}
             />
             <motion.div
@@ -364,7 +360,7 @@ export const Knob: React.FC<KnobProps> = ({
                 style={{
                   width: `${KNOB_DOT_SIZE}px`,
                   height: `${KNOB_DOT_SIZE}px`,
-                  background: "#B09374",
+                  background: "var(--color-shadow)",
                   position: "absolute",
                   borderRadius: FULL_BORDER_RADIUS,
                   opacity: KNOB_DOT_OPACITY,
@@ -387,11 +383,11 @@ export const Knob: React.FC<KnobProps> = ({
                 style={{
                   width: `${KNOB_DOT_SIZE}px`,
                   height: `${KNOB_DOT_SIZE}px`,
-                  background: "#B09374",
+                  background: "var(--color-shadow)",
                   position: "absolute",
                   borderRadius: FULL_BORDER_RADIUS,
                   opacity: KNOB_DOT_OPACITY,
-                  boxShadow: KNOB_DOT_SHADOW,
+                  boxShadow: "0 4px 12px var(--color-shadow-60)",
                 }}
               />
             </motion.div>

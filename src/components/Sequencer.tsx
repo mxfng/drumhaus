@@ -142,7 +142,7 @@ export const Sequencer: React.FC = () => {
     return {
       className: state.isTriggerOn
         ? "bg-primary shadow-neu hover:primary-muted"
-        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40",
+        : "bg-instrument shadow-step-inset hover:bg-primary-muted/40",
       opacity: state.isGhosted ? 0.7 : 1,
     };
   };
@@ -210,7 +210,7 @@ export const Sequencer: React.FC = () => {
                 {state.isTriggerOn && (
                   <div
                     key={`sequence-step-trigger-glow-${step}`}
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]"
+                    className="step-glow pointer-events-none absolute inset-0"
                     style={{ borderRadius: `0 ${stepRadius} 0 ${stepRadius}` }}
                   />
                 )}

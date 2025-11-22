@@ -61,6 +61,23 @@
 
   /* Animation duration */
   --animate-duration: 150ms;
+
+  /* Knob component */
+  --knob-gradient: linear-gradient(
+    70deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+  --knob-shadow:
+    14px -9px 9px var(--color-shadow-30), 4px -5px 5px var(--color-highlight-17);
+
+  /* Sequencer component */
+  --shadow-step-inset: inset 0 4px 8px var(--color-shadow);
+  --gradient-step-glow: radial-gradient(
+    circle at 50% 50%,
+    var(--color-highlight-20) 0%,
+    transparent 55%
+  );
 }
 
 /* Base */
@@ -159,6 +176,15 @@ a {
     var(--color-gradient-light),
     var(--color-highlight-30)
   );
+}
+
+/* Sequencer utilities */
+.shadow-step-inset {
+  box-shadow: var(--shadow-step-inset);
+}
+
+.step-glow {
+  background: var(--gradient-step-glow);
 }
 
 /* Loader */
