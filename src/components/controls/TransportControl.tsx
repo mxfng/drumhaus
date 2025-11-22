@@ -78,7 +78,7 @@ export const TransportControl: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-10">
-      <div className="neu-tall relative w-full rounded-lg">
+      <div className="neu-medium-raised relative w-full rounded-lg">
         <div className="surface-raised relative flex h-full items-center rounded-lg">
           <Input
             ref={inputRef}

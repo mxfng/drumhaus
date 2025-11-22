@@ -162,7 +162,7 @@ const MainControls = ({
         <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
           <Button
             variant="hardware"
-            className="neu-tall-raised h-[140px] w-[140px] rounded-lg"
+            className="neu-medium-raised h-[140px] w-[140px] rounded-lg"
             onClick={() => togglePlay(instrumentRuntimes)}
             onKeyDown={(ev) => ev.preventDefault()}
           >
