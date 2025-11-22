@@ -92,11 +92,12 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const { duration: sampleDuration } = useSampleDuration(samplePath);
-  const prevSamplePathRef = useRef(samplePath);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
+  const [trackedSamplePath, setTrackedSamplePath] = useState(samplePath);
 
-  if (prevSamplePathRef.current !== samplePath) {
-    prevSamplePathRef.current = samplePath;
+  // Reset waveform error when sample path changes
+  if (samplePath !== trackedSamplePath) {
+    setTrackedSamplePath(samplePath);
     if (waveformError !== null) {
       setWaveformError(null);
     }
@@ -234,12 +235,12 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       >
         <div className="flex px-4">
           <span
-            className="pr-2 font-pixel text-xs font-black"
+            className="font-pixel pr-2 text-xs font-black"
             style={{ color }}
           >
             {index + 1}
           </span>
-          <span className="font-pixel text-xs font-semibold text-text-dark">
+          <span className="font-pixel text-text-dark text-xs font-semibold">
             {instrumentMeta.name}
           </span>
         </div>
@@ -351,9 +352,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                       disabled={!isRuntimeLoaded}
                     >
                       {mute ? (
-                        <ImVolumeMute2 className="mx-auto text-text" />
+                        <ImVolumeMute2 className="text-text mx-auto" />
                       ) : (
-                        <ImVolumeMute className="mx-auto text-text" />
+                        <ImVolumeMute className="text-text mx-auto" />
                       )}
                     </button>
                   </Tooltip>

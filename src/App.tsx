@@ -1,5 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
 
+import "@fontsource-variable/albert-sans";
+
 import {
   AppErrorBoundary,
   GlobalErrorHandler,
@@ -57,12 +59,12 @@ export function App() {
         <title>{title}</title>
         <meta
           name="description"
-          content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
+          content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
         />
         <meta property="og:title" content={title} />
         <meta
           property="og:description"
-          content="Drumhaus is the ultimate browser controlled rhythmic groove machine. Explore web based drum sampling with limitless creativity, and share it all with your friends."
+          content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
         />
         <AppErrorBoundary>
           <GlobalErrorHandler />

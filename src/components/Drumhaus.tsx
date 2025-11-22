@@ -78,7 +78,7 @@ const Drumhaus = () => {
           style={{ transform: `scale(${scale})` }}
         >
           <div className="animate-fade-in">
-            <div className="neumorphicExtraTall relative h-[1000px] w-[1538px] overflow-clip rounded-xl bg-[silver]">
+            <div className="neu-extra-tall bg-surface relative h-[1000px] w-[1538px] overflow-clip rounded-xl">
               <TopBar />
 
               <MainControls
@@ -118,12 +118,12 @@ const TopBar = () => {
           <DrumhausTypographyLogo color="#ff7b00" size={420} />
         </div>
         <div className="-mb-1 ml-4">
-          <p className="text-gray-500 opacity-70">Browser Controlled</p>
-          <p className="text-gray-500 opacity-70">Rhythmic Groove Machine</p>
+          <p className="opacity-70">Browser Controlled</p>
+          <p className="opacity-70">Rhythmic Groove Machine</p>
         </div>
       </div>
 
-      <div className="absolute bottom-[18px] right-[26px] overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
+      <div className="absolute right-[26px] bottom-[18px] overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
         <FrequencyAnalyzer />
       </div>
     </div>
@@ -158,7 +158,7 @@ const MainControls = ({
         <div className="col-span-1 mr-6 w-[160px]">
           <div className="flex h-full w-full items-center justify-center">
             <button
-              className="neumorphicTallRaised h-[140px] w-[140px] outline-none"
+              className="neu-tall-raised h-[140px] w-[140px] outline-none"
               onClick={() => togglePlay(instrumentRuntimes)}
               onKeyDown={(ev) => ev.preventDefault()}
             >
@@ -171,7 +171,7 @@ const MainControls = ({
           </div>
         </div>
 
-        <div className="col-span-1 -ml-3 mx-0">
+        <div className="col-span-1 mx-0 -ml-3">
           <SequencerControl />
         </div>
 
@@ -200,7 +200,7 @@ const SequencerSection = () => {
 const BrandingLink = () => {
   return (
     <a
-      className="absolute bottom-3 right-[26px] opacity-20"
+      className="absolute right-[26px] bottom-3 opacity-20"
       href="https://fung.studio/"
       target="_blank"
       rel="noreferrer"
@@ -214,7 +214,7 @@ const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
       <div className="mt-8 flex">
-        <p className="text-sm text-gray-500">Designed with love by</p>
+        <p className="text-muted text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"
           target="_blank"

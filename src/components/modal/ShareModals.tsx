@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
@@ -41,22 +41,26 @@ export const SharingModal: React.FC<SharingModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
-  const prevIsOpenRef = useRef(isOpen);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
   // Auto-populate with default name when modal opens
-  // Using ref comparison during render avoids setState in effect
-  if (isOpen && !prevIsOpenRef.current && defaultName) {
+  if (isOpen && !wasOpen && defaultName) {
     setPresetName(defaultName);
   }
-  prevIsOpenRef.current = isOpen;
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+  }
 
   // Auto-focus input when modal opens
-  if (isOpen && inputRef.current) {
-    setTimeout(() => {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }, 100);
-  }
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setPresetName("");
@@ -102,7 +106,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
             <div className="flex h-full items-center pl-4">
               <input
                 ref={inputRef}
-                className="h-full w-full bg-transparent font-pixel text-text outline-none placeholder:text-text-light"
+                className="font-pixel text-text placeholder:text-text-light h-full w-full bg-transparent outline-none"
                 placeholder="Enter a custom preset name"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
@@ -115,7 +119,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
           <button
             onClick={handleShare}
             disabled={!presetName.trim() || isLoading}
-            className="flex items-center rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-accent font-pixel hover:bg-accent-hover flex items-center rounded-md px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span className="mr-2">Get Link</span>
             {isLoading && (
@@ -124,7 +128,7 @@ export const SharingModal: React.FC<SharingModalProps> = ({
           </button>
           <button
             onClick={handleClose}
-            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
           >
             Cancel
           </button>
@@ -164,18 +168,18 @@ export const SharedModal: React.FC<SharedModalProps> = ({
             <div className="flex h-full items-center justify-center">
               <button
                 onClick={() => onCopy(shareableLink)}
-                className="w-full select-all truncate px-3 font-pixel text-sm text-text"
+                className="font-pixel text-text w-full truncate px-3 text-sm select-all"
               >
                 {shareableLink}
               </button>
             </div>
           </div>
 
-          <div className="mt-4 rounded-md bg-shadow-10 p-3">
-            <p className="mb-1 font-pixel text-xs font-bold text-text">
+          <div className="bg-shadow-10 mt-4 rounded-md p-3">
+            <p className="font-pixel text-text mb-1 text-xs font-bold">
               Fun Fact
             </p>
-            <p className="font-pixel text-xs leading-relaxed text-text">
+            <p className="font-pixel text-text text-xs leading-relaxed">
               Your entire preset is packed into this URL, squeezed from 900+
               lines of JSON down to a few hundred characters using DEFLATE (via
               pako), bit-packed triggers, quantized velocities, and a handful of
@@ -188,13 +192,13 @@ export const SharedModal: React.FC<SharedModalProps> = ({
         <DialogFooter>
           <button
             onClick={() => onCopy(shareableLink)}
-            className="rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover"
+            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white"
           >
             {hasCopied ? "Copied!" : "Copy Link"}
           </button>
           <button
             onClick={onClose}
-            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
           >
             Close
           </button>

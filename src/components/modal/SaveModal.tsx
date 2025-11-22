@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import {
@@ -38,22 +38,26 @@ export const SaveModal: React.FC<SaveModalProps> = ({
   const [presetName, setPresetName] = useState("");
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
-  const prevIsOpenRef = useRef(isOpen);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
   // Auto-populate with default name when modal opens
-  // Using ref comparison during render avoids setState in effect
-  if (isOpen && !prevIsOpenRef.current && defaultName) {
+  if (isOpen && !wasOpen && defaultName) {
     setPresetName(defaultName);
   }
-  prevIsOpenRef.current = isOpen;
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+  }
 
   // Auto-focus input when modal opens
-  if (isOpen && inputRef.current) {
-    setTimeout(() => {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }, 100);
-  }
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setPresetName("");
@@ -95,7 +99,7 @@ export const SaveModal: React.FC<SaveModalProps> = ({
             <div className="flex h-full items-center pl-4">
               <input
                 ref={inputRef}
-                className="h-full w-full bg-transparent font-pixel text-text outline-none placeholder:text-text-light"
+                className="font-pixel text-text placeholder:text-text-light h-full w-full bg-transparent outline-none"
                 placeholder="Preset name"
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
@@ -108,13 +112,13 @@ export const SaveModal: React.FC<SaveModalProps> = ({
           <button
             onClick={handleSave}
             disabled={!presetName.trim()}
-            className="rounded-md bg-accent px-4 py-2 font-pixel text-sm text-white hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-accent font-pixel hover:bg-accent-hover rounded-md px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             Download
           </button>
           <button
             onClick={handleClose}
-            className="rounded-md px-4 py-2 font-pixel text-sm text-text hover:bg-lowlight"
+            className="font-pixel text-text hover:bg-lowlight rounded-md px-4 py-2 text-sm"
           >
             Cancel
           </button>
