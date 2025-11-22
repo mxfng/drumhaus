@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { z } from "zod";
 
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import {
@@ -11,19 +10,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Input,
+  Label,
   useToast,
 } from "@/components/ui";
 import { useClipboard } from "@/hooks/useClipboard";
-
-// Validation schema for preset names
-const presetNameSchema = z
-  .string()
-  .min(1, "Preset name cannot be empty")
-  .max(20, "Preset name must be at most 20 characters")
-  .refine(
-    (name) => !/[/\\:*?"<>|]/.test(name),
-    'Preset name contains invalid characters (/, \\, :, *, ?, ", <, >, |)',
-  );
+import { presetNameSchema } from "@/lib/schemas";
 
 type ShareStep = "input" | "result";
 
@@ -44,9 +36,19 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
   const [presetName, setPresetName] = useState("");
   const [shareableLink, setShareableLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [wasOpen, setWasOpen] = useState(isOpen);
   const { toast } = useToast();
   const { onCopy, hasCopied } = useClipboard();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-populate with default name when dialog opens
+  if (isOpen && !wasOpen && defaultName) {
+    setPresetName(defaultName);
+  }
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+  }
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -55,15 +57,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       setPresetName("");
       setShareableLink("");
       setIsLoading(false);
+      setError(null);
     }
   }, [isOpen]);
-
-  // Auto-populate with default name when dialog opens
-  useEffect(() => {
-    if (isOpen && step === "input" && defaultName && !presetName) {
-      setPresetName(defaultName);
-    }
-  }, [isOpen, step, defaultName, presetName]);
 
   // Auto-focus input when on input step
   useEffect(() => {
@@ -76,17 +72,25 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     }
   }, [isOpen, step]);
 
-  const handleShare = async () => {
-    // Validate preset name
-    const validation = presetNameSchema.safeParse(presetName.trim());
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPresetName(value);
 
-    if (!validation.success) {
-      toast({
-        title: "Invalid preset name",
-        description: validation.error.issues[0].message,
-        status: "error",
-        duration: 3000,
-      });
+    // Validate on change
+    const result = presetNameSchema.safeParse(value);
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+    } else {
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const result = presetNameSchema.safeParse(presetName.trim());
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
 
@@ -108,6 +112,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     }
   };
 
+  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -118,45 +124,47 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </DialogHeader>
             <DialogCloseButton />
 
-            <div className="pb-6">
-              <DialogDescription className="pb-6">
-                Drumhaus can generate a custom link for you to share your
-                presets with.
-              </DialogDescription>
+            <form onSubmit={handleSubmit}>
+              <div className="pb-6">
+                <DialogDescription className="pb-6">
+                  Drumhaus can generate a custom link for you to share your
+                  presets with.
+                </DialogDescription>
 
-              <div className="h-10 w-4/5 rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
-                <div className="flex h-full items-center pl-4">
-                  <input
-                    ref={inputRef}
-                    className="font-pixel placeholder:-light h-full w-full bg-transparent outline-none"
-                    placeholder="Enter a custom preset name"
-                    value={presetName}
-                    onChange={(e) => setPresetName(e.target.value)}
-                  />
-                </div>
+                <Label htmlFor="presetName" className="mb-2 block">
+                  Preset name
+                </Label>
+                <Input
+                  id="presetName"
+                  ref={inputRef}
+                  placeholder="Enter preset name"
+                  value={presetName}
+                  onChange={handleChange}
+                />
+                {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
               </div>
-            </div>
 
-            <DialogFooter>
-              <Button variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleShare}
-                disabled={!presetName.trim() || isLoading}
-                className="flex items-center"
-              >
-                <span className="mr-2">Get Link</span>
-                {isLoading && (
-                  <PixelatedSpinner
-                    color="white"
-                    size={20}
-                    pixelSize={2}
-                    gap={2}
-                  />
-                )}
-              </Button>
-            </DialogFooter>
+              <DialogFooter>
+                <Button variant="secondary" onClick={onClose} type="button">
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isValid || isLoading}
+                  className="flex items-center"
+                >
+                  <span className="mr-2">Get Link</span>
+                  {isLoading && (
+                    <PixelatedSpinner
+                      color="white"
+                      size={20}
+                      pixelSize={2}
+                      gap={2}
+                    />
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
           </>
         ) : (
           <>

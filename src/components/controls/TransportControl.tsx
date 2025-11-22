@@ -7,7 +7,7 @@ import {
 } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { CustomSlider } from "../common/CustomSlider";
-import { Label } from "../ui";
+import { Input, Label } from "../ui";
 
 // Constants
 const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
@@ -80,9 +80,9 @@ export const TransportControl: React.FC = () => {
     <div className="flex flex-col items-center justify-center gap-10">
       <div className="neu-tall relative w-full rounded-lg">
         <div className="surface-raised relative flex h-full items-center rounded-lg">
-          <input
+          <Input
             ref={inputRef}
-            className="font-pixel my-3 ml-3 h-full w-[103px] rounded-l-lg border-0 bg-transparent text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)] outline-none selection:bg-[rgba(255,140,0,0.5)] focus:shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            className="my-3 ml-3 w-[103px] rounded-l-lg px-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
             value={bpmInputValue}
             onChange={handleBpmChange}
             onBlur={handleBlur}
