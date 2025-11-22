@@ -16,7 +16,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="neu mt-2 grid grid-cols-4 rounded-lg">
+    <div className="hardware-button-group mt-2 grid grid-cols-4 rounded-lg">
       <div className="flex items-center justify-center">
         <Tooltip content="Save preset" delayDuration={500}>
           <Button

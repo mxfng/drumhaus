@@ -141,7 +141,7 @@ export const Sequencer: React.FC = () => {
   const getTriggerStyles = (state: StepMusicalState) => {
     return {
       className: state.isTriggerOn
-        ? "bg-primary shadow-neu hover:primary-muted"
+        ? "bg-primary shadow-[var(--step-shadow-on)] hover:primary-muted"
         : "bg-instrument shadow-step-inset hover:bg-primary-muted/40",
       opacity: state.isGhosted ? 0.7 : 1,
     };

@@ -241,7 +241,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         <span className="font-pixel text-lg" style={{ color }}>
           {index + 1}
         </span>
-        <Label className="text-foreground-emphasis text-lg font-medium">
+        <Label className="text-foreground-emphasis font-pixel text-lg font-medium">
           {instrumentMeta.name}
         </Label>
       </div>
@@ -336,7 +336,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               displayRange={[-100, 100]}
               isDisabled={!isRuntimeLoaded}
             />
-            <div className="flex rounded-lg shadow-[0_2px_4px_var(--color-shadow-60)]">
+            <div className="hardware-button-group flex rounded-lg">
               <Tooltip content="Mute [M]" delayDuration={500}>
                 <Button
                   variant="hardware"

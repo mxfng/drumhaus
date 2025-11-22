@@ -70,15 +70,22 @@
   );
   --knob-shadow-outer:
     14px -9px 9px var(--color-shadow-30), 4px -5px 5px var(--color-highlight-17);
-  --knob-shadow-ring: 0 0 2px 3px var(--color-shadow-30);
-  --knob-shadow-inset-highlight: inset 2px -2px 4px var(--color-highlight-30);
-  --knob-shadow-inset-shadow: inset -2px 2px 4px var(--color-shadow-60);
+  --knob-shadow-ring: 0 0 2px 3px var(--color-shadow-10);
+  --knob-shadow-inset-highlight: inset 1px -1px 1px var(--color-highlight-30);
+  --knob-shadow-inset-shadow: inset -1px 1px 1px var(--color-shadow-30);
   --knob-shadow:
     var(--knob-shadow-outer), var(--knob-shadow-ring),
     var(--knob-shadow-inset-highlight), var(--knob-shadow-inset-shadow);
 
   /* Sequencer component */
-  --shadow-step-inset: inset 0 4px 8px var(--color-shadow);
+  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-30);
+  --step-shadow-inset-highlight: inset 1px -1px 1px var(--color-highlight-30);
+  --step-shadow-inset-shadow: inset -1px 1px 1px var(--color-shadow-30);
+  --step-shadow-on:
+    var(--shadow-neu), var(--step-shadow-ring),
+    var(--step-shadow-inset-highlight), var(--step-shadow-inset-shadow);
+  --shadow-step-inset:
+    inset 0 4px 8px var(--color-shadow), var(--step-shadow-ring);
   --gradient-step-glow: radial-gradient(
     circle at 50% 50%,
     var(--color-highlight-20) 0%,
@@ -152,6 +159,12 @@ a {
     var(--color-gradient-light),
     var(--color-gradient-dark)
   );
+}
+
+.hardware-button-group {
+  box-shadow:
+    var(--shadow-neu),
+    0 0 2px 3px var(--color-shadow-30);
 }
 
 .surface {
