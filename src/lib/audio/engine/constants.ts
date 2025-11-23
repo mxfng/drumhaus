@@ -77,6 +77,14 @@ export const TAPE_PRESENCE_FREQ = 2500; // Hz - air and clarity
 export const TAPE_PRESENCE_Q = 0.8; // Wide and smooth
 export const TAPE_PRESENCE_GAIN = 1.2; // dB - subtle lift before saturation
 
+// Inflator - Oxford Inflator style upward compression (hidden processing)
+// Increases perceived loudness without squashing peaks
+export const INFLATOR_INPUT_GAIN = 0; // dB - unity into the effect
+export const INFLATOR_EFFECT = 0.25; // Wet/dry mix (25%)
+export const INFLATOR_CURVE = 4; // Waveshaping curve intensity (gentler)
+export const INFLATOR_OUTPUT_GAIN = -1.5; // dB - subtle compensation
+export const INFLATOR_CROSSOVER_FREQ = 240; // Hz - band split frequency
+
 // High shelf rolloff - tape head losses and silk top end
 export const MASTER_HIGH_SHELF_FREQ = 6000; // Hz - tape-style rolloff point
 export const MASTER_HIGH_SHELF_GAIN = -2.5; // dB - smooth "silk" top end

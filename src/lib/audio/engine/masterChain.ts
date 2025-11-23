@@ -20,6 +20,11 @@ import {
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
 import {
+  INFLATOR_CROSSOVER_FREQ,
+  INFLATOR_CURVE,
+  INFLATOR_EFFECT,
+  INFLATOR_INPUT_GAIN,
+  INFLATOR_OUTPUT_GAIN,
   MASTER_COMP_ATTACK,
   MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_KNEE,
@@ -82,6 +87,15 @@ export interface MasterChainRuntimes {
   tapeLowShelf: BiquadFilter; // NAB curve bass warmth
   tapePresence: BiquadFilter; // HF driver character before saturation
   tapeSaturation: WaveShaper; // Soft saturation with even harmonics
+  // Inflator (Oxford style - multiband upward compression)
+  inflatorInputGain: Gain; // Drive into the effect
+  inflatorLowPass: Filter; // Crossover low band
+  inflatorHighPass: Filter; // Crossover high band
+  inflatorLowShaper: WaveShaper; // Low band waveshaping
+  inflatorHighShaper: WaveShaper; // High band waveshaping
+  inflatorWetGain: Gain; // Wet signal level
+  inflatorDryGain: Gain; // Dry signal level
+  inflatorOutputGain: Gain; // Final output compensation
   // Output processing
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Tape head losses / silk top end
@@ -172,6 +186,14 @@ export function disposeMasterChainRuntimes(
     { name: "tapeLowShelf", node: runtimes.current.tapeLowShelf },
     { name: "tapePresence", node: runtimes.current.tapePresence },
     { name: "tapeSaturation", node: runtimes.current.tapeSaturation },
+    { name: "inflatorInputGain", node: runtimes.current.inflatorInputGain },
+    { name: "inflatorLowPass", node: runtimes.current.inflatorLowPass },
+    { name: "inflatorHighPass", node: runtimes.current.inflatorHighPass },
+    { name: "inflatorLowShaper", node: runtimes.current.inflatorLowShaper },
+    { name: "inflatorHighShaper", node: runtimes.current.inflatorHighShaper },
+    { name: "inflatorWetGain", node: runtimes.current.inflatorWetGain },
+    { name: "inflatorDryGain", node: runtimes.current.inflatorDryGain },
+    { name: "inflatorOutputGain", node: runtimes.current.inflatorOutputGain },
     { name: "presenceDip", node: runtimes.current.presenceDip },
     { name: "highShelf", node: runtimes.current.highShelf },
     { name: "limiter", node: runtimes.current.limiter },
@@ -263,8 +285,27 @@ export function chainMasterChainNodes(
     masterChain.tapeSaturation,
   );
 
-  // Filters (after tape emulation)
-  masterChain.tapeSaturation.chain(
+  // Inflator (after tape): multiband upward compression
+  masterChain.tapeSaturation.connect(masterChain.inflatorInputGain);
+
+  // Wet path: split into bands, shape each, sum back
+  masterChain.inflatorInputGain.connect(masterChain.inflatorLowPass);
+  masterChain.inflatorInputGain.connect(masterChain.inflatorHighPass);
+  masterChain.inflatorLowPass.connect(masterChain.inflatorLowShaper);
+  masterChain.inflatorHighPass.connect(masterChain.inflatorHighShaper);
+  // Both bands sum into wet gain
+  masterChain.inflatorLowShaper.connect(masterChain.inflatorWetGain);
+  masterChain.inflatorHighShaper.connect(masterChain.inflatorWetGain);
+
+  // Dry path: bypass the shapers
+  masterChain.inflatorInputGain.connect(masterChain.inflatorDryGain);
+
+  // Wet and dry sum into output gain
+  masterChain.inflatorWetGain.connect(masterChain.inflatorOutputGain);
+  masterChain.inflatorDryGain.connect(masterChain.inflatorOutputGain);
+
+  // Filters (after inflator)
+  masterChain.inflatorOutputGain.chain(
     masterChain.lowPassFilter,
     masterChain.highPassFilter,
   );
@@ -381,6 +422,33 @@ export async function buildMasterChainNodes(
     );
   }, 4096);
 
+  // Inflator section (Oxford Inflator style - multiband upward compression)
+  const inflatorInputGain = new Gain(Math.pow(10, INFLATOR_INPUT_GAIN / 20));
+
+  // Crossover filters for band split
+  const inflatorLowPass = new Filter(INFLATOR_CROSSOVER_FREQ, "lowpass");
+  const inflatorHighPass = new Filter(INFLATOR_CROSSOVER_FREQ, "highpass");
+
+  // Inflator waveshaping curve - gentle upward compression
+  const inflatorCurve = (x: number) => {
+    // Polynomial curve that increases quieter parts more than louder parts
+    // Similar to soft-knee upward compression - transparent loudness boost
+    const curve = INFLATOR_CURVE / 10; // Normalize to gentler range
+    const squared = x * x;
+    // Adds body to signal without harsh clipping
+    return x * (1 + curve * (1 - Math.abs(x))) * (1 - squared * 0.1);
+  };
+
+  const inflatorLowShaper = new WaveShaper(inflatorCurve, 4096);
+  const inflatorHighShaper = new WaveShaper(inflatorCurve, 4096);
+
+  // Wet/dry mix
+  const inflatorWetGain = new Gain(INFLATOR_EFFECT);
+  const inflatorDryGain = new Gain(1 - INFLATOR_EFFECT);
+
+  // Output compensation
+  const inflatorOutputGain = new Gain(Math.pow(10, INFLATOR_OUTPUT_GAIN / 20));
+
   // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
   const presenceDip = new BiquadFilter({
     frequency: MASTER_PRESENCE_FREQ,
@@ -415,6 +483,14 @@ export async function buildMasterChainNodes(
     tapeLowShelf,
     tapePresence,
     tapeSaturation,
+    inflatorInputGain,
+    inflatorLowPass,
+    inflatorHighPass,
+    inflatorLowShaper,
+    inflatorHighShaper,
+    inflatorWetGain,
+    inflatorDryGain,
+    inflatorOutputGain,
     presenceDip,
     highShelf,
     limiter,
