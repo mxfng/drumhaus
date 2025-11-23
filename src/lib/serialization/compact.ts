@@ -35,15 +35,7 @@ const DEFAULT_PARAMS: InstrumentParams = {
   mute: false,
 };
 
-const DEFAULT_MASTER_CHAIN: MasterChainParams = {
-  lowPass: 100,
-  highPass: 0,
-  phaser: 0,
-  reverb: 0,
-  compThreshold: 0,
-  compRatio: 0,
-  masterVolume: 92,
-};
+const DEFAULT_MASTER_CHAIN: MasterChainParams = init().masterChain;
 
 // --- BIT PACKING FOR TRIGGERS ---
 
@@ -157,6 +149,7 @@ type CompactMasterChain = Partial<{
   rv: number; // reverb
   ct: number; // compThreshold
   cr: number; // compRatio
+  cm: number; // compMix
   mv: number; // masterVolume
 }>;
 
@@ -209,6 +202,7 @@ function encodeMasterChain(
     mc.ct = chain.compThreshold;
   if (chain.compRatio !== DEFAULT_MASTER_CHAIN.compRatio)
     mc.cr = chain.compRatio;
+  if (chain.compMix !== DEFAULT_MASTER_CHAIN.compMix) mc.cm = chain.compMix;
   if (chain.masterVolume !== DEFAULT_MASTER_CHAIN.masterVolume)
     mc.mv = chain.masterVolume;
 
@@ -294,6 +288,7 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
     reverb: compact?.rv ?? DEFAULT_MASTER_CHAIN.reverb,
     compThreshold: compact?.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
     compRatio: compact?.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
+    compMix: compact?.cm ?? DEFAULT_MASTER_CHAIN.compMix,
     masterVolume: compact?.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
   };
 }

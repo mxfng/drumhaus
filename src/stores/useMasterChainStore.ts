@@ -16,6 +16,7 @@ export function getMasterChainParams(): MasterChainParams {
     reverb: state.reverb,
     compThreshold: state.compThreshold,
     compRatio: state.compRatio,
+    compMix: state.compMix,
     masterVolume: state.masterVolume,
   };
 }
@@ -30,6 +31,7 @@ interface MasterChainState {
   // Compressor
   compThreshold: number;
   compRatio: number;
+  compMix: number;
 
   // Master output
   masterVolume: number;
@@ -41,6 +43,7 @@ interface MasterChainState {
   setReverb: (reverb: number) => void;
   setCompThreshold: (compThreshold: number) => void;
   setCompRatio: (compRatio: number) => void;
+  setCompMix: (compMix: number) => void;
   setMasterVolume: (masterVolume: number) => void;
 
   // Batch setters for preset loading
@@ -58,6 +61,7 @@ export const useMasterChainStore = create<MasterChainState>()(
         reverb: 0,
         compThreshold: 50,
         compRatio: 50,
+        compMix: 70, // API 2500 style: 70% wet for parallel compression
         masterVolume: 92,
 
         // Individual setters
@@ -85,6 +89,10 @@ export const useMasterChainStore = create<MasterChainState>()(
           set({ compRatio });
         },
 
+        setCompMix: (compMix) => {
+          set({ compMix });
+        },
+
         setMasterVolume: (masterVolume) => {
           set({ masterVolume });
         },
@@ -98,6 +106,7 @@ export const useMasterChainStore = create<MasterChainState>()(
             reverb: params.reverb,
             compThreshold: params.compThreshold,
             compRatio: params.compRatio,
+            compMix: params.compMix,
             masterVolume: params.masterVolume,
           });
         },
@@ -112,6 +121,7 @@ export const useMasterChainStore = create<MasterChainState>()(
           reverb: state.reverb,
           compThreshold: state.compThreshold,
           compRatio: state.compRatio,
+          compMix: state.compMix,
           masterVolume: state.masterVolume,
         }),
       },

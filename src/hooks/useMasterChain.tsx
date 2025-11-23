@@ -55,6 +55,7 @@ export function useMasterChain({
           reverb: state.reverb,
           compThreshold: state.compThreshold,
           compRatio: state.compRatio,
+          compMix: state.compMix,
           masterVolume: state.masterVolume,
         };
 
@@ -67,6 +68,7 @@ export function useMasterChain({
           prevParams.reverb !== currentParams.reverb ||
           prevParams.compThreshold !== currentParams.compThreshold ||
           prevParams.compRatio !== currentParams.compRatio ||
+          prevParams.compMix !== currentParams.compMix ||
           prevParams.masterVolume !== currentParams.masterVolume
         ) {
           updateMasterChainParams(masterChainRuntimes.current, currentParams);
