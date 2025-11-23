@@ -57,6 +57,25 @@ export type MasterChainSettings = {
 // -----------------------------------------------------------------------------
 
 /**
+ * Initializes master chain nodes with settings and chains them to a destination.
+ * Shared between online and offline contexts.
+ *
+ * @param params The master chain parameters from the store
+ * @param destination The destination node (getDestination() for online, offline destination for export)
+ * @returns The initialized master chain runtimes
+ */
+export async function initializeMasterChain(
+  params: MasterChainParams,
+  destination: ToneAudioNode,
+): Promise<MasterChainRuntimes> {
+  const settings = mapParamsToSettings(params);
+  const nodes = await buildMasterChainNodes(settings);
+  applySettingsToRuntimes(nodes, settings);
+  chainMasterChainNodes(nodes, destination);
+  return nodes;
+}
+
+/**
  * Creates and initializes all master chain audio runtimes.
  * Disposes existing runtimes before creating new ones to prevent memory leaks.
  */
@@ -65,10 +84,7 @@ export async function createMasterChainRuntimes(
   params: MasterChainParams,
 ): Promise<void> {
   disposeMasterChainRuntimes(runtimes);
-  const settings = mapParamsToSettings(params);
-  const mcRuntimes = await buildMasterChainNodes(settings);
-  applySettingsToRuntimes(mcRuntimes, settings);
-  runtimes.current = mcRuntimes;
+  runtimes.current = await initializeMasterChain(params, getDestination());
 }
 
 /**
@@ -116,6 +132,8 @@ export function disposeMasterChainRuntimes(
 
 /**
  * Connects an instrument runtime to the master chain.
+ * Only connects instrument output to the first master node - the master chain
+ * itself should already be chained to the destination via chainMasterChainNodes.
  */
 export function connectInstrumentRuntime(
   instrument: InstrumentRuntime,
@@ -127,19 +145,16 @@ export function connectInstrumentRuntime(
   instrument.filterNode.disconnect();
   instrument.pannerNode.disconnect();
 
-  // Chain instrument through master chain to destination.
-  // Note: Master chain order is mirrored in chainMasterChainNodes for consistency.
+  // Chain instrument nodes together
   instrument.samplerNode.chain(
     instrument.envelopeNode,
     instrument.filterNode,
     instrument.pannerNode,
-    master.lowPassFilter,
-    master.highPassFilter,
-    master.phaser,
-    master.reverb,
-    master.compressor,
-    getDestination(),
   );
+
+  // Connect instrument output to the first master chain node (summing point)
+  // Multiple instruments connecting here are naturally summed by Web Audio
+  instrument.pannerNode.connect(master.lowPassFilter);
 }
 
 /**
@@ -256,7 +271,7 @@ export function mapParamsToSettings(
  * Applies master chain settings to runtime nodes.
  * Shared between online and offline contexts.
  */
-export function applySettingsToRuntimes(
+function applySettingsToRuntimes(
   runtimes: MasterChainRuntimes,
   settings: MasterChainSettings,
 ): void {
@@ -272,12 +287,4 @@ export function applySettingsToRuntimes(
 
   // Master volume is applied directly to the global destination.
   getDestination().volume.value = settings.masterVolume;
-}
-
-/**
- * Converts dB value to linear gain for use with Gain nodes.
- * Used for offline rendering where Gain nodes expect linear values.
- */
-export function dbToLinearGain(db: number): number {
-  return Math.pow(10, db / 20);
 }
