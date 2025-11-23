@@ -916,6 +916,7 @@
     "reverb": 0,
     "compThreshold": 100,
     "compRatio": 43,
+    "compMix": 70,
     "masterVolume": 92
   }
 }

@@ -190,9 +190,9 @@ const MainControls = ({
 
         <PresetControl loadPreset={loadPreset} />
 
-        <MasterFX />
-
         <MasterCompressor />
+
+        <MasterFX />
 
         <MasterVolume />
       </div>
