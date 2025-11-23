@@ -1,4 +1,4 @@
-import { FolderOpen, RotateCcw, Save, Share2 } from "lucide-react";
+import { Download, FolderOpen, Save, Share2 } from "lucide-react";
 
 import { Button, Tooltip } from "@/components/ui";
 import { useDialogStore } from "@/stores/useDialogStore";
@@ -63,14 +63,14 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </div>
 
       <div className="flex items-center justify-center">
-        <Tooltip content="Reset all" delayDuration={500}>
+        <Tooltip content="Export WAV" delayDuration={500}>
           <Button
             variant="hardware"
             size="icon"
-            onClick={() => openDialog("reset")}
+            onClick={() => openDialog("export")}
             className="w-full rounded-r-lg"
           >
-            <RotateCcw
+            <Download
               className="group-hover:text-accent transition-all duration-200"
               size={20}
             />

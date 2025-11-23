@@ -151,12 +151,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 <Button
                   type="submit"
                   disabled={!isValid || isLoading}
-                  className="flex items-center"
+                  className="text-primary-foreground flex items-center"
                 >
                   <span className="mr-2">Get Link</span>
                   {isLoading && (
                     <PixelatedSpinner
-                      color="white"
+                      color="currentColor"
                       size={20}
                       pixelSize={2}
                       gap={2}

@@ -11,7 +11,7 @@ import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
 import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";
-import { ResetDialog } from "../dialog/ResetDialog";
+import { ExportDialog } from "../dialog/ExportDialog";
 import { SaveDialog } from "../dialog/SaveDialog";
 import { ShareDialog } from "../dialog/ShareDialog";
 import { KitSelector } from "./preset/KitSelector";
@@ -312,11 +312,6 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     if (preset) loadPreset(preset);
   };
 
-  const handleReset = () => {
-    closeDialog();
-    loadPreset(presets.init());
-  };
-
   // ============================================================================
   // EFFECTS
   // ============================================================================
@@ -364,11 +359,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         defaultName={getDefaultPresetName()}
       />
 
-      <ResetDialog
-        isOpen={activeDialog === "reset"}
-        onClose={closeDialog}
-        onReset={handleReset}
-      />
+      <ExportDialog isOpen={activeDialog === "export"} onClose={closeDialog} />
 
       <ConfirmSelectPresetDialog
         isOpen={activeDialog === "presetChange"}

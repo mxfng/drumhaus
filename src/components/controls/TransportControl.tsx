@@ -6,7 +6,7 @@ import {
   TRANSPORT_SWING_RANGE,
 } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
-import { CustomSlider } from "../common/CustomSlider";
+import { HardwareSlider } from "../common/HardwareSlider";
 import { Input, Label } from "../ui";
 
 // Constants
@@ -110,7 +110,7 @@ export const TransportControl: React.FC = () => {
         <Label className="absolute -bottom-5 left-3">TEMPO</Label>
       </div>
       <div className="pb-4">
-        <CustomSlider
+        <HardwareSlider
           size={146}
           sliderValue={swing}
           setSliderValue={setSwing}
