@@ -116,7 +116,7 @@ const KnobBody: React.FC<KnobBodyProps> = ({ size }) => (
 );
 
 export type KnobScale = "linear" | "exp" | "split-filter";
-export type KnobSize = "sm" | "md" | "lg";
+export type KnobSize = "xs" | "sm" | "md" | "lg";
 
 type KnobProps = {
   value: number;
@@ -161,7 +161,8 @@ export const Knob: React.FC<KnobProps> = ({
   ariaLabel,
 }) => {
   // Convert size enum to pixel values
-  const sizeInPixels = size === "lg" ? 140 : size === "md" ? 60 : 50;
+  const sizeInPixels =
+    size === "lg" ? 140 : size === "md" ? 60 : size === "sm" ? 50 : 30;
 
   const explicitRange: [number, number] | undefined =
     range && range.length === 2

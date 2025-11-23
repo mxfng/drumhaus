@@ -3,6 +3,7 @@ import {
   BiquadFilter,
   Chebyshev,
   Compressor,
+  Delay,
   Filter,
   Gain,
   getDestination,
@@ -20,6 +21,11 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
 import {
   MASTER_COMP_ATTACK,
+  MASTER_COMP_DEFAULT_MIX,
+  MASTER_COMP_KNEE,
+  MASTER_COMP_LATENCY,
+  MASTER_COMP_MAKEUP_GAIN,
+  MASTER_COMP_MIX_RANGE,
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
@@ -49,18 +55,27 @@ import {
 // -----------------------------------------------------------------------------
 
 export interface MasterChainRuntimes {
+  // Compressor section (front of chain with parallel compression)
+  compressor: Compressor;
+  compMakeupGain: Gain; // Fixed makeup gain after compressor
+  compWetGain: Gain; // Controls wet (compressed) signal level
+  compDryDelay: Delay; // Compensates for compressor latency
+  compDryGain: Gain; // Controls dry (uncompressed) signal level
+  // Filters
   lowPassFilter: Filter;
   highPassFilter: Filter;
+  // Phaser send
   phaserPreFilter: Filter; // High-pass to keep sub bass out of phaser
   phaser: Phaser;
   phaserSendGain: Gain; // Controls phaser send amount
+  // Reverb send
   reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
+  // Output processing
   saturation: Chebyshev; // Subtle harmonic warmth
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Rolls off harsh highs
-  compressor: Compressor;
   limiter: Limiter;
 }
 
@@ -72,6 +87,7 @@ export type MasterChainSettings = {
   reverbDecay: number;
   compThreshold: number;
   compRatio: number;
+  compMix: number; // 0-1 wet/dry mix for parallel compression
   masterVolume: number;
 };
 
@@ -131,6 +147,11 @@ export function disposeMasterChainRuntimes(
   if (!runtimes.current) return;
 
   const nodesToDispose = [
+    { name: "compressor", node: runtimes.current.compressor },
+    { name: "compMakeupGain", node: runtimes.current.compMakeupGain },
+    { name: "compWetGain", node: runtimes.current.compWetGain },
+    { name: "compDryDelay", node: runtimes.current.compDryDelay },
+    { name: "compDryGain", node: runtimes.current.compDryGain },
     { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
     { name: "highPassFilter", node: runtimes.current.highPassFilter },
     { name: "phaserPreFilter", node: runtimes.current.phaserPreFilter },
@@ -142,7 +163,6 @@ export function disposeMasterChainRuntimes(
     { name: "saturation", node: runtimes.current.saturation },
     { name: "presenceDip", node: runtimes.current.presenceDip },
     { name: "highShelf", node: runtimes.current.highShelf },
-    { name: "compressor", node: runtimes.current.compressor },
     { name: "limiter", node: runtimes.current.limiter },
   ];
 
@@ -183,9 +203,11 @@ export function connectInstrumentRuntime(
     instrument.pannerNode,
   );
 
-  // Connect instrument output to the first master chain node (summing point)
+  // Connect instrument output to compressor section (parallel compression)
+  // Signal splits: wet path through compressor, dry path with latency compensation
   // Multiple instruments connecting here are naturally summed by Web Audio
-  instrument.pannerNode.connect(master.lowPassFilter);
+  instrument.pannerNode.connect(master.compressor); // Wet path
+  instrument.pannerNode.connect(master.compDryDelay); // Dry path (with latency compensation)
 }
 
 /**
@@ -212,11 +234,23 @@ export function chainMasterChainNodes(
   masterChain: MasterChainRuntimes,
   destination: ToneAudioNode,
 ): void {
-  // Input filters
+  // Compressor section (front of chain with parallel compression)
+  // Wet path: compressor → makeup gain → wet gain
+  masterChain.compressor.chain(
+    masterChain.compMakeupGain,
+    masterChain.compWetGain,
+  );
+  // Dry path: delay (latency compensation) → dry gain
+  masterChain.compDryDelay.connect(masterChain.compDryGain);
+  // Both wet and dry paths sum into the low pass filter
+  masterChain.compWetGain.connect(masterChain.lowPassFilter);
+  masterChain.compDryGain.connect(masterChain.lowPassFilter);
+
+  // Input filters (after compressor section)
   masterChain.lowPassFilter.chain(masterChain.highPassFilter);
 
-  // Dry signal (all frequencies) goes directly to compressor
-  masterChain.highPassFilter.connect(masterChain.compressor);
+  // Main signal goes to saturation
+  masterChain.highPassFilter.connect(masterChain.saturation);
 
   // Parallel phaser send: filtered to keep sub bass clean
   masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
@@ -224,7 +258,7 @@ export function chainMasterChainNodes(
     masterChain.phaser,
     masterChain.phaserSendGain,
   );
-  masterChain.phaserSendGain.connect(masterChain.compressor);
+  masterChain.phaserSendGain.connect(masterChain.saturation);
 
   // Parallel reverb send: filtered to keep low end dry
   masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
@@ -232,11 +266,10 @@ export function chainMasterChainNodes(
     masterChain.reverb,
     masterChain.reverbSendGain,
   );
-  masterChain.reverbSendGain.connect(masterChain.compressor);
+  masterChain.reverbSendGain.connect(masterChain.saturation);
 
   // Output chain: saturation adds warmth, EQ tames harshness
-  masterChain.compressor.chain(
-    masterChain.saturation,
+  masterChain.saturation.chain(
     masterChain.presenceDip,
     masterChain.highShelf,
     masterChain.limiter,
@@ -285,12 +318,23 @@ export async function buildMasterChainNodes(
   // Send gain controls how much reverb is mixed back in
   const reverbSendGain = new Gain(settings.reverbWet);
 
+  // Compressor with API 2500-style settings
   const compressor = new Compressor({
     threshold: settings.compThreshold,
     ratio: settings.compRatio,
     attack: MASTER_COMP_ATTACK,
     release: MASTER_COMP_RELEASE,
+    knee: MASTER_COMP_KNEE, // Hard knee for punchy transients
   });
+
+  // Makeup gain compensates for gain reduction (fixed at +1.5dB)
+  const compMakeupGain = new Gain(Math.pow(10, MASTER_COMP_MAKEUP_GAIN / 20));
+
+  // Parallel compression wet/dry mix
+  const compWetGain = new Gain(settings.compMix);
+  // Delay compensates for compressor lookahead latency to keep wet/dry in phase
+  const compDryDelay = new Delay(MASTER_COMP_LATENCY);
+  const compDryGain = new Gain(1 - settings.compMix);
 
   // Subtle saturation for analog warmth
   const saturation = new Chebyshev({
@@ -316,6 +360,11 @@ export async function buildMasterChainNodes(
   const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
 
   return {
+    compressor,
+    compMakeupGain,
+    compWetGain,
+    compDryDelay,
+    compDryGain,
     lowPassFilter,
     highPassFilter,
     phaserPreFilter,
@@ -327,7 +376,6 @@ export async function buildMasterChainNodes(
     saturation,
     presenceDip,
     highShelf,
-    compressor,
     limiter,
   };
 }
@@ -354,9 +402,14 @@ export function mapParamsToSettings(
       params.compThreshold,
       MASTER_COMP_THRESHOLD_RANGE,
     ),
-    compRatio: Math.floor(
-      transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-    ),
+    // Allow fractional ratios like 1.5 (API 2500 style)
+    compRatio: transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
+    // Convert from 0-100 percentage to 0-1 for audio processing
+    compMix:
+      transformKnobValue(
+        params.compMix ?? MASTER_COMP_DEFAULT_MIX,
+        MASTER_COMP_MIX_RANGE,
+      ) / 100,
     // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
     masterVolume:
       params.masterVolume === 0
@@ -373,15 +426,21 @@ function applySettingsToRuntimes(
   runtimes: MasterChainRuntimes,
   settings: MasterChainSettings,
 ): void {
-  runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
-  runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
-  runtimes.phaserSendGain.gain.value = settings.phaserWet;
-
-  runtimes.reverbSendGain.gain.value = settings.reverbWet;
-  runtimes.reverb.decay = settings.reverbDecay;
-
+  // Compressor settings
   runtimes.compressor.threshold.value = settings.compThreshold;
   runtimes.compressor.ratio.value = settings.compRatio;
+  // Parallel compression wet/dry mix
+  runtimes.compWetGain.gain.value = settings.compMix;
+  runtimes.compDryGain.gain.value = 1 - settings.compMix;
+
+  // Filter settings
+  runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
+  runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
+
+  // Effect send settings
+  runtimes.phaserSendGain.gain.value = settings.phaserWet;
+  runtimes.reverbSendGain.gain.value = settings.reverbWet;
+  runtimes.reverb.decay = settings.reverbDecay;
 
   // Master volume is applied directly to the global destination.
   getDestination().volume.value = settings.masterVolume;
