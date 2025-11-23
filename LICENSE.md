@@ -1,11 +1,18 @@
-Creative Commons Attribution-NonCommercial 4.0 International Public License  
-https://creativecommons.org/licenses/by-nc/4.0/legalcode
+# Drumhaus
 
-By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons Attribution-NonCommercial 4.0 International Public License ("Public License").
+© 2024-present Max Fung. All rights reserved.
+
+---
+
+## Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License ("Public License").
 
 ## Licensed Work
 
-This license applies to the source code and assets of the "Drumhaus" web-based drum machine project by Max Fung.
+This license applies to the source code and assets of the "Drumhaus" web-based drum machine project.
 
 ## You are free to:
 
@@ -16,6 +23,7 @@ This license applies to the source code and assets of the "Drumhaus" web-based d
 
 - **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 - **NonCommercial** — You may not use the material for commercial purposes.
+- **ShareAlike** — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
 
 ## No additional restrictions:
 
@@ -28,5 +36,5 @@ You may not apply legal terms or technological measures that legally restrict ot
 
 ---
 
-For the full legal text, visit:  
-https://creativecommons.org/licenses/by-nc/4.0/legalcode
+For the full legal text, visit:
+https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode

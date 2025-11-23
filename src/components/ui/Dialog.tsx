@@ -1,8 +1,10 @@
 import { forwardRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { type VariantProps } from "class-variance-authority";
 import { IoClose } from "react-icons/io5";
 
 import { cn } from "@/lib/utils";
+import { dialogVariants } from "./variants/dialogVariants";
 
 /* Dialog Root */
 export const Dialog = DialogPrimitive.Root;
@@ -29,16 +31,14 @@ DialogOverlay.displayName = "DialogOverlay";
 /* Dialog Content */
 export const DialogContent = forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
+    VariantProps<typeof dialogVariants>
+>(({ className, children, variant, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn(
-        "shadow-neu-xl data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 fixed top-1/2 left-1/2 z-50 flex w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col gap-4 rounded-xl bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] p-6",
-        className,
-      )}
+      className={cn(dialogVariants({ variant }), className)}
       {...props}
     >
       {children}
