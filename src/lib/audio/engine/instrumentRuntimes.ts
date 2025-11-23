@@ -21,8 +21,12 @@ type SamplerSource = {
   baseUrl?: string;
 };
 
+// -----------------------------------------------------------------------------
+// Public API
+// -----------------------------------------------------------------------------
+
 /**
- * Creates runtime InstrumentRuntime nodes from serializable InstrumentData
+ * Creates runtime InstrumentRuntime nodes from serializable InstrumentData.
  */
 export async function createInstrumentRuntimes(
   runtimes: RefObject<InstrumentRuntime[]>,
@@ -39,12 +43,12 @@ export async function createInstrumentRuntimes(
 }
 
 /**
- * Disposes all instrument runtimes and clears the ref
+ * Disposes all instrument runtimes and clears the ref.
  */
 export function disposeInstrumentRuntimes(
   runtimes: RefObject<InstrumentRuntime[]>,
 ): void {
-  if (runtimes.current.length === 0) return;
+  if (!runtimes.current || runtimes.current.length === 0) return;
 
   const existingRuntimes = runtimes.current;
   runtimes.current = [];
@@ -68,16 +72,7 @@ export async function buildInstrumentRuntime(
   const pannerNode = new Panner(0);
 
   const { url, baseUrl } = await resolveSamplerSource(instrument.sample.path);
-
-  // Create sampler and wait for it to load
-  const samplerNode = await new Promise<Sampler>((resolve, reject) => {
-    const sampler = new Sampler({
-      urls: { [SAMPLER_ROOT_NOTE]: url },
-      ...(baseUrl ? { baseUrl } : {}),
-      onload: () => resolve(sampler),
-      onerror: (err) => reject(err),
-    });
-  });
+  const samplerNode = await createSampler(url, baseUrl);
 
   return {
     instrumentId: instrument.meta.id,
@@ -88,13 +83,18 @@ export async function buildInstrumentRuntime(
   };
 }
 
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
 async function resolveSamplerSource(
   samplePath: string,
 ): Promise<SamplerSource> {
   try {
     const cachedUrl = await getCachedAudioUrl(samplePath);
+
+    // Use cache blob URLs directly (no baseUrl needed)
     if (cachedUrl.startsWith("blob:")) {
-      // Use cache blob URLs directly (no baseUrl needed)
       return { url: cachedUrl };
     }
   } catch (error) {
@@ -103,6 +103,17 @@ async function resolveSamplerSource(
 
   // Fallback: use original sample path with /samples/ baseUrl
   return { url: samplePath, baseUrl: "/samples/" };
+}
+
+function createSampler(url: string, baseUrl?: string): Promise<Sampler> {
+  return new Promise<Sampler>((resolve, reject) => {
+    const sampler = new Sampler({
+      urls: { [SAMPLER_ROOT_NOTE]: url },
+      ...(baseUrl ? { baseUrl } : {}),
+      onload: () => resolve(sampler),
+      onerror: (err) => reject(err),
+    });
+  });
 }
 
 function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {

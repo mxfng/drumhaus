@@ -23,7 +23,7 @@ import {
   applySettingsToRuntimes,
   buildMasterChainNodes,
   chainMasterChainNodes,
-  connectInstrumentToMasterChainEntry,
+  connectInstrumentRuntime,
   dbToLinearGain,
   mapParamsToSettings,
   MasterChainRuntimes,
@@ -195,7 +195,7 @@ async function buildOfflineInstrumentRuntimes(
     });
 
     // Connect to master chain
-    connectInstrumentToMasterChainEntry(runtime, masterChain);
+    connectInstrumentRuntime(runtime, masterChain);
 
     runtimes.push(runtime);
   }
