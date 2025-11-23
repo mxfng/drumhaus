@@ -19,13 +19,9 @@ import { useMasterChain } from "./useMasterChain";
 interface UseAudioEngineResult {
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
-  isLoading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
 }
 
 export function useAudioEngine(): UseAudioEngineResult {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
   // Audio engine refs (Tone.js runtime nodes)
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
@@ -39,25 +35,10 @@ export function useAudioEngine(): UseAudioEngineResult {
   const instrumentSamplePaths = useInstrumentsStore((state) =>
     state.instruments.map((inst) => inst.sample.path).join(","),
   );
-  const [trackedSamplePaths, setTrackedSamplePaths] = useState(
-    instrumentSamplePaths,
-  );
-
-  // Set loading state when sample paths change during render
-  if (
-    instrumentSamplePaths !== trackedSamplePaths &&
-    instrumentSamplePaths.length > 0
-  ) {
-    setTrackedSamplePaths(instrumentSamplePaths);
-    if (!isLoading) {
-      setIsLoading(true);
-    }
-  }
 
   useMasterChain({
     instrumentRuntimesRef: instrumentRuntimes,
     instrumentRuntimesVersion,
-    setIsLoading,
   });
 
   // Create/update audio sequencer when playing or instruments change
@@ -110,11 +91,9 @@ export function useAudioEngine(): UseAudioEngineResult {
         await waitForBuffersToLoad();
         if (cancelled) return;
         setInstrumentRuntimesVersion((v) => v + 1);
-        setIsLoading(false);
       } catch (error) {
         if (cancelled) return;
         console.error("Error loading audio buffers:", error);
-        setIsLoading(false);
       }
     };
 
@@ -129,7 +108,5 @@ export function useAudioEngine(): UseAudioEngineResult {
   return {
     instrumentRuntimes,
     instrumentRuntimesVersion,
-    isLoading,
-    setIsLoading,
   };
 }

@@ -5,13 +5,11 @@ import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 
 interface UseKeyboardShortcutsProps {
-  isLoading: boolean;
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
 }
 
 export function useKeyboardShortcuts({
-  isLoading,
   instrumentRuntimes,
   instrumentRuntimesVersion,
 }: UseKeyboardShortcutsProps) {
@@ -21,7 +19,7 @@ export function useKeyboardShortcuts({
   // Spacebar to play/pause
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === " " && !isAnyDialogOpen() && !isLoading) {
+      if (e.key === " " && !isAnyDialogOpen()) {
         togglePlay(instrumentRuntimes.current);
       }
     };
@@ -30,7 +28,6 @@ export function useKeyboardShortcuts({
     return () => document.removeEventListener("keydown", handleKeydown);
   }, [
     isAnyDialogOpen,
-    isLoading,
     instrumentRuntimes,
     instrumentRuntimesVersion,
     togglePlay,
