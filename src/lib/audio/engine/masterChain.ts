@@ -244,7 +244,11 @@ export function mapParamsToSettings(
     compRatio: Math.floor(
       transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
     ),
-    masterVolume: transformKnobValue(params.masterVolume, MASTER_VOLUME_RANGE),
+    // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
+    masterVolume:
+      params.masterVolume === 0
+        ? -Infinity
+        : transformKnobValue(params.masterVolume, MASTER_VOLUME_RANGE),
   };
 }
 
