@@ -166,6 +166,10 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     </div>
                   ))}
                 </div>
+                <p className="text-foreground-muted text-xs">
+                  Recommended: {getSuggestedBars(variationCycle)}{" "}
+                  {getSuggestedBars(variationCycle) === 1 ? "bar" : "bars"}
+                </p>
               </div>
 
               {/* Sample rate */}
@@ -190,6 +194,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     </div>
                   ))}
                 </RadioGroup>
+                <p className="text-foreground-muted text-xs">
+                  For audio nerds. System is usually fine.
+                </p>
               </FormField>
 
               {/* Reverb tail */}
