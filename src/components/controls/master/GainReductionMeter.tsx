@@ -1,10 +1,10 @@
 import { Tooltip } from "@/components/ui";
-import { useGainReductionStore } from "@/stores/useGainReductionStore";
+import { useMasterChainStore } from "@/stores/useMasterChainStore";
 
 const MAX_REDUCTION_DB = -20; // Maximum gain reduction to display
 
 export const GainReductionMeter: React.FC = () => {
-  const reduction = useGainReductionStore((state) => state.reduction);
+  const reduction = useMasterChainStore((state) => state.reduction);
 
   // Convert reduction (negative dB) to percentage (0-100)
   // reduction of 0 = 0%, reduction of -20 = 100%

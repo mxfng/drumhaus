@@ -4,7 +4,13 @@ import { immer } from "zustand/middleware/immer";
 
 import {
   MASTER_COMP_DEFAULT_MIX,
+  MASTER_COMP_DEFAULT_RATIO,
   MASTER_COMP_DEFAULT_THRESHOLD,
+  MASTER_DEFAULT_HIGH_PASS,
+  MASTER_DEFAULT_LOW_PASS,
+  MASTER_DEFAULT_PHASER,
+  MASTER_DEFAULT_REVERB,
+  MASTER_DEFAULT_VOLUME,
 } from "@/lib/audio/engine/constants";
 import type { MasterChainParams } from "@/types/preset";
 
@@ -40,6 +46,9 @@ interface MasterChainState {
   // Master output
   masterVolume: number;
 
+  // Runtime state (not persisted)
+  reduction: number; // Current gain reduction in dB (negative value)
+
   // Actions
   setLowPass: (lowPass: number) => void;
   setHighPass: (highPass: number) => void;
@@ -49,6 +58,7 @@ interface MasterChainState {
   setCompRatio: (compRatio: number) => void;
   setCompMix: (compMix: number) => void;
   setMasterVolume: (masterVolume: number) => void;
+  setReduction: (reduction: number) => void;
 
   // Batch setters for preset loading
   setAllMasterChain: (params: MasterChainParams) => void;
@@ -59,14 +69,15 @@ export const useMasterChainStore = create<MasterChainState>()(
     persist(
       immer((set) => ({
         // Initial state (default/init preset values)
-        lowPass: 100,
-        highPass: 0,
-        phaser: 0,
-        reverb: 0,
+        lowPass: MASTER_DEFAULT_LOW_PASS,
+        highPass: MASTER_DEFAULT_HIGH_PASS,
+        phaser: MASTER_DEFAULT_PHASER,
+        reverb: MASTER_DEFAULT_REVERB,
         compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
-        compRatio: 50,
-        compMix: MASTER_COMP_DEFAULT_MIX, // API 2500 style: 70% wet for parallel compression
-        masterVolume: 92,
+        compRatio: MASTER_COMP_DEFAULT_RATIO,
+        compMix: MASTER_COMP_DEFAULT_MIX,
+        masterVolume: MASTER_DEFAULT_VOLUME,
+        reduction: 0,
 
         // Individual setters
         setLowPass: (lowPass) => {
@@ -101,6 +112,10 @@ export const useMasterChainStore = create<MasterChainState>()(
           set({ masterVolume });
         },
 
+        setReduction: (reduction) => {
+          set({ reduction });
+        },
+
         // Batch setter for preset loading
         setAllMasterChain: (params) => {
           set({
@@ -110,7 +125,7 @@ export const useMasterChainStore = create<MasterChainState>()(
             reverb: params.reverb,
             compThreshold: params.compThreshold,
             compRatio: params.compRatio,
-            compMix: params.compMix ?? 70, // Default for old presets without compMix
+            compMix: params.compMix ?? MASTER_COMP_DEFAULT_MIX,
             masterVolume: params.masterVolume,
           });
         },

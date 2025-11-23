@@ -13,10 +13,15 @@ export const INSTRUMENT_ATTACK_RANGE: [number, number] = [0, 0.1];
 export const INSTRUMENT_RELEASE_RANGE: [number, number] = [0.005, 5];
 export const INSTRUMENT_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
+export const MASTER_DEFAULT_LOW_PASS = 100; // Knob position (100 = fully open)
+export const MASTER_DEFAULT_HIGH_PASS = 0; // Knob position (0 = off)
 export const MASTER_PHASER_WET_RANGE: [number, number] = [0, 1];
+export const MASTER_DEFAULT_PHASER = 0; // Knob position (0 = off)
 export const MASTER_REVERB_WET_RANGE: [number, number] = [0, 0.5];
+export const MASTER_DEFAULT_REVERB = 0; // Knob position (0 = off)
 export const MASTER_REVERB_DECAY_RANGE: [number, number] = [0.1, 1.5]; // Tighter for drums
 export const MASTER_VOLUME_RANGE: [number, number] = [-46, 4];
+export const MASTER_DEFAULT_VOLUME = 92; // Knob position (92% = -0.4dB)
 export const TRANSPORT_SWING_RANGE: [number, number] = [0, 100];
 export const TRANSPORT_BPM_RANGE: [number, number] = [1, 300];
 
@@ -49,6 +54,7 @@ export const MASTER_COMP_DEFAULT_THRESHOLD = 100; // Knob position (100 = 0dB = 
 export const MASTER_COMP_RATIO_RANGE: [number, number] = [1, 8];
 export const MASTER_COMP_MIX_RANGE: [number, number] = [0, 100]; // Parallel compression wet/dry (display as %)
 export const MASTER_COMP_DEFAULT_MIX = 70; // 70% wet for parallel compression
+export const MASTER_COMP_DEFAULT_RATIO = 50; // Knob position (50% = 4.5:1 ratio)
 export const MASTER_COMP_ATTACK = 0.01; // 10ms - catches transients
 export const MASTER_COMP_RELEASE = 0.05; // 50ms - fast recovery, punchy drums
 export const MASTER_COMP_KNEE = 0; // dB - hard knee (API 2500 style)

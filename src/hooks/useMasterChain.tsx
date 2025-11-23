@@ -7,7 +7,6 @@ import {
   updateMasterChainParams,
   type MasterChainRuntimes,
 } from "@/lib/audio/engine";
-import { useGainReductionStore } from "@/stores/useGainReductionStore";
 import {
   getMasterChainParams,
   useMasterChainStore,
@@ -30,7 +29,7 @@ export function useMasterChain({
   const isInitialized = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const setReduction = useGainReductionStore((state) => state.setReduction);
+  const setReduction = useMasterChainStore((state) => state.setReduction);
 
   // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
