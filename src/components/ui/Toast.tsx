@@ -44,15 +44,15 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 removeToast(t.id);
               }
             }}
-            className={`toast-root shadow-neu data-[state=open]:animate-in data-[state=open]:slide-in-from-top data-[state=closed]:animate-out data-[state=closed]:fade-out rounded-tr-lg rounded-bl-lg bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] p-4 ${t.status === "error" ? "border-l-track-red border-l-4" : ""} ${t.status === "success" ? "border-l-primary border-l-4" : ""} `}
+            className={`toast-root shadow-neu data-[state=open]:animate-in data-[state=open]:slide-in-from-top data-[state=closed]:animate-out data-[state=closed]:fade-out bg-primary rounded-tr-md rounded-bl-md p-4 text-white ${t.status === "error" ? "border-l-track-red border-l-4" : ""} ${t.status === "success" ? "border-l-track-green border-l-4" : ""} `}
           >
             {t.title && (
-              <ToastPrimitive.Title className="text-foreground-emphasis text-sm font-medium">
+              <ToastPrimitive.Title className="text-sm font-medium text-white">
                 {t.title}
               </ToastPrimitive.Title>
             )}
             {t.description && (
-              <ToastPrimitive.Description className="font-pixel mt-1 text-xs">
+              <ToastPrimitive.Description className="font-pixel mt-1 text-xs text-white/90">
                 {t.description}
               </ToastPrimitive.Description>
             )}

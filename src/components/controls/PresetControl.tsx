@@ -4,16 +4,16 @@ import { useToast } from "@/components/ui";
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useModalStore } from "@/stores/useModalStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";
-import { ConfirmSelectPresetModal } from "../modal/ConfirmSelectPresetModal";
-import { ResetModal } from "../modal/ResetModal";
-import { SaveModal } from "../modal/SaveModal";
-import { SharedModal, SharingModal } from "../modal/ShareModals";
+import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";
+import { ResetDialog } from "../dialog/ResetDialog";
+import { SaveDialog } from "../dialog/SaveDialog";
+import { ShareDialog } from "../dialog/ShareDialog";
 import { KitSelector } from "./preset/KitSelector";
 import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
@@ -58,23 +58,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     (state) => state.hasUnsavedChanges,
   );
 
-  // Modal state
-  const {
-    isSaveModalOpen,
-    isSharingModalOpen,
-    isSharedModalOpen,
-    isResetModalOpen,
-    isPresetChangeModalOpen,
-    shareableLink,
-    presetToChange,
-    closeSaveModal,
-    closeSharingModal,
-    closeSharedModal,
-    closeResetModal,
-    closePresetChangeModal,
-    openSharedModal,
-    openPresetChangeModal,
-  } = useModalStore();
+  // Dialog state
+  const openDialog = useDialogStore((state) => state.openDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const presetToChange = useDialogStore(
+    (state) => state.dialogData.presetToChange,
+  );
 
   const { toast } = useToast();
 
@@ -175,7 +165,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
    */
   const switchPreset = (presetId: string) => {
     if (hasUnsavedChanges()) {
-      openPresetChangeModal(presetId);
+      openDialog("presetChange", { presetToChange: presetId });
       return;
     }
 
@@ -247,11 +237,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         } catch (error) {
           console.error("Failed to import preset:", error);
           toast({
-            title: "Something went wrong.",
+            title: "Something went wrong",
             description:
               error instanceof Error
                 ? error.message
-                : "Failed to import preset",
+                : "Couldn't open file. It may be invalid or corrupted.",
             status: "error",
             duration: 8000,
           });
@@ -259,8 +249,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       };
       reader.onerror = () => {
         toast({
-          title: "Something went wrong.",
-          description: "Failed to import preset",
+          title: "Something went wrong",
+          description: "There was a problem reading the file.",
           status: "error",
           duration: 8000,
         });
@@ -275,44 +265,33 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Generate a new preset name
+   * Get the default preset name for save/share dialogs
    */
-  const generateNewPresetName = (): string => {
-    return "Untitled";
+  const getDefaultPresetName = (): string => {
+    return currentPresetMeta.name;
   };
 
   /**
    * Generate a shareable URL for the current preset
    */
-  const sharePreset = async (name: string) => {
-    try {
-      const normalizedName = normalizePresetName(name);
-      const slug = toPresetSlug(normalizedName);
+  const sharePreset = async (name: string): Promise<string> => {
+    const normalizedName = normalizePresetName(name);
+    const slug = toPresetSlug(normalizedName);
 
-      const now = new Date().toISOString();
-      const meta: Meta = {
-        id: crypto.randomUUID(),
-        name: normalizedName,
-        createdAt: now,
-        updatedAt: now,
-      };
+    const now = new Date().toISOString();
+    const meta: Meta = {
+      id: crypto.randomUUID(),
+      name: normalizedName,
+      createdAt: now,
+      updatedAt: now,
+    };
 
-      const preset = getCurrentPreset(meta, currentKitMeta);
-      const { shareablePresetToUrl } = await import("@/lib/serialization");
-      const urlParam = shareablePresetToUrl(preset);
-      const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
+    const preset = getCurrentPreset(meta, currentKitMeta);
+    const { shareablePresetToUrl } = await import("@/lib/serialization");
+    const urlParam = shareablePresetToUrl(preset);
+    const shareUrl = `${window.location.origin}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
 
-      openSharedModal(shareUrl);
-    } catch (error) {
-      console.error("Failed to share preset:", error);
-      toast({
-        title: "Something went wrong.",
-        description:
-          error instanceof Error ? error.message : "Failed to share preset",
-        status: "error",
-        duration: 8000,
-      });
-    }
+    return shareUrl;
   };
 
   // ============================================================================
@@ -328,13 +307,13 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   };
 
   const handleConfirmPresetChange = () => {
-    closePresetChangeModal();
+    closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
     if (preset) loadPreset(preset);
   };
 
   const handleReset = () => {
-    closeResetModal();
+    closeDialog();
     loadPreset(presets.init());
   };
 
@@ -355,7 +334,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   return (
     <>
       <div className="mx-4 flex h-full items-center justify-center">
-        <div className="neu-tall-raised relative h-[195px] w-[332px] rounded-lg px-3 pb-3">
+        <div className="neu surface relative h-[190px] w-[332px] rounded-lg px-3">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
             presets={allPresets}
@@ -371,35 +350,29 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         </div>
       </div>
 
-      <SaveModal
-        isOpen={isSaveModalOpen}
-        onClose={closeSaveModal}
+      <SaveDialog
+        isOpen={activeDialog === "save"}
+        onClose={closeDialog}
         onSave={exportPreset}
-        defaultName={generateNewPresetName()}
+        defaultName={getDefaultPresetName()}
       />
 
-      <SharingModal
-        isOpen={isSharingModalOpen}
-        onClose={closeSharingModal}
+      <ShareDialog
+        isOpen={activeDialog === "share"}
+        onClose={closeDialog}
         onShare={sharePreset}
-        defaultName={generateNewPresetName()}
+        defaultName={getDefaultPresetName()}
       />
 
-      <SharedModal
-        isOpen={isSharedModalOpen}
-        onClose={closeSharedModal}
-        shareableLink={shareableLink}
-      />
-
-      <ResetModal
-        isOpen={isResetModalOpen}
-        onClose={closeResetModal}
+      <ResetDialog
+        isOpen={activeDialog === "reset"}
+        onClose={closeDialog}
         onReset={handleReset}
       />
 
-      <ConfirmSelectPresetModal
-        isOpen={isPresetChangeModalOpen}
-        onClose={closePresetChangeModal}
+      <ConfirmSelectPresetDialog
+        isOpen={activeDialog === "presetChange"}
+        onClose={closeDialog}
         onSelect={handleConfirmPresetChange}
       />
     </>

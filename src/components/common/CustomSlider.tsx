@@ -69,7 +69,10 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
       </div>
 
       {/* Slider track */}
-      <div className="flex h-[10px] items-center rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+      <div
+        className="flex h-[10px] items-center rounded-lg shadow-(--slider-track-shadow)"
+        style={{ background: "var(--slider-track-bg)" }}
+      >
         <SliderPrimitive.Root
           className="relative flex w-full touch-none items-center select-none"
           value={[sliderValue]}
@@ -92,7 +95,14 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
           >
             <SliderPrimitive.Thumb
               className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
-              style={{ width: `${size / 4}px`, height: "16px" }}
+              style={{
+                width: `${size / 4}px`,
+                height: "16px",
+                boxShadow: `
+                  var(--shadow-neu-raised),
+                  0 4px 3px -1px rgb(0 0 0 / 0.4)
+                `,
+              }}
               aria-label="Slider thumb"
             />
           </Tooltip>
@@ -100,7 +110,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
       </div>
 
       {/* Title */}
-      {title && <Label className="text-center">{title}</Label>}
+      {title && <Label className="mt-2 text-center">{title}</Label>}
     </div>
   );
 };

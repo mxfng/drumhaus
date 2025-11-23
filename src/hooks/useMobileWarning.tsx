@@ -1,23 +1,21 @@
-import { useState } from "react";
+import { useEffect } from "react";
 
-interface UseMobileWarningResult {
-  isMobileWarning: boolean;
-  setIsMobileWarning: (value: boolean) => void;
-}
+import { useDialogStore } from "@/stores/useDialogStore";
 
 // Check if running in browser and detect mobile device
-const getInitialMobileState = () => {
+const isMobileDevice = () => {
   if (typeof navigator === "undefined") return false;
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent,
   );
 };
 
-export function useMobileWarning(): UseMobileWarningResult {
-  const [isMobileWarning, setIsMobileWarning] = useState(getInitialMobileState);
+export function useMobileWarning(): void {
+  const openDialog = useDialogStore((state) => state.openDialog);
 
-  return {
-    isMobileWarning,
-    setIsMobileWarning,
-  };
+  useEffect(() => {
+    if (isMobileDevice()) {
+      openDialog("mobile");
+    }
+  }, [openDialog]);
 }

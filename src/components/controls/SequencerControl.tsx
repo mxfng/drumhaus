@@ -75,12 +75,12 @@ export const SequencerControl: React.FC = () => {
 
       <div className="flex justify-between gap-4 pb-8">
         <div className="relative">
-          <div className="neu flex rounded-lg">
+          <div className="hardware-button-group flex rounded-lg">
             <Tooltip content={TOOLTIPS.VARIATION_A}>
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("neu w-8 rounded-l-lg rounded-r-none", {
+                className={cn("w-8 rounded-l-lg rounded-r-none", {
                   "text-primary": variation === 0,
                 })}
                 onClick={() => setVariation(0)}
@@ -105,7 +105,7 @@ export const SequencerControl: React.FC = () => {
         </div>
 
         <div className="relative">
-          <div className="neu flex rounded-lg">
+          <div className="hardware-button-group flex rounded-lg">
             <Tooltip content={TOOLTIPS.CYCLE_A}>
               <Button
                 variant="hardware"
@@ -165,7 +165,7 @@ export const SequencerControl: React.FC = () => {
       </div>
 
       <div className="pb-4">
-        <div className="neu grid grid-cols-4 rounded-lg">
+        <div className="hardware-button-group grid grid-cols-4 rounded-lg">
           <Tooltip content={TOOLTIPS.COPY}>
             <Button
               variant="hardware"

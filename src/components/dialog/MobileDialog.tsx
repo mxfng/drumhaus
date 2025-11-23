@@ -9,12 +9,12 @@ import {
   DialogTitle,
 } from "@/components/ui";
 
-interface MobileModalProps {
+interface MobileDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const MobileModal: React.FC<MobileModalProps> = ({
+export const MobileDialog: React.FC<MobileDialogProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -22,26 +22,22 @@ export const MobileModal: React.FC<MobileModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Desktop Recommended</DialogTitle>
+          <DialogTitle>Best on Desktop</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
         <div className="space-y-2 pb-4">
           <DialogDescription>
-            {"We're so glad you've decided to give Drumhaus a try!"}
+            Drumhaus is optimized for desktop browsers. Some features may not
+            work on mobile devices.
           </DialogDescription>
           <DialogDescription>
-            Drumhaus was built and optimized for use on desktop devices. Some
-            features may not be available on mobile.
-          </DialogDescription>
-          <DialogDescription>
-            It is recommended that you switch to your desktop device for the
-            optimal experience.
+            For the best experience, visit on your computer.
           </DialogDescription>
         </div>
 
         <DialogFooter>
-          <Button onClick={onClose}>Dismiss</Button>
+          <Button onClick={onClose}>Got It</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -30,7 +30,7 @@ export function Tooltip({
         <TooltipPrimitive.Content
           side={side}
           sideOffset={4}
-          className="bg-primary font-pixel shadow-neu animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 z-50 rounded-md px-3 py-1.5 text-xs text-white"
+          className="bg-primary font-pixel shadow-neu animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 z-50 rounded-md px-3 py-1.5 text-sm text-white"
         >
           {content}
           <TooltipPrimitive.Arrow className="fill-primary" />

@@ -9,37 +9,38 @@ import {
   DialogTitle,
 } from "@/components/ui";
 
-interface ResetModalProps {
+interface ConfirmSelectPresetDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onReset: () => void;
+  onSelect: () => void;
 }
 
-export const ResetModal: React.FC<ResetModalProps> = ({
-  isOpen,
-  onClose,
-  onReset,
-}) => {
+export const ConfirmSelectPresetDialog: React.FC<
+  ConfirmSelectPresetDialogProps
+> = ({ isOpen, onClose, onSelect }) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reset All</DialogTitle>
+          <DialogTitle>Switch Preset?</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
-        <div className="pb-4">
+        <div className="space-y-2 pb-4">
           <DialogDescription>
-            Are you sure you want to reset all instruments and audio parameters
-            to their initialized settings?
+            Any unsaved changes to your current preset will be lost.
+          </DialogDescription>
+          <DialogDescription>
+            You can save your work first by downloading it as a file or sharing
+            it as a link.
           </DialogDescription>
         </div>
 
         <DialogFooter>
-          <Button onClick={onReset}>Reset</Button>
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
+          <Button onClick={onSelect}>Switch Anyway</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

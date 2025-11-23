@@ -14,7 +14,7 @@ export const MasterVolume: React.FC = () => {
     <Knob
       value={masterVolume}
       onChange={setMasterVolume}
-      label="MASTER VOLUME"
+      label="MASTER LEVEL"
       units="dB"
       range={MASTER_VOLUME_RANGE}
       defaultValue={92}
