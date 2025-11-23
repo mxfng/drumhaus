@@ -85,6 +85,7 @@ const Drumhaus = () => {
           style={{ transform: `scale(${scale})` }}
         >
           <div className="animate-fade-in">
+            <div className="h-[50px]"></div>
             <div className="neu-extra-tall bg-surface relative h-[1000px] w-[1538px] overflow-clip rounded-xl">
               <TopBar />
 
@@ -100,7 +101,7 @@ const Drumhaus = () => {
 
               <BrandingLink />
             </div>
-            <div className="relative h-5 w-full">
+            <div className="relative h-[50px] w-full">
               <Footer />
             </div>
           </div>
@@ -210,7 +211,7 @@ const BrandingLink = () => {
 const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="text-foreground mt-8 flex">
+      <div className="text-foreground flex">
         <p className="text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"
