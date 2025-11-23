@@ -97,6 +97,7 @@ export async function exportToWav(
         variationCycle,
         options.bars,
         stepDuration,
+        swing,
       );
 
       // Start transport

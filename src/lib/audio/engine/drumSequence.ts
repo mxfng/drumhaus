@@ -442,17 +442,27 @@ export function schedulePatternEvents(
   variationCycle: VariationCycle,
   bars: number,
   stepDuration: number,
+  swing: number = 0,
 ): void {
   const totalSteps = bars * STEP_COUNT;
   const anySolos = hasAnySolo(instruments);
   const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
+
+  // Calculate swing delay for odd steps
+  // swingSubdivision is "16n", so swing applies to every other 16th note (steps 1, 3, 5, etc.)
+  const swingAmount = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
+  // Swing delay is a fraction of the subdivision (16th note = stepDuration)
+  const swingDelay = swingAmount * stepDuration;
 
   let currentBar = 0;
   let currentVariation = computeNextVariationIndex(variationCycle, 0, 0);
 
   for (let step = 0; step < totalSteps; step++) {
     const stepInBar = step % STEP_COUNT;
-    const time = step * stepDuration;
+
+    // Apply swing to odd steps
+    const isSwingStep = stepInBar % 2 === 1;
+    const time = step * stepDuration + (isSwingStep ? swingDelay : 0);
 
     // Update variation at start of each bar (after the first bar)
     if (stepInBar === 0 && step > 0) {

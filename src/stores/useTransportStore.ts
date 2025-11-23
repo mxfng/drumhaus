@@ -49,6 +49,11 @@ export const useTransportStore = create<TransportState>()(
             const newIsPlaying = !state.isPlaying;
 
             if (newIsPlaying) {
+              // We set bpm and swing here as a backup.
+              // They should be set in loadPreset() or on rehydrate.
+              setTransportBpm(state.bpm);
+              setTransportSwing(state.swing);
+
               startTransport();
             } else {
               // Stop transport and reset step index
@@ -89,6 +94,13 @@ export const useTransportStore = create<TransportState>()(
           swing: state.swing,
           // Don't persist isPlaying or stepIndex
         }),
+        // Apply persisted transport settings when store rehydrates
+        onRehydrateStorage: () => (state) => {
+          if (state) {
+            setTransportBpm(state.bpm);
+            setTransportSwing(state.swing);
+          }
+        },
       },
     ),
     {
