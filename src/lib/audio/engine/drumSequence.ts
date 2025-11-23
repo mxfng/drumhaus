@@ -1,4 +1,4 @@
-import { Time, type Unit } from "tone/build/esm/index";
+import { Time } from "tone/build/esm/index";
 
 import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
@@ -25,18 +25,6 @@ import type {
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
-
-type ScheduleContext = {
-  time: Unit.Time;
-  step: number;
-  variationIndex: number;
-  instruments: InstrumentData[];
-  durations: number[];
-  runtimes: InstrumentRuntime[];
-  anySolos: boolean;
-  hasOhat: boolean;
-  ohatIndex: number;
-};
 
 type InstrumentRuntimePair = {
   inst: InstrumentData;
@@ -66,12 +54,10 @@ export function createDrumSequence(
       (time, step: number) => {
         // Grab fresh state every 16th note for responsive UI + audio
         const instruments = stateProvider.instruments.getInstruments();
-        const durations = stateProvider.instruments.getDurations();
         const pattern = stateProvider.pattern.getPattern();
         const currentRuntimes = instrumentRuntimes.current;
 
-        const isFirstStep = step === SEQUENCE_EVENTS[0];
-        const isLastStep = step === SEQUENCE_EVENTS[SEQUENCE_EVENTS.length - 1];
+        const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
         const anySolos = hasAnySolo(instruments);
         const { hasOhat, ohatIndex } = findOpenHatIndex(
@@ -90,20 +76,18 @@ export function createDrumSequence(
 
         const variationIndex = currentVariation.current;
 
-        for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
-          const voice = pattern[voiceIndex];
-          scheduleVoiceForStep(voice, {
-            time: time as Unit.Time,
-            step,
-            variationIndex,
-            instruments,
-            durations,
-            runtimes: currentRuntimes,
-            anySolos,
-            hasOhat,
-            ohatIndex,
-          });
-        }
+        // Schedule all voices - same path as offline playback
+        schedulePatternStep(
+          pattern,
+          step,
+          Time(time).toSeconds(),
+          variationIndex,
+          instruments,
+          currentRuntimes,
+          anySolos,
+          hasOhat,
+          ohatIndex,
+        );
 
         stateProvider.transport.setStepIndex(step);
 
@@ -137,6 +121,49 @@ export function disposeDrumSequence(
 // -----------------------------------------------------------------------------
 // Core scheduling helpers
 // -----------------------------------------------------------------------------
+
+/**
+ * Checks if step is first or last in the sequence.
+ */
+function getStepBoundaries(step: number): {
+  isFirstStep: boolean;
+  isLastStep: boolean;
+} {
+  return {
+    isFirstStep: step === SEQUENCE_EVENTS[0],
+    isLastStep: step === SEQUENCE_EVENTS[SEQUENCE_EVENTS.length - 1],
+  };
+}
+
+/**
+ * Schedules all voices in a pattern for a given step.
+ * Core scheduling loop shared between live and offline playback.
+ */
+function schedulePatternStep(
+  pattern: Pattern,
+  step: number,
+  time: number,
+  variationIndex: number,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+  anySolos: boolean,
+  hasOhat: boolean,
+  ohatIndex: number,
+): void {
+  for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
+    scheduleVoiceAtTime(
+      pattern[voiceIndex],
+      step,
+      time,
+      variationIndex,
+      instruments,
+      runtimes,
+      anySolos,
+      hasOhat,
+      ohatIndex,
+    );
+  }
+}
 
 /**
  * Gets the instrument and runtime for a voice, or null if either is missing.
@@ -229,6 +256,9 @@ export function scheduleVoiceAtTime(
 
   const { inst, runtime } = result;
 
+  // Guard against unloaded samplers (can happen during live kit switching)
+  if (!runtime.samplerNode.loaded) return;
+
   scheduleVoiceCore(
     voice,
     step,
@@ -241,43 +271,6 @@ export function scheduleVoiceAtTime(
     runtime,
     instruments,
     runtimes,
-  );
-}
-
-/**
- * Schedules a voice at a given step within the live sequence callback.
- * Includes sampler-loaded guard, then delegates to scheduleVoiceAtTime.
- */
-function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
-  const {
-    time,
-    step,
-    variationIndex,
-    instruments,
-    runtimes,
-    anySolos,
-    hasOhat,
-    ohatIndex,
-  } = context;
-
-  const result = getInstrumentAndRuntime(voice, instruments, runtimes);
-  if (!result) return;
-
-  const { runtime } = result;
-
-  // Check if sampler is loaded before scheduling (online playback safety)
-  if (!runtime.samplerNode.loaded) return;
-
-  scheduleVoiceAtTime(
-    voice,
-    step,
-    Time(time).toSeconds(),
-    variationIndex,
-    instruments,
-    runtimes,
-    anySolos,
-    hasOhat,
-    ohatIndex,
   );
 }
 
@@ -432,61 +425,68 @@ export function configureTransportTiming(
 // -----------------------------------------------------------------------------
 
 /**
- * Schedules all pattern events for offline rendering.
- * Pre-calculates all step times and schedules voices.
+ * Creates a sequence for offline rendering that matches live playback exactly.
+ * Uses Tone.js Sequence so transport swing is applied identically.
+ * Returns the sequence instance (caller must start transport).
  */
-export function schedulePatternEvents(
+export function createOfflineSequence(
   pattern: Pattern,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   variationCycle: VariationCycle,
   bars: number,
-  stepDuration: number,
-  swing: number = 0,
-): void {
-  const totalSteps = bars * STEP_COUNT;
+  sequencerFactory: SequencerFactory = defaultSequencerFactory,
+): SequenceInstance {
   const anySolos = hasAnySolo(instruments);
   const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
 
-  // Calculate swing delay for odd steps
-  // swingSubdivision is "16n", so swing applies to every other 16th note (steps 1, 3, 5, etc.)
-  const swingAmount = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
-  // Swing delay is a fraction of the subdivision (16th note = stepDuration)
-  const swingDelay = swingAmount * stepDuration;
-
   let currentBar = 0;
   let currentVariation = computeNextVariationIndex(variationCycle, 0, 0);
+  let totalStepsScheduled = 0;
+  const totalSteps = bars * STEP_COUNT;
 
-  for (let step = 0; step < totalSteps; step++) {
-    const stepInBar = step % STEP_COUNT;
+  const sequence = sequencerFactory
+    .createSequence(
+      (time, step: number) => {
+        // Stop scheduling after we've done all bars
+        if (totalStepsScheduled >= totalSteps) return;
 
-    // Apply swing to odd steps
-    const isSwingStep = stepInBar % 2 === 1;
-    const time = step * stepDuration + (isSwingStep ? swingDelay : 0);
+        const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
-    // Update variation at start of each bar (after the first bar)
-    if (stepInBar === 0 && step > 0) {
-      currentBar = computeNextBarIndex(variationCycle, currentBar);
-      currentVariation = computeNextVariationIndex(
-        variationCycle,
-        currentBar,
-        currentVariation,
-      );
-    }
+        // Update variation at start of each bar
+        if (isFirstStep && totalStepsScheduled > 0) {
+          currentBar = computeNextBarIndex(variationCycle, currentBar);
+          currentVariation = computeNextVariationIndex(
+            variationCycle,
+            currentBar,
+            currentVariation,
+          );
+        }
 
-    // Schedule each voice
-    for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
-      scheduleVoiceAtTime(
-        pattern[voiceIndex],
-        stepInBar,
-        time,
-        currentVariation,
-        instruments,
-        runtimes,
-        anySolos,
-        hasOhat,
-        ohatIndex,
-      );
-    }
-  }
+        // Schedule all voices - uses same path as live playback
+        schedulePatternStep(
+          pattern,
+          step,
+          Time(time).toSeconds(),
+          currentVariation,
+          instruments,
+          runtimes,
+          anySolos,
+          hasOhat,
+          ohatIndex,
+        );
+
+        totalStepsScheduled++;
+
+        // Stop sequence after last step of final bar
+        if (isLastStep && totalStepsScheduled >= totalSteps) {
+          sequence.stop();
+        }
+      },
+      SEQUENCE_EVENTS,
+      SEQUENCE_SUBDIVISION,
+    )
+    .start(0);
+
+  return sequence;
 }
