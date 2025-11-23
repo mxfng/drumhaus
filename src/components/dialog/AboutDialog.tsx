@@ -73,8 +73,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             <p className="font-semibold">Build</p>
             <div className="font-pixel flex flex-col gap-1">
               <p>Version {__APP_VERSION__}</p>
-              <p>Branch {__GIT_BRANCH__}</p>
-              <p>{__COMMIT_COUNT__} total commits</p>
               <p>{new Date(__BUILD_TIME__).toLocaleDateString()}</p>
             </div>
           </div>
