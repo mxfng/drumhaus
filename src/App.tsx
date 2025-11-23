@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
 
 import "@fontsource-variable/albert-sans";
-import "@fontsource/fusion-pixel-12px-monospaced-sc";
+import "@/assets/fonts/fusion-pixel.css";
 
 import {
   AppErrorBoundary,
