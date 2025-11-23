@@ -6,7 +6,7 @@ import { immer } from "zustand/middleware/immer";
 export type DialogName =
   | "save"
   | "share"
-  | "reset"
+  | "export"
   | "presetChange"
   | "mobile"
   | "about";

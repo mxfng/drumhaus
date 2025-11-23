@@ -32,3 +32,25 @@ export const SEQUENCE_SUBDIVISION = "16n";
 export const SEQUENCE_EVENTS: number[] = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 ];
+
+// Phaser defaults
+export const MASTER_PHASER_FREQUENCY = 1;
+export const MASTER_PHASER_OCTAVES = 3;
+export const MASTER_PHASER_BASE_FREQUENCY = 1000;
+
+// Compressor defaults
+export const MASTER_COMP_ATTACK = 0.5;
+export const MASTER_COMP_RELEASE = 1;
+
+// Envelope defaults
+export const ENVELOPE_DEFAULT_ATTACK = 0;
+export const ENVELOPE_DEFAULT_DECAY = 0;
+export const ENVELOPE_DEFAULT_SUSTAIN = 1;
+export const ENVELOPE_DEFAULT_RELEASE = 0.05;
+
+// Transport
+export const TRANSPORT_SWING_MAX = 0.5;
+
+// Export
+export const EXPORT_TAIL_TIME = 2;
+export const EXPORT_CHANNEL_COUNT = 2;

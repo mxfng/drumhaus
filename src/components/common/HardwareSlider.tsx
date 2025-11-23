@@ -4,7 +4,7 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 import { Label, Tooltip } from "@/components/ui";
 import { transformKnobValue } from "./knobTransforms";
 
-type CustomSliderProps = {
+type HardwareSliderProps = {
   size: number;
   title?: string;
   sliderValue: number;
@@ -20,7 +20,7 @@ type CustomSliderProps = {
   valueDecimals?: number;
 };
 
-export const CustomSlider: React.FC<CustomSliderProps> = ({
+export const HardwareSlider: React.FC<HardwareSliderProps> = ({
   size,
   title,
   sliderValue,

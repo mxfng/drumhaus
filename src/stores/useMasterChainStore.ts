@@ -4,6 +4,22 @@ import { immer } from "zustand/middleware/immer";
 
 import type { MasterChainParams } from "@/types/preset";
 
+/**
+ * Selector to get MasterChainParams from the store state
+ */
+export function getMasterChainParams(): MasterChainParams {
+  const state = useMasterChainStore.getState();
+  return {
+    lowPass: state.lowPass,
+    highPass: state.highPass,
+    phaser: state.phaser,
+    reverb: state.reverb,
+    compThreshold: state.compThreshold,
+    compRatio: state.compRatio,
+    masterVolume: state.masterVolume,
+  };
+}
+
 interface MasterChainState {
   // Filter effects
   lowPass: number;
