@@ -1,7 +1,6 @@
 import type { RefObject } from "react";
 import {
   BiquadFilter,
-  Chebyshev,
   Compressor,
   Delay,
   Filter,
@@ -10,6 +9,7 @@ import {
   Limiter,
   Phaser,
   Reverb,
+  WaveShaper,
   type ToneAudioNode,
 } from "tone/build/esm/index";
 
@@ -45,9 +45,15 @@ import {
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
-  MASTER_SATURATION_AMOUNT,
-  MASTER_SATURATION_WET,
   MASTER_VOLUME_RANGE,
+  TAPE_LOW_SHELF_FREQ,
+  TAPE_LOW_SHELF_GAIN,
+  TAPE_PRESENCE_FREQ,
+  TAPE_PRESENCE_GAIN,
+  TAPE_PRESENCE_Q,
+  TAPE_SATURATION_ASYMMETRY,
+  TAPE_SATURATION_DRIVE,
+  TAPE_SATURATION_OUTPUT,
 } from "./constants";
 
 // -----------------------------------------------------------------------------
@@ -72,10 +78,13 @@ export interface MasterChainRuntimes {
   reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
+  // Tape emulation (Studer A800 style - hidden processing)
+  tapeLowShelf: BiquadFilter; // NAB curve bass warmth
+  tapePresence: BiquadFilter; // HF driver character before saturation
+  tapeSaturation: WaveShaper; // Soft saturation with even harmonics
   // Output processing
-  saturation: Chebyshev; // Subtle harmonic warmth
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
-  highShelf: BiquadFilter; // Rolls off harsh highs
+  highShelf: BiquadFilter; // Tape head losses / silk top end
   limiter: Limiter;
 }
 
@@ -160,7 +169,9 @@ export function disposeMasterChainRuntimes(
     { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
-    { name: "saturation", node: runtimes.current.saturation },
+    { name: "tapeLowShelf", node: runtimes.current.tapeLowShelf },
+    { name: "tapePresence", node: runtimes.current.tapePresence },
+    { name: "tapeSaturation", node: runtimes.current.tapeSaturation },
     { name: "presenceDip", node: runtimes.current.presenceDip },
     { name: "highShelf", node: runtimes.current.highShelf },
     { name: "limiter", node: runtimes.current.limiter },
@@ -242,15 +253,21 @@ export function chainMasterChainNodes(
   );
   // Dry path: delay (latency compensation) → dry gain
   masterChain.compDryDelay.connect(masterChain.compDryGain);
-  // Both wet and dry paths sum into the low pass filter
-  masterChain.compWetGain.connect(masterChain.lowPassFilter);
-  masterChain.compDryGain.connect(masterChain.lowPassFilter);
+  // Both wet and dry paths sum into tape emulation
+  masterChain.compWetGain.connect(masterChain.tapeLowShelf);
+  masterChain.compDryGain.connect(masterChain.tapeLowShelf);
 
-  // Input filters (after compressor section)
-  masterChain.lowPassFilter.chain(masterChain.highPassFilter);
+  // Tape emulation (right after compressor): low shelf warmth → presence lift → saturation
+  masterChain.tapeLowShelf.chain(
+    masterChain.tapePresence,
+    masterChain.tapeSaturation,
+  );
 
-  // Main signal goes to saturation
-  masterChain.highPassFilter.connect(masterChain.saturation);
+  // Filters (after tape emulation)
+  masterChain.tapeSaturation.chain(
+    masterChain.lowPassFilter,
+    masterChain.highPassFilter,
+  );
 
   // Parallel phaser send: filtered to keep sub bass clean
   masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
@@ -258,7 +275,7 @@ export function chainMasterChainNodes(
     masterChain.phaser,
     masterChain.phaserSendGain,
   );
-  masterChain.phaserSendGain.connect(masterChain.saturation);
+  masterChain.phaserSendGain.connect(masterChain.presenceDip);
 
   // Parallel reverb send: filtered to keep low end dry
   masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
@@ -266,11 +283,13 @@ export function chainMasterChainNodes(
     masterChain.reverb,
     masterChain.reverbSendGain,
   );
-  masterChain.reverbSendGain.connect(masterChain.saturation);
+  masterChain.reverbSendGain.connect(masterChain.presenceDip);
 
-  // Output chain: saturation adds warmth, EQ tames harshness
-  masterChain.saturation.chain(
-    masterChain.presenceDip,
+  // Main signal and FX sends sum into output chain
+  masterChain.highPassFilter.connect(masterChain.presenceDip);
+
+  // Output chain: EQ tames harshness
+  masterChain.presenceDip.chain(
     masterChain.highShelf,
     masterChain.limiter,
     destination,
@@ -336,11 +355,31 @@ export async function buildMasterChainNodes(
   const compDryDelay = new Delay(MASTER_COMP_LATENCY);
   const compDryGain = new Gain(1 - settings.compMix);
 
-  // Subtle saturation for analog warmth
-  const saturation = new Chebyshev({
-    order: MASTER_SATURATION_AMOUNT,
-    wet: MASTER_SATURATION_WET,
+  // Tape emulation section (Studer A800 style)
+  // Low shelf adds NAB-curve bass warmth
+  const tapeLowShelf = new BiquadFilter({
+    frequency: TAPE_LOW_SHELF_FREQ,
+    type: "lowshelf",
+    gain: TAPE_LOW_SHELF_GAIN,
   });
+
+  // Pre-saturation presence adds "HF driver" character
+  const tapePresence = new BiquadFilter({
+    frequency: TAPE_PRESENCE_FREQ,
+    type: "peaking",
+    Q: TAPE_PRESENCE_Q,
+    gain: TAPE_PRESENCE_GAIN,
+  });
+
+  // WaveShaper with tape-like saturation curve (asymmetric for even harmonics)
+  const tapeSaturation = new WaveShaper((x: number) => {
+    // Asymmetric soft saturation - adds even harmonics like real tape
+    const asymmetricInput = x + TAPE_SATURATION_ASYMMETRY * x * x;
+    return (
+      Math.tanh(TAPE_SATURATION_DRIVE * asymmetricInput) *
+      TAPE_SATURATION_OUTPUT
+    );
+  }, 4096);
 
   // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
   const presenceDip = new BiquadFilter({
@@ -373,7 +412,9 @@ export async function buildMasterChainNodes(
     reverbPreFilter,
     reverb,
     reverbSendGain,
-    saturation,
+    tapeLowShelf,
+    tapePresence,
+    tapeSaturation,
     presenceDip,
     highShelf,
     limiter,

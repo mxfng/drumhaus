@@ -64,13 +64,22 @@ export const MASTER_COMP_LATENCY = 0.006; // 6ms - compensates for compressor lo
 // Limiter defaults
 export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall protection
 
-// Analog coloration - tames harshness, adds warmth
-export const MASTER_SATURATION_AMOUNT = 1; // Chebyshev order - very gentle
-export const MASTER_SATURATION_WET = 0.03; // 3% wet - barely there
+// Tape emulation - Studer A800 style warmth (hidden processing)
+// Low shelf adds NAB-curve bass warmth
+export const TAPE_LOW_SHELF_FREQ = 80; // Hz - weight and warmth
+export const TAPE_LOW_SHELF_GAIN = 1.5; // dB - subtle but present
+// WaveShaper provides soft saturation with even harmonics
+export const TAPE_SATURATION_DRIVE = 1.4; // Soft saturation amount
+export const TAPE_SATURATION_ASYMMETRY = 0.15; // Even harmonic content (0 = symmetric/odd only)
+export const TAPE_SATURATION_OUTPUT = 0.9; // Slight output reduction (tape compression)
+// Pre-saturation presence adds "HF driver" character
+export const TAPE_PRESENCE_FREQ = 2500; // Hz - air and clarity
+export const TAPE_PRESENCE_Q = 0.8; // Wide and smooth
+export const TAPE_PRESENCE_GAIN = 1.2; // dB - subtle lift before saturation
 
-// High shelf rolloff - tames harsh hi-hats and sibilance
-export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
-export const MASTER_HIGH_SHELF_GAIN = -1.5; // dB - subtle rolloff
+// High shelf rolloff - tape head losses and silk top end
+export const MASTER_HIGH_SHELF_FREQ = 6000; // Hz - tape-style rolloff point
+export const MASTER_HIGH_SHELF_GAIN = -2.5; // dB - smooth "silk" top end
 
 // Presence dip - reduces "ice pick" frequencies
 export const MASTER_PRESENCE_FREQ = 3500; // Hz - harsh/fatiguing range
