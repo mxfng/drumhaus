@@ -79,25 +79,23 @@
     var(--knob-shadow-inset-highlight), var(--knob-shadow-inset-shadow);
 
   /* Slider component */
-  --slider-track-bg: var(--color-shadow);
+  --slider-track-bg: var(--color-muted);
   --slider-track-shadow:
-    inset 0 3px 2px rgb(0 0 0 / 0.4),
-    inset 0 -1px 1px var(--color-highlight-20),
-    inset 2px 0 2px rgb(0 0 0 / 0.2), inset -2px 0 2px rgb(0 0 0 / 0.2),
-    inset 0 0 8px var(--color-highlight-17), 0 0 0 2px var(--color-shadow-30);
+    inset 0 2px 4px var(--color-shadow-60),
+    inset 0 -1px 2px var(--color-highlight-20), 0 0 0 2px var(--color-shadow-30);
 
   /* Sequencer component */
-  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-90);
-  --step-shadow-inset-highlight: inset 2px 2px 2px var(--color-highlight-40);
-  --step-shadow-inset-shadow: inset -2px -2px 2px var(--color-shadow-50);
+  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-30);
+  --step-shadow-inset-highlight: inset 1px 1px 2px var(--color-highlight-40);
+  --step-shadow-inset-shadow: inset -1px -1px 1px var(--color-shadow-50);
   --step-shadow-on:
     var(--shadow-neu), var(--step-shadow-ring),
     var(--step-shadow-inset-highlight), var(--step-shadow-inset-shadow);
   --shadow-step-inset:
-    inset 0 4px 8px var(--color-shadow), var(--step-shadow-ring);
+    inset 0 2px 4px var(--color-shadow), var(--step-shadow-ring);
   --gradient-step-glow: radial-gradient(
     circle at 50% 50%,
-    var(--color-highlight-20) 0%,
+    var(--color-highlight-30) 0%,
     transparent 55%
   );
 }
@@ -173,7 +171,7 @@ a {
 .hardware-button-group {
   box-shadow:
     var(--shadow-neu),
-    0 0 2px 3px var(--color-shadow-30);
+    0 0 2px 3px var(--color-shadow-10);
 }
 
 .hardware-button-group > *:not(:first-child) > button,
