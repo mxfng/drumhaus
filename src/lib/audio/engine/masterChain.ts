@@ -1,8 +1,12 @@
 import type { RefObject } from "react";
 import {
+  BiquadFilter,
+  Chebyshev,
   Compressor,
   Filter,
+  Gain,
   getDestination,
+  Limiter,
   Phaser,
   Reverb,
   type ToneAudioNode,
@@ -20,12 +24,23 @@ import {
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_HIGH_SHELF_FREQ,
+  MASTER_HIGH_SHELF_GAIN,
+  MASTER_LIMITER_THRESHOLD,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
   MASTER_PHASER_OCTAVES,
+  MASTER_PHASER_PRE_FILTER_FREQ,
+  MASTER_PHASER_Q,
   MASTER_PHASER_WET_RANGE,
+  MASTER_PRESENCE_FREQ,
+  MASTER_PRESENCE_GAIN,
+  MASTER_PRESENCE_Q,
   MASTER_REVERB_DECAY_RANGE,
+  MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_AMOUNT,
+  MASTER_SATURATION_WET,
   MASTER_VOLUME_RANGE,
 } from "./constants";
 
@@ -36,9 +51,17 @@ import {
 export interface MasterChainRuntimes {
   lowPassFilter: Filter;
   highPassFilter: Filter;
+  phaserPreFilter: Filter; // High-pass to keep sub bass out of phaser
   phaser: Phaser;
+  phaserSendGain: Gain; // Controls phaser send amount
+  reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
+  reverbSendGain: Gain; // Controls reverb send amount
+  saturation: Chebyshev; // Subtle harmonic warmth
+  presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
+  highShelf: BiquadFilter; // Rolls off harsh highs
   compressor: Compressor;
+  limiter: Limiter;
 }
 
 export type MasterChainSettings = {
@@ -110,9 +133,17 @@ export function disposeMasterChainRuntimes(
   const nodesToDispose = [
     { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
     { name: "highPassFilter", node: runtimes.current.highPassFilter },
+    { name: "phaserPreFilter", node: runtimes.current.phaserPreFilter },
     { name: "phaser", node: runtimes.current.phaser },
+    { name: "phaserSendGain", node: runtimes.current.phaserSendGain },
+    { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
+    { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
+    { name: "saturation", node: runtimes.current.saturation },
+    { name: "presenceDip", node: runtimes.current.presenceDip },
+    { name: "highShelf", node: runtimes.current.highShelf },
     { name: "compressor", node: runtimes.current.compressor },
+    { name: "limiter", node: runtimes.current.limiter },
   ];
 
   for (const { name, node } of nodesToDispose) {
@@ -181,11 +212,34 @@ export function chainMasterChainNodes(
   masterChain: MasterChainRuntimes,
   destination: ToneAudioNode,
 ): void {
-  masterChain.lowPassFilter.chain(
-    masterChain.highPassFilter,
+  // Input filters
+  masterChain.lowPassFilter.chain(masterChain.highPassFilter);
+
+  // Dry signal (all frequencies) goes directly to compressor
+  masterChain.highPassFilter.connect(masterChain.compressor);
+
+  // Parallel phaser send: filtered to keep sub bass clean
+  masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
+  masterChain.phaserPreFilter.chain(
     masterChain.phaser,
+    masterChain.phaserSendGain,
+  );
+  masterChain.phaserSendGain.connect(masterChain.compressor);
+
+  // Parallel reverb send: filtered to keep low end dry
+  masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
+  masterChain.reverbPreFilter.chain(
     masterChain.reverb,
-    masterChain.compressor,
+    masterChain.reverbSendGain,
+  );
+  masterChain.reverbSendGain.connect(masterChain.compressor);
+
+  // Output chain: saturation adds warmth, EQ tames harshness
+  masterChain.compressor.chain(
+    masterChain.saturation,
+    masterChain.presenceDip,
+    masterChain.highShelf,
+    masterChain.limiter,
     destination,
   );
 }
@@ -205,18 +259,31 @@ export async function buildMasterChainNodes(
   const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
   const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
 
+  // High-pass filter before phaser keeps sub bass clean
+  const phaserPreFilter = new Filter(MASTER_PHASER_PRE_FILTER_FREQ, "highpass");
+
   const phaser = new Phaser({
     frequency: MASTER_PHASER_FREQUENCY,
     octaves: MASTER_PHASER_OCTAVES,
     baseFrequency: MASTER_PHASER_BASE_FREQUENCY,
-    wet: settings.phaserWet,
+    Q: MASTER_PHASER_Q,
+    wet: 1, // 100% wet - dry signal is handled by parallel path
   });
+
+  // Send gain controls how much phaser is mixed back in
+  const phaserSendGain = new Gain(settings.phaserWet);
+
+  // High-pass filter before reverb keeps kick/bass dry
+  const reverbPreFilter = new Filter(MASTER_REVERB_PRE_FILTER_FREQ, "highpass");
 
   const reverb = new Reverb({
     decay: settings.reverbDecay,
-    wet: settings.reverbWet,
+    wet: 1, // 100% wet - dry signal is handled by parallel path
   });
   await reverb.generate(); // Required before first use
+
+  // Send gain controls how much reverb is mixed back in
+  const reverbSendGain = new Gain(settings.reverbWet);
 
   const compressor = new Compressor({
     threshold: settings.compThreshold,
@@ -225,12 +292,43 @@ export async function buildMasterChainNodes(
     release: MASTER_COMP_RELEASE,
   });
 
+  // Subtle saturation for analog warmth
+  const saturation = new Chebyshev({
+    order: MASTER_SATURATION_AMOUNT,
+    wet: MASTER_SATURATION_WET,
+  });
+
+  // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
+  const presenceDip = new BiquadFilter({
+    frequency: MASTER_PRESENCE_FREQ,
+    type: "peaking",
+    Q: MASTER_PRESENCE_Q,
+    gain: MASTER_PRESENCE_GAIN,
+  });
+
+  // High shelf rolloff - tames harsh hi-hats and sibilance
+  const highShelf = new BiquadFilter({
+    frequency: MASTER_HIGH_SHELF_FREQ,
+    type: "highshelf",
+    gain: MASTER_HIGH_SHELF_GAIN,
+  });
+
+  const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
+
   return {
     lowPassFilter,
     highPassFilter,
+    phaserPreFilter,
     phaser,
+    phaserSendGain,
+    reverbPreFilter,
     reverb,
+    reverbSendGain,
+    saturation,
+    presenceDip,
+    highShelf,
     compressor,
+    limiter,
   };
 }
 
@@ -277,9 +375,9 @@ function applySettingsToRuntimes(
 ): void {
   runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
   runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
-  runtimes.phaser.wet.value = settings.phaserWet;
+  runtimes.phaserSendGain.gain.value = settings.phaserWet;
 
-  runtimes.reverb.wet.value = settings.reverbWet;
+  runtimes.reverbSendGain.gain.value = settings.reverbWet;
   runtimes.reverb.decay = settings.reverbDecay;
 
   runtimes.compressor.threshold.value = settings.compThreshold;
