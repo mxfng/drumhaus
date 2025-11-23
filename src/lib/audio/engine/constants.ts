@@ -67,28 +67,28 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall protection
 // Tape emulation - Studer A800 style warmth (hidden processing)
 // Low shelf adds NAB-curve bass warmth
 export const TAPE_LOW_SHELF_FREQ = 80; // Hz - weight and warmth
-export const TAPE_LOW_SHELF_GAIN = 1.5; // dB - subtle but present
+export const TAPE_LOW_SHELF_GAIN = 0.8; // dB - lighter low-end bloom
 // WaveShaper provides soft saturation with even harmonics
-export const TAPE_SATURATION_DRIVE = 1.4; // Soft saturation amount
-export const TAPE_SATURATION_ASYMMETRY = 0.15; // Even harmonic content (0 = symmetric/odd only)
-export const TAPE_SATURATION_OUTPUT = 0.9; // Slight output reduction (tape compression)
+export const TAPE_SATURATION_DRIVE = 1.1; // Softer saturation amount
+export const TAPE_SATURATION_ASYMMETRY = 0.07; // Even harmonic content (0 = symmetric/odd only)
+export const TAPE_SATURATION_OUTPUT = 0.95; // Slight output reduction (tape compression)
 // Pre-saturation presence adds "HF driver" character
 export const TAPE_PRESENCE_FREQ = 2500; // Hz - air and clarity
 export const TAPE_PRESENCE_Q = 0.8; // Wide and smooth
-export const TAPE_PRESENCE_GAIN = 1.2; // dB - subtle lift before saturation
+export const TAPE_PRESENCE_GAIN = 0.6; // dB - subtle lift before saturation
 
 // Inflator - Oxford Inflator style upward compression (hidden processing)
 // Increases perceived loudness without squashing peaks
-export const INFLATOR_INPUT_GAIN = 0; // dB - unity into the effect
-export const INFLATOR_EFFECT = 0.25; // Wet/dry mix (25%)
-export const INFLATOR_CURVE = 4; // Waveshaping curve intensity (gentler)
-export const INFLATOR_OUTPUT_GAIN = -1.5; // dB - subtle compensation
+export const INFLATOR_INPUT_GAIN = -1; // dB - keep drive gentle
+export const INFLATOR_EFFECT = 0.15; // Wet/dry mix (15%)
+export const INFLATOR_CURVE = 3; // Waveshaping curve intensity (gentler)
+export const INFLATOR_OUTPUT_GAIN = -0.5; // dB - subtle compensation
 export const INFLATOR_CROSSOVER_FREQ = 240; // Hz - band split frequency
 
 // Tube saturation - FabFilter Saturn 2 Clean Tube style (hidden processing)
 // Adds subtle even harmonics for warmth
-export const TUBE_DRIVE = 0.087; // 8.7% drive - barely there
-export const TUBE_ASYMMETRY = 0.08; // Even harmonic content (tube character)
+export const TUBE_DRIVE = 0.045; // 4.5% drive - barely there
+export const TUBE_ASYMMETRY = 0.05; // Even harmonic content (tube character)
 
 // High shelf rolloff - tape head losses and silk top end
 export const MASTER_HIGH_SHELF_FREQ = 6000; // Hz - tape-style rolloff point
