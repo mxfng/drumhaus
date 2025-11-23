@@ -1,6 +1,6 @@
 // --- WAV export engine using Tone.js Offline rendering ---
 
-import { Gain, Offline, ToneAudioNode } from "tone/build/esm/index";
+import { Offline, ToneAudioNode } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
@@ -24,7 +24,6 @@ import {
   buildMasterChainNodes,
   chainMasterChainNodes,
   connectInstrumentRuntime,
-  dbToLinearGain,
   mapParamsToSettings,
   MasterChainRuntimes,
 } from "../engine/masterChain";
@@ -41,10 +40,6 @@ export interface ExportProgress {
   phase: "preparing" | "rendering" | "encoding" | "complete";
   percent: number;
 }
-
-type OfflineMasterChain = MasterChainRuntimes & {
-  masterGain: Gain;
-};
 
 /**
  * Exports the current pattern to WAV file
@@ -154,7 +149,7 @@ export function calculateExportDuration(bars: number, bpm: number): number {
 async function buildOfflineMasterChain(
   params: MasterChainParams,
   destination: ToneAudioNode,
-): Promise<OfflineMasterChain> {
+): Promise<MasterChainRuntimes> {
   // Compute settings once
   const settings = mapParamsToSettings(params);
 
@@ -162,24 +157,18 @@ async function buildOfflineMasterChain(
   const nodes = await buildMasterChainNodes(settings);
 
   // Apply all settings to nodes (ensures consistency with online engine)
+  // This includes setting destination.volume for master volume
   applySettingsToRuntimes(nodes, settings);
 
-  // Add master gain for offline rendering (Gain nodes need linear values, not dB)
-  const masterGain = new Gain(dbToLinearGain(settings.masterVolume));
+  // Chain master chain nodes to destination
+  chainMasterChainNodes(nodes, destination);
 
-  // Chain master chain nodes to gain, then to destination using shared function
-  chainMasterChainNodes(nodes, masterGain);
-  masterGain.connect(destination);
-
-  return {
-    ...nodes,
-    masterGain,
-  };
+  return nodes;
 }
 
 async function buildOfflineInstrumentRuntimes(
   instruments: InstrumentData[],
-  masterChain: OfflineMasterChain,
+  masterChain: MasterChainRuntimes,
 ): Promise<InstrumentRuntime[]> {
   const runtimes: InstrumentRuntime[] = [];
 
