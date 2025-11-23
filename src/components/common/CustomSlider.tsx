@@ -70,7 +70,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
 
       {/* Slider track */}
       <div
-        className="flex h-[10px] items-center rounded-lg shadow-[var(--slider-track-shadow)]"
+        className="flex h-[10px] items-center rounded-lg shadow-(--slider-track-shadow)"
         style={{ background: "var(--slider-track-bg)" }}
       >
         <SliderPrimitive.Root
@@ -110,7 +110,7 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
       </div>
 
       {/* Title */}
-      {title && <Label className="text-center">{title}</Label>}
+      {title && <Label className="mt-2 text-center">{title}</Label>}
     </div>
   );
 };
