@@ -55,7 +55,7 @@ type KnobTickProps = {
 const KnobTick: React.FC<KnobTickProps> = ({ size }) => (
   <div className="flex items-center justify-center">
     <div
-      className="pointer-events-none absolute z-[3] flex items-center justify-center"
+      className="pointer-events-none absolute z-3 flex items-center justify-center"
       style={{ height: `${size}px`, width: `${size}px` }}
     >
       <div

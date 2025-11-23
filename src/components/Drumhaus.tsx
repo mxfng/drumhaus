@@ -18,6 +18,8 @@ import { MasterVolume } from "./controls/master/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
+import { DebugOverlay } from "./DebugOverlay";
+import { AboutDialog } from "./dialog/AboutDialog";
 import { MobileDialog } from "./dialog/MobileDialog";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
@@ -108,24 +110,33 @@ const Drumhaus = () => {
         </div>
       </div>
       <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
+      <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      <DebugOverlay />
     </>
   );
 };
 
 const TopBar = () => {
+  const openDialog = useDialogStore((state) => state.openDialog);
+
   return (
     <div className="surface relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
       <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
-        <div className="flex items-end">
-          <DrumhausLogo size={46} color="#ff7b00" />
-        </div>
-        <div className="ml-2 flex items-end">
-          <DrumhausTypographyLogo color="#ff7b00" size={420} />
-        </div>
-        <div className="-mb-1 ml-4">
-          <p className="opacity-70">Browser Controlled</p>
-          <p className="opacity-70">Rhythmic Groove Machine</p>
-        </div>
+        <button
+          className="flex cursor-pointer items-end"
+          onClick={() => openDialog("about")}
+        >
+          <div className="flex items-end">
+            <DrumhausLogo size={46} color="#ff7b00" />
+          </div>
+          <div className="ml-2 flex items-end">
+            <DrumhausTypographyLogo color="#ff7b00" size={420} />
+          </div>
+          <div className="-mb-1 ml-4 text-left">
+            <p className="opacity-70">Browser Controlled</p>
+            <p className="opacity-70">Rhythmic Groove Machine</p>
+          </div>
+        </button>
       </div>
 
       <div className="absolute right-[26px] bottom-[18px] overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
