@@ -8,7 +8,13 @@ import {
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
-import { SAMPLER_ROOT_NOTE } from "./constants";
+import {
+  ENVELOPE_DEFAULT_ATTACK,
+  ENVELOPE_DEFAULT_DECAY,
+  ENVELOPE_DEFAULT_RELEASE,
+  ENVELOPE_DEFAULT_SUSTAIN,
+  SAMPLER_ROOT_NOTE,
+} from "./constants";
 
 type SamplerSource = {
   url: string;
@@ -45,18 +51,32 @@ export function disposeInstrumentRuntimes(
   existingRuntimes.forEach(disposeInstrumentRuntime);
 }
 
-async function buildInstrumentRuntime(
+/**
+ * Builds a single instrument runtime with loaded sampler.
+ * Waits for the sampler to fully load before resolving.
+ */
+export async function buildInstrumentRuntime(
   instrument: InstrumentData,
 ): Promise<InstrumentRuntime> {
   const filterNode = new Filter(0, "highpass");
-  const envelopeNode = new AmplitudeEnvelope(0, 0, 1, 0.05);
+  const envelopeNode = new AmplitudeEnvelope(
+    ENVELOPE_DEFAULT_ATTACK,
+    ENVELOPE_DEFAULT_DECAY,
+    ENVELOPE_DEFAULT_SUSTAIN,
+    ENVELOPE_DEFAULT_RELEASE,
+  );
   const pannerNode = new Panner(0);
 
   const { url, baseUrl } = await resolveSamplerSource(instrument.sample.path);
 
-  const samplerNode = new Sampler({
-    urls: { [SAMPLER_ROOT_NOTE]: url },
-    ...(baseUrl ? { baseUrl } : {}),
+  // Create sampler and wait for it to load
+  const samplerNode = await new Promise<Sampler>((resolve, reject) => {
+    const sampler = new Sampler({
+      urls: { [SAMPLER_ROOT_NOTE]: url },
+      ...(baseUrl ? { baseUrl } : {}),
+      onload: () => resolve(sampler),
+      onerror: (err) => reject(err),
+    });
   });
 
   return {

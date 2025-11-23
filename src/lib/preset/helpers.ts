@@ -1,5 +1,5 @@
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import { getMasterChainParams } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { Meta } from "@/types/meta";
@@ -19,15 +19,7 @@ export function getCurrentPreset(
   const instruments = useInstrumentsStore.getState().instruments;
   const { pattern, variationCycle } = usePatternStore.getState();
   const { bpm, swing } = useTransportStore.getState();
-  const {
-    lowPass,
-    highPass,
-    phaser,
-    reverb,
-    compThreshold,
-    compRatio,
-    masterVolume,
-  } = useMasterChainStore.getState();
+  const masterChain = getMasterChainParams();
 
   return {
     kind: "drumhaus.preset",
@@ -50,15 +42,7 @@ export function getCurrentPreset(
       pattern,
       variationCycle,
     },
-    masterChain: {
-      lowPass,
-      highPass,
-      phaser,
-      reverb,
-      compThreshold,
-      compRatio,
-      masterVolume,
-    },
+    masterChain,
   };
 }
 

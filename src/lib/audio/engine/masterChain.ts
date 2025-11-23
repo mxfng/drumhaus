@@ -14,9 +14,14 @@ import {
 import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 import {
+  MASTER_COMP_ATTACK,
   MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_PHASER_BASE_FREQUENCY,
+  MASTER_PHASER_FREQUENCY,
+  MASTER_PHASER_OCTAVES,
   MASTER_PHASER_WET_RANGE,
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_WET_RANGE,
@@ -31,7 +36,7 @@ export interface MasterChainRuntimes {
   compressor: Compressor;
 }
 
-type MasterChainSettings = {
+export type MasterChainSettings = {
   lowPassFrequency: number;
   highPassFrequency: number;
   phaserWet: number;
@@ -64,6 +69,22 @@ export function connectInstrumentsToMasterChain(
 ): void {
   instrumentRuntimes.forEach((inst) =>
     connectInstrumentRuntime(inst, masterChainRuntimes),
+  );
+}
+
+/**
+ * Connects a single instrument runtime to the master chain entry point.
+ * Used by offline rendering where the chain is already connected to destination.
+ */
+export function connectInstrumentToMasterChainEntry(
+  instrument: InstrumentRuntime,
+  masterChain: MasterChainRuntimes,
+): void {
+  instrument.samplerNode.chain(
+    instrument.envelopeNode,
+    instrument.filterNode,
+    instrument.pannerNode,
+    masterChain.lowPassFilter,
   );
 }
 
@@ -107,7 +128,11 @@ export function disposeMasterChainRuntimes(
   }
 }
 
-async function buildMasterChain(
+/**
+ * Builds the master chain audio nodes.
+ * Shared between online and offline contexts.
+ */
+export async function buildMasterChainNodes(
   params: MasterChainParams,
 ): Promise<MasterChainRuntimes> {
   const settings = mapParamsToSettings(params);
@@ -115,9 +140,9 @@ async function buildMasterChain(
   const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
   const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
   const phaser = new Phaser({
-    frequency: 1,
-    octaves: 3,
-    baseFrequency: 1000,
+    frequency: MASTER_PHASER_FREQUENCY,
+    octaves: MASTER_PHASER_OCTAVES,
+    baseFrequency: MASTER_PHASER_BASE_FREQUENCY,
     wet: settings.phaserWet,
   });
 
@@ -130,20 +155,9 @@ async function buildMasterChain(
   const compressor = new Compressor({
     threshold: settings.compThreshold,
     ratio: settings.compRatio,
-    attack: 0.5,
-    release: 1,
+    attack: MASTER_COMP_ATTACK,
+    release: MASTER_COMP_RELEASE,
   });
-
-  applySettingsToRuntimes(
-    {
-      lowPassFilter,
-      highPassFilter,
-      phaser,
-      reverb,
-      compressor,
-    },
-    settings,
-  );
 
   return {
     lowPassFilter,
@@ -154,7 +168,18 @@ async function buildMasterChain(
   };
 }
 
-function mapParamsToSettings(params: MasterChainParams): MasterChainSettings {
+async function buildMasterChain(
+  params: MasterChainParams,
+): Promise<MasterChainRuntimes> {
+  const runtimes = await buildMasterChainNodes(params);
+  const settings = mapParamsToSettings(params);
+  applySettingsToRuntimes(runtimes, settings);
+  return runtimes;
+}
+
+export function mapParamsToSettings(
+  params: MasterChainParams,
+): MasterChainSettings {
   return {
     lowPassFrequency: transformKnobValueExponential(
       params.lowPass,

@@ -2,12 +2,15 @@ import { Time, type Unit } from "tone/build/esm/index";
 
 import { transformKnobValueExponential } from "@/components/common/knobTransforms";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
-import type { Voice } from "@/types/pattern";
+import type { Pattern, Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
 import {
   INSTRUMENT_RELEASE_RANGE,
   SEQUENCE_EVENTS,
   SEQUENCE_SUBDIVISION,
+  STEP_COUNT,
+  TRANSPORT_SWING_MAX,
+  TRANSPORT_SWING_RANGE,
 } from "./constants";
 import { defaultSequencerFactory, defaultStateProvider } from "./factory";
 import { transformPitchKnobToFrequency } from "./pitch";
@@ -117,18 +120,21 @@ export function disposeDrumSequence(
   sequencerRef.current = null;
 }
 
-function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
-  const {
-    time,
-    step,
-    variationIndex,
-    instruments,
-    runtimes,
-    anySolos,
-    hasOhat,
-    ohatIndex,
-  } = context;
-
+/**
+ * Schedules a voice step at a specific time (in seconds).
+ * Shared between online and offline playback.
+ */
+export function scheduleVoiceAtTime(
+  voice: Voice,
+  step: number,
+  time: number,
+  variationIndex: number,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+  anySolos: boolean,
+  hasOhat: boolean,
+  ohatIndex: number,
+): void {
   const instrumentIndex = voice.instrumentIndex;
   const inst = instruments[instrumentIndex];
   const runtime = runtimes[instrumentIndex];
@@ -153,17 +159,57 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
   );
 
   if (inst.role === "hat" && hasOhat) {
-    muteOpenHat(time, instruments, runtimes, ohatIndex);
+    muteOpenHatAtTime(time, instruments, runtimes, ohatIndex);
   }
 
   if (inst.role === "ohat") {
-    triggerOpenHat(time, runtime, pitch, releaseTime, velocity);
+    triggerOpenHatAtTime(time, runtime, pitch, releaseTime, velocity);
   } else {
-    triggerStandardInstrument(time, runtime, pitch, releaseTime, velocity);
+    triggerStandardInstrumentAtTime(
+      time,
+      runtime,
+      pitch,
+      releaseTime,
+      velocity,
+    );
   }
 }
 
-function findOpenHatIndex(
+function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
+  const {
+    time,
+    step,
+    variationIndex,
+    instruments,
+    runtimes,
+    anySolos,
+    hasOhat,
+    ohatIndex,
+  } = context;
+
+  const instrumentIndex = voice.instrumentIndex;
+  const inst = instruments[instrumentIndex];
+  const runtime = runtimes[instrumentIndex];
+
+  if (!inst || !runtime) return;
+
+  // Check if sampler is loaded before scheduling (online playback safety)
+  if (!runtime.samplerNode.loaded) return;
+
+  scheduleVoiceAtTime(
+    voice,
+    step,
+    Time(time).toSeconds(),
+    variationIndex,
+    instruments,
+    runtimes,
+    anySolos,
+    hasOhat,
+    ohatIndex,
+  );
+}
+
+export function findOpenHatIndex(
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
 ): { hasOhat: boolean; ohatIndex: number } {
@@ -176,7 +222,7 @@ function findOpenHatIndex(
   };
 }
 
-function computeNextVariationIndex(
+export function computeNextVariationIndex(
   variationCycle: VariationCycle,
   currentBarIndex: number,
   currentVariationIndex: number,
@@ -214,24 +260,30 @@ function updateVariationForBarStart(
   }
 }
 
+export function computeNextBarIndex(
+  variationCycle: VariationCycle,
+  currentBar: number,
+): number {
+  if (
+    variationCycle === "A" ||
+    variationCycle === "B" ||
+    (variationCycle === "AB" && currentBar > 0) ||
+    (variationCycle === "AAAB" && currentBar > 2)
+  ) {
+    return 0;
+  }
+  return currentBar + 1;
+}
+
 function updateBarIndexAtEndOfBar(
   variationCycle: VariationCycle,
   currentBar: Ref<number>,
 ): void {
-  if (
-    variationCycle === "A" ||
-    variationCycle === "B" ||
-    (variationCycle === "AB" && currentBar.current > 0) ||
-    (variationCycle === "AAAB" && currentBar.current > 2)
-  ) {
-    currentBar.current = 0;
-  } else {
-    currentBar.current += 1;
-  }
+  currentBar.current = computeNextBarIndex(variationCycle, currentBar.current);
 }
 
-function muteOpenHat(
-  time: Unit.Time,
+export function muteOpenHatAtTime(
+  time: number,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   ohatIndex: number,
@@ -244,8 +296,8 @@ function muteOpenHat(
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 
-function triggerOpenHat(
-  time: Unit.Time,
+export function triggerOpenHatAtTime(
+  time: number,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
@@ -253,15 +305,12 @@ function triggerOpenHat(
 ): void {
   const env = runtime.envelopeNode;
   env.triggerAttack(time);
-  env.triggerRelease(Time(time).toSeconds() + releaseTime);
-
-  if (runtime.samplerNode.loaded) {
-    runtime.samplerNode.triggerAttack(pitch, time, velocity);
-  }
+  env.triggerRelease(time + releaseTime);
+  runtime.samplerNode.triggerAttack(pitch, time, velocity);
 }
 
-function triggerStandardInstrument(
-  time: Unit.Time,
+export function triggerStandardInstrumentAtTime(
+  time: number,
   runtime: InstrumentRuntime,
   pitch: number,
   releaseTime: number,
@@ -271,9 +320,74 @@ function triggerStandardInstrument(
 
   const env = runtime.envelopeNode;
   env.triggerAttack(time);
-  env.triggerRelease(Time(time).toSeconds() + releaseTime);
+  env.triggerRelease(time + releaseTime);
+  runtime.samplerNode.triggerAttack(pitch, time, velocity);
+}
 
-  if (runtime.samplerNode.loaded) {
-    runtime.samplerNode.triggerAttack(pitch, time, velocity);
+/**
+ * Configures transport timing settings.
+ * Works with both online (getTransport) and offline transport objects.
+ */
+export function configureTransportTiming(
+  transport: {
+    bpm: { value: number };
+    swing: number;
+    swingSubdivision: string;
+  },
+  bpm: number,
+  swing: number,
+): void {
+  transport.bpm.value = bpm;
+  transport.swing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
+  transport.swingSubdivision = SEQUENCE_SUBDIVISION;
+}
+
+/**
+ * Schedules all pattern events for offline rendering.
+ * Pre-calculates all step times and schedules voices.
+ */
+export function schedulePatternEvents(
+  pattern: Pattern,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+  variationCycle: VariationCycle,
+  bars: number,
+  stepDuration: number,
+): void {
+  const totalSteps = bars * STEP_COUNT;
+  const anySolos = hasAnySolo(instruments);
+  const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
+
+  let currentBar = 0;
+  let currentVariation = computeNextVariationIndex(variationCycle, 0, 0);
+
+  for (let step = 0; step < totalSteps; step++) {
+    const stepInBar = step % STEP_COUNT;
+    const time = step * stepDuration;
+
+    // Update variation at start of each bar
+    if (stepInBar === 0 && step > 0) {
+      currentBar = computeNextBarIndex(variationCycle, currentBar);
+      currentVariation = computeNextVariationIndex(
+        variationCycle,
+        currentBar,
+        currentVariation,
+      );
+    }
+
+    // Schedule each voice
+    for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
+      scheduleVoiceAtTime(
+        pattern[voiceIndex],
+        stepInBar,
+        time,
+        currentVariation,
+        instruments,
+        runtimes,
+        anySolos,
+        hasOhat,
+        ohatIndex,
+      );
+    }
   }
 }

@@ -1,7 +1,11 @@
 import { getContext, getTransport, now, start } from "tone/build/esm/index";
 
 import type { InstrumentRuntime } from "@/types/instrument";
-import { SEQUENCE_SUBDIVISION, TRANSPORT_SWING_RANGE } from "./constants";
+import {
+  SEQUENCE_SUBDIVISION,
+  TRANSPORT_SWING_MAX,
+  TRANSPORT_SWING_RANGE,
+} from "./constants";
 import { stopRuntimeAtTime } from "./runtimeStops";
 
 /**
@@ -45,7 +49,7 @@ export function setTransportBpm(bpm: number): void {
  * Set the transport swing
  */
 export function setTransportSwing(swing: number): void {
-  const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * 0.5;
+  const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
   getTransport().swingSubdivision = SEQUENCE_SUBDIVISION;
   getTransport().swing = newSwing;
 }
