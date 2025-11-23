@@ -38,6 +38,7 @@ export const MASTER_PHASER_FREQUENCY = 0.5; // Slower LFO for subtle movement
 export const MASTER_PHASER_OCTAVES = 2; // Narrower sweep
 export const MASTER_PHASER_BASE_FREQUENCY = 1500; // Start higher to avoid low-mid mud
 export const MASTER_PHASER_Q = 0.5; // Low Q = smooth spread, no resonant squeals
+export const MASTER_PHASER_PRE_FILTER_FREQ = 300; // Hz - sub bass stays clean
 
 // Reverb pre-filter (keeps low end dry)
 export const MASTER_REVERB_PRE_FILTER_FREQ = 250; // Hz - kick/bass stays dry

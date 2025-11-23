@@ -26,6 +26,7 @@ import {
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
   MASTER_PHASER_OCTAVES,
+  MASTER_PHASER_PRE_FILTER_FREQ,
   MASTER_PHASER_Q,
   MASTER_PHASER_WET_RANGE,
   MASTER_REVERB_DECAY_RANGE,
@@ -41,7 +42,9 @@ import {
 export interface MasterChainRuntimes {
   lowPassFilter: Filter;
   highPassFilter: Filter;
+  phaserPreFilter: Filter; // High-pass to keep sub bass out of phaser
   phaser: Phaser;
+  phaserSendGain: Gain; // Controls phaser send amount
   reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
@@ -118,7 +121,9 @@ export function disposeMasterChainRuntimes(
   const nodesToDispose = [
     { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
     { name: "highPassFilter", node: runtimes.current.highPassFilter },
+    { name: "phaserPreFilter", node: runtimes.current.phaserPreFilter },
     { name: "phaser", node: runtimes.current.phaser },
+    { name: "phaserSendGain", node: runtimes.current.phaserSendGain },
     { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
@@ -192,17 +197,22 @@ export function chainMasterChainNodes(
   masterChain: MasterChainRuntimes,
   destination: ToneAudioNode,
 ): void {
-  // Main dry path
-  masterChain.lowPassFilter.chain(
-    masterChain.highPassFilter,
-    masterChain.phaser,
-  );
+  // Input filters
+  masterChain.lowPassFilter.chain(masterChain.highPassFilter);
 
-  // Dry signal goes directly to compressor
-  masterChain.phaser.connect(masterChain.compressor);
+  // Dry signal (all frequencies) goes directly to compressor
+  masterChain.highPassFilter.connect(masterChain.compressor);
+
+  // Parallel phaser send: filtered to keep sub bass clean
+  masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
+  masterChain.phaserPreFilter.chain(
+    masterChain.phaser,
+    masterChain.phaserSendGain,
+  );
+  masterChain.phaserSendGain.connect(masterChain.compressor);
 
   // Parallel reverb send: filtered to keep low end dry
-  masterChain.phaser.connect(masterChain.reverbPreFilter);
+  masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
   masterChain.reverbPreFilter.chain(
     masterChain.reverb,
     masterChain.reverbSendGain,
@@ -228,13 +238,19 @@ export async function buildMasterChainNodes(
   const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
   const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
 
+  // High-pass filter before phaser keeps sub bass clean
+  const phaserPreFilter = new Filter(MASTER_PHASER_PRE_FILTER_FREQ, "highpass");
+
   const phaser = new Phaser({
     frequency: MASTER_PHASER_FREQUENCY,
     octaves: MASTER_PHASER_OCTAVES,
     baseFrequency: MASTER_PHASER_BASE_FREQUENCY,
     Q: MASTER_PHASER_Q,
-    wet: settings.phaserWet,
+    wet: 1, // 100% wet - dry signal is handled by parallel path
   });
+
+  // Send gain controls how much phaser is mixed back in
+  const phaserSendGain = new Gain(settings.phaserWet);
 
   // High-pass filter before reverb keeps kick/bass dry
   const reverbPreFilter = new Filter(MASTER_REVERB_PRE_FILTER_FREQ, "highpass");
@@ -260,7 +276,9 @@ export async function buildMasterChainNodes(
   return {
     lowPassFilter,
     highPassFilter,
+    phaserPreFilter,
     phaser,
+    phaserSendGain,
     reverbPreFilter,
     reverb,
     reverbSendGain,
@@ -312,7 +330,7 @@ function applySettingsToRuntimes(
 ): void {
   runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
   runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
-  runtimes.phaser.wet.value = settings.phaserWet;
+  runtimes.phaserSendGain.gain.value = settings.phaserWet;
 
   runtimes.reverbSendGain.gain.value = settings.reverbWet;
   runtimes.reverb.decay = settings.reverbDecay;
