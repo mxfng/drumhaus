@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { type VariantProps } from "class-variance-authority";
-import { IoClose } from "react-icons/io5";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { dialogVariants } from "./variants/dialogVariants";
@@ -105,7 +105,7 @@ DialogDescription.displayName = "DialogDescription";
 export function DialogCloseButton() {
   return (
     <DialogPrimitive.Close className="focus:ring-accent absolute top-4 right-4 cursor-pointer rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none">
-      <IoClose className="h-5 w-5" />
+      <X className="h-5 w-5" />
       <span className="sr-only">Close</span>
     </DialogPrimitive.Close>
   );

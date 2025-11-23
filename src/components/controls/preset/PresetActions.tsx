@@ -1,6 +1,4 @@
-import { FaFolderOpen } from "react-icons/fa";
-import { IoIosSave, IoIosShareAlt } from "react-icons/io";
-import { VscDebugRestart } from "react-icons/vsc";
+import { FolderOpen, RotateCcw, Save, Share2 } from "lucide-react";
 
 import { Button, Tooltip } from "@/components/ui";
 import { useDialogStore } from "@/stores/useDialogStore";
@@ -24,9 +22,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             onClick={() => openDialog("save")}
             className="w-full rounded-l-lg"
           >
-            <IoIosSave
+            <Save
               className="group-hover:text-accent transition-all duration-200"
-              size="20px"
+              size={20}
             />
           </Button>
         </Tooltip>
@@ -40,9 +38,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             onClick={onOpenFromFile}
             className="w-full"
           >
-            <FaFolderOpen
+            <FolderOpen
               className="group-hover:text-accent transition-all duration-200"
-              size="20px"
+              size={20}
             />
           </Button>
         </Tooltip>
@@ -56,9 +54,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             onClick={() => openDialog("share")}
             className="w-full"
           >
-            <IoIosShareAlt
+            <Share2
               className="group-hover:text-accent transition-all duration-200"
-              size="26px"
+              size={20}
             />
           </Button>
         </Tooltip>
@@ -72,9 +70,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             onClick={() => openDialog("reset")}
             className="w-full rounded-r-lg"
           >
-            <VscDebugRestart
+            <RotateCcw
               className="group-hover:text-accent transition-all duration-200"
-              size="20px"
+              size={20}
             />
           </Button>
         </Tooltip>

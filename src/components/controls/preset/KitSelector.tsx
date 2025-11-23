@@ -1,4 +1,4 @@
-import { IoMdArrowDropdown } from "react-icons/io";
+import { ChevronsUpDown } from "lucide-react";
 
 import {
   Label,
@@ -30,14 +30,7 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
           <Select value={selectedKitId} onValueChange={onSelect}>
             <SelectTrigger className="h-10 cursor-pointer rounded-lg bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">
               <SelectValue />
-              <div className="pointer-events-none">
-                <div className="-mb-1 h-1/2 rotate-180">
-                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
-                </div>
-                <div className="h-1/2">
-                  <IoMdArrowDropdown className="group-hover:text-accent transition-all duration-200" />
-                </div>
-              </div>
+              <ChevronsUpDown className="group-hover:text-accent h-4 w-4 transition-all duration-200" />
             </SelectTrigger>
             <SelectContent>
               {kits.map((kit) => (

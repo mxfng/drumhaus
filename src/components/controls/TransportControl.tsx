@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { IoTriangleSharp } from "react-icons/io5";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import {
   TRANSPORT_BPM_RANGE,
@@ -95,7 +95,7 @@ export const TransportControl: React.FC = () => {
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             >
-              <IoTriangleSharp />
+              <ChevronUp size={14} />
             </button>
             <button
               className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
@@ -103,7 +103,7 @@ export const TransportControl: React.FC = () => {
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             >
-              <IoTriangleSharp className="rotate-180" />
+              <ChevronDown size={14} />
             </button>
           </div>
         </div>

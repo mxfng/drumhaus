@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
+import { Pause, Play } from "lucide-react";
 
 import { Button, Tooltip } from "@/components/ui";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
@@ -178,7 +178,11 @@ const MainControls = ({
             onClick={() => togglePlay(instrumentRuntimes)}
             onKeyDown={(ev) => ev.preventDefault()}
           >
-            {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
+            {isPlaying ? (
+              <Pause fill="currentColor" size={50} strokeWidth={1} />
+            ) : (
+              <Play fill="currentColor" size={50} strokeWidth={1} />
+            )}
           </Button>
         </Tooltip>
 
