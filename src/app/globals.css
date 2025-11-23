@@ -112,6 +112,12 @@ a {
   transform-origin: center center;
 }
 
+@media (min-width: 1024px) {
+  .drumhaus-scale-wrapper {
+    transform: scale(var(--scale, 1));
+  }
+}
+
 /* Neumorphic utilities */
 .neu {
   box-shadow: var(--shadow-neu);
@@ -369,7 +375,7 @@ a {
 }
 
 /* Responsive */
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .drumhaus-root {
     position: static;
     inset: auto;
@@ -380,7 +386,8 @@ a {
   }
 
   .drumhaus-scale-wrapper {
-    transform: none !important;
+    transform: none;
+    transform-origin: none;
     width: auto;
     height: auto;
     min-height: 100vh;
