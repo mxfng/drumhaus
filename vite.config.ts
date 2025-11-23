@@ -14,25 +14,7 @@ const getGitHash = () => {
   }
 };
 
-const getGitBranch = () => {
-  try {
-    return execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-  } catch {
-    return "unknown";
-  }
-};
-
-const getCommitCount = () => {
-  try {
-    return execSync("git rev-list --count HEAD").toString().trim();
-  } catch {
-    return "0";
-  }
-};
-
 const appVersion = getGitHash();
-const gitBranch = getGitBranch();
-const commitCount = getCommitCount();
 const nodeVersion = process.version;
 
 // Custom plugin to handle .dh and .dhkit files as JSON
@@ -57,8 +39,6 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(appVersion),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __GIT_BRANCH__: JSON.stringify(gitBranch),
-    __COMMIT_COUNT__: JSON.stringify(commitCount),
     __NODE_VERSION__: JSON.stringify(nodeVersion),
   },
   resolve: {
