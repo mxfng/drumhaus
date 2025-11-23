@@ -20,8 +20,11 @@ import {
 import { applyInstrumentParams } from "../engine/instrumentParams";
 import { buildInstrumentRuntime } from "../engine/instrumentRuntimes";
 import {
+  applySettingsToRuntimes,
   buildMasterChainNodes,
+  chainMasterChainNodes,
   connectInstrumentToMasterChainEntry,
+  dbToLinearGain,
   mapParamsToSettings,
   MasterChainRuntimes,
 } from "../engine/masterChain";
@@ -151,22 +154,21 @@ async function buildOfflineMasterChain(
   params: MasterChainParams,
   destination: ToneAudioNode,
 ): Promise<OfflineMasterChain> {
-  // Build shared nodes
-  const nodes = await buildMasterChainNodes(params);
-
-  // Add master gain for offline rendering
+  // Compute settings once
   const settings = mapParamsToSettings(params);
-  const masterGain = new Gain(Math.pow(10, settings.masterVolume / 20));
 
-  // Chain to destination
-  nodes.lowPassFilter.chain(
-    nodes.highPassFilter,
-    nodes.phaser,
-    nodes.reverb,
-    nodes.compressor,
-    masterGain,
-    destination,
-  );
+  // Build shared nodes
+  const nodes = await buildMasterChainNodes(settings);
+
+  // Apply all settings to nodes (ensures consistency with online engine)
+  applySettingsToRuntimes(nodes, settings);
+
+  // Add master gain for offline rendering (Gain nodes need linear values, not dB)
+  const masterGain = new Gain(dbToLinearGain(settings.masterVolume));
+
+  // Chain master chain nodes to gain, then to destination using shared function
+  chainMasterChainNodes(nodes, masterGain);
+  masterGain.connect(destination);
 
   return {
     ...nodes,

@@ -5,6 +5,7 @@ import {
   getDestination,
   Phaser,
   Reverb,
+  type ToneAudioNode,
 } from "tone/build/esm/index";
 
 import {
@@ -129,14 +130,13 @@ export function disposeMasterChainRuntimes(
 }
 
 /**
- * Builds the master chain audio nodes.
+ * Builds the master chain audio nodes from settings.
+ * Pure function that only creates nodes - settings computation is separate.
  * Shared between online and offline contexts.
  */
 export async function buildMasterChainNodes(
-  params: MasterChainParams,
+  settings: MasterChainSettings,
 ): Promise<MasterChainRuntimes> {
-  const settings = mapParamsToSettings(params);
-
   const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
   const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
   const phaser = new Phaser({
@@ -171,8 +171,9 @@ export async function buildMasterChainNodes(
 async function buildMasterChain(
   params: MasterChainParams,
 ): Promise<MasterChainRuntimes> {
-  const runtimes = await buildMasterChainNodes(params);
   const settings = mapParamsToSettings(params);
+  const runtimes = await buildMasterChainNodes(settings);
+  // Apply settings (including masterVolume which isn't set in node constructors)
   applySettingsToRuntimes(runtimes, settings);
   return runtimes;
 }
@@ -203,7 +204,11 @@ export function mapParamsToSettings(
   };
 }
 
-function applySettingsToRuntimes(
+/**
+ * Applies master chain settings to runtime nodes.
+ * Shared between online and offline contexts.
+ */
+export function applySettingsToRuntimes(
   runtimes: MasterChainRuntimes,
   settings: MasterChainSettings,
 ): void {
@@ -217,6 +222,33 @@ function applySettingsToRuntimes(
   getDestination().volume.value = settings.masterVolume;
 }
 
+/**
+ * Chains master chain nodes in the correct order.
+ * Shared between online and offline contexts.
+ * @param masterChain The master chain runtimes
+ * @param destination The destination node to chain to (e.g., getDestination() for online, or Offline destination for export)
+ */
+export function chainMasterChainNodes(
+  masterChain: MasterChainRuntimes,
+  destination: ToneAudioNode,
+): void {
+  masterChain.lowPassFilter.chain(
+    masterChain.highPassFilter,
+    masterChain.phaser,
+    masterChain.reverb,
+    masterChain.compressor,
+    destination,
+  );
+}
+
+/**
+ * Converts dB value to linear gain for use with Gain nodes.
+ * Used for offline rendering where Gain nodes expect linear values.
+ */
+export function dbToLinearGain(db: number): number {
+  return Math.pow(10, db / 20);
+}
+
 function connectInstrumentRuntime(
   instrument: InstrumentRuntime,
   master: MasterChainRuntimes,
@@ -227,6 +259,8 @@ function connectInstrumentRuntime(
   instrument.filterNode.disconnect();
   instrument.pannerNode.disconnect();
 
+  // Chain instrument through master chain to destination
+  // Note: Master chain order is defined in chainMasterChainNodes for consistency
   instrument.samplerNode.chain(
     instrument.envelopeNode,
     instrument.filterNode,

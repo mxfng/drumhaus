@@ -121,6 +121,25 @@ export function disposeDrumSequence(
 }
 
 /**
+ * Gets the instrument and runtime for a voice, or null if either is missing.
+ */
+function getInstrumentAndRuntime(
+  voice: Voice,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+): { inst: InstrumentData; runtime: InstrumentRuntime } | null {
+  const instrumentIndex = voice.instrumentIndex;
+  const inst = instruments[instrumentIndex];
+  const runtime = runtimes[instrumentIndex];
+
+  // If the instrument or its runtime is missing (e.g. during a kit switch),
+  // skip scheduling for this voice to avoid transient runtime errors.
+  if (!inst || !runtime) return null;
+
+  return { inst, runtime };
+}
+
+/**
  * Schedules a voice step at a specific time (in seconds).
  * Shared between online and offline playback.
  */
@@ -135,14 +154,10 @@ export function scheduleVoiceAtTime(
   hasOhat: boolean,
   ohatIndex: number,
 ): void {
-  const instrumentIndex = voice.instrumentIndex;
-  const inst = instruments[instrumentIndex];
-  const runtime = runtimes[instrumentIndex];
+  const result = getInstrumentAndRuntime(voice, instruments, runtimes);
+  if (!result) return;
 
-  // If the instrument or its runtime is missing (e.g. during a kit switch),
-  // skip scheduling for this voice to avoid transient runtime errors.
-  if (!inst || !runtime) return;
-
+  const { inst, runtime } = result;
   const params = inst.params;
   const variation = voice.variations[variationIndex];
   const triggers = variation.triggers;
@@ -187,11 +202,10 @@ function scheduleVoiceForStep(voice: Voice, context: ScheduleContext): void {
     ohatIndex,
   } = context;
 
-  const instrumentIndex = voice.instrumentIndex;
-  const inst = instruments[instrumentIndex];
-  const runtime = runtimes[instrumentIndex];
+  const result = getInstrumentAndRuntime(voice, instruments, runtimes);
+  if (!result) return;
 
-  if (!inst || !runtime) return;
+  const { runtime } = result;
 
   // Check if sampler is loaded before scheduling (online playback safety)
   if (!runtime.samplerNode.loaded) return;
