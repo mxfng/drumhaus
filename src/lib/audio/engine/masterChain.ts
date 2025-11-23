@@ -35,8 +35,6 @@ import {
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
-  MASTER_HIGH_SHELF_FREQ,
-  MASTER_HIGH_SHELF_GAIN,
   MASTER_LIMITER_THRESHOLD,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
@@ -44,9 +42,6 @@ import {
   MASTER_PHASER_PRE_FILTER_FREQ,
   MASTER_PHASER_Q,
   MASTER_PHASER_WET_RANGE,
-  MASTER_PRESENCE_FREQ,
-  MASTER_PRESENCE_GAIN,
-  MASTER_PRESENCE_Q,
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
@@ -59,6 +54,8 @@ import {
   TAPE_SATURATION_ASYMMETRY,
   TAPE_SATURATION_DRIVE,
   TAPE_SATURATION_OUTPUT,
+  TUBE_ASYMMETRY,
+  TUBE_DRIVE,
 } from "./constants";
 
 // -----------------------------------------------------------------------------
@@ -96,9 +93,9 @@ export interface MasterChainRuntimes {
   inflatorWetGain: Gain; // Wet signal level
   inflatorDryGain: Gain; // Dry signal level
   inflatorOutputGain: Gain; // Final output compensation
+  // Tube saturation (Saturn 2 Clean Tube style)
+  tubeSaturation: WaveShaper; // Subtle even harmonics
   // Output processing
-  presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
-  highShelf: BiquadFilter; // Tape head losses / silk top end
   limiter: Limiter;
 }
 
@@ -194,8 +191,7 @@ export function disposeMasterChainRuntimes(
     { name: "inflatorWetGain", node: runtimes.current.inflatorWetGain },
     { name: "inflatorDryGain", node: runtimes.current.inflatorDryGain },
     { name: "inflatorOutputGain", node: runtimes.current.inflatorOutputGain },
-    { name: "presenceDip", node: runtimes.current.presenceDip },
-    { name: "highShelf", node: runtimes.current.highShelf },
+    { name: "tubeSaturation", node: runtimes.current.tubeSaturation },
     { name: "limiter", node: runtimes.current.limiter },
   ];
 
@@ -259,6 +255,9 @@ export function connectInstrumentsToMasterChain(
  * Chains master chain nodes in the correct order.
  * Shared between online and offline contexts.
  *
+ * compressor → tape → inflator → tubeSaturation →
+ * filters → FX sends → limiter
+ *
  * @param masterChain The master chain runtimes.
  * @param destination The destination node to chain to
  *        (e.g., getDestination() for online, or offline destination for export).
@@ -304,8 +303,11 @@ export function chainMasterChainNodes(
   masterChain.inflatorWetGain.connect(masterChain.inflatorOutputGain);
   masterChain.inflatorDryGain.connect(masterChain.inflatorOutputGain);
 
-  // Filters (after inflator)
-  masterChain.inflatorOutputGain.chain(
+  // Tube saturation (after inflator) - subtle even harmonics
+  masterChain.inflatorOutputGain.connect(masterChain.tubeSaturation);
+
+  // Filters (after tube saturation)
+  masterChain.tubeSaturation.chain(
     masterChain.lowPassFilter,
     masterChain.highPassFilter,
   );
@@ -316,7 +318,7 @@ export function chainMasterChainNodes(
     masterChain.phaser,
     masterChain.phaserSendGain,
   );
-  masterChain.phaserSendGain.connect(masterChain.presenceDip);
+  masterChain.phaserSendGain.connect(masterChain.limiter);
 
   // Parallel reverb send: filtered to keep low end dry
   masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
@@ -324,17 +326,13 @@ export function chainMasterChainNodes(
     masterChain.reverb,
     masterChain.reverbSendGain,
   );
-  masterChain.reverbSendGain.connect(masterChain.presenceDip);
+  masterChain.reverbSendGain.connect(masterChain.limiter);
 
-  // Main signal and FX sends sum into output chain
-  masterChain.highPassFilter.connect(masterChain.presenceDip);
+  // Main signal to limiter
+  masterChain.highPassFilter.connect(masterChain.limiter);
 
-  // Output chain: EQ tames harshness
-  masterChain.presenceDip.chain(
-    masterChain.highShelf,
-    masterChain.limiter,
-    destination,
-  );
+  // Output to destination
+  masterChain.limiter.connect(destination);
 }
 
 // -----------------------------------------------------------------------------
@@ -449,20 +447,12 @@ export async function buildMasterChainNodes(
   // Output compensation
   const inflatorOutputGain = new Gain(Math.pow(10, INFLATOR_OUTPUT_GAIN / 20));
 
-  // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
-  const presenceDip = new BiquadFilter({
-    frequency: MASTER_PRESENCE_FREQ,
-    type: "peaking",
-    Q: MASTER_PRESENCE_Q,
-    gain: MASTER_PRESENCE_GAIN,
-  });
-
-  // High shelf rolloff - tames harsh hi-hats and sibilance
-  const highShelf = new BiquadFilter({
-    frequency: MASTER_HIGH_SHELF_FREQ,
-    type: "highshelf",
-    gain: MASTER_HIGH_SHELF_GAIN,
-  });
+  // Tube saturation (Saturn 2 Clean Tube style) - subtle even harmonics
+  const tubeSaturation = new WaveShaper((x: number) => {
+    // Gentle tube saturation with even harmonics from asymmetry
+    // 100% wet, so no dry signal mixing needed
+    return Math.tanh(x * (1 + TUBE_DRIVE) + TUBE_ASYMMETRY * x * Math.abs(x));
+  }, 4096);
 
   const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
 
@@ -491,8 +481,7 @@ export async function buildMasterChainNodes(
     inflatorWetGain,
     inflatorDryGain,
     inflatorOutputGain,
-    presenceDip,
-    highShelf,
+    tubeSaturation,
     limiter,
   };
 }

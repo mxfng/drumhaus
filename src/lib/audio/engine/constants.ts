@@ -85,6 +85,11 @@ export const INFLATOR_CURVE = 4; // Waveshaping curve intensity (gentler)
 export const INFLATOR_OUTPUT_GAIN = -1.5; // dB - subtle compensation
 export const INFLATOR_CROSSOVER_FREQ = 240; // Hz - band split frequency
 
+// Tube saturation - FabFilter Saturn 2 Clean Tube style (hidden processing)
+// Adds subtle even harmonics for warmth
+export const TUBE_DRIVE = 0.087; // 8.7% drive - barely there
+export const TUBE_ASYMMETRY = 0.08; // Even harmonic content (tube character)
+
 // High shelf rolloff - tape head losses and silk top end
 export const MASTER_HIGH_SHELF_FREQ = 6000; // Hz - tape-style rolloff point
 export const MASTER_HIGH_SHELF_GAIN = -2.5; // dB - smooth "silk" top end
