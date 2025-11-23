@@ -7,10 +7,12 @@ import {
   updateMasterChainParams,
   type MasterChainRuntimes,
 } from "@/lib/audio/engine";
+import { useGainReductionStore } from "@/stores/useGainReductionStore";
 import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/stores/useMasterChainStore";
+import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 
@@ -27,6 +29,8 @@ export function useMasterChain({
   const masterChainRuntimes = useRef<MasterChainRuntimes | null>(null);
   const isInitialized = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const setReduction = useGainReductionStore((state) => state.setReduction);
 
   // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
@@ -40,6 +44,20 @@ export function useMasterChain({
       );
 
       isInitialized.current = true;
+
+      // Start gain reduction metering loop
+      const updateGainReduction = () => {
+        if (masterChainRuntimes.current) {
+          const isPlaying = useTransportStore.getState().isPlaying;
+          // Show 0 when not playing, otherwise show actual reduction
+          const reduction = isPlaying
+            ? masterChainRuntimes.current.compressor.reduction
+            : 0;
+          setReduction(reduction);
+        }
+        animationFrameRef.current = requestAnimationFrame(updateGainReduction);
+      };
+      animationFrameRef.current = requestAnimationFrame(updateGainReduction);
 
       // Set up subscription after initialization
       let prevParams: MasterChainParams | null = null;
@@ -80,6 +98,11 @@ export function useMasterChain({
     initializeMasterChain();
 
     return () => {
+      // Clean up animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
       // Clean up subscription
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
@@ -91,7 +114,7 @@ export function useMasterChain({
         isInitialized.current = false;
       }
     };
-  }, []);
+  }, [setReduction]);
 
   // Connect instruments to master chain when they change
   useEffect(() => {

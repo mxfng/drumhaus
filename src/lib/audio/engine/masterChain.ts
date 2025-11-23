@@ -3,6 +3,7 @@ import {
   BiquadFilter,
   Chebyshev,
   Compressor,
+  Delay,
   Filter,
   Gain,
   getDestination,
@@ -20,6 +21,9 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
 import {
   MASTER_COMP_ATTACK,
+  MASTER_COMP_DEFAULT_MIX,
+  MASTER_COMP_KNEE,
+  MASTER_COMP_LATENCY,
   MASTER_COMP_MAKEUP_GAIN,
   MASTER_COMP_MIX_RANGE,
   MASTER_COMP_RATIO_RANGE,
@@ -55,6 +59,7 @@ export interface MasterChainRuntimes {
   compressor: Compressor;
   compMakeupGain: Gain; // Fixed makeup gain after compressor
   compWetGain: Gain; // Controls wet (compressed) signal level
+  compDryDelay: Delay; // Compensates for compressor latency
   compDryGain: Gain; // Controls dry (uncompressed) signal level
   // Filters
   lowPassFilter: Filter;
@@ -145,6 +150,7 @@ export function disposeMasterChainRuntimes(
     { name: "compressor", node: runtimes.current.compressor },
     { name: "compMakeupGain", node: runtimes.current.compMakeupGain },
     { name: "compWetGain", node: runtimes.current.compWetGain },
+    { name: "compDryDelay", node: runtimes.current.compDryDelay },
     { name: "compDryGain", node: runtimes.current.compDryGain },
     { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
     { name: "highPassFilter", node: runtimes.current.highPassFilter },
@@ -198,10 +204,10 @@ export function connectInstrumentRuntime(
   );
 
   // Connect instrument output to compressor section (parallel compression)
-  // Signal splits: wet path through compressor, dry path bypasses
+  // Signal splits: wet path through compressor, dry path with latency compensation
   // Multiple instruments connecting here are naturally summed by Web Audio
   instrument.pannerNode.connect(master.compressor); // Wet path
-  instrument.pannerNode.connect(master.compDryGain); // Dry path
+  instrument.pannerNode.connect(master.compDryDelay); // Dry path (with latency compensation)
 }
 
 /**
@@ -234,6 +240,8 @@ export function chainMasterChainNodes(
     masterChain.compMakeupGain,
     masterChain.compWetGain,
   );
+  // Dry path: delay (latency compensation) → dry gain
+  masterChain.compDryDelay.connect(masterChain.compDryGain);
   // Both wet and dry paths sum into the low pass filter
   masterChain.compWetGain.connect(masterChain.lowPassFilter);
   masterChain.compDryGain.connect(masterChain.lowPassFilter);
@@ -316,6 +324,7 @@ export async function buildMasterChainNodes(
     ratio: settings.compRatio,
     attack: MASTER_COMP_ATTACK,
     release: MASTER_COMP_RELEASE,
+    knee: MASTER_COMP_KNEE, // Hard knee for punchy transients
   });
 
   // Makeup gain compensates for gain reduction (fixed at +1.5dB)
@@ -323,6 +332,8 @@ export async function buildMasterChainNodes(
 
   // Parallel compression wet/dry mix
   const compWetGain = new Gain(settings.compMix);
+  // Delay compensates for compressor lookahead latency to keep wet/dry in phase
+  const compDryDelay = new Delay(MASTER_COMP_LATENCY);
   const compDryGain = new Gain(1 - settings.compMix);
 
   // Subtle saturation for analog warmth
@@ -352,6 +363,7 @@ export async function buildMasterChainNodes(
     compressor,
     compMakeupGain,
     compWetGain,
+    compDryDelay,
     compDryGain,
     lowPassFilter,
     highPassFilter,
@@ -393,7 +405,11 @@ export function mapParamsToSettings(
     // Allow fractional ratios like 1.5 (API 2500 style)
     compRatio: transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
     // Convert from 0-100 percentage to 0-1 for audio processing
-    compMix: transformKnobValue(params.compMix, MASTER_COMP_MIX_RANGE) / 100,
+    compMix:
+      transformKnobValue(
+        params.compMix ?? MASTER_COMP_DEFAULT_MIX,
+        MASTER_COMP_MIX_RANGE,
+      ) / 100,
     // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
     masterVolume:
       params.masterVolume === 0

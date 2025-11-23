@@ -218,7 +218,7 @@ export const Sequencer: React.FC = () => {
               <div
                 key={`sequence-step-velocity-${step}`}
                 className={cn(
-                  "group outline-primary relative mt-3 h-3.5 w-full rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
+                  "group outline-primary relative mt-3 h-3.5 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
                   state.isTriggerOn
                     ? "cursor-grab"
                     : "pointer-events-none cursor-default",

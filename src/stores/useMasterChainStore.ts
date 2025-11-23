@@ -2,6 +2,10 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import {
+  MASTER_COMP_DEFAULT_MIX,
+  MASTER_COMP_DEFAULT_THRESHOLD,
+} from "@/lib/audio/engine/constants";
 import type { MasterChainParams } from "@/types/preset";
 
 /**
@@ -59,9 +63,9 @@ export const useMasterChainStore = create<MasterChainState>()(
         highPass: 0,
         phaser: 0,
         reverb: 0,
-        compThreshold: 50,
+        compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
         compRatio: 50,
-        compMix: 70, // API 2500 style: 70% wet for parallel compression
+        compMix: MASTER_COMP_DEFAULT_MIX, // API 2500 style: 70% wet for parallel compression
         masterVolume: 92,
 
         // Individual setters
@@ -106,7 +110,7 @@ export const useMasterChainStore = create<MasterChainState>()(
             reverb: params.reverb,
             compThreshold: params.compThreshold,
             compRatio: params.compRatio,
-            compMix: params.compMix,
+            compMix: params.compMix ?? 70, // Default for old presets without compMix
             masterVolume: params.masterVolume,
           });
         },
