@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BsFillEraserFill } from "react-icons/bs";
 import { FaDice } from "react-icons/fa";
-import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
+import { IoBrushSharp, IoCopySharp, IoPasteSharp } from "react-icons/io5";
 
 import { Button, Label, Tooltip } from "@/components/ui";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
