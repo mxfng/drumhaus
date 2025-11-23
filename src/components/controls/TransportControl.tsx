@@ -77,12 +77,12 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
+    <div className="flex w-32 flex-col items-center justify-center gap-10">
       <div className="neu-medium-raised relative w-full rounded-lg">
         <div className="surface-raised relative flex h-full items-center rounded-lg">
           <Input
             ref={inputRef}
-            className="my-3 ml-3 w-[103px] rounded-l-lg px-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            className="my-3 ml-3 w-[90px] rounded-l-lg px-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
             value={bpmInputValue}
             onChange={handleBpmChange}
             onBlur={handleBlur}
@@ -111,7 +111,7 @@ export const TransportControl: React.FC = () => {
       </div>
       <div className="pb-4">
         <HardwareSlider
-          size={146}
+          size={120}
           sliderValue={swing}
           setSliderValue={setSwing}
           title="SWING"

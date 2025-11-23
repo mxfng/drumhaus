@@ -34,60 +34,66 @@ export const MasterFX: React.FC = () => {
   );
 
   return (
-    <div className="relative grid grid-cols-3 border">
-      <Label className="text-foreground-muted absolute top-1/2 -left-2.5 -translate-y-1/2 rotate-180 text-xs [writing-mode:vertical-rl]">
+    <div className="h-52">
+      <Label className="text-foreground-muted -translate-y-1 text-xs">
         MASTER FX
       </Label>
-      <Knob
-        value={tapeDrive}
-        onChange={setTapeDrive}
-        label="TAPE"
-        units="dB"
-        range={MASTER_TAPE_DRIVE_RANGE_DB}
-        defaultValue={MASTER_TAPE_DRIVE_DEFAULT}
-        size="sm"
-      />
-      <Knob
-        value={inflatorAmount}
-        onChange={setInflatorAmount}
-        label="INFLATE"
-        units="%"
-        range={MASTER_INFLATOR_AMOUNT_RANGE}
-        defaultValue={MASTER_INFLATOR_AMOUNT_DEFAULT}
-        formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
-        size="sm"
-      />
-      <Knob
-        value={saturationDrive}
-        onChange={setSaturationDrive}
-        label="SATURATE"
-        units="dB"
-        range={MASTER_SATURATION_DRIVE_RANGE_DB}
-        defaultValue={MASTER_SATURATION_DRIVE_DEFAULT}
-        size="sm"
-      />
-      <div className="col-span-3 flex flex-row items-center justify-center">
+      <div className="relative grid h-[11.3rem] w-52 -translate-y-1 grid-cols-3">
         <Knob
-          value={reverb}
-          onChange={setReverb}
-          label="REVERB"
-          units="mix"
-          range={MASTER_REVERB_WET_RANGE}
-          defaultValue={0}
+          value={tapeDrive}
+          onChange={setTapeDrive}
+          label="TAPE"
+          units="dB"
+          range={MASTER_TAPE_DRIVE_RANGE_DB}
+          defaultValue={MASTER_TAPE_DRIVE_DEFAULT}
+          size="sm"
+        />
+        <Knob
+          value={inflatorAmount}
+          onChange={setInflatorAmount}
+          label="INFLATE"
+          units="%"
+          range={MASTER_INFLATOR_AMOUNT_RANGE}
+          defaultValue={MASTER_INFLATOR_AMOUNT_DEFAULT}
           formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
           size="sm"
         />
+        <Knob
+          value={saturationDrive}
+          onChange={setSaturationDrive}
+          label="SATURATE"
+          units="dB"
+          range={MASTER_SATURATION_DRIVE_RANGE_DB}
+          defaultValue={MASTER_SATURATION_DRIVE_DEFAULT}
+          size="sm"
+        />
+        <div className="col-span-3 flex -translate-y-2 flex-row items-center justify-center">
+          <div className="translate-x-0.5">
+            <Knob
+              value={reverb}
+              onChange={setReverb}
+              label="REVERB"
+              units="mix"
+              range={MASTER_REVERB_WET_RANGE}
+              defaultValue={0}
+              formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
+              size="sm"
+            />
+          </div>
 
-        <Knob
-          value={phaser}
-          onChange={setPhaser}
-          label="PHASER"
-          units="mix"
-          range={MASTER_PHASER_WET_RANGE}
-          defaultValue={0}
-          formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
-          size="sm"
-        />
+          <div className="-translate-x-0.5">
+            <Knob
+              value={phaser}
+              onChange={setPhaser}
+              label="PHASER"
+              units="mix"
+              range={MASTER_PHASER_WET_RANGE}
+              defaultValue={0}
+              formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
+              size="sm"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

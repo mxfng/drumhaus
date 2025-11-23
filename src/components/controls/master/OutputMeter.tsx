@@ -16,16 +16,13 @@ export const OutputMeter: React.FC = () => {
       ? "-∞ dB"
       : `${outputLevel.toFixed(0)} dB`;
 
-  // Debug logging
-  console.log("OutputMeter:", { outputLevel, safeLevel, clamped, percent });
-
   return (
     <VerticalMeter
       percent={percent}
       tooltip="Post-limiter output level"
       valueText={valueText}
       label="OUTPUT"
-      className="h-[180px] w-8 opacity-60"
+      className="w-8 opacity-60"
     />
   );
 };

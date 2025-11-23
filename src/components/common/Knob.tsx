@@ -162,7 +162,7 @@ export const Knob: React.FC<KnobProps> = ({
 }) => {
   // Convert size enum to pixel values
   const sizeInPixels =
-    size === "lg" ? 140 : size === "md" ? 60 : size === "sm" ? 50 : 30;
+    size === "lg" ? 90 : size === "md" ? 60 : size === "sm" ? 50 : 30;
 
   const explicitRange: [number, number] | undefined =
     range && range.length === 2

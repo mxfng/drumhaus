@@ -22,13 +22,11 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="relative -mr-2 flex items-center border">
-      <Label className="text-foreground-muted absolute top-1/2 -left-2.5 -translate-y-1/2 rotate-180 text-xs [writing-mode:vertical-rl]">
-        BUS COMP
-      </Label>
-      <div className="flex pl-4">
+    <div className="h-52 w-30">
+      <Label className="text-foreground-muted text-xs">BUS COMP</Label>
+      <div className="flex h-[11.3rem] rounded pb-2">
         {/* Column 1: Threshold and Ratio */}
-        <div className="flex flex-col gap-2">
+        <div className="flex -translate-y-1 flex-col gap-2">
           <Knob
             value={threshold}
             onChange={setThreshold}
@@ -48,8 +46,9 @@ export const MasterCompressor: React.FC = () => {
             size="sm"
           />
         </div>
+
         {/* Column 2: Gain Reduction Meter and Mix */}
-        <div className="flex -translate-x-2 flex-col gap-2">
+        <div className="flex -translate-x-2 -translate-y-2 flex-col gap-2">
           <div className="flex-1 translate-y-3">
             <GainReductionMeter />
           </div>

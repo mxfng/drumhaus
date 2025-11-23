@@ -168,7 +168,7 @@ const MainControls = ({
         />
       </div>
 
-      <div className="flex w-full flex-row items-center justify-between px-8 py-4">
+      <div className="flex w-full flex-row items-center justify-between px-8 py-1.5">
         <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
           <Button
             variant="hardware"
@@ -190,11 +190,13 @@ const MainControls = ({
 
         <PresetControl loadPreset={loadPreset} />
 
-        <MasterCompressor />
+        <div className="flex h-full translate-y-1.5 flex-row items-center gap-2">
+          <MasterCompressor />
 
-        <MasterFX />
+          <MasterFX />
 
-        <MasterVolume />
+          <MasterVolume />
+        </div>
       </div>
     </>
   );

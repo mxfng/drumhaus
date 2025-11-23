@@ -19,29 +19,9 @@ export const MasterVolume: React.FC = () => {
   const setHighPass = useMasterChainStore((state) => state.setHighPass);
 
   return (
-    <div className="flex items-end gap-4 border px-4 py-3">
-      <div className="grid h-full grid-cols-2 items-center justify-center">
-        <div className="flex flex-col gap-2">
-          <Knob
-            value={highPass}
-            onChange={setHighPass}
-            label="HP"
-            units="Hz"
-            range={MASTER_FILTER_RANGE}
-            scale="exp"
-            defaultValue={0}
-            size="xs"
-          />
-          <Knob
-            value={lowPass}
-            onChange={setLowPass}
-            label="LP"
-            units="Hz"
-            range={MASTER_FILTER_RANGE}
-            scale="exp"
-            defaultValue={100}
-            size="xs"
-          />
+    <div className="flex flex-row items-center gap-4">
+      <div className="flex h-full w-full flex-row items-center justify-center">
+        <div className="flex h-full w-32 -translate-y-2 flex-col">
           <Knob
             value={masterVolume}
             onChange={setMasterVolume}
@@ -49,10 +29,38 @@ export const MasterVolume: React.FC = () => {
             units="dB"
             range={MASTER_VOLUME_RANGE}
             defaultValue={MASTER_DEFAULT_VOLUME}
-            size="sm"
+            size="lg"
           />
+          <div className="flex flex-row items-center justify-center">
+            <div className="w-12">
+              <Knob
+                value={highPass}
+                onChange={setHighPass}
+                label="HP"
+                units="Hz"
+                range={MASTER_FILTER_RANGE}
+                scale="exp"
+                defaultValue={0}
+                size="xs"
+              />
+            </div>
+            <div className="w-12">
+              <Knob
+                value={lowPass}
+                onChange={setLowPass}
+                label="LP"
+                units="Hz"
+                range={MASTER_FILTER_RANGE}
+                scale="exp"
+                defaultValue={100}
+                size="xs"
+              />
+            </div>
+          </div>
         </div>
-        <OutputMeter />
+        <div className="flex h-[160px] flex-col items-center justify-center">
+          <OutputMeter />
+        </div>
       </div>
     </div>
   );
