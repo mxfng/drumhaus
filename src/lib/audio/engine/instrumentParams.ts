@@ -39,10 +39,11 @@ export function applyInstrumentParams(
     INSTRUMENT_PAN_RANGE,
   );
 
-  runtime.samplerNode.volume.value = transformKnobValue(
-    params.volume,
-    INSTRUMENT_VOLUME_RANGE,
-  );
+  // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
+  runtime.samplerNode.volume.value =
+    params.volume === 0
+      ? -Infinity
+      : transformKnobValue(params.volume, INSTRUMENT_VOLUME_RANGE);
 }
 
 /**
