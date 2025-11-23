@@ -4,7 +4,6 @@ export * from "./Dialog";
 export * from "./Form";
 export * from "./Input";
 export * from "./Label";
-export * from "./Progress";
 export * from "./RadioGroup";
 export * from "./Select";
 export * from "./Slider";

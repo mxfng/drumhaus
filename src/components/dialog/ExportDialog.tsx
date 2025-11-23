@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import {
   Button,
   Checkbox,
@@ -12,14 +13,12 @@ import {
   DialogTitle,
   Input,
   Label,
-  Progress,
   RadioGroup,
   RadioGroupItem,
   Slider,
 } from "@/components/ui";
 import {
   calculateExportDuration,
-  ExportProgress,
   exportToWav,
   getSuggestedBars,
 } from "@/lib/audio/export/wavExporter";
@@ -40,6 +39,24 @@ const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
   { value: "48000", label: "48 kHz" },
 ];
 
+// Consistent field wrapper
+const FormField = ({
+  children,
+  label,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  label: string;
+  htmlFor?: string;
+}) => (
+  <div className="space-y-2">
+    <Label htmlFor={htmlFor} className="block">
+      {label}
+    </Label>
+    {children}
+  </div>
+);
+
 export const ExportDialog: React.FC<ExportDialogProps> = ({
   isOpen,
   onClose,
@@ -55,14 +72,12 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   const [sampleRate, setSampleRate] = useState<SampleRateOption>("system");
   const [includeTail, setIncludeTail] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [progress, setProgress] = useState<ExportProgress | null>(null);
 
   // Set defaults when dialog opens
   useEffect(() => {
     if (isOpen) {
       setFilename(presetName);
       setBars(getSuggestedBars(variationCycle));
-      setProgress(null);
       setIsExporting(false);
     }
   }, [isOpen, variationCycle, presetName]);
@@ -80,39 +95,18 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           ? new AudioContext().sampleRate
           : parseInt(sampleRate);
 
-      await exportToWav(
-        {
-          bars,
-          sampleRate: actualSampleRate,
-          includeTail,
-          filename: filename.trim() || "drumhaus-export",
-        },
-        setProgress,
-      );
+      await exportToWav({
+        bars,
+        sampleRate: actualSampleRate,
+        includeTail,
+        filename: filename.trim() || "drumhaus-export",
+      });
 
       onClose();
     } catch (error) {
       console.error("Export failed:", error);
-      setProgress(null);
     } finally {
       setIsExporting(false);
-    }
-  };
-
-  const getProgressText = () => {
-    if (!progress) return null;
-
-    switch (progress.phase) {
-      case "preparing":
-        return "Preparing samples...";
-      case "rendering":
-        return "Rendering audio...";
-      case "encoding":
-        return "Encoding WAV...";
-      case "complete":
-        return "Complete!";
-      default:
-        return null;
     }
   };
 
@@ -128,103 +122,94 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
         <DialogCloseButton />
 
         <form onSubmit={handleSubmit}>
-          <div className="space-y-5 pb-4">
+          <div className="space-y-6 pb-4">
             <DialogDescription>
               Export your pattern as a WAV audio file.
             </DialogDescription>
 
-            {/* Filename input */}
-            <div>
-              <Label htmlFor="filename" className="mb-2 block">
-                Filename
-              </Label>
+            {/* File settings */}
+            <FormField label="Filename" htmlFor="filename">
               <Input
                 id="filename"
                 value={filename}
                 onChange={(e) => setFilename(e.target.value)}
                 disabled={isExporting}
-                className="flex-1"
               />
-            </div>
+            </FormField>
 
-            {/* Bars slider */}
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <Label htmlFor="bars">Length</Label>
-                <span className="text-foreground-emphasis">
-                  {bars} {bars === 1 ? "bar" : "bars"}
-                </span>
-              </div>
-              <Slider
-                id="bars"
-                value={[bars]}
-                onValueChange={([value]) => setBars(value)}
-                min={1}
-                max={8}
-                step={1}
-                disabled={isExporting}
-              />
-              {/* Tick marks */}
-              <div className="mt-1 flex justify-between px-[8px]">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <div key={n} className="flex flex-col items-center">
-                    <div className="bg-foreground-muted h-1 w-px" />
-                    <span className="text-foreground-muted mt-0.5 text-[10px]">
-                      {n}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sample rate radio group */}
-            <div>
-              <Label className="mb-3 block">Sample rate</Label>
-              <RadioGroup
-                value={sampleRate}
-                onValueChange={(value) =>
-                  setSampleRate(value as SampleRateOption)
-                }
-                disabled={isExporting}
-                className="flex gap-4"
-              >
-                {sampleRateOptions.map((option) => (
-                  <div key={option.value} className="flex items-center gap-2">
-                    <RadioGroupItem value={option.value} id={option.value} />
-                    <Label
-                      htmlFor={option.value}
-                      className="cursor-pointer font-normal"
-                    >
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-
-            {/* Include tail checkbox */}
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="includeTail"
-                checked={includeTail}
-                onCheckedChange={(checked) => setIncludeTail(checked === true)}
-                disabled={isExporting}
-              />
-              <Label htmlFor="includeTail" className="cursor-pointer">
-                Include reverb tail
-              </Label>
-            </div>
-
-            {/* Duration preview */}
-            <div className="">Duration: {duration.toFixed(1)}s</div>
-
-            {/* Progress indicator */}
-            {isExporting && progress && (
+            {/* Audio settings group */}
+            <div className="border-shadow-30 space-y-8 rounded-lg border p-4">
+              {/* Length */}
               <div className="space-y-2">
-                <div>{getProgressText()}</div>
-                <Progress value={progress.percent} />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="bars">Length</Label>
+                  <span className="text-foreground-emphasis text-sm">
+                    {bars} {bars === 1 ? "bar" : "bars"}
+                  </span>
+                </div>
+                <Slider
+                  id="bars"
+                  value={[bars]}
+                  onValueChange={([value]) => setBars(value)}
+                  min={1}
+                  max={8}
+                  step={1}
+                  disabled={isExporting}
+                />
+                <div className="flex justify-between px-[8px]">
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                    <div key={n} className="flex flex-col items-center">
+                      <div className="bg-foreground-muted h-1 w-px" />
+                      <span className="text-foreground-muted mt-0.5 text-[10px]">
+                        {n}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            )}
+
+              {/* Sample rate */}
+              <FormField label="Sample rate">
+                <RadioGroup
+                  value={sampleRate}
+                  onValueChange={(value) =>
+                    setSampleRate(value as SampleRateOption)
+                  }
+                  disabled={isExporting}
+                  className="flex gap-4"
+                >
+                  {sampleRateOptions.map((option) => (
+                    <div key={option.value} className="flex items-center gap-2">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label
+                        htmlFor={option.value}
+                        className="cursor-pointer font-normal"
+                      >
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </FormField>
+
+              {/* Reverb tail */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="includeTail"
+                  checked={includeTail}
+                  onCheckedChange={(checked) =>
+                    setIncludeTail(checked === true)
+                  }
+                  disabled={isExporting}
+                />
+                <Label htmlFor="includeTail" className="cursor-pointer">
+                  Include reverb tail
+                </Label>
+              </div>
+            </div>
+
+            {/* Output info */}
+            <div>Duration: {duration.toFixed(1)}s</div>
           </div>
 
           <DialogFooter>
@@ -236,8 +221,22 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isExporting}>
-              {isExporting ? "Exporting..." : "Export"}
+            <Button
+              type="submit"
+              disabled={isExporting}
+              className="flex items-center"
+            >
+              <span className={isExporting ? "mr-2" : ""}>
+                {isExporting ? "Exporting" : "Export"}
+              </span>
+              {isExporting && (
+                <PixelatedSpinner
+                  color="currentColor"
+                  size={20}
+                  pixelSize={2}
+                  gap={2}
+                />
+              )}
             </Button>
           </DialogFooter>
         </form>
