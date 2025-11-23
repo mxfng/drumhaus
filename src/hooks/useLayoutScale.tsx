@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
 const DESIGN_WIDTH = 1538;
-const DESIGN_HEIGHT = 1030;
+const DESIGN_HEIGHT = 1100;
 const SCALE_PADDING = 32;
 const MIN_SCALE = 0.6;
-const MAX_SCALE = 1;
+const MAX_SCALE = 1.25;
 
 type LayoutScaleProps = {
   scale: number;

@@ -108,7 +108,7 @@ a {
 
 .drumhaus-scale-wrapper {
   width: 1538px;
-  height: 1030px;
+  height: 1100px;
   transform-origin: center center;
 }
 
@@ -375,12 +375,14 @@ a {
     inset: auto;
     align-items: flex-start;
     justify-content: flex-start;
-    padding: 16px 16px 32px;
+    padding: 16px;
+    overflow: auto;
   }
 
   .drumhaus-scale-wrapper {
-    transform-origin: top left;
-    width: 923px;
-    height: 618px;
+    transform: none !important;
+    width: auto;
+    height: auto;
+    min-height: 100vh;
   }
 }
