@@ -92,7 +92,6 @@ export function useMasterChain({
         isInitialized.current = false;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Connect instruments to master chain when they change
