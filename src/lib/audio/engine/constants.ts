@@ -50,6 +50,19 @@ export const MASTER_COMP_RELEASE = 0.15; // 150ms - recovers between hits
 // Limiter defaults
 export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall protection
 
+// Analog coloration - tames harshness, adds warmth
+export const MASTER_SATURATION_AMOUNT = 1; // Chebyshev order - very gentle
+export const MASTER_SATURATION_WET = 0.03; // 3% wet - barely there
+
+// High shelf rolloff - tames harsh hi-hats and sibilance
+export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
+export const MASTER_HIGH_SHELF_GAIN = -1.5; // dB - subtle rolloff
+
+// Presence dip - reduces "ice pick" frequencies
+export const MASTER_PRESENCE_FREQ = 3500; // Hz - harsh/fatiguing range
+export const MASTER_PRESENCE_Q = 1; // Wide and gentle
+export const MASTER_PRESENCE_GAIN = -1; // dB - barely noticeable
+
 // Envelope defaults
 export const ENVELOPE_DEFAULT_ATTACK = 0;
 export const ENVELOPE_DEFAULT_DECAY = 0;

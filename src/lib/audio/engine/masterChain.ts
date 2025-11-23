@@ -1,5 +1,7 @@
 import type { RefObject } from "react";
 import {
+  BiquadFilter,
+  Chebyshev,
   Compressor,
   Filter,
   Gain,
@@ -22,6 +24,8 @@ import {
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_HIGH_SHELF_FREQ,
+  MASTER_HIGH_SHELF_GAIN,
   MASTER_LIMITER_THRESHOLD,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
@@ -29,9 +33,14 @@ import {
   MASTER_PHASER_PRE_FILTER_FREQ,
   MASTER_PHASER_Q,
   MASTER_PHASER_WET_RANGE,
+  MASTER_PRESENCE_FREQ,
+  MASTER_PRESENCE_GAIN,
+  MASTER_PRESENCE_Q,
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_AMOUNT,
+  MASTER_SATURATION_WET,
   MASTER_VOLUME_RANGE,
 } from "./constants";
 
@@ -48,6 +57,9 @@ export interface MasterChainRuntimes {
   reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
+  saturation: Chebyshev; // Subtle harmonic warmth
+  presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
+  highShelf: BiquadFilter; // Rolls off harsh highs
   compressor: Compressor;
   limiter: Limiter;
 }
@@ -127,6 +139,9 @@ export function disposeMasterChainRuntimes(
     { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
+    { name: "saturation", node: runtimes.current.saturation },
+    { name: "presenceDip", node: runtimes.current.presenceDip },
+    { name: "highShelf", node: runtimes.current.highShelf },
     { name: "compressor", node: runtimes.current.compressor },
     { name: "limiter", node: runtimes.current.limiter },
   ];
@@ -219,8 +234,14 @@ export function chainMasterChainNodes(
   );
   masterChain.reverbSendGain.connect(masterChain.compressor);
 
-  // Output chain
-  masterChain.compressor.chain(masterChain.limiter, destination);
+  // Output chain: saturation adds warmth, EQ tames harshness
+  masterChain.compressor.chain(
+    masterChain.saturation,
+    masterChain.presenceDip,
+    masterChain.highShelf,
+    masterChain.limiter,
+    destination,
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -271,6 +292,27 @@ export async function buildMasterChainNodes(
     release: MASTER_COMP_RELEASE,
   });
 
+  // Subtle saturation for analog warmth
+  const saturation = new Chebyshev({
+    order: MASTER_SATURATION_AMOUNT,
+    wet: MASTER_SATURATION_WET,
+  });
+
+  // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
+  const presenceDip = new BiquadFilter({
+    frequency: MASTER_PRESENCE_FREQ,
+    type: "peaking",
+    Q: MASTER_PRESENCE_Q,
+    gain: MASTER_PRESENCE_GAIN,
+  });
+
+  // High shelf rolloff - tames harsh hi-hats and sibilance
+  const highShelf = new BiquadFilter({
+    frequency: MASTER_HIGH_SHELF_FREQ,
+    type: "highshelf",
+    gain: MASTER_HIGH_SHELF_GAIN,
+  });
+
   const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
 
   return {
@@ -282,6 +324,9 @@ export async function buildMasterChainNodes(
     reverbPreFilter,
     reverb,
     reverbSendGain,
+    saturation,
+    presenceDip,
+    highShelf,
     compressor,
     limiter,
   };
