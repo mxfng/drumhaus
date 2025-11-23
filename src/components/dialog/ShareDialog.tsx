@@ -103,7 +103,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       toast({
         title: "Something went wrong",
         description:
-          error instanceof Error ? error.message : "Failed to share preset",
+          error instanceof Error
+            ? error.message
+            : "Couldn't create link. Please try again.",
         status: "error",
         duration: 3000,
       });
@@ -127,8 +129,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <form onSubmit={handleSubmit}>
               <div className="pb-6">
                 <DialogDescription className="pb-6">
-                  Drumhaus can generate a custom link for you to share your
-                  presets with.
+                  Create a shareable link to send your preset to others.
                 </DialogDescription>
 
                 <Label htmlFor="presetName" className="mb-2 block">
@@ -174,7 +175,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
             <div>
               <DialogDescription className="pb-6">
-                Success! Your preset can be shared using this link:
+                Your link is ready! Share it with anyone to let them load your
+                preset.
               </DialogDescription>
 
               <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
@@ -189,7 +191,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               </div>
 
               <div className="bg-shadow-10 mt-4 rounded-md p-3">
-                <p className="mb-1 font-semibold">Did you know?</p>
+                <p className="mb-1 font-semibold">How it works</p>
                 <p className="leading-relaxed">
                   Your entire preset is packed into this tiny URL using some
                   custom compression magic, and is entirely self-contained.

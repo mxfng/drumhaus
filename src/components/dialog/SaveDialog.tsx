@@ -94,7 +94,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
         <form onSubmit={handleSubmit}>
           <div className="pb-6">
             <DialogDescription className="pb-6">
-              To save your preset, enter a custom preset name.
+              Give your preset a name so you can find it later.
             </DialogDescription>
 
             <Label htmlFor="presetName" className="mb-2 block">

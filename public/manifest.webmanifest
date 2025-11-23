@@ -24,7 +24,7 @@
   "screenshots": [
     {
       "src": "/screenshot-wide.png",
-      "sizes": "2156x1464",
+      "sizes": "1720x1179",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Drumhaus interface"

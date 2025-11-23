@@ -24,14 +24,14 @@ export const ResetDialog: React.FC<ResetDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reset All</DialogTitle>
+          <DialogTitle>Reset Everything?</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
         <div className="pb-4">
           <DialogDescription>
-            Are you sure you want to reset all instruments and audio parameters
-            to their initialized settings?
+            This will restore all instruments and settings to their defaults.
+            Your current work will be lost.
           </DialogDescription>
         </div>
 

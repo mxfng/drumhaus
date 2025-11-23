@@ -22,19 +22,17 @@ export const ConfirmSelectPresetDialog: React.FC<
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Confirmation</DialogTitle>
+          <DialogTitle>Switch Preset?</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
         <div className="space-y-2 pb-4">
           <DialogDescription>
-            Are you sure you want to switch to a new preset?
+            Any unsaved changes to your current preset will be lost.
           </DialogDescription>
           <DialogDescription>
-            You will lose any unsaved work on the current preset.
-          </DialogDescription>
-          <DialogDescription>
-            {`You can download your work as a .dh file using the 'Download to file' button, or share it with a friend using the 'Share as link' button.`}
+            You can save your work first by downloading it as a file or sharing
+            it as a link.
           </DialogDescription>
         </div>
 
@@ -42,7 +40,7 @@ export const ConfirmSelectPresetDialog: React.FC<
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onSelect}>Switch</Button>
+          <Button onClick={onSelect}>Switch Anyway</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -237,11 +237,11 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         } catch (error) {
           console.error("Failed to import preset:", error);
           toast({
-            title: "Something went wrong.",
+            title: "Something went wrong",
             description:
               error instanceof Error
                 ? error.message
-                : "Failed to import preset",
+                : "Couldn't open file. It may be invalid or corrupted.",
             status: "error",
             duration: 8000,
           });
@@ -249,8 +249,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       };
       reader.onerror = () => {
         toast({
-          title: "Something went wrong.",
-          description: "Failed to import preset",
+          title: "Something went wrong",
+          description: "There was a problem reading the file.",
           status: "error",
           duration: 8000,
         });
@@ -265,10 +265,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   // ============================================================================
 
   /**
-   * Generate a new preset name
+   * Get the default preset name for save/share dialogs
    */
-  const generateNewPresetName = (): string => {
-    return "Untitled";
+  const getDefaultPresetName = (): string => {
+    return currentPresetMeta.name;
   };
 
   /**
@@ -354,14 +354,14 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         isOpen={activeDialog === "save"}
         onClose={closeDialog}
         onSave={exportPreset}
-        defaultName={generateNewPresetName()}
+        defaultName={getDefaultPresetName()}
       />
 
       <ShareDialog
         isOpen={activeDialog === "share"}
         onClose={closeDialog}
         onShare={sharePreset}
-        defaultName={generateNewPresetName()}
+        defaultName={getDefaultPresetName()}
       />
 
       <ResetDialog
