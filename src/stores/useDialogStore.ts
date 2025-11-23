@@ -2,7 +2,13 @@ import { produce } from "immer";
 import { create } from "zustand";
 
 // Add new dialog names here as needed
-export type DialogName = "save" | "share" | "reset" | "presetChange" | "mobile";
+export type DialogName =
+  | "save"
+  | "share"
+  | "reset"
+  | "presetChange"
+  | "mobile"
+  | "about";
 
 interface DialogData {
   presetToChange: string;
