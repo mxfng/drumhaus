@@ -14,13 +14,11 @@ import { MasterChainParams } from "@/types/preset";
 interface UseMasterChainProps {
   instrumentRuntimesRef: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
-  setIsLoading: (isLoading: boolean) => void;
 }
 
 export function useMasterChain({
   instrumentRuntimesRef,
   instrumentRuntimesVersion,
-  setIsLoading,
 }: UseMasterChainProps) {
   // Master Chain Runtimes
   const masterChainRuntimes = useRef<MasterChainRuntimes | null>(null);
@@ -45,7 +43,6 @@ export function useMasterChain({
       });
 
       isInitialized.current = true;
-      setIsLoading(false);
 
       // Set up subscription after initialization
       let prevParams: MasterChainParams | null = null;
@@ -95,7 +92,6 @@ export function useMasterChain({
         isInitialized.current = false;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Connect instruments to master chain when they change

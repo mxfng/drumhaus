@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { LuArrowUpRight } from "react-icons/lu";
+import { ArrowUpRight } from "lucide-react";
 import { getContext } from "tone";
 
 import {
@@ -104,7 +104,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               rel="noreferrer"
               className="flex items-center gap-0.5 transition-colors hover:text-white"
             >
-              fung.studio <LuArrowUpRight className="inline-block" />
+              fung.studio <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
             <a
               href="https://ko-fi.com/maxfung"
@@ -112,7 +112,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               rel="noreferrer"
               className="flex items-center gap-0.5 transition-colors hover:text-white"
             >
-              Support on Ko-fi <LuArrowUpRight className="inline-block" />
+              Support on Ko-fi <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
             <a
               href="https://github.com/mxfng/drumhaus"
@@ -120,7 +120,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               rel="noreferrer"
               className="flex items-center gap-0.5 transition-colors hover:text-white"
             >
-              GitHub <LuArrowUpRight className="inline-block" />
+              GitHub <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
           </div>
           <div className="flex flex-col justify-end">

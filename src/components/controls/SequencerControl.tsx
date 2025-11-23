@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { BsFillEraserFill } from "react-icons/bs";
-import { FaDice } from "react-icons/fa";
-import { IoBrushSharp, IoCopySharp } from "react-icons/io5";
+import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
 import { Button, Label, Tooltip } from "@/components/ui";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
@@ -173,7 +171,7 @@ export const SequencerControl: React.FC = () => {
               className="rounded-l-lg rounded-r-none"
               onClick={copySequence}
             >
-              <IoCopySharp />
+              <Copy size={16} />
             </Button>
           </Tooltip>
           <Tooltip content={TOOLTIPS.PASTE}>
@@ -183,7 +181,7 @@ export const SequencerControl: React.FC = () => {
               className="rounded-none"
               onClick={pasteSequence}
             >
-              <IoBrushSharp />
+              <ClipboardPaste size={16} />
             </Button>
           </Tooltip>
           <Tooltip content={TOOLTIPS.CLEAR}>
@@ -193,7 +191,7 @@ export const SequencerControl: React.FC = () => {
               className="rounded-none"
               onClick={handleClearSequence}
             >
-              <BsFillEraserFill />
+              <Eraser size={16} />
             </Button>
           </Tooltip>
           <Tooltip content={TOOLTIPS.RANDOM}>
@@ -203,7 +201,7 @@ export const SequencerControl: React.FC = () => {
               className="rounded-l-none rounded-r-lg"
               onClick={handleRandomSequence}
             >
-              <FaDice />
+              <Dices size={16} />
             </Button>
           </Tooltip>
         </div>

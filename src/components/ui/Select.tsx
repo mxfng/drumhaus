@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { IoCheckmark, IoChevronDown, IoChevronUp } from "react-icons/io5";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -37,7 +37,7 @@ export const SelectScrollUpButton = forwardRef<
     )}
     {...props}
   >
-    <IoChevronUp className="h-4 w-4" />
+    <ChevronUp className="h-4 w-4" />
   </SelectPrimitive.ScrollUpButton>
 ));
 SelectScrollUpButton.displayName = "SelectScrollUpButton";
@@ -54,7 +54,7 @@ export const SelectScrollDownButton = forwardRef<
     )}
     {...props}
   >
-    <IoChevronDown className="h-4 w-4" />
+    <ChevronDown className="h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ));
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
@@ -116,7 +116,7 @@ export const SelectItem = forwardRef<
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <IoCheckmark className="h-4 w-4" />
+        <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

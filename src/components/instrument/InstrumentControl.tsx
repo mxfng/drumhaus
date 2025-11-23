@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ImVolumeMute, ImVolumeMute2 } from "react-icons/im";
-import { MdHeadphones } from "react-icons/md";
+import { Headphones, Volume, VolumeX } from "lucide-react";
 import { now } from "tone/build/esm/index";
 
 import { Button, Label, Tooltip } from "@/components/ui";
@@ -348,7 +347,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                   onClick={handleToggleMute}
                   disabled={!isRuntimeLoaded}
                 >
-                  {mute ? <ImVolumeMute2 /> : <ImVolumeMute />}
+                  {mute ? <VolumeX /> : <Volume />}
                 </Button>
               </Tooltip>
               <Tooltip content="Solo [S]" delayDuration={500}>
@@ -362,7 +361,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
                   onClick={toggleSolo}
                   disabled={!isRuntimeLoaded}
                 >
-                  <MdHeadphones className={cn({ "text-primary": solo })} />
+                  <Headphones
+                    className={cn({ "text-primary": solo })}
+                    size={18}
+                  />
                 </Button>
               </Tooltip>
             </div>
