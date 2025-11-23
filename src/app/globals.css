@@ -23,7 +23,6 @@
   --color-shadow-30: rgb(176 147 116 / 0.3);
   --color-shadow-50: rgb(176 147 116 / 0.5);
   --color-shadow-60: rgb(176 147 116 / 0.6);
-  --color-shadow-90: rgb(176 147 116 / 0.9);
   --color-highlight: rgb(251 245 255);
   --color-highlight-17: rgb(251 245 255 / 0.17);
   --color-highlight-20: rgb(251 245 255 / 0.2);
@@ -83,21 +82,6 @@
   --slider-track-shadow:
     inset 0 2px 4px var(--color-shadow-60),
     inset 0 -1px 2px var(--color-highlight-20), 0 0 0 2px var(--color-shadow-30);
-
-  /* Sequencer component */
-  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-30);
-  --step-shadow-inset-highlight: inset 1px 1px 2px var(--color-highlight-40);
-  --step-shadow-inset-shadow: inset -1px -1px 1px var(--color-shadow-50);
-  --step-shadow-on:
-    var(--shadow-neu), var(--step-shadow-ring),
-    var(--step-shadow-inset-highlight), var(--step-shadow-inset-shadow);
-  --shadow-step-inset:
-    inset 0 2px 4px var(--color-shadow), var(--step-shadow-ring);
-  --gradient-step-glow: radial-gradient(
-    circle at 50% 50%,
-    var(--color-highlight-30) 0%,
-    transparent 55%
-  );
 }
 
 /* Base */
@@ -192,15 +176,6 @@ a {
     var(--color-gradient-light),
     var(--color-gradient-dark)
   );
-}
-
-/* Sequencer utilities */
-.shadow-step-inset {
-  box-shadow: var(--shadow-step-inset);
-}
-
-.step-glow {
-  background: var(--gradient-step-glow);
 }
 
 /* Loader */

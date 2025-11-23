@@ -141,8 +141,8 @@ export const Sequencer: React.FC = () => {
   const getTriggerStyles = (state: StepMusicalState) => {
     return {
       className: state.isTriggerOn
-        ? "bg-primary shadow-[var(--step-shadow-on)] hover:primary-muted"
-        : "bg-instrument shadow-step-inset hover:bg-primary-muted/40",
+        ? "bg-primary shadow-neu hover:primary-muted"
+        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40",
       opacity: state.isGhosted ? 0.7 : 1,
     };
   };
@@ -210,7 +210,7 @@ export const Sequencer: React.FC = () => {
                 {state.isTriggerOn && (
                   <div
                     key={`sequence-step-trigger-glow-${step}`}
-                    className="step-glow pointer-events-none absolute inset-0"
+                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]"
                     style={{ borderRadius: `0 ${stepRadius} 0 ${stepRadius}` }}
                   />
                 )}
@@ -218,7 +218,7 @@ export const Sequencer: React.FC = () => {
               <div
                 key={`sequence-step-velocity-${step}`}
                 className={cn(
-                  "group outline-primary relative mt-3 h-3.5 w-full rounded-tl-full rounded-br-full bg-transparent outline-1 transition-all duration-200 ease-in-out",
+                  "group outline-primary relative mt-3 h-3.5 w-full rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
                   state.isTriggerOn
                     ? "cursor-grab"
                     : "pointer-events-none cursor-default",
@@ -228,7 +228,7 @@ export const Sequencer: React.FC = () => {
                 onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
               >
                 <div
-                  className="bg-primary absolute h-full rounded-tl-full rounded-br-full blur-xs"
+                  className="bg-primary absolute h-full rounded-[200px_0_200px_0] blur-xs"
                   style={{ width: `${velocityWidth}%` }}
                 />
                 <div className="absolute flex h-full w-full items-center justify-center">
