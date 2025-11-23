@@ -23,6 +23,7 @@
   --color-shadow-30: rgb(176 147 116 / 0.3);
   --color-shadow-50: rgb(176 147 116 / 0.5);
   --color-shadow-60: rgb(176 147 116 / 0.6);
+  --color-shadow-90: rgb(176 147 116 / 0.9);
   --color-highlight: rgb(251 245 255);
   --color-highlight-17: rgb(251 245 255 / 0.17);
   --color-highlight-20: rgb(251 245 255 / 0.2);
@@ -77,8 +78,16 @@
     var(--knob-shadow-outer), var(--knob-shadow-ring),
     var(--knob-shadow-inset-highlight), var(--knob-shadow-inset-shadow);
 
+  /* Slider component */
+  --slider-track-bg: var(--color-shadow);
+  --slider-track-shadow:
+    inset 0 3px 2px rgb(0 0 0 / 0.4),
+    inset 0 -1px 1px var(--color-highlight-20),
+    inset 2px 0 2px rgb(0 0 0 / 0.2), inset -2px 0 2px rgb(0 0 0 / 0.2),
+    inset 0 0 8px var(--color-highlight-17), 0 0 0 2px var(--color-shadow-30);
+
   /* Sequencer component */
-  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-30);
+  --step-shadow-ring: 0 0 1px 2px var(--color-shadow-90);
   --step-shadow-inset-highlight: inset 2px 2px 2px var(--color-highlight-40);
   --step-shadow-inset-shadow: inset -2px -2px 2px var(--color-shadow-50);
   --step-shadow-on:
@@ -165,6 +174,13 @@ a {
   box-shadow:
     var(--shadow-neu),
     0 0 2px 3px var(--color-shadow-30);
+}
+
+.hardware-button-group > *:not(:first-child) > button,
+.hardware-button-group > button:not(:first-child) {
+  box-shadow:
+    inset 1px 0 0 var(--color-shadow-50),
+    inset 2px 0 0 var(--color-highlight-20);
 }
 
 .surface {

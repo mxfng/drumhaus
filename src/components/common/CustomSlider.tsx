@@ -69,7 +69,10 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
       </div>
 
       {/* Slider track */}
-      <div className="flex h-[10px] items-center rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+      <div
+        className="flex h-[10px] items-center rounded-lg shadow-[var(--slider-track-shadow)]"
+        style={{ background: "var(--slider-track-bg)" }}
+      >
         <SliderPrimitive.Root
           className="relative flex w-full touch-none items-center select-none"
           value={[sliderValue]}
