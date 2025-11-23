@@ -42,15 +42,13 @@ const Drumhaus = () => {
 
   // --- Audio Engine and Preset Loading ---
 
-  const { instrumentRuntimes, instrumentRuntimesVersion, isLoading } =
-    useAudioEngine();
+  const { instrumentRuntimes, instrumentRuntimesVersion } = useAudioEngine();
 
   const { loadPreset } = usePresetLoading({ instrumentRuntimes });
 
   // --- Keyboard and Mobile Hooks ---
 
   useKeyboardShortcuts({
-    isLoading,
     instrumentRuntimes,
     instrumentRuntimesVersion,
   });
