@@ -63,7 +63,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </div>
 
       <div className="flex items-center justify-center">
-        <Tooltip content="Export WAV" delayDuration={500}>
+        <Tooltip content="Export" delayDuration={500}>
           <Button
             variant="hardware"
             size="icon"

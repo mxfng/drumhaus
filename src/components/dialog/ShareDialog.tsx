@@ -116,6 +116,14 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
   const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
+  const handleCopy = () => {
+    onCopy(shareableLink);
+    toast({
+      title: "Copied to clipboard",
+      duration: 3000,
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -182,7 +190,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
                 <div className="flex h-full items-center justify-center">
                   <button
-                    onClick={() => onCopy(shareableLink)}
+                    onClick={handleCopy}
                     className="font-pixel w-full truncate px-3 text-sm select-all"
                   >
                     {shareableLink}
@@ -203,7 +211,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               <Button variant="secondary" onClick={onClose}>
                 Close
               </Button>
-              <Button onClick={() => onCopy(shareableLink)}>
+              <Button onClick={handleCopy}>
                 {hasCopied ? "Copied!" : "Copy Link"}
               </Button>
             </DialogFooter>

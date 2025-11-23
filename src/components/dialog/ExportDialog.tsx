@@ -16,6 +16,7 @@ import {
   RadioGroup,
   RadioGroupItem,
   Slider,
+  useToast,
 } from "@/components/ui";
 import {
   calculateExportDuration,
@@ -73,6 +74,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   const [includeTail, setIncludeTail] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  const { toast } = useToast();
+
   // Set defaults when dialog opens
   useEffect(() => {
     if (isOpen) {
@@ -102,9 +105,20 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
         filename: filename.trim() || "drumhaus-export",
       });
 
+      toast({
+        title: "Export successful",
+        description: "Your audio file has been exported.",
+        duration: 8000,
+      });
       onClose();
     } catch (error) {
       console.error("Export failed:", error);
+      toast({
+        title: "Something went wrong",
+        description: "Couldn't export audio. Please try again.",
+        status: "error",
+        duration: 8000,
+      });
     } finally {
       setIsExporting(false);
     }
@@ -117,7 +131,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Export to WAV</DialogTitle>
+          <DialogTitle>Export</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
