@@ -7,7 +7,10 @@ import {
   updateMasterChainParams,
   type MasterChainRuntimes,
 } from "@/lib/audio/engine";
-import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import {
+  getMasterChainParams,
+  useMasterChainStore,
+} from "@/stores/useMasterChainStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 
@@ -31,16 +34,10 @@ export function useMasterChain({
 
     const initializeMasterChain = async () => {
       // Get initial params without subscribing
-      const initialState = useMasterChainStore.getState();
-      await createMasterChainRuntimes(masterChainRuntimes, {
-        lowPass: initialState.lowPass,
-        highPass: initialState.highPass,
-        phaser: initialState.phaser,
-        reverb: initialState.reverb,
-        compThreshold: initialState.compThreshold,
-        compRatio: initialState.compRatio,
-        masterVolume: initialState.masterVolume,
-      });
+      await createMasterChainRuntimes(
+        masterChainRuntimes,
+        getMasterChainParams(),
+      );
 
       isInitialized.current = true;
 

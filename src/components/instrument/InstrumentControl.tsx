@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { CustomSlider } from "../common/CustomSlider";
+import { HardwareSlider } from "../common/HardwareSlider";
 import { Knob } from "../common/Knob";
 import {
   transformKnobValue,
@@ -323,7 +323,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         <div className="grid grid-cols-2 p-1">
           {/* Left: Pan + Mute/Solo */}
           <div className="flex flex-col items-center justify-between pt-4">
-            <CustomSlider
+            <HardwareSlider
               size={85}
               sliderValue={pan}
               setSliderValue={setPan}

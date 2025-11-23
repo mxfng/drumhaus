@@ -116,6 +116,14 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
   const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
+  const handleCopy = () => {
+    onCopy(shareableLink);
+    toast({
+      title: "Copied to clipboard",
+      duration: 3000,
+    });
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -151,12 +159,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 <Button
                   type="submit"
                   disabled={!isValid || isLoading}
-                  className="flex items-center"
+                  className="text-primary-foreground flex items-center"
                 >
                   <span className="mr-2">Get Link</span>
                   {isLoading && (
                     <PixelatedSpinner
-                      color="white"
+                      color="currentColor"
                       size={20}
                       pixelSize={2}
                       gap={2}
@@ -173,8 +181,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </DialogHeader>
             <DialogCloseButton />
 
-            <div>
-              <DialogDescription className="pb-6">
+            <div className="space-y-6">
+              <DialogDescription>
                 Your link is ready! Share it with anyone to let them load your
                 preset.
               </DialogDescription>
@@ -182,7 +190,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
                 <div className="flex h-full items-center justify-center">
                   <button
-                    onClick={() => onCopy(shareableLink)}
+                    onClick={handleCopy}
                     className="font-pixel w-full truncate px-3 text-sm select-all"
                   >
                     {shareableLink}
@@ -190,9 +198,11 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 </div>
               </div>
 
-              <div className="bg-shadow-10 mt-4 rounded-md p-3">
-                <p className="mb-1 font-semibold">How it works</p>
-                <p className="leading-relaxed">
+              <div>
+                <p className="text-foreground-muted mb-2 text-xs font-semibold">
+                  How it works
+                </p>
+                <p className="text-foreground-muted text-xs">
                   Your entire preset is packed into this tiny URL using some
                   custom compression magic, and is entirely self-contained.
                 </p>
@@ -203,7 +213,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               <Button variant="secondary" onClick={onClose}>
                 Close
               </Button>
-              <Button onClick={() => onCopy(shareableLink)}>
+              <Button onClick={handleCopy}>
                 {hasCopied ? "Copied!" : "Copy Link"}
               </Button>
             </DialogFooter>

@@ -83,7 +83,7 @@ export const DebugOverlay = () => {
   if (!debugMode) return null;
 
   return (
-    <div className="font-pixel fixed top-4 right-4 z-100 rounded bg-black/80 px-3 py-2 text-xs text-white">
+    <div className="font-pixel text-primary-foreground fixed top-4 left-4 z-100 rounded bg-black/80 px-3 py-2 text-xs">
       <div className="flex flex-col gap-0.5">
         <div className="flex justify-between gap-4">
           <span className="opacity-70">FPS</span>

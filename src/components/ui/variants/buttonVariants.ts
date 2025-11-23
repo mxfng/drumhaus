@@ -6,7 +6,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-white",
+          "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground",
         secondary: "hover:text-foreground-muted",
         hardware:
           "surface-raised text-foreground group flex items-center justify-center hover:text-primary-muted",

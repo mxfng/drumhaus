@@ -57,8 +57,8 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
 
         <div className="mb-8 flex flex-col items-start gap-2">
           <div className="flex items-baseline gap-2">
-            <DrumhausLogo size={32} color="white" />
-            <DrumhausTypographyLogo color="white" size={280} />
+            <DrumhausLogo size={32} color="currentColor" />
+            <DrumhausTypographyLogo color="currentColor" size={280} />
           </div>
           <p className="text-center text-sm">
             Browser Controlled Rhythmic Groove Machine
@@ -102,7 +102,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               href="https://fung.studio/"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-0.5 transition-colors hover:text-white"
+              className="hover:text-primary-foreground flex items-center gap-0.5 transition-colors"
             >
               fung.studio <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
@@ -110,7 +110,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               href="https://ko-fi.com/maxfung"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-0.5 transition-colors hover:text-white"
+              className="hover:text-primary-foreground flex items-center gap-0.5 transition-colors"
             >
               Support on Ko-fi <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
@@ -118,7 +118,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               href="https://github.com/mxfng/drumhaus"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-0.5 transition-colors hover:text-white"
+              className="hover:text-primary-foreground flex items-center gap-0.5 transition-colors"
             >
               GitHub <ArrowUpRight className="inline-block h-4 w-4" />
             </a>

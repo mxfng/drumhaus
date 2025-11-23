@@ -8,7 +8,7 @@ const dialogVariants = cva(
         default:
           "bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))]",
         primary:
-          "bg-primary text-white rounded-none rounded-tr-4xl rounded-bl-4xl",
+          "bg-primary text-primary-foreground rounded-none rounded-tr-4xl rounded-bl-4xl",
       },
     },
     defaultVariants: {
