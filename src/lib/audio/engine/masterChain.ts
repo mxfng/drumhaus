@@ -7,6 +7,7 @@ import {
   Gain,
   getDestination,
   Limiter,
+  Meter,
   Phaser,
   Reverb,
   WaveShaper,
@@ -22,7 +23,6 @@ import type { MasterChainParams } from "@/types/preset";
 import {
   INFLATOR_CROSSOVER_FREQ,
   INFLATOR_CURVE,
-  INFLATOR_EFFECT,
   INFLATOR_INPUT_GAIN,
   INFLATOR_OUTPUT_GAIN,
   MASTER_COMP_ATTACK,
@@ -35,6 +35,8 @@ import {
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_INFLATOR_AMOUNT_DEFAULT,
+  MASTER_INFLATOR_AMOUNT_RANGE,
   MASTER_LIMITER_THRESHOLD,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
@@ -45,6 +47,10 @@ import {
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_DRIVE_DEFAULT,
+  MASTER_SATURATION_DRIVE_RANGE_DB,
+  MASTER_TAPE_DRIVE_DEFAULT,
+  MASTER_TAPE_DRIVE_RANGE_DB,
   MASTER_VOLUME_RANGE,
   TAPE_LOW_SHELF_FREQ,
   TAPE_LOW_SHELF_GAIN,
@@ -57,6 +63,8 @@ import {
   TUBE_ASYMMETRY,
   TUBE_DRIVE,
 } from "./constants";
+
+const dbToGain = (db: number) => Math.pow(10, db / 20);
 
 // -----------------------------------------------------------------------------
 // Types
@@ -83,6 +91,7 @@ export interface MasterChainRuntimes {
   // Tape emulation (Studer A800 style - hidden processing)
   tapeLowShelf: BiquadFilter; // NAB curve bass warmth
   tapePresence: BiquadFilter; // HF driver character before saturation
+  tapeDriveGain: Gain; // User-controlled drive into the tape shaper
   tapeSaturation: WaveShaper; // Soft saturation with even harmonics
   // Inflator (Oxford style - multiband upward compression)
   inflatorInputGain: Gain; // Drive into the effect
@@ -94,9 +103,12 @@ export interface MasterChainRuntimes {
   inflatorDryGain: Gain; // Dry signal level
   inflatorOutputGain: Gain; // Final output compensation
   // Tube saturation (Saturn 2 Clean Tube style)
+  tubeDriveGain: Gain; // User-controlled drive into tube shaper
   tubeSaturation: WaveShaper; // Subtle even harmonics
   // Output processing
+  masterVolumeGain: Gain; // Master volume applied before metering
   limiter: Limiter;
+  outputMeter: Meter;
 }
 
 export type MasterChainSettings = {
@@ -108,6 +120,9 @@ export type MasterChainSettings = {
   compThreshold: number;
   compRatio: number;
   compMix: number; // 0-1 wet/dry mix for parallel compression
+  tapeDriveGain: number;
+  inflatorEffect: number;
+  saturationDriveGain: number;
   masterVolume: number;
 };
 
@@ -182,6 +197,7 @@ export function disposeMasterChainRuntimes(
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
     { name: "tapeLowShelf", node: runtimes.current.tapeLowShelf },
     { name: "tapePresence", node: runtimes.current.tapePresence },
+    { name: "tapeDriveGain", node: runtimes.current.tapeDriveGain },
     { name: "tapeSaturation", node: runtimes.current.tapeSaturation },
     { name: "inflatorInputGain", node: runtimes.current.inflatorInputGain },
     { name: "inflatorLowPass", node: runtimes.current.inflatorLowPass },
@@ -191,8 +207,11 @@ export function disposeMasterChainRuntimes(
     { name: "inflatorWetGain", node: runtimes.current.inflatorWetGain },
     { name: "inflatorDryGain", node: runtimes.current.inflatorDryGain },
     { name: "inflatorOutputGain", node: runtimes.current.inflatorOutputGain },
+    { name: "tubeDriveGain", node: runtimes.current.tubeDriveGain },
     { name: "tubeSaturation", node: runtimes.current.tubeSaturation },
+    { name: "masterVolumeGain", node: runtimes.current.masterVolumeGain },
     { name: "limiter", node: runtimes.current.limiter },
+    { name: "outputMeter", node: runtimes.current.outputMeter },
   ];
 
   for (const { name, node } of nodesToDispose) {
@@ -281,6 +300,7 @@ export function chainMasterChainNodes(
   // Tape emulation (right after compressor): low shelf warmth → presence lift → saturation
   masterChain.tapeLowShelf.chain(
     masterChain.tapePresence,
+    masterChain.tapeDriveGain,
     masterChain.tapeSaturation,
   );
 
@@ -304,7 +324,8 @@ export function chainMasterChainNodes(
   masterChain.inflatorDryGain.connect(masterChain.inflatorOutputGain);
 
   // Tube saturation (after inflator) - subtle even harmonics
-  masterChain.inflatorOutputGain.connect(masterChain.tubeSaturation);
+  masterChain.inflatorOutputGain.connect(masterChain.tubeDriveGain);
+  masterChain.tubeDriveGain.connect(masterChain.tubeSaturation);
 
   // Filters (after tube saturation)
   masterChain.tubeSaturation.chain(
@@ -331,8 +352,11 @@ export function chainMasterChainNodes(
   // Main signal to limiter
   masterChain.highPassFilter.connect(masterChain.limiter);
 
-  // Output to destination
-  masterChain.limiter.connect(destination);
+  // Output: limiter → master volume → destination and meter
+  // This ensures the meter shows the actual output level after volume adjustment
+  masterChain.limiter.connect(masterChain.masterVolumeGain);
+  masterChain.masterVolumeGain.connect(destination);
+  masterChain.masterVolumeGain.connect(masterChain.outputMeter);
 }
 
 // -----------------------------------------------------------------------------
@@ -410,6 +434,8 @@ export async function buildMasterChainNodes(
     gain: TAPE_PRESENCE_GAIN,
   });
 
+  const tapeDriveGain = new Gain(settings.tapeDriveGain);
+
   // WaveShaper with tape-like saturation curve (asymmetric for even harmonics)
   const tapeSaturation = new WaveShaper((x: number) => {
     // Asymmetric soft saturation - adds even harmonics like real tape
@@ -441,20 +467,28 @@ export async function buildMasterChainNodes(
   const inflatorHighShaper = new WaveShaper(inflatorCurve, 4096);
 
   // Wet/dry mix
-  const inflatorWetGain = new Gain(INFLATOR_EFFECT);
-  const inflatorDryGain = new Gain(1 - INFLATOR_EFFECT);
+  const inflatorWetGain = new Gain(settings.inflatorEffect);
+  const inflatorDryGain = new Gain(1 - settings.inflatorEffect);
 
   // Output compensation
   const inflatorOutputGain = new Gain(Math.pow(10, INFLATOR_OUTPUT_GAIN / 20));
 
   // Tube saturation (Saturn 2 Clean Tube style) - subtle even harmonics
+  const tubeDriveGain = new Gain(settings.saturationDriveGain);
   const tubeSaturation = new WaveShaper((x: number) => {
     // Gentle tube saturation with even harmonics from asymmetry
     // 100% wet, so no dry signal mixing needed
     return Math.tanh(x * (1 + TUBE_DRIVE) + TUBE_ASYMMETRY * x * Math.abs(x));
   }, 4096);
 
+  // Master volume gain node - applies volume before metering so meter shows actual output
+  const masterVolumeGain = new Gain(dbToGain(settings.masterVolume));
+
   const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
+  const outputMeter = new Meter({
+    smoothing: 0.8,
+    normalRange: false,
+  });
 
   return {
     compressor,
@@ -472,6 +506,7 @@ export async function buildMasterChainNodes(
     reverbSendGain,
     tapeLowShelf,
     tapePresence,
+    tapeDriveGain,
     tapeSaturation,
     inflatorInputGain,
     inflatorLowPass,
@@ -481,8 +516,11 @@ export async function buildMasterChainNodes(
     inflatorWetGain,
     inflatorDryGain,
     inflatorOutputGain,
+    tubeDriveGain,
     tubeSaturation,
+    masterVolumeGain,
     limiter,
+    outputMeter,
   };
 }
 
@@ -492,6 +530,19 @@ export async function buildMasterChainNodes(
 export function mapParamsToSettings(
   params: MasterChainParams,
 ): MasterChainSettings {
+  const tapeDriveDb = transformKnobValue(
+    params.tapeDrive ?? MASTER_TAPE_DRIVE_DEFAULT,
+    MASTER_TAPE_DRIVE_RANGE_DB,
+  );
+  const saturationDriveDb = transformKnobValue(
+    params.saturationDrive ?? MASTER_SATURATION_DRIVE_DEFAULT,
+    MASTER_SATURATION_DRIVE_RANGE_DB,
+  );
+  const inflatorPercent = transformKnobValue(
+    params.inflatorAmount ?? MASTER_INFLATOR_AMOUNT_DEFAULT,
+    MASTER_INFLATOR_AMOUNT_RANGE,
+  );
+
   return {
     lowPassFrequency: transformKnobValueExponential(
       params.lowPass,
@@ -516,6 +567,9 @@ export function mapParamsToSettings(
         params.compMix ?? MASTER_COMP_DEFAULT_MIX,
         MASTER_COMP_MIX_RANGE,
       ) / 100,
+    tapeDriveGain: dbToGain(tapeDriveDb),
+    inflatorEffect: inflatorPercent / 100,
+    saturationDriveGain: dbToGain(saturationDriveDb),
     // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
     masterVolume:
       params.masterVolume === 0
@@ -538,6 +592,11 @@ function applySettingsToRuntimes(
   // Parallel compression wet/dry mix
   runtimes.compWetGain.gain.value = settings.compMix;
   runtimes.compDryGain.gain.value = 1 - settings.compMix;
+  // Character processors
+  runtimes.tapeDriveGain.gain.value = settings.tapeDriveGain;
+  runtimes.inflatorWetGain.gain.value = settings.inflatorEffect;
+  runtimes.inflatorDryGain.gain.value = 1 - settings.inflatorEffect;
+  runtimes.tubeDriveGain.gain.value = settings.saturationDriveGain;
 
   // Filter settings
   runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
@@ -548,6 +607,6 @@ function applySettingsToRuntimes(
   runtimes.reverbSendGain.gain.value = settings.reverbWet;
   runtimes.reverb.decay = settings.reverbDecay;
 
-  // Master volume is applied directly to the global destination.
-  getDestination().volume.value = settings.masterVolume;
+  // Master volume applied via gain node so meter shows actual output level
+  runtimes.masterVolumeGain.gain.value = dbToGain(settings.masterVolume);
 }

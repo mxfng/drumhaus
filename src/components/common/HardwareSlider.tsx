@@ -18,6 +18,10 @@ type HardwareSliderProps = {
   isDisabled?: boolean;
   valueStep?: number;
   valueDecimals?: number;
+  formatValueText?: (args: {
+    sliderValue: number;
+    transformedValue: number;
+  }) => string;
 };
 
 export const HardwareSlider: React.FC<HardwareSliderProps> = ({
@@ -34,6 +38,7 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
   isDisabled = false,
   valueStep = 1,
   valueDecimals = 0,
+  formatValueText,
 }) => {
   const immutableDefaultValue = defaultValue;
   const step = valueStep > 0 ? valueStep : 1;
@@ -48,10 +53,13 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
     setSliderValue(quantizedValue);
   };
 
-  const formattedTransformedValue = transformKnobValue(
+  const transformedValue = transformKnobValue(
     sliderValue,
     displayRange ?? transformRange,
-  ).toFixed(valueDecimals);
+  );
+  const formattedTransformedValue =
+    formatValueText?.({ sliderValue, transformedValue }) ??
+    transformedValue.toFixed(valueDecimals);
 
   return (
     <div

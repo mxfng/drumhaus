@@ -70,12 +70,14 @@ export const TAPE_LOW_SHELF_FREQ = 80; // Hz - weight and warmth
 export const TAPE_LOW_SHELF_GAIN = 0.8; // dB - lighter low-end bloom
 // WaveShaper provides soft saturation with even harmonics
 export const TAPE_SATURATION_DRIVE = 1.1; // Softer saturation amount
-export const TAPE_SATURATION_ASYMMETRY = 0.07; // Even harmonic content (0 = symmetric/odd only)
+export const TAPE_SATURATION_ASYMMETRY = 0.15; // Even harmonic content (0 = symmetric/odd only)
 export const TAPE_SATURATION_OUTPUT = 0.95; // Slight output reduction (tape compression)
 // Pre-saturation presence adds "HF driver" character
 export const TAPE_PRESENCE_FREQ = 2500; // Hz - air and clarity
 export const TAPE_PRESENCE_Q = 0.8; // Wide and smooth
 export const TAPE_PRESENCE_GAIN = 0.6; // dB - subtle lift before saturation
+export const MASTER_TAPE_DRIVE_RANGE_DB: [number, number] = [-6, 9]; // Tape drive sweep
+export const MASTER_TAPE_DRIVE_DEFAULT = 50; // Knob midpoint = 0 dB (unity into tape)
 
 // Inflator - Oxford Inflator style upward compression (hidden processing)
 // Increases perceived loudness without squashing peaks
@@ -84,11 +86,15 @@ export const INFLATOR_EFFECT = 0.15; // Wet/dry mix (15%)
 export const INFLATOR_CURVE = 3; // Waveshaping curve intensity (gentler)
 export const INFLATOR_OUTPUT_GAIN = -0.5; // dB - subtle compensation
 export const INFLATOR_CROSSOVER_FREQ = 240; // Hz - band split frequency
+export const MASTER_INFLATOR_AMOUNT_RANGE: [number, number] = [0, 35]; // Wet % range
+export const MASTER_INFLATOR_AMOUNT_DEFAULT = 43; // ≈15% wet (legacy setting)
 
 // Tube saturation - FabFilter Saturn 2 Clean Tube style (hidden processing)
 // Adds subtle even harmonics for warmth
 export const TUBE_DRIVE = 0.045; // 4.5% drive - barely there
 export const TUBE_ASYMMETRY = 0.05; // Even harmonic content (tube character)
+export const MASTER_SATURATION_DRIVE_RANGE_DB: [number, number] = [-12, 6]; // Tube drive sweep
+export const MASTER_SATURATION_DRIVE_DEFAULT = 50; // Midpoint = 0 dB (unity into tube)
 
 // High shelf rolloff - tape head losses and silk top end
 export const MASTER_HIGH_SHELF_FREQ = 6000; // Hz - tape-style rolloff point

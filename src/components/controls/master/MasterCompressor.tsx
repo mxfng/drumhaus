@@ -22,8 +22,8 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="relative -mr-2 flex items-center">
-      <Label className="text-foreground-muted absolute -left-8 w-[65px] -rotate-90">
+    <div className="relative -mr-2 flex items-center border">
+      <Label className="text-foreground-muted absolute top-1/2 -left-2.5 -translate-y-1/2 rotate-180 text-xs [writing-mode:vertical-rl]">
         BUS COMP
       </Label>
       <div className="flex pl-4">

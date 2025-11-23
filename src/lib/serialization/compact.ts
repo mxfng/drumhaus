@@ -150,6 +150,9 @@ type CompactMasterChain = Partial<{
   ct: number; // compThreshold
   cr: number; // compRatio
   cm: number; // compMix
+  td: number; // tapeDrive
+  ia: number; // inflatorAmount
+  sd: number; // saturationDrive
   mv: number; // masterVolume
 }>;
 
@@ -203,6 +206,12 @@ function encodeMasterChain(
   if (chain.compRatio !== DEFAULT_MASTER_CHAIN.compRatio)
     mc.cr = chain.compRatio;
   if (chain.compMix !== DEFAULT_MASTER_CHAIN.compMix) mc.cm = chain.compMix;
+  if (chain.tapeDrive !== DEFAULT_MASTER_CHAIN.tapeDrive)
+    mc.td = chain.tapeDrive;
+  if (chain.inflatorAmount !== DEFAULT_MASTER_CHAIN.inflatorAmount)
+    mc.ia = chain.inflatorAmount;
+  if (chain.saturationDrive !== DEFAULT_MASTER_CHAIN.saturationDrive)
+    mc.sd = chain.saturationDrive;
   if (chain.masterVolume !== DEFAULT_MASTER_CHAIN.masterVolume)
     mc.mv = chain.masterVolume;
 
@@ -289,6 +298,9 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
     compThreshold: compact?.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
     compRatio: compact?.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
     compMix: compact?.cm ?? DEFAULT_MASTER_CHAIN.compMix,
+    tapeDrive: compact?.td ?? DEFAULT_MASTER_CHAIN.tapeDrive,
+    inflatorAmount: compact?.ia ?? DEFAULT_MASTER_CHAIN.inflatorAmount,
+    saturationDrive: compact?.sd ?? DEFAULT_MASTER_CHAIN.saturationDrive,
     masterVolume: compact?.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
   };
 }

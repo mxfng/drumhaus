@@ -12,6 +12,9 @@ export interface MasterChainParams {
   compThreshold: number;
   compRatio: number;
   compMix: number; // Parallel compression wet/dry (0-100 knob value)
+  tapeDrive: number;
+  inflatorAmount: number;
+  saturationDrive: number;
   masterVolume: number;
 }
 

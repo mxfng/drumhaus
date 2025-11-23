@@ -917,6 +917,9 @@
     "compThreshold": 100,
     "compRatio": 43,
     "compMix": 70,
+    "tapeDrive": 50,
+    "inflatorAmount": 43,
+    "saturationDrive": 50,
     "masterVolume": 92
   }
 }

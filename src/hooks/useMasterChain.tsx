@@ -30,6 +30,7 @@ export function useMasterChain({
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const setReduction = useMasterChainStore((state) => state.setReduction);
+  const setOutputLevel = useMasterChainStore((state) => state.setOutputLevel);
 
   // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
@@ -44,19 +45,65 @@ export function useMasterChain({
 
       isInitialized.current = true;
 
-      // Start gain reduction metering loop
-      const updateGainReduction = () => {
+      // Start meter loop for gain reduction and output level
+      const getMeterLevel = (value: number | number[]): number => {
+        if (Array.isArray(value)) {
+          return value.reduce((max, channelValue) => {
+            const safeValue = Number.isFinite(channelValue)
+              ? channelValue
+              : Number.NEGATIVE_INFINITY;
+            return Math.max(max, safeValue);
+          }, Number.NEGATIVE_INFINITY);
+        }
+        return value;
+      };
+
+      // Meter ballistics state
+      let displayedLevel = Number.NEGATIVE_INFINITY;
+      let lastTime = performance.now();
+      const RELEASE_RATE = 25; // dB per second (fall time)
+
+      const updateMeters = () => {
         if (masterChainRuntimes.current) {
           const isPlaying = useTransportStore.getState().isPlaying;
+          const now = performance.now();
+          const deltaTime = (now - lastTime) / 1000; // Convert to seconds
+          lastTime = now;
+
           // Show 0 when not playing, otherwise show actual reduction
           const reduction = isPlaying
             ? masterChainRuntimes.current.compressor.reduction
             : 0;
           setReduction(reduction);
+
+          if (!isPlaying) {
+            // Reset meter when stopped
+            displayedLevel = Number.NEGATIVE_INFINITY;
+            setOutputLevel(displayedLevel);
+          } else {
+            // Get raw meter reading
+            const rawDb = getMeterLevel(
+              masterChainRuntimes.current.outputMeter.getValue(),
+            );
+
+            // Apply ballistics: instant attack, slow release
+            if (rawDb > displayedLevel) {
+              // Attack: instant rise to new peak
+              displayedLevel = rawDb;
+            } else {
+              // Release: gradual decay
+              displayedLevel = Math.max(
+                rawDb,
+                displayedLevel - RELEASE_RATE * deltaTime,
+              );
+            }
+
+            setOutputLevel(displayedLevel);
+          }
         }
-        animationFrameRef.current = requestAnimationFrame(updateGainReduction);
+        animationFrameRef.current = requestAnimationFrame(updateMeters);
       };
-      animationFrameRef.current = requestAnimationFrame(updateGainReduction);
+      animationFrameRef.current = requestAnimationFrame(updateMeters);
 
       // Set up subscription after initialization
       let prevParams: MasterChainParams | null = null;
@@ -73,6 +120,9 @@ export function useMasterChain({
           compThreshold: state.compThreshold,
           compRatio: state.compRatio,
           compMix: state.compMix,
+          tapeDrive: state.tapeDrive,
+          inflatorAmount: state.inflatorAmount,
+          saturationDrive: state.saturationDrive,
           masterVolume: state.masterVolume,
         };
 
@@ -86,6 +136,9 @@ export function useMasterChain({
           prevParams.compThreshold !== currentParams.compThreshold ||
           prevParams.compRatio !== currentParams.compRatio ||
           prevParams.compMix !== currentParams.compMix ||
+          prevParams.tapeDrive !== currentParams.tapeDrive ||
+          prevParams.inflatorAmount !== currentParams.inflatorAmount ||
+          prevParams.saturationDrive !== currentParams.saturationDrive ||
           prevParams.masterVolume !== currentParams.masterVolume
         ) {
           updateMasterChainParams(masterChainRuntimes.current, currentParams);
@@ -113,7 +166,7 @@ export function useMasterChain({
         isInitialized.current = false;
       }
     };
-  }, [setReduction]);
+  }, [setOutputLevel, setReduction]);
 
   // Connect instruments to master chain when they change
   useEffect(() => {
