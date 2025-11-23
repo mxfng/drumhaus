@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 
-import { Button } from "@/components/ui";
+import { Button, Tooltip } from "@/components/ui";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
@@ -17,12 +18,12 @@ import { MasterVolume } from "./controls/master/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
+import { MobileDialog } from "./dialog/MobileDialog";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { InstrumentGrid } from "./instrument/InstrumentGrid";
-import { MobileModal } from "./modal/MobileModal";
 import { Sequencer } from "./Sequencer";
 
 const Drumhaus = () => {
@@ -52,7 +53,10 @@ const Drumhaus = () => {
     instrumentRuntimesVersion,
   });
 
-  const { isMobileWarning, setIsMobileWarning } = useMobileWarning();
+  useMobileWarning();
+
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
 
   // --- Initial Loader Cleanup ---
 
@@ -102,17 +106,14 @@ const Drumhaus = () => {
           </div>
         </div>
       </div>
-      <MobileModal
-        isOpen={isMobileWarning}
-        onClose={() => setIsMobileWarning(false)}
-      />
+      <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
     </>
   );
 };
 
 const TopBar = () => {
   return (
-    <div className="surface-raised relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
+    <div className="surface relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
       <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
         <div className="flex items-end">
           <DrumhausLogo size={46} color="#ff7b00" />
@@ -158,14 +159,16 @@ const MainControls = ({
       </div>
 
       <div className="flex w-full flex-row items-center justify-between px-8 py-4">
-        <Button
-          variant="hardware"
-          className="neu-tall-raised h-[140px] w-[140px] rounded-lg"
-          onClick={() => togglePlay(instrumentRuntimes)}
-          onKeyDown={(ev) => ev.preventDefault()}
-        >
-          {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
-        </Button>
+        <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
+          <Button
+            variant="hardware"
+            className="neu-medium-raised h-[140px] w-[140px] rounded-lg shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]"
+            onClick={() => togglePlay(instrumentRuntimes)}
+            onKeyDown={(ev) => ev.preventDefault()}
+          >
+            {isPlaying ? <IoPauseSharp size={50} /> : <IoPlaySharp size={50} />}
+          </Button>
+        </Tooltip>
 
         <SequencerControl />
 
@@ -207,7 +210,7 @@ const BrandingLink = () => {
 const Footer = () => {
   return (
     <div className="flex h-full w-full items-center justify-center">
-      <div className="text-foreground-muted mt-8 flex">
+      <div className="text-foreground mt-8 flex">
         <p className="text-sm">Designed with love by</p>
         <a
           href="https://fung.studio/"

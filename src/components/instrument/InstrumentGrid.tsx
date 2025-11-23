@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { useModalStore } from "@/stores/useModalStore";
+import { useDialogStore } from "@/stores/useDialogStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { InstrumentControl } from "./InstrumentControl";
@@ -27,8 +27,8 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
 }) => {
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
-  // Modal store
-  const isAnyModalOpen = useModalStore((state) => state.isAnyModalOpen);
+  // Dialog store
+  const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Get state from Sequencer Store
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
@@ -43,15 +43,15 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
 
   const handleArrowKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" && !isAnyModalOpen()) {
+      if (event.key === "ArrowRight" && !isAnyDialogOpen()) {
         const newVoice = (voiceIndex + 1) % 8;
         toggleCurrentVoice(newVoice);
-      } else if (event.key === "ArrowLeft" && !isAnyModalOpen()) {
+      } else if (event.key === "ArrowLeft" && !isAnyDialogOpen()) {
         const newVoice = (voiceIndex - 1 + 8) % 8;
         toggleCurrentVoice(newVoice);
       }
     },
-    [voiceIndex, toggleCurrentVoice, isAnyModalOpen],
+    [voiceIndex, toggleCurrentVoice, isAnyDialogOpen],
   );
 
   useEffect(() => {

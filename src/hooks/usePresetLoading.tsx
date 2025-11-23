@@ -47,7 +47,7 @@ export function usePresetLoading({
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
       toast({
-        title: `You received a custom preset called "${presetName}"!`,
+        title: `Loaded shared preset "${presetName}"`,
       });
     },
     [toast],
@@ -55,8 +55,8 @@ export function usePresetLoading({
 
   const showSharedPresetErrorToast = useCallback(() => {
     toast({
-      title: "Something went wrong.",
-      description: "Failed to load shared preset. Loading default.",
+      title: "Something went wrong",
+      description: "Couldn't load shared preset. The link may be invalid.",
       status: "error",
       duration: 8000,
     });

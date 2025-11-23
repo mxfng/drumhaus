@@ -54,7 +54,14 @@ export const Sequencer: React.FC = () => {
     const rect = targetDiv.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const divWidth = rect.width;
-    const normalizedVelocity = Math.max(Math.min(mouseX / divWidth, 1), 0);
+    // Use a small inset to ensure 0 and 100 are reachable at the edges
+    const inset = 2;
+    const adjustedX = mouseX - inset;
+    const adjustedWidth = divWidth - inset * 2;
+    const normalizedVelocity = Math.max(
+      Math.min(adjustedX / adjustedWidth, 1),
+      0,
+    );
     setVelocity(voiceIndex, variation, stepIndex, normalizedVelocity);
   };
 
