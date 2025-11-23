@@ -9,6 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui";
+import { cn } from "@/lib/utils";
+import { useDebugStore } from "@/stores/useDebugStore";
 import { DrumhausLogo } from "../icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "../icon/DrumhausTypographyLogo";
 
@@ -45,6 +47,8 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
   const browser = useMemo(() => getBrowserInfo(), []);
   const audioInfo = useMemo(() => getAudioContextInfo(), []);
   const currentYear = new Date().getFullYear();
+  const debugMode = useDebugStore((state) => state.debugMode);
+  const toggleDebugMode = useDebugStore((state) => state.toggleDebugMode);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -75,7 +79,20 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <p className="font-semibold">Runtime</p>
+            <div className="flex gap-4">
+              <p className="font-semibold">Runtime</p>
+              <div className="flex text-xs">
+                <button
+                  onClick={toggleDebugMode}
+                  className={cn("cursor-pointer transition-opacity", {
+                    "opacity-80": debugMode,
+                    "opacity-40 hover:opacity-60": !debugMode,
+                  })}
+                >
+                  {debugMode ? "● Debug Mode" : "○ Debug Mode"}
+                </button>
+              </div>
+            </div>
             <div className="font-pixel flex flex-col gap-1">
               <p>{browser}</p>
               <p>Node {__NODE_VERSION__}</p>

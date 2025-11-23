@@ -18,6 +18,7 @@ import { MasterVolume } from "./controls/master/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
+import { DebugOverlay } from "./DebugOverlay";
 import { AboutDialog } from "./dialog/AboutDialog";
 import { MobileDialog } from "./dialog/MobileDialog";
 import FrequencyAnalyzer from "./FrequencyAnalyzer";
@@ -110,6 +111,7 @@ const Drumhaus = () => {
       </div>
       <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
       <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      <DebugOverlay />
     </>
   );
 };
