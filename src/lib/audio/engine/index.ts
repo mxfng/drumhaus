@@ -37,7 +37,9 @@ export { subscribeRuntimeToInstrumentParams } from "./instrumentParams";
 // Master Chain
 export {
   createMasterChainRuntimes,
+  initializeMasterChain,
   connectInstrumentsToMasterChain,
+  connectInstrumentRuntime,
   updateMasterChainParams,
   disposeMasterChainRuntimes,
   type MasterChainRuntimes,

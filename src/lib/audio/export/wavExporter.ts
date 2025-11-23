@@ -1,13 +1,13 @@
 // --- WAV export engine using Tone.js Offline rendering ---
 
-import { Offline, ToneAudioNode } from "tone/build/esm/index";
+import { Offline } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
-import type { MasterChainParams, VariationCycle } from "@/types/preset";
+import type { VariationCycle } from "@/types/preset";
 import {
   EXPORT_CHANNEL_COUNT,
   EXPORT_TAIL_TIME,
@@ -20,11 +20,8 @@ import {
 import { applyInstrumentParams } from "../engine/instrumentParams";
 import { buildInstrumentRuntime } from "../engine/instrumentRuntimes";
 import {
-  applySettingsToRuntimes,
-  buildMasterChainNodes,
-  chainMasterChainNodes,
   connectInstrumentRuntime,
-  mapParamsToSettings,
+  initializeMasterChain,
   MasterChainRuntimes,
 } from "../engine/masterChain";
 import { downloadWav, encodeWav } from "./wavEncoder";
@@ -72,8 +69,8 @@ export async function exportToWav(
       // Configure transport
       configureTransportTiming(transport, bpm, swing);
 
-      // Build master chain
-      const masterChain = await buildOfflineMasterChain(
+      // Build master chain using shared initialization
+      const masterChain = await initializeMasterChain(
         masterChainParams,
         destination,
       );
@@ -145,26 +142,6 @@ export function calculateExportDuration(bars: number, bpm: number): number {
 }
 
 // --- Private helpers ---
-
-async function buildOfflineMasterChain(
-  params: MasterChainParams,
-  destination: ToneAudioNode,
-): Promise<MasterChainRuntimes> {
-  // Compute settings once
-  const settings = mapParamsToSettings(params);
-
-  // Build shared nodes
-  const nodes = await buildMasterChainNodes(settings);
-
-  // Apply all settings to nodes (ensures consistency with online engine)
-  // This includes setting destination.volume for master volume
-  applySettingsToRuntimes(nodes, settings);
-
-  // Chain master chain nodes to destination
-  chainMasterChainNodes(nodes, destination);
-
-  return nodes;
-}
 
 async function buildOfflineInstrumentRuntimes(
   instruments: InstrumentData[],
