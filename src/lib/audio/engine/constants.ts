@@ -15,7 +15,7 @@ export const INSTRUMENT_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_PHASER_WET_RANGE: [number, number] = [0, 1];
 export const MASTER_REVERB_WET_RANGE: [number, number] = [0, 0.5];
-export const MASTER_REVERB_DECAY_RANGE: [number, number] = [0.1, 3];
+export const MASTER_REVERB_DECAY_RANGE: [number, number] = [0.1, 1.5]; // Tighter for drums
 export const MASTER_COMP_THRESHOLD_RANGE: [number, number] = [-40, 0];
 export const MASTER_COMP_RATIO_RANGE: [number, number] = [1, 8];
 export const MASTER_VOLUME_RANGE: [number, number] = [-46, 4];
@@ -33,14 +33,35 @@ export const SEQUENCE_EVENTS: number[] = [
   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
 ];
 
-// Phaser defaults
-export const MASTER_PHASER_FREQUENCY = 1;
-export const MASTER_PHASER_OCTAVES = 3;
-export const MASTER_PHASER_BASE_FREQUENCY = 1000;
+// Phaser defaults (tuned for drums - keeps effect in upper mids/highs)
+export const MASTER_PHASER_FREQUENCY = 0.5; // Slower LFO for subtle movement
+export const MASTER_PHASER_OCTAVES = 2; // Narrower sweep
+export const MASTER_PHASER_BASE_FREQUENCY = 1500; // Start higher to avoid low-mid mud
+export const MASTER_PHASER_Q = 0.5; // Low Q = smooth spread, no resonant squeals
+export const MASTER_PHASER_PRE_FILTER_FREQ = 300; // Hz - sub bass stays clean
 
-// Compressor defaults
-export const MASTER_COMP_ATTACK = 0.5;
-export const MASTER_COMP_RELEASE = 1;
+// Reverb pre-filter (keeps low end dry)
+export const MASTER_REVERB_PRE_FILTER_FREQ = 250; // Hz - kick/bass stays dry
+
+// Compressor defaults (fast timing for drums)
+export const MASTER_COMP_ATTACK = 0.01; // 10ms - catches transients
+export const MASTER_COMP_RELEASE = 0.15; // 150ms - recovers between hits
+
+// Limiter defaults
+export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall protection
+
+// Analog coloration - tames harshness, adds warmth
+export const MASTER_SATURATION_AMOUNT = 1; // Chebyshev order - very gentle
+export const MASTER_SATURATION_WET = 0.03; // 3% wet - barely there
+
+// High shelf rolloff - tames harsh hi-hats and sibilance
+export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
+export const MASTER_HIGH_SHELF_GAIN = -1.5; // dB - subtle rolloff
+
+// Presence dip - reduces "ice pick" frequencies
+export const MASTER_PRESENCE_FREQ = 3500; // Hz - harsh/fatiguing range
+export const MASTER_PRESENCE_Q = 1; // Wide and gentle
+export const MASTER_PRESENCE_GAIN = -1; // dB - barely noticeable
 
 // Envelope defaults
 export const ENVELOPE_DEFAULT_ATTACK = 0;
