@@ -151,7 +151,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
             <div>
               <div className="mb-3 flex items-center justify-between">
                 <Label htmlFor="bars">Length</Label>
-                <span className="text-foreground-emphasis text-sm">
+                <span className="text-foreground-emphasis">
                   {bars} {bars === 1 ? "bar" : "bars"}
                 </span>
               </div>
@@ -193,7 +193,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                     <RadioGroupItem value={option.value} id={option.value} />
                     <Label
                       htmlFor={option.value}
-                      className="cursor-pointer text-sm font-normal"
+                      className="cursor-pointer font-normal"
                     >
                       {option.label}
                     </Label>
@@ -210,20 +210,18 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                 onCheckedChange={(checked) => setIncludeTail(checked === true)}
                 disabled={isExporting}
               />
-              <Label htmlFor="includeTail" className="cursor-pointer text-sm">
+              <Label htmlFor="includeTail" className="cursor-pointer">
                 Include reverb tail
               </Label>
             </div>
 
             {/* Duration preview */}
-            <div className="text-foreground-muted text-sm">
-              Duration: {duration.toFixed(1)}s
-            </div>
+            <div className="">Duration: {duration.toFixed(1)}s</div>
 
             {/* Progress indicator */}
             {isExporting && progress && (
               <div className="space-y-2">
-                <div className="text-sm">{getProgressText()}</div>
+                <div>{getProgressText()}</div>
                 <Progress value={progress.percent} />
               </div>
             )}
