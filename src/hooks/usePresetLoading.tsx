@@ -5,6 +5,7 @@ import { init } from "@/lib/preset";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
+import { usePresetFolderStore } from "@/stores/usePresetFolderStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -43,6 +44,10 @@ export function usePresetLoading({
   );
 
   const loadPresetMeta = usePresetMetaStore((state) => state.loadPreset);
+
+  const initializePresetFolder = usePresetFolderStore(
+    (state) => state.initializeFromStorage,
+  );
 
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
@@ -158,6 +163,11 @@ export function usePresetLoading({
   useEffect(() => {
     void loadFromUrlOrDefault();
   }, [loadFromUrlOrDefault]);
+
+  // Initialize preset folder from IndexedDB on mount
+  useEffect(() => {
+    void initializePresetFolder();
+  }, [initializePresetFolder]);
 
   return { loadPreset };
 }

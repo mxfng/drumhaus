@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { FaFolder, FaFolderOpen, FaUnlink } from "react-icons/fa";
 
-import { useToast } from "@/components/ui";
+import { Tooltip, useToast } from "@/components/ui";
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
 import { getCurrentPreset } from "@/lib/preset/helpers";
+import { isFileSystemAccessSupported } from "@/lib/storage/indexedDb";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { usePresetFolderStore } from "@/stores/usePresetFolderStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { Meta } from "@/types/meta";
@@ -58,6 +61,18 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     (state) => state.hasUnsavedChanges,
   );
 
+  // Preset folder state
+  const folderName = usePresetFolderStore((state) => state.folderName);
+  const folderStatus = usePresetFolderStore((state) => state.status);
+  const userPresets = usePresetFolderStore((state) => state.userPresets);
+  const selectFolder = usePresetFolderStore((state) => state.selectFolder);
+  const disconnectFolder = usePresetFolderStore(
+    (state) => state.disconnectFolder,
+  );
+  const saveToFolder = usePresetFolderStore((state) => state.saveToFolder);
+  const getFileHandle = usePresetFolderStore((state) => state.getFileHandle);
+  const updateInFolder = usePresetFolderStore((state) => state.updateInFolder);
+
   // Dialog state
   const openDialog = useDialogStore((state) => state.openDialog);
   const closeDialog = useDialogStore((state) => state.closeDialog);
@@ -104,17 +119,19 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
   // Track custom presets (loaded from file or URL)
   const [customPresets, setCustomPresets] = useState<PresetFileV1[]>([]);
-  const allPresets = useMemo(
-    () => [...DEFAULT_PRESETS, ...customPresets],
-    [DEFAULT_PRESETS, customPresets],
-  );
+
+  // Combine all presets: defaults + user folder + custom (loaded from file/URL)
+  const allPresets = useMemo(() => {
+    const folderPresets = userPresets.map((p) => p.preset);
+    return [...DEFAULT_PRESETS, ...folderPresets, ...customPresets];
+  }, [DEFAULT_PRESETS, userPresets, customPresets]);
 
   // ============================================================================
   // CORE OPERATIONS
   // ============================================================================
 
   /**
-   * Add a preset to custom presets if it's not already in DEFAULT_PRESETS or customPresets.
+   * Add a preset to custom presets if it's not already in DEFAULT_PRESETS, userPresets, or customPresets.
    * This prevents duplicates when loading presets from URLs or files.
    */
   const addToCustomPresetsIfNeeded = useCallback(
@@ -122,7 +139,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
       const isInDefaults = DEFAULT_PRESETS.some(
         (p) => p.meta.id === preset.meta.id,
       );
-      if (!isInDefaults) {
+      const isInFolder = userPresets.some(
+        (p) => p.preset.meta.id === preset.meta.id,
+      );
+      if (!isInDefaults && !isInFolder) {
         setCustomPresets((prev) => {
           const isInCustom = prev.some((p) => p.meta.id === preset.meta.id);
           if (!isInCustom) {
@@ -132,7 +152,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         });
       }
     },
-    [DEFAULT_PRESETS],
+    [DEFAULT_PRESETS, userPresets],
   );
 
   /**
@@ -185,7 +205,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   /**
    * Export current state as a .dh file
    */
-  const exportPreset = (name: string) => {
+  const exportPreset = async (name: string) => {
     const normalizedName = normalizePresetName(name);
 
     const now = new Date().toISOString();
@@ -198,7 +218,49 @@ export const PresetControl: React.FC<PresetControlProps> = ({
 
     const preset = getCurrentPreset(meta, currentKitMeta);
 
-    // Download file
+    // If folder is linked, save there
+    if (folderStatus === "connected") {
+      try {
+        // Check if we're updating an existing preset from the folder
+        const existingHandle = getFileHandle(currentPresetMeta.id);
+
+        if (existingHandle && currentPresetMeta.name === normalizedName) {
+          // Update existing file
+          const updatePreset = getCurrentPreset(
+            { ...currentPresetMeta, updatedAt: now },
+            currentKitMeta,
+          );
+          await updateInFolder(updatePreset, existingHandle);
+          markPresetClean(updatePreset);
+
+          toast({
+            title: `Saved "${normalizedName}"`,
+            description: "Updated in linked folder",
+          });
+        } else {
+          // Save as new file
+          await saveToFolder(preset);
+          markPresetClean(preset);
+          loadPreset(preset);
+
+          toast({
+            title: `Saved "${normalizedName}"`,
+            description: "Added to linked folder",
+          });
+        }
+        return;
+      } catch (error) {
+        console.error("Failed to save to folder:", error);
+        toast({
+          title: "Couldn't save to folder",
+          description: "Falling back to download",
+          status: "error",
+        });
+        // Fall through to download
+      }
+    }
+
+    // Download file (default behavior)
     const json = JSON.stringify(preset, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -347,6 +409,49 @@ export const PresetControl: React.FC<PresetControlProps> = ({
             onSelect={handleKitChange}
           />
           <PresetActions onOpenFromFile={importPreset} />
+
+          {/* Folder link indicator */}
+          {isFileSystemAccessSupported() && (
+            <div className="mt-2 flex items-center justify-between text-xs">
+              {folderStatus === "connected" ? (
+                <>
+                  <div className="text-muted-foreground flex items-center gap-1.5 truncate">
+                    <FaFolder className="text-accent h-3 w-3 shrink-0" />
+                    <span className="truncate" title={folderName || undefined}>
+                      {folderName}
+                    </span>
+                    <span className="text-muted-foreground/60">
+                      ({userPresets.length})
+                    </span>
+                  </div>
+                  <Tooltip content="Unlink folder" delayDuration={500}>
+                    <button
+                      onClick={disconnectFolder}
+                      className="text-muted-foreground hover:text-foreground h-5 w-5 transition-colors"
+                    >
+                      <FaUnlink className="h-3 w-3" />
+                    </button>
+                  </Tooltip>
+                </>
+              ) : folderStatus === "permission_required" ? (
+                <button
+                  onClick={selectFolder}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
+                >
+                  <FaFolderOpen className="h-3 w-3" />
+                  <span>Grant folder access</span>
+                </button>
+              ) : (
+                <button
+                  onClick={selectFolder}
+                  className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 transition-colors"
+                >
+                  <FaFolderOpen className="h-3 w-3" />
+                  <span>Link preset folder</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
