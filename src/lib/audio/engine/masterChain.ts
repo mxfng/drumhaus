@@ -2,7 +2,9 @@ import type { RefObject } from "react";
 import {
   Compressor,
   Filter,
+  Gain,
   getDestination,
+  Limiter,
   Phaser,
   Reverb,
   type ToneAudioNode,
@@ -20,11 +22,14 @@ import {
   MASTER_COMP_RELEASE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_LIMITER_THRESHOLD,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
   MASTER_PHASER_OCTAVES,
+  MASTER_PHASER_Q,
   MASTER_PHASER_WET_RANGE,
   MASTER_REVERB_DECAY_RANGE,
+  MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_REVERB_WET_RANGE,
   MASTER_VOLUME_RANGE,
 } from "./constants";
@@ -37,8 +42,11 @@ export interface MasterChainRuntimes {
   lowPassFilter: Filter;
   highPassFilter: Filter;
   phaser: Phaser;
+  reverbPreFilter: Filter; // High-pass to keep low end out of reverb
   reverb: Reverb;
+  reverbSendGain: Gain; // Controls reverb send amount
   compressor: Compressor;
+  limiter: Limiter;
 }
 
 export type MasterChainSettings = {
@@ -111,8 +119,11 @@ export function disposeMasterChainRuntimes(
     { name: "lowPassFilter", node: runtimes.current.lowPassFilter },
     { name: "highPassFilter", node: runtimes.current.highPassFilter },
     { name: "phaser", node: runtimes.current.phaser },
+    { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
+    { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
     { name: "compressor", node: runtimes.current.compressor },
+    { name: "limiter", node: runtimes.current.limiter },
   ];
 
   for (const { name, node } of nodesToDispose) {
@@ -181,13 +192,25 @@ export function chainMasterChainNodes(
   masterChain: MasterChainRuntimes,
   destination: ToneAudioNode,
 ): void {
+  // Main dry path
   masterChain.lowPassFilter.chain(
     masterChain.highPassFilter,
     masterChain.phaser,
-    masterChain.reverb,
-    masterChain.compressor,
-    destination,
   );
+
+  // Dry signal goes directly to compressor
+  masterChain.phaser.connect(masterChain.compressor);
+
+  // Parallel reverb send: filtered to keep low end dry
+  masterChain.phaser.connect(masterChain.reverbPreFilter);
+  masterChain.reverbPreFilter.chain(
+    masterChain.reverb,
+    masterChain.reverbSendGain,
+  );
+  masterChain.reverbSendGain.connect(masterChain.compressor);
+
+  // Output chain
+  masterChain.compressor.chain(masterChain.limiter, destination);
 }
 
 // -----------------------------------------------------------------------------
@@ -209,14 +232,21 @@ export async function buildMasterChainNodes(
     frequency: MASTER_PHASER_FREQUENCY,
     octaves: MASTER_PHASER_OCTAVES,
     baseFrequency: MASTER_PHASER_BASE_FREQUENCY,
+    Q: MASTER_PHASER_Q,
     wet: settings.phaserWet,
   });
 
+  // High-pass filter before reverb keeps kick/bass dry
+  const reverbPreFilter = new Filter(MASTER_REVERB_PRE_FILTER_FREQ, "highpass");
+
   const reverb = new Reverb({
     decay: settings.reverbDecay,
-    wet: settings.reverbWet,
+    wet: 1, // 100% wet - dry signal is handled by parallel path
   });
   await reverb.generate(); // Required before first use
+
+  // Send gain controls how much reverb is mixed back in
+  const reverbSendGain = new Gain(settings.reverbWet);
 
   const compressor = new Compressor({
     threshold: settings.compThreshold,
@@ -225,12 +255,17 @@ export async function buildMasterChainNodes(
     release: MASTER_COMP_RELEASE,
   });
 
+  const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
+
   return {
     lowPassFilter,
     highPassFilter,
     phaser,
+    reverbPreFilter,
     reverb,
+    reverbSendGain,
     compressor,
+    limiter,
   };
 }
 
@@ -279,7 +314,7 @@ function applySettingsToRuntimes(
   runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
   runtimes.phaser.wet.value = settings.phaserWet;
 
-  runtimes.reverb.wet.value = settings.reverbWet;
+  runtimes.reverbSendGain.gain.value = settings.reverbWet;
   runtimes.reverb.decay = settings.reverbDecay;
 
   runtimes.compressor.threshold.value = settings.compThreshold;
