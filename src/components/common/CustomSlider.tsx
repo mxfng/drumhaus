@@ -95,7 +95,14 @@ export const CustomSlider: React.FC<CustomSliderProps> = ({
           >
             <SliderPrimitive.Thumb
               className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
-              style={{ width: `${size / 4}px`, height: "16px" }}
+              style={{
+                width: `${size / 4}px`,
+                height: "16px",
+                boxShadow: `
+                  var(--shadow-neu-raised),
+                  0 4px 3px -1px rgb(0 0 0 / 0.4)
+                `,
+              }}
               aria-label="Slider thumb"
             />
           </Tooltip>

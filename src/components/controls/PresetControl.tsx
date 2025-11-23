@@ -334,7 +334,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   return (
     <>
       <div className="mx-4 flex h-full items-center justify-center">
-        <div className="neu-medium-raised relative h-[190px] w-[332px] rounded-lg px-3">
+        <div className="neu relative h-[190px] w-[332px] rounded-lg px-3">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
             presets={allPresets}
