@@ -15,7 +15,7 @@ import {
 } from "../engine/constants";
 import {
   configureTransportTiming,
-  schedulePatternEvents,
+  createOfflineSequence,
 } from "../engine/drumSequence";
 import { applyInstrumentParams } from "../engine/instrumentParams";
 import { buildInstrumentRuntime } from "../engine/instrumentRuntimes";
@@ -81,15 +81,14 @@ export async function exportToWav(
         masterChain,
       );
 
-      // Schedule all events
-      schedulePatternEvents(
+      // Create sequence - uses same Tone.js Sequence as live playback
+      // so transport swing is applied identically
+      createOfflineSequence(
         pattern,
         instruments,
         runtimes,
         variationCycle,
         options.bars,
-        stepDuration,
-        swing,
       );
 
       // Start transport
@@ -123,13 +122,13 @@ export function getSuggestedBars(variationCycle: VariationCycle): number {
   switch (variationCycle) {
     case "A":
     case "B":
-      return 1;
-    case "AB":
       return 2;
-    case "AAAB":
+    case "AB":
       return 4;
+    case "AAAB":
+      return 8;
     default:
-      return 1;
+      return 2;
   }
 }
 
