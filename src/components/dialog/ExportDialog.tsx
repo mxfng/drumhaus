@@ -174,7 +174,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                     <div key={n} className="flex flex-col items-center">
                       <div className="bg-foreground-muted h-1 w-px" />
-                      <span className="text-foreground-muted mt-0.5 text-[10px]">
+                      <span
+                        className={`mt-0.5 text-[10px] ${[1, 2, 4, 8].includes(n) ? "text-foreground-emphasis" : "text-foreground-muted"}`}
+                      >
                         {n}
                       </span>
                     </div>
