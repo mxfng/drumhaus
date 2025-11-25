@@ -30,7 +30,6 @@ export const MasterCompressor: React.FC = () => {
             onValueChange={setThreshold}
             label="THRESHOLD"
             mapping={compThresholdMapping}
-            outerTickCount={21}
           />
           <ParamKnob
             value={ratio}
@@ -51,7 +50,6 @@ export const MasterCompressor: React.FC = () => {
             onValueChange={setMix}
             label="MIX"
             mapping={compMixMapping}
-            outerTickCount={5}
           />
         </div>
       </div>
