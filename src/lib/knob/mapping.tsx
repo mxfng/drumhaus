@@ -105,7 +105,7 @@ export const releaseMapping = makeExponentialMapping(
 );
 
 const basePitchMapping = makeLinearMapping(
-  INSTRUMENT_PITCH_SEMITONE_RANGE,
+  [-INSTRUMENT_PITCH_SEMITONE_RANGE, INSTRUMENT_PITCH_SEMITONE_RANGE],
   formatDisplayPitchSemitone,
 );
 
@@ -129,8 +129,8 @@ export const pitchMapping: ParamMapping<number> = {
     const semitoneOffset = Math.log2(ratio) * 12;
     // clamp to valid range first so you don't blow past [-R,R]
     const clamped = Math.max(
-      INSTRUMENT_PITCH_SEMITONE_RANGE[0],
-      Math.min(INSTRUMENT_PITCH_SEMITONE_RANGE[1], semitoneOffset),
+      -INSTRUMENT_PITCH_SEMITONE_RANGE,
+      Math.min(INSTRUMENT_PITCH_SEMITONE_RANGE, semitoneOffset),
     );
     return basePitchMapping.valueToStep(clamped);
   },

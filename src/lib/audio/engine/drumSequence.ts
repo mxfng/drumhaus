@@ -1,10 +1,11 @@
 import { Time } from "tone/build/esm/index";
 
-import { pitchMapping, releaseMapping } from "@/lib/knob/mapping";
+import { transformKnobValueExponential } from "@/lib/knob/transform";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Pattern, Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
 import {
+  INSTRUMENT_RELEASE_RANGE,
   SEQUENCE_EVENTS,
   SEQUENCE_SUBDIVISION,
   STEP_COUNT,
@@ -12,6 +13,7 @@ import {
   TRANSPORT_SWING_RANGE,
 } from "./constants";
 import { defaultSequencerFactory, defaultStateProvider } from "./factory";
+import { transformPitchKnobToFrequency } from "./pitch";
 import { hasAnySolo } from "./solo";
 import type {
   DrumSequenceStateProvider,
@@ -208,8 +210,11 @@ function scheduleVoiceCore(
   if ((anySolos && !params.solo) || params.mute) return;
 
   const velocity = velocities[step];
-  const pitch = pitchMapping.stepToValue(params.pitch);
-  const releaseTime = releaseMapping.stepToValue(params.release);
+  const pitch = transformPitchKnobToFrequency(params.pitch);
+  const releaseTime = transformKnobValueExponential(
+    params.release,
+    INSTRUMENT_RELEASE_RANGE,
+  );
 
   // Closed hat mutes open hat
   if (inst.role === "hat" && hasOhat) {
@@ -361,7 +366,7 @@ export function muteOpenHatAtTime(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  const ohPitch = pitchMapping.stepToValue(ohInst.params.pitch);
+  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 

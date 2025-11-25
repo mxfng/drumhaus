@@ -1,12 +1,15 @@
 import {
-  attackMapping,
-  instrumentVolumeMapping,
-  panMapping,
-  splitFilterMapping,
-} from "@/lib/knob/mapping";
-import { KNOB_ROTATION_THRESHOLD_L } from "@/lib/knob/transform";
+  KNOB_ROTATION_THRESHOLD_L,
+  transformKnobValue,
+  transformKnobValueSplitFilter,
+} from "@/lib/knob/transform";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import {
+  INSTRUMENT_ATTACK_RANGE,
+  INSTRUMENT_PAN_RANGE,
+  INSTRUMENT_VOLUME_RANGE,
+} from "./constants";
 
 export type RuntimeParams = {
   attack: number;
@@ -22,19 +25,27 @@ export function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: RuntimeParams,
 ): void {
-  runtime.envelopeNode.attack = attackMapping.stepToValue(params.attack);
+  runtime.envelopeNode.attack = transformKnobValue(
+    params.attack,
+    INSTRUMENT_ATTACK_RANGE,
+  );
 
   runtime.filterNode.type =
     params.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
-  runtime.filterNode.frequency.value = splitFilterMapping.stepToValue(
+  runtime.filterNode.frequency.value = transformKnobValueSplitFilter(
     params.filter,
   );
 
-  runtime.pannerNode.pan.value = panMapping.stepToValue(params.pan);
-
-  runtime.samplerNode.volume.value = instrumentVolumeMapping.stepToValue(
-    params.volume,
+  runtime.pannerNode.pan.value = transformKnobValue(
+    params.pan,
+    INSTRUMENT_PAN_RANGE,
   );
+
+  // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
+  runtime.samplerNode.volume.value =
+    params.volume === 0
+      ? -Infinity
+      : transformKnobValue(params.volume, INSTRUMENT_VOLUME_RANGE);
 }
 
 /**

@@ -2,7 +2,7 @@
 
 // Keeping them here avoids magic numbers scattered across runtime code.
 export const INSTRUMENT_PITCH_BASE_FREQUENCY = 65.4064; // C2
-export const INSTRUMENT_PITCH_SEMITONE_RANGE: [number, number] = [-24, 24];
+export const INSTRUMENT_PITCH_SEMITONE_RANGE = 24;
 export const INSTRUMENT_PITCH_RANGE: [number, number] = [
   INSTRUMENT_PITCH_BASE_FREQUENCY / 4,
   INSTRUMENT_PITCH_BASE_FREQUENCY * 4,
@@ -10,9 +10,7 @@ export const INSTRUMENT_PITCH_RANGE: [number, number] = [
 export const INSTRUMENT_VOLUME_RANGE: [number, number] = [-46, 4];
 export const INSTRUMENT_PAN_RANGE: [number, number] = [-1, 1];
 export const INSTRUMENT_ATTACK_RANGE: [number, number] = [0, 0.1];
-export const INSTRUMENT_ATTACK_PRECISION = 3;
 export const INSTRUMENT_RELEASE_RANGE: [number, number] = [0.005, 5];
-export const INSTRUMENT_RELEASE_PRECISION = 3;
 export const INSTRUMENT_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_FILTER_RANGE: [number, number] = [0, 15000];
 export const MASTER_DEFAULT_LOW_PASS = 100; // Knob position (100 = fully open)
