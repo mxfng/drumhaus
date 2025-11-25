@@ -20,6 +20,18 @@ export function normalize(value: number, min: number, max: number): number {
 }
 
 /**
+ * Normalize to bipolar range [-1, 1] from a centered range.
+ * Maps [center - range, center + range] to [-1, 1] where center maps to 0.
+ */
+export function normalizeCentered(
+  value: number,
+  center: number,
+  range: number,
+): number {
+  return (value - center) / range;
+}
+
+/**
  * Linear interpolation: map a normalized value [0, 1] to a range [min, max].
  * Also known as "lerp" or "denormalize".
  */
