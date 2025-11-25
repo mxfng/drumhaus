@@ -24,16 +24,7 @@ const DEFAULT_SWING = init().transport.swing;
 const DEFAULT_VARIATION_CYCLE = init().sequencer.variationCycle;
 const DEFAULT_BPM = init().transport.bpm;
 
-const DEFAULT_PARAMS: InstrumentParams = {
-  attack: 0,
-  release: 100,
-  filter: 50,
-  volume: 92,
-  pan: 50,
-  pitch: 50,
-  solo: false,
-  mute: false,
-};
+const DEFAULT_PARAMS: InstrumentParams = init().kit.instruments[0].params;
 
 const DEFAULT_MASTER_CHAIN: MasterChainParams = init().masterChain;
 

@@ -6,11 +6,11 @@ import {
   MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_DEFAULT_RATIO,
   MASTER_COMP_DEFAULT_THRESHOLD,
-  MASTER_DEFAULT_HIGH_PASS,
-  MASTER_DEFAULT_LOW_PASS,
-  MASTER_DEFAULT_PHASER,
-  MASTER_DEFAULT_REVERB,
-  MASTER_DEFAULT_VOLUME,
+  MASTER_HIGH_PASS_DEFAULT,
+  MASTER_LOW_PASS_DEFAULT,
+  MASTER_PHASER_DEFAULT,
+  MASTER_REVERB_DEFAULT,
+  MASTER_VOLUME_DEFAULT,
 } from "@/lib/audio/engine/constants";
 import type { MasterChainParams } from "@/types/preset";
 
@@ -69,14 +69,14 @@ export const useMasterChainStore = create<MasterChainState>()(
     persist(
       immer((set) => ({
         // Initial state (default/init preset values)
-        lowPass: MASTER_DEFAULT_LOW_PASS,
-        highPass: MASTER_DEFAULT_HIGH_PASS,
-        phaser: MASTER_DEFAULT_PHASER,
-        reverb: MASTER_DEFAULT_REVERB,
+        lowPass: MASTER_LOW_PASS_DEFAULT,
+        highPass: MASTER_HIGH_PASS_DEFAULT,
+        phaser: MASTER_PHASER_DEFAULT,
+        reverb: MASTER_REVERB_DEFAULT,
         compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
         compRatio: MASTER_COMP_DEFAULT_RATIO,
         compMix: MASTER_COMP_DEFAULT_MIX,
-        masterVolume: MASTER_DEFAULT_VOLUME,
+        masterVolume: MASTER_VOLUME_DEFAULT,
         reduction: 0,
 
         // Individual setters

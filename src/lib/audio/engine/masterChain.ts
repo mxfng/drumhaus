@@ -14,22 +14,24 @@ import {
 } from "tone/build/esm/index";
 
 import {
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "@/components/common/knobTransforms";
+  compMixMapping,
+  compRatioMapping,
+  compThresholdMapping,
+  highPassFilterMapping,
+  lowPassFilterMapping,
+  masterVolumeMapping,
+  phaserWetMapping,
+  reverbDecayMapping,
+  reverbWetMapping,
+} from "@/lib/knob/mapping";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
 import {
   MASTER_COMP_ATTACK,
-  MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_KNEE,
   MASTER_COMP_LATENCY,
   MASTER_COMP_MAKEUP_GAIN,
-  MASTER_COMP_MIX_RANGE,
-  MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_RELEASE,
-  MASTER_COMP_THRESHOLD_RANGE,
-  MASTER_FILTER_RANGE,
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
   MASTER_LIMITER_THRESHOLD,
@@ -38,16 +40,12 @@ import {
   MASTER_PHASER_OCTAVES,
   MASTER_PHASER_PRE_FILTER_FREQ,
   MASTER_PHASER_Q,
-  MASTER_PHASER_WET_RANGE,
   MASTER_PRESENCE_FREQ,
   MASTER_PRESENCE_GAIN,
   MASTER_PRESENCE_Q,
-  MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_PRE_FILTER_FREQ,
-  MASTER_REVERB_WET_RANGE,
   MASTER_SATURATION_AMOUNT,
   MASTER_SATURATION_WET,
-  MASTER_VOLUME_RANGE,
 } from "./constants";
 
 // -----------------------------------------------------------------------------
@@ -387,34 +385,15 @@ export function mapParamsToSettings(
   params: MasterChainParams,
 ): MasterChainSettings {
   return {
-    lowPassFrequency: transformKnobValueExponential(
-      params.lowPass,
-      MASTER_FILTER_RANGE,
-    ),
-    highPassFrequency: transformKnobValueExponential(
-      params.highPass,
-      MASTER_FILTER_RANGE,
-    ),
-    phaserWet: transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE),
-    reverbWet: transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE),
-    reverbDecay: transformKnobValue(params.reverb, MASTER_REVERB_DECAY_RANGE),
-    compThreshold: transformKnobValue(
-      params.compThreshold,
-      MASTER_COMP_THRESHOLD_RANGE,
-    ),
-    // Allow fractional ratios like 1.5 (API 2500 style)
-    compRatio: transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-    // Convert from 0-100 percentage to 0-1 for audio processing
-    compMix:
-      transformKnobValue(
-        params.compMix ?? MASTER_COMP_DEFAULT_MIX,
-        MASTER_COMP_MIX_RANGE,
-      ) / 100,
-    // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
-    masterVolume:
-      params.masterVolume === 0
-        ? -Infinity
-        : transformKnobValue(params.masterVolume, MASTER_VOLUME_RANGE),
+    lowPassFrequency: lowPassFilterMapping.knobToDomain(params.lowPass),
+    highPassFrequency: highPassFilterMapping.knobToDomain(params.highPass),
+    phaserWet: phaserWetMapping.knobToDomain(params.phaser),
+    reverbWet: reverbWetMapping.knobToDomain(params.reverb),
+    reverbDecay: reverbDecayMapping.knobToDomain(params.reverb),
+    compThreshold: compThresholdMapping.knobToDomain(params.compThreshold),
+    compRatio: compRatioMapping.knobToDomain(params.compRatio),
+    compMix: compMixMapping.knobToDomain(params.compMix),
+    masterVolume: masterVolumeMapping.knobToDomain(params.masterVolume),
   };
 }
 

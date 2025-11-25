@@ -30,7 +30,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
           <Select value={selectedPresetId} onValueChange={onSelect}>
             <SelectTrigger className="h-10 cursor-pointer rounded-lg bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">
               <SelectValue />
-              <ChevronsUpDown className="group-hover:text-accent h-4 w-4 transition-all duration-200" />
+              <ChevronsUpDown className="group-hover:text-primary-muted h-4 w-4 transition-all duration-200" />
             </SelectTrigger>
             <SelectContent>
               {presets.map((preset) => (

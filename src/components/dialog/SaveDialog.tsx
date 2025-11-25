@@ -40,16 +40,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     setWasOpen(isOpen);
   }
 
-  // Auto-focus input when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
   const handleClose = () => {
     setPresetName("");
@@ -81,7 +72,16 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     handleClose();
   };
 
-  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
+  // Auto-focus input when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>

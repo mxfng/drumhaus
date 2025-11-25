@@ -23,7 +23,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="w-full rounded-l-lg"
           >
             <Save
-              className="group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-primary-muted transition-all duration-200"
               size={20}
             />
           </Button>
@@ -39,7 +39,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="w-full"
           >
             <FolderOpen
-              className="group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-primary-muted transition-all duration-200"
               size={20}
             />
           </Button>
@@ -55,7 +55,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="w-full"
           >
             <Share2
-              className="group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-primary-muted transition-all duration-200"
               size={20}
             />
           </Button>
@@ -71,7 +71,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
             className="w-full rounded-r-lg"
           >
             <Download
-              className="group-hover:text-accent transition-all duration-200"
+              className="group-hover:text-primary-muted transition-all duration-200"
               size={20}
             />
           </Button>

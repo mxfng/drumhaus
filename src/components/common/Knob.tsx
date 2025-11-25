@@ -1,379 +1,337 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
-import { MASTER_FILTER_RANGE } from "@/lib/audio/engine/constants";
-import { Label } from "../ui";
 import {
-  KNOB_ROTATION_THRESHOLD_L,
-  transformKnobFilterValue,
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "./knobTransforms";
+  KNOB_OUTER_TICK_COUNT_DEFAULT,
+  KNOB_VALUE_DEFAULT,
+  KNOB_VALUE_MAX,
+  KNOB_VALUE_MIN,
+} from "@/lib/knob/constants";
+import { ParamMapping } from "@/lib/knob/types";
+import { cn } from "@/lib/utils";
+import { Label } from "../ui";
 
-// Knob Value & Transform Constants
-const KNOB_MAX_VALUE = 100;
-const KNOB_MIN_VALUE = 0;
-const KNOB_DEFAULT_VALUE = 50;
-const KNOB_DEFAULT_TRANSFORM_RANGE: [number, number] = [0, KNOB_MAX_VALUE];
+export type KnobSize = "default" | "lg";
 
-// Knob Rotation & Range Constants
-const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-225, 45];
-const KNOB_ROTATION_ORIGIN = 0.5;
+const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-135, 135];
 
-// Move/Event Options
-const KNOB_MOVE_EVENT_OPTIONS: AddEventListenerOptions = { passive: false };
-
-// Layout & Sizing Constants
-const KNOB_CONTAINER_PADDING = 30;
-const KNOB_MASK_PADDING = 10;
-
-// Ticking/Markings
-const KNOB_TICK_WIDTH_DIVISOR = 4;
-const KNOB_TICK_HEIGHT_DIVISOR = 12;
-
-// Dot Indicator
-const KNOB_DOT_MIN_ROTATION = -180;
-const KNOB_DOT_MAX_ROTATION = 90;
-
-// Filter Labels
-const KNOB_FILTER_LOW_LABEL = "LP";
-const KNOB_FILTER_HIGH_LABEL = "HP";
-
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
-
-const quantizeToStep = (value: number, step: number) => {
+/**
+ * Quantize a value to a step size. This is intended to stay in the UI space.
+ */
+const getQuantizedValue = (value: number, step: number): number => {
   const normalizedStep = step > 0 ? step : 1;
   return Math.round(value / normalizedStep) * normalizedStep;
 };
 
-// Sub-components for better readability
-type KnobTickProps = {
-  size: number;
+/**
+ * Calculate the rotation of a knob tick for display purposes.
+ */
+const getKnobTickRotation = (
+  tickIndex: number,
+  tickCount: number,
+  range: [number, number],
+) => {
+  const rangeSize = range[1] - range[0];
+  return (tickIndex / (tickCount - 1)) * rangeSize + range[0];
 };
 
-const KnobTick: React.FC<KnobTickProps> = ({ size }) => (
-  <div className="flex items-center justify-center">
-    <div
-      className="pointer-events-none absolute z-3 flex items-center justify-center"
-      style={{ height: `${size}px`, width: `${size}px` }}
-    >
-      <div
-        className="bg-primary rounded-[0_8px_8px_0]"
-        style={{
-          width: `${size / KNOB_TICK_WIDTH_DIVISOR}px`,
-          height: `${Math.floor(size / KNOB_TICK_HEIGHT_DIVISOR)}px`,
-          transform: "rotate(90deg) translate(50%, 50%)",
-          boxShadow: `
-            inset -1px -1px 2px var(--color-shadow-60),
-            inset 1px 1px 1px var(--color-highlight-30)
-          `,
-        }}
-      />
-    </div>
-  </div>
-);
-
-type KnobDotProps = {
-  size: number;
-  rotation: number;
-  withShadow?: boolean;
-};
-
-const KnobDot: React.FC<KnobDotProps> = ({ size, rotation, withShadow }) => (
-  <motion.div
-    className="absolute"
-    style={{
-      rotate: rotation,
-      width: `${size}px`,
-      height: `${size}px`,
-      originX: KNOB_ROTATION_ORIGIN,
-      originY: KNOB_ROTATION_ORIGIN,
-    }}
-  >
-    <div
-      className={`bg-shadow absolute h-1 w-1 rounded-full opacity-30 ${
-        withShadow ? "shadow-[0_4px_12px_var(--color-shadow-60)]" : ""
-      }`}
-    />
-  </motion.div>
-);
-
-type KnobBodyProps = {
-  size: number;
-};
-
-const KnobBody: React.FC<KnobBodyProps> = ({ size }) => (
-  <div
-    className="relative rounded-full"
-    style={{
-      width: `${size}px`,
-      height: `${size}px`,
-      boxShadow: "var(--knob-shadow)",
-      background: "var(--knob-gradient)",
-    }}
-  />
-);
-
-export type KnobScale = "linear" | "exp" | "split-filter";
-export type KnobSize = "xs" | "sm" | "md" | "lg";
-
-type KnobProps = {
+interface KnobProps {
+  /** Current knob position 0..100 */
   value: number;
-  onChange: (newState: number) => void;
+  onValueChange: (newState: number) => void;
 
-  label?: string;
-  units?: string;
-
-  range?: [number, number];
-  min?: number;
-  max?: number;
-
-  scale?: KnobScale;
-
-  step?: number;
-  defaultValue?: number;
-
+  /** Label to display below the knob */
+  label: string;
+  /** Shown while moving */
+  activeLabel?: string;
   disabled?: boolean;
+  /** Size of the knob - `"default"` is 90px, `"lg"` is 180px */
   size?: KnobSize;
+  /** Number of outer ticks to render - must be odd if halfway mark is desired */
+  outerTickCount?: number;
+  /** Quantization size (e.g. 1, 5, 100/7) ... If you want 8 options then 100 / 7 */
+  step?: number; // if you want 8 options for a knob, step = 100 / 7
+  /** Default value for the knob */
+  defaultValue?: number;
+}
 
-  formatValue?: (value: number) => string;
-  onDoubleClickReset?: () => void;
-
-  ariaLabel?: string;
-};
-
-export const Knob: React.FC<KnobProps> = ({
+/**
+ * Knob component that uses vertical drag motion to adjust the `value` property via `onValueChange`.
+ *
+ * For our audio engine, the value must be within the range of `[0, 100]`.
+ *
+ * Knobs are meant to be controlled via `ParamKnob` components, which provide a `mapping` that
+ * converts the knob value to a domain value and back.
+ */
+const Knob: React.FC<KnobProps> = ({
   value,
-  onChange,
+  onValueChange,
   label,
-  units = "",
-  range,
-  min,
-  max,
-  scale = "linear",
-  step: valueStep = 1,
-  defaultValue = KNOB_DEFAULT_VALUE,
-  disabled: isDisabled = false,
-  size = "md",
-  formatValue,
-  onDoubleClickReset,
-  ariaLabel,
+  activeLabel,
+  disabled = false,
+  size = "default",
+  outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
+  step: stepSize = KNOB_VALUE_DEFAULT,
+  defaultValue = KNOB_VALUE_DEFAULT,
 }) => {
-  // Convert size enum to pixel values
-  const sizeInPixels =
-    size === "lg" ? 140 : size === "md" ? 60 : size === "sm" ? 50 : 30;
+  const containerClass = {
+    default: "h-[90px]",
+    lg: "h-[180px]",
+  }[size];
 
-  const explicitRange: [number, number] | undefined =
-    range && range.length === 2
-      ? [range[0], range[1]]
-      : min !== undefined && max !== undefined
-        ? [min, max]
-        : undefined;
-  const knobTransformRange: [number, number] =
-    explicitRange ?? KNOB_DEFAULT_TRANSFORM_RANGE;
-  const filterTransformRange: [number, number] =
-    explicitRange ?? MASTER_FILTER_RANGE;
-  const isSplitFilterScale = scale === "split-filter";
-  const isExponentialScale = scale === "exp";
+  const quantizedValue = getQuantizedValue(value, stepSize);
+
+  const initMoveYRef = useRef(0);
+  const initValueRef = useRef(quantizedValue);
 
   const [isMoving, setIsMoving] = useState(false);
-  const moveStartYRef = useRef(0);
-  const stepSize = valueStep > 0 ? valueStep : 1;
-  const initialQuantizedValue = quantizeToStep(value, stepSize);
-  const startValueRef = useRef(initialQuantizedValue);
 
-  const moveY = useMotionValue(initialQuantizedValue);
+  // -- Framer Motion ---
+
+  const moveY = useMotionValue(quantizedValue);
+
   const rotation = useTransform(
     moveY,
-    [KNOB_MIN_VALUE, KNOB_MAX_VALUE],
+    [KNOB_VALUE_MIN, KNOB_VALUE_MAX],
     KNOB_ROTATION_RANGE_DEGREES,
   );
 
-  const immutableDefaultValue = defaultValue;
+  /**
+   * Handle mouse down and touch start events to start the knob movement
+   */
+  const handleMouseDown = (
+    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
+  ) => {
+    if (disabled) return;
+
+    setIsMoving(true);
+    // Explicitly check for `touches` for mobile interactions
+    initMoveYRef.current = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+    initValueRef.current = getQuantizedValue(value, stepSize);
+  };
+
+  /**
+   * Handles drag events for mouse and touch to change the knob value
+   */
+  const handleMouseMove = useCallback(
+    (ev: MouseEvent | TouchEvent) => {
+      if (!isMoving) return;
+
+      ev.preventDefault();
+
+      const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+      const deltaY = initMoveYRef.current - clientY;
+
+      const newValue = Math.min(
+        KNOB_VALUE_MAX,
+        Math.max(KNOB_VALUE_MIN, initValueRef.current + deltaY),
+      );
+
+      const q = getQuantizedValue(newValue, stepSize);
+
+      moveY.set(q);
+      onValueChange(q);
+    },
+    [isMoving, initMoveYRef, stepSize, onValueChange, moveY],
+  );
+
+  /**
+   * Disables moving state on mouse up and touch end events
+   */
   const handleMoveEnd = useCallback(() => {
     setIsMoving(false);
   }, [setIsMoving]);
 
+  /**
+   * Reset knob to default value on double click
+   */
+  const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    if (disabled) return;
+
+    ev.preventDefault();
+    onValueChange(defaultValue);
+  };
+
+  const getDisplayLabel = useCallback(
+    () => (isMoving && activeLabel ? activeLabel : label),
+    [isMoving, label, activeLabel],
+  );
+  /*
+   * Handles knob updates for mouse and touch movement. Had to use a useEffect because
+   *
+   * Do not attempt to move these to onMouseMove, onMouseUp, etc.
+   *
+   * The event listeners need to be added and removed dynamically to achieve the desired behavior.
+   */
   useEffect(() => {
-    // Sync motion value when knob is updated externally (e.g. presets/kits)
-    if (isMoving) return;
+    if (disabled) return;
 
-    const quantizedValue = quantizeToStep(value, stepSize);
-    moveY.set(quantizedValue);
-    startValueRef.current = quantizedValue;
-  }, [isMoving, value, moveY, stepSize]);
-
-  useEffect(() => {
-    const setValueOnMove = (ev: MouseEvent | TouchEvent) => {
-      ev.preventDefault();
-      if (!isMoving || isDisabled) return;
-
-      const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-      const deltaY = moveStartYRef.current - clientY;
-      const newKnobValue = clamp(
-        startValueRef.current + deltaY,
-        KNOB_MIN_VALUE,
-        KNOB_MAX_VALUE,
-      );
-      const quantizedKnobValue = quantizeToStep(newKnobValue, stepSize);
-
-      moveY.set(quantizedKnobValue);
-      onChange(quantizedKnobValue);
+    const opts: AddEventListenerOptions = {
+      passive: false,
     };
 
-    if (isMoving && !isDisabled) {
-      window.addEventListener("mousemove", setValueOnMove);
-      window.addEventListener(
-        "touchmove",
-        setValueOnMove,
-        KNOB_MOVE_EVENT_OPTIONS,
-      );
+    if (isMoving) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("touchmove", handleMouseMove, opts);
       window.addEventListener("mouseup", handleMoveEnd);
       window.addEventListener("touchend", handleMoveEnd);
-    } else {
-      window.removeEventListener("mousemove", setValueOnMove);
-      window.removeEventListener(
-        "touchmove",
-        setValueOnMove,
-        KNOB_MOVE_EVENT_OPTIONS,
-      );
-      window.removeEventListener("mouseup", handleMoveEnd);
-      window.removeEventListener("touchend", handleMoveEnd);
     }
 
     return () => {
-      window.removeEventListener("mousemove", setValueOnMove);
-      window.removeEventListener(
-        "touchmove",
-        setValueOnMove,
-        KNOB_MOVE_EVENT_OPTIONS,
-      );
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleMouseMove, opts);
       window.removeEventListener("mouseup", handleMoveEnd);
       window.removeEventListener("touchend", handleMoveEnd);
     };
-  }, [handleMoveEnd, isDisabled, isMoving, moveY, onChange, stepSize]);
+  }, [isMoving, disabled, stepSize, handleMouseMove, handleMoveEnd]);
 
+  // Sync motion value when knob is updated externally (e.g. presets/kits)
+  useEffect(() => {
+    // Note: We use moveY.set() directly here instead of move() because this is a programmatic update, not an interactive drag operation
+    if (isMoving) return;
+
+    const quantizedValue = getQuantizedValue(value, stepSize);
+
+    moveY.set(quantizedValue);
+
+    initMoveYRef.current = 0;
+    initValueRef.current = quantizedValue;
+  }, [isMoving, value, moveY, stepSize]);
+
+  // Cleanup function to reset the moving state when the component unmounts
   useEffect(() => {
     return () => {
       setIsMoving(false);
     };
   }, []);
 
-  const captureMoveStartY = (
-    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
-  ) => {
-    if (isDisabled) return;
-    setIsMoving(true);
-    moveStartYRef.current =
-      "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-    startValueRef.current = quantizeToStep(value, stepSize);
-  };
-
-  const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
-    if (isDisabled) return;
-    ev.preventDefault();
-    if (onDoubleClickReset) {
-      onDoubleClickReset();
-      return;
-    }
-    onChange(immutableDefaultValue);
-  };
-
-  const formatWithUnits = (value: string | number) =>
-    `${value}${units ? ` ${units}` : ""}`;
-
-  const formatScaledValue = (value: number) => {
-    const transform = isExponentialScale
-      ? transformKnobValueExponential
-      : transformKnobValue;
-    const decimals = units ? 1 : 0;
-    const transformedValue = transform(value, knobTransformRange).toFixed(
-      decimals,
-    );
-    return formatWithUnits(transformedValue);
-  };
-
-  const formatFilterValue = (value: number) => {
-    const filterValue = transformKnobFilterValue(
-      value,
-      filterTransformRange,
-      filterTransformRange,
-    ).toFixed(0);
-    const modeLabel =
-      value <= KNOB_ROTATION_THRESHOLD_L
-        ? KNOB_FILTER_LOW_LABEL
-        : KNOB_FILTER_HIGH_LABEL;
-
-    return `${formatWithUnits(filterValue)} ${modeLabel}`;
-  };
-
-  const getDisplayLabel = (value: number) => {
-    if (!isMoving) return label;
-    if (formatValue) return formatValue(value);
-    if (isSplitFilterScale) return formatFilterValue(value);
-    return formatScaledValue(value);
-  };
-
-  // Computed sizes
-  const containerHeight = sizeInPixels + KNOB_CONTAINER_PADDING;
-  const maskSize = sizeInPixels + KNOB_MASK_PADDING;
-
-  // Shared size style for elements that need dynamic pixel dimensions
-  const sizeStyle = { width: `${sizeInPixels}px`, height: `${sizeInPixels}px` };
-
   return (
-    <div style={{ height: `${containerHeight}px` }}>
+    <div
+      className={cn(
+        "flex aspect-square flex-col items-center justify-center",
+        containerClass,
+      )}
+    >
       {/* Knob Container */}
-      <div className="flex items-center justify-center">
-        <div
-          className="relative m-2 rotate-90"
-          style={{ width: `${maskSize}px`, height: `${maskSize}px` }}
+      <div className="relative flex aspect-square h-4/5 items-center justify-center rounded-full">
+        {/* Hitbox (Rotates) */}
+        <motion.div
+          className={cn(
+            "absolute z-1 aspect-square h-5/6 origin-center rounded-full",
+            disabled ? "pointer-events-none cursor-not-allowed" : "cursor-grab",
+          )}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          onDoubleClick={handleDoubleClick}
+          aria-label={label}
+          aria-valuemin={KNOB_VALUE_MIN}
+          aria-valuemax={KNOB_VALUE_MAX}
+          aria-valuenow={value}
+          style={{
+            rotate: rotation,
+          }}
         >
-          {/* Interaction Area */}
-          <div
-            className={`flex h-full w-full items-center justify-center rounded-full ${
-              isDisabled ? "cursor-not-allowed" : "cursor-grab"
-            }`}
-          >
-            {/* Rotatable Hitbox */}
-            <motion.div
-              className={`absolute z-2 rounded-full ${
-                isDisabled ? "pointer-events-none" : "pointer-events-auto"
-              }`}
-              onMouseDown={isDisabled ? undefined : captureMoveStartY}
-              onTouchStart={isDisabled ? undefined : captureMoveStartY}
-              onDoubleClick={isDisabled ? undefined : handleDoubleClick}
-              aria-label={ariaLabel ?? label}
-              aria-valuemin={KNOB_MIN_VALUE}
-              aria-valuemax={KNOB_MAX_VALUE}
-              aria-valuenow={value}
-              style={{
-                rotate: rotation,
-                originX: KNOB_ROTATION_ORIGIN,
-                originY: KNOB_ROTATION_ORIGIN,
-                ...sizeStyle,
-              }}
-            >
-              <KnobTick size={sizeInPixels} />
-            </motion.div>
+          {/* Tick Mark */}
+          <div className="bg-shadow-60 absolute left-1/2 h-1/5 w-[calc(1/40*100%)] -translate-x-1/2" />
+        </motion.div>
 
-            {/* Visual Elements */}
-            <KnobBody size={sizeInPixels} />
-            <KnobDot size={sizeInPixels} rotation={KNOB_DOT_MIN_ROTATION} />
-            <KnobDot
-              size={sizeInPixels}
-              rotation={KNOB_DOT_MAX_ROTATION}
-              withShadow
-            />
+        {/* Knob Base (Fixed and motionless for shadow effect) */}
+        <div
+          className="flex aspect-square h-4/5 items-center justify-center rounded-full shadow-(--shadow-neu-tall)"
+          style={{ background: "var(--knob-gradient)" }}
+        >
+          {/* Raised Knob Edge */}
+          <div
+            className="border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full shadow-(--shadow-neu-tall-raised)"
+            style={{ background: "var(--knob-gradient)" }}
+          >
+            {/* Raised Knob Inner Circle */}
+            <div className="bg-surface-groove raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-(--knob-shadow-center)" />
           </div>
         </div>
+
+        {/* Outer ticks */}
+        {Array.from({ length: outerTickCount }).map((_, idx) => (
+          <motion.div
+            key={idx}
+            className="absolute inset-0 origin-center"
+            style={{
+              rotate: getKnobTickRotation(
+                idx,
+                outerTickCount,
+                KNOB_ROTATION_RANGE_DEGREES,
+              ),
+            }}
+          >
+            <div className="bg-shadow-60 absolute top-[2%] left-1/2 h-0.5 w-0.5 -translate-x-1/2 rounded-full" />
+          </motion.div>
+        ))}
       </div>
 
       {/* Label */}
       <div className="flex items-center justify-center">
-        <Label className="-my-1.5">{getDisplayLabel(value)}</Label>
+        <Label>{getDisplayLabel()}</Label>
       </div>
     </div>
   );
 };
+
+interface ParamKnobProps<TValue> {
+  label: string;
+  /** Mapping to convert between knob value (sometimes called "step") and domain value */
+  mapping: ParamMapping<TValue>;
+  /** Quantization size (e.g. 1, 5, 100/7) ... If you want 8 options then 100 / 7 */
+  value: number;
+  /** Callback function to update the knob value in state */
+  onValueChange: (value: number) => void;
+  /** Number of outer ticks to render - must be odd if halfway mark is desired */
+  outerTickCount?: number;
+  /** Size of the knob - `"default"` is 90px, `"lg"` is 180px */
+  size?: KnobSize;
+}
+
+/**
+ * Utility component to wrap a ParamMapping with a Knob component.
+ */
+function ParamKnob<TValue>({
+  label,
+  mapping,
+  value: knobValue,
+  onValueChange: onKnobValueChange,
+  outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
+  size = "default",
+}: ParamKnobProps<TValue>) {
+  // Calculate quantization step for the knob
+  // e.g., stepCount=48 → quantStep≈2.08 (knob snaps to 48 positions)
+  const quantizationStep = 100 / mapping.knobValueCount;
+
+  const domainValue = mapping.knobToDomain(knobValue);
+  const activeLabelFmt = mapping.format(domainValue, knobValue);
+  const activeLabel = `${activeLabelFmt.value} ${activeLabelFmt.append ? activeLabelFmt.append : ""}`;
+
+  // Quantize to ensure stored value maps to clean parameter values
+  const handleKnobValueChange = (newKnobValue: number) => {
+    // Convert to domain value
+    const paramValue = mapping.knobToDomain(newKnobValue);
+    // Convert back to canonical knob value for this parameter
+    // Pass newKnobValue as hint for non-bijective mappings (e.g., split filter)
+    const canonicalKnobValue = mapping.domainToKnob(paramValue, newKnobValue);
+    // Store the canonical value to ensure consistency
+    onKnobValueChange(canonicalKnobValue);
+  };
+
+  return (
+    <Knob
+      value={knobValue}
+      onValueChange={handleKnobValueChange}
+      step={quantizationStep}
+      label={label}
+      activeLabel={activeLabel}
+      defaultValue={mapping.defaultKnobValue}
+      outerTickCount={outerTickCount}
+      size={size}
+    />
+  );
+}
+
+export default ParamKnob;

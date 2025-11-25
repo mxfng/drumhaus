@@ -17,11 +17,11 @@ interface StepMusicalState {
 }
 
 export const Sequencer: React.FC = () => {
-  // Get playback state from Transport Store
+  // --- Transport Store ---
   const currentStepIndex = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
-  // Get sequencer state from Sequencer Store
+  // --- Pattern Store ---
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
@@ -31,10 +31,13 @@ export const Sequencer: React.FC = () => {
   );
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const setVelocity = usePatternStore((state) => state.setVelocity);
+
+  // --- State ---
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragWriteTargetOn, setDragWriteTargetOn] = useState<boolean>(true);
   const [isAdjustingVelocity, setIsAdjustingVelocity] =
     useState<boolean>(false);
+
   const sequencerRef = useRef<HTMLDivElement | null>(null);
 
   const currentVariation = pattern[voiceIndex].variations[variation];
