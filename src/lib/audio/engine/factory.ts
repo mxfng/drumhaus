@@ -13,7 +13,6 @@ import { now, Sequence, Time } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { useTransportStore } from "@/stores/useTransportStore";
 import type {
   DrumSequenceStateProvider,
   SequenceCallback,
@@ -40,10 +39,6 @@ export function createStateProvider(): DrumSequenceStateProvider {
       getPlaybackVariation: () => usePatternStore.getState().playbackVariation,
       setPlaybackVariation: (index: number) =>
         usePatternStore.getState().setPlaybackVariation(index),
-    },
-    transport: {
-      setStepIndex: (index: number) =>
-        useTransportStore.getState().setStepIndex(index),
     },
   };
 }

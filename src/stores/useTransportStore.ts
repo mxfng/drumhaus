@@ -16,7 +16,6 @@ import type { InstrumentRuntime } from "@/types/instrument";
 interface TransportState {
   // Playback state
   isPlaying: boolean;
-  stepIndex: number;
   bpm: number;
   swing: number;
 
@@ -25,7 +24,6 @@ interface TransportState {
     instrumentRuntimes: InstrumentRuntime[],
     onStop?: () => void,
   ) => Promise<void>;
-  setStepIndex: (stepIndex: number) => void;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
 }
@@ -36,7 +34,6 @@ export const useTransportStore = create<TransportState>()(
       immer((set) => ({
         // Initial state
         isPlaying: false,
-        stepIndex: 0,
         bpm: init().transport.bpm,
         swing: init().transport.swing,
 
@@ -56,10 +53,7 @@ export const useTransportStore = create<TransportState>()(
 
               startTransport();
             } else {
-              // Stop transport and reset step index
               stopTransport(undefined, () => {
-                state.stepIndex = 0;
-
                 // Release all samples
                 releaseAllRuntimes(instrumentRuntimes);
 
@@ -70,10 +64,6 @@ export const useTransportStore = create<TransportState>()(
 
             state.isPlaying = newIsPlaying;
           });
-        },
-
-        setStepIndex: (stepIndex) => {
-          set({ stepIndex });
         },
 
         setBpm: (bpm) => {
@@ -92,7 +82,6 @@ export const useTransportStore = create<TransportState>()(
         partialize: (state) => ({
           bpm: state.bpm,
           swing: state.swing,
-          // Don't persist isPlaying or stepIndex
         }),
         // Apply persisted transport settings when store rehydrates
         onRehydrateStorage: () => (state) => {

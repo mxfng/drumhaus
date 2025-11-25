@@ -89,8 +89,6 @@ export function createDrumSequence(
           ohatIndex,
         );
 
-        stateProvider.transport.setStepIndex(step);
-
         if (isLastStep) {
           updateBarIndexAtEndOfBar(variationCycle, currentBar);
         }
