@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import { StepIndicator } from "@/components/StepIndicator";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -9,16 +10,12 @@ const STEP_BOXES_GAP = 12;
 
 interface StepMusicalState {
   isTriggerOn: boolean;
-  isStepPlaying: boolean;
-  isAccentBeat: boolean;
-  isAccentPlayingOtherVariation: boolean;
   isGhosted: boolean;
   velocityValue: number;
 }
 
 export const Sequencer: React.FC = () => {
   // --- Transport Store ---
-  const currentStepIndex = useTransportStore((state) => state.stepIndex);
   const isPlaying = useTransportStore((state) => state.isPlaying);
 
   // --- Pattern Store ---
@@ -110,34 +107,13 @@ export const Sequencer: React.FC = () => {
 
   const getStepMusicalState = (step: number): StepMusicalState => {
     const isTriggerOn = triggers[step];
-    const isStepPlaying =
-      isPlaying && playbackVariation === variation && currentStepIndex === step;
-    const isAccentBeat = step % 4 === 0;
-    const isAccentPlayingOtherVariation =
-      isPlaying &&
-      playbackVariation !== variation &&
-      isAccentBeat &&
-      currentStepIndex === step;
     const isGhosted =
       isPlaying && playbackVariation !== variation && isTriggerOn;
 
     return {
       isTriggerOn,
-      isStepPlaying,
-      isAccentBeat,
-      isAccentPlayingOtherVariation,
       isGhosted,
       velocityValue: velocities[step],
-    };
-  };
-
-  const getIndicatorStyles = (state: StepMusicalState) => {
-    const indicatorIsOn =
-      state.isStepPlaying || state.isAccentPlayingOtherVariation;
-
-    return {
-      className: indicatorIsOn ? "bg-primary" : "bg-foreground",
-      opacity: indicatorIsOn ? 1 : state.isAccentBeat ? 0.6 : 0.2,
     };
   };
 
@@ -182,16 +158,15 @@ export const Sequencer: React.FC = () => {
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
-          const indicatorStyles = getIndicatorStyles(state);
           const triggerStyles = getTriggerStyles(state);
           const velocityWidth = Math.max(state.velocityValue * 100, 12);
 
           return (
             <div key={`sequence-step-item-${step}`} className="col-span-1">
-              <div
-                key={`sequence-step-indicator-${step}`}
-                className={cn("mb-4 h-1 w-full", indicatorStyles.className)}
-                style={{ opacity: indicatorStyles.opacity }}
+              <StepIndicator
+                stepIndex={step}
+                variation={variation}
+                playbackVariation={playbackVariation}
               />
               <div
                 key={`sequence-step-trigger-${step}`}
