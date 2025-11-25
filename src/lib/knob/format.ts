@@ -13,7 +13,7 @@ export const formatDisplayVolumeInstrument = (value: number) => {
 };
 
 export const formatDisplayPitchSemitone = (semitoneOffset: number) => ({
-  value: (semitoneOffset > 0 ? "+" : "") + semitoneOffset,
+  value: (semitoneOffset > 0 ? "+" : "") + semitoneOffset.toFixed(0),
 });
 
 export const formatDisplayAttackDuration = (value: number) => {

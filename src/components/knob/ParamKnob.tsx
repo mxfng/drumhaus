@@ -13,6 +13,9 @@ type ParamKnobProps<TValue> = {
 
 /**
  * Utility component to wrap a ParamMapping with a Knob component.
+ *
+ * Note: 'step' is a legacy name - it's actually the knob value (0-100).
+ * stepCount only controls UI quantization (how many discrete positions).
  */
 function ParamKnob<TValue>({
   label,
@@ -22,35 +25,29 @@ function ParamKnob<TValue>({
   outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
   size = "default",
 }: ParamKnobProps<TValue>) {
-  // Convert step (0..stepCount) to knob value (0..100)
-  const knobValue = (step / mapping.stepCount) * 100;
+  // step is already 0-100, no conversion needed
+  const knobValue = step;
 
   // Calculate quantization step for the knob
-  // e.g., stepCount=100 → quantStep=1, stepCount=49 → quantStep≈2.04
+  // e.g., stepCount=48 → quantStep≈2.08 (knob snaps to 48 positions)
   const quantizationStep = 100 / mapping.stepCount;
 
-  // Convert default step to knob value
-  const defaultKnobValue = (mapping.defaultStep / mapping.stepCount) * 100;
+  // defaultStep is already 0-100
+  const defaultKnobValue = mapping.defaultStep;
 
-  const value = mapping.stepToValue(step);
-  const activeLabelFmt = mapping.format(value, step);
+  const value = mapping.stepToValue(knobValue);
+  const activeLabelFmt = mapping.format(value, knobValue);
   const activeLabel = `${activeLabelFmt.value} ${activeLabelFmt.append ? activeLabelFmt.append : ""}`;
 
-  // Convert knob value (0..100) back to step (0..stepCount)
+  // Quantize to ensure stored value maps to clean parameter values
   const handleKnobChange = (newKnobValue: number) => {
-    const newStep = Math.round((newKnobValue / 100) * mapping.stepCount);
-    onStepChange(newStep);
+    // Convert to parameter value (may quantize, e.g., to whole semitones)
+    const paramValue = mapping.stepToValue(newKnobValue);
+    // Convert back to canonical knob value for this parameter
+    const canonicalKnobValue = mapping.valueToStep(paramValue);
+    // Store the canonical value to ensure consistency
+    onStepChange(canonicalKnobValue);
   };
-
-  console.debug("ParamKnob", {
-    label,
-    mapping,
-    step,
-    onStepChange,
-    outerTickCount,
-    knobValue,
-    quantizationStep,
-  });
 
   return (
     <Knob
