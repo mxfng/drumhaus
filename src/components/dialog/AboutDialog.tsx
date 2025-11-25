@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogCloseButton,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui";
@@ -64,7 +65,10 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             Browser Controlled Rhythmic Groove Machine
           </p>
         </div>
-
+        <DialogDescription className="hidden">
+          Drumhaus is a browser controlled rhythmic groove machine built by Max
+          Fung.
+        </DialogDescription>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex flex-col gap-1">
             <p className="font-semibold">Build</p>
