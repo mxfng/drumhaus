@@ -65,18 +65,19 @@
 
   /* Knob component */
   --knob-gradient: linear-gradient(
-    70deg,
+    120deg,
     var(--color-gradient-light),
     var(--color-gradient-dark)
   );
-  --knob-shadow-outer:
-    14px -9px 9px var(--color-shadow-30), 4px -5px 5px var(--color-highlight-17);
-  --knob-shadow-ring: 0 0 2px 3px var(--color-shadow-10);
-  --knob-shadow-inset-highlight: inset 1px -1px 1px var(--color-highlight-30);
-  --knob-shadow-inset-shadow: inset -1px 1px 1px var(--color-shadow-30);
+  --knob-shadow-ring: 0 0 2px 4px var(--color-shadow-10);
+  --knob-shadow-inset:
+    inset 2px 2px 4px var(--color-highlight-30),
+    inset -2px -2px 4px var(--color-shadow-30);
   --knob-shadow:
-    var(--knob-shadow-outer), var(--knob-shadow-ring),
-    var(--knob-shadow-inset-highlight), var(--knob-shadow-inset-shadow);
+    var(--shadow-neu-tall-raised), var(--knob-shadow-ring),
+    var(--knob-shadow-inset);
+  --knob-shadow-center:
+    var(--shadow-neu), var(--knob-shadow-ring), var(--knob-shadow-inset);
 
   /* Slider component */
   --slider-track-bg: var(--color-muted);

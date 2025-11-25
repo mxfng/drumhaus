@@ -1,6 +1,7 @@
 import { Time } from "tone/build/esm/index";
 
-import { transformKnobValueExponential } from "@/components/common/knobTransforms";
+import { pitchMapping } from "@/lib/knob/mapping";
+import { transformKnobValueExponential } from "@/lib/knob/transform";
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Pattern, Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
@@ -13,7 +14,6 @@ import {
   TRANSPORT_SWING_RANGE,
 } from "./constants";
 import { defaultSequencerFactory, defaultStateProvider } from "./factory";
-import { transformPitchKnobToFrequency } from "./pitch";
 import { hasAnySolo } from "./solo";
 import type {
   DrumSequenceStateProvider,
@@ -210,7 +210,7 @@ function scheduleVoiceCore(
   if ((anySolos && !params.solo) || params.mute) return;
 
   const velocity = velocities[step];
-  const pitch = transformPitchKnobToFrequency(params.pitch);
+  const pitch = pitchMapping.knobToDomain(params.pitch);
   const releaseTime = transformKnobValueExponential(
     params.release,
     INSTRUMENT_RELEASE_RANGE,
@@ -366,7 +366,7 @@ export function muteOpenHatAtTime(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  const ohPitch = transformPitchKnobToFrequency(ohInst.params.pitch);
+  const ohPitch = pitchMapping.knobToDomain(ohInst.params.pitch);
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
 }
 

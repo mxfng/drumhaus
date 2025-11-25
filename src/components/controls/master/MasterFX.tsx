@@ -1,19 +1,18 @@
+import ParamKnob from "@/components/common/Knob";
 import {
-  MASTER_FILTER_RANGE,
-  MASTER_PHASER_WET_RANGE,
-  MASTER_REVERB_WET_RANGE,
-} from "@/lib/audio/engine/constants";
+  highPassFilterMapping,
+  lowPassFilterMapping,
+  phaserWetMapping,
+  reverbWetMapping,
+} from "@/lib/knob/mapping";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { Knob } from "../../common/Knob";
 
 export const MasterFX: React.FC = () => {
-  // Get state from Master FX Store
   const lowPass = useMasterChainStore((state) => state.lowPass);
   const highPass = useMasterChainStore((state) => state.highPass);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
-  // Get actions from store
   const setLowPass = useMasterChainStore((state) => state.setLowPass);
   const setHighPass = useMasterChainStore((state) => state.setHighPass);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
@@ -25,41 +24,30 @@ export const MasterFX: React.FC = () => {
         MASTER FX
       </span>
       <div className="grid grid-cols-2 gap-y-2 pl-4">
-        <Knob
+        <ParamKnob
+          label="LPF"
+          mapping={lowPassFilterMapping}
           value={lowPass}
-          onChange={setLowPass}
-          label="LP FILTER"
-          units="Hz"
-          range={MASTER_FILTER_RANGE}
-          scale="exp"
-          defaultValue={100}
+          onValueChange={setLowPass}
         />
-        <Knob
-          value={phaser}
-          onChange={setPhaser}
-          label="PHASER"
-          units="mix"
-          range={MASTER_PHASER_WET_RANGE}
-          defaultValue={0}
-          formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
-        />
-        <Knob
-          value={highPass}
-          onChange={setHighPass}
-          label="HP FILTER"
-          units="Hz"
-          range={MASTER_FILTER_RANGE}
-          scale="exp"
-          defaultValue={0}
-        />
-        <Knob
-          value={reverb}
-          onChange={setReverb}
+        <ParamKnob
           label="REVERB"
-          units="mix"
-          range={MASTER_REVERB_WET_RANGE}
-          defaultValue={0}
-          formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
+          mapping={reverbWetMapping}
+          value={reverb}
+          onValueChange={setReverb}
+        />
+        <ParamKnob
+          label="HPF"
+          mapping={highPassFilterMapping}
+          value={highPass}
+          onValueChange={setHighPass}
+        />
+        <ParamKnob
+          label="PHASER"
+          mapping={phaserWetMapping}
+          value={phaser}
+          onValueChange={setPhaser}
+          outerTickCount={5}
         />
       </div>
     </div>

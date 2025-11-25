@@ -5,26 +5,22 @@ import { now } from "tone/build/esm/index";
 import { Button, Label, Tooltip } from "@/components/ui";
 import { useSampleDuration } from "@/hooks/useSampleDuration";
 import { playInstrumentSample } from "@/lib/audio/engine";
-import {
-  INSTRUMENT_ATTACK_RANGE,
-  INSTRUMENT_PAN_RANGE,
-  INSTRUMENT_PITCH_SEMITONE_RANGE,
-  INSTRUMENT_RELEASE_RANGE,
-  INSTRUMENT_VOLUME_RANGE,
-} from "@/lib/audio/engine/constants";
+import { INSTRUMENT_PAN_RANGE } from "@/lib/audio/engine/constants";
 import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
-import { PITCH_KNOB_STEP } from "@/lib/audio/engine/pitch";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
+import {
+  instrumentAttackMapping,
+  instrumentReleaseMapping,
+  instrumentVolumeMapping,
+  pitchMapping,
+  splitFilterMapping,
+} from "@/lib/knob/mapping";
 import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { HardwareSlider } from "../common/HardwareSlider";
-import { Knob } from "../common/Knob";
-import {
-  transformKnobValue,
-  transformKnobValueExponential,
-} from "../common/knobTransforms";
+import ParamKnob from "../common/Knob";
 import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
 import Waveform from "./Waveform";
@@ -89,9 +85,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const { duration: sampleDuration } = useSampleDuration(samplePath);
+
   const [waveformError, setWaveformError] = useState<Error | null>(null);
   const [trackedSamplePath, setTrackedSamplePath] = useState(samplePath);
+
+  const { duration: sampleDuration } = useSampleDuration(samplePath);
 
   // Reset waveform error when sample path changes
   if (samplePath !== trackedSamplePath) {
@@ -135,49 +133,16 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     [index, toggleSoloStore],
   );
 
-  const formatPitchLabel = useCallback((value: number) => {
-    const semitoneOffset =
-      ((value - 50) / 50) * INSTRUMENT_PITCH_SEMITONE_RANGE;
-    const signedOffset =
-      semitoneOffset > 0
-        ? `+${semitoneOffset.toFixed(0)}`
-        : semitoneOffset.toFixed(0);
-    return `${signedOffset} st`;
-  }, []);
-
-  const formatDurationLabel = useCallback((seconds: number) => {
-    if (!seconds || !Number.isFinite(seconds)) return "0 ms";
-    if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
-    if (seconds < 10) return `${seconds.toFixed(2)} s`;
-    return `${seconds.toFixed(1)} s`;
-  }, []);
-
-  const formatAttackLabel = useCallback(
-    (value: number) => {
-      const attackSeconds = transformKnobValue(value, INSTRUMENT_ATTACK_RANGE);
-      return formatDurationLabel(attackSeconds);
-    },
-    [formatDurationLabel],
-  );
-
-  const formatReleaseLabel = useCallback(
-    (value: number) => {
-      const releaseSeconds = transformKnobValueExponential(
-        value,
-        INSTRUMENT_RELEASE_RANGE,
-      );
-      return formatDurationLabel(releaseSeconds);
-    },
-    [formatDurationLabel],
-  );
+  const playSample = () => {
+    if (!runtime) return;
+    playInstrumentSample(runtime, pitch, release);
+  };
 
   useEffect(() => {
     if (!runtime) return;
     return subscribeRuntimeToInstrumentParams(index, runtime);
   }, [index, runtime]);
-
   const isRuntimeLoaded = useMemo(() => !!runtime, [runtime]);
-
   const handleWaveformError = useCallback((error: Error) => {
     setWaveformError(error);
   }, []);
@@ -219,11 +184,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     };
   }, [instrumentIndex, index, toggleSolo, isAnyDialogOpen]);
 
-  const playSample = () => {
-    if (!runtime) return;
-    playInstrumentSample(runtime, pitch, release);
-  };
-
   return (
     <div
       className={cn(
@@ -246,7 +206,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       </div>
 
       {/* Waveform */}
-      <div className="overflow-visible px-4 pt-5">
+      <div className="overflow-visible px-4 pt-2">
         <button
           ref={waveButtonRef}
           className={cn(
@@ -275,52 +235,37 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       {/* Controls */}
       <div className={isRuntimeLoaded ? "opacity-100" : "opacity-50"}>
         {/* Top knobs - 2x2 grid */}
-        <div className="grid grid-cols-2 p-1">
-          <Knob
-            key={`knob-${instrumentMeta.id}-${index}-attack`}
+        <div className="grid grid-cols-2">
+          <ParamKnob
             value={attack}
-            onChange={setAttack}
+            onValueChange={setAttack}
             label="ATTACK"
-            defaultValue={0}
-            disabled={!isRuntimeLoaded}
-            size="sm"
-            formatValue={formatAttackLabel}
+            mapping={instrumentAttackMapping}
           />
-          <Knob
-            key={`knob-${index}-filter`}
+          <ParamKnob
             value={filter}
-            onChange={setFilter}
-            label="TONE"
-            scale="split-filter"
-            defaultValue={50}
-            disabled={!isRuntimeLoaded}
-            size="sm"
+            onValueChange={setFilter}
+            label="FILTER"
+            mapping={splitFilterMapping}
+            outerTickCount={3}
           />
-          <Knob
-            key={`knob-${instrumentMeta.id}-${index}-release`}
+          <ParamKnob
             value={release}
-            onChange={setRelease}
+            onValueChange={setRelease}
             label="RELEASE"
-            defaultValue={100}
-            disabled={!isRuntimeLoaded}
-            size="sm"
-            formatValue={formatReleaseLabel}
+            mapping={instrumentReleaseMapping}
           />
-          <Knob
-            key={`knob-${instrumentMeta.id}-${index}-pitch`}
+          <ParamKnob
             value={pitch}
-            onChange={setPitch}
+            onValueChange={setPitch}
             label="PITCH"
-            step={PITCH_KNOB_STEP}
-            defaultValue={50}
-            disabled={!isRuntimeLoaded}
-            formatValue={formatPitchLabel}
-            size="sm"
+            mapping={pitchMapping}
+            outerTickCount={25}
           />
         </div>
 
         {/* Bottom controls */}
-        <div className="grid grid-cols-2 p-1">
+        <div className="grid grid-cols-2">
           {/* Left: Pan + Mute/Solo */}
           <div className="flex flex-col items-center justify-between pt-4">
             <HardwareSlider
@@ -371,23 +316,12 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           </div>
 
           {/* Right: Volume */}
-          <Knob
-            key={`knob-${instrumentMeta.id}-${index}-volume`}
+          <ParamKnob
             value={volume}
-            onChange={setVolume}
+            onValueChange={setVolume}
             label="LEVEL"
-            units="dB"
-            range={INSTRUMENT_VOLUME_RANGE}
-            defaultValue={92}
-            disabled={!isRuntimeLoaded}
-            formatValue={(knobValue) =>
-              knobValue <= 0
-                ? "-∞ dB"
-                : `${transformKnobValue(
-                    knobValue,
-                    INSTRUMENT_VOLUME_RANGE,
-                  ).toFixed(1)} dB`
-            }
+            mapping={instrumentVolumeMapping}
+            outerTickCount={13}
           />
         </div>
       </div>
