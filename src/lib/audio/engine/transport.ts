@@ -9,10 +9,14 @@ import {
 import { stopRuntimeAtTime } from "./runtimeStops";
 
 /**
- * Start the audio context
+ * Start or resume the audio context
  */
 export async function startAudioContext(): Promise<void> {
-  if (getContext().state !== "running") {
+  const context = getContext();
+
+  if (context.state === "suspended") {
+    await context.resume();
+  } else if (context.state !== "running") {
     await start();
   }
 }
