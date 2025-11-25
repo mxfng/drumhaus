@@ -35,6 +35,7 @@ export const MasterFX: React.FC = () => {
           mapping={reverbWetMapping}
           value={reverb}
           onValueChange={setReverb}
+          outerTickCount={5}
         />
         <ParamKnob
           label="HPF"
