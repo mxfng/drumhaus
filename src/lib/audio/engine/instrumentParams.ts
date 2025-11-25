@@ -1,6 +1,7 @@
 import {
   instrumentAttackMapping,
   instrumentPanMapping,
+  instrumentReleaseMapping,
   instrumentVolumeMapping,
   splitFilterMapping,
 } from "@/lib/knob/mapping";
@@ -10,6 +11,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 
 export type RuntimeParams = {
   attack: number;
+  release: number;
   filter: number;
   pan: number;
   volume: number;
@@ -22,8 +24,11 @@ export function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: RuntimeParams,
 ): void {
-  runtime.envelopeNode.attack = instrumentAttackMapping.knobToDomain(
+  runtime.samplerNode.attack = instrumentAttackMapping.knobToDomain(
     params.attack,
+  );
+  runtime.samplerNode.release = instrumentReleaseMapping.knobToDomain(
+    params.release,
   );
 
   // TODO: Should probably extract this check to the knob library.
@@ -54,6 +59,7 @@ export function subscribeRuntimeToInstrumentParams(
     if (
       prevParams &&
       prevParams.attack === params.attack &&
+      prevParams.release === params.release &&
       prevParams.filter === params.filter &&
       prevParams.pan === params.pan &&
       prevParams.volume === params.volume
@@ -71,6 +77,7 @@ export function subscribeRuntimeToInstrumentParams(
 
     applyParamsIfChanged({
       attack: instrument.params.attack,
+      release: instrument.params.release,
       filter: instrument.params.filter,
       pan: instrument.params.pan,
       volume: instrument.params.volume,
@@ -82,6 +89,7 @@ export function subscribeRuntimeToInstrumentParams(
   if (currentInstrument) {
     applyParamsIfChanged({
       attack: currentInstrument.params.attack,
+      release: currentInstrument.params.release,
       filter: currentInstrument.params.filter,
       pan: currentInstrument.params.pan,
       volume: currentInstrument.params.volume,

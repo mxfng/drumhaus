@@ -24,9 +24,8 @@ export function playInstrumentSample(
     return pitchValue;
   }
 
-  runtime.envelopeNode.triggerAttack(time);
-  runtime.envelopeNode.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitchValue, time);
+  // Use triggerAttackRelease with duration to automatically handle release
+  runtime.samplerNode.triggerAttackRelease(pitchValue, releaseTime, time);
 
   return pitchValue;
 }

@@ -1,18 +1,11 @@
 import type { RefObject } from "react";
-import {
-  AmplitudeEnvelope,
-  Filter,
-  Panner,
-  Sampler,
-} from "tone/build/esm/index";
+import { Filter, Panner, Sampler } from "tone/build/esm/index";
 
 import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
 import {
   ENVELOPE_DEFAULT_ATTACK,
-  ENVELOPE_DEFAULT_DECAY,
   ENVELOPE_DEFAULT_RELEASE,
-  ENVELOPE_DEFAULT_SUSTAIN,
   SAMPLER_ROOT_NOTE,
 } from "./constants";
 
@@ -63,12 +56,6 @@ export async function buildInstrumentRuntime(
   instrument: InstrumentData,
 ): Promise<InstrumentRuntime> {
   const filterNode = new Filter(0, "highpass");
-  const envelopeNode = new AmplitudeEnvelope(
-    ENVELOPE_DEFAULT_ATTACK,
-    ENVELOPE_DEFAULT_DECAY,
-    ENVELOPE_DEFAULT_SUSTAIN,
-    ENVELOPE_DEFAULT_RELEASE,
-  );
   const pannerNode = new Panner(0);
 
   const { url, baseUrl } = await resolveSamplerSource(instrument.sample.path);
@@ -77,7 +64,6 @@ export async function buildInstrumentRuntime(
   return {
     instrumentId: instrument.meta.id,
     samplerNode,
-    envelopeNode,
     filterNode,
     pannerNode,
   };
@@ -110,6 +96,8 @@ function createSampler(url: string, baseUrl?: string): Promise<Sampler> {
     const sampler = new Sampler({
       urls: { [SAMPLER_ROOT_NOTE]: url },
       ...(baseUrl ? { baseUrl } : {}),
+      attack: ENVELOPE_DEFAULT_ATTACK,
+      release: ENVELOPE_DEFAULT_RELEASE,
       onload: () => resolve(sampler),
       onerror: (err) => reject(err),
     });
@@ -118,7 +106,6 @@ function createSampler(url: string, baseUrl?: string): Promise<Sampler> {
 
 function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {
   runtime.samplerNode.dispose();
-  runtime.envelopeNode.dispose();
   runtime.filterNode.dispose();
   runtime.pannerNode.dispose();
 }

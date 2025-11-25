@@ -1,9 +1,4 @@
-import {
-  AmplitudeEnvelope,
-  Filter,
-  Panner,
-  Sampler,
-} from "tone/build/esm/index";
+import { Filter, Panner, Sampler } from "tone/build/esm/index";
 
 import { InlineMeta, Meta } from "./meta";
 import { SampleData } from "./sample";
@@ -56,7 +51,6 @@ export interface KitFileV1 {
 export interface InstrumentRuntime {
   instrumentId: string; // matches InstrumentData.meta.id
   samplerNode: Sampler;
-  envelopeNode: AmplitudeEnvelope;
   filterNode: Filter;
   pannerNode: Panner;
 }

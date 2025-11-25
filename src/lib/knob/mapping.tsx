@@ -217,9 +217,9 @@ export const splitFilterMapping: ParamMapping<number> = {
 // --- Instrument parameter mappings ---
 
 /**
- * Attack envelope time (exponential for natural feel)
+ * Attack envelope time
  */
-export const instrumentAttackMapping = makeExponentialMapping(
+export const instrumentAttackMapping = makeLinearMapping(
   INSTRUMENT_ATTACK_RANGE,
   formatDisplayAttackDuration,
   {
@@ -228,7 +228,7 @@ export const instrumentAttackMapping = makeExponentialMapping(
 );
 
 /**
- * Release envelope time (exponential for natural feel)
+ * Release envelope time
  */
 export const instrumentReleaseMapping = makeExponentialMapping(
   INSTRUMENT_RELEASE_RANGE,

@@ -190,16 +190,11 @@ export function connectInstrumentRuntime(
 ): void {
   // Disconnect existing links to avoid duplicated chains when re-connecting
   instrument.samplerNode.disconnect();
-  instrument.envelopeNode.disconnect();
   instrument.filterNode.disconnect();
   instrument.pannerNode.disconnect();
 
   // Chain instrument nodes together
-  instrument.samplerNode.chain(
-    instrument.envelopeNode,
-    instrument.filterNode,
-    instrument.pannerNode,
-  );
+  instrument.samplerNode.chain(instrument.filterNode, instrument.pannerNode);
 
   // Connect instrument output to compressor section (parallel compression)
   // Signal splits: wet path through compressor, dry path with latency compensation

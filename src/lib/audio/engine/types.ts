@@ -110,18 +110,9 @@ export interface SamplerNode {
 }
 
 /**
- * Minimal interface for envelope operations used in the sequencer.
- */
-export interface EnvelopeNode {
-  triggerAttack(time: TimeValue): void;
-  triggerRelease(time: TimeValue): void;
-}
-
-/**
  * Abstract runtime representation for testability.
  * Maps to InstrumentRuntime but with abstract node types.
  */
 export interface AbstractInstrumentRuntime {
   samplerNode: SamplerNode;
-  envelopeNode: EnvelopeNode;
 }

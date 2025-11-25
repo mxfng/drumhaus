@@ -375,10 +375,7 @@ export function triggerOpenHatAtTime(
   releaseTime: number,
   velocity: number,
 ): void {
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  runtime.samplerNode.triggerAttackRelease(pitch, releaseTime, time, velocity);
 }
 
 export function triggerStandardInstrumentAtTime(
@@ -389,11 +386,7 @@ export function triggerStandardInstrumentAtTime(
   velocity: number,
 ): void {
   runtime.samplerNode.triggerRelease(pitch, time);
-
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  runtime.samplerNode.triggerAttackRelease(pitch, releaseTime, time, velocity);
 }
 
 // -----------------------------------------------------------------------------

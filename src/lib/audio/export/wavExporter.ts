@@ -155,6 +155,7 @@ async function buildOfflineInstrumentRuntimes(
     // Apply instrument params
     applyInstrumentParams(runtime, {
       attack: instrument.params.attack,
+      release: instrument.params.release,
       filter: instrument.params.filter,
       pan: instrument.params.pan,
       volume: instrument.params.volume,
