@@ -2,7 +2,7 @@ import { useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { Label, Tooltip } from "@/components/ui";
-import { transformKnobValue } from "./knobTransforms";
+import { transformKnobValue } from "../../lib/knob/transform";
 
 type HardwareSliderProps = {
   size: number;

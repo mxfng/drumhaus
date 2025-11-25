@@ -1,10 +1,11 @@
+import ParamKnob from "@/components/knob/ParamKnob";
 import {
-  MASTER_FILTER_RANGE,
-  MASTER_PHASER_WET_RANGE,
-  MASTER_REVERB_WET_RANGE,
-} from "@/lib/audio/engine/constants";
+  highPassFilterMapping,
+  lowPassFilterMapping,
+  phaserWetMapping,
+  reverbWetMapping,
+} from "@/lib/knob/mapping";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { Knob } from "../../common/Knob";
 
 export const MasterFX: React.FC = () => {
   // Get state from Master FX Store
@@ -25,41 +26,29 @@ export const MasterFX: React.FC = () => {
         MASTER FX
       </span>
       <div className="grid grid-cols-2 gap-y-2 pl-4">
-        <Knob
-          value={lowPass}
-          onChange={setLowPass}
-          label="LP FILTER"
-          units="Hz"
-          range={MASTER_FILTER_RANGE}
-          scale="exp"
-          defaultValue={100}
+        <ParamKnob
+          label="LPF"
+          mapping={lowPassFilterMapping}
+          step={lowPass}
+          onStepChange={setLowPass}
         />
-        <Knob
-          value={phaser}
-          onChange={setPhaser}
-          label="PHASER"
-          units="mix"
-          range={MASTER_PHASER_WET_RANGE}
-          defaultValue={0}
-          formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
-        />
-        <Knob
-          value={highPass}
-          onChange={setHighPass}
-          label="HP FILTER"
-          units="Hz"
-          range={MASTER_FILTER_RANGE}
-          scale="exp"
-          defaultValue={0}
-        />
-        <Knob
-          value={reverb}
-          onChange={setReverb}
+        <ParamKnob
           label="REVERB"
-          units="mix"
-          range={MASTER_REVERB_WET_RANGE}
-          defaultValue={0}
-          formatValue={(knobValue) => `${knobValue.toFixed(0)}%`}
+          mapping={reverbWetMapping}
+          step={reverb}
+          onStepChange={setReverb}
+        />
+        <ParamKnob
+          label="HPF"
+          mapping={highPassFilterMapping}
+          step={highPass}
+          onStepChange={setHighPass}
+        />
+        <ParamKnob
+          label="PHASER"
+          mapping={phaserWetMapping}
+          step={phaser}
+          onStepChange={setPhaser}
         />
       </div>
     </div>

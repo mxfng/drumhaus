@@ -85,7 +85,7 @@ const Drumhaus = () => {
           style={{ "--scale": scale } as React.CSSProperties}
         >
           <div className="animate-fade-in">
-            <div className="hidden h-[50px] lg:block"></div>
+            <div className="hidden h-[50px] lg:block" />
             <div className="neu-extra-tall bg-surface relative h-[1000px] w-[1538px] overflow-clip rounded-xl">
               <TopBar />
 

@@ -31,21 +31,22 @@ export const MasterCompressor: React.FC = () => {
         <div className="flex flex-col gap-2">
           <Knob
             value={threshold}
-            onChange={setThreshold}
+            onValueChange={setThreshold}
             label="THRESHOLD"
             units="dB"
             range={MASTER_COMP_THRESHOLD_RANGE}
             defaultValue={MASTER_COMP_DEFAULT_THRESHOLD}
-            size="sm"
+            outerTickCount={21}
           />
           <Knob
             value={ratio}
-            onChange={setRatio}
+            onValueChange={setRatio}
             label="RATIO"
             units=": 1"
             range={MASTER_COMP_RATIO_RANGE}
             defaultValue={43}
-            size="sm"
+            outerTickCount={8}
+            step={100 / 7}
           />
         </div>
         {/* Column 2: Gain Reduction Meter and Mix */}
@@ -55,12 +56,12 @@ export const MasterCompressor: React.FC = () => {
           </div>
           <Knob
             value={mix}
-            onChange={setMix}
+            onValueChange={setMix}
             label="MIX"
             units="%"
             range={MASTER_COMP_MIX_RANGE}
             defaultValue={MASTER_COMP_DEFAULT_MIX}
-            size="xs"
+            outerTickCount={5}
           />
         </div>
       </div>
