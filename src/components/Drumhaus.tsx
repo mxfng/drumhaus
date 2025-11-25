@@ -118,8 +118,8 @@ const TopBar = () => {
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="surface relative h-[120px] shadow-[0_4px_8px_var(--color-shadow-60)]">
-      <div className="relative flex h-[120px] w-[750px] flex-row items-end pb-5 pl-[26px]">
+    <div className="surface grid h-[120px] grid-cols-8 shadow-[0_4px_8px_var(--color-shadow-60)]">
+      <div className="col-span-5 flex h-[120px] flex-row items-end pb-4 pl-8">
         <button
           className="flex cursor-pointer items-end"
           onClick={() => openDialog("about")}
@@ -137,7 +137,7 @@ const TopBar = () => {
         </button>
       </div>
 
-      <div className="absolute right-[26px] bottom-[18px] overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
+      <div className="col-span-3 m-4 overflow-hidden rounded-2xl opacity-60 shadow-[0_2px_8px_var(--color-shadow-60)_inset]">
         <FrequencyAnalyzer />
       </div>
     </div>
@@ -215,12 +215,12 @@ const SequencerSection = () => {
 const BrandingLink = () => {
   return (
     <a
-      className="absolute right-[26px] bottom-3 opacity-20"
+      className="absolute right-2.5 bottom-2.5 opacity-20"
       href="https://fung.studio/"
       target="_blank"
       rel="noreferrer"
     >
-      <FungPeaceLogo color="#B09374" size={80} />
+      <FungPeaceLogo color="#B09374" size={70} />
     </a>
   );
 };

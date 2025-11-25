@@ -262,51 +262,53 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             mapping={pitchMapping}
             outerTickCount={25}
           />
-          <div className="flex flex-col items-center justify-between pt-4">
-            <HardwareSlider
-              size={85}
-              sliderValue={pan}
-              setSliderValue={setPan}
-              defaultValue={50}
-              leftLabel="L"
-              centerLabel="|"
-              rightLabel="R"
-              transformRange={INSTRUMENT_PAN_RANGE}
-              displayRange={[-100, 100]}
-              isDisabled={!isRuntimeLoaded}
-            />
-            <div className="hardware-button-group flex rounded-lg">
-              <Tooltip content="Mute [M]" delayDuration={500}>
-                <Button
-                  variant="hardware"
-                  size="sm"
-                  className={cn("w-8 rounded-l-lg rounded-r-none p-2 text-lg", {
-                    "text-primary": mute,
-                  })}
-                  title="Mute"
-                  onClick={handleToggleMute}
-                  disabled={!isRuntimeLoaded}
-                >
-                  {mute ? <VolumeX /> : <Volume />}
-                </Button>
-              </Tooltip>
-              <Tooltip content="Solo [S]" delayDuration={500}>
-                <Button
-                  variant="hardware"
-                  size="sm"
-                  className={cn("w-8 rounded-l-none rounded-r-lg p-0", {
-                    "text-primary": solo,
-                  })}
-                  title="Solo"
-                  onClick={toggleSolo}
-                  disabled={!isRuntimeLoaded}
-                >
-                  <Headphones
-                    className={cn({ "text-primary": solo })}
-                    size={18}
-                  />
-                </Button>
-              </Tooltip>
+          <div className="grid grid-cols-2 items-center">
+            <div className="col-span-2 flex items-center justify-center">
+              <HardwareSlider
+                size={65}
+                sliderValue={pan}
+                setSliderValue={setPan}
+                defaultValue={50}
+                leftLabel="L"
+                centerLabel="|"
+                rightLabel="R"
+                transformRange={INSTRUMENT_PAN_RANGE}
+                displayRange={[-100, 100]}
+                isDisabled={!isRuntimeLoaded}
+              />
+            </div>
+            <div className="col-span-2 flex items-center justify-center">
+              <div className="hardware-button-group grid grid-cols-2 rounded-lg">
+                <Tooltip content="Mute [M]" delayDuration={500}>
+                  <Button
+                    variant="hardware"
+                    size="sm"
+                    className={cn("w-8 rounded-l-lg rounded-r-none p-2", {
+                      "text-primary": mute,
+                    })}
+                    onClick={handleToggleMute}
+                    disabled={!isRuntimeLoaded}
+                  >
+                    {mute ? <VolumeX /> : <Volume />}
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Solo [S]" delayDuration={500}>
+                  <Button
+                    variant="hardware"
+                    size="sm"
+                    className={cn("w-8 rounded-l-none rounded-r-lg p-2", {
+                      "text-primary": solo,
+                    })}
+                    onClick={toggleSolo}
+                    disabled={!isRuntimeLoaded}
+                  >
+                    <Headphones
+                      className={cn({ "text-primary": solo })}
+                      size={18}
+                    />
+                  </Button>
+                </Tooltip>
+              </div>
             </div>
           </div>
           {/* Right: Volume */}
