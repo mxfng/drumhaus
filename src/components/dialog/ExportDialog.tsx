@@ -148,6 +148,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                 value={filename}
                 onChange={(e) => setFilename(e.target.value)}
                 disabled={isExporting}
+                autoFocus
               />
             </FormField>
 
