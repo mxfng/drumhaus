@@ -50,27 +50,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     setWasOpen(isOpen);
   }
 
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!isOpen) {
-      setStep("input");
-      setPresetName("");
-      setShareableLink("");
-      setIsLoading(false);
-      setError(null);
-    }
-  }, [isOpen]);
-
-  // Auto-focus input when on input step
-  useEffect(() => {
-    if (isOpen && step === "input") {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, step]);
+  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -114,8 +94,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     }
   };
 
-  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
-
   const handleCopy = () => {
     onCopy(shareableLink);
     toast({
@@ -123,6 +101,28 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       duration: 3000,
     });
   };
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStep("input");
+      setPresetName("");
+      setShareableLink("");
+      setIsLoading(false);
+      setError(null);
+    }
+  }, [isOpen]);
+
+  // Auto-focus input when on input step
+  useEffect(() => {
+    if (isOpen && step === "input") {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, step]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

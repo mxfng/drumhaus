@@ -39,7 +39,7 @@ export const formatDisplayPercentage = (value: number) => {
 };
 
 export const formatDisplayCompRatio = (value: number) => {
-  return { value: value.toFixed(0), append: ":1" };
+  return { value: value.toFixed(0), append: ": 1" };
 };
 
 // --- Private helper functions ---
@@ -49,7 +49,7 @@ const formatDisplayVolume = (value: number, rangeMin: number) => {
     return { value: "-∞", append: "dB" };
   }
 
-  return { value: value.toFixed(1), append: "dB" };
+  return { value: (value > 0 ? "+" : "") + value.toFixed(1), append: "dB" };
 };
 
 const formatDisplayDuration = (seconds: number) => {
