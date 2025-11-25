@@ -14,8 +14,8 @@ import {
 } from "tone/build/esm/index";
 
 import {
-  transformKnobValue,
   transformKnobValueExponential,
+  transformKnobValueLinear,
 } from "@/lib/knob/transform";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
@@ -395,26 +395,30 @@ export function mapParamsToSettings(
       params.highPass,
       MASTER_FILTER_RANGE,
     ),
-    phaserWet: transformKnobValue(params.phaser, MASTER_PHASER_WET_RANGE),
-    reverbWet: transformKnobValue(params.reverb, MASTER_REVERB_WET_RANGE),
-    reverbDecay: transformKnobValue(params.reverb, MASTER_REVERB_DECAY_RANGE),
-    compThreshold: transformKnobValue(
+    phaserWet: transformKnobValueLinear(params.phaser, MASTER_PHASER_WET_RANGE),
+    reverbWet: transformKnobValueLinear(params.reverb, MASTER_REVERB_WET_RANGE),
+    reverbDecay: transformKnobValueLinear(
+      params.reverb,
+      MASTER_REVERB_DECAY_RANGE,
+    ),
+    compThreshold: transformKnobValueLinear(
       params.compThreshold,
       MASTER_COMP_THRESHOLD_RANGE,
     ),
     // Allow fractional ratios like 1.5 (API 2500 style)
-    compRatio: transformKnobValue(params.compRatio, MASTER_COMP_RATIO_RANGE),
-    // Convert from 0-100 percentage to 0-1 for audio processing
-    compMix:
-      transformKnobValue(
-        params.compMix ?? MASTER_COMP_DEFAULT_MIX,
-        MASTER_COMP_MIX_RANGE,
-      ) / 100,
+    compRatio: transformKnobValueLinear(
+      params.compRatio,
+      MASTER_COMP_RATIO_RANGE,
+    ),
+    compMix: transformKnobValueLinear(
+      params.compMix ?? MASTER_COMP_DEFAULT_MIX,
+      MASTER_COMP_MIX_RANGE,
+    ),
     // Knob at 0 = true silence (-Infinity dB), otherwise use normal transform
     masterVolume:
       params.masterVolume === 0
         ? -Infinity
-        : transformKnobValue(params.masterVolume, MASTER_VOLUME_RANGE),
+        : transformKnobValueLinear(params.masterVolume, MASTER_VOLUME_RANGE),
   };
 }
 

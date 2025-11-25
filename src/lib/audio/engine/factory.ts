@@ -3,6 +3,10 @@
  *
  * Creates real implementations of audio engine abstractions using
  * Tone.js and Zustand stores.
+ *
+ * This might be useful someday if we want to test the audio engine in isolation.
+ *
+ * TODO: Remove this at some point if we don't end up using it, it is a bit obtuse.
  */
 
 import { now, Sequence, Time } from "tone/build/esm/index";

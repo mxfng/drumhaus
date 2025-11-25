@@ -24,6 +24,10 @@ export const formatDisplayReleaseDuration = (value: number) => {
   return formatDisplayDuration(value);
 };
 
+export const formatDisplayFilter = (value: number) => {
+  return { value: value.toFixed(0), append: "Hz" };
+};
+
 export const formatDisplaySplitFilter = (value: number) => {
   const modeLabel = value <= KNOB_ROTATION_THRESHOLD_L ? "LP" : "HP";
 
@@ -32,10 +36,6 @@ export const formatDisplaySplitFilter = (value: number) => {
 
 export const formatDisplayPercentage = (value: number) => {
   return { value: `${(value * 100).toFixed(0)}`, append: "%" };
-};
-
-export const formatDisplayFilter = (value: number) => {
-  return { value: value.toFixed(0), append: "Hz" };
 };
 
 export const formatDisplayCompRatio = (value: number) => {

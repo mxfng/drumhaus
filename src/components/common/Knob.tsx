@@ -1,37 +1,32 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
-import { cn } from "@/lib/utils";
 import {
-  transformKnobValue,
-  transformKnobValueExponential,
-  transformKnobValueSplitFilter,
-} from "../../lib/knob/transform";
+  KNOB_OUTER_TICK_COUNT_DEFAULT,
+  KNOB_VALUE_DEFAULT,
+  KNOB_VALUE_MAX,
+  KNOB_VALUE_MIN,
+} from "@/lib/knob/constants";
+import { ParamMapping } from "@/lib/knob/types";
+import { cn } from "@/lib/utils";
 import { Label } from "../ui";
 
-type KnobScale = "linear" | "exp" | "split-filter";
-type KnobSize = "default" | "lg";
+export type KnobSize = "default" | "lg";
 
-const KNOB_VALUE_MAX = 100;
-const KNOB_VALUE_MIN = 0;
 const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-135, 135];
-const KNOB_VALUE_DEFAULT = 50;
-const KNOB_STEP_DEFAULT = 1;
-const KNOB_OUTER_TICK_COUNT_DEFAULT = 2;
-const KNOB_SCALE_DEFAULT = "linear";
 
 /**
- * Quantize a value to a step size.
+ * Quantize a value to a step size. This is intended to stay in the UI space.
  */
-const quantizeToStep = (value: number, step: number): number => {
+const getQuantizedValue = (value: number, step: number): number => {
   const normalizedStep = step > 0 ? step : 1;
   return Math.round(value / normalizedStep) * normalizedStep;
 };
 
 /**
- * Calculate the rotation of a knob tick.
+ * Calculate the rotation of a knob tick for display purposes.
  */
-const calculateKnobTickRotation = (
+const getKnobTickRotation = (
   tickIndex: number,
   tickCount: number,
   range: [number, number],
@@ -40,67 +35,51 @@ const calculateKnobTickRotation = (
   return (tickIndex / (tickCount - 1)) * rangeSize + range[0];
 };
 
-type KnobProps = {
+interface KnobProps {
+  /** Current knob position 0..100 */
   value: number;
   onValueChange: (newState: number) => void;
 
   /** Label to display below the knob */
   label: string;
-  /** Fixed unit to display while adjusting the knob - for dynamic units, see `formatDisplayFn` */
-  units?: string;
-  /** Callback function to format the display value when adjusting - transformation and scaling is handled internally */
-  formatDisplayFn?: (value: number) => { value: string; append?: string };
-  /** Linear, exponential, or split-filter */
-  scale?: KnobScale;
-  /** Value range for the knob (default is [0, 100) */
-  range?: [number, number];
-  /** Number of outer ticks to render - must be odd if halfway mark is desired */
-  outerTickCount?: number;
-  /** Step size for quantization */
-  step?: number; // if you want 8 options for a knob, step = 100 / 7
-  // TODO: add a `steps` param that says how many steps we want, this correlates better to ticks
-  steps?: number;
-  /** Default value for the knob */
-  defaultValue?: number;
-
+  /** Shown while moving */
+  activeLabel?: string;
   disabled?: boolean;
   /** Size of the knob - `"default"` is 90px, `"lg"` is 180px */
   size?: KnobSize;
-};
+  /** Number of outer ticks to render - must be odd if halfway mark is desired */
+  outerTickCount?: number;
+  /** Quantization size (e.g. 1, 5, 100/7) ... If you want 8 options then 100 / 7 */
+  step?: number; // if you want 8 options for a knob, step = 100 / 7
+  /** Default value for the knob */
+  defaultValue?: number;
+}
 
 /**
- * Knob component that uses vertical drag motion to adjust a `value` property via `onValueChange`.
+ * Knob component that uses vertical drag motion to adjust the `value` property via `onValueChange`.
  *
- * They have an default `range` of `[0, 100]` and can be quantized to an incrementing step size with `step`.
+ * For our audio engine, the value must be within the range of `[0, 100]`.
  *
- * They can transform their default range to a custom range using a given `scale`, such as `"linear"`, `"exp"`, or `"split-filter"`.
- *
- * They can provide user feedback for their current value in a human-readable format
- * using `range`, `units`, and an optional `formatDisplayFn`.
+ * Knobs are meant to be controlled via `ParamKnob` components, which provide a `mapping` that
+ * converts the knob value to a domain value and back.
  */
-export const Knob: React.FC<KnobProps> = ({
+const Knob: React.FC<KnobProps> = ({
   value,
   onValueChange,
-
   label,
-  units,
-  formatDisplayFn,
-
-  scale = KNOB_SCALE_DEFAULT,
-  range = [KNOB_VALUE_MIN, KNOB_VALUE_MAX],
-  outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
-  step = KNOB_STEP_DEFAULT,
-  defaultValue = KNOB_VALUE_DEFAULT,
-
+  activeLabel,
   disabled = false,
   size = "default",
+  outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
+  step: stepSize = KNOB_VALUE_DEFAULT,
+  defaultValue = KNOB_VALUE_DEFAULT,
 }) => {
   const containerClass = {
     default: "h-[90px]",
     lg: "h-[180px]",
   }[size];
 
-  const quantizedValue = quantizeToStep(value, step);
+  const quantizedValue = getQuantizedValue(value, stepSize);
 
   const initMoveYRef = useRef(0);
   const initValueRef = useRef(quantizedValue);
@@ -128,7 +107,7 @@ export const Knob: React.FC<KnobProps> = ({
     setIsMoving(true);
     // Explicitly check for `touches` for mobile interactions
     initMoveYRef.current = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-    initValueRef.current = quantizeToStep(value, step);
+    initValueRef.current = getQuantizedValue(value, stepSize);
   };
 
   /**
@@ -148,12 +127,12 @@ export const Knob: React.FC<KnobProps> = ({
         Math.max(KNOB_VALUE_MIN, initValueRef.current + deltaY),
       );
 
-      const q = quantizeToStep(newValue, step);
+      const q = getQuantizedValue(newValue, stepSize);
 
       moveY.set(q);
       onValueChange(q);
     },
-    [isMoving, initMoveYRef, step, onValueChange, moveY],
+    [isMoving, initMoveYRef, stepSize, onValueChange, moveY],
   );
 
   /**
@@ -173,48 +152,10 @@ export const Knob: React.FC<KnobProps> = ({
     onValueChange(defaultValue);
   };
 
-  /**
-   * A somewhat convoluted function to get the display label for the knob.
-   *
-   * TODO: Eventually we should display the value in a tooltip instead of a label.
-   */
   const getDisplayLabel = useCallback(
-    (value: number) => {
-      // If the knob is not moving, return the static label
-      if (!isMoving) return label;
-
-      // Otherwise, determine the appropriate transform function based on the scale
-      let onTransform;
-      switch (scale) {
-        case "exp":
-          onTransform = transformKnobValueExponential;
-          break;
-        case "split-filter":
-          onTransform = transformKnobValueSplitFilter;
-          break;
-        default:
-          onTransform = transformKnobValue;
-          break;
-      }
-
-      // Transform the value to the custom range
-      const transformedValue = onTransform(value, range);
-
-      // Format the value using the formatDisplayFn if provided
-      let append;
-      let formattedValue = transformedValue.toFixed(0).toString();
-      if (formatDisplayFn) {
-        const { value: fnValue, append: fnAppend } =
-          formatDisplayFn(transformedValue);
-        formattedValue = fnValue;
-        append = fnAppend;
-      }
-
-      return `${formattedValue}${units ? ` ${units}` : ""}${append ? ` ${append}` : ""}`;
-    },
-    [isMoving, label, scale, range, formatDisplayFn, units],
+    () => (isMoving && activeLabel ? activeLabel : label),
+    [isMoving, label, activeLabel],
   );
-
   /*
    * Handles knob updates for mouse and touch movement. Had to use a useEffect because
    *
@@ -242,20 +183,20 @@ export const Knob: React.FC<KnobProps> = ({
       window.removeEventListener("mouseup", handleMoveEnd);
       window.removeEventListener("touchend", handleMoveEnd);
     };
-  }, [isMoving, disabled, step, handleMouseMove, handleMoveEnd]);
+  }, [isMoving, disabled, stepSize, handleMouseMove, handleMoveEnd]);
 
   // Sync motion value when knob is updated externally (e.g. presets/kits)
   useEffect(() => {
     // Note: We use moveY.set() directly here instead of move() because this is a programmatic update, not an interactive drag operation
     if (isMoving) return;
 
-    const quantizedValue = quantizeToStep(value, step);
+    const quantizedValue = getQuantizedValue(value, stepSize);
 
     moveY.set(quantizedValue);
 
     initMoveYRef.current = 0;
     initValueRef.current = quantizedValue;
-  }, [isMoving, value, moveY, step]);
+  }, [isMoving, value, moveY, stepSize]);
 
   // Cleanup function to reset the moving state when the component unmounts
   useEffect(() => {
@@ -315,7 +256,7 @@ export const Knob: React.FC<KnobProps> = ({
             key={idx}
             className="absolute inset-0 origin-center"
             style={{
-              rotate: calculateKnobTickRotation(
+              rotate: getKnobTickRotation(
                 idx,
                 outerTickCount,
                 KNOB_ROTATION_RANGE_DEGREES,
@@ -329,8 +270,68 @@ export const Knob: React.FC<KnobProps> = ({
 
       {/* Label */}
       <div className="flex items-center justify-center">
-        <Label>{getDisplayLabel(quantizedValue)}</Label>
+        <Label>{getDisplayLabel()}</Label>
       </div>
     </div>
   );
 };
+
+interface ParamKnobProps<TValue> {
+  label: string;
+  /** Mapping to convert between knob value (sometimes called "step") and domain value */
+  mapping: ParamMapping<TValue>;
+  /** Quantization size (e.g. 1, 5, 100/7) ... If you want 8 options then 100 / 7 */
+  value: number;
+  /** Callback function to update the knob value in state */
+  onValueChange: (value: number) => void;
+  /** Number of outer ticks to render - must be odd if halfway mark is desired */
+  outerTickCount?: number;
+  /** Size of the knob - `"default"` is 90px, `"lg"` is 180px */
+  size?: KnobSize;
+}
+
+/**
+ * Utility component to wrap a ParamMapping with a Knob component.
+ */
+function ParamKnob<TValue>({
+  label,
+  mapping,
+  value: knobValue,
+  onValueChange: onKnobValueChange,
+  outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
+  size = "default",
+}: ParamKnobProps<TValue>) {
+  // Calculate quantization step for the knob
+  // e.g., stepCount=48 → quantStep≈2.08 (knob snaps to 48 positions)
+  const quantizationStep = 100 / mapping.knobValueCount;
+
+  const domainValue = mapping.knobToDomain(knobValue);
+  const activeLabelFmt = mapping.format(domainValue, knobValue);
+  const activeLabel = `${activeLabelFmt.value} ${activeLabelFmt.append ? activeLabelFmt.append : ""}`;
+
+  // Quantize to ensure stored value maps to clean parameter values
+  const handleKnobValueChange = (newKnobValue: number) => {
+    // Convert to domain value
+    const paramValue = mapping.knobToDomain(newKnobValue);
+    // Convert back to canonical knob value for this parameter
+    // Pass newKnobValue as hint for non-bijective mappings (e.g., split filter)
+    const canonicalKnobValue = mapping.domainToKnob(paramValue, newKnobValue);
+    // Store the canonical value to ensure consistency
+    onKnobValueChange(canonicalKnobValue);
+  };
+
+  return (
+    <Knob
+      value={knobValue}
+      onValueChange={handleKnobValueChange}
+      step={quantizationStep}
+      label={label}
+      activeLabel={activeLabel}
+      defaultValue={mapping.defaultKnobValue}
+      outerTickCount={outerTickCount}
+      size={size}
+    />
+  );
+}
+
+export default ParamKnob;

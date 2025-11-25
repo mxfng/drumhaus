@@ -1,24 +1,43 @@
 import {
+  INSTRUMENT_ATTACK_DEFAULT,
   INSTRUMENT_ATTACK_RANGE,
+  INSTRUMENT_PAN_DEFAULT,
   INSTRUMENT_PAN_RANGE,
   INSTRUMENT_PITCH_BASE_FREQUENCY,
   INSTRUMENT_PITCH_SEMITONE_RANGE,
+  INSTRUMENT_RELEASE_DEFAULT,
   INSTRUMENT_RELEASE_RANGE,
+  INSTRUMENT_VOLUME_DEFAULT,
   INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_DEFAULT_MIX,
+  MASTER_COMP_DEFAULT_RATIO,
+  MASTER_COMP_DEFAULT_THRESHOLD,
   MASTER_COMP_MIX_RANGE,
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_FILTER_RANGE,
+  MASTER_HIGH_PASS_DEFAULT,
+  MASTER_LOW_PASS_DEFAULT,
+  MASTER_PHASER_DEFAULT,
   MASTER_PHASER_WET_RANGE,
   MASTER_REVERB_DECAY_RANGE,
+  MASTER_REVERB_DEFAULT,
   MASTER_REVERB_WET_RANGE,
+  MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
 } from "@/lib/audio/engine/constants";
 import {
+  inverseTransformKnobValue,
+  inverseTransformKnobValueExponential,
+  inverseTransformKnobValuePitch,
+  inverseTransformKnobValueSplitFilter,
   KNOB_ROTATION_THRESHOLD_L,
+  transformKnobValueExponential,
+  transformKnobValueLinear,
+  transformKnobValuePitch,
   transformKnobValueSplitFilter,
 } from "@/lib/knob/transform";
-import { KNOB_STEP_DEFAULT, KNOB_STEP_MAX } from "./constants";
+import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
   formatDisplayAttackDuration,
   formatDisplayCompRatio,
@@ -31,102 +50,53 @@ import {
 } from "./format";
 import { FormattedValue, ParamMapping } from "./types";
 
-// --- Utilities ---
-
-/**
- * Clamp a value to [0, 100] range
- */
-const clamp = (value: number): number => Math.min(100, Math.max(0, value));
-
-/**
- * Normalize a knob value (0-100) to [0, 1]
- */
-const normalize = (knobValue: number): number => clamp(knobValue) / 100;
-
-/**
- * Denormalize a [0, 1] value to knob value (0-100)
- */
-const denormalize = (t: number): number =>
-  Math.min(100, Math.max(0, Math.round(t * 100)));
-
 // --- Core mapping factories ---
+
+interface MappingOptions {
+  knobValueCount?: number;
+  defaultKnobValue?: number;
+}
 
 /**
  * Creates a linear mapping from knob values (0-100) to a parameter range.
+ * Uses transformKnobValue for the forward direction to ensure consistency with audio engine.
  *
  * @param range - [min, max] range for the parameter
  * @param format - Display formatting function
- * @param stepCount - Number of discrete UI positions (default: 100)
- * @param defaultStep - Default knob value (default: 50)
+ * @param options - Optional stepCount and defaultStep overrides
  */
 const makeLinearMapping = (
   range: [number, number],
   format: (value: number) => FormattedValue,
-  stepCount = KNOB_STEP_MAX,
-  defaultStep = KNOB_STEP_DEFAULT,
-): ParamMapping<number> => {
-  const [min, max] = range;
-
-  return {
-    stepCount,
-    defaultStep,
-
-    stepToValue: (knobValue) => {
-      const t = normalize(knobValue);
-      return min + t * (max - min);
-    },
-
-    valueToStep: (value) => {
-      if (value <= min) return 0;
-      if (value >= max) return 100;
-      const t = (value - min) / (max - min);
-      return denormalize(t);
-    },
-
-    format,
-  };
-};
+  options: MappingOptions = {},
+): ParamMapping<number> => ({
+  knobValueCount: options.knobValueCount ?? KNOB_VALUE_MAX,
+  defaultKnobValue: options.defaultKnobValue ?? KNOB_VALUE_DEFAULT,
+  knobToDomain: (knobValue) => transformKnobValueLinear(knobValue, range),
+  domainToKnob: (value) => inverseTransformKnobValue(value, range),
+  format,
+});
 
 /**
  * Creates an exponential mapping for parameters that need non-linear response.
+ * Uses transformKnobValueExponential to ensure consistency with audio engine.
  * Useful for time-based parameters (attack, release) and frequency.
  *
  * @param range - [min, max] range for the parameter
  * @param format - Display formatting function
- * @param stepCount - Number of discrete UI positions (default: 100)
- * @param defaultStep - Default knob value (default: 50)
- * @param curvePower - Exponential curve power (default: 2)
+ * @param options - Optional stepCount and defaultStep overrides
  */
 const makeExponentialMapping = (
   range: [number, number],
   format: (value: number) => FormattedValue,
-  stepCount = KNOB_STEP_MAX,
-  defaultStep = KNOB_STEP_DEFAULT,
-  curvePower = 2,
-): ParamMapping<number> => {
-  const [min, max] = range;
-
-  return {
-    stepCount,
-    defaultStep,
-
-    stepToValue: (knobValue) => {
-      const t = normalize(knobValue);
-      const curved = Math.pow(t, curvePower);
-      return min + curved * (max - min);
-    },
-
-    valueToStep: (value) => {
-      if (value <= min) return 0;
-      if (value >= max) return 100;
-      const normalized = (value - min) / (max - min);
-      const t = Math.pow(normalized, 1 / curvePower);
-      return denormalize(t);
-    },
-
-    format,
-  };
-};
+  options: MappingOptions = {},
+): ParamMapping<number> => ({
+  knobToDomain: (knobValue) => transformKnobValueExponential(knobValue, range),
+  domainToKnob: (value) => inverseTransformKnobValueExponential(value, range),
+  format,
+  defaultKnobValue: options.defaultKnobValue ?? KNOB_VALUE_DEFAULT,
+  knobValueCount: options.knobValueCount ?? KNOB_VALUE_MAX,
+});
 
 // --- Mapping decorators ---
 
@@ -145,14 +115,14 @@ const withIntegerQuantization = (
 ): ParamMapping<number> => ({
   ...baseMapping,
 
-  stepToValue(knobValue) {
-    const rawValue = baseMapping.stepToValue(knobValue);
+  knobToDomain(knobValue) {
+    const rawValue = baseMapping.knobToDomain(knobValue);
     return Math.round(rawValue);
   },
 
-  valueToStep(value) {
+  domainToKnob(value) {
     const rounded = Math.round(value);
-    return baseMapping.valueToStep(rounded);
+    return baseMapping.domainToKnob(rounded);
   },
 });
 
@@ -170,14 +140,14 @@ const withInfinityAtZero = (
 ): ParamMapping<number> => ({
   ...baseMapping,
 
-  stepToValue(knobValue) {
+  knobToDomain(knobValue) {
     if (knobValue === 0) return -Infinity;
-    return baseMapping.stepToValue(knobValue);
+    return baseMapping.knobToDomain(knobValue);
   },
 
-  valueToStep(value) {
+  domainToKnob(value) {
     if (value === -Infinity) return 0;
-    return baseMapping.valueToStep(value);
+    return baseMapping.domainToKnob(value);
   },
 });
 
@@ -185,41 +155,25 @@ const withInfinityAtZero = (
 
 /**
  * Pitch mapping with semitone quantization.
- * Maps knob values to frequencies, quantized to whole semitones.
+ * Uses transformKnobValuePitch to ensure consistency with audio engine.
  * Center (50) = no pitch change, ±24 semitones range.
  */
 export const pitchMapping: ParamMapping<number> = {
-  stepCount: 48, // 48 discrete positions for fine semitone control
-  defaultStep: 50, // Center = base frequency
+  knobValueCount: 48, // 48 discrete positions for fine semitone control
+  defaultKnobValue: 50, // Center = base frequency
 
-  stepToValue(knobValue) {
-    const clamped = clamp(knobValue);
-    // Map to [-1, 1] range centered at 50
-    const normalized = (clamped - 50) / 50;
-    // Convert to semitones and round to whole numbers
-    const semitoneOffsetRaw = normalized * INSTRUMENT_PITCH_SEMITONE_RANGE;
-    const semitoneOffset = Math.round(semitoneOffsetRaw);
-    // Convert semitones to frequency ratio
-    const ratio = Math.pow(2, semitoneOffset / 12);
-    return INSTRUMENT_PITCH_BASE_FREQUENCY * ratio;
+  knobToDomain: (knobValue) => {
+    const freq = transformKnobValuePitch(knobValue);
+    // Round to whole semitones for clean musical intervals
+    const ratio = freq / INSTRUMENT_PITCH_BASE_FREQUENCY;
+    const semitoneOffset = Math.round(Math.log2(ratio) * 12);
+    const cleanRatio = Math.pow(2, semitoneOffset / 12);
+    return INSTRUMENT_PITCH_BASE_FREQUENCY * cleanRatio;
   },
 
-  valueToStep(frequency) {
-    // Convert frequency back to semitone offset
-    const ratio = frequency / INSTRUMENT_PITCH_BASE_FREQUENCY;
-    const semitoneOffset = Math.log2(ratio) * 12;
-    // Clamp to valid semitone range
-    const clamped = Math.max(
-      -INSTRUMENT_PITCH_SEMITONE_RANGE,
-      Math.min(INSTRUMENT_PITCH_SEMITONE_RANGE, semitoneOffset),
-    );
-    // Map back to knob value [0, 100]
-    const normalized = clamped / INSTRUMENT_PITCH_SEMITONE_RANGE;
-    const knobValue = normalized * 50 + 50;
-    return Math.min(100, Math.max(0, Math.round(knobValue)));
-  },
+  domainToKnob: (frequency) => inverseTransformKnobValuePitch(frequency),
 
-  format(_frequency, knobValue) {
+  format: (_frequency, knobValue) => {
     // Calculate display semitone offset
     const normalized = (knobValue - 50) / 50;
     const semitoneOffsetRaw = normalized * INSTRUMENT_PITCH_SEMITONE_RANGE;
@@ -230,29 +184,33 @@ export const pitchMapping: ParamMapping<number> = {
 
 /**
  * Split filter mapping with mode switching.
- * Left half (0-49) = Low-pass filter
- * Right half (50-100) = High-pass filter
+ * Uses transformKnobValueSplitFilter to ensure consistency with audio engine.
+ * Left half (0-49) = Low-pass filter, Right half (50-100) = High-pass filter
  */
 export const splitFilterMapping: ParamMapping<number> = {
-  stepCount: KNOB_STEP_MAX,
-  defaultStep: KNOB_STEP_DEFAULT,
+  knobValueCount: KNOB_VALUE_MAX,
+  defaultKnobValue: KNOB_VALUE_DEFAULT,
 
-  stepToValue: (knobValue) =>
+  knobToDomain: (knobValue) =>
     transformKnobValueSplitFilter(
       knobValue,
       MASTER_FILTER_RANGE,
       MASTER_FILTER_RANGE,
     ),
 
-  valueToStep: () => {
-    throw new Error("valueToStep not implemented for split filter");
-  },
+  domainToKnob: (freq, currentKnobValue) =>
+    inverseTransformKnobValueSplitFilter(
+      freq,
+      currentKnobValue,
+      MASTER_FILTER_RANGE,
+    ),
 
   format: (freq, knobValue) => {
     const modeLabel = knobValue <= KNOB_ROTATION_THRESHOLD_L ? "LP" : "HP";
-    const displayValue =
-      freq < 1000 ? freq.toFixed(0) : (freq / 1000).toFixed(2);
-    return { value: displayValue, append: modeLabel };
+    if (freq < 1000) {
+      return { value: freq.toFixed(0), append: `Hz ${modeLabel}` };
+    }
+    return { value: (freq / 1000).toFixed(1), append: `kHz ${modeLabel}` };
   },
 };
 
@@ -261,32 +219,43 @@ export const splitFilterMapping: ParamMapping<number> = {
 /**
  * Attack envelope time (exponential for natural feel)
  */
-export const attackMapping = makeExponentialMapping(
+export const instrumentAttackMapping = makeExponentialMapping(
   INSTRUMENT_ATTACK_RANGE,
   formatDisplayAttackDuration,
+  {
+    defaultKnobValue: INSTRUMENT_ATTACK_DEFAULT,
+  },
 );
 
 /**
  * Release envelope time (exponential for natural feel)
  */
-export const releaseMapping = makeExponentialMapping(
+export const instrumentReleaseMapping = makeExponentialMapping(
   INSTRUMENT_RELEASE_RANGE,
   formatDisplayReleaseDuration,
+  {
+    defaultKnobValue: INSTRUMENT_RELEASE_DEFAULT,
+  },
 );
 
 /**
  * Instrument volume with -∞ at position 0
  */
 export const instrumentVolumeMapping = withInfinityAtZero(
-  makeLinearMapping(INSTRUMENT_VOLUME_RANGE, formatDisplayVolume, 100, 92),
+  makeLinearMapping(INSTRUMENT_VOLUME_RANGE, formatDisplayVolume, {
+    defaultKnobValue: INSTRUMENT_VOLUME_DEFAULT,
+  }),
 );
 
 /**
  * Stereo panning (0% = left, 50% = center, 100% = right)
  */
-export const panMapping = makeLinearMapping(
+export const instrumentPanMapping = makeLinearMapping(
   INSTRUMENT_PAN_RANGE,
   formatDisplayPercentage,
+  {
+    defaultKnobValue: INSTRUMENT_PAN_DEFAULT,
+  },
 );
 
 // --- Master / FX parameter mappings ---
@@ -295,7 +264,9 @@ export const panMapping = makeLinearMapping(
  * Master output volume with -∞ at position 0
  */
 export const masterVolumeMapping = withInfinityAtZero(
-  makeLinearMapping(MASTER_VOLUME_RANGE, formatDisplayVolume, 100, 92),
+  makeLinearMapping(MASTER_VOLUME_RANGE, formatDisplayVolume, {
+    defaultKnobValue: MASTER_VOLUME_DEFAULT,
+  }),
 );
 
 /**
@@ -304,6 +275,9 @@ export const masterVolumeMapping = withInfinityAtZero(
 export const lowPassFilterMapping = makeExponentialMapping(
   MASTER_FILTER_RANGE,
   formatDisplayFilter,
+  {
+    defaultKnobValue: MASTER_LOW_PASS_DEFAULT,
+  },
 );
 
 /**
@@ -312,6 +286,9 @@ export const lowPassFilterMapping = makeExponentialMapping(
 export const highPassFilterMapping = makeExponentialMapping(
   MASTER_FILTER_RANGE,
   formatDisplayFilter,
+  {
+    defaultKnobValue: MASTER_HIGH_PASS_DEFAULT,
+  },
 );
 
 /**
@@ -320,6 +297,9 @@ export const highPassFilterMapping = makeExponentialMapping(
 export const phaserWetMapping = makeLinearMapping(
   MASTER_PHASER_WET_RANGE,
   formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_PHASER_DEFAULT,
+  },
 );
 
 /**
@@ -328,6 +308,9 @@ export const phaserWetMapping = makeLinearMapping(
 export const reverbWetMapping = makeLinearMapping(
   MASTER_REVERB_WET_RANGE,
   formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_REVERB_DEFAULT,
+  },
 );
 
 /**
@@ -344,13 +327,19 @@ export const reverbDecayMapping = makeLinearMapping(
 export const compThresholdMapping = makeLinearMapping(
   MASTER_COMP_THRESHOLD_RANGE,
   formatDisplayVolumeMaster,
+  {
+    defaultKnobValue: MASTER_COMP_DEFAULT_THRESHOLD,
+  },
 );
 
 /**
  * Compressor ratio with integer quantization (1:1, 2:1, ... 8:1)
  */
 export const compRatioMapping = withIntegerQuantization(
-  makeLinearMapping(MASTER_COMP_RATIO_RANGE, formatDisplayCompRatio, 8),
+  makeLinearMapping(MASTER_COMP_RATIO_RANGE, formatDisplayCompRatio, {
+    knobValueCount: 7,
+    defaultKnobValue: MASTER_COMP_DEFAULT_RATIO,
+  }),
 );
 
 /**
@@ -359,4 +348,7 @@ export const compRatioMapping = withIntegerQuantization(
 export const compMixMapping = makeLinearMapping(
   MASTER_COMP_MIX_RANGE,
   formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_COMP_DEFAULT_MIX,
+  },
 );

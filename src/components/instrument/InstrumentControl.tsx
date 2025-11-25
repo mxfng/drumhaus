@@ -9,10 +9,10 @@ import { INSTRUMENT_PAN_RANGE } from "@/lib/audio/engine/constants";
 import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import {
-  attackMapping,
+  instrumentAttackMapping,
+  instrumentReleaseMapping,
   instrumentVolumeMapping,
   pitchMapping,
-  releaseMapping,
   splitFilterMapping,
 } from "@/lib/knob/mapping";
 import { cn } from "@/lib/utils";
@@ -20,9 +20,9 @@ import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { HardwareSlider } from "../common/HardwareSlider";
+import ParamKnob from "../common/Knob";
 import { PixelatedFrowny } from "../common/PixelatedFrowny";
 import { PixelatedSpinner } from "../common/PixelatedSpinner";
-import ParamKnob from "../knob/ParamKnob";
 import Waveform from "./Waveform";
 
 type InstrumentControlParams = {
@@ -85,9 +85,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const { duration: sampleDuration } = useSampleDuration(samplePath);
+
   const [waveformError, setWaveformError] = useState<Error | null>(null);
   const [trackedSamplePath, setTrackedSamplePath] = useState(samplePath);
+
+  const { duration: sampleDuration } = useSampleDuration(samplePath);
 
   // Reset waveform error when sample path changes
   if (samplePath !== trackedSamplePath) {
@@ -130,6 +132,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     () => toggleSoloStore(index),
     [index, toggleSoloStore],
   );
+
+  const playSample = () => {
+    if (!runtime) return;
+    playInstrumentSample(runtime, pitch, release);
+  };
 
   useEffect(() => {
     if (!runtime) return;
@@ -176,11 +183,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       window.removeEventListener("keydown", soloOnKeyInput);
     };
   }, [instrumentIndex, index, toggleSolo, isAnyDialogOpen]);
-
-  const playSample = () => {
-    if (!runtime) return;
-    playInstrumentSample(runtime, pitch, release);
-  };
 
   return (
     <div
@@ -235,27 +237,27 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         {/* Top knobs - 2x2 grid */}
         <div className="grid grid-cols-2">
           <ParamKnob
-            step={attack}
-            onStepChange={setAttack}
+            value={attack}
+            onValueChange={setAttack}
             label="ATTACK"
-            mapping={attackMapping}
+            mapping={instrumentAttackMapping}
           />
           <ParamKnob
-            step={filter}
-            onStepChange={setFilter}
+            value={filter}
+            onValueChange={setFilter}
             label="FILTER"
             mapping={splitFilterMapping}
             outerTickCount={3}
           />
           <ParamKnob
-            step={release}
-            onStepChange={setRelease}
+            value={release}
+            onValueChange={setRelease}
             label="RELEASE"
-            mapping={releaseMapping}
+            mapping={instrumentReleaseMapping}
           />
           <ParamKnob
-            step={pitch}
-            onStepChange={setPitch}
+            value={pitch}
+            onValueChange={setPitch}
             label="PITCH"
             mapping={pitchMapping}
             outerTickCount={25}
@@ -315,8 +317,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
           {/* Right: Volume */}
           <ParamKnob
-            step={volume}
-            onStepChange={setVolume}
+            value={volume}
+            onValueChange={setVolume}
             label="LEVEL"
             mapping={instrumentVolumeMapping}
             outerTickCount={13}

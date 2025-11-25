@@ -1,4 +1,4 @@
-import ParamKnob from "@/components/knob/ParamKnob";
+import ParamKnob from "@/components/common/Knob";
 import {
   highPassFilterMapping,
   lowPassFilterMapping,
@@ -8,13 +8,11 @@ import {
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 
 export const MasterFX: React.FC = () => {
-  // Get state from Master FX Store
   const lowPass = useMasterChainStore((state) => state.lowPass);
   const highPass = useMasterChainStore((state) => state.highPass);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
-  // Get actions from store
   const setLowPass = useMasterChainStore((state) => state.setLowPass);
   const setHighPass = useMasterChainStore((state) => state.setHighPass);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
@@ -29,26 +27,26 @@ export const MasterFX: React.FC = () => {
         <ParamKnob
           label="LPF"
           mapping={lowPassFilterMapping}
-          step={lowPass}
-          onStepChange={setLowPass}
+          value={lowPass}
+          onValueChange={setLowPass}
         />
         <ParamKnob
           label="REVERB"
           mapping={reverbWetMapping}
-          step={reverb}
-          onStepChange={setReverb}
+          value={reverb}
+          onValueChange={setReverb}
         />
         <ParamKnob
           label="HPF"
           mapping={highPassFilterMapping}
-          step={highPass}
-          onStepChange={setHighPass}
+          value={highPass}
+          onValueChange={setHighPass}
         />
         <ParamKnob
           label="PHASER"
           mapping={phaserWetMapping}
-          step={phaser}
-          onStepChange={setPhaser}
+          value={phaser}
+          onValueChange={setPhaser}
           outerTickCount={5}
         />
       </div>

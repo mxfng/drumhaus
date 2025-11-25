@@ -1,4 +1,4 @@
-import ParamKnob from "@/components/knob/ParamKnob";
+import ParamKnob from "@/components/common/Knob";
 import { masterVolumeMapping } from "@/lib/knob/mapping";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 
@@ -8,8 +8,8 @@ export const MasterVolume: React.FC = () => {
 
   return (
     <ParamKnob
-      step={masterVolume}
-      onStepChange={setMasterVolume}
+      value={masterVolume}
+      onValueChange={setMasterVolume}
       label="MASTER LEVEL"
       mapping={masterVolumeMapping}
       outerTickCount={13}
