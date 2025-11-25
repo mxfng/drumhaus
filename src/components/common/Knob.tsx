@@ -224,7 +224,12 @@ const Knob: React.FC<KnobProps> = ({
           }}
         >
           {/* Tick Mark */}
-          <div className="bg-shadow-60 absolute left-1/2 h-1/5 w-[calc(1/40*100%)] -translate-x-1/2" />
+          <div
+            className={cn(
+              "bg-shadow-60 absolute left-1/2 w-[calc(1/40*100%)] -translate-x-1/2",
+              size === "lg" ? "h-1/5" : "h-[12%]",
+            )}
+          />
         </motion.div>
 
         {/* Knob Base (Fixed and motionless for shadow effect) */}
@@ -234,11 +239,19 @@ const Knob: React.FC<KnobProps> = ({
         >
           {/* Raised Knob Edge */}
           <div
-            className="border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full shadow-(--shadow-neu-tall-raised)"
+            className={cn(
+              "border-shadow-60 relative flex aspect-square items-center justify-center rounded-full shadow-(--shadow-neu-tall-raised)",
+              size === "lg" ? "h-3/5" : "h-full",
+            )}
             style={{ background: "var(--knob-gradient)" }}
           >
             {/* Raised Knob Inner Circle */}
-            <div className="bg-surface-groove raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-(--knob-shadow-center)" />
+            <div
+              className={cn(
+                "bg-surface-groove raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-(--knob-shadow-center)",
+                size === "default" && "opacity-0",
+              )}
+            />
           </div>
         </div>
 
