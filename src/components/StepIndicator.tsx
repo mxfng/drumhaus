@@ -40,14 +40,22 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
       if (indicatorRef.current) {
         // Update className
         const newClassName = cn(
-          "mb-4 h-1 w-full",
+          "mb-4 h-1 w-full rounded-full transition-all duration-75",
           indicatorIsOn ? "bg-primary" : "bg-foreground",
         );
         indicatorRef.current.className = newClassName;
 
-        // Update opacity
+        // Update opacity and LED glow effect
         const opacity = indicatorIsOn ? 1 : isAccentBeat ? 0.6 : 0.2;
         indicatorRef.current.style.opacity = String(opacity);
+
+        // Add LED backlight glow effect when active
+        if (indicatorIsOn) {
+          indicatorRef.current.style.boxShadow =
+            "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))";
+        } else {
+          indicatorRef.current.style.boxShadow = "none";
+        }
       }
 
       animationFrameId = requestAnimationFrame(updateIndicator);
@@ -63,7 +71,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   return (
     <div
       ref={indicatorRef}
-      className="bg-foreground mb-4 h-1 w-full"
+      className="bg-foreground mb-4 h-1 w-full rounded-full transition-all duration-75"
       style={{ opacity: 0.2 }}
     />
   );
