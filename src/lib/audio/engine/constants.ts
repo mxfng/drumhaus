@@ -27,11 +27,11 @@ export const INSTRUMENT_PAN_DEFAULT = 0;
 export const INSTRUMENT_ATTACK_RANGE: Range = [0, 0.1];
 export const INSTRUMENT_ATTACK_DEFAULT = 0;
 export const INSTRUMENT_RELEASE_RANGE: Range = [0.005, 5];
-export const INSTRUMENT_RELEASE_DEFAULT = 0;
+export const INSTRUMENT_RELEASE_DEFAULT = 100;
 
 // Filter
 export const INSTRUMENT_FILTER_RANGE: Range = [0, 15000]; // Hz
-export const INSTRUMENT_FILTER_DEFAULT = 0;
+export const INSTRUMENT_FILTER_DEFAULT = 50;
 
 // Solo / mute
 export const INSTRUMENT_SOLO_DEFAULT = false;
