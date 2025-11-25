@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { StepIndicator } from "@/components/StepIndicator";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { clampVelocity } from "@/lib/pattern/helpers";
 import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
@@ -58,11 +59,8 @@ export const Sequencer: React.FC = () => {
     const inset = 2;
     const adjustedX = mouseX - inset;
     const adjustedWidth = divWidth - inset * 2;
-    const normalizedVelocity = Math.max(
-      Math.min(adjustedX / adjustedWidth, 1),
-      0,
-    );
-    setVelocity(voiceIndex, variation, stepIndex, normalizedVelocity);
+    const velocity = clampVelocity(adjustedX / adjustedWidth);
+    setVelocity(voiceIndex, variation, stepIndex, velocity);
   };
 
   const handleVelocityMouseDown = (

@@ -5,6 +5,7 @@ import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
 } from "@/lib/audio/engine";
+import { clamp, normalize } from "@/lib/utils";
 
 const NUM_BARS = 128; // how many chunky bars
 const PIXEL_SIZE = 2; // quantized height step (px)
@@ -53,7 +54,7 @@ export function FrequencyAnalyzer() {
       // Helper to map bar index to frequency bin using logarithmic scale
       // This gives more visual space to lower frequencies
       const logScale = (barIdx: number) => {
-        const normalized = barIdx / NUM_BARS; // 0 to 1
+        const normalized = normalize(barIdx, 0, NUM_BARS);
         // Logarithmic mapping: more bins for low frequencies
         const logPos =
           (Math.pow(LOG_SCALE_BASE, normalized) - 1) / (LOG_SCALE_BASE - 1);
@@ -81,7 +82,7 @@ export function FrequencyAnalyzer() {
         const avg = count > 0 ? sum / count : 0;
 
         // Normalize dB-ish [-100, 0] → [0, 1]
-        const normalized = Math.max(0, Math.min(1, (avg + 100) / 100));
+        const normalized = clamp(normalize(avg, -100, 0), 0, 1);
 
         // Vertical zoom: treat bottom ACTIVE_FRACTION_Y as the whole visible range
         const boosted = Math.min(1, normalized / ACTIVE_FRACTION_Y);

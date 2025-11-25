@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { clamp } from "@/lib/utils";
+
 const DESIGN_WIDTH = 1538;
 const DESIGN_HEIGHT = 1100;
 const SCALE_PADDING = 32;
@@ -34,7 +36,7 @@ export const useLayoutScale = (): LayoutScaleProps => {
         nextScale = 1;
       }
 
-      nextScale = Math.max(MIN_SCALE, Math.min(nextScale, MAX_SCALE));
+      nextScale = clamp(nextScale, MIN_SCALE, MAX_SCALE);
 
       setScale(nextScale);
     };

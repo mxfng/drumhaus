@@ -5,6 +5,7 @@ import {
   TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_RANGE,
 } from "@/lib/audio/engine/constants";
+import { clamp } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { HardwareSlider } from "../common/HardwareSlider";
 import { Input, Label } from "../ui";
@@ -38,8 +39,7 @@ export const TransportControl: React.FC = () => {
       setBpmInputValue(bpm.toString());
     } else {
       const numericValue = parseInt(bpmInputValue, 10);
-      // Clamp to range
-      const clampedValue = Math.min(Math.max(numericValue, MIN_BPM), MAX_BPM);
+      const clampedValue = clamp(numericValue, MIN_BPM, MAX_BPM);
       setBpm(clampedValue);
       setBpmInputValue(clampedValue.toString());
     }
@@ -61,10 +61,7 @@ export const TransportControl: React.FC = () => {
     const updateBpm = () => {
       const currentValue =
         bpmInputValue === "" ? bpm : parseInt(bpmInputValue, 10);
-      const newValue = Math.min(
-        Math.max(currentValue + modifier, MIN_BPM),
-        MAX_BPM,
-      );
+      const newValue = clamp(currentValue + modifier, MIN_BPM, MAX_BPM);
       setBpm(newValue);
       setBpmInputValue(newValue.toString());
     };

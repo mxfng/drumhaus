@@ -8,7 +8,7 @@ import {
   KNOB_VALUE_MIN,
 } from "@/lib/knob/constants";
 import { ParamMapping } from "@/lib/knob/types";
-import { cn, getQuantizedValue } from "@/lib/utils";
+import { clamp, cn, quantize } from "@/lib/utils";
 import { Label } from "../ui";
 
 export type KnobSize = "default" | "lg";
@@ -71,7 +71,7 @@ const Knob: React.FC<KnobProps> = ({
     lg: "h-[180px]",
   }[size];
 
-  const quantizedValue = getQuantizedValue(value, stepSize);
+  const quantizedValue = quantize(value, stepSize);
 
   const initMoveYRef = useRef(0);
   const initValueRef = useRef(quantizedValue);
@@ -99,7 +99,7 @@ const Knob: React.FC<KnobProps> = ({
     setIsMoving(true);
     // Explicitly check for `touches` for mobile interactions
     initMoveYRef.current = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-    initValueRef.current = getQuantizedValue(value, stepSize);
+    initValueRef.current = quantize(value, stepSize);
   };
 
   /**
@@ -114,12 +114,13 @@ const Knob: React.FC<KnobProps> = ({
       const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
       const deltaY = initMoveYRef.current - clientY;
 
-      const newValue = Math.min(
+      const newValue = clamp(
+        initValueRef.current + deltaY,
+        KNOB_VALUE_MIN,
         KNOB_VALUE_MAX,
-        Math.max(KNOB_VALUE_MIN, initValueRef.current + deltaY),
       );
 
-      const q = getQuantizedValue(newValue, stepSize);
+      const q = quantize(newValue, stepSize);
 
       moveY.set(q);
       onValueChange(q);
@@ -182,7 +183,7 @@ const Knob: React.FC<KnobProps> = ({
     // Note: We use moveY.set() directly here instead of move() because this is a programmatic update, not an interactive drag operation
     if (isMoving) return;
 
-    const quantizedValue = getQuantizedValue(value, stepSize);
+    const quantizedValue = quantize(value, stepSize);
 
     moveY.set(quantizedValue);
 
