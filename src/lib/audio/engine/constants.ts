@@ -59,7 +59,7 @@ export const MASTER_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 // Transport
 // ============================================================================
 
-export const TRANSPORT_BPM_RANGE: Range = [1, 300];
+export const TRANSPORT_BPM_RANGE: Range = [40, 300];
 
 // UI swing control (0–100) mapped to Tone.Transport swing (0–0.5)
 export const TRANSPORT_SWING_RANGE: Range = [0, 100];

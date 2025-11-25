@@ -19,37 +19,60 @@ export const TransportControl: React.FC = () => {
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
   const setSwing = useTransportStore((state) => state.setSwing);
-  const [bpmInputValue, setBpmInputValue] = useState<number>(bpm);
+  const [bpmInputValue, setBpmInputValue] = useState<string>(bpm.toString());
   const inputRef = useRef<HTMLInputElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleBpmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
 
-    if (/^\d+$/.test(value)) {
-      const numericValue = parseInt(value, 10);
-      if (numericValue >= 0 && numericValue <= MAX_BPM) {
-        setBpmInputValue(numericValue);
-      }
+    // Allow empty or numeric values
+    if (value === "" || /^\d+$/.test(value)) {
+      setBpmInputValue(value);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (bpmInputValue === "") {
+      // If empty, revert to current BPM
+      setBpmInputValue(bpm.toString());
+    } else {
+      const numericValue = parseInt(bpmInputValue, 10);
+      // Clamp to range
+      const clampedValue = Math.min(Math.max(numericValue, MIN_BPM), MAX_BPM);
+      setBpm(clampedValue);
+      setBpmInputValue(clampedValue.toString());
     }
   };
 
   // Handle the form submission logic with inputValue when the input loses focus
   const handleBlur = () => {
-    setBpm(bpmInputValue);
+    handleSubmit();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSubmit();
+      inputRef.current?.blur();
+    }
   };
 
   const handleMouseDown = (modifier: number) => {
-    // Immediate update
-    setBpmInputValue((prev) =>
-      Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
-    );
-    // Start interval for hold
-    intervalRef.current = setInterval(() => {
-      setBpmInputValue((prev) =>
-        Math.min(Math.max(prev + modifier, MIN_BPM), MAX_BPM),
+    const updateBpm = () => {
+      const currentValue =
+        bpmInputValue === "" ? bpm : parseInt(bpmInputValue, 10);
+      const newValue = Math.min(
+        Math.max(currentValue + modifier, MIN_BPM),
+        MAX_BPM,
       );
-    }, HOLD_INTERVAL);
+      setBpm(newValue);
+      setBpmInputValue(newValue.toString());
+    };
+
+    // Immediate update
+    updateBpm();
+    // Start interval for hold
+    intervalRef.current = setInterval(updateBpm, HOLD_INTERVAL);
   };
 
   const handleMouseUp = () => {
@@ -69,11 +92,7 @@ export const TransportControl: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    setBpm(bpmInputValue);
-  }, [bpmInputValue, setBpm]);
-
-  useEffect(() => {
-    setBpmInputValue(bpm);
+    setBpmInputValue(bpm.toString());
   }, [bpm]);
 
   return (
@@ -86,6 +105,7 @@ export const TransportControl: React.FC = () => {
             value={bpmInputValue}
             onChange={handleBpmChange}
             onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
           />
           <div className="text-foreground-muted absolute right-0 flex h-full w-6 flex-col text-xs">
