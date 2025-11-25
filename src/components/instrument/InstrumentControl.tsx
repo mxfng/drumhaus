@@ -262,11 +262,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             mapping={pitchMapping}
             outerTickCount={25}
           />
-        </div>
-
-        {/* Bottom controls */}
-        <div className="grid grid-cols-2">
-          {/* Left: Pan + Mute/Solo */}
           <div className="flex flex-col items-center justify-between pt-4">
             <HardwareSlider
               size={85}
@@ -314,7 +309,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
               </Tooltip>
             </div>
           </div>
-
           {/* Right: Volume */}
           <ParamKnob
             value={volume}

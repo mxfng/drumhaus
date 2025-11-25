@@ -1,5 +1,4 @@
 import ParamKnob from "@/components/common/Knob";
-import { Label } from "@/components/ui";
 import {
   compMixMapping,
   compRatioMapping,
@@ -19,39 +18,31 @@ export const MasterCompressor: React.FC = () => {
 
   return (
     <div className="relative -mr-2 flex items-center">
-      <Label className="text-foreground-muted absolute -left-8 w-[65px] -rotate-90">
-        BUS COMP
-      </Label>
-      <div className="flex pl-4">
+      <div className="grid grid-cols-2">
         {/* Threshold and Ratio */}
-        <div className="flex flex-col gap-2">
-          <ParamKnob
-            value={threshold}
-            onValueChange={setThreshold}
-            label="THRESHOLD"
-            mapping={compThresholdMapping}
-          />
-          <ParamKnob
-            value={ratio}
-            onValueChange={setRatio}
-            label="RATIO"
-            mapping={compRatioMapping}
-            outerTickCount={8}
-          />
-        </div>
 
+        <ParamKnob
+          value={threshold}
+          onValueChange={setThreshold}
+          label="THRESHOLD"
+          mapping={compThresholdMapping}
+        />
         {/* Gain Reduction Meter and Mix */}
-        <div className="flex -translate-x-2 flex-col gap-2">
-          <div className="flex-1 translate-y-3">
-            <GainReductionMeter />
-          </div>
-          <ParamKnob
-            value={mix}
-            onValueChange={setMix}
-            label="MIX"
-            mapping={compMixMapping}
-          />
-        </div>
+        <GainReductionMeter />
+        <ParamKnob
+          value={ratio}
+          onValueChange={setRatio}
+          label="RATIO"
+          mapping={compRatioMapping}
+          outerTickCount={8}
+        />
+
+        <ParamKnob
+          value={mix}
+          onValueChange={setMix}
+          label="MIX"
+          mapping={compMixMapping}
+        />
       </div>
     </div>
   );

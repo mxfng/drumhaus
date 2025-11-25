@@ -168,27 +168,31 @@ const MainControls = ({
         />
       </div>
 
-      <div className="flex w-full flex-row items-center justify-between px-8 py-4">
-        <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
-          <Button
-            variant="hardware"
-            className="neu-medium-raised h-[140px] w-[140px] rounded-lg shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]"
-            onClick={() => togglePlay(instrumentRuntimes)}
-            onKeyDown={(ev) => ev.preventDefault()}
-          >
-            {isPlaying ? (
-              <Pause fill="currentColor" size={50} strokeWidth={1} />
-            ) : (
-              <Play fill="currentColor" size={50} strokeWidth={1} />
-            )}
-          </Button>
-        </Tooltip>
+      <div className="grid h-60 w-full grid-cols-8 flex-row items-center">
+        <div className="flex items-center justify-center">
+          <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
+            <Button
+              variant="hardware"
+              className="neu-medium-raised h-[140px] w-[140px] rounded-lg shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]"
+              onClick={() => togglePlay(instrumentRuntimes)}
+              onKeyDown={(ev) => ev.preventDefault()}
+            >
+              {isPlaying ? (
+                <Pause fill="currentColor" size={50} strokeWidth={1} />
+              ) : (
+                <Play fill="currentColor" size={50} strokeWidth={1} />
+              )}
+            </Button>
+          </Tooltip>
+        </div>
+        <div className="col-span-2 flex flex-row">
+          <SequencerControl />
 
-        <SequencerControl />
-
-        <TransportControl />
-
-        <PresetControl loadPreset={loadPreset} />
+          <TransportControl />
+        </div>
+        <div className="col-span-2 flex h-full flex-row py-3">
+          <PresetControl loadPreset={loadPreset} />
+        </div>
 
         <MasterCompressor />
 

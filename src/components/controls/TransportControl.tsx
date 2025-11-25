@@ -77,20 +77,20 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10">
-      <div className="neu-medium-raised relative w-full rounded-lg">
-        <div className="surface-raised relative flex h-full items-center rounded-lg">
+    <div className="flex flex-col items-center justify-center gap-8">
+      <div className="neu-medium-raised relative rounded-lg">
+        <div className="surface-raised relative flex w-28 items-center rounded-lg p-2">
           <Input
             ref={inputRef}
-            className="my-3 ml-3 w-[103px] rounded-l-lg px-0 text-center text-[40px] leading-none shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            className="w-20 px-2 text-center text-2xl shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
             value={bpmInputValue}
             onChange={handleBpmChange}
             onBlur={handleBlur}
             onFocus={(e) => e.target.select()}
           />
-          <div className="text-foreground-muted absolute right-0 flex h-full w-8 flex-col justify-between text-xs">
+          <div className="text-foreground-muted absolute right-0 flex h-full w-6 flex-col text-xs">
             <button
-              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              className="hover:text-primary-muted flex flex-1 items-center justify-center"
               onMouseDown={() => handleMouseDown(1)}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -98,7 +98,7 @@ export const TransportControl: React.FC = () => {
               <ChevronUp size={14} />
             </button>
             <button
-              className="hover:text-primary-muted flex flex-1 cursor-pointer items-center justify-center"
+              className="hover:text-primary-muted flex flex-1 items-center justify-center"
               onMouseDown={() => handleMouseDown(-1)}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -109,16 +109,14 @@ export const TransportControl: React.FC = () => {
         </div>
         <Label className="absolute -bottom-5 left-3">TEMPO</Label>
       </div>
-      <div className="pb-4">
-        <HardwareSlider
-          size={146}
-          sliderValue={swing}
-          setSliderValue={setSwing}
-          title="SWING"
-          defaultValue={0}
-          transformRange={TRANSPORT_SWING_RANGE}
-        />
-      </div>
+      <HardwareSlider
+        size={100}
+        sliderValue={swing}
+        setSliderValue={setSwing}
+        title="SWING"
+        defaultValue={0}
+        transformRange={TRANSPORT_SWING_RANGE}
+      />
     </div>
   );
 };
