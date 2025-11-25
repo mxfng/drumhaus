@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import {
   Button,
@@ -29,7 +29,6 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
 }) => {
   const [presetName, setPresetName] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [wasOpen, setWasOpen] = useState(isOpen);
 
   // Auto-populate with default name when dialog opens
@@ -72,17 +71,6 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     handleClose();
   };
 
-  // Auto-focus input when dialog opens
-  useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
@@ -102,11 +90,11 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
             </Label>
             <Input
               id="presetName"
-              ref={inputRef}
               value={presetName}
               onChange={handleChange}
+              autoFocus
             />
-            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+            {error && <p className="text-track-red mt-1 text-sm">{error}</p>}
           </div>
 
           <DialogFooter>

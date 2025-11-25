@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import {
@@ -40,7 +40,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
   const [wasOpen, setWasOpen] = useState(isOpen);
   const { toast } = useToast();
   const { onCopy, hasCopied } = useClipboard();
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-populate with default name when dialog opens
   if (isOpen && !wasOpen && defaultName) {
@@ -113,17 +112,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     }
   }, [isOpen]);
 
-  // Auto-focus input when on input step
-  useEffect(() => {
-    if (isOpen && step === "input") {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-        inputRef.current?.select();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, step]);
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -145,11 +133,13 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                 </Label>
                 <Input
                   id="presetName"
-                  ref={inputRef}
                   value={presetName}
                   onChange={handleChange}
+                  autoFocus
                 />
-                {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+                {error && (
+                  <p className="text-track-red mt-1 text-sm">{error}</p>
+                )}
               </div>
 
               <DialogFooter>
