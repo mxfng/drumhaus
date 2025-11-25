@@ -113,7 +113,7 @@ export function FrequencyAnalyzer() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} width={470} height={60} />;
+  return <canvas ref={canvasRef} width={550} height={88} />;
 }
 
 export default FrequencyAnalyzer;
