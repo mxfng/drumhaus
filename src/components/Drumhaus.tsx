@@ -67,7 +67,9 @@ const Drumhaus = () => {
     loader.classList.add("initial-loader--hidden");
 
     const timeout = window.setTimeout(() => {
-      loader.remove();
+      requestAnimationFrame(() => {
+        loader.remove(); // avoid blocking the main thread
+      });
     }, 400);
 
     return () => {

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { Label, Tooltip } from "@/components/ui";
+import { getQuantizedValue } from "@/lib/utils";
 import { transformKnobValueLinear } from "../../lib/knob/transform";
 
 type HardwareSliderProps = {
@@ -35,16 +36,16 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
   valueStep = 1,
   valueDecimals = 0,
 }) => {
-  const immutableDefaultValue = defaultValue;
+  const immutableDefaultValue = useRef(defaultValue);
   const step = valueStep > 0 ? valueStep : 1;
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDoubleClick = () => {
-    setSliderValue(immutableDefaultValue);
+    setSliderValue(immutableDefaultValue.current);
   };
 
   const handleChange = (value: number[]) => {
-    const quantizedValue = Math.round(value[0] / step) * step;
+    const quantizedValue = getQuantizedValue(value[0], step);
     setSliderValue(quantizedValue);
   };
 
@@ -91,7 +92,7 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
             content={formattedTransformedValue}
             delayDuration={0}
             side="top"
-            open={isDragging ? true : undefined}
+            open={isDragging}
           >
             <SliderPrimitive.Thumb
               className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
@@ -103,7 +104,10 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
                   0 4px 3px -1px rgb(0 0 0 / 0.4)
                 `,
               }}
-              aria-label="Slider thumb"
+              aria-label={title || "Slider thumb"}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={sliderValue}
             />
           </Tooltip>
         </SliderPrimitive.Root>
