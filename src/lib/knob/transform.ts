@@ -3,6 +3,7 @@ import {
   INSTRUMENT_PITCH_SEMITONE_RANGE,
   MASTER_FILTER_RANGE,
 } from "@/lib/audio/engine/constants";
+import { clamp, lerp, normalize } from "@/lib/utils";
 import {
   KNOB_EXPONENTIAL_CURVE_POWER,
   KNOB_VALUE_MAX,
@@ -23,9 +24,9 @@ export const transformKnobValueLinear = (
   input: number,
   range: [number, number],
 ): number => {
-  const [newRangeMin, newRangeMax] = range;
-  const scalingFactor = (newRangeMax - newRangeMin) / KNOB_VALUE_MAX;
-  return scalingFactor * input + newRangeMin;
+  const [min, max] = range;
+  const normalized = input / KNOB_VALUE_MAX;
+  return lerp(normalized, min, max);
 };
 
 /**
@@ -35,18 +36,15 @@ export const transformKnobValueExponential = (
   input: number,
   range: [number, number],
 ): number => {
-  const inputMin = KNOB_VALUE_MIN;
-  const inputMax = KNOB_VALUE_MAX;
   const [outputMin, outputMax] = range;
 
-  const normalizedInput = (input - inputMin) / (inputMax - inputMin);
+  const normalizedInput = normalize(input, KNOB_VALUE_MIN, KNOB_VALUE_MAX);
   const exponentialValue = Math.pow(
     normalizedInput,
     KNOB_EXPONENTIAL_CURVE_POWER,
   );
-  const mappedValue = outputMin + exponentialValue * (outputMax - outputMin);
 
-  return mappedValue;
+  return lerp(exponentialValue, outputMin, outputMax);
 };
 
 /**
@@ -58,7 +56,7 @@ export const transformKnobValuePitch = (
   baseFrequency: number = INSTRUMENT_PITCH_BASE_FREQUENCY,
   semitoneRange: number = INSTRUMENT_PITCH_SEMITONE_RANGE,
 ): number => {
-  const clampedValue = Math.min(100, Math.max(0, knobValue));
+  const clampedValue = clamp(knobValue, 0, 100);
   const normalized = (clampedValue - 50) / 50; // -1..1 relative to center
   const semitoneOffset = normalized * semitoneRange;
   const ratio = Math.pow(2, semitoneOffset / 12);
@@ -100,8 +98,8 @@ export const inverseTransformKnobValue = (
   const [min, max] = range;
   if (value <= min) return 0;
   if (value >= max) return 100;
-  const t = (value - min) / (max - min);
-  return Math.min(100, Math.max(0, Math.round(t * 100)));
+  const normalized = normalize(value, min, max);
+  return clamp(Math.round(normalized * 100), 0, 100);
 };
 
 /**
@@ -115,9 +113,9 @@ export const inverseTransformKnobValueExponential = (
   if (value <= min) return 0;
   if (value >= max) return 100;
 
-  const normalized = (value - min) / (max - min);
+  const normalized = normalize(value, min, max);
   const t = Math.pow(normalized, 1 / KNOB_EXPONENTIAL_CURVE_POWER);
-  return Math.min(100, Math.max(0, Math.round(t * 100)));
+  return clamp(Math.round(t * 100), 0, 100);
 };
 
 /**
@@ -130,13 +128,10 @@ export const inverseTransformKnobValuePitch = (
 ): number => {
   const ratio = frequency / baseFrequency;
   const semitoneOffset = Math.log2(ratio) * 12;
-  const clamped = Math.max(
-    -semitoneRange,
-    Math.min(semitoneRange, semitoneOffset),
-  );
+  const clamped = clamp(semitoneOffset, -semitoneRange, semitoneRange);
   const normalized = clamped / semitoneRange; // -1..1
   const knobValue = normalized * 50 + 50; // 0..100
-  return Math.min(100, Math.max(0, Math.round(knobValue)));
+  return clamp(Math.round(knobValue), 0, 100);
 };
 
 /**
@@ -152,10 +147,10 @@ export const inverseTransformKnobValueSplitFilter = (
   const [min, max] = range; // Both ranges are the same
 
   // Clamp frequency to valid range
-  const clampedFreq = Math.max(min, Math.min(max, freq));
+  const clampedFreq = clamp(freq, min, max);
 
   // Invert exponential mapping
-  const normalized = (clampedFreq - min) / (max - min);
+  const normalized = normalize(clampedFreq, min, max);
   const t = Math.pow(normalized, 1 / KNOB_EXPONENTIAL_CURVE_POWER);
 
   // Determine which side (LP or HP) to map to
@@ -169,5 +164,5 @@ export const inverseTransformKnobValueSplitFilter = (
     ? KNOB_ROTATION_THRESHOLD_R + t * KNOB_ROTATION_THRESHOLD_L // HP: 50-100
     : t * KNOB_ROTATION_THRESHOLD_L; // LP: 0-49
 
-  return Math.min(100, Math.max(0, Math.round(knobValue)));
+  return clamp(Math.round(knobValue), 0, 100);
 };

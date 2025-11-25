@@ -1,5 +1,7 @@
 // --- WAV encoding utilities for AudioBuffer export ---
 
+import { clamp } from "@/lib/utils";
+
 /**
  * Encodes an AudioBuffer to WAV format (PCM 16-bit)
  */
@@ -46,7 +48,7 @@ export function encodeWav(audioBuffer: AudioBuffer): ArrayBuffer {
     for (let ch = 0; ch < numChannels; ch++) {
       const sample = channels[ch][i];
       // Clamp and convert to 16-bit
-      const clamped = Math.max(-1, Math.min(1, sample));
+      const clamped = clamp(sample, -1, 1);
       const int16 = clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff;
       view.setInt16(offset, int16, true);
       offset += 2;

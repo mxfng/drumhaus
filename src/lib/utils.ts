@@ -6,9 +6,33 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Quantize a value to a step size. This is intended to stay in the UI space.
+ * Clamps a value between a minimum and maximum bound.
  */
-export const getQuantizedValue = (value: number, step: number): number => {
-  const normalizedStep = step > 0 ? step : 1;
+export function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Normalize a value from a range [min, max] to [0, 1].
+ */
+export function normalize(value: number, min: number, max: number): number {
+  return (value - min) / (max - min);
+}
+
+/**
+ * Linear interpolation: map a normalized value [0, 1] to a range [min, max].
+ * Also known as "lerp" or "denormalize".
+ */
+export function lerp(t: number, min: number, max: number): number {
+  return min + t * (max - min);
+}
+
+/**
+ * Quantize a value to a resolution.
+ *
+ * Converts twitchy human-interaction signal values to a more stable, quantized value for a dignified audio engine.
+ */
+export const quantize = (value: number, resolution: number): number => {
+  const normalizedStep = resolution > 0 ? resolution : 1;
   return Math.round(value / normalizedStep) * normalizedStep;
 };

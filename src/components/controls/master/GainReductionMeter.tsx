@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
 import { Tooltip } from "@/components/ui";
+import { clamp } from "@/lib/utils";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 
 const MAX_REDUCTION_DB = -20; // Maximum gain reduction to display
@@ -16,10 +17,7 @@ export const GainReductionMeter: React.FC = () => {
       const reduction = useMasterChainStore.getState().reduction;
 
       // Convert reduction (negative dB) to percentage (0-100)
-      const percentage = Math.min(
-        100,
-        Math.max(0, (reduction / MAX_REDUCTION_DB) * 100),
-      );
+      const percentage = clamp((reduction / MAX_REDUCTION_DB) * 100, 0, 100);
 
       // Update DOM directly without triggering React re-render
       if (fillRef.current) {

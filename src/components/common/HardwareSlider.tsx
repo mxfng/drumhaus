@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { Label, Tooltip } from "@/components/ui";
-import { getQuantizedValue } from "@/lib/utils";
+import { quantize } from "@/lib/utils";
 import { transformKnobValueLinear } from "../../lib/knob/transform";
 
 type HardwareSliderProps = {
@@ -45,7 +45,7 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
   };
 
   const handleChange = (value: number[]) => {
-    const quantizedValue = getQuantizedValue(value[0], step);
+    const quantizedValue = quantize(value[0], step);
     setSliderValue(quantizedValue);
   };
 
