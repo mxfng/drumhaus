@@ -8,20 +8,12 @@ import {
   KNOB_VALUE_MIN,
 } from "@/lib/knob/constants";
 import { ParamMapping } from "@/lib/knob/types";
-import { cn } from "@/lib/utils";
+import { cn, getQuantizedValue } from "@/lib/utils";
 import { Label } from "../ui";
 
 export type KnobSize = "default" | "lg";
 
 const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-135, 135];
-
-/**
- * Quantize a value to a step size. This is intended to stay in the UI space.
- */
-const getQuantizedValue = (value: number, step: number): number => {
-  const normalizedStep = step > 0 ? step : 1;
-  return Math.round(value / normalizedStep) * normalizedStep;
-};
 
 /**
  * Calculate the rotation of a knob tick for display purposes.
