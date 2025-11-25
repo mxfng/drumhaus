@@ -1,12 +1,24 @@
 import { useEffect, useRef } from "react";
+import { getTransport, Ticks } from "tone";
 
-import { cn } from "@/lib/utils";
+import { SEQUENCE_SUBDIVISION, STEP_COUNT } from "@/lib/audio/engine/constants";
 import { useTransportStore } from "@/stores/useTransportStore";
 
 interface StepIndicatorProps {
   stepIndex: number;
   variation: number;
   playbackVariation: number;
+}
+
+/**
+ * Calculate current step index (0-15) from transport ticks
+ */
+function getCurrentStepFromTransport(): number {
+  const transport = getTransport();
+  const ticks = transport.ticks;
+  const ticksPerStep = Ticks(SEQUENCE_SUBDIVISION).valueOf();
+  const currentStep = Math.floor(ticks / ticksPerStep) % STEP_COUNT;
+  return currentStep;
 }
 
 export const StepIndicator: React.FC<StepIndicatorProps> = ({
@@ -17,11 +29,11 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   const indicatorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let animationFrameId: number;
+    let animationId: number;
 
     const updateIndicator = () => {
-      const { stepIndex: currentStepIndex, isPlaying } =
-        useTransportStore.getState();
+      const { isPlaying } = useTransportStore.getState();
+      const currentStepIndex = isPlaying ? getCurrentStepFromTransport() : 0;
 
       const isAccentBeat = stepIndex % 4 === 0;
       const isStepPlaying =
@@ -38,33 +50,27 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 
       // Update DOM directly without triggering React re-render
       if (indicatorRef.current) {
-        // Update className
-        const newClassName = cn(
-          "mb-4 h-1 w-full rounded-full transition-all duration-75",
-          indicatorIsOn ? "bg-primary" : "bg-foreground",
-        );
-        indicatorRef.current.className = newClassName;
-
-        // Update opacity and LED glow effect
         const opacity = indicatorIsOn ? 1 : isAccentBeat ? 0.6 : 0.2;
         indicatorRef.current.style.opacity = String(opacity);
 
-        // Add LED backlight glow effect when active
-        if (indicatorIsOn) {
-          indicatorRef.current.style.boxShadow =
-            "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))";
-        } else {
-          indicatorRef.current.style.boxShadow = "none";
-        }
+        // Update background color
+        indicatorRef.current.className = indicatorIsOn
+          ? "mb-4 h-1 w-full rounded-full transition-all duration-75 bg-primary"
+          : "mb-4 h-1 w-full rounded-full transition-all duration-75 bg-foreground";
+
+        // Update LED glow effect
+        indicatorRef.current.style.boxShadow = indicatorIsOn
+          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
+          : "none";
       }
 
-      animationFrameId = requestAnimationFrame(updateIndicator);
+      animationId = requestAnimationFrame(updateIndicator);
     };
 
-    animationFrameId = requestAnimationFrame(updateIndicator);
+    animationId = requestAnimationFrame(updateIndicator);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(animationId);
     };
   }, [stepIndex, variation, playbackVariation]);
 

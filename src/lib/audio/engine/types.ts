@@ -59,19 +59,11 @@ export interface PatternStateProvider {
 }
 
 /**
- * Provides access to transport state for the drum sequencer.
- */
-export interface TransportStateProvider {
-  setStepIndex(index: number): void;
-}
-
-/**
  * Combined state provider for the drum sequencer.
  */
 export interface DrumSequenceStateProvider {
   instruments: InstrumentStateProvider;
   pattern: PatternStateProvider;
-  transport: TransportStateProvider;
 }
 
 // =============================================================================
