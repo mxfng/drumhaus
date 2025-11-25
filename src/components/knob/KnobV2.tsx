@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "../ui";
 
-type KnobSize = "default" | "lg";
+export type KnobSize = "default" | "lg";
 
 const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-135, 135];
 
@@ -34,7 +34,7 @@ const getKnobTickRotation = (
   return (tickIndex / (tickCount - 1)) * rangeSize + range[0];
 };
 
-type KnobProps = {
+export interface KnobProps {
   /** Current knob position 0..100 */
   value: number;
   onValueChange: (newState: number) => void;
@@ -52,7 +52,7 @@ type KnobProps = {
   step?: number; // if you want 8 options for a knob, step = 100 / 7
   /** Default value for the knob */
   defaultValue?: number;
-};
+}
 
 /**
  * TODO: Rewrite this guide with the new mapping system.

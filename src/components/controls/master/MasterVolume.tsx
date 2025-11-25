@@ -1,23 +1,19 @@
-import { MASTER_VOLUME_RANGE } from "@/lib/audio/engine/constants";
-import { formatDisplayVolumeMaster } from "@/lib/knob/format";
+import ParamKnob from "@/components/knob/ParamKnob";
+import { masterVolumeMapping } from "@/lib/knob/mapping";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
-import { Knob } from "../../common/Knob";
 
 export const MasterVolume: React.FC = () => {
   const masterVolume = useMasterChainStore((state) => state.masterVolume);
   const setMasterVolume = useMasterChainStore((state) => state.setMasterVolume);
 
   return (
-    <Knob
-      value={masterVolume}
-      onValueChange={setMasterVolume}
+    <ParamKnob
+      step={masterVolume}
+      onStepChange={setMasterVolume}
       label="MASTER LEVEL"
-      units="dB"
-      range={MASTER_VOLUME_RANGE}
-      defaultValue={92}
-      size="lg"
-      formatDisplayFn={formatDisplayVolumeMaster}
+      mapping={masterVolumeMapping}
       outerTickCount={13}
+      size="lg"
     />
   );
 };

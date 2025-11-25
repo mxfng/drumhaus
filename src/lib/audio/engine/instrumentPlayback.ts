@@ -15,7 +15,9 @@ export function playInstrumentSample(
   release: number,
 ): number {
   const time = now();
+  console.debug("pitch in playInstrumentSample", pitch);
   const pitchValue = transformPitchKnobToFrequency(pitch);
+  console.debug("pitchValue in playInstrumentSample", pitchValue);
   const releaseTime = transformKnobValueExponential(
     release,
     INSTRUMENT_RELEASE_RANGE,

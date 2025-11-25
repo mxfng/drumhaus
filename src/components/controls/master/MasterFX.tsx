@@ -49,6 +49,7 @@ export const MasterFX: React.FC = () => {
           mapping={phaserWetMapping}
           step={phaser}
           onStepChange={setPhaser}
+          outerTickCount={5}
         />
       </div>
     </div>

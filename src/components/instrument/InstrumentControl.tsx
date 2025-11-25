@@ -245,6 +245,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             onStepChange={setFilter}
             label="FILTER"
             mapping={splitFilterMapping}
+            outerTickCount={3}
           />
           <ParamKnob
             step={release}
@@ -257,6 +258,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             onStepChange={setPitch}
             label="PITCH"
             mapping={pitchMapping}
+            outerTickCount={25}
           />
         </div>
 
@@ -317,6 +319,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
             onStepChange={setVolume}
             label="LEVEL"
             mapping={instrumentVolumeMapping}
+            outerTickCount={13}
           />
         </div>
       </div>

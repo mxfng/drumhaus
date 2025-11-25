@@ -107,20 +107,29 @@ export const releaseMapping = makeExponentialMapping(
 const basePitchMapping = makeLinearMapping(
   [-INSTRUMENT_PITCH_SEMITONE_RANGE, INSTRUMENT_PITCH_SEMITONE_RANGE],
   formatDisplayPitchSemitone,
+  48,
+  24,
 );
 
 export const pitchMapping: ParamMapping<number> = {
-  stepCount: basePitchMapping.stepCount,
-  defaultStep: basePitchMapping.defaultStep,
+  ...basePitchMapping,
+
   stepToValue(step) {
     // Defensive: clamp step to valid range [0, stepCount]
     const clampedStep = clampStep(step, basePitchMapping.stepCount);
     const semitoneOffset = basePitchMapping.stepToValue(clampedStep);
-    // snap to whole semitones
-    const roundedSemitones = Math.round(semitoneOffset);
-    // Convert semitone offset to frequency for Tone.js
-    const ratio = Math.pow(2, roundedSemitones / 12);
-    return INSTRUMENT_PITCH_BASE_FREQUENCY * ratio;
+
+    // Convert semitone offset to frequency
+    const ratio = Math.pow(2, semitoneOffset / 12);
+    const frequency = INSTRUMENT_PITCH_BASE_FREQUENCY * ratio;
+
+    console.debug("pitchMapping.stepToValue", {
+      step,
+      clampedStep,
+      semitoneOffset,
+      frequency,
+    });
+    return frequency;
   },
 
   valueToStep(frequency) {
@@ -141,6 +150,8 @@ export const pitchMapping: ParamMapping<number> = {
 const baseInstrumentVolumeMapping = makeLinearMapping(
   INSTRUMENT_VOLUME_RANGE,
   formatDisplayVolume,
+  100,
+  92,
 );
 
 export const instrumentVolumeMapping: ParamMapping<number> = {
@@ -160,19 +171,23 @@ export const instrumentVolumeMapping: ParamMapping<number> = {
 const baseMasterVolumeMapping = makeLinearMapping(
   MASTER_VOLUME_RANGE,
   formatDisplayVolume,
+  100,
+  92,
 );
 
 export const masterVolumeMapping: ParamMapping<number> = {
-  stepCount: baseMasterVolumeMapping.stepCount,
-  defaultStep: baseMasterVolumeMapping.defaultStep,
+  ...baseMasterVolumeMapping,
+
   stepToValue: (step) => {
     if (step === 0) return -Infinity;
     return baseMasterVolumeMapping.stepToValue(step);
   },
+
   valueToStep: (value) => {
     if (value === -Infinity) return 0;
     return baseMasterVolumeMapping.valueToStep(value);
   },
+
   format: baseMasterVolumeMapping.format,
 };
 
