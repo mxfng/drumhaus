@@ -120,7 +120,7 @@ const TopBar = () => {
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="surface grid h-[120px] grid-cols-8 shadow-[0_4px_8px_var(--color-shadow-60)]">
+    <div className="surface mb-2 grid h-[120px] grid-cols-8 shadow-[0_4px_8px_var(--color-shadow-60)]">
       <div className="col-span-5 flex h-[120px] flex-row items-end pb-4 pl-8">
         <button
           className="flex cursor-pointer items-end"

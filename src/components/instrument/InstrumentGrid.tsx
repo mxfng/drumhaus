@@ -69,7 +69,7 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
         return (
           <div
             key={`gridItem-${index}`}
-            className="col-span-1 w-[193px] transition-all duration-500"
+            className="col-span-1 w-[193px] overflow-hidden transition-all duration-500"
             onMouseDown={() => toggleCurrentVoice(index)}
           >
             <InstrumentControl

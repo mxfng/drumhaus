@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { SequencerControl } from "@/components/controls/SequencerControl";
 import { InstrumentControl } from "@/components/instrument/InstrumentControl";
 import { Sequencer } from "@/components/Sequencer";
@@ -33,6 +35,27 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
 }) => {
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
 
+  // Calculate responsive waveform width
+  const [waveformWidth, setWaveformWidth] = useState(170);
+
+  useEffect(() => {
+    const updateWaveformWidth = () => {
+      const viewportWidth = window.innerWidth;
+      // On mobile (<640px), use 80% of viewport width, capped at 350px
+      // On desktop, use default 170px
+      if (viewportWidth < 640) {
+        const calculatedWidth = Math.min(viewportWidth * 0.8, 350);
+        setWaveformWidth(calculatedWidth);
+      } else {
+        setWaveformWidth(170);
+      }
+    };
+
+    updateWaveformWidth();
+    window.addEventListener("resize", updateWaveformWidth);
+    return () => window.removeEventListener("resize", updateWaveformWidth);
+  }, []);
+
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-hidden">
       {/* Tabs */}
@@ -64,7 +87,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
       {/* Tab Content */}
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {activeTab === "instrument" && (
-          <div className="bg-surface-raised">
+          <div className="bg-surface-raised h-full">
             <InstrumentControl
               key={`mobile-instrument-${voiceIndex}-${instrumentRuntimesVersion}`}
               runtime={instrumentRuntimes[voiceIndex]}
@@ -72,6 +95,8 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               instrumentIndex={voiceIndex}
               color={INSTRUMENT_COLORS[voiceIndex]}
               bg="#E8E3DD"
+              waveformWidth={waveformWidth}
+              fillHeight={true}
             />
           </div>
         )}
