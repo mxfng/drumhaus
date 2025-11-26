@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { StepIndicator } from "@/components/StepIndicator";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { clampVelocity } from "@/lib/pattern/helpers";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,9 @@ export const Sequencer: React.FC = () => {
 
   const sequencerRef = useRef<HTMLDivElement | null>(null);
   const touchActiveRef = useRef<boolean>(false);
+
+  // Lock scroll during drag (similar to Radix Dialog)
+  useScrollLock(isDragging);
 
   const currentVariation = pattern[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;

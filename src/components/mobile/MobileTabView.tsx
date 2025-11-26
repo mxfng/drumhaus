@@ -76,20 +76,9 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
       {/* Tabs */}
       <div className="border-border flex border-b">
         <button
-          onClick={() => setActiveTab("instrument")}
-          className={cn(
-            "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
-            activeTab === "instrument"
-              ? "bg-surface text-primary-muted"
-              : "bg-surface-muted text-foreground-muted hover:bg-surface",
-          )}
-        >
-          INSTRUMENT
-        </button>
-        <button
           onClick={() => setActiveTab("controls")}
           className={cn(
-            "flex-1 px-4 py-3 text-sm font-medium transition-colors",
+            "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
             activeTab === "controls"
               ? "bg-surface text-primary-muted"
               : "bg-surface-muted text-foreground-muted hover:bg-surface",
@@ -97,10 +86,29 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         >
           CONTROLS
         </button>
+        <button
+          onClick={() => setActiveTab("instrument")}
+          className={cn(
+            "border-border flex-1 px-4 py-3 text-sm font-medium transition-colors",
+            activeTab === "instrument"
+              ? "bg-surface text-primary-muted"
+              : "bg-surface-muted text-foreground-muted hover:bg-surface",
+          )}
+        >
+          INSTRUMENT
+        </button>
       </div>
 
       {/* Tab Content */}
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
+        {activeTab === "controls" && (
+          <div className="bg-surface flex h-full flex-col items-center justify-center p-1">
+            <div className="flex flex-1 items-center justify-center">
+              <SequencerControl />
+            </div>
+            <Sequencer />
+          </div>
+        )}
         {activeTab === "instrument" && (
           <div className="bg-surface-raised flex h-full flex-col">
             <InstrumentParams
@@ -110,15 +118,6 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               fillHeight
               runtime={instrumentRuntimes[voiceIndex]}
             />
-          </div>
-        )}
-
-        {activeTab === "controls" && (
-          <div className="bg-surface flex h-full flex-col items-center justify-center p-1">
-            <div className="flex flex-1 items-center justify-center">
-              <SequencerControl />
-            </div>
-            <Sequencer />
           </div>
         )}
       </div>
