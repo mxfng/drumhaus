@@ -130,7 +130,7 @@ export const SelectSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn("bg-foreground-muted -mx-1 my-1 h-px", className)}
+    className={cn("bg-primary-foreground/50 -mx-1 my-1 h-px", className)}
     {...props}
   />
 ));

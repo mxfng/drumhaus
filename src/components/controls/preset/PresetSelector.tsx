@@ -5,6 +5,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
@@ -12,13 +13,15 @@ import type { PresetFileV1 } from "@/types/preset";
 
 type PresetSelectorProps = {
   selectedPresetId: string;
-  presets: PresetFileV1[];
+  defaultPresets: PresetFileV1[];
+  customPresets: PresetFileV1[];
   onSelect: (value: string) => void;
 };
 
 export const PresetSelector: React.FC<PresetSelectorProps> = ({
   selectedPresetId,
-  presets,
+  defaultPresets,
+  customPresets,
   onSelect,
 }) => {
   return (
@@ -31,11 +34,21 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
             <ChevronsUpDown className="group-hover:text-primary-muted h-4 w-4 transition-all duration-200" />
           </SelectTrigger>
           <SelectContent>
-            {presets.map((preset) => (
+            {defaultPresets.map((preset) => (
               <SelectItem key={preset.meta.id} value={preset.meta.id}>
                 {preset.meta.name}
               </SelectItem>
             ))}
+            {customPresets.length > 0 && (
+              <>
+                <SelectSeparator />
+                {customPresets.map((preset) => (
+                  <SelectItem key={preset.meta.id} value={preset.meta.id}>
+                    {preset.meta.name}
+                  </SelectItem>
+                ))}
+              </>
+            )}
           </SelectContent>
         </Select>
       </div>

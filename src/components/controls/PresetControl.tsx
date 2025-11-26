@@ -332,7 +332,8 @@ export const PresetControl: React.FC<PresetControlProps> = ({
         <div className="neu surface relative flex h-full w-full flex-col justify-between rounded-lg p-3">
           <PresetSelector
             selectedPresetId={currentPresetMeta.id}
-            presets={allPresets}
+            defaultPresets={DEFAULT_PRESETS}
+            customPresets={customPresets}
             onSelect={handlePresetChange}
           />
 
