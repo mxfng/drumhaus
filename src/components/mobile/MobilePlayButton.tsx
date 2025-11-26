@@ -6,6 +6,7 @@ import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
 import { Button, Dialog, DialogContent } from "@/components/ui";
+import { DialogCloseButton } from "@/components/ui/Dialog";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { TabType } from "./MobileTabView";
@@ -91,6 +92,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       {/* Transport Dialog */}
       <Dialog open={transportDialogOpen} onOpenChange={setTransportDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
+          <DialogCloseButton />
           <div className="flex flex-col items-center gap-4 p-2">
             <TransportControl />
           </div>
@@ -100,6 +102,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       {/* Bus Dialog */}
       <Dialog open={busDialogOpen} onOpenChange={setBusDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
+          <DialogCloseButton />
           <div className="flex flex-col items-center gap-6 p-2">
             <MasterVolume />
             <div className="flex gap-8">

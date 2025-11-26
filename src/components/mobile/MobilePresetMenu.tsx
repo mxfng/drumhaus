@@ -1,4 +1,5 @@
-import { Download, Save, Share2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, Save, Share2, Upload, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
@@ -31,6 +32,10 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
   onKitSelect,
 }) => {
   const openDialog = useDialogStore((state) => state.openDialog);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const touchStartX = useRef(0);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleAction = (dialogType: "save" | "share" | "export") => {
     openDialog(dialogType);
@@ -54,6 +59,35 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
     onClose();
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsSwiping(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwiping) return;
+
+    const currentX = e.touches[0].clientX;
+    const diff = currentX - touchStartX.current;
+
+    // Only allow swiping to the right (closing direction)
+    if (diff > 0) {
+      setSwipeOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsSwiping(false);
+
+    // Close if swiped more than 100px
+    if (swipeOffset > 100) {
+      onClose();
+    }
+
+    // Reset offset with a small delay to allow animation
+    setTimeout(() => setSwipeOffset(0), 0);
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -67,10 +101,20 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
       {/* Menu */}
       <div
+        ref={menuRef}
         className={cn(
           "bg-primary text-primary-foreground shadow-neu fixed top-0 right-0 z-50 h-full w-64 overflow-y-auto transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full",
+          isSwiping && "!duration-0", // Remove transition during swipe for immediate feedback
         )}
+        style={{
+          transform: isOpen
+            ? `translateX(${swipeOffset}px)`
+            : "translateX(100%)",
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="flex flex-col gap-4 p-4">
           {/* Preset & Kit Selectors */}
@@ -127,6 +171,18 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
               Import Preset
             </button>
           </div>
+
+          {/* Divider */}
+          <div className="bg-primary-foreground/20 h-px" />
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="font-pixel bg-primary-muted hover:bg-primary-foreground/20 flex items-center justify-center gap-2 rounded-sm px-4 py-3 transition-colors"
+          >
+            <X size={18} />
+            Close Menu
+          </button>
         </div>
       </div>
     </>

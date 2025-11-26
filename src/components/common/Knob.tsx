@@ -75,6 +75,7 @@ const Knob: React.FC<KnobProps> = ({
 
   const initMoveYRef = useRef(0);
   const initValueRef = useRef(quantizedValue);
+  const lastTapTimeRef = useRef(0);
 
   const [isMoving, setIsMoving] = useState(false);
 
