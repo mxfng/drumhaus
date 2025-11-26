@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Label } from "@/components/ui";
 import { playInstrumentSample } from "@/lib/audio/engine";
@@ -26,6 +26,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
+  const [waveformLoaded, setWaveformLoaded] = useState(false);
 
   const samplePath = useInstrumentsStore(
     (state) => state.instruments[index].sample.path,
@@ -51,6 +52,18 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     setWaveformError(error);
   }, []);
 
+  const handleWaveformLoad = useCallback(() => {
+    setWaveformLoaded(true);
+  }, []);
+
+  // Reset waveform loaded state when sample changes
+  useEffect(() => {
+    queueMicrotask(() => {
+      setWaveformLoaded(false);
+      setWaveformError(null);
+    });
+  }, [samplePath]);
+
   return (
     <button
       ref={waveButtonRef}
@@ -75,18 +88,34 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       </div>
 
       {/* Waveform */}
-      <div className="flex min-h-0 w-full min-w-3/4 flex-1 items-center justify-center overflow-visible px-4">
-        {isRuntimeLoaded && !waveformError ? (
+      <div className="relative flex min-h-0 w-full min-w-3/4 flex-1 items-center justify-center overflow-visible px-4">
+        {isRuntimeLoaded && waveformLoaded && !waveformError ? (
           <Waveform
             audioFile={samplePath}
             width={waveformWidth}
             height={waveformHeight}
             onError={handleWaveformError}
+            onLoad={handleWaveformLoad}
           />
         ) : waveformError ? (
-          <PixelatedFrowny color={color} />
+          <div className="flex h-full w-full items-center justify-center">
+            <PixelatedFrowny color={color} />
+          </div>
         ) : (
-          <PixelatedSpinner color={color} />
+          <div className="flex h-full w-full items-center justify-center">
+            {isRuntimeLoaded && !waveformLoaded && (
+              <div className="absolute opacity-0">
+                <Waveform
+                  audioFile={samplePath}
+                  width={waveformWidth}
+                  height={waveformHeight}
+                  onError={handleWaveformError}
+                  onLoad={handleWaveformLoad}
+                />
+              </div>
+            )}
+            <PixelatedSpinner color={color} />
+          </div>
         )}
       </div>
     </button>
