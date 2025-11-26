@@ -116,7 +116,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex flex-col gap-4 p-4">
+        <div className="flex h-full flex-col justify-between gap-4 p-4">
           {/* Preset & Kit Selectors */}
           <div className="flex flex-col gap-3">
             <MobilePresetSelector
