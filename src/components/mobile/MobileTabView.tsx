@@ -1,21 +1,22 @@
 import { useEffect, useState } from "react";
 
 import { SequencerControl } from "@/components/controls/SequencerControl";
-import { InstrumentControl } from "@/components/instrument/InstrumentControl";
 import { Sequencer } from "@/components/Sequencer";
 import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { InstrumentHeader } from "../instrument/InstrumentHeader";
+import { InstrumentParams } from "../instrument/InstrumentParams";
 
 const INSTRUMENT_COLORS = [
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
+  "var(--color-track-blue)",
+  "var(--color-track-orange)",
+  "var(--color-track-red)",
+  "var(--color-track-green)",
+  "var(--color-track-blue)",
+  "var(--color-track-orange)",
+  "var(--color-track-red)",
+  "var(--color-track-green)",
 ];
 
 export type TabType = "instrument" | "controls";
@@ -41,10 +42,9 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
   useEffect(() => {
     const updateWaveformWidth = () => {
       const viewportWidth = window.innerWidth;
-      // On mobile (<640px), use 80% of viewport width, capped at 350px
-      // On desktop, use default 170px
+      // On mobile (<640px), use 90% of viewport width
       if (viewportWidth < 640) {
-        const calculatedWidth = Math.min(viewportWidth * 0.8, 350);
+        const calculatedWidth = Math.min(viewportWidth * 0.9);
         setWaveformWidth(calculatedWidth);
       } else {
         setWaveformWidth(170);
@@ -84,19 +84,27 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         </button>
       </div>
 
+      {/* Instrument Header - Always Visible */}
+      <div className="bg-surface-raised border-border border-b py-1">
+        <InstrumentHeader
+          key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
+          index={voiceIndex}
+          color={INSTRUMENT_COLORS[voiceIndex]}
+          waveformWidth={waveformWidth}
+          runtime={instrumentRuntimes[voiceIndex]}
+        />
+      </div>
+
       {/* Tab Content */}
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
         {activeTab === "instrument" && (
-          <div className="bg-surface-raised h-full">
-            <InstrumentControl
-              key={`mobile-instrument-${voiceIndex}-${instrumentRuntimesVersion}`}
-              runtime={instrumentRuntimes[voiceIndex]}
+          <div className="bg-surface-raised flex h-full flex-col">
+            <InstrumentParams
+              key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
               index={voiceIndex}
               instrumentIndex={voiceIndex}
-              color={INSTRUMENT_COLORS[voiceIndex]}
-              bg="#E8E3DD"
-              waveformWidth={waveformWidth}
-              fillHeight={true}
+              fillHeight
+              runtime={instrumentRuntimes[voiceIndex]}
             />
           </div>
         )}
