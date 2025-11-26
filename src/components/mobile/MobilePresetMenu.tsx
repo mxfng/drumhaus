@@ -1,10 +1,11 @@
 import { useRef, useState } from "react";
-import { Download, Save, Share2, Upload, X } from "lucide-react";
+import { Download, ListMusic, Save, Share2, Upload, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
+import { Label } from "../ui";
 import { MobileKitSelector } from "./MobileKitSelector";
 import { MobilePresetSelector } from "./MobilePresetSelector";
 
@@ -117,59 +118,62 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
         onTouchEnd={handleTouchEnd}
       >
         <div className="flex h-full flex-col justify-between gap-4 p-4">
-          {/* Preset & Kit Selectors */}
-          <div className="flex flex-col gap-3">
-            <MobilePresetSelector
-              selectedPresetId={selectedPresetId}
-              defaultPresets={defaultPresets}
-              customPresets={customPresets}
-              onSelect={onPresetSelect}
-            />
-            <MobileKitSelector
-              selectedKitId={selectedKitId}
-              kits={kits}
-              onSelect={onKitSelect}
-            />
-          </div>
+          <ListMusic size={30} />
+          <div className="flex h-full flex-col justify-center gap-4">
+            {/* Preset & Kit Selectors */}
+            <div className="flex flex-col gap-3">
+              <MobilePresetSelector
+                selectedPresetId={selectedPresetId}
+                defaultPresets={defaultPresets}
+                customPresets={customPresets}
+                onSelect={onPresetSelect}
+              />
+              <MobileKitSelector
+                selectedKitId={selectedKitId}
+                kits={kits}
+                onSelect={onKitSelect}
+              />
+            </div>
 
-          {/* Divider */}
-          <div className="bg-primary-foreground/20 h-px" />
+            {/* Divider */}
+            <div className="bg-primary-foreground/20 h-px" />
 
-          {/* Actions */}
-          <div className="flex flex-col">
-            <h3 className="font-pixel mb-2 px-2 opacity-70">ACTIONS</h3>
+            {/* Actions */}
+            <div className="flex flex-col">
+              <Label className="text-primary-foreground text-xs">ACTIONS</Label>
 
-            <button
-              onClick={() => handleAction("save")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
-            >
-              <Save size={18} />
-              Save Preset
-            </button>
+              <button
+                onClick={() => handleAction("save")}
+                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
+              >
+                <Save size={18} />
+                Save Preset
+              </button>
 
-            <button
-              onClick={() => handleAction("share")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
-            >
-              <Share2 size={18} />
-              Share Link
-            </button>
+              <button
+                onClick={() => handleAction("share")}
+                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
+              >
+                <Share2 size={18} />
+                Share Link
+              </button>
 
-            <button
-              onClick={() => handleAction("export")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
-            >
-              <Download size={18} />
-              Export Kit
-            </button>
+              <button
+                onClick={() => handleAction("export")}
+                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
+              >
+                <Download size={18} />
+                Export Kit
+              </button>
 
-            <button
-              onClick={handleImport}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
-            >
-              <Upload size={18} />
-              Import Preset
-            </button>
+              <button
+                onClick={handleImport}
+                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
+              >
+                <Upload size={18} />
+                Import Preset
+              </button>
+            </div>
           </div>
 
           {/* Divider */}

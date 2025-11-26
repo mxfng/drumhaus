@@ -50,7 +50,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
         </div>
         <ListMusic
           size={20}
-          className="text-foreground-emphasis absolute top-1/2 right-4 -translate-y-1/2"
+          className="text-foreground-muted absolute top-1/2 right-4 -translate-y-1/2"
         />
       </button>
     </>
