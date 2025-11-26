@@ -141,10 +141,10 @@ export const Sequencer: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full py-4 sm:py-0" ref={sequencerRef}>
+    <div className="w-full py-2 sm:py-0" ref={sequencerRef}>
       <div
         key="sequence-grid"
-        className="grid h-full w-full grid-cols-8 gap-3 sm:grid-cols-16 sm:gap-3"
+        className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-3"
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);

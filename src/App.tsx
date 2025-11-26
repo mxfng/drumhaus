@@ -73,11 +73,16 @@ export function App() {
         />
         <AppErrorBoundary>
           <GlobalErrorHandler />
-          <div className="h-screen w-screen overflow-auto">
-            <Suspense fallback={<DrumhausFallback />}>
-              {isMobile ? <DrumhausMobile /> : <Drumhaus />}
-            </Suspense>
-          </div>
+
+          <Suspense fallback={<DrumhausFallback />}>
+            {isMobile ? (
+              <DrumhausMobile />
+            ) : (
+              <div className="h-screen w-screen overflow-auto">
+                <Drumhaus />
+              </div>
+            )}
+          </Suspense>
         </AppErrorBoundary>
       </ToastProvider>
     </TooltipProvider>

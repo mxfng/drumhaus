@@ -59,7 +59,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
       {/* Backdrop */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/50 transition-opacity",
+          "bg-shadow-30 fixed inset-0 z-40 backdrop-blur-xs transition-opacity",
           isOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={onClose}
@@ -93,11 +93,11 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
           {/* Actions */}
           <div className="flex flex-col">
-            <h3 className="font-pixel mb-2 px-2 text-sm opacity-70">ACTIONS</h3>
+            <h3 className="font-pixel mb-2 px-2 opacity-70">ACTIONS</h3>
 
             <button
               onClick={() => handleAction("save")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
             >
               <Save size={18} />
               Save Preset
@@ -105,7 +105,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
             <button
               onClick={() => handleAction("share")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
             >
               <Share2 size={18} />
               Share Link
@@ -113,7 +113,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
             <button
               onClick={() => handleAction("export")}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
             >
               <Download size={18} />
               Export Kit
@@ -121,7 +121,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
             <button
               onClick={handleImport}
-              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left text-sm transition-colors"
+              className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
             >
               <Upload size={18} />
               Import Preset

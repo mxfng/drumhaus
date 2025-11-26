@@ -144,7 +144,7 @@ const DrumhausMobile: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden">
+    <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden overscroll-none">
       {/* Header: Logo + Preset Info */}
       <MobileHeader
         onMenuOpen={() => setMenuOpen(true)}

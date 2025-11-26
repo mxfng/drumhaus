@@ -26,7 +26,7 @@ interface FrequencyAnalyzerProps {
 
 export function FrequencyAnalyzer({
   width = 550,
-  height = 88,
+  height = 90,
 }: FrequencyAnalyzerProps = {}) {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -126,7 +126,12 @@ export function FrequencyAnalyzer({
   }, [isPlaying]);
 
   return (
-    <canvas ref={canvasRef} width={width} height={height} className="w-full" />
+    <canvas
+      ref={canvasRef}
+      width={width}
+      height={height}
+      className="h-full w-full object-fill"
+    />
   );
 }
 
