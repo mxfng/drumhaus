@@ -5,6 +5,7 @@ import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
 } from "@/lib/audio/engine";
+import { semitonesToRatio } from "@/lib/knob/utils";
 import { clamp, normalize } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 
@@ -15,8 +16,8 @@ const BAR_GAP = 2; // gap between bars (px)
 const ACTIVE_FRACTION_X = 2 / 3; // use lowest 2/3 of spectrum
 const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
 
-// Logarithmic scaling factor - higher = more space for low frequencies
-const LOG_SCALE_BASE = 10;
+// Musical octaves to display (drums have lots of low-end)
+const NUM_OCTAVES = 6;
 
 export function FrequencyAnalyzer() {
   const analyzerRef = useRef<Analyser | null>(null);
@@ -53,19 +54,19 @@ export function FrequencyAnalyzer() {
       const bandWidth = canvas.width / NUM_BARS;
       const barWidth = Math.max(1, bandWidth - BAR_GAP); // keep at least 1px
 
-      // Helper to map bar index to frequency bin using logarithmic scale
-      // This gives more visual space to lower frequencies
-      const logScale = (barIdx: number) => {
+      // Map bar index to frequency bin using musical intervals
+      // Gives equal visual space to each octave (good for drums)
+      const mapBarToFrequencyBin = (barIdx: number) => {
         const normalized = normalize(barIdx, 0, NUM_BARS);
-        // Logarithmic mapping: more bins for low frequencies
-        const logPos =
-          (Math.pow(LOG_SCALE_BASE, normalized) - 1) / (LOG_SCALE_BASE - 1);
-        return Math.floor(logPos * activeLength);
+        const semitones = normalized * (NUM_OCTAVES * 12);
+        const ratio = semitonesToRatio(semitones);
+        const maxRatio = Math.pow(2, NUM_OCTAVES);
+        return Math.floor((ratio / maxRatio) * activeLength);
       };
 
       for (let barIndex = 0; barIndex < NUM_BARS; barIndex++) {
-        const start = logScale(barIndex);
-        let end = logScale(barIndex + 1);
+        const start = mapBarToFrequencyBin(barIndex);
+        let end = mapBarToFrequencyBin(barIndex + 1);
 
         // Ensure each bar covers at least one bin to prevent duplicates
         if (end <= start) {
