@@ -2,7 +2,7 @@ import { now } from "tone/build/esm/index";
 
 import { instrumentReleaseMapping, pitchMapping } from "@/lib/knob/mapping";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { stopRuntimeAtTime } from "./runtimeStops";
+import { triggerInstrumentAtTime } from "./trigger";
 
 /**
  * Plays a sample on an instrument runtime for preview/manual playback.
@@ -11,22 +11,14 @@ export function playInstrumentSample(
   runtime: InstrumentRuntime,
   pitch: number,
   release: number,
-): number {
-  const time = now();
-  const pitchValue = pitchMapping.knobToDomain(pitch);
-  const releaseTime = instrumentReleaseMapping.knobToDomain(release);
-
-  // Enforce monophonic behavior
-  stopRuntimeAtTime(runtime, time);
-
-  // Skip triggering if the buffer is not ready yet
+) {
   if (!runtime.samplerNode.loaded) {
-    return pitchValue;
+    return;
   }
 
-  runtime.envelopeNode.triggerAttack(time);
-  runtime.envelopeNode.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitchValue, time);
+  const time = now();
+  const pitchValue = pitchMapping.knobToDomain(pitch);
+  const releaseValue = instrumentReleaseMapping.knobToDomain(release);
 
-  return pitchValue;
+  triggerInstrumentAtTime(runtime, pitchValue, releaseValue, time);
 }
