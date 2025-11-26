@@ -36,24 +36,27 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
 }) => {
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
 
-  // Calculate responsive waveform width
+  // Calculate responsive waveform dimensions
   const [waveformWidth, setWaveformWidth] = useState(170);
+  const [waveformHeight, setWaveformHeight] = useState(60);
 
   useEffect(() => {
-    const updateWaveformWidth = () => {
+    const updateWaveformDimensions = () => {
       const viewportWidth = window.innerWidth;
-      // On mobile (<640px), use 90% of viewport width
-      if (viewportWidth < 640) {
-        const calculatedWidth = Math.min(viewportWidth * 0.9);
-        setWaveformWidth(calculatedWidth);
-      } else {
-        setWaveformWidth(170);
-      }
+      const viewportHeight = window.innerHeight;
+
+      // On mobile (<640px), use 70% of viewport width
+      const calculatedWidth = Math.min(viewportWidth * 0.7);
+      setWaveformWidth(calculatedWidth);
+
+      // Height is roughly 1/6 of viewport minus header space (about 40-50px for title)
+      const calculatedHeight = Math.max(viewportHeight / 6 - 50, 40);
+      setWaveformHeight(calculatedHeight);
     };
 
-    updateWaveformWidth();
-    window.addEventListener("resize", updateWaveformWidth);
-    return () => window.removeEventListener("resize", updateWaveformWidth);
+    updateWaveformDimensions();
+    window.addEventListener("resize", updateWaveformDimensions);
+    return () => window.removeEventListener("resize", updateWaveformDimensions);
   }, []);
 
   return (
@@ -65,7 +68,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
           className={cn(
             "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
             activeTab === "instrument"
-              ? "bg-surface text-foreground-emphasis"
+              ? "bg-surface text-primary-muted"
               : "bg-surface-muted text-foreground-muted hover:bg-surface",
           )}
         >
@@ -76,7 +79,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
           className={cn(
             "flex-1 px-4 py-3 text-sm font-medium transition-colors",
             activeTab === "controls"
-              ? "bg-surface text-foreground-emphasis"
+              ? "bg-surface text-primary-muted"
               : "bg-surface-muted text-foreground-muted hover:bg-surface",
           )}
         >
@@ -84,13 +87,14 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         </button>
       </div>
 
-      {/* Instrument Header - Always Visible */}
-      <div className="bg-surface-raised border-border border-b py-1">
+      {/* Instrument Header */}
+      <div className="bg-surface-raised border-border h-1/6 border-b">
         <InstrumentHeader
           key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
           index={voiceIndex}
           color={INSTRUMENT_COLORS[voiceIndex]}
           waveformWidth={waveformWidth}
+          waveformHeight={waveformHeight}
           runtime={instrumentRuntimes[voiceIndex]}
         />
       </div>
@@ -110,8 +114,8 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         )}
 
         {activeTab === "controls" && (
-          <div className="bg-surface flex h-full flex-col items-center justify-center gap-4 p-4">
-            <div className="flex aspect-auto flex-1 scale-110 items-center justify-center">
+          <div className="bg-surface flex h-full flex-col items-center justify-center p-1">
+            <div className="flex flex-1 items-center justify-center">
               <SequencerControl />
             </div>
             <Sequencer />
