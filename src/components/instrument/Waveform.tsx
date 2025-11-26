@@ -5,6 +5,7 @@ import { getCachedWaveform } from "@/lib/audio/cache";
 interface WaveformProps {
   audioFile: string;
   width: number;
+  height?: number;
   color?: string;
   onError?: (error: Error) => void;
 }
@@ -12,7 +13,8 @@ interface WaveformProps {
 const Waveform: React.FC<WaveformProps> = ({
   audioFile,
   width,
-  color = "#ff7b00",
+  height = 60,
+  color = "#ff7b00", // must be hardcoded due to canvas
   onError,
 }) => {
   // Remove the leading directory and .wav file type from string
@@ -70,7 +72,7 @@ const Waveform: React.FC<WaveformProps> = ({
     }
 
     canvas.width = width;
-    canvas.height = 60;
+    canvas.height = height;
 
     // Load waveform data using Cache API
     getCachedWaveform(sampleFilename)
@@ -84,9 +86,9 @@ const Waveform: React.FC<WaveformProps> = ({
           onError(error instanceof Error ? error : new Error(String(error)));
         }
       });
-  }, [sampleFilename, width, color, onError]);
+  }, [sampleFilename, width, height, color, onError]);
 
-  return <canvas ref={canvasRef} />;
+  return <canvas ref={canvasRef} className="h-full w-full object-contain" />;
 };
 
 export default Waveform;

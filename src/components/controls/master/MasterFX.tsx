@@ -19,7 +19,7 @@ export const MasterFX: React.FC = () => {
   const setReverb = useMasterChainStore((state) => state.setReverb);
 
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid grid-cols-2 place-items-center">
       <ParamKnob
         label="LPF"
         mapping={lowPassFilterMapping}

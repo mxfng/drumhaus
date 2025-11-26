@@ -1,21 +1,23 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { SequencerControl } from "@/components/controls/SequencerControl";
-import { InstrumentControl } from "@/components/instrument/InstrumentControl";
 import { Sequencer } from "@/components/Sequencer";
 import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { InstrumentHeader } from "../instrument/InstrumentHeader";
+import { InstrumentParams } from "../instrument/InstrumentParams";
 
 const INSTRUMENT_COLORS = [
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
+  "var(--color-track-blue)",
+  "var(--color-track-orange)",
+  "var(--color-track-red)",
+  "var(--color-track-green)",
+  "var(--color-track-blue)",
+  "var(--color-track-orange)",
+  "var(--color-track-red)",
+  "var(--color-track-green)",
 ];
 
 export type TabType = "instrument" | "controls";
@@ -35,80 +37,116 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
 }) => {
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
 
-  // Calculate responsive waveform width
+  // Calculate responsive waveform dimensions
   const [waveformWidth, setWaveformWidth] = useState(170);
+  const [waveformHeight, setWaveformHeight] = useState(60);
 
   useEffect(() => {
-    const updateWaveformWidth = () => {
+    const updateWaveformDimensions = () => {
       const viewportWidth = window.innerWidth;
-      // On mobile (<640px), use 80% of viewport width, capped at 350px
-      // On desktop, use default 170px
-      if (viewportWidth < 640) {
-        const calculatedWidth = Math.min(viewportWidth * 0.8, 350);
-        setWaveformWidth(calculatedWidth);
-      } else {
-        setWaveformWidth(170);
-      }
+      const viewportHeight = window.innerHeight;
+
+      // On mobile (<640px), use 70% of viewport width
+      const calculatedWidth = Math.min(viewportWidth * 0.7);
+      setWaveformWidth(calculatedWidth);
+
+      // Height is roughly 1/6 of viewport minus header space (about 40-50px for title)
+      const calculatedHeight = Math.max(viewportHeight / 6 - 50, 40);
+      setWaveformHeight(calculatedHeight);
     };
 
-    updateWaveformWidth();
-    window.addEventListener("resize", updateWaveformWidth);
-    return () => window.removeEventListener("resize", updateWaveformWidth);
+    updateWaveformDimensions();
+    window.addEventListener("resize", updateWaveformDimensions);
+    return () => window.removeEventListener("resize", updateWaveformDimensions);
   }, []);
 
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-hidden">
+      {/* Instrument Header */}
+      <div className="bg-surface-raised border-border h-1/6 border-b">
+        <InstrumentHeader
+          key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
+          index={voiceIndex}
+          color={INSTRUMENT_COLORS[voiceIndex]}
+          waveformWidth={waveformWidth}
+          waveformHeight={waveformHeight}
+          runtime={instrumentRuntimes[voiceIndex]}
+        />
+      </div>
+
       {/* Tabs */}
       <div className="border-border flex border-b">
         <button
-          onClick={() => setActiveTab("instrument")}
-          className={cn(
-            "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
-            activeTab === "instrument"
-              ? "bg-surface text-foreground-emphasis"
-              : "bg-surface-muted text-foreground-muted hover:bg-surface",
-          )}
-        >
-          INSTRUMENT
-        </button>
-        <button
           onClick={() => setActiveTab("controls")}
           className={cn(
-            "flex-1 px-4 py-3 text-sm font-medium transition-colors",
+            "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
             activeTab === "controls"
-              ? "bg-surface text-foreground-emphasis"
+              ? "bg-surface text-primary-muted"
               : "bg-surface-muted text-foreground-muted hover:bg-surface",
           )}
         >
           CONTROLS
         </button>
+        <button
+          onClick={() => setActiveTab("instrument")}
+          className={cn(
+            "border-border flex-1 px-4 py-3 text-sm font-medium transition-colors",
+            activeTab === "instrument"
+              ? "bg-surface text-primary-muted"
+              : "bg-surface-muted text-foreground-muted hover:bg-surface",
+          )}
+        >
+          INSTRUMENT
+        </button>
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-x-hidden overflow-y-auto">
-        {activeTab === "instrument" && (
-          <div className="bg-surface-raised h-full">
-            <InstrumentControl
-              key={`mobile-instrument-${voiceIndex}-${instrumentRuntimesVersion}`}
-              runtime={instrumentRuntimes[voiceIndex]}
-              index={voiceIndex}
-              instrumentIndex={voiceIndex}
-              color={INSTRUMENT_COLORS[voiceIndex]}
-              bg="#E8E3DD"
-              waveformWidth={waveformWidth}
-              fillHeight={true}
-            />
-          </div>
-        )}
-
-        {activeTab === "controls" && (
-          <div className="bg-surface flex h-full flex-col items-center justify-center gap-4 p-4">
-            <div className="flex aspect-auto flex-1 scale-110 items-center justify-center">
-              <SequencerControl />
-            </div>
-            <Sequencer />
-          </div>
-        )}
+      <div className="relative flex-1 overflow-hidden">
+        <AnimatePresence initial={false}>
+          {activeTab === "controls" && (
+            <motion.div
+              key="controls"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 28,
+                mass: 0.5,
+              }}
+              className="bg-surface absolute inset-0 flex h-full flex-col items-center justify-center overflow-y-auto p-1"
+            >
+              <div className="flex flex-1 items-center justify-center">
+                <SequencerControl />
+              </div>
+              <Sequencer />
+            </motion.div>
+          )}
+          {activeTab === "instrument" && (
+            <motion.div
+              key="instrument"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 28,
+                mass: 0.5,
+              }}
+              className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
+            >
+              <InstrumentParams
+                key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
+                index={voiceIndex}
+                instrumentIndex={voiceIndex}
+                fillHeight
+                runtime={instrumentRuntimes[voiceIndex]}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

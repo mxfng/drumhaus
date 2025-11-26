@@ -18,7 +18,7 @@ export const MasterCompressor: React.FC = () => {
 
   return (
     <div className="relative -mr-2 flex items-center">
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 place-items-center">
         {/* Threshold and Ratio */}
 
         <ParamKnob

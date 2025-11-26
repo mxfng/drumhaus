@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { getTransport, Ticks } from "tone";
 
 import { SEQUENCE_SUBDIVISION, STEP_COUNT } from "@/lib/audio/engine/constants";
+import { cn } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 
 interface StepIndicatorProps {
@@ -27,6 +28,9 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   playbackVariation,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
+
+  const baseClassName =
+    "mb-2 sm:mb-4 h-1 w-full rounded-full transition-all duration-75";
 
   useEffect(() => {
     let animationId: number;
@@ -54,9 +58,10 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
         indicatorRef.current.style.opacity = String(opacity);
 
         // Update background color
-        indicatorRef.current.className = indicatorIsOn
-          ? "mb-4 h-1 w-full rounded-full transition-all duration-75 bg-primary"
-          : "mb-4 h-1 w-full rounded-full transition-all duration-75 bg-foreground";
+        indicatorRef.current.className = cn(
+          baseClassName,
+          indicatorIsOn ? "bg-primary" : "bg-foreground",
+        );
 
         // Update LED glow effect
         indicatorRef.current.style.boxShadow = indicatorIsOn
@@ -77,7 +82,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   return (
     <div
       ref={indicatorRef}
-      className="bg-foreground mb-4 h-1 w-full rounded-full transition-all duration-75"
+      className={baseClassName}
       style={{ opacity: 0.2 }}
     />
   );

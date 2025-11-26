@@ -26,7 +26,7 @@ export const MobilePresetSelector: React.FC<MobilePresetSelectorProps> = ({
 }) => {
   return (
     <div>
-      <Label className="text-primary-foreground text-xs">PRESET</Label>
+      <Label className="text-primary-foreground">PRESET</Label>
       <div className="group w-full rounded-lg">
         <Select value={selectedPresetId} onValueChange={onSelect}>
           <SelectTrigger className="border-primary-foreground/20 h-10 cursor-pointer rounded-lg border bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">

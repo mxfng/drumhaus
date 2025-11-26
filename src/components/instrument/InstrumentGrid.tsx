@@ -78,7 +78,11 @@ export const InstrumentGrid: React.FC<InstrumentGridProps> = ({
               runtime={runtime}
               index={index}
               instrumentIndex={voiceIndex}
-              bg={voiceIndex == index ? "#F7F1EA" : "#E8E3DD"}
+              bg={
+                voiceIndex == index
+                  ? "var(--color-track-emphasis)"
+                  : "var(--color-track)"
+              }
             />
           </div>
         );

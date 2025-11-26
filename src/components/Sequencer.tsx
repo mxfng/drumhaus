@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { StepIndicator } from "@/components/StepIndicator";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { clampVelocity } from "@/lib/pattern/helpers";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,10 @@ export const Sequencer: React.FC = () => {
     useState<boolean>(false);
 
   const sequencerRef = useRef<HTMLDivElement | null>(null);
+  const touchActiveRef = useRef<boolean>(false);
+
+  // Lock scroll during drag (similar to Radix Dialog)
+  useScrollLock(isDragging);
 
   const currentVariation = pattern[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;
@@ -80,16 +85,54 @@ export const Sequencer: React.FC = () => {
   const handleMouseUp = () => {
     setIsDragging(false);
     setIsAdjustingVelocity(false);
+    // Reset touch flag after a delay to allow for mouse events to be ignored
+    setTimeout(() => {
+      touchActiveRef.current = false;
+    }, 300);
+  };
+
+  // Mouse handler - skip if touch is active
+  const handleStepMouseStart = (stepIndex: number, isCurrentlyOn: boolean) => {
+    if (touchActiveRef.current) return;
+    setIsDragging(true);
+    setDragWriteTargetOn(!isCurrentlyOn);
+    handleToggleStep(stepIndex);
+  };
+
+  // Touch handler
+  const handleStepTouchStart = (stepIndex: number, isCurrentlyOn: boolean) => {
+    touchActiveRef.current = true;
+    setIsDragging(true);
+    setDragWriteTargetOn(!isCurrentlyOn);
+    handleToggleStep(stepIndex);
+  };
+
+  // Touch move handler for drag painting on mobile
+  const handleStepTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || isAdjustingVelocity) return;
+
+    event.preventDefault(); // Prevent scrolling and mouse events
+
+    const touch = event.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const stepElement = element?.closest("[data-step-index]");
+
+    if (stepElement) {
+      const stepIndex = parseInt(
+        stepElement.getAttribute("data-step-index") || "-1",
+      );
+      if (stepIndex >= 0 && stepIndex < STEP_COUNT) {
+        const state = getStepMusicalState(stepIndex);
+        const isStateChanging = state.isTriggerOn !== dragWriteTargetOn;
+        if (isStateChanging) {
+          handleToggleStep(stepIndex);
+        }
+      }
+    }
   };
 
   const handleToggleStep = (index: number) => {
     toggleStep(voiceIndex, variation, index);
-  };
-
-  const handleStepMouseDown = (stepIndex: number, isCurrentlyOn: boolean) => {
-    setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
-    handleToggleStep(stepIndex);
   };
 
   const handleStepMouseEnter = (stepIndex: number, isCurrentlyOn: boolean) => {
@@ -120,16 +163,22 @@ export const Sequencer: React.FC = () => {
     };
   };
 
-  // Track mouseup events for drag painting step triggers.
+  // Track mouseup and touchend events for drag painting step triggers.
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener("touchend", handleMouseUp);
+      window.addEventListener("touchcancel", handleMouseUp);
     } else {
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchend", handleMouseUp);
+      window.removeEventListener("touchcancel", handleMouseUp);
     }
 
     return () => {
       window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("touchend", handleMouseUp);
+      window.removeEventListener("touchcancel", handleMouseUp);
     };
   }, [isDragging]);
 
@@ -141,10 +190,11 @@ export const Sequencer: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full py-4 sm:py-0" ref={sequencerRef}>
+    <div className="w-full py-2 sm:py-0" ref={sequencerRef}>
       <div
         key="sequence-grid"
-        className="grid h-full w-full grid-cols-8 gap-3 sm:grid-cols-16 sm:gap-3"
+        className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-3"
+        onTouchMove={handleStepTouchMove}
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
@@ -160,10 +210,17 @@ export const Sequencer: React.FC = () => {
               />
               <div
                 key={`sequence-step-trigger-${step}`}
-                onMouseDown={() => handleStepMouseDown(step, state.isTriggerOn)}
+                data-step-index={step}
+                onMouseDown={() =>
+                  handleStepMouseStart(step, state.isTriggerOn)
+                }
                 onMouseEnter={() =>
                   handleStepMouseEnter(step, state.isTriggerOn)
                 }
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  handleStepTouchStart(step, state.isTriggerOn);
+                }}
                 onContextMenu={(e) => e.preventDefault()}
                 className={cn(
                   "relative aspect-square w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
