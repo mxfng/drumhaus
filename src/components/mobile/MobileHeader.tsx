@@ -1,4 +1,4 @@
-import { ListMusic, Menu } from "lucide-react";
+import { ListMusic } from "lucide-react";
 
 import { FrequencyAnalyzer } from "@/components/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/components/icon/DrumhausLogo";
