@@ -1,5 +1,6 @@
 import { Menu } from "lucide-react";
 
+import { FrequencyAnalyzer } from "@/components/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/components/icon/DrumhausLogo";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 
@@ -19,14 +20,19 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
 
   return (
     <>
-      {/* Logo */}
-      <button
-        onClick={onLogoClick}
-        className="hover:bg-surface-muted active:bg-surface-raised border-border flex w-full items-center border-b p-3 transition-colors"
-        aria-label="About Drumhaus"
-      >
-        <DrumhausLogo size={24} color="#ff7b00" />
-      </button>
+      {/* Logo + Analyzer */}
+      <div className="border-border flex items-center border-b">
+        <button
+          onClick={onLogoClick}
+          className="hover:bg-surface-muted active:bg-surface-raised flex items-center p-3 transition-colors"
+          aria-label="About Drumhaus"
+        >
+          <DrumhausLogo size={24} color="#ff7b00" />
+        </button>
+        <div className="flex-1 px-2">
+          <FrequencyAnalyzer height={80} />
+        </div>
+      </div>
 
       {/* Preset/Kit Info - Clickable Menu Trigger */}
       <button

@@ -103,7 +103,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
 
         {activeTab === "controls" && (
           <div className="bg-surface flex h-full flex-col items-center justify-center gap-4 p-4">
-            <div className="aspect-auto scale-110">
+            <div className="flex aspect-auto flex-1 scale-110 items-center justify-center">
               <SequencerControl />
             </div>
             <Sequencer />

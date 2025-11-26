@@ -19,7 +19,15 @@ const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
 // Musical octaves to display (drums have lots of low-end)
 const NUM_OCTAVES = 6;
 
-export function FrequencyAnalyzer() {
+interface FrequencyAnalyzerProps {
+  width?: number;
+  height?: number;
+}
+
+export function FrequencyAnalyzer({
+  width = 550,
+  height = 88,
+}: FrequencyAnalyzerProps = {}) {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -117,7 +125,9 @@ export function FrequencyAnalyzer() {
     };
   }, [isPlaying]);
 
-  return <canvas ref={canvasRef} width={550} height={88} />;
+  return (
+    <canvas ref={canvasRef} width={width} height={height} className="w-full" />
+  );
 }
 
 export default FrequencyAnalyzer;
