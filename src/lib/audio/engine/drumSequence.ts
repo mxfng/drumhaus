@@ -15,6 +15,7 @@ import {
 } from "./constants";
 import { defaultSequencerFactory, defaultStateProvider } from "./factory";
 import { hasAnySolo } from "./solo";
+import { triggerInstrumentAtTime } from "./trigger";
 import type {
   DrumSequenceStateProvider,
   Ref,
@@ -219,17 +220,7 @@ function scheduleVoiceCore(
     muteOpenHatAtTime(timeSeconds, instruments, runtimes, ohatIndex);
   }
 
-  if (inst.role === "ohat") {
-    triggerOpenHatAtTime(timeSeconds, runtime, pitch, releaseTime, velocity);
-  } else {
-    triggerStandardInstrumentAtTime(
-      timeSeconds,
-      runtime,
-      pitch,
-      releaseTime,
-      velocity,
-    );
-  }
+  triggerInstrumentAtTime(runtime, pitch, releaseTime, timeSeconds, velocity);
 }
 
 /**
@@ -366,34 +357,6 @@ export function muteOpenHatAtTime(
 
   const ohPitch = pitchMapping.knobToDomain(ohInst.params.pitch);
   ohRuntime.samplerNode.triggerRelease(ohPitch, time);
-}
-
-export function triggerOpenHatAtTime(
-  time: number,
-  runtime: InstrumentRuntime,
-  pitch: number,
-  releaseTime: number,
-  velocity: number,
-): void {
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitch, time, velocity);
-}
-
-export function triggerStandardInstrumentAtTime(
-  time: number,
-  runtime: InstrumentRuntime,
-  pitch: number,
-  releaseTime: number,
-  velocity: number,
-): void {
-  runtime.samplerNode.triggerRelease(pitch, time);
-
-  const env = runtime.envelopeNode;
-  env.triggerAttack(time);
-  env.triggerRelease(time + releaseTime);
-  runtime.samplerNode.triggerAttack(pitch, time, velocity);
 }
 
 // -----------------------------------------------------------------------------
