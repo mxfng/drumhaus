@@ -61,6 +61,18 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
 
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-hidden">
+      {/* Instrument Header */}
+      <div className="bg-surface-raised border-border h-1/6 border-b">
+        <InstrumentHeader
+          key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
+          index={voiceIndex}
+          color={INSTRUMENT_COLORS[voiceIndex]}
+          waveformWidth={waveformWidth}
+          waveformHeight={waveformHeight}
+          runtime={instrumentRuntimes[voiceIndex]}
+        />
+      </div>
+
       {/* Tabs */}
       <div className="border-border flex border-b">
         <button
@@ -85,18 +97,6 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         >
           CONTROLS
         </button>
-      </div>
-
-      {/* Instrument Header */}
-      <div className="bg-surface-raised border-border h-1/6 border-b">
-        <InstrumentHeader
-          key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
-          index={voiceIndex}
-          color={INSTRUMENT_COLORS[voiceIndex]}
-          waveformWidth={waveformWidth}
-          waveformHeight={waveformHeight}
-          runtime={instrumentRuntimes[voiceIndex]}
-        />
       </div>
 
       {/* Tab Content */}

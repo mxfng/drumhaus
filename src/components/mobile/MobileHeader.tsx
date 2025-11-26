@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { ListMusic, Menu } from "lucide-react";
 
 import { FrequencyAnalyzer } from "@/components/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/components/icon/DrumhausLogo";
@@ -48,7 +48,7 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             {currentKitMeta.name}
           </div>
         </div>
-        <Menu
+        <ListMusic
           size={20}
           className="text-foreground-emphasis absolute top-1/2 right-4 -translate-y-1/2"
         />

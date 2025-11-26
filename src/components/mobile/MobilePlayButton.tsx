@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Pause, Play, Sliders } from "lucide-react";
+import { ArrowLeftRight, ListMusic, Pause, Play, Sliders } from "lucide-react";
 
 import { MasterCompressor } from "@/components/controls/master/MasterCompressor";
 import { MasterFX } from "@/components/controls/master/MasterFX";
@@ -14,12 +14,14 @@ interface MobilePlayButtonProps {
   instrumentRuntimes: InstrumentRuntime[];
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onOpenPresetMenu: () => void;
 }
 
 export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
   instrumentRuntimes,
   activeTab,
   setActiveTab,
+  onOpenPresetMenu,
 }) => {
   const [transportDialogOpen, setTransportDialogOpen] = useState(false);
   const [busDialogOpen, setBusDialogOpen] = useState(false);
@@ -39,14 +41,20 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={() => setTransportDialogOpen(true)}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <span className="text-foreground-muted text-xs">TEMPO</span>
-          <span className="font-pixel text-foreground-emphasis text-lg">
+          <span className="font-pixel text-foreground-emphasis flex h-5 items-center justify-center text-lg">
             {bpm}
           </span>
+          <span className="text-foreground-muted mt-1 text-xs">TEMPO</span>
         </button>
 
-        {/* Empty column for centering */}
-        <div />
+        {/* Bus Button */}
+        <button
+          onClick={() => setBusDialogOpen(true)}
+          className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
+        >
+          <Sliders size={20} className="text-foreground-emphasis" />
+          <span className="text-foreground-muted mt-1 text-xs">BUS</span>
+        </button>
 
         {/* Play Button (centered) */}
         <Button
@@ -61,13 +69,13 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           )}
         </Button>
 
-        {/* Bus Button */}
+        {/* Preset Menu Button */}
         <button
-          onClick={() => setBusDialogOpen(true)}
+          onClick={onOpenPresetMenu}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <Sliders size={20} className="text-foreground-emphasis" />
-          <span className="text-foreground-muted mt-1 text-xs">BUS</span>
+          <ListMusic size={20} className="text-foreground-emphasis" />
+          <span className="text-foreground-muted mt-1 text-xs">PRESET</span>
         </button>
 
         {/* Swap Tab Button */}
@@ -76,7 +84,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
           <ArrowLeftRight size={20} className="text-foreground-emphasis" />
-          <span className="text-foreground-muted mt-1 text-xs">SWAP</span>
+          <span className="text-foreground-muted mt-1 text-xs">TAB</span>
         </button>
       </div>
 
