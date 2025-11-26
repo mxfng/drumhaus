@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { SequencerControl } from "@/components/controls/SequencerControl";
 import { Sequencer } from "@/components/Sequencer";
@@ -100,26 +101,52 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-x-hidden overflow-y-auto">
-        {activeTab === "controls" && (
-          <div className="bg-surface flex h-full flex-col items-center justify-center p-1">
-            <div className="flex flex-1 items-center justify-center">
-              <SequencerControl />
-            </div>
-            <Sequencer />
-          </div>
-        )}
-        {activeTab === "instrument" && (
-          <div className="bg-surface-raised flex h-full flex-col">
-            <InstrumentParams
-              key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
-              index={voiceIndex}
-              instrumentIndex={voiceIndex}
-              fillHeight
-              runtime={instrumentRuntimes[voiceIndex]}
-            />
-          </div>
-        )}
+      <div className="relative flex-1 overflow-hidden">
+        <AnimatePresence initial={false}>
+          {activeTab === "controls" && (
+            <motion.div
+              key="controls"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 28,
+                mass: 0.5,
+              }}
+              className="bg-surface absolute inset-0 flex h-full flex-col items-center justify-center overflow-y-auto p-1"
+            >
+              <div className="flex flex-1 items-center justify-center">
+                <SequencerControl />
+              </div>
+              <Sequencer />
+            </motion.div>
+          )}
+          {activeTab === "instrument" && (
+            <motion.div
+              key="instrument"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 28,
+                mass: 0.5,
+              }}
+              className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
+            >
+              <InstrumentParams
+                key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
+                index={voiceIndex}
+                instrumentIndex={voiceIndex}
+                fillHeight
+                runtime={instrumentRuntimes[voiceIndex]}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
