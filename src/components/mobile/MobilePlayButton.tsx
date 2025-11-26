@@ -42,7 +42,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={() => setTransportDialogOpen(true)}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <span className="font-pixel text-foreground-emphasis flex h-5 items-center justify-center text-lg">
+          <span className="font-pixel flex h-5 items-center justify-center text-lg">
             {bpm}
           </span>
           <span className="text-foreground-muted mt-1 text-xs">TEMPO</span>
@@ -53,7 +53,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={() => setBusDialogOpen(true)}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <Sliders size={20} className="text-foreground-emphasis" />
+          <Sliders size={20} />
           <span className="text-foreground-muted mt-1 text-xs">BUS</span>
         </button>
 
@@ -75,7 +75,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={onOpenPresetMenu}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <ListMusic size={20} className="text-foreground-emphasis" />
+          <ListMusic size={20} />
           <span className="text-foreground-muted mt-1 text-xs">PRESET</span>
         </button>
 
@@ -84,7 +84,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={handleSwapTab}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <ArrowLeftRight size={20} className="text-foreground-emphasis" />
+          <ArrowLeftRight size={20} />
           <span className="text-foreground-muted mt-1 text-xs">TAB</span>
         </button>
       </div>
