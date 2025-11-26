@@ -8,6 +8,7 @@ interface WaveformProps {
   height?: number;
   color?: string;
   onError?: (error: Error) => void;
+  onLoad?: () => void;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
@@ -16,6 +17,7 @@ const Waveform: React.FC<WaveformProps> = ({
   height = 60,
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
+  onLoad,
 }) => {
   // Remove the leading directory and .wav file type from string
   // Filenames for waveforms are auto-generated and thus have the same name as the audio file
@@ -79,6 +81,9 @@ const Waveform: React.FC<WaveformProps> = ({
       .then((data) => {
         const amplitudeData: number[][] = data.amplitude_envelope;
         draw(amplitudeData, ctx, canvas.width, canvas.height);
+        if (onLoad) {
+          onLoad();
+        }
       })
       .catch((error) => {
         console.error(`Failed to load waveform for ${sampleFilename}`, error);
@@ -86,7 +91,7 @@ const Waveform: React.FC<WaveformProps> = ({
           onError(error instanceof Error ? error : new Error(String(error)));
         }
       });
-  }, [sampleFilename, width, height, color, onError]);
+  }, [sampleFilename, width, height, color, onError, onLoad]);
 
   return <canvas ref={canvasRef} className="h-full w-full object-contain" />;
 };
