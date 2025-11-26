@@ -22,7 +22,7 @@ export function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: RuntimeParams,
 ): void {
-  runtime.envelopeNode.attack = instrumentAttackMapping.knobToDomain(
+  runtime.samplerNode.attack = instrumentAttackMapping.knobToDomain(
     params.attack,
   );
 

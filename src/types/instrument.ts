@@ -56,6 +56,7 @@ export interface KitFileV1 {
 export interface InstrumentRuntime {
   instrumentId: string; // matches InstrumentData.meta.id
   samplerNode: Sampler;
+  /** Used for release envelope and pseudo-monophonic behavior */
   envelopeNode: AmplitudeEnvelope;
   filterNode: Filter;
   pannerNode: Panner;
