@@ -36,7 +36,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
 
   return (
     <>
-      <div className="border-border bg-surface grid grid-cols-5 gap-2 border-t p-3">
+      <div className="border-border bg-surface grid grid-cols-5 gap-2 border-t p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         {/* Tempo */}
         <button
           onClick={() => setTransportDialogOpen(true)}
