@@ -225,7 +225,23 @@ const Knob: React.FC<KnobProps> = ({
           }}
         >
           {/* Tick Mark */}
-          <div className="bg-shadow-60 absolute left-1/2 h-1/5 w-[calc(1/40*100%)] -translate-x-1/2" />
+          <svg
+            className="absolute top-[2%] left-1/2 -translate-x-1/2"
+            width="calc(1/24*100%)"
+            height="19%"
+            viewBox="0 0 2 20"
+            preserveAspectRatio="none"
+          >
+            <line
+              x1="1"
+              y1="0"
+              x2="1"
+              y2="20"
+              className="stroke-shadow-60"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
         </motion.div>
 
         {/* Knob Base (Fixed and motionless for shadow effect) */}
