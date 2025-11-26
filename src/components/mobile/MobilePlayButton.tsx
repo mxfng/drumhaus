@@ -91,10 +91,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       {/* Transport Dialog */}
       <Dialog open={transportDialogOpen} onOpenChange={setTransportDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
-          <div className="flex flex-col items-center gap-4 p-4">
-            <h2 className="font-pixel text-foreground-emphasis text-lg">
-              Transport Settings
-            </h2>
+          <div className="flex flex-col items-center gap-4 p-2">
             <TransportControl />
           </div>
         </DialogContent>
@@ -103,10 +100,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       {/* Bus Dialog */}
       <Dialog open={busDialogOpen} onOpenChange={setBusDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
-          <div className="flex flex-col items-center gap-6 p-4">
-            <h2 className="font-pixel text-foreground-emphasis text-lg">
-              Master Bus
-            </h2>
+          <div className="flex flex-col items-center gap-6 p-2">
             <MasterVolume />
             <div className="flex gap-8">
               <MasterCompressor />
