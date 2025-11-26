@@ -7,8 +7,6 @@ import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
-const STEP_BOXES_GAP = 12;
-
 interface StepMusicalState {
   isTriggerOn: boolean;
   isGhosted: boolean;
@@ -40,8 +38,6 @@ export const Sequencer: React.FC = () => {
 
   const currentVariation = pattern[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;
-  const stepHeight = 1538 / STEP_COUNT - STEP_BOXES_GAP;
-  const stepRadius = `${stepHeight / 4}px`;
   const steps: number[] = Array.from(
     { length: STEP_COUNT },
     (_, index) => index,
@@ -145,14 +141,10 @@ export const Sequencer: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full" ref={sequencerRef}>
+    <div className="w-full py-4 sm:py-0" ref={sequencerRef}>
       <div
         key="sequence-grid"
-        className="grid h-full w-full"
-        style={{
-          gridTemplateColumns: `repeat(${STEP_COUNT}, 1fr)`,
-          gap: `${STEP_BOXES_GAP}px`,
-        }}
+        className="grid h-full w-full grid-cols-8 gap-3 sm:grid-cols-16 sm:gap-3"
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
@@ -174,27 +166,26 @@ export const Sequencer: React.FC = () => {
                 }
                 onContextMenu={(e) => e.preventDefault()}
                 className={cn(
-                  "relative w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
+                  "relative aspect-square w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
+                  "rounded-[0_8px_0_8px] sm:rounded-[0_22px_0_22px]",
                   triggerStyles.className,
                 )}
                 style={{
-                  height: `${stepHeight}px`,
                   opacity: triggerStyles.opacity,
-                  borderRadius: `0 ${stepRadius} 0 ${stepRadius}`,
                 }}
               >
                 {state.isTriggerOn && (
                   <div
                     key={`sequence-step-trigger-glow-${step}`}
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]"
-                    style={{ borderRadius: `0 ${stepRadius} 0 ${stepRadius}` }}
+                    className="pointer-events-none absolute inset-0 rounded-[0_8px_0_8px] bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] sm:rounded-[0_22px_0_22px]"
                   />
                 )}
               </div>
               <div
                 key={`sequence-step-velocity-${step}`}
                 className={cn(
-                  "group outline-primary relative mt-3 h-3.5 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
+                  "group outline-primary relative mt-2 h-4 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out sm:mt-3 sm:h-3.5",
+                  "hidden sm:block",
                   state.isTriggerOn
                     ? "cursor-grab"
                     : "pointer-events-none cursor-default",

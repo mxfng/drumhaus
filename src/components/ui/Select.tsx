@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
+import { cva, type VariantProps } from "class-variance-authority";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -7,6 +8,22 @@ import { cn } from "@/lib/utils";
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
 export const SelectValue = SelectPrimitive.Value;
+
+const selectContentVariants = cva(
+  "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+  {
+    variants: {
+      variant: {
+        default: "shadow-neu bg-primary text-primary-foreground",
+        mobile:
+          "bg-primary-muted text-primary-foreground border border-primary/20",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
 
 export const SelectTrigger = forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Trigger>,
@@ -59,15 +76,19 @@ export const SelectScrollDownButton = forwardRef<
 ));
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
 
+export interface SelectContentProps
+  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>,
+    VariantProps<typeof selectContentVariants> {}
+
 export const SelectContent = forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+  SelectContentProps
+>(({ className, children, position = "popper", variant, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "shadow-neu data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 bg-primary text-primary-foreground relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md",
+        selectContentVariants({ variant }),
         position === "popper"
           ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1"
           : "",

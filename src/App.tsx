@@ -9,9 +9,11 @@ import {
 } from "@/components/common/AppErrorBoundary";
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import { ToastProvider, TooltipProvider } from "@/components/ui";
+import { useMobileWarning } from "./hooks/useMobileWarning";
 
 // Dynamically import Drumhaus component
 const Drumhaus = lazy(() => import("./components/Drumhaus"));
+const DrumhausMobile = lazy(() => import("./components/DrumhausMobile"));
 
 function DrumhausFallback() {
   return (
@@ -46,6 +48,8 @@ export function App() {
     return getPresetTitleFromSlug(params.get("n"));
   }, []);
 
+  const isMobile = useMobileWarning();
+
   // Hide initial loader when app mounts
   useEffect(() => {
     const loader = document.getElementById("initial-loader");
@@ -71,7 +75,7 @@ export function App() {
           <GlobalErrorHandler />
           <div className="h-screen w-screen overflow-auto">
             <Suspense fallback={<DrumhausFallback />}>
-              <Drumhaus />
+              {isMobile ? <DrumhausMobile /> : <Drumhaus />}
             </Suspense>
           </div>
         </AppErrorBoundary>
