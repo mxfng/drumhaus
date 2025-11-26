@@ -126,8 +126,8 @@ const TopBar = () => {
           className="flex cursor-pointer items-end"
           onClick={() => openDialog("about")}
         >
-          <div className="flex items-end">
-            <DrumhausLogo size={46} color="#ff7b00" />
+          <div className="text-primary flex items-end">
+            <DrumhausLogo size={46} color="currentColor" />
           </div>
           <div className="ml-2 flex items-end">
             <DrumhausTypographyLogo color="#ff7b00" size={420} />

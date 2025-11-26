@@ -13,10 +13,13 @@
   --color-surface: #f6eee8;
   --color-instrument: #e4dfd9;
   --color-surface-groove: #efe6de;
+  --color-track: #e8e3dd;
+  --color-track-emphasis: #f7f1ea;
   --color-track-blue: #213062;
   --color-track-orange: #e9902f;
   --color-track-red: #d72529;
   --color-track-green: #27991a;
+  --color-border: #c3ad97;
 
   /* Neumorphic colors */
   --color-shadow: rgb(176 147 116);

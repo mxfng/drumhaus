@@ -7,6 +7,7 @@ import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import * as kits from "@/lib/kit";
 import * as presets from "@/lib/preset";
@@ -22,7 +23,7 @@ import { MobileTabView, type TabType } from "./MobileTabView";
 
 const DrumhausMobile: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("instrument");
+  const [activeTab, setActiveTab] = useState<TabType>("controls");
   const customPresets: PresetFileV1[] = useMemo(() => [], []);
 
   // Service Worker
@@ -54,6 +55,8 @@ const DrumhausMobile: React.FC = () => {
   const hasUnsavedChanges = usePresetMetaStore(
     (state) => state.hasUnsavedChanges,
   );
+
+  useScrollLock(true);
 
   // Available kits and presets
   const KITS = useMemo(
@@ -144,7 +147,7 @@ const DrumhausMobile: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden">
+    <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden overscroll-none">
       {/* Header: Logo + Preset Info */}
       <MobileHeader
         onMenuOpen={() => setMenuOpen(true)}
@@ -167,6 +170,7 @@ const DrumhausMobile: React.FC = () => {
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onOpenPresetMenu={() => setMenuOpen(true)}
       />
 
       {/* Preset Menu */}

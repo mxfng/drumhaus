@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ArrowLeftRight, Pause, Play, Sliders } from "lucide-react";
+import { ArrowLeftRight, ListMusic, Pause, Play, Sliders } from "lucide-react";
 
 import { MasterCompressor } from "@/components/controls/master/MasterCompressor";
 import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
 import { Button, Dialog, DialogContent } from "@/components/ui";
+import { DialogCloseButton } from "@/components/ui/Dialog";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { TabType } from "./MobileTabView";
@@ -14,12 +15,14 @@ interface MobilePlayButtonProps {
   instrumentRuntimes: InstrumentRuntime[];
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onOpenPresetMenu: () => void;
 }
 
 export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
   instrumentRuntimes,
   activeTab,
   setActiveTab,
+  onOpenPresetMenu,
 }) => {
   const [transportDialogOpen, setTransportDialogOpen] = useState(false);
   const [busDialogOpen, setBusDialogOpen] = useState(false);
@@ -39,14 +42,20 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={() => setTransportDialogOpen(true)}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <span className="text-foreground-muted text-xs">TEMPO</span>
-          <span className="font-pixel text-foreground-emphasis text-lg">
+          <span className="font-pixel flex h-5 items-center justify-center text-lg">
             {bpm}
           </span>
+          <span className="text-foreground-muted mt-1 text-xs">TEMPO</span>
         </button>
 
-        {/* Empty column for centering */}
-        <div />
+        {/* Bus Button */}
+        <button
+          onClick={() => setBusDialogOpen(true)}
+          className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
+        >
+          <Sliders size={20} />
+          <span className="text-foreground-muted mt-1 text-xs">BUS</span>
+        </button>
 
         {/* Play Button (centered) */}
         <Button
@@ -61,13 +70,13 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           )}
         </Button>
 
-        {/* Bus Button */}
+        {/* Preset Menu Button */}
         <button
-          onClick={() => setBusDialogOpen(true)}
+          onClick={onOpenPresetMenu}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <Sliders size={20} className="text-foreground-emphasis" />
-          <span className="text-foreground-muted mt-1 text-xs">BUS</span>
+          <ListMusic size={20} />
+          <span className="text-foreground-muted mt-1 text-xs">PRESET</span>
         </button>
 
         {/* Swap Tab Button */}
@@ -75,18 +84,16 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
           onClick={handleSwapTab}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
-          <ArrowLeftRight size={20} className="text-foreground-emphasis" />
-          <span className="text-foreground-muted mt-1 text-xs">SWAP</span>
+          <ArrowLeftRight size={20} />
+          <span className="text-foreground-muted mt-1 text-xs">TAB</span>
         </button>
       </div>
 
       {/* Transport Dialog */}
       <Dialog open={transportDialogOpen} onOpenChange={setTransportDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
-          <div className="flex flex-col items-center gap-4 p-4">
-            <h2 className="font-pixel text-foreground-emphasis text-lg">
-              Transport Settings
-            </h2>
+          <DialogCloseButton />
+          <div className="flex flex-col items-center gap-4 p-2">
             <TransportControl />
           </div>
         </DialogContent>
@@ -95,10 +102,8 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       {/* Bus Dialog */}
       <Dialog open={busDialogOpen} onOpenChange={setBusDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
-          <div className="flex flex-col items-center gap-6 p-4">
-            <h2 className="font-pixel text-foreground-emphasis text-lg">
-              Master Bus
-            </h2>
+          <DialogCloseButton />
+          <div className="flex flex-col items-center gap-6 p-2">
             <MasterVolume />
             <div className="flex gap-8">
               <MasterCompressor />

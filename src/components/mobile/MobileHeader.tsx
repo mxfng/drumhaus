@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { ListMusic } from "lucide-react";
 
 import { FrequencyAnalyzer } from "@/components/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/components/icon/DrumhausLogo";
@@ -24,12 +24,12 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
       <div className="border-border flex items-center border-b">
         <button
           onClick={onLogoClick}
-          className="hover:bg-surface-muted active:bg-surface-raised flex items-center p-3 transition-colors"
+          className="hover:bg-surface-muted active:bg-surface-raised text-primary flex items-center p-3 transition-colors"
           aria-label="About Drumhaus"
         >
-          <DrumhausLogo size={24} color="#ff7b00" />
+          <DrumhausLogo size={24} color="currentColor" />
         </button>
-        <div className="flex-1 px-2">
+        <div className="flex h-[50px] flex-1 items-center">
           <FrequencyAnalyzer height={80} />
         </div>
       </div>
@@ -48,9 +48,9 @@ export const MobileHeader: React.FC<MobileHeaderProps> = ({
             {currentKitMeta.name}
           </div>
         </div>
-        <Menu
+        <ListMusic
           size={20}
-          className="text-foreground-emphasis absolute top-1/2 right-4 -translate-y-1/2"
+          className="text-foreground-muted absolute top-1/2 right-4 -translate-y-1/2"
         />
       </button>
     </>
