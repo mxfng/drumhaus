@@ -6,6 +6,7 @@ import {
   disposeFrequencyAnalyzer,
 } from "@/lib/audio/engine";
 import { clamp, normalize } from "@/lib/utils";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const NUM_BARS = 128; // how many chunky bars
 const PIXEL_SIZE = 2; // quantized height step (px)
@@ -21,6 +22,7 @@ export function FrequencyAnalyzer() {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
 
   useEffect(() => {
     createFrequencyAnalyzer(analyzerRef);
@@ -112,7 +114,7 @@ export function FrequencyAnalyzer() {
       }
       disposeFrequencyAnalyzer(analyzerRef);
     };
-  }, []);
+  }, [isPlaying]);
 
   return <canvas ref={canvasRef} width={550} height={88} />;
 }

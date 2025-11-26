@@ -3,12 +3,14 @@ import { useEffect, useRef } from "react";
 import { Tooltip } from "@/components/ui";
 import { clamp } from "@/lib/utils";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 const MAX_REDUCTION_DB = -20; // Maximum gain reduction to display
 
 export const GainReductionMeter: React.FC = () => {
   const fillRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
+  const isPlaying = useTransportStore((state) => state.isPlaying);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -37,7 +39,7 @@ export const GainReductionMeter: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isPlaying]);
 
   return (
     <Tooltip content="Gain reduction in dB" side="top">
