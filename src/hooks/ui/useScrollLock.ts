@@ -4,6 +4,15 @@ import { useEffect } from "react";
  * Locks body scroll when active, similar to Radix Dialog's scroll blocking.
  * Prevents both scrolling and pull-to-refresh on mobile, including iOS Safari.
  * Based on react-remove-scroll implementation.
+ *
+ * Elements with the `data-scrollable` attribute will remain scrollable even when
+ * the scroll lock is active. This allows for scrollable content within the locked view.
+ *
+ * @example
+ * // Mark an element as scrollable:
+ * <div data-scrollable className="overflow-y-auto">
+ *   Scrollable content here
+ * </div>
  */
 export function useScrollLock(isLocked: boolean) {
   useEffect(() => {
@@ -54,9 +63,28 @@ export function useScrollLock(isLocked: boolean) {
 
     const nonPassive = passiveSupported ? { passive: false } : false;
 
+    // Check if element or any parent has data-scrollable attribute
+    const isScrollableElement = (element: EventTarget | null): boolean => {
+      if (!element || !(element instanceof Element)) return false;
+
+      let current: Element | null = element;
+      while (current) {
+        if (current.hasAttribute("data-scrollable")) {
+          return true;
+        }
+        current = current.parentElement;
+      }
+      return false;
+    };
+
     // Prevent touch events that cause scrolling
     // This is crucial for iOS which ignores overflow:hidden on body
     const preventScroll = (e: TouchEvent | WheelEvent) => {
+      // Allow scrolling within elements marked as scrollable
+      if (isScrollableElement(e.target)) {
+        return;
+      }
+
       // Allow pinch-to-zoom
       if (e instanceof TouchEvent && e.touches.length > 1) {
         return;
