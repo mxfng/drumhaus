@@ -55,7 +55,6 @@ const DrumhausMobile: React.FC = () => {
     allPresets,
     switchKit,
     switchPreset,
-    handlePreset,
     exportPreset,
     importPreset,
     sharePreset,
@@ -84,7 +83,7 @@ const DrumhausMobile: React.FC = () => {
   const handleConfirmPresetChange = () => {
     closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
-    if (preset) handlePreset(preset);
+    if (preset) loadPreset(preset);
   };
 
   return (
