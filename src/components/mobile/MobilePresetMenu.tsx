@@ -102,7 +102,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex h-full flex-col justify-between gap-4 p-4">
+        <div className="flex h-full flex-col justify-between gap-4 p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           <ListMusic size={30} />
           <div className="flex h-full flex-col justify-center gap-4">
             {/* Preset & Kit Selectors */}
