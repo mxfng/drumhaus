@@ -110,7 +110,6 @@ const DrumhausMobile: React.FC = () => {
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onOpenPresetMenu={() => setMenuOpen(true)}
       />
 
       {/* Preset Menu */}
