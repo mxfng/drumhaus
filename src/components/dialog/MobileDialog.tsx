@@ -22,17 +22,19 @@ export const MobileDialog: React.FC<MobileDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Best on Desktop</DialogTitle>
+          <DialogTitle>Desktop Recommended</DialogTitle>
         </DialogHeader>
         <DialogCloseButton />
 
         <div className="space-y-2 pb-4">
           <DialogDescription>
-            Drumhaus is optimized for desktop browsers. Some features may not
-            work on mobile devices.
+            Drumhaus works best on desktop browsers. Some features may be
+            limited or unavailable on mobile devices.
           </DialogDescription>
           <DialogDescription>
-            For the best experience, visit on your computer.
+            For the optimal experience, please use Drumhaus on a computer. If
+            you're using a mobile device, try a larger tablet or switch to
+            portrait mode for improved usability.
           </DialogDescription>
         </div>
 
