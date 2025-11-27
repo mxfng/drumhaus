@@ -141,10 +141,17 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={transitionConfig}
-              className="absolute inset-0 flex h-full flex-col items-center justify-center gap-6 overflow-y-auto p-4"
+              className="absolute inset-0 flex h-full flex-col gap-6 overflow-y-auto p-4"
             >
-              <MasterVolume />
+              {/* Master Volume - Centered */}
+              <div className="flex w-full justify-center">
+                <MasterVolume />
+              </div>
+
+              {/* Compressor - Full Width */}
               <MasterCompressor />
+
+              {/* FX - Full Width */}
               <MasterFX />
             </motion.div>
           )}
