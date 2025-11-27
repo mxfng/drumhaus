@@ -117,7 +117,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               }}
               className="bg-surface absolute inset-0 flex h-full flex-col items-center justify-center overflow-y-auto p-1"
             >
-              <div className="flex flex-1 items-center justify-center">
+              <div className="flex w-full flex-1 items-center justify-center">
                 <SequencerControl />
               </div>
               <Sequencer />

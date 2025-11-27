@@ -68,17 +68,17 @@ export const SequencerControl: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col px-4">
+    <div className="flex w-full flex-col px-4">
       <Label className="text-foreground-muted pb-2">SEQUENCER</Label>
 
       <div className="flex justify-between gap-4 pb-8">
-        <div className="relative">
-          <div className="hardware-button-group flex rounded-lg">
+        <div className="relative w-1/3">
+          <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
             <Tooltip content={TOOLTIPS.VARIATION_A}>
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-8 rounded-l-lg rounded-r-none", {
+                className={cn("rounded-l-lg rounded-r-none", {
                   "text-primary": variation === 0,
                 })}
                 onClick={() => setVariation(0)}
@@ -90,7 +90,7 @@ export const SequencerControl: React.FC = () => {
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-8 rounded-l-none rounded-r-lg", {
+                className={cn("rounded-l-none rounded-r-lg", {
                   "text-primary": variation === 1,
                 })}
                 onClick={() => setVariation(1)}
@@ -102,13 +102,13 @@ export const SequencerControl: React.FC = () => {
           <Label className="absolute -bottom-5 left-1">VARI</Label>
         </div>
 
-        <div className="relative">
-          <div className="hardware-button-group flex rounded-lg">
+        <div className="relative w-2/3">
+          <div className="hardware-button-group grid grid-cols-4 rounded-lg">
             <Tooltip content={TOOLTIPS.CYCLE_A}>
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-10 rounded-l-lg rounded-r-none", {
+                className={cn("rounded-l-lg rounded-r-none", {
                   "text-primary": variationCycle === "A",
                 })}
                 onClick={() => setVariationCycle("A")}
@@ -120,7 +120,7 @@ export const SequencerControl: React.FC = () => {
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-10 rounded-none", {
+                className={cn("rounded-none", {
                   "text-primary": variationCycle === "B",
                 })}
                 onClick={() => setVariationCycle("B")}
@@ -132,7 +132,7 @@ export const SequencerControl: React.FC = () => {
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-10 rounded-none", {
+                className={cn("rounded-none", {
                   "text-primary": variationCycle === "AB",
                 })}
                 onClick={() => setVariationCycle("AB")}
@@ -145,7 +145,7 @@ export const SequencerControl: React.FC = () => {
                 variant="hardware"
                 size="sm"
                 className={cn(
-                  "w-10 rounded-l-none rounded-r-lg text-[10px] leading-tight",
+                  "rounded-l-none rounded-r-lg text-[10px] leading-tight",
                   {
                     "text-primary": variationCycle === "AAAB",
                   },

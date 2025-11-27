@@ -11,14 +11,14 @@ import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { TabType } from "./MobileTabView";
 
-interface MobilePlayButtonProps {
+interface MobileBottomNavProps {
   instrumentRuntimes: InstrumentRuntime[];
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   onOpenPresetMenu: () => void;
 }
 
-export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
+export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   instrumentRuntimes,
   activeTab,
   setActiveTab,
@@ -93,7 +93,7 @@ export const MobilePlayButton: React.FC<MobilePlayButtonProps> = ({
       <Dialog open={transportDialogOpen} onOpenChange={setTransportDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
           <DialogCloseButton />
-          <div className="flex flex-col items-center gap-4 p-2">
+          <div className="flex w-full flex-col items-center gap-4 border p-2">
             <TransportControl />
           </div>
         </DialogContent>

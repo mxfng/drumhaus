@@ -78,17 +78,17 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}
-      <div className="flex min-w-1/4 items-center gap-2 py-1 pl-4">
-        <span className="font-pixel text-sm sm:text-lg" style={{ color }}>
+      <div className="flex w-1/4 items-center gap-2 py-1 pl-4 sm:w-full">
+        <span className="font-pixel text-lg" style={{ color }}>
           {index + 1}
         </span>
-        <Label className="text-foreground-emphasis font-pixel text-sm font-medium sm:text-lg">
+        <Label className="text-foreground-emphasis font-pixel text-lg font-medium">
           {instrumentMeta.name}
         </Label>
       </div>
 
       {/* Waveform */}
-      <div className="relative flex min-h-0 w-full min-w-3/4 flex-1 items-center justify-center overflow-visible px-4">
+      <div className="relative flex min-h-0 w-3/4 flex-1 items-center justify-center overflow-visible px-4 sm:w-full">
         {isRuntimeLoaded && waveformLoaded && !waveformError ? (
           <Waveform
             audioFile={samplePath}

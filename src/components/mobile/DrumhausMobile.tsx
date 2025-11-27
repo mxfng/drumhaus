@@ -13,9 +13,9 @@ import { usePresetManager } from "@/hooks/usePresetManager";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { MobileHeader } from "./MobileHeader";
 import { MobileInstrumentSelector } from "./MobileInstrumentSelector";
-import { MobilePlayButton } from "./MobilePlayButton";
 import { MobilePresetMenu } from "./MobilePresetMenu";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
@@ -106,7 +106,7 @@ const DrumhausMobile: React.FC = () => {
       <MobileInstrumentSelector />
 
       {/* Play Button */}
-      <MobilePlayButton
+      <MobileBottomNav
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
