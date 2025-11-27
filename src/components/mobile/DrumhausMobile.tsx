@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
 import { AboutDialog } from "@/components/dialog/AboutDialog";
 import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPresetDialog";
@@ -7,14 +7,12 @@ import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
+import { usePresetManager } from "@/hooks/usePresetManager";
+import { useRemoveInitialLoader } from "@/hooks/useRemoveInitialLoader";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
-import * as kits from "@/lib/kit";
-import * as presets from "@/lib/preset";
 import { useDialogStore } from "@/stores/useDialogStore";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
-import { PresetFileV1 } from "@/types/preset";
 import { MobileHeader } from "./MobileHeader";
 import { MobileInstrumentSelector } from "./MobileInstrumentSelector";
 import { MobilePlayButton } from "./MobilePlayButton";
@@ -22,9 +20,9 @@ import { MobilePresetMenu } from "./MobilePresetMenu";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
 const DrumhausMobile: React.FC = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  // State
+  const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
-  const customPresets: PresetFileV1[] = useMemo(() => [], []);
 
   // Service Worker
   useServiceWorker();
@@ -35,6 +33,20 @@ const DrumhausMobile: React.FC = () => {
   // Preset Loading
   const { loadPreset } = usePresetLoading({ instrumentRuntimes });
 
+  // Preset Manager
+  const {
+    kits,
+    defaultPresets,
+    customPresets,
+    allPresets,
+    switchKit,
+    switchPreset,
+    handlePreset,
+    exportPreset,
+    importPreset,
+    sharePreset,
+  } = usePresetManager({ loadPreset });
+
   // Dialog state
   const activeDialog = useDialogStore((state) => state.activeDialog);
   const closeDialog = useDialogStore((state) => state.closeDialog);
@@ -43,108 +55,34 @@ const DrumhausMobile: React.FC = () => {
     (state) => state.dialogData.presetToChange,
   );
 
-  // Preset/Kit state
-  const setAllInstruments = useInstrumentsStore(
-    (state) => state.setAllInstruments,
-  );
+  // Preset/Kit metadata
   const currentPresetMeta = usePresetMetaStore(
     (state) => state.currentPresetMeta,
   );
   const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
-  const setKitMeta = usePresetMetaStore((state) => state.setKitMeta);
-  const hasUnsavedChanges = usePresetMetaStore(
-    (state) => state.hasUnsavedChanges,
-  );
 
   useScrollLock(true);
 
-  // Available kits and presets
-  const KITS = useMemo(
-    () => [
-      kits.drumhaus(),
-      kits.organic(),
-      kits.funk(),
-      kits.rnb(),
-      kits.trap(),
-      kits.eighties(),
-      kits.tech_house(),
-      kits.techno(),
-      kits.indie(),
-      kits.jungle(),
-    ],
-    [],
-  );
-
-  const DEFAULT_PRESETS = useMemo(
-    () => [
-      presets.init(),
-      presets.welcomeToTheHaus(),
-      presets.aDrumCalledHaus(),
-      presets.amsterdam(),
-      presets.polaroidBounce(),
-      presets.purpleHaus(),
-      presets.richKids(),
-      presets.slimeTime(),
-      presets.sunflower(),
-      presets.superDreamHaus(),
-      presets.togetherAgain(),
-    ],
-    [],
-  );
-
-  const allPresets = useMemo(
-    () => [...DEFAULT_PRESETS, ...customPresets],
-    [DEFAULT_PRESETS, customPresets],
-  );
-
   // Kit selection handler
   const handleKitChange = (kitId: string) => {
-    const kit = KITS.find((k) => k.meta.id === kitId);
-    if (!kit) return;
-
-    setAllInstruments(kit.instruments);
-    setKitMeta(kit.meta);
+    switchKit(kitId);
     setMenuOpen(false);
   };
 
   // Preset selection handler
   const handlePresetChange = (presetId: string) => {
-    if (hasUnsavedChanges()) {
-      openDialog("presetChange", { presetToChange: presetId });
-      setMenuOpen(false);
-      return;
-    }
-
-    const preset = allPresets.find((p) => p.meta.id === presetId);
-    if (preset) {
-      loadPreset(preset);
-      setMenuOpen(false);
-    }
+    switchPreset(presetId);
+    setMenuOpen(false);
   };
 
   const handleConfirmPresetChange = () => {
     closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
-    if (preset) loadPreset(preset);
+    if (preset) handlePreset(preset);
   };
 
-  // Remove initial loader
-  useEffect(() => {
-    const loader = document.getElementById("initial-loader");
-    if (!loader) return;
-
-    loader.classList.add("initial-loader--hidden");
-
-    const timeout = window.setTimeout(() => {
-      requestAnimationFrame(() => {
-        loader.remove();
-      });
-    }, 400);
-
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, []);
+  // Since this is the root layout we need to remove the initial loader
+  useRemoveInitialLoader();
 
   return (
     <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden overscroll-none">
@@ -177,13 +115,14 @@ const DrumhausMobile: React.FC = () => {
       <MobilePresetMenu
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        defaultPresets={DEFAULT_PRESETS}
+        defaultPresets={defaultPresets}
         customPresets={customPresets}
-        kits={KITS}
+        kits={kits}
         selectedPresetId={currentPresetMeta.id}
         selectedKitId={currentKitMeta.id}
         onPresetSelect={handlePresetChange}
         onKitSelect={handleKitChange}
+        importPreset={importPreset}
       />
 
       {/* Dialogs */}
@@ -191,12 +130,12 @@ const DrumhausMobile: React.FC = () => {
       <SaveDialog
         isOpen={activeDialog === "save"}
         onClose={closeDialog}
-        onSave={() => {}}
+        onSave={exportPreset}
       />
       <ShareDialog
         isOpen={activeDialog === "share"}
         onClose={closeDialog}
-        onShare={async () => ""}
+        onShare={sharePreset}
       />
       <ExportDialog isOpen={activeDialog === "export"} onClose={closeDialog} />
       <ConfirmSelectPresetDialog

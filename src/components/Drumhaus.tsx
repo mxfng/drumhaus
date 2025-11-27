@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Pause, Play } from "lucide-react";
 
 import { Button, Tooltip } from "@/components/ui";
@@ -7,6 +6,7 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
+import { useRemoveInitialLoader } from "@/hooks/useRemoveInitialLoader";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
@@ -60,22 +60,7 @@ const Drumhaus = () => {
 
   // --- Initial Loader Cleanup ---
 
-  useEffect(() => {
-    const loader = document.getElementById("initial-loader");
-    if (!loader) return;
-
-    loader.classList.add("initial-loader--hidden");
-
-    const timeout = window.setTimeout(() => {
-      requestAnimationFrame(() => {
-        loader.remove(); // avoid blocking the main thread
-      });
-    }, 400);
-
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, []);
+  useRemoveInitialLoader();
 
   // --- Render ---
 
