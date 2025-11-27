@@ -15,10 +15,10 @@ const buttonVariants = cva(
           "surface-raised text-foreground group hover:text-primary-muted font-light",
       },
       size: {
-        xs: "h-10 sm:h-6 px-2 text-xs",
-        sm: "h-12 sm:h-8 px-3 text-sm",
-        default: "h-14 sm:h-10 px-4",
-        lg: "sm:h-[140px",
+        xs: "h-10 sm:h-6 text-sm",
+        sm: "h-12 sm:h-8 text-sm",
+        default: "h-14 sm:h-10",
+        lg: "sm:h-[140px] text-lg",
       },
     },
     defaultVariants: {

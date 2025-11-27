@@ -40,7 +40,7 @@ export const MobileInstrumentSelector: React.FC = () => {
             }}
           >
             <span
-              className="font-pixel text-sm"
+              className="font-pixel text-lg sm:text-sm"
               style={{ color: INSTRUMENT_COLORS[index] }}
             >
               {index + 1}
