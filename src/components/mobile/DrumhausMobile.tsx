@@ -5,11 +5,11 @@ import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPres
 import { ExportDialog } from "@/components/dialog/ExportDialog";
 import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
+import { useRemoveInitialLoader } from "@/hooks/ui/useRemoveInitialLoader";
+import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { usePresetManager } from "@/hooks/usePresetManager";
-import { useRemoveInitialLoader } from "@/hooks/useRemoveInitialLoader";
-import { useScrollLock } from "@/hooks/useScrollLock";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
