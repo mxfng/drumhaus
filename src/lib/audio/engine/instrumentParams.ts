@@ -8,12 +8,12 @@ import { KNOB_ROTATION_THRESHOLD_L } from "@/lib/knob/transform";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 
-export type RuntimeParams = {
+export interface RuntimeParams {
   attack: number;
   filter: number;
   pan: number;
   volume: number;
-};
+}
 
 /**
  * Applies instrument params to a runtime

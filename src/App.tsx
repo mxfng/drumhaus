@@ -9,7 +9,7 @@ import {
 } from "@/components/common/AppErrorBoundary";
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import { ToastProvider, TooltipProvider } from "@/components/ui";
-import { useMobileWarning } from "@/hooks/useMobileWarning";
+import { useMobileWarning } from "@/hooks/ui/useMobileWarning";
 
 // Dynamically import Drumhaus component
 const Drumhaus = lazy(() => import("./components/Drumhaus"));

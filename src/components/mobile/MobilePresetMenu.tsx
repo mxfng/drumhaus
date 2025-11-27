@@ -91,7 +91,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
         className={cn(
           "bg-primary text-primary-foreground shadow-neu fixed top-0 right-0 z-50 h-full w-64 overflow-y-auto transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full",
-          isSwiping && "!duration-0", // Remove transition during swipe for immediate feedback
+          isSwiping && "duration-0!", // Remove transition during swipe for immediate feedback
         )}
         style={{
           transform: isOpen

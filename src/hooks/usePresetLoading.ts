@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect, useRef } from "react";
 
 import { useToast } from "@/components/ui";
 import { init } from "@/lib/preset";
+import { getDefaultPresets } from "@/lib/preset/constants";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -18,6 +19,11 @@ interface UsePresetLoadingResult {
   loadPreset: (preset: PresetFileV1) => void;
 }
 
+/**
+ * Loads a preset and updates all stores
+ *
+ * Low-level: handles audio engine, playback stopping, store updates
+ */
 export function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
@@ -43,6 +49,7 @@ export function usePresetLoading({
   );
 
   const loadPresetMeta = usePresetMetaStore((state) => state.loadPreset);
+  const addCustomPreset = usePresetMetaStore((state) => state.addCustomPreset);
 
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
@@ -69,6 +76,15 @@ export function usePresetLoading({
         togglePlay(instrumentRuntimes.current);
       }
 
+      // Add to custom presets if not a default preset
+      const defaultPresets = getDefaultPresets();
+      const isCustomPreset = !defaultPresets.some(
+        (p) => p.meta.id === preset.meta.id,
+      );
+      if (isCustomPreset) {
+        addCustomPreset(preset);
+      }
+
       // Update metadata
       loadPresetMeta(preset);
 
@@ -91,6 +107,7 @@ export function usePresetLoading({
     [
       instrumentRuntimes,
       isPlaying,
+      addCustomPreset,
       loadPresetMeta,
       setAllInstruments,
       setAllMasterChain,

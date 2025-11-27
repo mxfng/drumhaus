@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { StepIndicator } from "@/components/StepIndicator";
-import { useScrollLock } from "@/hooks/useScrollLock";
+import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { clampVelocity } from "@/lib/pattern/helpers";
 import { cn } from "@/lib/utils";

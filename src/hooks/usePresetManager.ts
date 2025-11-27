@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 import { useToast } from "@/components/ui";
 import { getAllKits } from "@/lib/kit/constants";
@@ -36,12 +36,19 @@ export interface UsePresetManagerResult {
   // Actions
   switchKit: (kitId: string) => void;
   switchPreset: (presetId: string) => void;
-  handlePreset: (preset: PresetFileV1) => void;
   importPreset: () => void;
   exportPreset: (name: string) => void;
   sharePreset: (name: string) => Promise<string>;
 }
 
+/**
+ * Manages preset operations and state
+ *
+ * High-level: provides UI operations (import, export, share, switch)
+ *
+ * Depends on loadPreset from usePresetLoading hook, which manages
+ * low level runtime updates
+ */
 export function usePresetManager({
   loadPreset,
 }: UsePresetManagerProps): UsePresetManagerResult {
@@ -61,7 +68,6 @@ export function usePresetManager({
     (state) => state.hasUnsavedChanges,
   );
   const customPresets = usePresetMetaStore((state) => state.customPresets);
-  const addCustomPreset = usePresetMetaStore((state) => state.addCustomPreset);
 
   // Dialog state
   const openDialog = useDialogStore((state) => state.openDialog);
@@ -74,35 +80,6 @@ export function usePresetManager({
   );
 
   // --- Core Operations ---
-
-  /**
-   * Check if a preset should be added to custom presets
-   * Returns true if not in default presets
-   */
-  const isCustomPreset = useCallback(
-    (preset: PresetFileV1): boolean => {
-      return !defaultPresets.some((p) => p.meta.id === preset.meta.id);
-    },
-    [defaultPresets],
-  );
-
-  /**
-   * Load a preset and track it in custom presets if needed
-   *
-   * A wrapper function that I am not happy with the name of
-   */
-  const handlePreset = useCallback(
-    (preset: PresetFileV1) => {
-      // Add to custom presets if it's not a default preset
-      if (isCustomPreset(preset)) {
-        addCustomPreset(preset);
-      }
-
-      // Load the preset (updates all stores, stops playback)
-      loadPreset(preset);
-    },
-    [loadPreset, addCustomPreset, isCustomPreset],
-  );
 
   /**
    * Switch to a different kit
@@ -138,9 +115,9 @@ export function usePresetManager({
         return;
       }
 
-      handlePreset(preset);
+      loadPreset(preset);
     },
-    [hasUnsavedChanges, allPresets, handlePreset, openDialog],
+    [hasUnsavedChanges, allPresets, loadPreset, openDialog],
   );
 
   // --- File Operations ---
@@ -157,9 +134,9 @@ export function usePresetManager({
 
       // Update state
       markPresetClean(preset);
-      handlePreset(preset);
+      loadPreset(preset);
     },
-    [currentKitMeta, markPresetClean, handlePreset],
+    [currentKitMeta, markPresetClean, loadPreset],
   );
 
   /**
@@ -180,7 +157,7 @@ export function usePresetManager({
           if (typeof result !== "string") throw new Error("Invalid file");
 
           const preset = parsePresetFile(result);
-          handlePreset(preset);
+          loadPreset(preset);
         } catch (error) {
           console.error("Failed to import preset:", error);
           toast({
@@ -205,7 +182,7 @@ export function usePresetManager({
       reader.readAsText(file);
     };
     input.click();
-  }, [handlePreset, toast]);
+  }, [loadPreset, toast]);
 
   // --- SHARING ---
 
@@ -221,16 +198,6 @@ export function usePresetManager({
     [currentPresetMeta, currentKitMeta],
   );
 
-  // --- EFFECTS ---
-
-  // Add current preset to custom presets on mount/changes if loaded from URL
-  useEffect(() => {
-    if (isCustomPreset({ meta: currentPresetMeta } as PresetFileV1)) {
-      // Note: We can't add the full preset here because we'd need to construct it
-      // from all stores. The preset loading hook handles this when loading from URL.
-    }
-  }, [currentPresetMeta, isCustomPreset]);
-
   // --- RETURN API ---
 
   return {
@@ -243,7 +210,6 @@ export function usePresetManager({
     // Actions
     switchKit,
     switchPreset,
-    handlePreset,
     importPreset,
     exportPreset,
     sharePreset,

@@ -14,7 +14,7 @@ import {
   Label,
   useToast,
 } from "@/components/ui";
-import { useClipboard } from "@/hooks/useClipboard";
+import { useClipboard } from "@/hooks/ui/useClipboard";
 import { presetNameSchema } from "@/lib/schemas";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 

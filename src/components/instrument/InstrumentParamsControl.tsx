@@ -26,7 +26,7 @@ interface InstrumentParamsProps {
   runtime?: InstrumentRuntime;
 }
 
-export const InstrumentParams: React.FC<InstrumentParamsProps> = ({
+export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   index,
   instrumentIndex,
   fillHeight = false,
