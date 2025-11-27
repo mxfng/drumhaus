@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { InstrumentHeader } from "../instrument/InstrumentHeader";
-import { InstrumentParams } from "../instrument/InstrumentParams";
+import { InstrumentParamsControl } from "../instrument/InstrumentParamsControl";
 
 const INSTRUMENT_COLORS = [
   "var(--color-track-blue)",
@@ -137,7 +137,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               }}
               className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
             >
-              <InstrumentParams
+              <InstrumentParamsControl
                 key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
                 index={voiceIndex}
                 instrumentIndex={voiceIndex}
