@@ -156,6 +156,7 @@ const MainControls = ({
           <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
             <Button
               variant="hardware"
+              size="lg"
               className="neu-medium-raised h-[140px] w-[140px] rounded-lg shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]"
               onClick={() => togglePlay(instrumentRuntimes)}
               onKeyDown={(ev) => ev.preventDefault()}

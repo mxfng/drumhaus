@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import {
   KNOB_OUTER_TICK_COUNT_DEFAULT,
+  KNOB_ROTATION_RANGE_DEGREES,
   KNOB_SENSITIVITY,
   KNOB_VALUE_DEFAULT,
   KNOB_VALUE_MAX,
@@ -13,8 +14,6 @@ import { clamp, cn, quantize } from "@/lib/utils";
 import { Label } from "../ui";
 
 export type KnobSize = "default" | "lg";
-
-const KNOB_ROTATION_RANGE_DEGREES: [number, number] = [-135, 135];
 
 /**
  * Calculate the rotation of a knob tick for display purposes.
@@ -68,8 +67,8 @@ const Knob: React.FC<KnobProps> = ({
   defaultValue = KNOB_VALUE_DEFAULT,
 }) => {
   const containerClass = {
-    default: "h-[90px]",
-    lg: "h-[180px]",
+    default: "h-[120px] sm:h-[90px]",
+    lg: "h-[200px] sm:h-[180px]",
   }[size];
 
   const quantizedValue = quantize(value, stepSize);
@@ -113,6 +112,8 @@ const Knob: React.FC<KnobProps> = ({
       ev.preventDefault();
 
       const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+
+      // TODO: Seems a little hacky, but it works. Sensitivity should be lower for mobile.
       const deltaY = (initMoveYRef.current - clientY) * KNOB_SENSITIVITY;
 
       const newValue = clamp(

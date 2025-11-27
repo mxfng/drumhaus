@@ -140,7 +140,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-2 place-items-center",
+        "grid w-full grid-cols-3 place-items-center sm:grid-cols-2",
         isRuntimeLoaded ? "opacity-100" : "opacity-50",
         {
           "min-h-0 flex-1": mobile,
@@ -175,10 +175,9 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         mapping={pitchMapping}
         outerTickCount={25}
       />
-      <div className="grid grid-cols-2 place-items-center gap-4">
-        <div className="col-span-2">
+      <div className="grid w-full grid-cols-2 place-items-center gap-10 sm:gap-4">
+        <div className="col-span-2 w-full px-3">
           <HardwareSlider
-            size={65}
             sliderValue={pan}
             setSliderValue={setPan}
             defaultValue={50}
@@ -190,13 +189,13 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
             isDisabled={!isRuntimeLoaded}
           />
         </div>
-        <div className="col-span-2 flex items-center justify-center">
-          <div className="hardware-button-group grid grid-cols-2 rounded-lg">
+        <div className="col-span-2 flex w-full items-center justify-center px-3">
+          <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
             <Tooltip content="Mute [M]" delayDuration={500}>
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-8 rounded-l-lg rounded-r-none p-2", {
+                className={cn("rounded-l-lg rounded-r-none p-2", {
                   "text-primary": mute,
                 })}
                 onClick={handleToggleMute}
@@ -209,7 +208,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               <Button
                 variant="hardware"
                 size="sm"
-                className={cn("w-8 rounded-l-none rounded-r-lg p-2", {
+                className={cn("rounded-l-none rounded-r-lg p-2", {
                   "text-primary": solo,
                 })}
                 onClick={toggleSolo}
