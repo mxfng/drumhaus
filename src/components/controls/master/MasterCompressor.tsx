@@ -17,8 +17,8 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="relative -mr-2 flex items-center">
-      <div className="grid grid-cols-2 place-items-center">
+    <div className="flex w-full items-center justify-center">
+      <div className="grid w-full grid-cols-2 place-items-center">
         {/* Threshold and Ratio */}
 
         <ParamKnob
