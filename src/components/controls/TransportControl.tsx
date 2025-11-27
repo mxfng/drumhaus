@@ -93,21 +93,21 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8">
+    <div className="flex w-full flex-col items-center justify-center gap-16 sm:w-26 sm:gap-8">
       <div className="neu-medium-raised relative rounded-lg">
-        <div className="surface-raised relative flex w-28 items-center rounded-lg p-2">
+        <div className="surface-raised relative flex h-20 max-w-48 items-center rounded-lg py-2 pl-2 sm:h-14 sm:w-26">
           <Input
             ref={inputRef}
-            className="w-20 px-2 text-center text-2xl shadow-[inset_0_4px_8px_var(--color-shadow-60)]"
+            className="h-full w-3/4 px-2 text-center text-4xl shadow-[inset_0_4px_8px_var(--color-shadow-60)] sm:text-2xl"
             value={bpmInputValue}
             onChange={handleBpmChange}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             onFocus={(e) => e.target.select()}
           />
-          <div className="text-foreground-muted absolute right-0 flex h-full w-6 flex-col text-xs">
+          <div className="flex h-full w-1/4 flex-col items-center justify-center text-xs">
             <button
-              className="hover:text-primary-muted flex flex-1 items-center justify-center"
+              className="hover:text-primary-muted flex flex-1 items-start justify-start"
               onMouseDown={() => handleMouseDown(1)}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -115,7 +115,7 @@ export const TransportControl: React.FC = () => {
               <ChevronUp size={14} />
             </button>
             <button
-              className="hover:text-primary-muted flex flex-1 items-center justify-center"
+              className="hover:text-primary-muted flex flex-1 items-end justify-end"
               onMouseDown={() => handleMouseDown(-1)}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
@@ -126,14 +126,15 @@ export const TransportControl: React.FC = () => {
         </div>
         <Label className="absolute -bottom-5 left-3">TEMPO</Label>
       </div>
-      <HardwareSlider
-        size={100}
-        sliderValue={swing}
-        setSliderValue={setSwing}
-        title="SWING"
-        defaultValue={0}
-        transformRange={TRANSPORT_SWING_RANGE}
-      />
+      <div className="w-full px-1">
+        <HardwareSlider
+          sliderValue={swing}
+          setSliderValue={setSwing}
+          title="SWING"
+          defaultValue={0}
+          transformRange={TRANSPORT_SWING_RANGE}
+        />
+      </div>
     </div>
   );
 };

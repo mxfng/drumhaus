@@ -93,7 +93,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <Dialog open={transportDialogOpen} onOpenChange={setTransportDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
           <DialogCloseButton />
-          <div className="flex w-full flex-col items-center gap-4 border p-2">
+          <div className="flex w-full flex-col items-center gap-4 p-8">
             <TransportControl />
           </div>
         </DialogContent>
@@ -103,9 +103,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <Dialog open={busDialogOpen} onOpenChange={setBusDialogOpen}>
         <DialogContent className="bg-surface border-border sm:max-w-md">
           <DialogCloseButton />
-          <div className="flex flex-col items-center gap-6 p-2">
+          <div className="flex flex-col items-center gap-6">
             <MasterVolume />
-            <div className="flex gap-8">
+            <div className="grid grid-cols-2 gap-4">
               <MasterCompressor />
               <MasterFX />
             </div>
