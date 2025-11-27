@@ -24,7 +24,21 @@ const DrumhausMobile: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
 
-  // Service Worker
+  // Dialog state
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+  const openDialog = useDialogStore((state) => state.openDialog);
+  const presetToChange = useDialogStore(
+    (state) => state.dialogData.presetToChange,
+  );
+
+  // Preset/Kit metadata
+  const currentPresetMeta = usePresetMetaStore(
+    (state) => state.currentPresetMeta,
+  );
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
+
+  // Service Worker for caching
   useServiceWorker();
 
   // Audio Engine
@@ -47,21 +61,13 @@ const DrumhausMobile: React.FC = () => {
     sharePreset,
   } = usePresetManager({ loadPreset });
 
-  // Dialog state
-  const activeDialog = useDialogStore((state) => state.activeDialog);
-  const closeDialog = useDialogStore((state) => state.closeDialog);
-  const openDialog = useDialogStore((state) => state.openDialog);
-  const presetToChange = useDialogStore(
-    (state) => state.dialogData.presetToChange,
-  );
-
-  // Preset/Kit metadata
-  const currentPresetMeta = usePresetMetaStore(
-    (state) => state.currentPresetMeta,
-  );
-  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
-
+  // --- Misc UI hooks ---
   useScrollLock(true);
+
+  // Since this is the root layout we need to remove the initial loader
+  useRemoveInitialLoader();
+
+  // --- Handlers ---
 
   // Kit selection handler
   const handleKitChange = (kitId: string) => {
@@ -80,9 +86,6 @@ const DrumhausMobile: React.FC = () => {
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
     if (preset) handlePreset(preset);
   };
-
-  // Since this is the root layout we need to remove the initial loader
-  useRemoveInitialLoader();
 
   return (
     <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden overscroll-none">
