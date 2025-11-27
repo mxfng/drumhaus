@@ -22,14 +22,14 @@ import ParamKnob from "../common/Knob";
 interface InstrumentParamsProps {
   index: number;
   instrumentIndex: number;
-  fillHeight?: boolean;
+  mobile?: boolean;
   runtime?: InstrumentRuntime;
 }
 
 export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   index,
   instrumentIndex,
-  fillHeight = false,
+  mobile = false,
   runtime,
 }) => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
@@ -143,8 +143,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         "grid w-full grid-cols-2 place-items-center",
         isRuntimeLoaded ? "opacity-100" : "opacity-50",
         {
-          "min-h-0 flex-1": fillHeight,
-          "h-full": !fillHeight,
+          "min-h-0 flex-1": mobile,
+          "h-full": !mobile,
         },
       )}
     >

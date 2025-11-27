@@ -141,7 +141,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
                 key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
                 index={voiceIndex}
                 instrumentIndex={voiceIndex}
-                fillHeight
+                mobile
                 runtime={instrumentRuntimes[voiceIndex]}
               />
             </motion.div>

@@ -51,7 +51,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         <InstrumentParamsControl
           index={index}
           instrumentIndex={instrumentIndex}
-          fillHeight={fillHeight}
+          mobile={fillHeight}
           runtime={runtime}
         />
       </div>
