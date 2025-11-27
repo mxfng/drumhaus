@@ -18,7 +18,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         <Tooltip content="Save preset" delayDuration={500}>
           <Button
             variant="hardware"
-            size="icon"
             onClick={() => openDialog("save")}
             className="w-full rounded-l-lg"
           >
@@ -34,7 +33,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         <Tooltip content="Load preset" delayDuration={500}>
           <Button
             variant="hardware"
-            size="icon"
             onClick={onOpenFromFile}
             className="w-full"
           >
@@ -50,7 +48,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         <Tooltip content="Share preset" delayDuration={500}>
           <Button
             variant="hardware"
-            size="icon"
             onClick={() => openDialog("share")}
             className="w-full"
           >
@@ -66,7 +63,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         <Tooltip content="Export" delayDuration={500}>
           <Button
             variant="hardware"
-            size="icon"
             onClick={() => openDialog("export")}
             className="w-full rounded-r-lg"
           >

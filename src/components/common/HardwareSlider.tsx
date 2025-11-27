@@ -6,7 +6,6 @@ import { quantize } from "@/lib/utils";
 import { transformKnobValueLinear } from "../../lib/knob/transform";
 
 type HardwareSliderProps = {
-  size: number;
   title?: string;
   sliderValue: number;
   setSliderValue: (value: number) => void;
@@ -22,7 +21,6 @@ type HardwareSliderProps = {
 };
 
 export const HardwareSlider: React.FC<HardwareSliderProps> = ({
-  size,
   title,
   sliderValue,
   setSliderValue,
@@ -56,17 +54,16 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
 
   return (
     <div
-      className="flex flex-col gap-0.5"
-      style={{ width: `${size}px` }}
+      className="flex w-full flex-col gap-0.5"
       onDoubleClick={handleDoubleClick}
     >
       {/* Labels */}
-      <div className="relative flex items-end justify-between px-1">
-        <Label className="text-[10px]">{leftLabel}</Label>
-        <Label className="absolute inset-x-0 text-center text-[8px] opacity-60">
+      <div className="relative flex items-end justify-between px-0.5">
+        <Label className="sm:text-[10px]">{leftLabel}</Label>
+        <Label className="absolute inset-x-0 text-center opacity-60 sm:text-[8px]">
           {centerLabel}
         </Label>
-        <Label className="text-[10px]">{rightLabel}</Label>
+        <Label className="sm:text-[10px]">{rightLabel}</Label>
       </div>
 
       {/* Slider track */}
@@ -85,7 +82,7 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
           onPointerUp={() => setIsDragging(false)}
           disabled={isDisabled}
         >
-          <SliderPrimitive.Track className="relative h-1 w-full grow rounded-full bg-transparent">
+          <SliderPrimitive.Track className="relative h-4 w-full grow rounded-full bg-transparent sm:h-1">
             <SliderPrimitive.Range className="absolute h-full bg-transparent" />
           </SliderPrimitive.Track>
           <Tooltip
@@ -95,15 +92,7 @@ export const HardwareSlider: React.FC<HardwareSliderProps> = ({
             open={isDragging}
           >
             <SliderPrimitive.Thumb
-              className="font-pixel neu-raised block cursor-pointer rounded-lg focus:outline-none"
-              style={{
-                width: `${size / 4}px`,
-                height: "16px",
-                boxShadow: `
-                  var(--shadow-neu-raised),
-                  0 4px 3px -1px rgb(0 0 0 / 0.4)
-                `,
-              }}
+              className="font-pixel neu-raised block h-6 w-8 cursor-pointer rounded-lg shadow-[inset_0_2px_4px_var(--color-shadow-60)] focus:outline-none sm:h-4 sm:w-6"
               aria-label={title || "Slider thumb"}
               aria-valuemin={0}
               aria-valuemax={100}
