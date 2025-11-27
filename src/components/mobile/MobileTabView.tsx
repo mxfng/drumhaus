@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { SequencerControl } from "@/components/controls/SequencerControl";
 import { Sequencer } from "@/components/Sequencer";
-import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { InstrumentHeader } from "../instrument/InstrumentHeader";
@@ -33,7 +32,6 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
   instrumentRuntimes,
   instrumentRuntimesVersion,
   activeTab,
-  setActiveTab,
 }) => {
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
 
@@ -63,7 +61,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-hidden">
       {/* Instrument Header */}
-      <div className="bg-surface-raised border-border h-1/6 border-b">
+      <div className="border-border h-1/6 border-b">
         <InstrumentHeader
           key={`mobile-instrument-header-${voiceIndex}-${instrumentRuntimesVersion}`}
           index={voiceIndex}
@@ -74,34 +72,8 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
         />
       </div>
 
-      {/* Tabs */}
-      <div className="border-border flex border-b">
-        <button
-          onClick={() => setActiveTab("controls")}
-          className={cn(
-            "border-border flex-1 border-r px-4 py-3 text-sm font-medium transition-colors",
-            activeTab === "controls"
-              ? "bg-surface text-primary-muted"
-              : "bg-surface-muted text-foreground-muted hover:bg-surface",
-          )}
-        >
-          CONTROLS
-        </button>
-        <button
-          onClick={() => setActiveTab("instrument")}
-          className={cn(
-            "border-border flex-1 px-4 py-3 text-sm font-medium transition-colors",
-            activeTab === "instrument"
-              ? "bg-surface text-primary-muted"
-              : "bg-surface-muted text-foreground-muted hover:bg-surface",
-          )}
-        >
-          INSTRUMENT
-        </button>
-      </div>
-
       {/* Tab Content */}
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative flex-1 overflow-hidden shadow-[inset_0_8px_8px_-6px_var(--color-shadow-30),inset_0_-8px_8px_-6px_var(--color-shadow-30)]">
         <AnimatePresence initial={false}>
           {activeTab === "controls" && (
             <motion.div
@@ -115,9 +87,9 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
                 damping: 28,
                 mass: 0.5,
               }}
-              className="bg-surface absolute inset-0 flex h-full flex-col items-center justify-center overflow-y-auto p-1"
+              className="absolute inset-0 flex h-full flex-col items-center justify-center gap-8 overflow-y-auto p-1"
             >
-              <div className="flex w-full flex-1 items-center justify-center">
+              <div className="flex w-full items-center justify-center">
                 <SequencerControl />
               </div>
               <Sequencer />

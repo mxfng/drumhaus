@@ -29,7 +29,7 @@ export const MobileInstrumentSelector: React.FC = () => {
             key={index}
             onClick={() => setVoiceIndex(index)}
             className={cn(
-              "border-border relative flex flex-col items-center border-r py-3 text-xs transition-colors last:border-r-0",
+              "border-border relative flex flex-col items-center border-r py-4 text-xs transition-colors last:border-r-0",
               isActive ? "bg-surface" : "bg-surface-muted hover:bg-surface",
             )}
             style={{
@@ -40,12 +40,12 @@ export const MobileInstrumentSelector: React.FC = () => {
             }}
           >
             <span
-              className="font-pixel text-lg sm:text-sm"
+              className="font-pixel text-lg leading-tight"
               style={{ color: INSTRUMENT_COLORS[index] }}
             >
               {index + 1}
             </span>
-            <span className="text-foreground-muted mt-1 truncate text-[10px] leading-tight">
+            <span className="text-foreground-muted mt-0.5 truncate text-[10px]">
               {instrument.meta.name.slice(0, 4)}
             </span>
           </button>
