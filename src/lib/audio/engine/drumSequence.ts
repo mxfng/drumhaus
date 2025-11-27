@@ -186,6 +186,10 @@ function getInstrumentAndRuntime(
 /**
  * Shared core scheduling behavior once we know the instrument + runtime.
  * Used by both online (step-based) and offline (time-based) scheduling.
+ *
+ * NOTE: This reads PER-NOTE params (pitch, release, solo, mute) from the store
+ * on every trigger. CONTINUOUS params (attack, filter, pan, volume) are applied
+ * to audio nodes via subscribeRuntimeToInstrumentParams in instrumentParams.ts
  */
 function scheduleVoiceCore(
   voice: Voice,
@@ -209,6 +213,7 @@ function scheduleVoiceCore(
   if ((anySolos && !params.solo) || params.mute) return;
 
   const velocity = velocities[step];
+  // Per-note params: read fresh from store for each trigger
   const pitch = pitchMapping.knobToDomain(params.pitch);
   const releaseTime = transformKnobValueExponential(
     params.release,
