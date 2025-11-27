@@ -5,11 +5,11 @@ import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPres
 import { ExportDialog } from "@/components/dialog/ExportDialog";
 import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
+import { useRemoveInitialLoader } from "@/hooks/ui/useRemoveInitialLoader";
+import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { usePresetManager } from "@/hooks/usePresetManager";
-import { useRemoveInitialLoader } from "@/hooks/useRemoveInitialLoader";
-import { useScrollLock } from "@/hooks/useScrollLock";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
@@ -24,7 +24,21 @@ const DrumhausMobile: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
 
-  // Service Worker
+  // Dialog state
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+  const openDialog = useDialogStore((state) => state.openDialog);
+  const presetToChange = useDialogStore(
+    (state) => state.dialogData.presetToChange,
+  );
+
+  // Preset/Kit metadata
+  const currentPresetMeta = usePresetMetaStore(
+    (state) => state.currentPresetMeta,
+  );
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
+
+  // Service Worker for caching
   useServiceWorker();
 
   // Audio Engine
@@ -41,27 +55,18 @@ const DrumhausMobile: React.FC = () => {
     allPresets,
     switchKit,
     switchPreset,
-    handlePreset,
     exportPreset,
     importPreset,
     sharePreset,
   } = usePresetManager({ loadPreset });
 
-  // Dialog state
-  const activeDialog = useDialogStore((state) => state.activeDialog);
-  const closeDialog = useDialogStore((state) => state.closeDialog);
-  const openDialog = useDialogStore((state) => state.openDialog);
-  const presetToChange = useDialogStore(
-    (state) => state.dialogData.presetToChange,
-  );
-
-  // Preset/Kit metadata
-  const currentPresetMeta = usePresetMetaStore(
-    (state) => state.currentPresetMeta,
-  );
-  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
-
+  // --- Misc UI hooks ---
   useScrollLock(true);
+
+  // Since this is the root layout we need to remove the initial loader
+  useRemoveInitialLoader();
+
+  // --- Handlers ---
 
   // Kit selection handler
   const handleKitChange = (kitId: string) => {
@@ -78,11 +83,8 @@ const DrumhausMobile: React.FC = () => {
   const handleConfirmPresetChange = () => {
     closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
-    if (preset) handlePreset(preset);
+    if (preset) loadPreset(preset);
   };
-
-  // Since this is the root layout we need to remove the initial loader
-  useRemoveInitialLoader();
 
   return (
     <div className="bg-surface flex h-dvh flex-col overflow-x-hidden overflow-y-hidden overscroll-none">

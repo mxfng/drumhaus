@@ -1,12 +1,8 @@
-import { useEffect } from "react";
-
-import { useSampleDuration } from "@/hooks/useSampleDuration";
-import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { InstrumentHeader } from "./InstrumentHeader";
-import { InstrumentParams } from "./InstrumentParams";
+import { InstrumentParamsControl } from "./InstrumentParamsControl";
 
 type InstrumentControlParams = {
   runtime?: InstrumentRuntime;
@@ -27,24 +23,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   fillHeight = false,
   bg,
 }) => {
-  const samplePath = useInstrumentsStore(
-    (state) => state.instruments[index].sample.path,
-  );
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
-  const setDurationStore = useInstrumentsStore((state) => state.setDuration);
-
-  const { duration: sampleDuration } = useSampleDuration(samplePath);
-
-  useEffect(() => {
-    if (!runtime) return;
-    return subscribeRuntimeToInstrumentParams(index, runtime);
-  }, [index, runtime]);
-
-  useEffect(() => {
-    setDurationStore(index, sampleDuration);
-  }, [sampleDuration, index, setDurationStore]);
 
   return (
     <div
@@ -67,7 +48,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       </div>
 
       <div className="h-40">
-        <InstrumentParams
+        <InstrumentParamsControl
           index={index}
           instrumentIndex={instrumentIndex}
           fillHeight={fillHeight}

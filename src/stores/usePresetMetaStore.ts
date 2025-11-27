@@ -142,7 +142,8 @@ export const usePresetMetaStore = create<PresetMetaState>()(
               (p) => p.meta.id === preset.meta.id,
             );
             if (!exists) {
-              state.customPresets.push(preset);
+              // Insert at front so most recent shows first
+              state.customPresets.unshift(preset);
             }
           });
         },

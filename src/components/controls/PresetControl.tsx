@@ -14,10 +14,7 @@ interface PresetControlProps {
   loadPreset: (preset: PresetFileV1) => void;
 }
 
-export const PresetControl: React.FC<PresetControlProps> = ({
-  loadPreset: loadPresetFromParent,
-}) => {
-  // Use the preset manager hook for all business logic
+export const PresetControl: React.FC<PresetControlProps> = ({ loadPreset }) => {
   const {
     kits,
     defaultPresets,
@@ -25,11 +22,10 @@ export const PresetControl: React.FC<PresetControlProps> = ({
     allPresets,
     switchKit,
     switchPreset,
-    handlePreset,
     importPreset,
     exportPreset,
     sharePreset,
-  } = usePresetManager({ loadPreset: loadPresetFromParent });
+  } = usePresetManager({ loadPreset });
 
   // Store state
   const currentPresetMeta = usePresetMetaStore(
@@ -55,7 +51,7 @@ export const PresetControl: React.FC<PresetControlProps> = ({
   const handleConfirmPresetChange = () => {
     closeDialog();
     const preset = allPresets.find((p) => p.meta.id === presetToChange);
-    if (preset) handlePreset(preset);
+    if (preset) loadPreset(preset);
   };
 
   return (
