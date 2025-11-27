@@ -13,43 +13,38 @@ import {
   Label,
 } from "@/components/ui";
 import { presetNameSchema } from "@/lib/schemas";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 
 interface SaveDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
-  defaultName?: string;
 }
 
 export const SaveDialog: React.FC<SaveDialogProps> = ({
   isOpen,
   onClose,
   onSave,
-  defaultName = "",
 }) => {
-  const [presetName, setPresetName] = useState("");
+  const currentPresetName = usePresetMetaStore(
+    (state) => state.currentPresetMeta.name,
+  );
+  const [editedName, setEditedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [wasOpen, setWasOpen] = useState(isOpen);
 
-  // Auto-populate with default name when dialog opens
-  if (isOpen && !wasOpen && defaultName) {
-    setPresetName(defaultName);
-  }
-  if (isOpen !== wasOpen) {
-    setWasOpen(isOpen);
-  }
+  const presetName = editedName ?? currentPresetName;
 
   const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
   const handleClose = () => {
-    setPresetName("");
+    setEditedName(null);
     setError(null);
     onClose();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setPresetName(value);
+    setEditedName(value);
 
     // Validate on change
     const result = presetNameSchema.safeParse(value);
@@ -73,7 +68,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent>
+      <DialogContent key={currentPresetName}>
         <DialogHeader>
           <DialogTitle>Save Preset</DialogTitle>
         </DialogHeader>

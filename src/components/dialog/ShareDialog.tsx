@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui";
 import { useClipboard } from "@/hooks/useClipboard";
 import { presetNameSchema } from "@/lib/schemas";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 
 type ShareStep = "input" | "result";
 
@@ -23,37 +24,33 @@ interface ShareDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onShare: (name: string) => Promise<string>;
-  defaultName?: string;
 }
 
 export const ShareDialog: React.FC<ShareDialogProps> = ({
   isOpen,
   onClose,
   onShare,
-  defaultName = "",
 }) => {
+  const currentPresetName = usePresetMetaStore(
+    (state) => state.currentPresetMeta.name,
+  );
+
   const [step, setStep] = useState<ShareStep>("input");
-  const [presetName, setPresetName] = useState("");
+  const [editedName, setEditedName] = useState<string | null>(null);
   const [shareableLink, setShareableLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [wasOpen, setWasOpen] = useState(isOpen);
+
   const { toast } = useToast();
   const { onCopy, hasCopied } = useClipboard();
 
-  // Auto-populate with default name when dialog opens
-  if (isOpen && !wasOpen && defaultName) {
-    setPresetName(defaultName);
-  }
-  if (isOpen !== wasOpen) {
-    setWasOpen(isOpen);
-  }
+  const presetName = editedName ?? currentPresetName;
 
   const isValid = presetNameSchema.safeParse(presetName.trim()).success;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setPresetName(value);
+    setEditedName(value);
 
     // Validate on change
     const result = presetNameSchema.safeParse(value);
@@ -101,19 +98,17 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
     });
   };
 
-  // Reset state when dialog closes
-  useEffect(() => {
-    if (!isOpen) {
-      setStep("input");
-      setPresetName("");
-      setShareableLink("");
-      setIsLoading(false);
-      setError(null);
-    }
-  }, [isOpen]);
+  const handleClose = () => {
+    setStep("input");
+    setEditedName(null);
+    setShareableLink("");
+    setIsLoading(false);
+    setError(null);
+    onClose();
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
         {step === "input" ? (
           <>
