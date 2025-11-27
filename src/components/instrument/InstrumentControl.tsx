@@ -1,6 +1,3 @@
-import { useEffect } from "react";
-
-import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine/instrumentParams";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -29,11 +26,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
-
-  useEffect(() => {
-    if (!runtime) return;
-    return subscribeRuntimeToInstrumentParams(index, runtime);
-  }, [index, runtime]);
 
   return (
     <div

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { AboutDialog } from "@/components/dialog/AboutDialog";
 import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPresetDialog";
@@ -11,7 +11,6 @@ import { usePresetManager } from "@/hooks/usePresetManager";
 import { useRemoveInitialLoader } from "@/hooks/useRemoveInitialLoader";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
-import { subscribeRuntimeToInstrumentParams } from "@/lib/audio/engine";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileHeader } from "./MobileHeader";
