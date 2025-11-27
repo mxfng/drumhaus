@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import {
   KNOB_OUTER_TICK_COUNT_DEFAULT,
+  KNOB_SENSITIVITY,
   KNOB_VALUE_DEFAULT,
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
@@ -112,7 +113,7 @@ const Knob: React.FC<KnobProps> = ({
       ev.preventDefault();
 
       const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
-      const deltaY = initMoveYRef.current - clientY;
+      const deltaY = (initMoveYRef.current - clientY) * KNOB_SENSITIVITY;
 
       const newValue = clamp(
         initValueRef.current + deltaY,
