@@ -19,6 +19,7 @@ interface MobilePresetMenuProps {
   selectedKitId: string;
   onPresetSelect: (value: string) => void;
   onKitSelect: (value: string) => void;
+  importPreset: () => void;
 }
 
 export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
@@ -31,6 +32,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
   selectedKitId,
   onPresetSelect,
   onKitSelect,
+  importPreset,
 }) => {
   const openDialog = useDialogStore((state) => state.openDialog);
   const [swipeOffset, setSwipeOffset] = useState(0);
@@ -40,23 +42,6 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
   const handleAction = (dialogType: "save" | "share" | "export") => {
     openDialog(dialogType);
-    onClose();
-  };
-
-  const handleImport = () => {
-    // Trigger file import
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".dh";
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        // This will be handled by PresetControl logic
-        const event = new CustomEvent("import-preset", { detail: file });
-        window.dispatchEvent(event);
-      }
-    };
-    input.click();
     onClose();
   };
 
@@ -167,7 +152,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
               </button>
 
               <button
-                onClick={handleImport}
+                onClick={importPreset}
                 className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
               >
                 <Upload size={18} />

@@ -18,6 +18,9 @@ interface PresetMetaState {
   // Recent preset history (last 10 presets)
   recentPresets: Meta[];
 
+  // Custom presets (loaded from files or URLs)
+  customPresets: PresetFileV1[];
+
   // Actions
   setPresetMeta: (meta: Meta) => void;
   setKitMeta: (meta: Meta) => void;
@@ -43,6 +46,12 @@ interface PresetMetaState {
    * Add a preset to recent history
    */
   addToHistory: (meta: Meta) => void;
+
+  /**
+   * Add a custom preset if not already in default or custom presets
+   * Prevents duplicates when loading from URLs or files
+   */
+  addCustomPreset: (preset: PresetFileV1) => void;
 }
 
 export const usePresetMetaStore = create<PresetMetaState>()(
@@ -54,6 +63,7 @@ export const usePresetMetaStore = create<PresetMetaState>()(
         currentKitMeta: init().kit.meta,
         cleanPreset: init(),
         recentPresets: [init().meta],
+        customPresets: [],
 
         // Actions
         setPresetMeta: (meta) => {
@@ -124,15 +134,28 @@ export const usePresetMetaStore = create<PresetMetaState>()(
             state.recentPresets = [meta, ...filtered].slice(0, 10);
           });
         },
+
+        addCustomPreset: (preset) => {
+          set((state) => {
+            // Check if already in custom presets
+            const exists = state.customPresets.some(
+              (p) => p.meta.id === preset.meta.id,
+            );
+            if (!exists) {
+              state.customPresets.push(preset);
+            }
+          });
+        },
       })),
       {
         name: "drumhaus-preset-meta-storage",
         version: 1,
-        // Persist current meta and history, but not cleanPreset (runtime only)
+        // Persist current meta, history, and custom presets (but not cleanPreset - runtime only)
         partialize: (state) => ({
           currentPresetMeta: state.currentPresetMeta,
           currentKitMeta: state.currentKitMeta,
           recentPresets: state.recentPresets,
+          customPresets: state.customPresets,
         }),
       },
     ),
