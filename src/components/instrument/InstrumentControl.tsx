@@ -49,7 +49,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   return (
     <div
       className={cn(
-        "group relative inset-0 w-full py-4 pt-4 transition-all duration-500",
+        "group relative inset-0 h-[400px] w-full py-4 pt-4 transition-all duration-500",
         {
           "flex h-full flex-col": fillHeight,
         },
@@ -57,19 +57,23 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       style={{ backgroundColor: bg }}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
-      <InstrumentHeader
-        index={index}
-        color={color}
-        waveformWidth={waveformWidth}
-        runtime={runtime}
-      />
+      <div className="h-24">
+        <InstrumentHeader
+          index={index}
+          color={color}
+          waveformWidth={waveformWidth}
+          runtime={runtime}
+        />
+      </div>
 
-      <InstrumentParams
-        index={index}
-        instrumentIndex={instrumentIndex}
-        fillHeight={fillHeight}
-        runtime={runtime}
-      />
+      <div className="h-40">
+        <InstrumentParams
+          index={index}
+          instrumentIndex={instrumentIndex}
+          fillHeight={fillHeight}
+          runtime={runtime}
+        />
+      </div>
     </div>
   );
 };
