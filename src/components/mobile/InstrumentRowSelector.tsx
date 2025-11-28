@@ -43,10 +43,24 @@ export const InstrumentRowSelector: React.FC<InstrumentRowSelectorProps> = ({
     onOpenChange(open);
   };
 
+  const handleTriggerClick = () => {
+    // Handle the click directly to ensure smooth switching between rows
+    if (isOpen) {
+      // Clicking the same row - close it
+      onOpenChange(false);
+    } else {
+      // Clicking a different row or opening when none selected - open it
+      setVoiceIndex(voiceIndex);
+      onOpenChange(true);
+    }
+  };
+
   return (
-    <Popover.Root open={isOpen} onOpenChange={handleOpenChange}>
+    <Popover.Root open={isOpen} onOpenChange={handleOpenChange} modal={false}>
       <Popover.Trigger asChild>
         <button
+          data-instrument-selector
+          onClick={handleTriggerClick}
           className={cn(
             "flex h-full w-full flex-col items-center justify-center text-xs transition-colors",
             "bg-surface-muted hover:bg-surface data-[state=open]:bg-surface",
@@ -74,6 +88,17 @@ export const InstrumentRowSelector: React.FC<InstrumentRowSelectorProps> = ({
           align="start"
           sideOffset={0}
           className="z-50 w-[calc(100vw-3rem)] px-2"
+          onInteractOutside={(e) => {
+            // Prevent closing when clicking another row selector
+            // This allows smooth switching between rows
+            const target = e.target as HTMLElement;
+            const clickedSelector = target.closest(
+              "[data-instrument-selector]",
+            );
+            if (clickedSelector) {
+              e.preventDefault();
+            }
+          }}
         >
           {/* Action Buttons Row */}
           <div className="hardware-button-group flex rounded-lg">

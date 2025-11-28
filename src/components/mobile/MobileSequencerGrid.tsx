@@ -74,9 +74,16 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
                 voiceIndex={voiceIndex}
                 rowIndex={index}
                 isOpen={isOpen}
-                onOpenChange={(open) =>
-                  setOpenVoiceIndex(open ? voiceIndex : null)
-                }
+                onOpenChange={(open) => {
+                  if (open) {
+                    // Opening this row
+                    setOpenVoiceIndex(voiceIndex);
+                  } else if (openVoiceIndex === voiceIndex) {
+                    // Only close if this row is currently open
+                    setOpenVoiceIndex(null);
+                  }
+                  // Ignore close events from rows that aren't currently open
+                }}
                 onCopy={copySequence}
                 onPaste={pasteSequence}
                 onClear={clearSequence}
