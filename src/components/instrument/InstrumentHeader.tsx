@@ -12,17 +12,19 @@ import Waveform from "./Waveform";
 interface InstrumentHeaderProps {
   index: number;
   color: string;
-  waveformWidth: number;
+  waveformWidth?: number;
   waveformHeight?: number;
   runtime?: InstrumentRuntime;
+  className?: string;
 }
 
 export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   index,
   color,
   waveformWidth,
-  waveformHeight = 60,
+  waveformHeight,
   runtime,
+  className,
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
@@ -68,17 +70,18 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-row items-center gap-2 opacity-80 transition-opacity duration-300 hover:opacity-100 sm:flex-col sm:items-stretch sm:gap-0",
+        "flex h-full w-full flex-col items-stretch gap-2 opacity-80 transition-opacity duration-300 hover:opacity-100",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
         },
+        className,
       )}
       onMouseDown={playSample}
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}
-      <div className="flex w-1/4 items-center gap-2 py-1 pl-4 sm:w-full">
+      <div className="flex w-full items-center gap-2 py-1 pl-4">
         <span className="font-pixel text-lg" style={{ color }}>
           {index + 1}
         </span>
@@ -88,7 +91,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       </div>
 
       {/* Waveform */}
-      <div className="relative flex min-h-0 w-3/4 flex-1 items-center justify-center overflow-visible px-4 sm:w-full">
+      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-visible px-4">
         {isRuntimeLoaded && waveformLoaded && !waveformError ? (
           <Waveform
             audioFile={samplePath}

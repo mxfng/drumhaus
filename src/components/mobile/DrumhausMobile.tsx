@@ -14,8 +14,10 @@ import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { type BusSubTab } from "./MobileBusControl";
+import { MobileContextualMenu } from "./MobileContextualMenu";
 import { MobileHeader } from "./MobileHeader";
-import { MobileInstrumentSelector } from "./MobileInstrumentSelector";
+import type { InstrumentMode } from "./MobileInstrumentControl";
 import { MobilePresetMenu } from "./MobilePresetMenu";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
@@ -23,6 +25,9 @@ const DrumhausMobile: React.FC = () => {
   // State
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
+  const [instrumentMode, setInstrumentMode] =
+    useState<InstrumentMode>("trigger");
+  const [busSubTab, setBusSubTab] = useState<BusSubTab>("comp");
 
   // Dialog state
   const activeDialog = useDialogStore((state) => state.activeDialog);
@@ -100,16 +105,25 @@ const DrumhausMobile: React.FC = () => {
         instrumentRuntimesVersion={instrumentRuntimesVersion}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        instrumentMode={instrumentMode}
+        busSubTab={busSubTab}
       />
 
-      {/* Instrument Selector */}
-      <MobileInstrumentSelector />
+      {/* Contextual Menu - changes based on active tab */}
+      <MobileContextualMenu
+        activeTab={activeTab}
+        instrumentMode={instrumentMode}
+        onInstrumentModeChange={setInstrumentMode}
+        busSubTab={busSubTab}
+        onBusSubTabChange={setBusSubTab}
+      />
 
-      {/* Play Button */}
+      {/* Bottom Navigation */}
       <MobileBottomNav
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onMenuOpen={() => setMenuOpen(true)}
       />
 
       {/* Preset Menu */}
