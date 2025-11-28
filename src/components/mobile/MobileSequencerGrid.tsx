@@ -1,25 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { StepIndicator } from "@/components/StepIndicator";
+import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { CompactSequencerRow } from "./CompactSequencerRow";
-import { VerticalInstrumentSelector } from "./VerticalInstrumentSelector";
+import {
+  INSTRUMENT_COLORS,
+  InstrumentRowSelector,
+} from "./InstrumentRowSelector";
 
 interface MobileSequencerGridProps {
   instrumentRuntimes: InstrumentRuntime[];
   instrumentRuntimesVersion: number;
 }
 
-export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = ({
-  instrumentRuntimes,
-  instrumentRuntimesVersion,
-}) => {
+export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
   const toggleStep = usePatternStore((state) => state.toggleStep);
+
+  const [openVoiceIndex, setOpenVoiceIndex] = useState<number | null>(null);
+
+  const { copySequence, pasteSequence, clearSequence, randomSequence } =
+    useSequencerControl();
 
   const steps: number[] = Array.from(
     { length: STEP_COUNT },
@@ -50,16 +56,33 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = ({
         {Array.from({ length: 8 }).map((_, index) => {
           const voiceIndex = 7 - index;
           const triggers = pattern[voiceIndex].variations[variation].triggers;
+          const isOpen = openVoiceIndex === voiceIndex;
 
           return (
             <div
               key={`sequencer-row-${voiceIndex}`}
-              className="grid grid-cols-[3rem_1fr] gap-px"
+              className="relative grid grid-cols-[3rem_1fr] gap-px"
             >
-              <VerticalInstrumentSelector
-                instrumentRuntimes={instrumentRuntimes}
-                instrumentRuntimesVersion={instrumentRuntimesVersion}
+              {/* Selection border overlay */}
+              {isOpen && (
+                <div
+                  className="pointer-events-none absolute inset-0 z-10"
+                  style={{
+                    boxShadow: `inset 0 0 0 3px ${INSTRUMENT_COLORS[voiceIndex]}`,
+                  }}
+                />
+              )}
+              <InstrumentRowSelector
                 voiceIndex={voiceIndex}
+                rowIndex={index}
+                isOpen={isOpen}
+                onOpenChange={(open) =>
+                  setOpenVoiceIndex(open ? voiceIndex : null)
+                }
+                onCopy={copySequence}
+                onPaste={pasteSequence}
+                onClear={clearSequence}
+                onRandom={randomSequence}
               />
               <CompactSequencerRow
                 voiceIndex={voiceIndex}

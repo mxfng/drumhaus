@@ -16,6 +16,7 @@ import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { MobileHeader } from "./MobileHeader";
 import { MobilePresetMenu } from "./MobilePresetMenu";
+import { MobileSequencerControl } from "./MobileSequencerControl";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
 const DrumhausMobile: React.FC = () => {
@@ -101,10 +102,10 @@ const DrumhausMobile: React.FC = () => {
         setActiveTab={setActiveTab}
       />
 
-      {/* Instrument Selector */}
-      {/* <MobileInstrumentSelector /> */}
+      {/* Sequencer Controls - only visible when sequencer tab is active */}
+      {activeTab === "controls" && <MobileSequencerControl />}
 
-      {/* Play Button */}
+      {/* Bottom Navigation */}
       <MobileBottomNav
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}

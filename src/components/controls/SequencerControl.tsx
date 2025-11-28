@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
 import { Button, Label, Tooltip } from "@/components/ui";
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { cn } from "@/lib/utils";
-import { usePatternStore } from "@/stores/usePatternStore";
 
 // Tooltip constants
 const TOOLTIPS = {
@@ -21,51 +19,16 @@ const TOOLTIPS = {
 } as const;
 
 export const SequencerControl: React.FC = () => {
-  // Get state from Sequencer Store
-  const variation = usePatternStore((state) => state.variation);
-  const variationCycle = usePatternStore((state) => state.variationCycle);
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
-  const pattern = usePatternStore((state) => state.pattern);
-  const currentTriggers = usePatternStore(
-    (state) =>
-      state.pattern[state.voiceIndex].variations[state.variation].triggers,
-  );
-
-  // Get actions from store
-  const setVariation = usePatternStore((state) => state.setVariation);
-  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
-  const updateSequence = usePatternStore((state) => state.updatePattern);
-  const clearSequence = usePatternStore((state) => state.clearPattern);
-  const [copiedTriggers, setCopiedTriggers] = useState<boolean[] | undefined>();
-  const [copiedVelocities, setCopiedVelocities] = useState<
-    number[] | undefined
-  >();
-
-  const copySequence = () => {
-    setCopiedTriggers(currentTriggers);
-    setCopiedVelocities(pattern[voiceIndex].variations[variation].velocities);
-  };
-
-  const pasteSequence = () => {
-    if (copiedTriggers && copiedVelocities) {
-      updateSequence(voiceIndex, variation, copiedTriggers, copiedVelocities);
-    }
-  };
-
-  const handleClearSequence = () => {
-    clearSequence(voiceIndex, variation);
-  };
-
-  const handleRandomSequence = () => {
-    const randomTriggers: boolean[] = Array.from(
-      { length: STEP_COUNT },
-      () => Math.random() < 0.5,
-    );
-    const randomVelocities: number[] = Array.from({ length: STEP_COUNT }, () =>
-      Math.random(),
-    );
-    updateSequence(voiceIndex, variation, randomTriggers, randomVelocities);
-  };
+  const {
+    variation,
+    variationCycle,
+    setVariation,
+    setVariationCycle,
+    copySequence,
+    pasteSequence,
+    clearSequence,
+    randomSequence,
+  } = useSequencerControl();
 
   return (
     <div className="flex w-full flex-col px-4">
@@ -189,7 +152,7 @@ export const SequencerControl: React.FC = () => {
               variant="hardware"
               size="sm"
               className="rounded-none"
-              onClick={handleClearSequence}
+              onClick={clearSequence}
             >
               <Eraser size={16} />
             </Button>
@@ -199,7 +162,7 @@ export const SequencerControl: React.FC = () => {
               variant="hardware"
               size="sm"
               className="rounded-l-none rounded-r-lg"
-              onClick={handleRandomSequence}
+              onClick={randomSequence}
             >
               <Dices size={16} />
             </Button>
