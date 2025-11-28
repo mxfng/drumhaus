@@ -39,7 +39,7 @@ export const CompactSequencerRow: React.FC<CompactSequencerRowProps> = ({
 
   return (
     <div
-      className="grid h-full grid-cols-16 gap-[1px]"
+      className="grid h-full grid-cols-16 gap-px"
       onTouchMove={handleStepTouchMove}
     >
       {steps.map((step) => {

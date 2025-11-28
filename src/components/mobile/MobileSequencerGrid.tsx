@@ -31,7 +31,7 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = ({
       {/* Step indicators row */}
       <div className="bg-surface sticky top-0 z-10 grid grid-cols-[3rem_1fr] gap-[1px]">
         {/* Empty space for the instrument selector column */}
-        <div className="bg-border" />
+        <div className="bg-instrument" />
         {/* Step indicators */}
         <div className="bg-surface grid grid-cols-16">
           {steps.map((step) => (
@@ -46,14 +46,15 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = ({
       </div>
 
       {/* Main grid with selector and sequencer rows */}
-      <div className="bg-border grid flex-1 auto-rows-[minmax(3.5rem,1fr)] gap-[1px]">
-        {[...Array.from({ length: 8 })].reverse().map((_, voiceIndex) => {
+      <div className="grid flex-1 auto-rows-[minmax(3.5rem,1fr)] gap-px">
+        {Array.from({ length: 8 }).map((_, index) => {
+          const voiceIndex = 7 - index;
           const triggers = pattern[voiceIndex].variations[variation].triggers;
 
           return (
             <div
               key={`sequencer-row-${voiceIndex}`}
-              className="grid grid-cols-[3rem_1fr] gap-[1px]"
+              className="grid grid-cols-[3rem_1fr] gap-px"
             >
               <VerticalInstrumentSelector
                 instrumentRuntimes={instrumentRuntimes}

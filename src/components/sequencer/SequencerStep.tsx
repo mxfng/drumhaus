@@ -45,15 +45,15 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       ? "bg-primary shadow-neu hover:primary-muted"
       : variant === "desktop"
         ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40"
-        : "bg-instrument h-full",
+        : "bg-instrument",
     opacity: isGhosted
       ? 0.7
       : isTriggerOn
         ? 1
         : variant === "mobile" && !isTriggerOn
           ? isAccentBeat
-            ? 0.6
-            : 0.2
+            ? 1
+            : 0.75
           : 1,
   };
 
