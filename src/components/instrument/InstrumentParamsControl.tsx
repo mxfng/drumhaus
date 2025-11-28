@@ -175,7 +175,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         mapping={pitchMapping}
         outerTickCount={25}
       />
-      <div className="grid w-full grid-cols-2 place-items-center gap-10 sm:gap-4">
+      <div className="grid w-full grid-cols-2 place-items-center gap-6 sm:gap-4">
         <div className="col-span-2 w-full px-3">
           <HardwareSlider
             sliderValue={pan}

@@ -19,7 +19,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   index,
   instrumentIndex,
   color = "currentColor",
-  waveformWidth = 170,
+  waveformWidth,
   fillHeight = false,
   bg,
 }) => {

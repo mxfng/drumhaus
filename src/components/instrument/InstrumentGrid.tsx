@@ -3,20 +3,10 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { INSTRUMENT_COLORS } from "./instrumentColors";
 import { InstrumentControl } from "./InstrumentControl";
 
 const NO_OF_INSTRUMENTS = 8;
-
-const INSTRUMENT_COLORS = [
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
-  "#213062",
-  "#e9902f",
-  "#d72529",
-  "#27991a",
-];
 
 type InstrumentGridProps = {
   instrumentRuntimes: InstrumentRuntime[];
