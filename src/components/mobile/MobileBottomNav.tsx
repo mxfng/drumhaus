@@ -23,52 +23,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <>
       <div className="border-border bg-surface grid grid-cols-5 gap-2 border-t p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-        {/* Tempo */}
-        <button
-          onClick={() => setActiveTab("transport")}
-          className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "transport" ? "bg-surface-muted text-primary-muted" : ""}`}
-        >
-          <span
-            className={`font-pixel flex h-5 items-center justify-center text-lg ${activeTab === "transport" ? "text-primary-muted" : ""}`}
-          >
-            {bpm}
-          </span>
-          <span
-            className={`mt-1 text-xs ${activeTab === "transport" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            TEMPO
-          </span>
-        </button>
-
-        {/* Bus Button */}
-        <button
-          onClick={() => setActiveTab("bus")}
-          className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "bus" ? "bg-surface-muted text-primary-muted" : ""}`}
-        >
-          <Sliders
-            size={20}
-            className={activeTab === "bus" ? "text-primary-muted" : ""}
-          />
-          <span
-            className={`mt-1 text-xs ${activeTab === "bus" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            BUS
-          </span>
-        </button>
-
-        {/* Play Button (centered) */}
-        <Button
-          variant="hardware"
-          className="neu-medium-raised h-full rounded-lg shadow-lg"
-          onClick={() => togglePlay(instrumentRuntimes)}
-        >
-          {isPlaying ? (
-            <Pause fill="currentColor" size={32} strokeWidth={1} />
-          ) : (
-            <Play fill="currentColor" size={32} strokeWidth={1} />
-          )}
-        </Button>
-
         {/* Sequencer Button */}
         <button
           onClick={() => setActiveTab("controls")}
@@ -98,6 +52,52 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             className={`mt-1 text-xs ${activeTab === "instrument" ? "text-primary-muted" : "text-foreground-muted"}`}
           >
             INST
+          </span>
+        </button>
+
+        {/* Play Button (centered) */}
+        <Button
+          variant="hardware"
+          className="neu-medium-raised h-full rounded-lg shadow-lg"
+          onClick={() => togglePlay(instrumentRuntimes)}
+        >
+          {isPlaying ? (
+            <Pause fill="currentColor" size={32} strokeWidth={1} />
+          ) : (
+            <Play fill="currentColor" size={32} strokeWidth={1} />
+          )}
+        </Button>
+
+        {/* Bus Button */}
+        <button
+          onClick={() => setActiveTab("bus")}
+          className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "bus" ? "bg-surface-muted text-primary-muted" : ""}`}
+        >
+          <Sliders
+            size={20}
+            className={activeTab === "bus" ? "text-primary-muted" : ""}
+          />
+          <span
+            className={`mt-1 text-xs ${activeTab === "bus" ? "text-primary-muted" : "text-foreground-muted"}`}
+          >
+            BUS
+          </span>
+        </button>
+
+        {/* Tempo */}
+        <button
+          onClick={() => setActiveTab("transport")}
+          className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "transport" ? "bg-surface-muted text-primary-muted" : ""}`}
+        >
+          <span
+            className={`font-pixel flex h-5 items-center justify-center text-lg ${activeTab === "transport" ? "text-primary-muted" : ""}`}
+          >
+            {bpm}
+          </span>
+          <span
+            className={`mt-1 text-xs ${activeTab === "transport" ? "text-primary-muted" : "text-foreground-muted"}`}
+          >
+            TEMPO
           </span>
         </button>
       </div>
