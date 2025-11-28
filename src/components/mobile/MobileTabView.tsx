@@ -5,11 +5,12 @@ import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
 import type { InstrumentRuntime } from "@/types/instrument";
+import type { BusSubTab } from "./MobileBusControl";
 import type { InstrumentMode } from "./MobileInstrumentControl";
 import { MobileInstrumentGrid } from "./MobileInstrumentGrid";
 import { MobileSequencerGrid } from "./MobileSequencerGrid";
 
-export type TabType = "instrument" | "controls" | "transport" | "bus";
+export type TabType = "instrument" | "controls" | "bus";
 
 interface MobileTabViewProps {
   instrumentRuntimes: InstrumentRuntime[];
@@ -17,6 +18,7 @@ interface MobileTabViewProps {
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   instrumentMode: InstrumentMode;
+  busSubTab: BusSubTab;
 }
 
 export const MobileTabView: React.FC<MobileTabViewProps> = ({
@@ -24,6 +26,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
   instrumentRuntimesVersion,
   activeTab,
   instrumentMode,
+  busSubTab,
 }) => {
   // Smooth fade + scale animation config
   const transitionConfig = {
@@ -71,19 +74,6 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               />
             </motion.div>
           )}
-          {activeTab === "transport" && (
-            <motion.div
-              key="transport"
-              data-scrollable
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={transitionConfig}
-              className="absolute inset-0 flex h-full flex-col items-center justify-center overflow-y-auto p-8"
-            >
-              <TransportControl />
-            </motion.div>
-          )}
           {activeTab === "bus" && (
             <motion.div
               key="bus"
@@ -92,18 +82,58 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={transitionConfig}
-              className="absolute inset-0 flex h-full flex-col gap-6 overflow-y-auto p-4"
+              className="absolute inset-0 flex h-full flex-col overflow-y-auto p-4"
             >
-              {/* Master Volume - Centered */}
-              <div className="flex w-full justify-center">
-                <MasterVolume />
-              </div>
-
-              {/* Compressor - Full Width */}
-              <MasterCompressor />
-
-              {/* FX - Full Width */}
-              <MasterFX />
+              <AnimatePresence initial={false} mode="wait">
+                {busSubTab === "comp" && (
+                  <motion.div
+                    key="comp"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={transitionConfig}
+                    className="flex h-full flex-col items-center justify-center"
+                  >
+                    <MasterCompressor />
+                  </motion.div>
+                )}
+                {busSubTab === "fx" && (
+                  <motion.div
+                    key="fx"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={transitionConfig}
+                    className="flex h-full flex-col items-center justify-center"
+                  >
+                    <MasterFX />
+                  </motion.div>
+                )}
+                {busSubTab === "level" && (
+                  <motion.div
+                    key="level"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={transitionConfig}
+                    className="flex h-full flex-col items-center justify-center"
+                  >
+                    <MasterVolume />
+                  </motion.div>
+                )}
+                {busSubTab === "tempo" && (
+                  <motion.div
+                    key="tempo"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={transitionConfig}
+                    className="flex h-full flex-col items-center justify-center"
+                  >
+                    <TransportControl />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>

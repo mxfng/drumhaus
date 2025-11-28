@@ -1,4 +1,4 @@
-import { MobileBusControl } from "./MobileBusControl";
+import { MobileBusControl, type BusSubTab } from "./MobileBusControl";
 import {
   MobileInstrumentControl,
   type InstrumentMode,
@@ -10,12 +10,16 @@ interface MobileContextualMenuProps {
   activeTab: TabType;
   instrumentMode: InstrumentMode;
   onInstrumentModeChange: (mode: InstrumentMode) => void;
+  busSubTab: BusSubTab;
+  onBusSubTabChange: (subTab: BusSubTab) => void;
 }
 
 export const MobileContextualMenu: React.FC<MobileContextualMenuProps> = ({
   activeTab,
   instrumentMode,
   onInstrumentModeChange,
+  busSubTab,
+  onBusSubTabChange,
 }) => {
   switch (activeTab) {
     case "controls":
@@ -28,10 +32,12 @@ export const MobileContextualMenu: React.FC<MobileContextualMenuProps> = ({
         />
       );
     case "bus":
-      return <MobileBusControl />;
-    case "transport":
-      // Transport tab doesn't need a contextual menu (controls are in the main view)
-      return null;
+      return (
+        <MobileBusControl
+          activeSubTab={busSubTab}
+          onSubTabChange={onBusSubTabChange}
+        />
+      );
     default:
       return null;
   }

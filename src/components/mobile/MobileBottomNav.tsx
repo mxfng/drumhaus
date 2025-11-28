@@ -1,4 +1,11 @@
-import { CircleDot, Grid3x3, Pause, Play, Sliders } from "lucide-react";
+import {
+  CircleDot,
+  Grid3x3,
+  ListMusic,
+  Pause,
+  Play,
+  Sliders,
+} from "lucide-react";
 
 import { IconWithLabel } from "@/components/mobile/common/IconWithLabel";
 import { Button } from "@/components/ui";
@@ -10,16 +17,17 @@ interface MobileBottomNavProps {
   instrumentRuntimes: InstrumentRuntime[];
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  onMenuOpen: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   instrumentRuntimes,
   activeTab,
   setActiveTab,
+  onMenuOpen,
 }) => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
-  const bpm = useTransportStore((state) => state.bpm);
 
   return (
     <>
@@ -90,15 +98,15 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           />
         </button>
 
-        {/* Tempo */}
+        {/* Preset Menu */}
         <button
-          onClick={() => setActiveTab("transport")}
-          className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "transport" ? "bg-surface-muted text-primary-muted" : ""}`}
+          onClick={onMenuOpen}
+          className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
           <IconWithLabel
-            icon={bpm}
-            label="TEMPO"
-            isActive={activeTab === "transport"}
+            icon={<ListMusic size={20} />}
+            label="PRESET"
+            isActive={false}
           />
         </button>
       </div>

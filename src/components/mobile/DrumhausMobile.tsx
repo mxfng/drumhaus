@@ -14,6 +14,7 @@ import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { type BusSubTab } from "./MobileBusControl";
 import { MobileContextualMenu } from "./MobileContextualMenu";
 import { MobileHeader } from "./MobileHeader";
 import type { InstrumentMode } from "./MobileInstrumentControl";
@@ -26,6 +27,7 @@ const DrumhausMobile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("controls");
   const [instrumentMode, setInstrumentMode] =
     useState<InstrumentMode>("trigger");
+  const [busSubTab, setBusSubTab] = useState<BusSubTab>("comp");
 
   // Dialog state
   const activeDialog = useDialogStore((state) => state.activeDialog);
@@ -104,6 +106,7 @@ const DrumhausMobile: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         instrumentMode={instrumentMode}
+        busSubTab={busSubTab}
       />
 
       {/* Contextual Menu - changes based on active tab */}
@@ -111,6 +114,8 @@ const DrumhausMobile: React.FC = () => {
         activeTab={activeTab}
         instrumentMode={instrumentMode}
         onInstrumentModeChange={setInstrumentMode}
+        busSubTab={busSubTab}
+        onBusSubTabChange={setBusSubTab}
       />
 
       {/* Bottom Navigation */}
@@ -118,6 +123,7 @@ const DrumhausMobile: React.FC = () => {
         instrumentRuntimes={instrumentRuntimes.current}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        onMenuOpen={() => setMenuOpen(true)}
       />
 
       {/* Preset Menu */}
