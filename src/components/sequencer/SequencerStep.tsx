@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
-import { useCurrentStep } from "@/hooks/sequencer/useCurrentStep";
+import { getCurrentStepFromTransport } from "@/lib/audio/transport";
 import { cn } from "@/lib/utils";
+import { useTransportStore } from "@/stores/useTransportStore";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -30,15 +31,50 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onMouseEnter,
   onTouchStart,
 }) => {
-  // Track current step for mobile variant only
-  const isCurrentStep = useCurrentStep(
-    stepIndex,
-    variant === "mobile" ? variation : undefined,
-    variant === "mobile" ? playbackVariation : undefined,
-  );
+  const stepRef = useRef<HTMLDivElement>(null);
 
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
+
+  // Track current step for mobile variant using requestAnimationFrame
+  useEffect(() => {
+    if (
+      variant !== "mobile" ||
+      variation === undefined ||
+      playbackVariation === undefined
+    ) {
+      return;
+    }
+
+    let animationId: number;
+
+    const updateCurrentStep = () => {
+      const { isPlaying } = useTransportStore.getState();
+      const currentStepIndex = isPlaying ? getCurrentStepFromTransport() : -1;
+
+      const isThisStepPlaying =
+        isPlaying &&
+        playbackVariation === variation &&
+        currentStepIndex === stepIndex;
+
+      // Update brightness directly without triggering React re-render
+      if (stepRef.current) {
+        if (isThisStepPlaying) {
+          stepRef.current.style.filter = "brightness(0.75)";
+        } else {
+          stepRef.current.style.filter = "";
+        }
+      }
+
+      animationId = requestAnimationFrame(updateCurrentStep);
+    };
+
+    animationId = requestAnimationFrame(updateCurrentStep);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [stepIndex, variation, playbackVariation, variant]);
 
   const triggerStyles = {
     className: isTriggerOn
@@ -67,6 +103,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   return (
     <div
+      ref={stepRef}
       data-step-index={stepIndex}
       onMouseDown={() => onMouseDown(stepIndex, isTriggerOn)}
       onMouseEnter={() => onMouseEnter(stepIndex, isTriggerOn)}
@@ -80,7 +117,6 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         sizeClasses,
         borderRadius,
         triggerStyles.className,
-        variant === "mobile" && isCurrentStep && "brightness-75",
       )}
       style={{
         opacity: triggerStyles.opacity,
