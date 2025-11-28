@@ -15,7 +15,6 @@ import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { MobileHeader } from "./MobileHeader";
-import { MobileInstrumentSelector } from "./MobileInstrumentSelector";
 import { MobilePresetMenu } from "./MobilePresetMenu";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
@@ -103,7 +102,7 @@ const DrumhausMobile: React.FC = () => {
       />
 
       {/* Instrument Selector */}
-      <MobileInstrumentSelector />
+      {/* <MobileInstrumentSelector /> */}
 
       {/* Play Button */}
       <MobileBottomNav

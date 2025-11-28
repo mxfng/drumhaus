@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 
+import { SequencerStep } from "@/components/sequencer/SequencerStep";
+import { SequencerVelocity } from "@/components/sequencer/SequencerVelocity";
 import { StepIndicator } from "@/components/StepIndicator";
+import { useSequencerDragPaint } from "@/hooks/sequencer/useSequencerDragPaint";
 import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { clampVelocity } from "@/lib/pattern/helpers";
-import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
@@ -29,16 +30,19 @@ export const Sequencer: React.FC = () => {
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const setVelocity = usePatternStore((state) => state.setVelocity);
 
-  // --- State ---
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragWriteTargetOn, setDragWriteTargetOn] = useState<boolean>(true);
-  const [isAdjustingVelocity, setIsAdjustingVelocity] =
-    useState<boolean>(false);
+  // --- Drag-paint logic ---
+  const {
+    isDragging,
+    handleStepMouseStart,
+    handleStepTouchStart,
+    handleStepTouchMove,
+    handleStepMouseEnter,
+  } = useSequencerDragPaint({
+    triggers,
+    onToggleStep: (stepIndex) => toggleStep(voiceIndex, variation, stepIndex),
+  });
 
-  const sequencerRef = useRef<HTMLDivElement | null>(null);
-  const touchActiveRef = useRef<boolean>(false);
-
-  // Lock scroll during drag (similar to Radix Dialog)
+  // Lock scroll during drag
   useScrollLock(isDragging);
 
   const currentVariation = pattern[voiceIndex].variations[variation];
@@ -47,100 +51,6 @@ export const Sequencer: React.FC = () => {
     { length: STEP_COUNT },
     (_, index) => index,
   );
-
-  const updateVelocityFromPointer = (
-    event: React.MouseEvent<HTMLDivElement>,
-    stepIndex: number,
-  ) => {
-    const targetDiv = event.currentTarget;
-    const rect = targetDiv.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const divWidth = rect.width;
-    // Use a small inset to ensure 0 and 100 are reachable at the edges
-    const inset = 2;
-    const adjustedX = mouseX - inset;
-    const adjustedWidth = divWidth - inset * 2;
-    const velocity = clampVelocity(adjustedX / adjustedWidth);
-    setVelocity(voiceIndex, variation, stepIndex, velocity);
-  };
-
-  const handleVelocityMouseDown = (
-    event: React.MouseEvent<HTMLDivElement>,
-    stepIndex: number,
-  ) => {
-    setIsDragging(true);
-    setIsAdjustingVelocity(true);
-    updateVelocityFromPointer(event, stepIndex);
-  };
-
-  const handleVelocityMouseMove = (
-    event: React.MouseEvent<HTMLDivElement>,
-    stepIndex: number,
-  ) => {
-    if (isDragging && isAdjustingVelocity) {
-      updateVelocityFromPointer(event, stepIndex);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setIsAdjustingVelocity(false);
-    // Reset touch flag after a delay to allow for mouse events to be ignored
-    setTimeout(() => {
-      touchActiveRef.current = false;
-    }, 300);
-  };
-
-  // Mouse handler - skip if touch is active
-  const handleStepMouseStart = (stepIndex: number, isCurrentlyOn: boolean) => {
-    if (touchActiveRef.current) return;
-    setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
-    handleToggleStep(stepIndex);
-  };
-
-  // Touch handler
-  const handleStepTouchStart = (stepIndex: number, isCurrentlyOn: boolean) => {
-    touchActiveRef.current = true;
-    setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
-    handleToggleStep(stepIndex);
-  };
-
-  // Touch move handler for drag painting on mobile
-  const handleStepTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || isAdjustingVelocity) return;
-
-    event.preventDefault(); // Prevent scrolling and mouse events
-
-    const touch = event.touches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
-    const stepElement = element?.closest("[data-step-index]");
-
-    if (stepElement) {
-      const stepIndex = parseInt(
-        stepElement.getAttribute("data-step-index") || "-1",
-      );
-      if (stepIndex >= 0 && stepIndex < STEP_COUNT) {
-        const state = getStepMusicalState(stepIndex);
-        const isStateChanging = state.isTriggerOn !== dragWriteTargetOn;
-        if (isStateChanging) {
-          handleToggleStep(stepIndex);
-        }
-      }
-    }
-  };
-
-  const handleToggleStep = (index: number) => {
-    toggleStep(voiceIndex, variation, index);
-  };
-
-  const handleStepMouseEnter = (stepIndex: number, isCurrentlyOn: boolean) => {
-    const isStateChanging = isCurrentlyOn !== dragWriteTargetOn;
-    if (isDragging && isStateChanging && !isAdjustingVelocity) {
-      handleToggleStep(stepIndex);
-    }
-  };
 
   const getStepMusicalState = (step: number): StepMusicalState => {
     const isTriggerOn = triggers[step];
@@ -154,43 +64,8 @@ export const Sequencer: React.FC = () => {
     };
   };
 
-  const getTriggerStyles = (state: StepMusicalState) => {
-    return {
-      className: state.isTriggerOn
-        ? "bg-primary shadow-neu hover:primary-muted"
-        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40",
-      opacity: state.isGhosted ? 0.7 : 1,
-    };
-  };
-
-  // Track mouseup and touchend events for drag painting step triggers.
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener("mouseup", handleMouseUp);
-      window.addEventListener("touchend", handleMouseUp);
-      window.addEventListener("touchcancel", handleMouseUp);
-    } else {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("touchend", handleMouseUp);
-      window.removeEventListener("touchcancel", handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("touchend", handleMouseUp);
-      window.removeEventListener("touchcancel", handleMouseUp);
-    };
-  }, [isDragging]);
-
-  // Reset mouse down state when the component unmounts.
-  useEffect(() => {
-    return () => {
-      setIsDragging(false);
-    };
-  }, []);
-
   return (
-    <div className="w-full py-2 sm:py-0" ref={sequencerRef}>
+    <div className="w-full py-2 sm:py-0">
       <div
         key="sequence-grid"
         className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-3"
@@ -198,8 +73,6 @@ export const Sequencer: React.FC = () => {
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
-          const triggerStyles = getTriggerStyles(state);
-          const velocityWidth = Math.max(state.velocityValue * 100, 12);
 
           return (
             <div key={`sequence-step-item-${step}`} className="col-span-1">
@@ -208,59 +81,25 @@ export const Sequencer: React.FC = () => {
                 variation={variation}
                 playbackVariation={playbackVariation}
               />
-              <div
-                key={`sequence-step-trigger-${step}`}
-                data-step-index={step}
-                onMouseDown={() =>
-                  handleStepMouseStart(step, state.isTriggerOn)
+              <SequencerStep
+                stepIndex={step}
+                isTriggerOn={state.isTriggerOn}
+                isGhosted={state.isGhosted}
+                variant="desktop"
+                onMouseDown={handleStepMouseStart}
+                onMouseEnter={handleStepMouseEnter}
+                onTouchStart={(_, stepIndex, isTriggerOn) =>
+                  handleStepTouchStart(stepIndex, isTriggerOn)
                 }
-                onMouseEnter={() =>
-                  handleStepMouseEnter(step, state.isTriggerOn)
+              />
+              <SequencerVelocity
+                stepIndex={step}
+                isTriggerOn={state.isTriggerOn}
+                velocityValue={state.velocityValue}
+                onSetVelocity={(stepIndex, velocity) =>
+                  setVelocity(voiceIndex, variation, stepIndex, velocity)
                 }
-                onTouchStart={(e) => {
-                  e.preventDefault();
-                  handleStepTouchStart(step, state.isTriggerOn);
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-                className={cn(
-                  "relative aspect-square w-full cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
-                  "rounded-[0_8px_0_8px] sm:rounded-[0_22px_0_22px]",
-                  triggerStyles.className,
-                )}
-                style={{
-                  opacity: triggerStyles.opacity,
-                }}
-              >
-                {state.isTriggerOn && (
-                  <div
-                    key={`sequence-step-trigger-glow-${step}`}
-                    className="pointer-events-none absolute inset-0 rounded-[0_8px_0_8px] bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] sm:rounded-[0_22px_0_22px]"
-                  />
-                )}
-              </div>
-              <div
-                key={`sequence-step-velocity-${step}`}
-                className={cn(
-                  "group outline-primary relative mt-2 h-4 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out sm:mt-3 sm:h-3.5",
-                  "hidden sm:block",
-                  state.isTriggerOn
-                    ? "cursor-grab"
-                    : "pointer-events-none cursor-default",
-                )}
-                style={{ opacity: state.isTriggerOn ? 0.6 : 0 }}
-                onMouseDown={(ev) => handleVelocityMouseDown(ev, step)}
-                onMouseMove={(ev) => handleVelocityMouseMove(ev, step)}
-              >
-                <div
-                  className="bg-primary absolute h-full rounded-[200px_0_200px_0] blur-xs"
-                  style={{ width: `${velocityWidth}%` }}
-                />
-                <div className="absolute flex h-full w-full items-center justify-center">
-                  <span className="font-pixel text-foreground-emphasis opacity-0 blur-xs transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:blur-none">
-                    {(state.velocityValue * 100).toFixed(0)}
-                  </span>
-                </div>
-              </div>
+              />
             </div>
           );
         })}

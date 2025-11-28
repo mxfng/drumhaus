@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
-import { getTransport, Ticks } from "tone";
 
-import { SEQUENCE_SUBDIVISION, STEP_COUNT } from "@/lib/audio/engine/constants";
+import { useCurrentStepIndex } from "@/hooks/sequencer/useCurrentStep";
 import { cn } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 
@@ -11,33 +10,22 @@ interface StepIndicatorProps {
   playbackVariation: number;
 }
 
-/**
- * Calculate current step index (0-15) from transport ticks
- */
-function getCurrentStepFromTransport(): number {
-  const transport = getTransport();
-  const ticks = transport.ticks;
-  const ticksPerStep = Ticks(SEQUENCE_SUBDIVISION).valueOf();
-  const currentStep = Math.floor(ticks / ticksPerStep) % STEP_COUNT;
-  return currentStep;
-}
-
 export const StepIndicator: React.FC<StepIndicatorProps> = ({
   stepIndex,
   variation,
   playbackVariation,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
+  const currentStepIndex = useCurrentStepIndex();
 
   const baseClassName =
-    "mb-2 sm:mb-4 h-1 w-full rounded-full transition-all duration-75";
+    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full transition-all duration-75";
 
   useEffect(() => {
     let animationId: number;
 
     const updateIndicator = () => {
       const { isPlaying } = useTransportStore.getState();
-      const currentStepIndex = isPlaying ? getCurrentStepFromTransport() : 0;
 
       const isAccentBeat = stepIndex % 4 === 0;
       const isStepPlaying =
@@ -77,7 +65,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [stepIndex, variation, playbackVariation]);
+  }, [stepIndex, variation, playbackVariation, currentStepIndex]);
 
   return (
     <div

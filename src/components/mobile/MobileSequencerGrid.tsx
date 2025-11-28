@@ -1,0 +1,77 @@
+import React from "react";
+
+import { StepIndicator } from "@/components/StepIndicator";
+import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { usePatternStore } from "@/stores/usePatternStore";
+import type { InstrumentRuntime } from "@/types/instrument";
+import { CompactSequencerRow } from "./CompactSequencerRow";
+import { VerticalInstrumentSelector } from "./VerticalInstrumentSelector";
+
+interface MobileSequencerGridProps {
+  instrumentRuntimes: InstrumentRuntime[];
+  instrumentRuntimesVersion: number;
+}
+
+export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = ({
+  instrumentRuntimes,
+  instrumentRuntimesVersion,
+}) => {
+  const pattern = usePatternStore((state) => state.pattern);
+  const variation = usePatternStore((state) => state.variation);
+  const playbackVariation = usePatternStore((state) => state.playbackVariation);
+  const toggleStep = usePatternStore((state) => state.toggleStep);
+
+  const steps: number[] = Array.from(
+    { length: STEP_COUNT },
+    (_, index) => index,
+  );
+
+  return (
+    <div className="border-border flex h-full min-h-112 w-full flex-col overflow-auto border">
+      {/* Step indicators row */}
+      <div className="bg-surface sticky top-0 z-10 grid grid-cols-[3rem_1fr] gap-[1px]">
+        {/* Empty space for the instrument selector column */}
+        <div className="bg-border" />
+        {/* Step indicators */}
+        <div className="bg-surface grid grid-cols-16">
+          {steps.map((step) => (
+            <StepIndicator
+              key={`step-indicator-${step}`}
+              stepIndex={step}
+              variation={variation}
+              playbackVariation={playbackVariation}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Main grid with selector and sequencer rows */}
+      <div className="bg-border grid flex-1 auto-rows-[minmax(3.5rem,1fr)] gap-[1px]">
+        {[...Array.from({ length: 8 })].reverse().map((_, voiceIndex) => {
+          const triggers = pattern[voiceIndex].variations[variation].triggers;
+
+          return (
+            <div
+              key={`sequencer-row-${voiceIndex}`}
+              className="grid grid-cols-[3rem_1fr] gap-[1px]"
+            >
+              <VerticalInstrumentSelector
+                instrumentRuntimes={instrumentRuntimes}
+                instrumentRuntimesVersion={instrumentRuntimesVersion}
+                voiceIndex={voiceIndex}
+              />
+              <CompactSequencerRow
+                voiceIndex={voiceIndex}
+                variation={variation}
+                triggers={triggers}
+                onToggleStep={(stepIndex) =>
+                  toggleStep(voiceIndex, variation, stepIndex)
+                }
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
