@@ -49,8 +49,8 @@ const Waveform: React.FC<WaveformProps> = ({
           entry.contentRect;
 
         if (width === undefined) {
-          // Use most of container width, accounting for some padding
-          setAutoWidth(Math.max(containerWidth - 8, 100));
+          // Use full container width (container already accounts for parent padding)
+          setAutoWidth(Math.max(containerWidth, 100));
         }
         if (height === undefined) {
           // Use container height or default to 60

@@ -1,8 +1,12 @@
 import { useCallback, useState } from "react";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/Dialog";
 import { playInstrumentSample } from "@/lib/audio/engine";
-import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
 import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
@@ -60,10 +64,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
               key={`instrument-${voiceIndex}`}
               onTouchStart={() => handleInstrumentClick(voiceIndex)}
               disabled={!isLoaded}
-              className={cn(
-                "flex flex-col items-center justify-center transition-colors",
-                "bg-instrument",
-              )}
+              className="flex flex-col items-center justify-center pb-2 transition-colors"
               style={{
                 borderLeftColor: INSTRUMENT_COLORS[voiceIndex],
                 borderLeftWidth: "4px",
@@ -90,6 +91,15 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
             <DialogTitle className="hidden">
               {instruments[editingVoiceIndex].meta.name}
             </DialogTitle>
+            <DialogCloseButton />
+
+            <div className="mt-2 h-32">
+              <InstrumentHeader
+                index={editingVoiceIndex}
+                color={INSTRUMENT_COLORS[editingVoiceIndex]}
+                runtime={instrumentRuntimes[editingVoiceIndex]}
+              />
+            </div>
             <InstrumentParamsControl
               key={`mobile-edit-instrument-${editingVoiceIndex}-${instrumentRuntimesVersion}`}
               index={editingVoiceIndex}
