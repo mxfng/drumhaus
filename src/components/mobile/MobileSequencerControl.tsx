@@ -1,5 +1,3 @@
-import { Repeat2 } from "lucide-react";
-
 import { Button } from "@/components/ui";
 import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { cn } from "@/lib/utils";

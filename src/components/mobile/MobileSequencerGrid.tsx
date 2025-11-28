@@ -5,11 +5,9 @@ import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
+import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
 import { CompactSequencerRow } from "./CompactSequencerRow";
-import {
-  INSTRUMENT_COLORS,
-  InstrumentRowSelector,
-} from "./InstrumentRowSelector";
+import { InstrumentRowSelector } from "./InstrumentRowSelector";
 
 interface MobileSequencerGridProps {
   instrumentRuntimes: InstrumentRuntime[];

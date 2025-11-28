@@ -5,17 +5,7 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
-
-export const INSTRUMENT_COLORS = [
-  "var(--color-track-blue)",
-  "var(--color-track-orange)",
-  "var(--color-track-red)",
-  "var(--color-track-green)",
-  "var(--color-track-blue)",
-  "var(--color-track-orange)",
-  "var(--color-track-red)",
-  "var(--color-track-green)",
-];
+import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
 
 interface InstrumentRowSelectorProps {
   voiceIndex: number;
@@ -83,51 +73,40 @@ export const InstrumentRowSelector: React.FC<InstrumentRowSelectorProps> = ({
           side={side}
           align="start"
           sideOffset={0}
-          className="border-border bg-surface z-50 w-[calc(100vw-3rem)] border p-2"
+          className="z-50 w-[calc(100vw-3rem)] px-2"
         >
           {/* Action Buttons Row */}
-          <div className="hardware-button-group flex gap-2 rounded-lg">
+          <div className="hardware-button-group flex rounded-lg">
             <Popover.Close asChild>
               <Button
                 variant="hardware"
-                size="sm"
                 className="flex-1 rounded-l-lg"
                 onClick={onCopy}
               >
-                <Copy size={14} />
+                <Copy />
+              </Button>
+            </Popover.Close>
+            <Popover.Close asChild>
+              <Button variant="hardware" className="flex-1" onClick={onPaste}>
+                <ClipboardPaste />
+              </Button>
+            </Popover.Close>
+            <Popover.Close asChild>
+              <Button variant="hardware" className="flex-1" onClick={onClear}>
+                <Eraser />
               </Button>
             </Popover.Close>
             <Popover.Close asChild>
               <Button
                 variant="hardware"
-                size="sm"
-                className="flex-1"
-                onClick={onPaste}
-              >
-                <ClipboardPaste size={14} />
-              </Button>
-            </Popover.Close>
-            <Popover.Close asChild>
-              <Button
-                variant="hardware"
-                size="sm"
-                className="flex-1"
-                onClick={onClear}
-              >
-                <Eraser size={14} />
-              </Button>
-            </Popover.Close>
-            <Popover.Close asChild>
-              <Button
-                variant="hardware"
-                size="sm"
                 className="flex-1 rounded-r-lg"
                 onClick={onRandom}
               >
-                <Dices size={14} />
+                <Dices />
               </Button>
             </Popover.Close>
           </div>
+          <Popover.Arrow className="fill-surface" />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
