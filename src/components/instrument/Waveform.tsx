@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { getCachedWaveform } from "@/lib/audio/cache";
 
 interface WaveformProps {
   audioFile: string;
-  width: number;
+  width?: number;
   height?: number;
   color?: string;
   onError?: (error: Error) => void;
@@ -14,7 +14,7 @@ interface WaveformProps {
 const Waveform: React.FC<WaveformProps> = ({
   audioFile,
   width,
-  height = 60,
+  height,
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
   onLoad,
@@ -24,6 +24,47 @@ const Waveform: React.FC<WaveformProps> = ({
   const sampleFilename = (audioFile.split("/").pop() || "").split(".")[0] || "";
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-sizing: observe container dimensions if width/height not provided
+  const [autoWidth, setAutoWidth] = useState<number>(170);
+  const [autoHeight, setAutoHeight] = useState<number>(60);
+
+  const finalWidth = width ?? autoWidth;
+  const finalHeight = height ?? autoHeight;
+
+  // Auto-sizing with ResizeObserver
+  useEffect(() => {
+    if (width !== undefined && height !== undefined) {
+      // If both dimensions are provided, skip auto-sizing
+      return;
+    }
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: containerWidth, height: containerHeight } =
+          entry.contentRect;
+
+        if (width === undefined) {
+          // Use most of container width, accounting for some padding
+          setAutoWidth(Math.max(containerWidth - 8, 100));
+        }
+        if (height === undefined) {
+          // Use container height or default to 60
+          setAutoHeight(Math.max(containerHeight || 60, 30));
+        }
+      }
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [width, height]);
 
   useEffect(() => {
     const draw = (
@@ -73,8 +114,8 @@ const Waveform: React.FC<WaveformProps> = ({
       return;
     }
 
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = finalWidth;
+    canvas.height = finalHeight;
 
     // Load waveform data using Cache API
     getCachedWaveform(sampleFilename)
@@ -91,9 +132,13 @@ const Waveform: React.FC<WaveformProps> = ({
           onError(error instanceof Error ? error : new Error(String(error)));
         }
       });
-  }, [sampleFilename, width, height, color, onError, onLoad]);
+  }, [sampleFilename, finalWidth, finalHeight, color, onError, onLoad]);
 
-  return <canvas ref={canvasRef} className="h-full w-full object-contain" />;
+  return (
+    <div ref={containerRef} className="h-full w-full">
+      <canvas ref={canvasRef} className="h-full w-full object-contain" />
+    </div>
+  );
 };
 
 export default Waveform;

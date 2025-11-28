@@ -14,15 +14,18 @@ import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { MobileContextualMenu } from "./MobileContextualMenu";
 import { MobileHeader } from "./MobileHeader";
+import type { InstrumentMode } from "./MobileInstrumentControl";
 import { MobilePresetMenu } from "./MobilePresetMenu";
-import { MobileSequencerControl } from "./MobileSequencerControl";
 import { MobileTabView, type TabType } from "./MobileTabView";
 
 const DrumhausMobile: React.FC = () => {
   // State
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
+  const [instrumentMode, setInstrumentMode] =
+    useState<InstrumentMode>("trigger");
 
   // Dialog state
   const activeDialog = useDialogStore((state) => state.activeDialog);
@@ -100,10 +103,15 @@ const DrumhausMobile: React.FC = () => {
         instrumentRuntimesVersion={instrumentRuntimesVersion}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        instrumentMode={instrumentMode}
       />
 
-      {/* Sequencer Controls - only visible when sequencer tab is active */}
-      {activeTab === "controls" && <MobileSequencerControl />}
+      {/* Contextual Menu - changes based on active tab */}
+      <MobileContextualMenu
+        activeTab={activeTab}
+        instrumentMode={instrumentMode}
+        onInstrumentModeChange={setInstrumentMode}
+      />
 
       {/* Bottom Navigation */}
       <MobileBottomNav

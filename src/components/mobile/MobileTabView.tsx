@@ -4,9 +4,9 @@ import { MasterCompressor } from "@/components/controls/master/MasterCompressor"
 import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
-import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { InstrumentParamsControl } from "../instrument/InstrumentParamsControl";
+import type { InstrumentMode } from "./MobileInstrumentControl";
+import { MobileInstrumentGrid } from "./MobileInstrumentGrid";
 import { MobileSequencerGrid } from "./MobileSequencerGrid";
 
 export type TabType = "instrument" | "controls" | "transport" | "bus";
@@ -16,15 +16,15 @@ interface MobileTabViewProps {
   instrumentRuntimesVersion: number;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
+  instrumentMode: InstrumentMode;
 }
 
 export const MobileTabView: React.FC<MobileTabViewProps> = ({
   instrumentRuntimes,
   instrumentRuntimesVersion,
   activeTab,
+  instrumentMode,
 }) => {
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
-
   // Smooth fade + scale animation config
   const transitionConfig = {
     duration: 0.15,
@@ -46,9 +46,6 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               transition={transitionConfig}
               className="absolute inset-0 flex h-full flex-col"
             >
-              {/* <div className="flex w-full items-center justify-center">
-                <SequencerControl />
-              </div> */}
               <div className="flex-1 overflow-hidden">
                 <MobileSequencerGrid
                   instrumentRuntimes={instrumentRuntimes}
@@ -67,12 +64,10 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               transition={transitionConfig}
               className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
             >
-              <InstrumentParamsControl
-                key={`mobile-instrument-params-${voiceIndex}-${instrumentRuntimesVersion}`}
-                index={voiceIndex}
-                instrumentIndex={voiceIndex}
-                mobile
-                runtime={instrumentRuntimes[voiceIndex]}
+              <MobileInstrumentGrid
+                instrumentRuntimes={instrumentRuntimes}
+                instrumentRuntimesVersion={instrumentRuntimesVersion}
+                mode={instrumentMode}
               />
             </motion.div>
           )}

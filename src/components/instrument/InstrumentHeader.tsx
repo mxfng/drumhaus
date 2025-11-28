@@ -12,17 +12,19 @@ import Waveform from "./Waveform";
 interface InstrumentHeaderProps {
   index: number;
   color: string;
-  waveformWidth: number;
+  waveformWidth?: number;
   waveformHeight?: number;
   runtime?: InstrumentRuntime;
+  className?: string;
 }
 
 export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   index,
   color,
   waveformWidth,
-  waveformHeight = 60,
+  waveformHeight,
   runtime,
+  className,
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
@@ -73,6 +75,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
         },
+        className,
       )}
       onMouseDown={playSample}
       disabled={!isRuntimeLoaded}
