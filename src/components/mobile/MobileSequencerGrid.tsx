@@ -33,9 +33,9 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
   );
 
   return (
-    <div className="border-border flex h-full min-h-112 w-full flex-col overflow-auto border">
+    <div className="border-border flex h-full min-h-112 w-full flex-col overflow-auto">
       {/* Step indicators row */}
-      <div className="bg-surface sticky top-0 z-10 grid grid-cols-[3rem_1fr] gap-[1px]">
+      <div className="bg-surface sticky top-0 z-10 grid grid-cols-[3rem_1fr] gap-px">
         {/* Empty space for the instrument selector column */}
         <div className="bg-instrument" />
         {/* Step indicators */}

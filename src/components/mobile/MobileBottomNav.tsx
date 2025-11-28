@@ -1,5 +1,6 @@
 import { CircleDot, Grid3x3, Pause, Play, Sliders } from "lucide-react";
 
+import { IconWithLabel } from "@/components/mobile/common/IconWithLabel";
 import { Button } from "@/components/ui";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { InstrumentRuntime } from "@/types/instrument";
@@ -28,15 +29,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => setActiveTab("controls")}
           className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "controls" ? "bg-surface-muted text-primary-muted" : ""}`}
         >
-          <Grid3x3
-            size={20}
-            className={activeTab === "controls" ? "text-primary-muted" : ""}
+          <IconWithLabel
+            icon={
+              <Grid3x3
+                size={20}
+                className={activeTab === "controls" ? "text-primary-muted" : ""}
+              />
+            }
+            label="SEQ"
+            isActive={activeTab === "controls"}
           />
-          <span
-            className={`mt-1 text-xs ${activeTab === "controls" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            SEQ
-          </span>
         </button>
 
         {/* Instrument Button */}
@@ -44,15 +46,18 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => setActiveTab("instrument")}
           className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "instrument" ? "bg-surface-muted text-primary-muted" : ""}`}
         >
-          <CircleDot
-            size={20}
-            className={activeTab === "instrument" ? "text-primary-muted" : ""}
+          <IconWithLabel
+            icon={
+              <CircleDot
+                size={20}
+                className={
+                  activeTab === "instrument" ? "text-primary-muted" : ""
+                }
+              />
+            }
+            label="INST"
+            isActive={activeTab === "instrument"}
           />
-          <span
-            className={`mt-1 text-xs ${activeTab === "instrument" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            INST
-          </span>
         </button>
 
         {/* Play Button (centered) */}
@@ -73,15 +78,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => setActiveTab("bus")}
           className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "bus" ? "bg-surface-muted text-primary-muted" : ""}`}
         >
-          <Sliders
-            size={20}
-            className={activeTab === "bus" ? "text-primary-muted" : ""}
+          <IconWithLabel
+            icon={
+              <Sliders
+                size={20}
+                className={activeTab === "bus" ? "text-primary-muted" : ""}
+              />
+            }
+            label="BUS"
+            isActive={activeTab === "bus"}
           />
-          <span
-            className={`mt-1 text-xs ${activeTab === "bus" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            BUS
-          </span>
         </button>
 
         {/* Tempo */}
@@ -89,16 +95,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           onClick={() => setActiveTab("transport")}
           className={`hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors ${activeTab === "transport" ? "bg-surface-muted text-primary-muted" : ""}`}
         >
-          <span
-            className={`font-pixel flex h-5 items-center justify-center text-lg ${activeTab === "transport" ? "text-primary-muted" : ""}`}
-          >
-            {bpm}
-          </span>
-          <span
-            className={`mt-1 text-xs ${activeTab === "transport" ? "text-primary-muted" : "text-foreground-muted"}`}
-          >
-            TEMPO
-          </span>
+          <IconWithLabel
+            icon={bpm}
+            label="TEMPO"
+            isActive={activeTab === "transport"}
+          />
         </button>
       </div>
     </>
