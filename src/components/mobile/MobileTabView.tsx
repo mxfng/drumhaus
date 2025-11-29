@@ -4,25 +4,16 @@ import { MasterCompressor } from "@/components/controls/master/MasterCompressor"
 import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
-import type { BusSubTab } from "./contextmenu/MobileBusContextMenu";
-import type { InstrumentMode } from "./contextmenu/MobileInstrumentContextMenu";
+import { useMobileNavStore } from "@/stores/useMobileNavStore";
 import { MobileInstrumentGrid } from "./instrument/MobileInstrumentGrid";
 import { MobileSequencer } from "./sequencer/MobileSequencer";
 
 export type TabType = "instrument" | "controls" | "bus";
 
-interface MobileTabViewProps {
-  activeTab: TabType;
-  setActiveTab: (tab: TabType) => void;
-  instrumentMode: InstrumentMode;
-  busSubTab: BusSubTab;
-}
-
-export const MobileTabView: React.FC<MobileTabViewProps> = ({
-  activeTab,
-  instrumentMode,
-  busSubTab,
-}) => {
+export const MobileTabView: React.FC = () => {
+  const activeTab = useMobileNavStore((state) => state.activeTab);
+  const instrumentMode = useMobileNavStore((state) => state.instrumentMode);
+  const busSubTab = useMobileNavStore((state) => state.busSubTab);
   // Smooth fade + scale animation config
   const transitionConfig = {
     duration: 0.15,

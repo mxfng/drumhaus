@@ -1,49 +1,92 @@
 import { useRef, useState } from "react";
 import { Download, ListMusic, Save, Share2, Upload, X } from "lucide-react";
 
+import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPresetDialog";
+import { ExportDialog } from "@/components/dialog/ExportDialog";
+import { SaveDialog } from "@/components/dialog/SaveDialog";
+import { ShareDialog } from "@/components/dialog/ShareDialog";
 import { Label } from "@/components/ui";
+import { usePresetManager } from "@/hooks/usePresetManager";
 import { cn } from "@/lib/utils";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
-import type { KitFileV1 } from "@/types/instrument";
-import type { PresetFileV1 } from "@/types/preset";
+import { useMobileNavStore } from "@/stores/useMobileNavStore";
+import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { MobileKitSelector } from "./MobileKitSelector";
 import { MobilePresetSelector } from "./MobilePresetSelector";
 
-interface MobilePresetMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-  defaultPresets: PresetFileV1[];
-  customPresets: PresetFileV1[];
-  kits: KitFileV1[];
-  selectedPresetId: string;
-  selectedKitId: string;
-  onPresetSelect: (value: string) => void;
-  onKitSelect: (value: string) => void;
-  importPreset: () => void;
-}
+export const MobilePresetMenu: React.FC = () => {
+  const isOpen = useMobileNavStore((state) => state.menuOpen);
+  const setMenuOpen = useMobileNavStore((state) => state.setMenuOpen);
 
-export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
-  isOpen,
-  onClose,
-  defaultPresets,
-  customPresets,
-  kits,
-  selectedPresetId,
-  selectedKitId,
-  onPresetSelect,
-  onKitSelect,
-  importPreset,
-}) => {
+  // Dialogs
   const openDialog = useDialogStore((state) => state.openDialog);
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+  const presetToChange = useDialogStore(
+    (state) => state.dialogData.presetToChange,
+  );
+
+  // Preset/Kit metadata
+  const currentPresetMeta = usePresetMetaStore(
+    (state) => state.currentPresetMeta,
+  );
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
+
+  // State
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const touchStartX = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const { loadPreset } = useDrumhaus();
+
+  // Preset Manager
+  const {
+    kits,
+    defaultPresets,
+    customPresets,
+    allPresets,
+    switchKit,
+    switchPreset,
+    exportPreset,
+    importPreset,
+    sharePreset,
+  } = usePresetManager({ loadPreset });
+
+  // --- Handlers ---
+
+  // Kit selection handler
+  const handleKitChange = (kitId: string) => {
+    switchKit(kitId);
+    setMenuOpen(false);
+  };
+
+  // Preset selection handler
+  const handlePresetChange = (presetId: string) => {
+    switchPreset(presetId);
+    setMenuOpen(false);
+  };
+
+  const handleConfirmPresetChange = () => {
+    closeDialog();
+    const preset = allPresets.find((p) => p.meta.id === presetToChange);
+    if (preset) {
+      loadPreset(preset);
+      setMenuOpen(false);
+    } else {
+      console.error(`Preset ${presetToChange} not found`);
+    }
+  };
+
+  // --- Handlers (Dialog) ---
+
   const handleAction = (dialogType: "save" | "share" | "export") => {
     openDialog(dialogType);
-    onClose();
+    setMenuOpen(false);
   };
+
+  // --- Handlers for swipe gestures ---
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -67,7 +110,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
     // Close if swiped more than 100px
     if (swipeOffset > 100) {
-      onClose();
+      setMenuOpen(false);
     }
 
     // Reset offset with a small delay to allow animation
@@ -82,7 +125,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
           "bg-shadow-30 fixed inset-0 z-40 backdrop-blur-xs transition-opacity",
           isOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
-        onClick={onClose}
+        onClick={() => setMenuOpen(false)}
       />
 
       {/* Menu */}
@@ -108,15 +151,15 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
             {/* Preset & Kit Selectors */}
             <div className="flex flex-col gap-3">
               <MobilePresetSelector
-                selectedPresetId={selectedPresetId}
+                selectedPresetId={currentPresetMeta.id}
                 defaultPresets={defaultPresets}
                 customPresets={customPresets}
-                onSelect={onPresetSelect}
+                onSelect={handlePresetChange}
               />
               <MobileKitSelector
-                selectedKitId={selectedKitId}
+                selectedKitId={currentKitMeta.id}
                 kits={kits}
-                onSelect={onKitSelect}
+                onSelect={handleKitChange}
               />
             </div>
 
@@ -166,7 +209,7 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
 
           {/* Close Button */}
           <button
-            onClick={onClose}
+            onClick={() => setMenuOpen(false)}
             className="font-pixel bg-primary-muted hover:bg-primary-foreground/20 flex items-center justify-center gap-2 rounded-sm px-4 py-3 transition-colors"
           >
             <X size={18} />
@@ -174,6 +217,24 @@ export const MobilePresetMenu: React.FC<MobilePresetMenuProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <SaveDialog
+        isOpen={activeDialog === "save"}
+        onClose={closeDialog}
+        onSave={exportPreset}
+      />
+      <ShareDialog
+        isOpen={activeDialog === "share"}
+        onClose={closeDialog}
+        onShare={sharePreset}
+      />
+      <ExportDialog isOpen={activeDialog === "export"} onClose={closeDialog} />
+      <ConfirmSelectPresetDialog
+        isOpen={activeDialog === "presetChange"}
+        onClose={closeDialog}
+        onSelect={handleConfirmPresetChange}
+      />
     </>
   );
 };

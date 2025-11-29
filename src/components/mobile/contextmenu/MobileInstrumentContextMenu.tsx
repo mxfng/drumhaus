@@ -2,17 +2,15 @@ import { Edit, Play } from "lucide-react";
 
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useMobileNavStore } from "@/stores/useMobileNavStore";
 
 export type InstrumentMode = "trigger" | "edit";
 
-interface MobileInstrumentContextMenuProps {
-  mode: InstrumentMode;
-  onModeChange: (mode: InstrumentMode) => void;
-}
-
-export const MobileInstrumentContextMenu: React.FC<
-  MobileInstrumentContextMenuProps
-> = ({ mode, onModeChange }) => {
+export const MobileInstrumentContextMenu: React.FC = () => {
+  const mode = useMobileNavStore((state) => state.instrumentMode);
+  const setInstrumentMode = useMobileNavStore(
+    (state) => state.setInstrumentMode,
+  );
   return (
     <div className="border-border bg-surface flex flex-row justify-between gap-2 border-t p-2">
       <div className="hardware-button-group flex flex-1 rounded-lg">
@@ -21,7 +19,7 @@ export const MobileInstrumentContextMenu: React.FC<
           className={cn("flex-1 gap-2 rounded-l-lg rounded-r-none", {
             "text-primary": mode === "trigger",
           })}
-          onClick={() => onModeChange("trigger")}
+          onClick={() => setInstrumentMode("trigger")}
           size="sm"
         >
           <Play size={16} />
@@ -32,7 +30,7 @@ export const MobileInstrumentContextMenu: React.FC<
           className={cn("flex-1 gap-2 rounded-l-none rounded-r-lg", {
             "text-primary": mode === "edit",
           })}
-          onClick={() => onModeChange("edit")}
+          onClick={() => setInstrumentMode("edit")}
           size="sm"
         >
           <Edit size={16} />

@@ -10,20 +10,14 @@ import {
 import { IconWithLabel } from "@/components/mobile/common/IconWithLabel";
 import { Button } from "@/components/ui";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
+import { useMobileNavStore } from "@/stores/useMobileNavStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { TabType } from "./MobileTabView";
 
-interface MobileBottomNavProps {
-  activeTab: TabType;
-  setActiveTab: (tab: TabType) => void;
-  onMenuOpen: () => void;
-}
+export const MobileBottomNav: React.FC = () => {
+  const activeTab = useMobileNavStore((state) => state.activeTab);
+  const setActiveTab = useMobileNavStore((state) => state.setActiveTab);
+  const setMenuOpen = useMobileNavStore((state) => state.setMenuOpen);
 
-export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-  activeTab,
-  setActiveTab,
-  onMenuOpen,
-}) => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
@@ -100,7 +94,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
         {/* Preset Menu */}
         <button
-          onClick={onMenuOpen}
+          onClick={() => setMenuOpen(true)}
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
           <IconWithLabel

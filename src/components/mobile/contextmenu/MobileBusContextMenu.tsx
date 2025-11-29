@@ -2,18 +2,13 @@ import { Gauge, Sliders, Volume2, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useMobileNavStore } from "@/stores/useMobileNavStore";
 
 export type BusSubTab = "comp" | "fx" | "level" | "tempo";
 
-interface MobileBusContextMenuPros {
-  activeSubTab: BusSubTab;
-  onSubTabChange: (subTab: BusSubTab) => void;
-}
-
-export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
-  activeSubTab,
-  onSubTabChange,
-}) => {
+export const MobileBusContextMenu: React.FC = () => {
+  const activeSubTab = useMobileNavStore((state) => state.busSubTab);
+  const setBusSubTab = useMobileNavStore((state) => state.setBusSubTab);
   return (
     <div className="border-border bg-surface flex flex-col gap-2 border-t p-2">
       <div className="hardware-button-group flex rounded-lg">
@@ -23,7 +18,7 @@ export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
             "text-primary": activeSubTab === "comp",
           })}
           size="sm"
-          onClick={() => onSubTabChange("comp")}
+          onClick={() => setBusSubTab("comp")}
         >
           <Gauge size={16} />
           <span className="text-xs">COMP</span>
@@ -34,7 +29,7 @@ export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
             "text-primary": activeSubTab === "fx",
           })}
           size="sm"
-          onClick={() => onSubTabChange("fx")}
+          onClick={() => setBusSubTab("fx")}
         >
           <Wand2 size={16} />
           <span className="text-xs">FX</span>
@@ -45,7 +40,7 @@ export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
             "text-primary": activeSubTab === "level",
           })}
           size="sm"
-          onClick={() => onSubTabChange("level")}
+          onClick={() => setBusSubTab("level")}
         >
           <Volume2 size={16} />
           <span className="text-xs">LEVEL</span>
@@ -56,7 +51,7 @@ export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
             "text-primary": activeSubTab === "tempo",
           })}
           size="sm"
-          onClick={() => onSubTabChange("tempo")}
+          onClick={() => setBusSubTab("tempo")}
         >
           <Sliders size={16} />
           <span className="text-xs">TEMPO</span>
