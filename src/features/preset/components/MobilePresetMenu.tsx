@@ -36,7 +36,7 @@ export const MobilePresetMenu: React.FC = () => {
   // State
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
-  const touchStartX = useRef(0);
+  const pointerStartX = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { loadPreset } = useDrumhaus();
@@ -88,16 +88,20 @@ export const MobilePresetMenu: React.FC = () => {
 
   // --- Handlers for swipe gestures ---
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
+  const handlePointerStart = (e: React.PointerEvent) => {
+    // Only handle touch and pen pointers for swipe gestures
+    if (e.pointerType === "mouse") return;
+    pointerStartX.current = e.clientX;
     setIsSwiping(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!isSwiping) return;
+    // Only handle touch and pen pointers for swipe gestures
+    if (e.pointerType === "mouse") return;
 
-    const currentX = e.touches[0].clientX;
-    const diff = currentX - touchStartX.current;
+    const currentX = e.clientX;
+    const diff = currentX - pointerStartX.current;
 
     // Only allow swiping to the right (closing direction)
     if (diff > 0) {
@@ -105,7 +109,7 @@ export const MobilePresetMenu: React.FC = () => {
     }
   };
 
-  const handleTouchEnd = () => {
+  const handlePointerEnd = () => {
     setIsSwiping(false);
 
     // Close if swiped more than 100px
@@ -141,9 +145,10 @@ export const MobilePresetMenu: React.FC = () => {
             ? `translateX(${swipeOffset}px)`
             : "translateX(100%)",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onPointerDown={handlePointerStart}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
       >
         <div className="flex h-full flex-col justify-between gap-4 p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
           <ListMusic size={30} />

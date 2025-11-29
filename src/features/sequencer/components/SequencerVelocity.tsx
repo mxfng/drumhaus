@@ -19,43 +19,52 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
 
   const updateVelocityFromPointer = (
-    event: React.MouseEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLDivElement>,
   ) => {
     const targetDiv = event.currentTarget;
     const rect = targetDiv.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
+    const pointerX = event.clientX - rect.left;
     const divWidth = rect.width;
     const inset = 2;
-    const adjustedX = mouseX - inset;
+    const adjustedX = pointerX - inset;
     const adjustedWidth = divWidth - inset * 2;
     const velocity = clampVelocity(adjustedX / adjustedWidth);
     onSetVelocity(stepIndex, velocity);
   };
 
-  const handleVelocityMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleVelocityPointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
     setIsAdjusting(true);
     updateVelocityFromPointer(event);
+    // Capture pointer to track movement outside the element
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const handleVelocityMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleVelocityPointerMove = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
     if (isAdjusting) {
       updateVelocityFromPointer(event);
     }
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     setIsAdjusting(false);
   };
 
   React.useEffect(() => {
     if (isAdjusting) {
-      window.addEventListener("mouseup", handleMouseUp);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
     } else {
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     }
 
     return () => {
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
   }, [isAdjusting]);
 
@@ -69,8 +78,8 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
         isTriggerOn ? "cursor-grab" : "pointer-events-none cursor-default",
       )}
       style={{ opacity: isTriggerOn ? 0.6 : 0 }}
-      onMouseDown={handleVelocityMouseDown}
-      onMouseMove={handleVelocityMouseMove}
+      onPointerDown={handleVelocityPointerDown}
+      onPointerMove={handleVelocityPointerMove}
     >
       <div
         className="bg-primary absolute h-full rounded-[200px_0_200px_0] blur-xs"

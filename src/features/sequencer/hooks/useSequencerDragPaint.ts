@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 
@@ -13,34 +13,24 @@ export const useSequencerDragPaint = ({
 }: UseSequencerDragPaintProps) => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragWriteTargetOn, setDragWriteTargetOn] = useState<boolean>(true);
-  const touchActiveRef = useRef<boolean>(false);
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     setIsDragging(false);
-    setTimeout(() => {
-      touchActiveRef.current = false;
-    }, 300);
   };
 
-  const handleStepMouseStart = (stepIndex: number, isCurrentlyOn: boolean) => {
-    if (touchActiveRef.current) return;
+  const handleStepPointerStart = (
+    stepIndex: number,
+    isCurrentlyOn: boolean,
+  ) => {
     setIsDragging(true);
     setDragWriteTargetOn(!isCurrentlyOn);
     onToggleStep(stepIndex);
   };
 
-  const handleStepTouchStart = (stepIndex: number, isCurrentlyOn: boolean) => {
-    touchActiveRef.current = true;
-    setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
-    onToggleStep(stepIndex);
-  };
-
-  const handleStepTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleStepPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!isDragging) return;
 
-    const touch = event.touches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    const element = document.elementFromPoint(event.clientX, event.clientY);
     const stepElement = element?.closest("[data-step-index]");
 
     if (stepElement) {
@@ -57,7 +47,10 @@ export const useSequencerDragPaint = ({
     }
   };
 
-  const handleStepMouseEnter = (stepIndex: number, isCurrentlyOn: boolean) => {
+  const handleStepPointerEnter = (
+    stepIndex: number,
+    isCurrentlyOn: boolean,
+  ) => {
     const isStateChanging = isCurrentlyOn !== dragWriteTargetOn;
     if (isDragging && isStateChanging) {
       onToggleStep(stepIndex);
@@ -66,19 +59,16 @@ export const useSequencerDragPaint = ({
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener("mouseup", handleMouseUp);
-      window.addEventListener("touchend", handleMouseUp);
-      window.addEventListener("touchcancel", handleMouseUp);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
     } else {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("touchend", handleMouseUp);
-      window.removeEventListener("touchcancel", handleMouseUp);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     }
 
     return () => {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("touchend", handleMouseUp);
-      window.removeEventListener("touchcancel", handleMouseUp);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
   }, [isDragging]);
 
@@ -91,9 +81,8 @@ export const useSequencerDragPaint = ({
   return {
     isDragging,
     dragWriteTargetOn,
-    handleStepMouseStart,
-    handleStepTouchStart,
-    handleStepTouchMove,
-    handleStepMouseEnter,
+    handleStepPointerStart,
+    handleStepPointerMove,
+    handleStepPointerEnter,
   };
 };

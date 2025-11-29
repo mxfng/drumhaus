@@ -31,10 +31,9 @@ export const Sequencer: React.FC = () => {
 
   // --- Drag-paint logic ---
   const {
-    handleStepMouseStart,
-    handleStepTouchStart,
-    handleStepTouchMove,
-    handleStepMouseEnter,
+    handleStepPointerStart,
+    handleStepPointerMove,
+    handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
     onToggleStep: (stepIndex) => toggleStep(voiceIndex, variation, stepIndex),
@@ -64,7 +63,7 @@ export const Sequencer: React.FC = () => {
       <div
         key="sequence-grid"
         className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-3"
-        onTouchMove={handleStepTouchMove}
+        onPointerMove={handleStepPointerMove}
       >
         {steps.map((step) => {
           const state = getStepMusicalState(step);
@@ -81,11 +80,9 @@ export const Sequencer: React.FC = () => {
                 isTriggerOn={state.isTriggerOn}
                 isGhosted={state.isGhosted}
                 variant="desktop"
-                onMouseDown={handleStepMouseStart}
-                onMouseEnter={handleStepMouseEnter}
-                onTouchStart={(_, stepIndex, isTriggerOn) =>
-                  handleStepTouchStart(stepIndex, isTriggerOn)
-                }
+                onPointerStart={handleStepPointerStart}
+                onPointerEnter={handleStepPointerEnter}
+                onPointerMove={handleStepPointerMove}
               />
               <SequencerVelocity
                 stepIndex={step}

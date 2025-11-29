@@ -89,29 +89,28 @@ const Knob: React.FC<KnobProps> = ({
   );
 
   /**
-   * Handle mouse down and touch start events to start the knob movement
+   * Handle pointer down events to start the knob movement (works for mouse, touch, and pen)
    */
-  const handleMouseDown = (
-    ev: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
-  ) => {
+  const handlePointerDown = (ev: React.PointerEvent<HTMLDivElement>) => {
     if (disabled) return;
 
     setIsMoving(true);
-    // Explicitly check for `touches` for mobile interactions
-    initMoveYRef.current = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+    initMoveYRef.current = ev.clientY;
     initValueRef.current = quantize(value, stepSize);
+    // Capture pointer to track movement outside the element
+    ev.currentTarget.setPointerCapture(ev.pointerId);
   };
 
   /**
-   * Handles drag events for mouse and touch to change the knob value
+   * Handles drag events for pointer movement to change the knob value
    */
-  const handleMouseMove = useCallback(
-    (ev: MouseEvent | TouchEvent) => {
+  const handlePointerMove = useCallback(
+    (ev: PointerEvent) => {
       if (!isMoving) return;
 
       ev.preventDefault();
 
-      const clientY = "touches" in ev ? ev.touches[0].clientY : ev.clientY;
+      const clientY = ev.clientY;
 
       // TODO: Seems a little hacky, but it works. Sensitivity should be lower for mobile.
       const deltaY = (initMoveYRef.current - clientY) * KNOB_SENSITIVITY;
@@ -131,11 +130,19 @@ const Knob: React.FC<KnobProps> = ({
   );
 
   /**
-   * Disables moving state on mouse up and touch end events
+   * Disables moving state on pointer up events
    */
-  const handleMoveEnd = useCallback(() => {
+  const handlePointerUp = useCallback((ev: PointerEvent) => {
     setIsMoving(false);
-  }, [setIsMoving]);
+    // Release pointer capture if target is available
+    if (ev.target instanceof HTMLElement) {
+      try {
+        ev.target.releasePointerCapture(ev.pointerId);
+      } catch {
+        // Ignore errors if capture was already released
+      }
+    }
+  }, []);
 
   /**
    * Reset knob to default value on double click
@@ -152,9 +159,9 @@ const Knob: React.FC<KnobProps> = ({
     [isMoving, label, activeLabel],
   );
   /*
-   * Handles knob updates for mouse and touch movement. Had to use a useEffect because
+   * Handles knob updates for pointer movement. Had to use a useEffect because
    *
-   * Do not attempt to move these to onMouseMove, onMouseUp, etc.
+   * Do not attempt to move these to onPointerMove, onPointerUp, etc.
    *
    * The event listeners need to be added and removed dynamically to achieve the desired behavior.
    */
@@ -166,19 +173,17 @@ const Knob: React.FC<KnobProps> = ({
     };
 
     if (isMoving) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("touchmove", handleMouseMove, opts);
-      window.addEventListener("mouseup", handleMoveEnd);
-      window.addEventListener("touchend", handleMoveEnd);
+      window.addEventListener("pointermove", handlePointerMove, opts);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
     }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("touchmove", handleMouseMove, opts);
-      window.removeEventListener("mouseup", handleMoveEnd);
-      window.removeEventListener("touchend", handleMoveEnd);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
-  }, [isMoving, disabled, stepSize, handleMouseMove, handleMoveEnd]);
+  }, [isMoving, disabled, handlePointerMove, handlePointerUp]);
 
   // Sync motion value when knob is updated externally (e.g. presets/kits)
   useEffect(() => {
@@ -215,8 +220,7 @@ const Knob: React.FC<KnobProps> = ({
             "absolute z-1 aspect-square h-5/6 origin-center rounded-full",
             disabled ? "pointer-events-none cursor-not-allowed" : "cursor-grab",
           )}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleMouseDown}
+          onPointerDown={handlePointerDown}
           onDoubleClick={handleDoubleClick}
           aria-label={label}
           aria-valuemin={KNOB_VALUE_MIN}

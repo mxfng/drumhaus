@@ -11,13 +11,9 @@ interface SequencerStepProps {
   variant?: "desktop" | "mobile";
   variation?: number;
   playbackVariation?: number;
-  onMouseDown: (stepIndex: number, isTriggerOn: boolean) => void;
-  onMouseEnter: (stepIndex: number, isTriggerOn: boolean) => void;
-  onTouchStart: (
-    event: React.TouchEvent<HTMLDivElement>,
-    stepIndex: number,
-    isTriggerOn: boolean,
-  ) => void;
+  onPointerStart: (stepIndex: number, isTriggerOn: boolean) => void;
+  onPointerEnter: (stepIndex: number, isTriggerOn: boolean) => void;
+  onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
 }
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
@@ -27,9 +23,9 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   variant = "desktop",
   variation,
   playbackVariation,
-  onMouseDown,
-  onMouseEnter,
-  onTouchStart,
+  onPointerStart,
+  onPointerEnter,
+  onPointerMove,
 }) => {
   const stepRef = useRef<HTMLDivElement>(null);
 
@@ -105,11 +101,9 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     <div
       ref={stepRef}
       data-step-index={stepIndex}
-      onMouseDown={() => onMouseDown(stepIndex, isTriggerOn)}
-      onMouseEnter={() => onMouseEnter(stepIndex, isTriggerOn)}
-      onTouchStart={(e) => {
-        onTouchStart(e, stepIndex, isTriggerOn);
-      }}
+      onPointerDown={() => onPointerStart(stepIndex, isTriggerOn)}
+      onPointerEnter={() => onPointerEnter(stepIndex, isTriggerOn)}
+      onPointerMove={onPointerMove}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
         "relative cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",

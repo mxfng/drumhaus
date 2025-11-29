@@ -55,7 +55,7 @@ export const InstrumentGrid: React.FC = () => {
           <div
             key={`gridItem-${index}`}
             className="col-span-1 w-[193px] transition-all duration-500"
-            onMouseDown={() => toggleCurrentVoice(index)}
+            onPointerDown={() => toggleCurrentVoice(index)}
           >
             <InstrumentControl
               color={INSTRUMENT_COLORS[index]}

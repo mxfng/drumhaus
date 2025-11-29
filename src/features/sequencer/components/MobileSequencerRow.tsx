@@ -23,10 +23,9 @@ export const MobileSequencerRow: React.FC<MobileSequencerRowProps> = ({
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
 
   const {
-    handleStepMouseStart,
-    handleStepTouchStart,
-    handleStepTouchMove,
-    handleStepMouseEnter,
+    handleStepPointerStart,
+    handleStepPointerMove,
+    handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
     onToggleStep,
@@ -40,7 +39,7 @@ export const MobileSequencerRow: React.FC<MobileSequencerRowProps> = ({
   return (
     <div
       className="grid h-full grid-cols-16 gap-px"
-      onTouchMove={handleStepTouchMove}
+      onPointerMove={handleStepPointerMove}
     >
       {steps.map((step) => {
         const isTriggerOn = triggers[step];
@@ -56,11 +55,9 @@ export const MobileSequencerRow: React.FC<MobileSequencerRowProps> = ({
             variant="mobile"
             variation={variation}
             playbackVariation={playbackVariation}
-            onMouseDown={handleStepMouseStart}
-            onMouseEnter={handleStepMouseEnter}
-            onTouchStart={(_, stepIndex, isTriggerOn) =>
-              handleStepTouchStart(stepIndex, isTriggerOn)
-            }
+            onPointerStart={handleStepPointerStart}
+            onPointerEnter={handleStepPointerEnter}
+            onPointerMove={handleStepPointerMove}
           />
         );
       })}

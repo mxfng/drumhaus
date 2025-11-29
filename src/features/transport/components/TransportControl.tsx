@@ -57,7 +57,7 @@ export const TransportControl: React.FC = () => {
     }
   };
 
-  const handleMouseDown = (modifier: number) => {
+  const handlePointerDown = (modifier: number) => {
     const updateBpm = () => {
       const currentValue =
         bpmInputValue === "" ? bpm : parseInt(bpmInputValue, 10);
@@ -72,7 +72,7 @@ export const TransportControl: React.FC = () => {
     intervalRef.current = setInterval(updateBpm, HOLD_INTERVAL);
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -109,17 +109,17 @@ export const TransportControl: React.FC = () => {
             <div className="flex h-full w-1/4 flex-col items-center justify-center text-xs">
               <button
                 className="hover:text-primary-muted flex flex-1 items-start justify-start"
-                onMouseDown={() => handleMouseDown(1)}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
+                onPointerDown={() => handlePointerDown(1)}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
               >
                 <ChevronUp size={14} />
               </button>
               <button
                 className="hover:text-primary-muted flex flex-1 items-end justify-end"
-                onMouseDown={() => handleMouseDown(-1)}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
+                onPointerDown={() => handlePointerDown(-1)}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
               >
                 <ChevronDown size={14} />
               </button>
