@@ -17,33 +17,32 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="flex w-full items-center justify-center">
-      <div className="grid w-full grid-cols-2 place-items-center">
-        {/* Threshold and Ratio */}
-
-        <ParamKnob
-          value={threshold}
-          onValueChange={setThreshold}
-          label="THRESHOLD"
-          mapping={compThresholdMapping}
-        />
-        {/* Gain Reduction Meter and Mix */}
+    <div className="grid aspect-square w-full grid-cols-2 place-items-center">
+      {/* Threshold and Ratio */}
+      <ParamKnob
+        value={threshold}
+        onValueChange={setThreshold}
+        label="THRESHOLD"
+        mapping={compThresholdMapping}
+      />
+      {/* Gain Reduction Meter and Mix */}
+      <div className="flex h-full items-center justify-center py-8 sm:py-1">
         <GainReductionMeter />
-        <ParamKnob
-          value={ratio}
-          onValueChange={setRatio}
-          label="RATIO"
-          mapping={compRatioMapping}
-          outerTickCount={8}
-        />
-
-        <ParamKnob
-          value={mix}
-          onValueChange={setMix}
-          label="MIX"
-          mapping={compMixMapping}
-        />
       </div>
+      <ParamKnob
+        value={ratio}
+        onValueChange={setRatio}
+        label="RATIO"
+        mapping={compRatioMapping}
+        outerTickCount={8}
+      />
+
+      <ParamKnob
+        value={mix}
+        onValueChange={setMix}
+        label="MIX"
+        mapping={compMixMapping}
+      />
     </div>
   );
 };

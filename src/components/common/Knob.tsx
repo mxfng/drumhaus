@@ -67,8 +67,8 @@ const Knob: React.FC<KnobProps> = ({
   defaultValue = KNOB_VALUE_DEFAULT,
 }) => {
   const containerClass = {
-    default: "h-[120px] sm:h-[90px]",
-    lg: "h-[200px] sm:h-[180px]",
+    default: "h-[160px] sm:h-[90px]",
+    lg: "h-[300px] sm:h-[180px]",
   }[size];
 
   const quantizedValue = quantize(value, stepSize);

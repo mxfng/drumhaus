@@ -140,7 +140,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-3 place-items-center sm:grid-cols-2",
+        "grid w-full grid-cols-2 place-items-center",
         isRuntimeLoaded ? "opacity-100" : "opacity-50",
         {
           "min-h-0 flex-1": mobile,

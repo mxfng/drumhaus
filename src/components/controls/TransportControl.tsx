@@ -93,39 +93,42 @@ export const TransportControl: React.FC = () => {
   }, [bpm]);
 
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-16 sm:w-26 sm:gap-8">
-      <div className="neu-medium-raised relative rounded-lg">
-        <div className="surface-raised relative flex h-20 max-w-48 items-center rounded-lg py-2 pl-2 sm:h-14 sm:w-26">
-          <Input
-            ref={inputRef}
-            className="h-full w-3/4 px-2 text-center text-4xl shadow-[inset_0_4px_8px_var(--color-shadow-60)] sm:text-2xl"
-            value={bpmInputValue}
-            onChange={handleBpmChange}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
-            onFocus={(e) => e.target.select()}
-          />
-          <div className="flex h-full w-1/4 flex-col items-center justify-center text-xs">
-            <button
-              className="hover:text-primary-muted flex flex-1 items-start justify-start"
-              onMouseDown={() => handleMouseDown(1)}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <ChevronUp size={14} />
-            </button>
-            <button
-              className="hover:text-primary-muted flex flex-1 items-end justify-end"
-              onMouseDown={() => handleMouseDown(-1)}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <ChevronDown size={14} />
-            </button>
+    <div className="flex w-full flex-col items-center justify-center gap-16 sm:w-26 sm:gap-4">
+      <div className="space-y-1">
+        <div className="neu-medium-raised relative rounded-lg">
+          <div className="surface-raised relative flex h-20 max-w-48 items-center rounded-lg py-2 pl-2 sm:h-14 sm:w-26">
+            <Input
+              ref={inputRef}
+              className="h-full w-3/4 px-2 text-center text-4xl shadow-[inset_0_4px_8px_var(--color-shadow-60)] sm:text-2xl"
+              value={bpmInputValue}
+              onChange={handleBpmChange}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+              onFocus={(e) => e.target.select()}
+            />
+            <div className="flex h-full w-1/4 flex-col items-center justify-center text-xs">
+              <button
+                className="hover:text-primary-muted flex flex-1 items-start justify-start"
+                onMouseDown={() => handleMouseDown(1)}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <ChevronUp size={14} />
+              </button>
+              <button
+                className="hover:text-primary-muted flex flex-1 items-end justify-end"
+                onMouseDown={() => handleMouseDown(-1)}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <ChevronDown size={14} />
+              </button>
+            </div>
           </div>
         </div>
-        <Label className="absolute -bottom-5 left-3">TEMPO</Label>
+        <Label>TEMPO</Label>
       </div>
+
       <div className="w-full px-1">
         <HardwareSlider
           sliderValue={swing}

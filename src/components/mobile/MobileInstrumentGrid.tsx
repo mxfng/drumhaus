@@ -87,13 +87,13 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
           open={editingVoiceIndex !== null}
           onOpenChange={(open) => !open && setEditingVoiceIndex(null)}
         >
-          <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogContent className="overflow-y-auto">
             <DialogTitle className="hidden">
               {instruments[editingVoiceIndex].meta.name}
             </DialogTitle>
             <DialogCloseButton />
 
-            <div className="mt-2 h-32">
+            <div className="mt-2 h-1/12">
               <InstrumentHeader
                 index={editingVoiceIndex}
                 color={INSTRUMENT_COLORS[editingVoiceIndex]}
