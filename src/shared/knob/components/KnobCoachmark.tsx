@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ArrowUpDown } from "lucide-react";
 import { createPortal } from "react-dom";
 
 interface KnobCoachmarkProps {
@@ -70,7 +71,7 @@ export function KnobCoachmark({
 
   return createPortal(
     <div
-      className="bg-primary text-primary-foreground pointer-events-none rounded-md px-3 py-1.5 text-sm whitespace-nowrap shadow-(--shadow-neu-tall) transition-opacity"
+      className="bg-primary text-primary-foreground font-pixel pointer-events-none flex flex-row items-center gap-2 rounded-md px-3 py-1.5 text-sm whitespace-nowrap shadow-(--shadow-neu-tall) transition-opacity"
       style={{
         position: "fixed",
         top: position.top,
@@ -82,7 +83,7 @@ export function KnobCoachmark({
         transitionDuration: `${FADE_DURATION_MS}ms`,
       }}
     >
-      {message}
+      {message} <ArrowUpDown className="h-4 w-4" />
     </div>,
     document.body,
   );
