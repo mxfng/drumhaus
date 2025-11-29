@@ -61,6 +61,13 @@ export {
   createSoloChangeHandler,
 } from "./solo";
 
+// Sample Sources
+export {
+  prepareSampleSourceResolver,
+  type SampleSourceResolver,
+  type SamplerSource,
+} from "../sampleSources";
+
 // Buffer
 export {
   getSampleDuration,

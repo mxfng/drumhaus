@@ -5,7 +5,6 @@ import {
   instrumentReleaseMapping,
   pitchMapping,
 } from "@/shared/knob/lib/mapping";
-import { ensureAudioContextRunning } from "./audioContextManager";
 import { triggerInstrumentAtTime } from "./trigger";
 
 /**
@@ -16,9 +15,6 @@ export async function playInstrumentSample(
   pitch: number,
   release: number,
 ) {
-  const isReady = await ensureAudioContextRunning("instrument-sample");
-  if (!isReady) return;
-
   if (!runtime.samplerNode.loaded) {
     return;
   }

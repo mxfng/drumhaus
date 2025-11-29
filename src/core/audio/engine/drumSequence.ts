@@ -6,10 +6,11 @@ import {
 } from "@/features/instrument/types/instrument";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
-import { pitchMapping } from "@/shared/knob/lib/mapping";
-import { transformKnobValueExponential } from "@/shared/knob/lib/transform";
 import {
-  INSTRUMENT_RELEASE_RANGE,
+  instrumentReleaseMapping,
+  pitchMapping,
+} from "@/shared/knob/lib/mapping";
+import {
   SEQUENCE_EVENTS,
   SEQUENCE_SUBDIVISION,
   STEP_COUNT,
@@ -218,10 +219,7 @@ function scheduleVoiceCore(
   const velocity = velocities[step];
   // Per-note params: read fresh from store for each trigger
   const pitch = pitchMapping.knobToDomain(params.pitch);
-  const releaseTime = transformKnobValueExponential(
-    params.release,
-    INSTRUMENT_RELEASE_RANGE,
-  );
+  const releaseTime = instrumentReleaseMapping.knobToDomain(params.release);
 
   // Closed hat mutes open hat
   if (inst.role === "hat" && hasOhat) {

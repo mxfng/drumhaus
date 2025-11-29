@@ -32,16 +32,9 @@ const INIT_DRUMHAUS_SAMPLE_ASSETS = [
 ];
 
 // Optionally, waveform JSON for the drumhaus kit instruments
-const INIT_DRUMHAUS_WAVEFORM_ASSETS = [
-  "/waveforms/kick.json",
-  "/waveforms/kick2.json",
-  "/waveforms/snare.json",
-  "/waveforms/clap.json",
-  "/waveforms/hat.json",
-  "/waveforms/ohat.json",
-  "/waveforms/tom.json",
-  "/waveforms/tom2.json",
-];
+const INIT_DRUMHAUS_WAVEFORM_ASSETS = INIT_DRUMHAUS_SAMPLE_ASSETS.map((path) =>
+  path.replace("/samples/", "/waveforms/").replace(".wav", ".json"),
+);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

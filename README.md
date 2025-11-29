@@ -60,7 +60,7 @@ Custom, hand-crafted rotary controls built with Framer Motion. Features include 
 
 ### Audio Visualization
 
-Real-time frequency analyzer and per-sample waveform displays. Frequency response data is pre-generated using librosa and served as static JSON (soon to be changed ;).
+Real-time frequency analyzer and per-sample waveform displays. Transient waveform buckets are pre-generated via a TypeScript script and served as compact JSON for the pixel-style visualizer.
 
 ## License
 
