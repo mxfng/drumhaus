@@ -87,7 +87,9 @@ function normalizePresetName(name: string): string {
  */
 function createPresetExportBlob(preset: PresetFileV1): Blob {
   const json = JSON.stringify(preset, null, 2);
-  return new Blob([json], { type: "application/json" });
+  // Use a generic binary MIME type so iOS Safari doesn't append ".json"
+  // to the downloaded ".dh" file name.
+  return new Blob([json], { type: "application/octet-stream" });
 }
 
 /**
