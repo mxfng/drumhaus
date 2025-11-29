@@ -9,6 +9,7 @@ export const Input = forwardRef<
   return (
     <input
       type={type}
+      data-allow-selection
       className={cn(
         "font-pixel placeholder:text-foreground-muted/60 selection:bg-primary/50 h-10 w-full rounded-lg bg-transparent px-4 shadow-[inset_0_2px_8px_var(--color-shadow-60)] outline-none",
         className,

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ArrowUpDown } from "lucide-react";
 import { createPortal } from "react-dom";
 
 interface KnobCoachmarkProps {
@@ -83,7 +82,7 @@ export function KnobCoachmark({
         transitionDuration: `${FADE_DURATION_MS}ms`,
       }}
     >
-      {message} <ArrowUpDown className="h-4 w-4" />
+      {message}
     </div>,
     document.body,
   );

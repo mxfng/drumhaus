@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 
+import { applyBodyStyleOverrides } from "./utils/bodyStyle";
+
 /**
  * Locks body scroll when active, similar to Radix Dialog's scroll blocking.
  * Prevents both scrolling and pull-to-refresh on mobile, including iOS Safari.
@@ -18,25 +20,16 @@ export function useScrollLock(isLocked: boolean) {
   useEffect(() => {
     if (!isLocked) return;
 
-    // Save original styles
-    const originalOverflow = document.body.style.overflow;
-    const originalPaddingRight = document.body.style.paddingRight;
-    const originalTouchAction = document.body.style.touchAction;
-    const originalOverscrollBehavior = document.body.style.overscrollBehavior;
-
     // Get scrollbar width to prevent layout shift
     const scrollbarWidth =
       window.innerWidth - document.documentElement.clientWidth;
 
-    // Lock scroll with CSS
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    document.body.style.overscrollBehavior = "contain";
-
-    // Compensate for scrollbar width to prevent layout shift
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
+    const restoreBodyStyles = applyBodyStyleOverrides({
+      overflow: "hidden",
+      "touch-action": "none",
+      "overscroll-behavior": "contain",
+      ...(scrollbarWidth > 0 ? { "padding-right": `${scrollbarWidth}px` } : {}),
+    });
 
     // Check if passive event listeners are supported
     let passiveSupported = false;
@@ -103,11 +96,7 @@ export function useScrollLock(isLocked: boolean) {
     document.addEventListener("wheel", preventScroll, nonPassive);
 
     return () => {
-      // Restore original styles
-      document.body.style.overflow = originalOverflow;
-      document.body.style.paddingRight = originalPaddingRight;
-      document.body.style.touchAction = originalTouchAction;
-      document.body.style.overscrollBehavior = originalOverscrollBehavior;
+      restoreBodyStyles();
 
       // Remove event listeners
       document.removeEventListener(
