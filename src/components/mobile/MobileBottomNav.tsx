@@ -7,7 +7,7 @@ import {
   Sliders,
 } from "lucide-react";
 
-import { IconWithLabel } from "@/components/mobile/common/IconWithLabel";
+import { IconWithLabel } from "@/components/common/IconWithLabel";
 import { Button } from "@/components/ui";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useMobileNavStore } from "@/stores/useMobileNavStore";

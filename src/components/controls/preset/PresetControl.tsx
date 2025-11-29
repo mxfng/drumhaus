@@ -1,4 +1,4 @@
-import { usePresetManager } from "@/hooks/usePresetManager";
+import { usePresetManager } from "@/hooks/preset/usePresetManager";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";

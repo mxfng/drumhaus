@@ -1,7 +1,8 @@
+import { DebugOverlay } from "@/components/common/DebugOverlay";
 import { AboutDialog } from "@/components/dialog/AboutDialog";
+import { usePresetLoading } from "@/hooks/preset/usePresetLoading";
 import { useRemoveInitialLoader } from "@/hooks/ui/useRemoveInitialLoader";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
-import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { DrumhausContext, type DrumhausContextValue } from "./DrumhausContext";
@@ -35,6 +36,7 @@ export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
     <DrumhausContext.Provider value={value}>
       {children}
       <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      <DebugOverlay />
     </DrumhausContext.Provider>
   );
 };

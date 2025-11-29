@@ -6,7 +6,7 @@ import { ExportDialog } from "@/components/dialog/ExportDialog";
 import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
 import { Label } from "@/components/ui";
-import { usePresetManager } from "@/hooks/usePresetManager";
+import { usePresetManager } from "@/hooks/preset/usePresetManager";
 import { cn } from "@/lib/utils";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
