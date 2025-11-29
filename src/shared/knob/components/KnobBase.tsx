@@ -10,6 +10,7 @@ import {
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
 } from "../lib/constants";
+import { KnobCoachmark } from "./KnobCoachmark";
 import { KnobTicks } from "./KnobTicks";
 
 export type KnobSize = "default" | "lg";
@@ -58,6 +59,7 @@ export const Knob: React.FC<KnobProps> = ({
     tooltipSide,
     tooltipContent,
     knobContainerRef,
+    showCoachmark,
   } = useKnobControls({
     value,
     stepSize,
@@ -86,6 +88,11 @@ export const Knob: React.FC<KnobProps> = ({
           ref={knobContainerRef}
           className="relative flex aspect-square h-4/5 items-center justify-center rounded-full"
         >
+          <KnobCoachmark
+            visible={showCoachmark}
+            message="Drag up/down to adjust"
+            anchorRef={knobContainerRef}
+          />
           {/* Hitbox (Rotates) */}
           <motion.div
             className={cn(
