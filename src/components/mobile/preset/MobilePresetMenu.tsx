@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { Download, ListMusic, Save, Share2, Upload, X } from "lucide-react";
 
+import { Label } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
 import type { KitFileV1 } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
-import { Label } from "../ui";
 import { MobileKitSelector } from "./MobileKitSelector";
 import { MobilePresetSelector } from "./MobilePresetSelector";
 

@@ -8,7 +8,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import type { BusSubTab } from "./contextmenu/MobileBusContextMenu";
 import type { InstrumentMode } from "./contextmenu/MobileInstrumentContextMenu";
 import { MobileInstrumentGrid } from "./instrument/MobileInstrumentGrid";
-import { MobileSequencer } from "./sequencer/MobileSequencerGrid";
+import { MobileSequencer } from "./sequencer/MobileSequencer";
 
 export type TabType = "instrument" | "controls" | "bus";
 
