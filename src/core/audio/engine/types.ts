@@ -54,6 +54,7 @@ export interface InstrumentStateProvider {
  */
 export interface PatternStateProvider {
   getPattern(): Voice[];
+  getPatternVersion(): number;
   getPlaybackVariation(): number;
   setPlaybackVariation(index: number): void;
 }

@@ -10,6 +10,7 @@ import { VariationCycle } from "../types/sequencer";
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations
   pattern: Pattern;
+  patternVersion: number;
 
   // Sequencer controls
   variation: number; // A = 0, B = 1
@@ -49,6 +50,7 @@ export const usePatternStore = create<PatternState>()(
       immer((set) => ({
         // Initial state
         pattern: createEmptyPattern(),
+        patternVersion: 0,
         variation: 0,
         variationCycle: "A",
         voiceIndex: 0,
@@ -68,7 +70,10 @@ export const usePatternStore = create<PatternState>()(
         },
 
         setPattern: (pattern) => {
-          set({ pattern });
+          set((state) => {
+            state.pattern = pattern;
+            state.patternVersion += 1;
+          });
         },
 
         setPlaybackVariation: (variation) => {
@@ -86,6 +91,7 @@ export const usePatternStore = create<PatternState>()(
               state.pattern[voiceIndex].variations[variation].velocities[step] =
                 1;
             }
+            state.patternVersion += 1;
           });
         },
 
@@ -93,6 +99,7 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             state.pattern[voiceIndex].variations[variation].velocities[step] =
               velocity;
+            state.patternVersion += 1;
           });
         },
 
@@ -101,6 +108,7 @@ export const usePatternStore = create<PatternState>()(
             state.pattern[voiceIndex].variations[variation].triggers = triggers;
             state.pattern[voiceIndex].variations[variation].velocities =
               velocities;
+            state.patternVersion += 1;
           });
         },
 
@@ -110,6 +118,7 @@ export const usePatternStore = create<PatternState>()(
               Array(STEP_COUNT).fill(false);
             state.pattern[voiceIndex].variations[variation].velocities =
               Array(STEP_COUNT).fill(1);
+            state.patternVersion += 1;
           });
         },
       })),
@@ -119,6 +128,7 @@ export const usePatternStore = create<PatternState>()(
         // Persist pattern and settings
         partialize: (state) => ({
           pattern: state.pattern,
+          patternVersion: state.patternVersion,
           variation: state.variation,
           variationCycle: state.variationCycle,
         }),
