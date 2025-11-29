@@ -62,12 +62,11 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             <DrumhausTypographyLogo size={280} />
           </div>
           <p className="text-center text-sm">
-            Browser Controlled Rhythmic Groove Machine
+            Portable Rhythmic Groove Machine
           </p>
         </div>
         <DialogDescription className="hidden">
-          Drumhaus is a browser controlled rhythmic groove machine built by Max
-          Fung.
+          Drumhaus is a portable rhythmic groove machine built by Max Fung.
         </DialogDescription>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex flex-col gap-1">
