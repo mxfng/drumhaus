@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -45,6 +46,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onTouchMove,
 }) => {
   const stepRef = useRef<HTMLDivElement>(null);
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
@@ -73,9 +75,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         (lastIsThisStepPlaying === null ||
           isThisStepPlaying !== lastIsThisStepPlaying)
       ) {
-        stepRef.current.style.filter = isThisStepPlaying
-          ? "brightness(0.75)"
-          : "";
+        stepRef.current.classList.toggle("brightness-75", isThisStepPlaying);
         lastIsThisStepPlaying = isThisStepPlaying;
       }
     });
@@ -83,12 +83,20 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     return unsubscribe;
   }, [stepIndex, variation, playbackVariation, variant]);
 
-  const triggerStyles = {
-    className: isTriggerOn
+  const getTriggerClassName = () => {
+    if (potatoMode) {
+      return isTriggerOn ? "bg-primary" : "bg-instrument";
+    }
+
+    return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : variant === "desktop"
         ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40"
-        : "bg-instrument",
+        : "bg-instrument";
+  };
+
+  const triggerStyles = {
+    className: getTriggerClassName(),
     opacity: isGhosted
       ? 0.7
       : isTriggerOn
@@ -127,7 +135,10 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "relative cursor-pointer overflow-hidden transition-[background-color,box-shadow] duration-300 ease-in-out",
+        "relative cursor-pointer overflow-hidden",
+        potatoMode
+          ? "transition-none"
+          : "transition-[background-color,box-shadow] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
@@ -136,7 +147,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         opacity: triggerStyles.opacity,
       }}
     >
-      {isTriggerOn && (
+      {isTriggerOn && !potatoMode && (
         <div
           className={cn(
             "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",

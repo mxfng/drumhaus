@@ -71,6 +71,8 @@ export function useKnobControls({
   const handlePointerDown = (ev: React.PointerEvent<HTMLDivElement>) => {
     if (disabled) return;
 
+    ev.preventDefault();
+
     updateTooltipSide();
     setIsMoving(true);
     handleStart({ x: ev.clientX, y: ev.clientY });
