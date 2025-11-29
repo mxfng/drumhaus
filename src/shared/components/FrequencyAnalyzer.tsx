@@ -21,11 +21,13 @@ const NUM_OCTAVES = 6;
 interface FrequencyAnalyzerProps {
   width?: number;
   height?: number;
+  numBars?: number;
 }
 
 export function FrequencyAnalyzer({
   width = 550,
   height = 90,
+  numBars = NUM_BARS,
 }: FrequencyAnalyzerProps = {}) {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -58,7 +60,7 @@ export function FrequencyAnalyzer({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Split canvas into NUM_BARS bars with equal bar/gap width
-      const totalUnits = NUM_BARS * 2 - 1; // bar + gap per bucket except last
+      const totalUnits = numBars * 2 - 1; // bar + gap per bucket except last
       const unitWidth = canvas.width / totalUnits;
       const barWidth = unitWidth;
       const gapWidth = unitWidth;
@@ -67,14 +69,14 @@ export function FrequencyAnalyzer({
       // Map bar index to frequency bin using musical intervals
       // Gives equal visual space to each octave (good for drums)
       const mapBarToFrequencyBin = (barIdx: number) => {
-        const normalized = normalize(barIdx, 0, NUM_BARS);
+        const normalized = normalize(barIdx, 0, numBars);
         const semitones = normalized * (NUM_OCTAVES * 12);
         const ratio = semitonesToRatio(semitones);
         const maxRatio = Math.pow(2, NUM_OCTAVES);
         return Math.floor((ratio / maxRatio) * activeLength);
       };
 
-      for (let barIndex = 0; barIndex < NUM_BARS; barIndex++) {
+      for (let barIndex = 0; barIndex < numBars; barIndex++) {
         const start = mapBarToFrequencyBin(barIndex);
         let end = mapBarToFrequencyBin(barIndex + 1);
 

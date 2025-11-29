@@ -24,7 +24,7 @@ export const MobileHeader: React.FC = () => {
           <DrumhausLogo size={24} />
         </button>
         <div className="flex h-[50px] flex-1 items-center">
-          <FrequencyAnalyzer height={80} />
+          <FrequencyAnalyzer height={80} numBars={96} />
         </div>
         {/* Preset/Kit Info Overlay - Clickable Menu Trigger */}
         <button
