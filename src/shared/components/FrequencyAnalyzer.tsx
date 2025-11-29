@@ -127,7 +127,7 @@ export function FrequencyAnalyzer({
       }
       disposeFrequencyAnalyzer(analyzerRef);
     };
-  }, [isPlaying]);
+  }, [isPlaying, numBars]);
 
   return (
     <canvas
