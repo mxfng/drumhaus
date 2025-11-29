@@ -11,7 +11,6 @@ import { clamp, normalize } from "@/shared/lib/utils";
 
 const NUM_BARS = 128; // how many chunky bars
 const PIXEL_SIZE = 2; // quantized height step (px)
-const BAR_GAP = 2; // gap between bars (px)
 
 const ACTIVE_FRACTION_X = 2 / 3; // use lowest 2/3 of spectrum
 const ACTIVE_FRACTION_Y = 2 / 3; // zoom lowest 2/3 of amplitude to full height
@@ -58,9 +57,12 @@ export function FrequencyAnalyzer({
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Split canvas into NUM_BARS equal bands
-      const bandWidth = canvas.width / NUM_BARS;
-      const barWidth = Math.max(1, bandWidth - BAR_GAP); // keep at least 1px
+      // Split canvas into NUM_BARS bars with equal bar/gap width
+      const totalUnits = NUM_BARS * 2 - 1; // bar + gap per bucket except last
+      const unitWidth = canvas.width / totalUnits;
+      const barWidth = unitWidth;
+      const gapWidth = unitWidth;
+      const stride = barWidth + gapWidth;
 
       // Map bar index to frequency bin using musical intervals
       // Gives equal visual space to each octave (good for drums)
@@ -104,7 +106,7 @@ export function FrequencyAnalyzer({
         const pixelsHigh = Math.round(barHeight / PIXEL_SIZE);
         barHeight = pixelsHigh * PIXEL_SIZE;
 
-        const x = barIndex * bandWidth;
+        const x = barIndex * stride;
         const y = canvas.height - barHeight;
 
         ctx.fillStyle = "#ff7b00";
