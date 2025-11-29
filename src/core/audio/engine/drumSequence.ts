@@ -204,32 +204,6 @@ function getStepBoundaries(step: number): {
  * Schedules all voices in a pattern for a given step.
  * Core scheduling loop shared between live and offline playback.
  */
-function schedulePatternStep(
-  pattern: Pattern,
-  step: number,
-  time: number,
-  variationIndex: number,
-  instruments: InstrumentData[],
-  runtimes: InstrumentRuntime[],
-  anySolos: boolean,
-  hasOhat: boolean,
-  ohatIndex: number,
-): void {
-  for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
-    scheduleVoiceAtTime(
-      pattern[voiceIndex],
-      step,
-      time,
-      variationIndex,
-      instruments,
-      runtimes,
-      anySolos,
-      hasOhat,
-      ohatIndex,
-    );
-  }
-}
-
 /**
  * Gets the instrument and runtime for a voice, or null if either is missing.
  */
