@@ -89,7 +89,8 @@ export const Knob: React.FC<KnobProps> = ({
       >
         <div
           ref={knobContainerRef}
-          className="relative flex aspect-square h-4/5 items-center justify-center rounded-full"
+          className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
+          style={{ touchAction: "none" }}
         >
           {!potatoMode && (
             <KnobCoachmark
@@ -101,7 +102,7 @@ export const Knob: React.FC<KnobProps> = ({
           {/* Hitbox (Rotates) */}
           <motion.div
             className={cn(
-              "absolute z-1 aspect-square h-5/6 origin-center rounded-full",
+              "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
               disabled
                 ? "pointer-events-none cursor-not-allowed"
                 : "cursor-grab",

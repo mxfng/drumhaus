@@ -67,6 +67,7 @@ export const MobileTabView: React.FC = () => {
                 {busSubTab === "comp" && (
                   <motion.div
                     key="comp"
+                    data-scrollable
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
@@ -79,6 +80,7 @@ export const MobileTabView: React.FC = () => {
                 {busSubTab === "fx" && (
                   <motion.div
                     key="fx"
+                    data-scrollable
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
@@ -91,6 +93,7 @@ export const MobileTabView: React.FC = () => {
                 {busSubTab === "level" && (
                   <motion.div
                     key="level"
+                    data-scrollable
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
@@ -103,6 +106,7 @@ export const MobileTabView: React.FC = () => {
                 {busSubTab === "tempo" && (
                   <motion.div
                     key="tempo"
+                    data-scrollable
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.96 }}
