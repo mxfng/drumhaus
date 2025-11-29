@@ -1,4 +1,4 @@
-import { Drum, Edit, Play } from "lucide-react";
+import { Drum, Edit } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
