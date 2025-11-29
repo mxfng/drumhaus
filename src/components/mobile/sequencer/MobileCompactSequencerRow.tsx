@@ -6,19 +6,16 @@ import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
-interface CompactSequencerRowProps {
+interface MobileCompactSequencerRowProps {
   voiceIndex: number;
   variation: number;
   triggers: boolean[];
   onToggleStep: (stepIndex: number) => void;
 }
 
-export const CompactSequencerRow: React.FC<CompactSequencerRowProps> = ({
-  voiceIndex,
-  variation,
-  triggers,
-  onToggleStep,
-}) => {
+export const MobileCompactSequencerRow: React.FC<
+  MobileCompactSequencerRowProps
+> = ({ voiceIndex, variation, triggers, onToggleStep }) => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
 

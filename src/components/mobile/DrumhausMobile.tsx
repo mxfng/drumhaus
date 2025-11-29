@@ -13,13 +13,13 @@ import { usePresetManager } from "@/hooks/usePresetManager";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
+import { type BusSubTab } from "./contextmenu/MobileBusContextMenu";
+import { MobileContextMenu } from "./contextmenu/MobileContextMenu";
+import type { InstrumentMode } from "./contextmenu/MobileInstrumentContextMenu";
 import { MobileBottomNav } from "./MobileBottomNav";
-import { type BusSubTab } from "./MobileBusControl";
-import { MobileContextualMenu } from "./MobileContextualMenu";
 import { MobileHeader } from "./MobileHeader";
-import type { InstrumentMode } from "./MobileInstrumentControl";
-import { MobilePresetMenu } from "./MobilePresetMenu";
 import { MobileTabView, type TabType } from "./MobileTabView";
+import { MobilePresetMenu } from "./preset/MobilePresetMenu";
 
 const DrumhausMobile: React.FC = () => {
   // State
@@ -110,7 +110,7 @@ const DrumhausMobile: React.FC = () => {
       />
 
       {/* Contextual Menu - changes based on active tab */}
-      <MobileContextualMenu
+      <MobileContextMenu
         activeTab={activeTab}
         instrumentMode={instrumentMode}
         onInstrumentModeChange={setInstrumentMode}

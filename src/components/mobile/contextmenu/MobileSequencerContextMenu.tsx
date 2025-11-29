@@ -2,9 +2,9 @@ import { Button } from "@/components/ui";
 import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { cn } from "@/lib/utils";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { IconWithLabel } from "./common/IconWithLabel";
+import { IconWithLabel } from "../common/IconWithLabel";
 
-export const MobileSequencerControl: React.FC = () => {
+export const MobileSequencerContextMenu: React.FC = () => {
   const { variation, variationCycle, setVariation, setVariationCycle } =
     useSequencerControl();
   const pattern = usePatternStore((state) => state.pattern);

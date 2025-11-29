@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 
 export type InstrumentMode = "trigger" | "edit";
 
-interface MobileInstrumentControlProps {
+interface MobileInstrumentContextMenuProps {
   mode: InstrumentMode;
   onModeChange: (mode: InstrumentMode) => void;
 }
 
-export const MobileInstrumentControl: React.FC<
-  MobileInstrumentControlProps
+export const MobileInstrumentContextMenu: React.FC<
+  MobileInstrumentContextMenuProps
 > = ({ mode, onModeChange }) => {
   return (
     <div className="border-border bg-surface flex flex-row justify-between gap-2 border-t p-2">

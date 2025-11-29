@@ -1,12 +1,12 @@
-import { MobileBusControl, type BusSubTab } from "./MobileBusControl";
+import type { TabType } from "../MobileTabView";
+import { MobileBusContextMenu, type BusSubTab } from "./MobileBusContextMenu";
 import {
-  MobileInstrumentControl,
+  MobileInstrumentContextMenu,
   type InstrumentMode,
-} from "./MobileInstrumentControl";
-import { MobileSequencerControl } from "./MobileSequencerControl";
-import type { TabType } from "./MobileTabView";
+} from "./MobileInstrumentContextMenu";
+import { MobileSequencerContextMenu } from "./MobileSequencerContextMenu";
 
-interface MobileContextualMenuProps {
+interface MobileContextMenuProps {
   activeTab: TabType;
   instrumentMode: InstrumentMode;
   onInstrumentModeChange: (mode: InstrumentMode) => void;
@@ -14,7 +14,7 @@ interface MobileContextualMenuProps {
   onBusSubTabChange: (subTab: BusSubTab) => void;
 }
 
-export const MobileContextualMenu: React.FC<MobileContextualMenuProps> = ({
+export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
   activeTab,
   instrumentMode,
   onInstrumentModeChange,
@@ -23,17 +23,17 @@ export const MobileContextualMenu: React.FC<MobileContextualMenuProps> = ({
 }) => {
   switch (activeTab) {
     case "controls":
-      return <MobileSequencerControl />;
+      return <MobileSequencerContextMenu />;
     case "instrument":
       return (
-        <MobileInstrumentControl
+        <MobileInstrumentContextMenu
           mode={instrumentMode}
           onModeChange={onInstrumentModeChange}
         />
       );
     case "bus":
       return (
-        <MobileBusControl
+        <MobileBusContextMenu
           activeSubTab={busSubTab}
           onSubTabChange={onBusSubTabChange}
         />

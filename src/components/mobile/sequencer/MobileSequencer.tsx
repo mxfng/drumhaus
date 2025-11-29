@@ -5,16 +5,16 @@ import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
-import { CompactSequencerRow } from "./CompactSequencerRow";
-import { InstrumentRowSelector } from "./InstrumentRowSelector";
+import { INSTRUMENT_COLORS } from "../../instrument/instrumentColors";
+import { MobileCompactSequencerRow } from "./MobileCompactSequencerRow";
+import { MobileInstrumentRowSelector } from "./MobileInstrumentRowSelector";
 
-interface MobileSequencerGridProps {
+interface MobileSequencerProps {
   instrumentRuntimes: InstrumentRuntime[];
   instrumentRuntimesVersion: number;
 }
 
-export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
+export const MobileSequencer: React.FC<MobileSequencerProps> = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
@@ -70,7 +70,7 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
                   }}
                 />
               )}
-              <InstrumentRowSelector
+              <MobileInstrumentRowSelector
                 voiceIndex={voiceIndex}
                 rowIndex={index}
                 isOpen={isOpen}
@@ -89,7 +89,7 @@ export const MobileSequencerGrid: React.FC<MobileSequencerGridProps> = () => {
                 onClear={clearSequence}
                 onRandom={randomSequence}
               />
-              <CompactSequencerRow
+              <MobileCompactSequencerRow
                 voiceIndex={voiceIndex}
                 variation={variation}
                 triggers={triggers}

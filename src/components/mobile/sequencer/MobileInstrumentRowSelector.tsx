@@ -5,9 +5,9 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
+import { INSTRUMENT_COLORS } from "../../instrument/instrumentColors";
 
-interface InstrumentRowSelectorProps {
+interface MobileInstrumentRowSelectorProps {
   voiceIndex: number;
   rowIndex: number;
   isOpen: boolean;
@@ -18,7 +18,9 @@ interface InstrumentRowSelectorProps {
   onRandom: () => void;
 }
 
-export const InstrumentRowSelector: React.FC<InstrumentRowSelectorProps> = ({
+export const MobileInstrumentRowSelector: React.FC<
+  MobileInstrumentRowSelectorProps
+> = ({
   voiceIndex,
   rowIndex,
   isOpen,

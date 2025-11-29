@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 
 export type BusSubTab = "comp" | "fx" | "level" | "tempo";
 
-interface MobileBusControlProps {
+interface MobileBusContextMenuPros {
   activeSubTab: BusSubTab;
   onSubTabChange: (subTab: BusSubTab) => void;
 }
 
-export const MobileBusControl: React.FC<MobileBusControlProps> = ({
+export const MobileBusContextMenu: React.FC<MobileBusContextMenuPros> = ({
   activeSubTab,
   onSubTabChange,
 }) => {

@@ -9,10 +9,10 @@ import {
 import { playInstrumentSample } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { INSTRUMENT_COLORS } from "../instrument/instrumentColors";
-import { InstrumentHeader } from "../instrument/InstrumentHeader";
-import { InstrumentParamsControl } from "../instrument/InstrumentParamsControl";
-import type { InstrumentMode } from "./MobileInstrumentControl";
+import { INSTRUMENT_COLORS } from "../../instrument/instrumentColors";
+import { InstrumentHeader } from "../../instrument/InstrumentHeader";
+import { InstrumentParamsControl } from "../../instrument/InstrumentParamsControl";
+import type { InstrumentMode } from "../contextmenu/MobileInstrumentContextMenu";
 
 interface MobileInstrumentGridProps {
   instrumentRuntimes: InstrumentRuntime[];
@@ -93,7 +93,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
             </DialogTitle>
             <DialogCloseButton />
 
-            <div className="mt-2 h-1/12">
+            <div className="mt-2 h-32">
               <InstrumentHeader
                 index={editingVoiceIndex}
                 color={INSTRUMENT_COLORS[editingVoiceIndex]}
