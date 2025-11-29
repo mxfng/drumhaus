@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Download, ListMusic, Save, Share2, Upload, X } from "lucide-react";
+import { Download, FolderOpen, Save, Share2, Upload, X } from "lucide-react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { ConfirmSelectPresetDialog } from "@/features/preset/dialogs/ConfirmSelectPresetDialog";
@@ -8,6 +8,7 @@ import { SaveDialog } from "@/features/preset/dialogs/SaveDialog";
 import { ShareDialog } from "@/features/preset/dialogs/ShareDialog";
 import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
+import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
@@ -151,7 +152,7 @@ export const MobilePresetMenu: React.FC = () => {
         onPointerCancel={handlePointerEnd}
       >
         <div className="flex h-full flex-col justify-between gap-4 p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-          <ListMusic size={30} />
+          <DrumhausLogo size={30} color={"currentColor"} />
           <div className="flex h-full flex-col justify-center gap-4">
             {/* Preset & Kit Selectors */}
             <div className="flex flex-col gap-3">
@@ -173,14 +174,22 @@ export const MobilePresetMenu: React.FC = () => {
 
             {/* Actions */}
             <div className="flex flex-col">
-              <Label className="text-primary-foreground text-xs">ACTIONS</Label>
+              <Label className="text-primary-foreground">ACTIONS</Label>
 
               <button
                 onClick={() => handleAction("save")}
                 className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
               >
                 <Save size={18} />
-                Save Preset
+                Save preset
+              </button>
+
+              <button
+                onClick={importPreset}
+                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
+              >
+                <FolderOpen size={18} />
+                Load preset
               </button>
 
               <button
@@ -188,7 +197,7 @@ export const MobilePresetMenu: React.FC = () => {
                 className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
               >
                 <Share2 size={18} />
-                Share Link
+                Share preset
               </button>
 
               <button
@@ -196,15 +205,7 @@ export const MobilePresetMenu: React.FC = () => {
                 className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
               >
                 <Download size={18} />
-                Export Kit
-              </button>
-
-              <button
-                onClick={importPreset}
-                className="font-pixel focus:bg-primary-muted hover:bg-primary-muted flex items-center gap-2 rounded-sm px-2 py-2 text-left transition-colors"
-              >
-                <Upload size={18} />
-                Import Preset
+                Export
               </button>
             </div>
           </div>

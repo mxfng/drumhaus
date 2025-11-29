@@ -1,5 +1,5 @@
-export const DrumhausLogo: React.FC<{ color: string; size: number }> = ({
-  color = "#ff7b00",
+export const DrumhausLogo: React.FC<{ color?: string; size: number }> = ({
+  color = "currentColor",
   size = 200,
 }) => {
   // Actual logo bounds: x: 51.9-148.9, y: 46.4-161.1

@@ -1,5 +1,3 @@
-import { ListMusic } from "lucide-react";
-
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { FrequencyAnalyzer } from "@/shared/components/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
@@ -44,10 +42,6 @@ export const MobileHeader: React.FC = () => {
               </mark>
             </div>
           </div>
-          <ListMusic
-            size={20}
-            className="text-foreground-muted bg-surface absolute top-1/2 right-4 -translate-y-1/2"
-          />
         </button>
       </div>
     </>
