@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getContext, getTransport } from "tone";
 
+import { getAudioContextHealth } from "@/core/audio/engine";
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
 
 interface DebugStats {
@@ -10,6 +11,8 @@ interface DebugStats {
   transportState: string;
   position: string;
   audioTime: number;
+  audioState: string;
+  resumedAgoSeconds: number | null;
 }
 
 export const DebugOverlay = () => {
@@ -21,6 +24,8 @@ export const DebugOverlay = () => {
     transportState: "stopped",
     position: "0:0:0",
     audioTime: 0,
+    audioState: "unknown",
+    resumedAgoSeconds: null,
   });
 
   const frameTimesRef = useRef<number[]>([]);
@@ -68,7 +73,22 @@ export const DebugOverlay = () => {
       const ctx = getContext();
       const audioTime = Math.round(ctx.currentTime * 10) / 10;
 
-      setStats({ fps, heapMB, bpm, transportState, position, audioTime });
+      const health = getAudioContextHealth();
+      const resumedAgoSeconds =
+        health.lastResume !== null
+          ? Math.max((performance.now() - health.lastResume) / 1000, 0)
+          : null;
+
+      setStats({
+        fps,
+        heapMB,
+        bpm,
+        transportState,
+        position,
+        audioTime,
+        audioState: health.state,
+        resumedAgoSeconds,
+      });
       animationId = requestAnimationFrame(updateStats);
     };
 
@@ -111,6 +131,16 @@ export const DebugOverlay = () => {
           <span className="opacity-70">Audio</span>
           <span>{stats.audioTime}s</span>
         </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Ctx</span>
+          <span className="capitalize">{stats.audioState}</span>
+        </div>
+        {stats.resumedAgoSeconds !== null && (
+          <div className="flex justify-between gap-4">
+            <span className="opacity-70">Resumed</span>
+            <span>{stats.resumedAgoSeconds.toFixed(1)}s ago</span>
+          </div>
+        )}
       </div>
     </div>
   );
