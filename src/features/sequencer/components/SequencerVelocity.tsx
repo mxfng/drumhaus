@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { clampVelocity } from "@/lib/pattern/helpers";
+import { clampVelocity } from "@/features/sequencer/lib/helpers";
 import { cn } from "@/lib/utils";
 
 interface SequencerVelocityProps {

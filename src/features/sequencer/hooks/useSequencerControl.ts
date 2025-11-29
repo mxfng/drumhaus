@@ -1,7 +1,7 @@
 import { useState } from "react";
 
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { usePatternStore } from "@/stores/usePatternStore";
 
 export const useSequencerControl = () => {
   // Get state from Pattern Store

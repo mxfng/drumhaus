@@ -1,6 +1,6 @@
 import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { Meta } from "@/types/meta";
 import type { PresetFileV1 } from "@/types/preset";

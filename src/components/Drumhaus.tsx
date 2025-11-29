@@ -3,12 +3,12 @@ import { useLayoutScale } from "@/hooks/ui/useLayoutScale";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { InstrumentGrid } from "../features/instruments/components/InstrumentGrid";
+import { Sequencer } from "../features/sequencer/components/Sequencer";
 import { ControlsPanel } from "./controls/ControlsPanel";
 import { MobileDialog } from "./dialog/MobileDialog";
 import Footer from "./Footer";
 import { Header } from "./Header";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
-import { Sequencer } from "./sequencer/Sequencer";
 
 const Drumhaus = () => {
   // --- Context ---

@@ -1,21 +1,24 @@
 import React from "react";
 
-import { SequencerStep } from "@/components/sequencer/SequencerStep";
-import { useSequencerDragPaint } from "@/hooks/sequencer/useSequencerDragPaint";
+import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
+import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
-interface MobileCompactSequencerRowProps {
+interface MobileSequencerRowProps {
   voiceIndex: number;
   variation: number;
   triggers: boolean[];
   onToggleStep: (stepIndex: number) => void;
 }
 
-export const MobileCompactSequencerRow: React.FC<
-  MobileCompactSequencerRowProps
-> = ({ voiceIndex, variation, triggers, onToggleStep }) => {
+export const MobileSequencerRow: React.FC<MobileSequencerRowProps> = ({
+  voiceIndex,
+  variation,
+  triggers,
+  onToggleStep,
+}) => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
 

@@ -1,7 +1,7 @@
 import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
 import { Button, Label, Tooltip } from "@/components/ui";
-import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
+import { useSequencerControl } from "@/features/sequencer/hooks/useSequencerControl";
 import { cn } from "@/lib/utils";
 
 // Tooltip constants

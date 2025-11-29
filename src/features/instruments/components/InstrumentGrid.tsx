@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 
 import { INSTRUMENT_COLORS } from "@/features/instruments/lib/colors";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { InstrumentControl } from "./InstrumentControl";
 
 const NO_OF_INSTRUMENTS = 8;

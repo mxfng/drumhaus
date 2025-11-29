@@ -12,7 +12,7 @@
 import { now, Sequence, Time } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
-import { usePatternStore } from "@/stores/usePatternStore";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import type {
   DrumSequenceStateProvider,
   SequenceCallback,

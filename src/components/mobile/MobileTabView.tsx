@@ -4,9 +4,9 @@ import { MasterCompressor } from "@/components/controls/master/MasterCompressor"
 import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
+import { MobileSequencer } from "@/features/sequencer/components/MobileSequencer";
 import { useMobileNavStore } from "@/stores/useMobileNavStore";
 import { MobileInstrumentGrid } from "../../features/instruments/components/MobileInstrumentGrid";
-import { MobileSequencer } from "./sequencer/MobileSequencer";
 
 export type TabType = "instrument" | "controls" | "bus";
 

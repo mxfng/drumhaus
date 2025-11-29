@@ -1,12 +1,12 @@
 import React from "react";
 
-import { SequencerStep } from "@/components/sequencer/SequencerStep";
-import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndicator";
-import { SequencerVelocity } from "@/components/sequencer/SequencerVelocity";
-import { useSequencerDragPaint } from "@/hooks/sequencer/useSequencerDragPaint";
+import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
+import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
+import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
+import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
 interface StepMusicalState {

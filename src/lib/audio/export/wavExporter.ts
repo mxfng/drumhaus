@@ -7,8 +7,8 @@ import type {
   InstrumentData,
   InstrumentRuntime,
 } from "@/features/instruments/types/instrument";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import type { VariationCycle } from "@/types/preset";
 import {

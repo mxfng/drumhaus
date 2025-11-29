@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndicator";
-import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
+import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
+import { useSequencerControl } from "@/features/sequencer/hooks/useSequencerControl";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { INSTRUMENT_COLORS } from "../../../features/instruments/lib/colors";
-import { MobileCompactSequencerRow } from "./MobileCompactSequencerRow";
-import { MobileInstrumentRowSelector } from "./MobileInstrumentRowSelector";
+import { MobileSequencerRow } from "./MobileSequencerRow";
+import { MobileSequencerRowSelector } from "./MobileSequencerRowSelector";
 
 export const MobileSequencer: React.FC = () => {
   const pattern = usePatternStore((state) => state.pattern);
@@ -64,7 +64,7 @@ export const MobileSequencer: React.FC = () => {
                   }}
                 />
               )}
-              <MobileInstrumentRowSelector
+              <MobileSequencerRowSelector
                 voiceIndex={voiceIndex}
                 rowIndex={index}
                 isOpen={isOpen}
@@ -83,7 +83,7 @@ export const MobileSequencer: React.FC = () => {
                 onClear={clearSequence}
                 onRandom={randomSequence}
               />
-              <MobileCompactSequencerRow
+              <MobileSequencerRow
                 voiceIndex={voiceIndex}
                 variation={variation}
                 triggers={triggers}

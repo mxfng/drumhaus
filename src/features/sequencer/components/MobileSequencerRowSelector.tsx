@@ -3,11 +3,11 @@ import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
 import { Button } from "@/components/ui";
 import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { cn } from "@/lib/utils";
-import { usePatternStore } from "@/stores/usePatternStore";
-import { INSTRUMENT_COLORS } from "../../../features/instruments/lib/colors";
+import { INSTRUMENT_COLORS } from "../../instruments/lib/colors";
 
-interface MobileInstrumentRowSelectorProps {
+interface MobileSequencerRowSelectorProps {
   voiceIndex: number;
   rowIndex: number;
   isOpen: boolean;
@@ -18,8 +18,8 @@ interface MobileInstrumentRowSelectorProps {
   onRandom: () => void;
 }
 
-export const MobileInstrumentRowSelector: React.FC<
-  MobileInstrumentRowSelectorProps
+export const MobileSequencerRowSelector: React.FC<
+  MobileSequencerRowSelectorProps
 > = ({
   voiceIndex,
   rowIndex,

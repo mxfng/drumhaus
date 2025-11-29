@@ -5,8 +5,8 @@ import {
   Sampler,
 } from "tone/build/esm/index";
 
-import { InlineMeta, Meta } from "./meta";
-import { SampleData } from "./sample";
+import { InlineMeta, Meta } from "@/types/meta";
+import { SampleData } from "@/types/sample";
 
 export interface InstrumentParams {
   attack: number;

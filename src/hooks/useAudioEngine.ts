@@ -2,6 +2,7 @@ import { RefObject, useEffect, useRef, useState } from "react";
 
 import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import {
   connectInstrumentsToMasterChain,
   createDrumSequence,
@@ -22,7 +23,6 @@ import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/stores/useMasterChainStore";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { MasterChainParams } from "@/types/preset";
 

@@ -3,11 +3,11 @@ import { Pause, Play } from "lucide-react";
 import { Button, Tooltip } from "@/components/ui";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useTransportStore } from "@/stores/useTransportStore";
+import { SequencerControl } from "../../features/sequencer/components/SequencerControl";
 import { MasterCompressor } from "./master/MasterCompressor";
 import { MasterFX } from "./master/MasterFX";
 import { MasterVolume } from "./master/MasterVolume";
 import { PresetControl } from "./preset/PresetControl";
-import { SequencerControl } from "./SequencerControl";
 import { TransportControl } from "./TransportControl";
 
 export const ControlsPanel = () => {

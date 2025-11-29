@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui";
-import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
+import { useSequencerControl } from "@/features/sequencer/hooks/useSequencerControl";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { cn } from "@/lib/utils";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { IconWithLabel } from "../../common/IconWithLabel";
 
 export const MobileSequencerContextMenu: React.FC = () => {

@@ -18,12 +18,12 @@ import {
   Slider,
   useToast,
 } from "@/components/ui";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import {
   calculateExportDuration,
   exportToWav,
   getSuggestedBars,
 } from "@/lib/audio/export/wavExporter";
-import { usePatternStore } from "@/stores/usePatternStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 
