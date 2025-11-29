@@ -10,7 +10,11 @@ import {
   InstrumentData,
   InstrumentRuntime,
 } from "@/features/instrument/types/instrument";
-import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
+import {
+  defaultSampleSourceResolver,
+  SamplerSource,
+  SampleSourceResolver,
+} from "../sampleSources";
 import {
   ENVELOPE_DEFAULT_ATTACK,
   ENVELOPE_DEFAULT_DECAY,
@@ -18,11 +22,6 @@ import {
   ENVELOPE_DEFAULT_SUSTAIN,
   SAMPLER_ROOT_NOTE,
 } from "./constants";
-
-type SamplerSource = {
-  url: string;
-  baseUrl?: string;
-};
 
 // -----------------------------------------------------------------------------
 // Public API
@@ -34,15 +33,15 @@ type SamplerSource = {
 export async function createInstrumentRuntimes(
   runtimes: RefObject<InstrumentRuntime[]>,
   data: InstrumentData[],
+  resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<void> {
   disposeInstrumentRuntimes(runtimes);
 
-  // Pre-cache unique audio files (this will download external files if configured)
-  const samplePaths = Array.from(new Set(data.map((d) => d.sample.path)));
-  await preCacheAudioFiles(samplePaths);
-
-  // Create instrument runtimes with cached URLs
-  runtimes.current = await Promise.all(data.map(buildInstrumentRuntime));
+  runtimes.current = await Promise.all(
+    data.map((instrument) =>
+      buildInstrumentRuntime(instrument, resolveSampleSource),
+    ),
+  );
 }
 
 /**
@@ -64,6 +63,7 @@ export function disposeInstrumentRuntimes(
  */
 export async function buildInstrumentRuntime(
   instrument: InstrumentData,
+  resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<InstrumentRuntime> {
   const filterNode = new Filter(0, "highpass");
   const envelopeNode = new AmplitudeEnvelope(
@@ -74,7 +74,10 @@ export async function buildInstrumentRuntime(
   );
   const pannerNode = new Panner(0);
 
-  const { url, baseUrl } = await resolveSamplerSource(instrument.sample.path);
+  const { url, baseUrl } = await resolveSamplerSource(
+    instrument.sample.path,
+    resolveSampleSource,
+  );
   const samplerNode = await createSampler(url, baseUrl);
 
   return {
@@ -92,20 +95,14 @@ export async function buildInstrumentRuntime(
 
 async function resolveSamplerSource(
   samplePath: string,
+  resolveSampleSource: SampleSourceResolver,
 ): Promise<SamplerSource> {
   try {
-    const cachedUrl = await getCachedAudioUrl(samplePath);
-
-    // Use cache blob URLs directly (no baseUrl needed)
-    if (cachedUrl.startsWith("blob:")) {
-      return { url: cachedUrl };
-    }
+    return await resolveSampleSource(samplePath);
   } catch (error) {
     console.warn(`Falling back to local sample path for ${samplePath}`, error);
+    return { url: samplePath, baseUrl: "/samples/" };
   }
-
-  // Fallback: use original sample path with /samples/ baseUrl
-  return { url: samplePath, baseUrl: "/samples/" };
 }
 
 function createSampler(url: string, baseUrl?: string): Promise<Sampler> {

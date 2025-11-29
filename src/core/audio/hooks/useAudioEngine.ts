@@ -25,6 +25,7 @@ import {
   updateMasterChainParams,
   waitForBuffersToLoad,
 } from "../engine";
+import { prepareSampleSourceResolver } from "../sampleSources";
 import { useAudioContextGuards } from "./useAudioContextGuards";
 
 interface UseAudioEngineResult {
@@ -96,7 +97,14 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     const loadBuffers = async () => {
       try {
-        await createInstrumentRuntimes(instrumentRuntimes, instruments);
+        const samplePaths = instruments.map((inst) => inst.sample.path);
+        const resolveSampleSource =
+          await prepareSampleSourceResolver(samplePaths);
+        await createInstrumentRuntimes(
+          instrumentRuntimes,
+          instruments,
+          resolveSampleSource,
+        );
         await waitForBuffersToLoad();
         if (cancelled) return;
         setInstrumentRuntimesVersion((v) => v + 1);
