@@ -1,7 +1,7 @@
 export const DrumhausTypographyLogo: React.FC<{
-  color: string;
+  color?: string;
   size: number;
-}> = ({ color = "#ff7b00", size = 875.59 }) => {
+}> = ({ color = "currentColor", size = 875.59 }) => {
   const aspectRatio = 148.94 / 875.59;
   const height = size * aspectRatio;
 

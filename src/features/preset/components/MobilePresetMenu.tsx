@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Download, FolderOpen, Save, Share2, Upload, X } from "lucide-react";
+import { Download, FolderOpen, Save, Share2, X } from "lucide-react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { ConfirmSelectPresetDialog } from "@/features/preset/dialogs/ConfirmSelectPresetDialog";
@@ -9,6 +9,7 @@ import { ShareDialog } from "@/features/preset/dialogs/ShareDialog";
 import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
+import { DrumhausTypographyLogo } from "@/shared/icon/DrumhausTypographyLogo";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
@@ -152,7 +153,10 @@ export const MobilePresetMenu: React.FC = () => {
         onPointerCancel={handlePointerEnd}
       >
         <div className="flex h-full flex-col justify-between gap-4 p-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-          <DrumhausLogo size={30} color={"currentColor"} />
+          <div className="flex items-end gap-1">
+            <DrumhausLogo size={20} />
+            <DrumhausTypographyLogo size={180} />
+          </div>
           <div className="flex h-full flex-col justify-center gap-4">
             {/* Preset & Kit Selectors */}
             <div className="flex flex-col gap-3">

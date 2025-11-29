@@ -14,10 +14,10 @@ export const Header: React.FC = () => {
           onClick={() => openDialog("about")}
         >
           <div className="text-primary flex items-end">
-            <DrumhausLogo size={46} color="currentColor" />
+            <DrumhausLogo size={46} />
           </div>
-          <div className="ml-2 flex items-end">
-            <DrumhausTypographyLogo color="#ff7b00" size={420} />
+          <div className="text-primary ml-2 flex items-end">
+            <DrumhausTypographyLogo size={420} />
           </div>
           <div className="-mb-1 ml-4 text-left">
             <p className="opacity-70">Browser Controlled</p>

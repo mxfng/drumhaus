@@ -58,8 +58,8 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
 
         <div className="mb-8 flex flex-col items-start gap-2">
           <div className="flex items-baseline gap-2">
-            <DrumhausLogo size={32} color="currentColor" />
-            <DrumhausTypographyLogo color="currentColor" size={280} />
+            <DrumhausLogo size={32} />
+            <DrumhausTypographyLogo size={280} />
           </div>
           <p className="text-center text-sm">
             Browser Controlled Rhythmic Groove Machine

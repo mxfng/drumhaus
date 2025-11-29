@@ -21,7 +21,7 @@ export const MobileHeader: React.FC = () => {
           className="hover:bg-surface-muted active:bg-surface-raised text-primary relative z-10 flex items-center p-3 transition-colors"
           aria-label="About Drumhaus"
         >
-          <DrumhausLogo size={24} color="currentColor" />
+          <DrumhausLogo size={24} />
         </button>
         <div className="flex h-[50px] flex-1 items-center">
           <FrequencyAnalyzer height={80} />
