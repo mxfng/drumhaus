@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 
 import { cn } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Label, Tooltip } from "@/shared/ui";
 import { useKnobControls } from "../hooks/useKnobControls";
 import {
@@ -51,6 +52,8 @@ export const Knob: React.FC<KnobProps> = ({
     lg: "h-[300px] sm:h-[180px]",
   }[size];
 
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+
   const {
     rotation,
     handlePointerDown,
@@ -86,17 +89,20 @@ export const Knob: React.FC<KnobProps> = ({
       >
         <div
           ref={knobContainerRef}
-          className="relative flex aspect-square h-4/5 items-center justify-center rounded-full"
+          className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
+          style={{ touchAction: "none" }}
         >
-          <KnobCoachmark
-            visible={showCoachmark}
-            message="Drag up/down to adjust"
-            anchorRef={knobContainerRef}
-          />
+          {!potatoMode && (
+            <KnobCoachmark
+              visible={showCoachmark}
+              message="Drag up/down to adjust"
+              anchorRef={knobContainerRef}
+            />
+          )}
           {/* Hitbox (Rotates) */}
           <motion.div
             className={cn(
-              "absolute z-1 aspect-square h-5/6 origin-center rounded-full",
+              "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
               disabled
                 ? "pointer-events-none cursor-not-allowed"
                 : "cursor-grab",
@@ -133,21 +139,44 @@ export const Knob: React.FC<KnobProps> = ({
 
           {/* Knob Base (Fixed and motionless for shadow effect) */}
           <div
-            className="flex aspect-square h-4/5 items-center justify-center rounded-full shadow-(--shadow-neu-tall)"
-            style={{ background: "var(--knob-gradient)" }}
+            className={cn(
+              "flex aspect-square h-4/5 items-center justify-center rounded-full",
+              potatoMode
+                ? "bg-surface border-border border"
+                : "shadow-(--shadow-neu-tall)",
+            )}
+            style={{
+              background: potatoMode ? undefined : "var(--knob-gradient)",
+            }}
           >
             {/* Raised Knob Edge */}
             <div
-              className="border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full shadow-(--shadow-neu-tall-raised)"
-              style={{ background: "var(--knob-gradient)" }}
+              className={cn(
+                "border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full",
+                potatoMode ? "" : "shadow-(--shadow-neu-tall-raised)",
+              )}
+              style={{
+                background: potatoMode ? undefined : "var(--knob-gradient)",
+              }}
             >
               {/* Raised Knob Inner Circle */}
-              <div className="bg-surface-groove raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-(--knob-shadow-center)" />
+              <div
+                className={cn(
+                  "absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full",
+                  potatoMode
+                    ? "bg-surface"
+                    : "bg-surface-groove raised shadow-(--knob-shadow-center)",
+                )}
+              />
             </div>
           </div>
 
           {/* Outer ticks */}
-          <KnobTicks outerTickCount={outerTickCount} />
+          <KnobTicks
+            outerTickCount={
+              potatoMode ? Math.min(outerTickCount, 16) : outerTickCount
+            }
+          />
         </div>
       </Tooltip>
 

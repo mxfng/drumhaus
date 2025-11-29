@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { clamp } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Tooltip } from "@/shared/ui";
 
 const MAX_REDUCTION_DB = -20; // Maximum gain reduction to display
@@ -16,11 +17,20 @@ export const GainReductionMeter: React.FC = () => {
   const fillRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const isPlaying = useTransportStore((state) => state.isPlaying);
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+  const frameInterval = potatoMode ? 1000 / 30 : 1000 / 60;
+  const lastFrameRef = useRef(0);
 
   useEffect(() => {
     let animationFrameId: number;
 
-    const updateMeter = () => {
+    const updateMeter = (now: number) => {
+      if (now - lastFrameRef.current < frameInterval) {
+        animationFrameId = requestAnimationFrame(updateMeter);
+        return;
+      }
+      lastFrameRef.current = now;
+
       const reduction = useMasterChainStore.getState().reduction;
 
       // Convert reduction (negative dB) to percentage (0-100)
@@ -29,6 +39,9 @@ export const GainReductionMeter: React.FC = () => {
       // Update DOM directly without triggering React re-render
       if (fillRef.current) {
         fillRef.current.style.height = `${percentage}%`;
+        fillRef.current.classList.toggle("blur-xs", !potatoMode);
+        fillRef.current.classList.toggle("transition-all", !potatoMode);
+        fillRef.current.classList.toggle("duration-75", !potatoMode);
       }
 
       if (textRef.current) {
@@ -44,7 +57,7 @@ export const GainReductionMeter: React.FC = () => {
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isPlaying]);
+  }, [isPlaying, potatoMode, frameInterval]);
 
   return (
     <Tooltip content="Gain reduction in dB" side="top">
