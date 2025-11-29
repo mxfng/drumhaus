@@ -1,7 +1,7 @@
 import {
-  CircleDot,
+  AudioLines,
+  CassetteTape,
   Grid3x3,
-  ListMusic,
   Pause,
   Play,
   Sliders,
@@ -50,7 +50,7 @@ export const MobileBottomNav: React.FC = () => {
         >
           <IconWithLabel
             icon={
-              <CircleDot
+              <AudioLines
                 size={20}
                 className={
                   activeTab === "instrument" ? "text-primary-muted" : ""
@@ -98,7 +98,7 @@ export const MobileBottomNav: React.FC = () => {
           className="hover:bg-surface-muted active:bg-surface-raised flex flex-col items-center justify-center rounded-lg py-2 transition-colors"
         >
           <IconWithLabel
-            icon={<ListMusic size={20} />}
+            icon={<CassetteTape size={20} />}
             label="PRESET"
             isActive={false}
           />

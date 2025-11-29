@@ -1,4 +1,4 @@
-import { Gauge, Sliders, Volume2, Wand2 } from "lucide-react";
+import { AudioWaveform, Turntable, Volume2, Waves } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
@@ -20,7 +20,7 @@ export const MobileBusContextMenu: React.FC = () => {
           size="sm"
           onClick={() => setBusSubTab("comp")}
         >
-          <Gauge size={16} />
+          <AudioWaveform size={16} />
           <span className="text-xs">COMP</span>
         </Button>
         <Button
@@ -31,7 +31,7 @@ export const MobileBusContextMenu: React.FC = () => {
           size="sm"
           onClick={() => setBusSubTab("fx")}
         >
-          <Wand2 size={16} />
+          <Waves size={16} />
           <span className="text-xs">FX</span>
         </Button>
         <Button
@@ -53,7 +53,7 @@ export const MobileBusContextMenu: React.FC = () => {
           size="sm"
           onClick={() => setBusSubTab("tempo")}
         >
-          <Sliders size={16} />
+          <Turntable size={16} />
           <span className="text-xs">TEMPO</span>
         </Button>
       </div>

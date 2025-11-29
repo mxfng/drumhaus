@@ -1,4 +1,4 @@
-import { Edit, Play } from "lucide-react";
+import { Drum, Edit, Play } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
@@ -22,7 +22,7 @@ export const MobileInstrumentContextMenu: React.FC = () => {
           onClick={() => setInstrumentMode("trigger")}
           size="sm"
         >
-          <Play size={16} />
+          <Drum size={16} />
           <span className="text-xs">TRIGGER MODE</span>
         </Button>
         <Button
