@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 
+import { transformKnobValueLinear } from "@/shared/knob/lib/transform";
 import { quantize } from "@/shared/lib/utils";
 import { Label, Tooltip } from "@/shared/ui";
-import { transformKnobValueLinear } from "../lib/knob/transform";
 
 type HardwareSliderProps = {
   title?: string;

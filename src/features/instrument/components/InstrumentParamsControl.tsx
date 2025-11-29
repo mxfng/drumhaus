@@ -5,14 +5,14 @@ import { now } from "tone/build/esm/index";
 import { INSTRUMENT_PAN_RANGE } from "@/core/audio/engine/constants";
 import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
-import ParamKnob from "@/shared/lib/knob/Knob";
+import { ParamKnob } from "@/shared/knob/Knob";
 import {
   instrumentAttackMapping,
   instrumentReleaseMapping,
   instrumentVolumeMapping,
   pitchMapping,
   splitFilterMapping,
-} from "@/shared/lib/knob/mapping";
+} from "@/shared/knob/lib/mapping";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Button, Tooltip } from "@/shared/ui";

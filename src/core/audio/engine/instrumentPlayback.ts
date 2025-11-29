@@ -4,7 +4,7 @@ import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
   instrumentReleaseMapping,
   pitchMapping,
-} from "@/shared/lib/knob/mapping";
+} from "@/shared/knob/lib/mapping";
 import { ensureAudioContextRunning } from "./audioContextManager";
 import { triggerInstrumentAtTime } from "./trigger";
 

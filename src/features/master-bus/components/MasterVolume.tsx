@@ -1,6 +1,6 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
-import ParamKnob from "@/shared/lib/knob/Knob";
-import { masterVolumeMapping } from "@/shared/lib/knob/mapping";
+import { ParamKnob } from "@/shared/knob/Knob";
+import { masterVolumeMapping } from "@/shared/knob/lib/mapping";
 
 export const MasterVolume: React.FC = () => {
   const masterVolume = useMasterChainStore((state) => state.masterVolume);
