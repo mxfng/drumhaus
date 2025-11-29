@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { PixelatedFrowny } from "@/components/common/PixelatedFrowny";
+import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
+import Waveform from "@/components/common/Waveform";
 import { Label } from "@/components/ui";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { PixelatedFrowny } from "../common/PixelatedFrowny";
-import { PixelatedSpinner } from "../common/PixelatedSpinner";
-import Waveform from "./Waveform";
 
 interface InstrumentHeaderProps {
   index: number;

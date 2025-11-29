@@ -9,17 +9,17 @@ import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
 import { DebugOverlay } from "./common/DebugOverlay";
 import FrequencyAnalyzer from "./common/FrequencyAnalyzer";
+import { InstrumentGrid } from "./controls/instrument/InstrumentGrid";
 import { MasterCompressor } from "./controls/master/MasterCompressor";
 import { MasterFX } from "./controls/master/MasterFX";
 import { MasterVolume } from "./controls/master/MasterVolume";
-import { PresetControl } from "./controls/PresetControl";
+import { PresetControl } from "./controls/preset/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
 import { MobileDialog } from "./dialog/MobileDialog";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
-import { InstrumentGrid } from "./instrument/InstrumentGrid";
 import { Sequencer } from "./sequencer/Sequencer";
 
 const Drumhaus = () => {

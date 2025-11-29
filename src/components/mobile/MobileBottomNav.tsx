@@ -1,4 +1,3 @@
-import type { MutableRefObject } from "react";
 import {
   CircleDot,
   Grid3x3,
@@ -10,25 +9,25 @@ import {
 
 import { IconWithLabel } from "@/components/mobile/common/IconWithLabel";
 import { Button } from "@/components/ui";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 import type { TabType } from "./MobileTabView";
 
 interface MobileBottomNavProps {
-  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   onMenuOpen: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-  instrumentRuntimes,
   activeTab,
   setActiveTab,
   onMenuOpen,
 }) => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
+
+  const { instrumentRuntimes } = useDrumhaus();
 
   return (
     <>

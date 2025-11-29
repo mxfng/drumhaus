@@ -2,6 +2,8 @@ import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 import { now } from "tone/build/esm/index";
 
+import { HardwareSlider } from "@/components/common/HardwareSlider";
+import ParamKnob from "@/components/common/Knob";
 import { Button, Tooltip } from "@/components/ui";
 import { INSTRUMENT_PAN_RANGE } from "@/lib/audio/engine/constants";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
@@ -16,8 +18,6 @@ import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { HardwareSlider } from "../common/HardwareSlider";
-import ParamKnob from "../common/Knob";
 
 interface InstrumentParamsProps {
   index: number;

@@ -1,11 +1,9 @@
-import type { MutableRefObject } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { MasterCompressor } from "@/components/controls/master/MasterCompressor";
 import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
-import type { InstrumentRuntime } from "@/types/instrument";
 import type { BusSubTab } from "./contextmenu/MobileBusContextMenu";
 import type { InstrumentMode } from "./contextmenu/MobileInstrumentContextMenu";
 import { MobileInstrumentGrid } from "./instrument/MobileInstrumentGrid";
@@ -14,8 +12,6 @@ import { MobileSequencer } from "./sequencer/MobileSequencer";
 export type TabType = "instrument" | "controls" | "bus";
 
 interface MobileTabViewProps {
-  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
-  instrumentRuntimesVersion: number;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   instrumentMode: InstrumentMode;
@@ -23,8 +19,6 @@ interface MobileTabViewProps {
 }
 
 export const MobileTabView: React.FC<MobileTabViewProps> = ({
-  instrumentRuntimes,
-  instrumentRuntimesVersion,
   activeTab,
   instrumentMode,
   busSubTab,
@@ -51,10 +45,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               className="absolute inset-0 flex h-full flex-col"
             >
               <div className="flex-1 overflow-hidden">
-                <MobileSequencer
-                  instrumentRuntimes={instrumentRuntimes}
-                  instrumentRuntimesVersion={instrumentRuntimesVersion}
-                />
+                <MobileSequencer />
               </div>
             </motion.div>
           )}
@@ -68,11 +59,7 @@ export const MobileTabView: React.FC<MobileTabViewProps> = ({
               transition={transitionConfig}
               className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
             >
-              <MobileInstrumentGrid
-                instrumentRuntimes={instrumentRuntimes}
-                instrumentRuntimesVersion={instrumentRuntimesVersion}
-                mode={instrumentMode}
-              />
+              <MobileInstrumentGrid mode={instrumentMode} />
             </motion.div>
           )}
           {activeTab === "bus" && (

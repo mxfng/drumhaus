@@ -1,20 +1,14 @@
-import React, { useState, type MutableRefObject } from "react";
+import React, { useState } from "react";
 
 import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndicator";
 import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
 import { MobileCompactSequencerRow } from "./MobileCompactSequencerRow";
 import { MobileInstrumentRowSelector } from "./MobileInstrumentRowSelector";
 
-interface MobileSequencerProps {
-  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
-  instrumentRuntimesVersion: number;
-}
-
-export const MobileSequencer: React.FC<MobileSequencerProps> = () => {
+export const MobileSequencer: React.FC = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);

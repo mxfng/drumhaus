@@ -1,5 +1,7 @@
-import { useCallback, useState, type MutableRefObject } from "react";
+import { useCallback, useState } from "react";
 
+import { InstrumentHeader } from "@/components/controls/instrument/InstrumentHeader";
+import { InstrumentParamsControl } from "@/components/controls/instrument/InstrumentParamsControl";
 import {
   Dialog,
   DialogCloseButton,
@@ -7,24 +9,20 @@ import {
   DialogTitle,
 } from "@/components/ui/Dialog";
 import { playInstrumentSample } from "@/lib/audio/engine";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
-import { InstrumentHeader } from "../../instrument/InstrumentHeader";
-import { InstrumentParamsControl } from "../../instrument/InstrumentParamsControl";
 import type { InstrumentMode } from "../contextmenu/MobileInstrumentContextMenu";
 
 interface MobileInstrumentGridProps {
-  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
-  instrumentRuntimesVersion: number;
   mode: InstrumentMode;
 }
 
 export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
-  instrumentRuntimes,
-  instrumentRuntimesVersion,
   mode,
 }) => {
+  const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
+
   const instruments = useInstrumentsStore((state) => state.instruments);
   const [editingVoiceIndex, setEditingVoiceIndex] = useState<number | null>(
     null,
@@ -56,7 +54,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
           const col = index % 2; // Which column (0-1)
           const flippedRow = 3 - row; // Flip row order
           const voiceIndex = flippedRow * 2 + col; // Calculate voiceIndex from flipped position
-          const runtime = instrumentRuntimes[voiceIndex];
+          const runtime = instrumentRuntimes.current[voiceIndex];
           const isLoaded = !!runtime;
 
           return (
@@ -97,7 +95,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
               <InstrumentHeader
                 index={editingVoiceIndex}
                 color={INSTRUMENT_COLORS[editingVoiceIndex]}
-                runtime={instrumentRuntimes[editingVoiceIndex]}
+                runtime={instrumentRuntimes.current[editingVoiceIndex]}
               />
             </div>
             <InstrumentParamsControl
@@ -105,7 +103,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
               index={editingVoiceIndex}
               instrumentIndex={editingVoiceIndex}
               mobile
-              runtime={instrumentRuntimes[editingVoiceIndex]}
+              runtime={instrumentRuntimes.current[editingVoiceIndex]}
             />
           </DialogContent>
         </Dialog>

@@ -19,8 +19,7 @@ import { MobilePresetMenu } from "./preset/MobilePresetMenu";
 
 const DrumhausMobile: React.FC = () => {
   // --- Context ---
-  const { instrumentRuntimes, instrumentRuntimesVersion, loadPreset } =
-    useDrumhaus();
+  const { loadPreset } = useDrumhaus();
   // State
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
@@ -88,8 +87,6 @@ const DrumhausMobile: React.FC = () => {
 
       {/* Tabbed View: Instrument / Controls */}
       <MobileTabView
-        instrumentRuntimes={instrumentRuntimes}
-        instrumentRuntimesVersion={instrumentRuntimesVersion}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         instrumentMode={instrumentMode}
@@ -107,7 +104,6 @@ const DrumhausMobile: React.FC = () => {
 
       {/* Bottom Navigation */}
       <MobileBottomNav
-        instrumentRuntimes={instrumentRuntimes}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onMenuOpen={() => setMenuOpen(true)}

@@ -7,6 +7,11 @@ import { useTransportStore } from "@/stores/useTransportStore";
 
 const MAX_REDUCTION_DB = -20; // Maximum gain reduction to display
 
+/**
+ * Gain reduction meter for the master compressor.
+ *
+ * This could be turned into a generalized meter if we de-couple the store state from the UI.
+ */
 export const GainReductionMeter: React.FC = () => {
   const fillRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
