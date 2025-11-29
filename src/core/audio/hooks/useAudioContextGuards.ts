@@ -15,6 +15,7 @@ export function useAudioContextGuards() {
   const timeoutsRef = useRef<number[]>([]);
 
   useEffect(() => {
+    let hasStartedOnce = false;
     const ENSURE_THROTTLE_MS = 250;
     const CHECK_DELAY_MS = [300, 900]; // check after initial delay, then again if still stalled
     const CTX_DELTA_THRESHOLD = 0.005; // seconds
@@ -51,6 +52,7 @@ export function useAudioContextGuards() {
           recoveryAttemptsRef.current += 1;
           if (
             recoveryAttemptsRef.current >= MAX_RECOVERY_ATTEMPTS &&
+            hasStartedOnce &&
             !reloadTriggeredRef.current
           ) {
             reloadTriggeredRef.current = true;
@@ -68,7 +70,12 @@ export function useAudioContextGuards() {
         return;
       }
       ensureThrottleRef.current = now;
-      void ensureAudioContextRunning(reason);
+      void ensureAudioContextRunning(reason).then((running) => {
+        if (running) {
+          hasStartedOnce = true;
+          recoveryAttemptsRef.current = 0;
+        }
+      });
     };
 
     const handleVisibility = () => {
