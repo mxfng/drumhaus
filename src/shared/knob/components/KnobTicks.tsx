@@ -11,10 +11,9 @@ const getKnobTickRotation = (
 
 interface KnobTicksProps {
   outerTickCount: number;
-  lowPower?: boolean;
 }
 
-export function KnobTicks({ outerTickCount, lowPower }: KnobTicksProps) {
+export function KnobTicks({ outerTickCount }: KnobTicksProps) {
   return (
     <>
       {Array.from({ length: outerTickCount }).map((_, idx) => {

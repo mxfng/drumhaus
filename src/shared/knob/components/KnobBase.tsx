@@ -176,7 +176,6 @@ export const Knob: React.FC<KnobProps> = ({
             outerTickCount={
               potatoMode ? Math.min(outerTickCount, 16) : outerTickCount
             }
-            lowPower={potatoMode}
           />
         </div>
       </Tooltip>
