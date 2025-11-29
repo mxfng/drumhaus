@@ -145,10 +145,35 @@ export function usePresetManager({
   const importPreset = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".dh";
+    input.accept = ".dh,.dh.json,application/json,application/octet-stream";
+    input.style.display = "none";
+
+    const cleanup = () => {
+      input.value = "";
+      input.onchange = null;
+      input.onerror = null;
+      input.remove();
+    };
+
     input.onchange = (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
+      if (!file) {
+        cleanup();
+        return;
+      }
+
+      const fileName = file.name.toLowerCase();
+      const isDh = fileName.endsWith(".dh") || fileName.endsWith(".dh.json");
+      if (!isDh) {
+        toast({
+          title: "Unsupported file",
+          description: "Please select a .dh preset file.",
+          status: "error",
+          duration: 6000,
+        });
+        cleanup();
+        return;
+      }
 
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -158,6 +183,11 @@ export function usePresetManager({
 
           const preset = parsePresetFile(result);
           loadPreset(preset);
+          toast({
+            title: "Preset loaded",
+            description: preset.meta.name,
+            status: "success",
+          });
         } catch (error) {
           console.error("Failed to import preset:", error);
           toast({
@@ -169,6 +199,8 @@ export function usePresetManager({
             status: "error",
             duration: 8000,
           });
+        } finally {
+          cleanup();
         }
       };
       reader.onerror = () => {
@@ -178,9 +210,12 @@ export function usePresetManager({
           status: "error",
           duration: 8000,
         });
+        cleanup();
       };
       reader.readAsText(file);
     };
+    input.onerror = cleanup;
+    document.body.appendChild(input);
     input.click();
   }, [loadPreset, toast]);
 
