@@ -2,10 +2,10 @@ import * as Popover from "@radix-ui/react-popover";
 import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
 import { Button } from "@/components/ui";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
 import { cn } from "@/lib/utils";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
+import { INSTRUMENT_COLORS } from "../../../features/instruments/lib/colors";
 
 interface MobileInstrumentRowSelectorProps {
   voiceIndex: number;

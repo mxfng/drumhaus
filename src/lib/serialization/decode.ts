@@ -1,4 +1,4 @@
-import type { KitFileV1 } from "@/types/instrument";
+import type { KitFileV1 } from "@/features/instruments/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 import { decodeCompactPreset, type CompactPreset } from "./compact";
 import { getDefaultKitLoader } from "./defaultKits";

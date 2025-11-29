@@ -1,4 +1,4 @@
-import type { InstrumentRuntime } from "@/types/instrument";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 
 /**
  * Internal Tone.js types for accessing private APIs.

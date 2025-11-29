@@ -1,3 +1,4 @@
+import { KitFileV1 } from "@/features/instruments/types/instrument";
 import drumhausKitJson from "@/lib/kit/defaults/drumhaus.dhkit";
 import eightiesKitJson from "@/lib/kit/defaults/eighties.dhkit";
 import funkKitJson from "@/lib/kit/defaults/funk.dhkit";
@@ -9,7 +10,6 @@ import techHouseKitJson from "@/lib/kit/defaults/tech_house.dhkit";
 import technoKitJson from "@/lib/kit/defaults/techno.dhkit";
 import trapKitJson from "@/lib/kit/defaults/trap.dhkit";
 import { validateKitFile } from "@/lib/kit/helpers";
-import type { KitFileV1 } from "@/types/instrument";
 
 /**
  * Kit loader functions

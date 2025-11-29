@@ -1,5 +1,9 @@
+import type {
+  InstrumentData,
+  InstrumentParams,
+  KitFileV1,
+} from "@/features/instruments/types/instrument";
 import { DEFAULT_VELOCITY, STEP_COUNT } from "@/lib/audio/engine/constants";
-import type { InstrumentParams, KitFileV1 } from "@/types/instrument";
 import type { Pattern, StepSequence } from "@/types/pattern";
 import type {
   MasterChainParams,
@@ -211,7 +215,9 @@ export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
   const compact: CompactPreset = {
     id: preset.meta.id, // Include the UUID (generated fresh when sharing)
     k: kitId,
-    ip: preset.kit.instruments.map((inst) => encodeParams(inst.params)),
+    ip: preset.kit.instruments.map((inst: InstrumentData) =>
+      encodeParams(inst.params),
+    ),
     pt: preset.sequencer.pattern.map((voice) => ({
       i: voice.instrumentIndex,
       a: encodeStepSequence(voice.variations[0]),

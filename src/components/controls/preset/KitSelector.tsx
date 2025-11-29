@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
-import type { KitFileV1 } from "@/types/instrument";
+import type { KitFileV1 } from "@/features/instruments/types/instrument";
 
 type KitSelectorProps = {
   selectedKitId: string;

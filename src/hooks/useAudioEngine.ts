@@ -1,5 +1,7 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import {
   connectInstrumentsToMasterChain,
   createDrumSequence,
@@ -16,14 +18,12 @@ import {
   waitForBuffersToLoad,
   type SequenceInstance,
 } from "@/lib/audio/engine";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 import { MasterChainParams } from "@/types/preset";
 
 interface UseAudioEngineResult {

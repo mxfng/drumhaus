@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import {
   releaseAllRuntimes,
   setTransportBpm,
@@ -10,7 +11,6 @@ import {
   startTransport,
   stopTransport,
 } from "@/lib/audio/engine";
-import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
   // Playback state

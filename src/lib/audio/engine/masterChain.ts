@@ -13,6 +13,7 @@ import {
   type ToneAudioNode,
 } from "tone/build/esm/index";
 
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import {
   compMixMapping,
   compRatioMapping,
@@ -24,7 +25,6 @@ import {
   reverbDecayMapping,
   reverbWetMapping,
 } from "@/lib/knob/mapping";
-import type { InstrumentRuntime } from "@/types/instrument";
 import type { MasterChainParams } from "@/types/preset";
 import {
   MASTER_COMP_ATTACK,

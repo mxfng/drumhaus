@@ -1,4 +1,4 @@
-import type { KitFileV1 } from "@/types/instrument";
+import { KitFileV1 } from "@/features/instruments/types/instrument";
 import * as kits from "./index";
 
 /**

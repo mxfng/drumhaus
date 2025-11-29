@@ -1,4 +1,4 @@
-import { KitFileV1 } from "@/types/instrument";
+import { KitFileV1 } from "@/features/instruments/types/instrument";
 
 /**
  * Validates a parsed kit file object

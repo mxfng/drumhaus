@@ -1,14 +1,14 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
 
 import { useToast } from "@/components/ui";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { init } from "@/lib/preset";
 import { getDefaultPresets } from "@/lib/preset/constants";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { useMasterChainStore } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 
 interface UsePresetLoadingProps {

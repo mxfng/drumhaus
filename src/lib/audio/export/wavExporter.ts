@@ -2,11 +2,14 @@
 
 import { Offline } from "tone/build/esm/index";
 
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type {
+  InstrumentData,
+  InstrumentRuntime,
+} from "@/features/instruments/types/instrument";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { VariationCycle } from "@/types/preset";
 import {
   EXPORT_CHANNEL_COUNT,

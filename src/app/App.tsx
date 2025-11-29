@@ -11,12 +11,14 @@ import { GlobalErrorHandler } from "@/providers/GlobalErrorHandler";
 
 // Dynamically import Drumhaus component
 const DrumhausProvider = lazy(() =>
-  import("./providers/DrumhausProvider").then((module) => ({
+  import("../providers/DrumhausProvider").then((module) => ({
     default: module.DrumhausProvider,
   })),
 );
-const Drumhaus = lazy(() => import("./components/Drumhaus"));
-const DrumhausMobile = lazy(() => import("./components/mobile/DrumhausMobile"));
+const Drumhaus = lazy(() => import("../components/Drumhaus"));
+const DrumhausMobile = lazy(
+  () => import("../components/mobile/DrumhausMobile"),
+);
 
 function DrumhausFallback() {
   return (

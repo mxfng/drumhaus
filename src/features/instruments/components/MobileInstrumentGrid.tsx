@@ -1,18 +1,18 @@
 import { useCallback, useState } from "react";
 
-import { InstrumentHeader } from "@/components/controls/instrument/InstrumentHeader";
-import { InstrumentParamsControl } from "@/components/controls/instrument/InstrumentParamsControl";
 import {
   Dialog,
   DialogCloseButton,
   DialogContent,
   DialogTitle,
 } from "@/components/ui/Dialog";
+import { InstrumentHeader } from "@/features/instruments/components/InstrumentHeader";
+import { InstrumentParamsControl } from "@/features/instruments/components/InstrumentParamsControl";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
-import type { InstrumentMode } from "../contextmenu/MobileInstrumentContextMenu";
+import type { InstrumentMode } from "../../../components/mobile/contextmenu/MobileInstrumentContextMenu";
+import { INSTRUMENT_COLORS } from "../lib/colors";
 
 interface MobileInstrumentGridProps {
   mode: InstrumentMode;

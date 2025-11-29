@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { getCurrentStepFromTransport } from "@/lib/audio/transport";
+import { getCurrentStepFromTransport } from "@/lib/audio/engine/transport";
 import { cn } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 

@@ -1,6 +1,9 @@
 import { now } from "tone/build/esm/index";
 
-import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
+import type {
+  InstrumentData,
+  InstrumentRuntime,
+} from "@/features/instruments/types/instrument";
 import { stopRuntimeAtTime } from "./runtimeStops";
 
 /**

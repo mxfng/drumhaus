@@ -1,7 +1,7 @@
 import { now } from "tone/build/esm/index";
 
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { instrumentReleaseMapping, pitchMapping } from "@/lib/knob/mapping";
-import type { InstrumentRuntime } from "@/types/instrument";
 import { triggerInstrumentAtTime } from "./trigger";
 
 /**

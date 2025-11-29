@@ -5,6 +5,8 @@ import { now } from "tone/build/esm/index";
 import { HardwareSlider } from "@/components/common/HardwareSlider";
 import ParamKnob from "@/components/common/Knob";
 import { Button, Tooltip } from "@/components/ui";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { INSTRUMENT_PAN_RANGE } from "@/lib/audio/engine/constants";
 import { stopRuntimeAtTime } from "@/lib/audio/engine/runtimeStops";
 import {
@@ -16,8 +18,6 @@ import {
 } from "@/lib/knob/mapping";
 import { cn } from "@/lib/utils";
 import { useDialogStore } from "@/stores/useDialogStore";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 
 interface InstrumentParamsProps {
   index: number;

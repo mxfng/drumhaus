@@ -1,4 +1,4 @@
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
 import { getMasterChainParams } from "@/stores/useMasterChainStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { useTransportStore } from "@/stores/useTransportStore";

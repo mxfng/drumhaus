@@ -1,6 +1,8 @@
 import { useCallback, useMemo } from "react";
 
 import { useToast } from "@/components/ui";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { KitFileV1 } from "@/features/instruments/types/instrument";
 import { getAllKits } from "@/lib/kit/constants";
 import { getDefaultPresets } from "@/lib/preset/constants";
 import {
@@ -10,9 +12,7 @@ import {
   parsePresetFile,
 } from "@/lib/preset/operations";
 import { useDialogStore } from "@/stores/useDialogStore";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
-import type { KitFileV1 } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 
 interface UsePresetManagerProps {

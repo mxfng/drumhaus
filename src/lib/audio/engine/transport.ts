@@ -1,8 +1,15 @@
-import { getContext, getTransport, now, start } from "tone/build/esm/index";
+import {
+  getContext,
+  getTransport,
+  now,
+  start,
+  Ticks,
+} from "tone/build/esm/index";
 
-import type { InstrumentRuntime } from "@/types/instrument";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import {
   SEQUENCE_SUBDIVISION,
+  STEP_COUNT,
   TRANSPORT_SWING_MAX,
   TRANSPORT_SWING_RANGE,
 } from "./constants";
@@ -75,4 +82,16 @@ export function releaseAllRuntimes(
  */
 export function getCurrentTime(): number {
   return now();
+}
+
+/**
+ * Calculate current step index (0-15) from transport ticks
+ * Use this directly in requestAnimationFrame loops to avoid React re-renders
+ */
+export function getCurrentStepFromTransport(): number {
+  const transport = getTransport();
+  const ticks = transport.ticks;
+  const ticksPerStep = Ticks(SEQUENCE_SUBDIVISION).valueOf();
+  const currentStep = Math.floor(ticks / ticksPerStep) % STEP_COUNT;
+  return currentStep;
 }

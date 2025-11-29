@@ -1,4 +1,4 @@
-import type { KitFileV1 } from "@/types/instrument";
+import type { KitFileV1 } from "@/features/instruments/types/instrument";
 import type { Pattern } from "@/types/pattern";
 import { Meta } from "./meta";
 

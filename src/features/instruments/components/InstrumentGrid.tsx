@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { INSTRUMENT_COLORS } from "@/lib/instrumentColors";
+import { INSTRUMENT_COLORS } from "@/features/instruments/lib/colors";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePatternStore } from "@/stores/usePatternStore";

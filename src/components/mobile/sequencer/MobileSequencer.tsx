@@ -4,7 +4,7 @@ import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndi
 import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
+import { INSTRUMENT_COLORS } from "../../../features/instruments/lib/colors";
 import { MobileCompactSequencerRow } from "./MobileCompactSequencerRow";
 import { MobileInstrumentRowSelector } from "./MobileInstrumentRowSelector";
 

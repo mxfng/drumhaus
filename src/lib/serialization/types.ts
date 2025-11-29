@@ -1,4 +1,4 @@
-import type { InstrumentParams } from "@/types/instrument";
+import type { InstrumentParams } from "@/features/instruments/types/instrument";
 import type { Meta } from "@/types/meta";
 import type {
   MasterChainParams,

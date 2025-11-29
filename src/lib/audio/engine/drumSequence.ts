@@ -1,8 +1,11 @@
 import { Time } from "tone/build/esm/index";
 
+import type {
+  InstrumentData,
+  InstrumentRuntime,
+} from "@/features/instruments/types/instrument";
 import { pitchMapping } from "@/lib/knob/mapping";
 import { transformKnobValueExponential } from "@/lib/knob/transform";
-import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
 import type { Pattern, Voice } from "@/types/pattern";
 import type { VariationCycle } from "@/types/preset";
 import {

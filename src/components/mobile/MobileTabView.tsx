@@ -5,7 +5,7 @@ import { MasterFX } from "@/components/controls/master/MasterFX";
 import { MasterVolume } from "@/components/controls/master/MasterVolume";
 import { TransportControl } from "@/components/controls/TransportControl";
 import { useMobileNavStore } from "@/stores/useMobileNavStore";
-import { MobileInstrumentGrid } from "./instrument/MobileInstrumentGrid";
+import { MobileInstrumentGrid } from "../../features/instruments/components/MobileInstrumentGrid";
 import { MobileSequencer } from "./sequencer/MobileSequencer";
 
 export type TabType = "instrument" | "controls" | "bus";

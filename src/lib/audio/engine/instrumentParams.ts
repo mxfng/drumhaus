@@ -1,3 +1,5 @@
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import {
   instrumentAttackMapping,
   instrumentPanMapping,
@@ -5,8 +7,6 @@ import {
   splitFilterMapping,
 } from "@/lib/knob/mapping";
 import { KNOB_ROTATION_THRESHOLD_L } from "@/lib/knob/transform";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 
 /**
  * Instrument parameters fall into two categories:

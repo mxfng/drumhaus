@@ -5,7 +5,7 @@
  * making it testable without those dependencies.
  */
 
-import type { InstrumentData } from "@/types/instrument";
+import type { InstrumentData } from "@/features/instruments/types/instrument";
 import type { Voice } from "@/types/pattern";
 
 // =============================================================================

@@ -1,5 +1,5 @@
+import type { KitFileV1 } from "@/features/instruments/types/instrument";
 import * as kitLoaders from "@/lib/kit";
-import type { KitFileV1 } from "@/types/instrument";
 
 type DefaultKitDefinition = {
   id: string;

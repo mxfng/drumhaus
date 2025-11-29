@@ -4,10 +4,10 @@ import { PixelatedFrowny } from "@/components/common/PixelatedFrowny";
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import Waveform from "@/components/common/Waveform";
 import { Label } from "@/components/ui";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { playInstrumentSample } from "@/lib/audio/engine";
 import { cn } from "@/lib/utils";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 
 interface InstrumentHeaderProps {
   index: number;

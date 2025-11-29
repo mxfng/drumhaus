@@ -6,7 +6,10 @@ import {
   Sampler,
 } from "tone/build/esm/index";
 
-import type { InstrumentData, InstrumentRuntime } from "@/types/instrument";
+import type {
+  InstrumentData,
+  InstrumentRuntime,
+} from "@/features/instruments/types/instrument";
 import { getCachedAudioUrl, preCacheAudioFiles } from "../cache";
 import {
   ENVELOPE_DEFAULT_ATTACK,

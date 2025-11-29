@@ -1,8 +1,8 @@
 import { RefObject, useEffect } from "react";
 
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
-import type { InstrumentRuntime } from "@/types/instrument";
 
 interface UseKeyboardShortcutsProps {
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;

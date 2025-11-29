@@ -1,8 +1,8 @@
+import { InstrumentHeader } from "@/features/instruments/components/InstrumentHeader";
+import { InstrumentParamsControl } from "@/features/instruments/components/InstrumentParamsControl";
+import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import type { InstrumentRuntime } from "@/features/instruments/types/instrument";
 import { cn } from "@/lib/utils";
-import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
-import type { InstrumentRuntime } from "@/types/instrument";
-import { InstrumentHeader } from "./InstrumentHeader";
-import { InstrumentParamsControl } from "./InstrumentParamsControl";
 
 type InstrumentControlParams = {
   runtime?: InstrumentRuntime;
