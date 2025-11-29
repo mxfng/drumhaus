@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 
 import { clamp, cn, quantize } from "@/shared/lib/utils";
+import { Label } from "@/shared/ui";
 import {
   KNOB_OUTER_TICK_COUNT_DEFAULT,
   KNOB_ROTATION_RANGE_DEGREES,
@@ -9,9 +10,8 @@ import {
   KNOB_VALUE_DEFAULT,
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
-} from "../lib/knob/constants";
-import { ParamMapping } from "../lib/knob/types";
-import { Label } from "../ui";
+} from "./constants";
+import { ParamMapping } from "./types";
 
 export type KnobSize = "default" | "lg";
 

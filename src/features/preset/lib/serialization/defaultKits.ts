@@ -1,4 +1,4 @@
-import * as kitLoaders from "@/features/kit/lib";
+import * as kitLoaders from "@/core/dhkit";
 import { KitFileV1 } from "@/features/kit/types/kit";
 
 type DefaultKitDefinition = {

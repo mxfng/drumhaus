@@ -11,7 +11,7 @@ import type {
   Voice,
 } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
-import { init } from "..";
+import { init } from "../../../../core/dh";
 import { PresetFileV1 } from "../../types/preset";
 import { compactCodeToKitId, kitIdToCompactCode } from "./defaultKits";
 

@@ -1,5 +1,5 @@
+import * as kits from "../../../core/dhkit/index";
 import { KitFileV1 } from "../types/kit";
-import * as kits from "./index";
 
 /**
  * All available kits in the application

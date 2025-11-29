@@ -1,4 +1,4 @@
-import * as presets from "@/features/preset/lib/index";
+import * as presets from "@/core/dh/index";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 
 /**

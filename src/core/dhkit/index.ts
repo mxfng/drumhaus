@@ -1,15 +1,15 @@
-import drumhausKitJson from "@/features/kit/lib/defaults/drumhaus.dhkit";
-import eightiesKitJson from "@/features/kit/lib/defaults/eighties.dhkit";
-import funkKitJson from "@/features/kit/lib/defaults/funk.dhkit";
-import indieKitJson from "@/features/kit/lib/defaults/indie.dhkit";
-import jungleKitJson from "@/features/kit/lib/defaults/jungle.dhkit";
-import organicKitJson from "@/features/kit/lib/defaults/organic.dhkit";
-import rnbKitJson from "@/features/kit/lib/defaults/rnb.dhkit";
-import techHouseKitJson from "@/features/kit/lib/defaults/tech_house.dhkit";
-import technoKitJson from "@/features/kit/lib/defaults/techno.dhkit";
-import trapKitJson from "@/features/kit/lib/defaults/trap.dhkit";
 import { validateKitFile } from "@/features/kit/lib/helpers";
 import { KitFileV1 } from "@/features/kit/types/kit";
+import drumhausKitJson from "./defaults/drumhaus.dhkit";
+import eightiesKitJson from "./defaults/eighties.dhkit";
+import funkKitJson from "./defaults/funk.dhkit";
+import indieKitJson from "./defaults/indie.dhkit";
+import jungleKitJson from "./defaults/jungle.dhkit";
+import organicKitJson from "./defaults/organic.dhkit";
+import rnbKitJson from "./defaults/rnb.dhkit";
+import techHouseKitJson from "./defaults/tech_house.dhkit";
+import technoKitJson from "./defaults/techno.dhkit";
+import trapKitJson from "./defaults/trap.dhkit";
 
 /**
  * Kit loader functions

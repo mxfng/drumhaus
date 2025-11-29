@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { drumhaus } from "@/features/kit/lib";
+import { drumhaus } from "@/core/dhkit";
 import { InstrumentData, InstrumentParams } from "../types/instrument";
 
 interface InstrumentsState {

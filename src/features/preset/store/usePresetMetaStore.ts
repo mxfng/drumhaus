@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { init } from "@/features/preset/lib";
+import { init } from "@/core/dh";
 import { getCurrentPreset } from "@/features/preset/lib/helpers";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
