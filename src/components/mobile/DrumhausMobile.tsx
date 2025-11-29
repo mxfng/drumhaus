@@ -1,16 +1,12 @@
 import { useState } from "react";
 
-import { AboutDialog } from "@/components/dialog/AboutDialog";
 import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPresetDialog";
 import { ExportDialog } from "@/components/dialog/ExportDialog";
 import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
-import { useRemoveInitialLoader } from "@/hooks/ui/useRemoveInitialLoader";
+import { useDrumhaus } from "@/components/DrumhausProvider";
 import { useScrollLock } from "@/hooks/ui/useScrollLock";
-import { useAudioEngine } from "@/hooks/useAudioEngine";
-import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { usePresetManager } from "@/hooks/usePresetManager";
-import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { type BusSubTab } from "./contextmenu/MobileBusContextMenu";
@@ -22,6 +18,9 @@ import { MobileTabView, type TabType } from "./MobileTabView";
 import { MobilePresetMenu } from "./preset/MobilePresetMenu";
 
 const DrumhausMobile: React.FC = () => {
+  // --- Context ---
+  const { instrumentRuntimes, instrumentRuntimesVersion, loadPreset } =
+    useDrumhaus();
   // State
   const [menuOpen, setMenuOpen] = useState(false); // Preset action menu
   const [activeTab, setActiveTab] = useState<TabType>("controls");
@@ -43,15 +42,6 @@ const DrumhausMobile: React.FC = () => {
   );
   const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
 
-  // Service Worker for caching
-  useServiceWorker();
-
-  // Audio Engine
-  const { instrumentRuntimes, instrumentRuntimesVersion } = useAudioEngine();
-
-  // Preset Loading
-  const { loadPreset } = usePresetLoading({ instrumentRuntimes });
-
   // Preset Manager
   const {
     kits,
@@ -65,11 +55,8 @@ const DrumhausMobile: React.FC = () => {
     sharePreset,
   } = usePresetManager({ loadPreset });
 
-  // --- Misc UI hooks ---
+  // --- Mobile-specific UI hooks ---
   useScrollLock(true);
-
-  // Since this is the root layout we need to remove the initial loader
-  useRemoveInitialLoader();
 
   // --- Handlers ---
 
@@ -101,7 +88,7 @@ const DrumhausMobile: React.FC = () => {
 
       {/* Tabbed View: Instrument / Controls */}
       <MobileTabView
-        instrumentRuntimes={instrumentRuntimes.current}
+        instrumentRuntimes={instrumentRuntimes}
         instrumentRuntimesVersion={instrumentRuntimesVersion}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -120,7 +107,7 @@ const DrumhausMobile: React.FC = () => {
 
       {/* Bottom Navigation */}
       <MobileBottomNav
-        instrumentRuntimes={instrumentRuntimes.current}
+        instrumentRuntimes={instrumentRuntimes}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onMenuOpen={() => setMenuOpen(true)}
@@ -141,7 +128,6 @@ const DrumhausMobile: React.FC = () => {
       />
 
       {/* Dialogs */}
-      <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
       <SaveDialog
         isOpen={activeDialog === "save"}
         onClose={closeDialog}

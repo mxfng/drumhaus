@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, type MutableRefObject } from "react";
 
 import {
   Dialog,
@@ -9,13 +9,13 @@ import {
 import { playInstrumentSample } from "@/lib/audio/engine";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import type { InstrumentRuntime } from "@/types/instrument";
-import { INSTRUMENT_COLORS } from "../../instrument/instrumentColors";
+import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
 import { InstrumentHeader } from "../../instrument/InstrumentHeader";
 import { InstrumentParamsControl } from "../../instrument/InstrumentParamsControl";
 import type { InstrumentMode } from "../contextmenu/MobileInstrumentContextMenu";
 
 interface MobileInstrumentGridProps {
-  instrumentRuntimes: InstrumentRuntime[];
+  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
   mode: InstrumentMode;
 }
@@ -32,7 +32,7 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
 
   const handleInstrumentClick = useCallback(
     (voiceIndex: number) => {
-      const runtime = instrumentRuntimes[voiceIndex];
+      const runtime = instrumentRuntimes.current[voiceIndex];
 
       if (mode === "trigger" && runtime) {
         // Trigger mode: play the sample

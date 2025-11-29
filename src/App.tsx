@@ -12,8 +12,13 @@ import { ToastProvider, TooltipProvider } from "@/components/ui";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
 
 // Dynamically import Drumhaus component
+const DrumhausProvider = lazy(() =>
+  import("./components/DrumhausProvider/DrumhausProvider").then((module) => ({
+    default: module.DrumhausProvider,
+  })),
+);
 const Drumhaus = lazy(() => import("./components/Drumhaus"));
-const DrumhausMobile = lazy(() => import("./components/DrumhausMobile"));
+const DrumhausMobile = lazy(() => import("./components/mobile/DrumhausMobile"));
 
 function DrumhausFallback() {
   return (
@@ -75,13 +80,15 @@ export function App() {
           <GlobalErrorHandler />
 
           <Suspense fallback={<DrumhausFallback />}>
-            {isMobile ? (
-              <DrumhausMobile />
-            ) : (
-              <div className="h-screen w-screen overflow-auto">
-                <Drumhaus />
-              </div>
-            )}
+            <DrumhausProvider>
+              {isMobile ? (
+                <DrumhausMobile />
+              ) : (
+                <div className="h-screen w-screen overflow-auto">
+                  <Drumhaus />
+                </div>
+              )}
+            </DrumhausProvider>
           </Suspense>
         </AppErrorBoundary>
       </ToastProvider>

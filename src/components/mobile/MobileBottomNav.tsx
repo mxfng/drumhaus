@@ -1,3 +1,4 @@
+import type { MutableRefObject } from "react";
 import {
   CircleDot,
   Grid3x3,
@@ -14,7 +15,7 @@ import type { InstrumentRuntime } from "@/types/instrument";
 import type { TabType } from "./MobileTabView";
 
 interface MobileBottomNavProps {
-  instrumentRuntimes: InstrumentRuntime[];
+  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;
   onMenuOpen: () => void;
@@ -72,7 +73,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <Button
           variant="hardware"
           className="neu-medium-raised h-full rounded-lg shadow-lg"
-          onClick={() => togglePlay(instrumentRuntimes)}
+          onClick={() => togglePlay(instrumentRuntimes.current)}
         >
           {isPlaying ? (
             <Pause fill="currentColor" size={32} strokeWidth={1} />

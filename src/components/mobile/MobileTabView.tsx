@@ -1,3 +1,4 @@
+import type { MutableRefObject } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { MasterCompressor } from "@/components/controls/master/MasterCompressor";
@@ -13,7 +14,7 @@ import { MobileSequencer } from "./sequencer/MobileSequencer";
 export type TabType = "instrument" | "controls" | "bus";
 
 interface MobileTabViewProps {
-  instrumentRuntimes: InstrumentRuntime[];
+  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
   activeTab: TabType;
   setActiveTab: (tab: TabType) => void;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { useInstrumentsStore } from "@/stores/useInstrumentsStore";
 import { usePatternStore } from "@/stores/usePatternStore";
-import { INSTRUMENT_COLORS } from "../../instrument/instrumentColors";
+import { INSTRUMENT_COLORS } from "../../../lib/instrumentColors";
 
 interface MobileInstrumentRowSelectorProps {
   voiceIndex: number;

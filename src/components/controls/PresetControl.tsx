@@ -1,7 +1,7 @@
+import { useDrumhaus } from "@/components/DrumhausProvider";
 import { usePresetManager } from "@/hooks/usePresetManager";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
-import type { PresetFileV1 } from "@/types/preset";
 import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";
 import { ExportDialog } from "../dialog/ExportDialog";
 import { SaveDialog } from "../dialog/SaveDialog";
@@ -10,11 +10,8 @@ import { KitSelector } from "./preset/KitSelector";
 import { PresetActions } from "./preset/PresetActions";
 import { PresetSelector } from "./preset/PresetSelector";
 
-interface PresetControlProps {
-  loadPreset: (preset: PresetFileV1) => void;
-}
-
-export const PresetControl: React.FC<PresetControlProps> = ({ loadPreset }) => {
+export const PresetControl: React.FC = () => {
+  const { loadPreset } = useDrumhaus();
   const {
     kits,
     defaultPresets,
