@@ -25,6 +25,7 @@ import {
   updateMasterChainParams,
   waitForBuffersToLoad,
 } from "../engine";
+import { useAudioContextGuards } from "./useAudioContextGuards";
 
 interface UseAudioEngineResult {
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;
@@ -32,6 +33,9 @@ interface UseAudioEngineResult {
 }
 
 export function useAudioEngine(): UseAudioEngineResult {
+  // Guard and recover audio context automatically (visibility/gestures/stall)
+  useAudioContextGuards();
+
   // Audio engine refs (Tone.js runtime nodes)
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);

@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { getContext, getTransport } from "tone";
 
+import { getAudioContextHealth } from "@/core/audio/engine";
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
 
 interface DebugStats {
   fps: number;
   heapMB: number | null;
-  bpm: number;
   transportState: string;
   position: string;
   audioTime: number;
+  audioState: string;
+  resumedAgoSeconds: number | null;
 }
 
 export const DebugOverlay = () => {
@@ -17,10 +19,11 @@ export const DebugOverlay = () => {
   const [stats, setStats] = useState<DebugStats>({
     fps: 0,
     heapMB: null,
-    bpm: 0,
     transportState: "stopped",
     position: "0:0:0",
     audioTime: 0,
+    audioState: "unknown",
+    resumedAgoSeconds: null,
   });
 
   const frameTimesRef = useRef<number[]>([]);
@@ -60,7 +63,6 @@ export const DebugOverlay = () => {
 
       // Get Tone.js transport info
       const transport = getTransport();
-      const bpm = Math.round(transport.bpm.value);
       const transportState = transport.state;
       const position = transport.position.toString().split(".")[0];
 
@@ -68,7 +70,21 @@ export const DebugOverlay = () => {
       const ctx = getContext();
       const audioTime = Math.round(ctx.currentTime * 10) / 10;
 
-      setStats({ fps, heapMB, bpm, transportState, position, audioTime });
+      const health = getAudioContextHealth();
+      const resumedAgoSeconds =
+        health.lastResume !== null
+          ? Math.max((performance.now() - health.lastResume) / 1000, 0)
+          : null;
+
+      setStats({
+        fps,
+        heapMB,
+        transportState,
+        position,
+        audioTime,
+        audioState: health.state,
+        resumedAgoSeconds,
+      });
       animationId = requestAnimationFrame(updateStats);
     };
 
@@ -96,10 +112,6 @@ export const DebugOverlay = () => {
           </div>
         )}
         <div className="flex justify-between gap-4">
-          <span className="opacity-70">BPM</span>
-          <span>{stats.bpm}</span>
-        </div>
-        <div className="flex justify-between gap-4">
           <span className="opacity-70">State</span>
           <span className="capitalize">{stats.transportState}</span>
         </div>
@@ -111,6 +123,16 @@ export const DebugOverlay = () => {
           <span className="opacity-70">Audio</span>
           <span>{stats.audioTime}s</span>
         </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Ctx</span>
+          <span className="capitalize">{stats.audioState}</span>
+        </div>
+        {stats.resumedAgoSeconds !== null && (
+          <div className="flex justify-between gap-4">
+            <span className="opacity-70">Resumed</span>
+            <span>{stats.resumedAgoSeconds.toFixed(1)}s ago</span>
+          </div>
+        )}
       </div>
     </div>
   );
