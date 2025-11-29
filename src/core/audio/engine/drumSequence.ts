@@ -36,6 +36,52 @@ type InstrumentRuntimePair = {
   runtime: InstrumentRuntime;
 };
 
+type PrecomputedHit = {
+  voice: Voice;
+  velocity: number;
+};
+
+type PrecomputedPattern = {
+  version: number;
+  stepsByVariation: PrecomputedHit[][][]; // [variation][step][hits]
+};
+
+function buildPrecomputedPattern(
+  pattern: Pattern,
+  version: number,
+): PrecomputedPattern {
+  const stepsByVariation: PrecomputedHit[][][] = [
+    Array.from({ length: STEP_COUNT }, () => []),
+    Array.from({ length: STEP_COUNT }, () => []),
+  ];
+
+  for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
+    const voice = pattern[voiceIndex];
+
+    for (
+      let variationIndex = 0;
+      variationIndex < voice.variations.length;
+      variationIndex++
+    ) {
+      const variation = voice.variations[variationIndex];
+
+      for (let step = 0; step < STEP_COUNT; step++) {
+        if (!variation.triggers[step]) continue;
+
+        stepsByVariation[variationIndex][step].push({
+          voice,
+          velocity: variation.velocities[step],
+        });
+      }
+    }
+  }
+
+  return {
+    version,
+    stepsByVariation,
+  };
+}
+
 // -----------------------------------------------------------------------------
 // Public API: sequence lifecycle
 // -----------------------------------------------------------------------------
@@ -54,13 +100,25 @@ export function createDrumSequence(
 ): void {
   disposeDrumSequence(sequencerRef);
 
+  let precomputedPattern = buildPrecomputedPattern(
+    stateProvider.pattern.getPattern(),
+    stateProvider.pattern.getPatternVersion(),
+  );
+
   sequencerRef.current = sequencerFactory
     .createSequence(
       (time, step: number) => {
         // Grab fresh state every 16th note for responsive UI + audio
         const instruments = stateProvider.instruments.getInstruments();
-        const pattern = stateProvider.pattern.getPattern();
         const currentRuntimes = instrumentRuntimes.current;
+
+        const currentPatternVersion = stateProvider.pattern.getPatternVersion();
+        if (currentPatternVersion !== precomputedPattern.version) {
+          precomputedPattern = buildPrecomputedPattern(
+            stateProvider.pattern.getPattern(),
+            currentPatternVersion,
+          );
+        }
 
         const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
@@ -81,18 +139,22 @@ export function createDrumSequence(
 
         const variationIndex = currentVariation.current;
 
-        // Schedule all voices - same path as offline playback
-        schedulePatternStep(
-          pattern,
-          step,
-          Time(time).toSeconds(),
-          variationIndex,
-          instruments,
-          currentRuntimes,
-          anySolos,
-          hasOhat,
-          ohatIndex,
-        );
+        const hitsForStep =
+          precomputedPattern.stepsByVariation[variationIndex][step];
+
+        if (hitsForStep.length > 0) {
+          schedulePrecomputedStep(
+            hitsForStep,
+            step,
+            Time(time).toSeconds(),
+            variationIndex,
+            anySolos,
+            hasOhat,
+            ohatIndex,
+            instruments,
+            currentRuntimes,
+          );
+        }
 
         if (isLastStep) {
           updateBarIndexAtEndOfBar(variationCycle, currentBar);
@@ -207,16 +269,18 @@ function scheduleVoiceCore(
   runtime: InstrumentRuntime,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
+  velocityOverride?: number,
+  skipTriggerCheck = false,
 ): void {
   const params = inst.params;
   const variation = voice.variations[variationIndex];
   const triggers = variation.triggers;
   const velocities = variation.velocities;
 
-  if (!triggers[step]) return;
+  if (!skipTriggerCheck && !triggers[step]) return;
   if ((anySolos && !params.solo) || params.mute) return;
 
-  const velocity = velocities[step];
+  const velocity = velocityOverride ?? velocities[step];
   // Per-note params: read fresh from store for each trigger
   const pitch = pitchMapping.knobToDomain(params.pitch);
   const releaseTime = instrumentReleaseMapping.knobToDomain(params.release);
@@ -267,6 +331,43 @@ export function scheduleVoiceAtTime(
     instruments,
     runtimes,
   );
+}
+
+function schedulePrecomputedStep(
+  hits: PrecomputedHit[],
+  step: number,
+  timeSeconds: number,
+  variationIndex: number,
+  anySolos: boolean,
+  hasOhat: boolean,
+  ohatIndex: number,
+  instruments: InstrumentData[],
+  runtimes: InstrumentRuntime[],
+): void {
+  for (let i = 0; i < hits.length; i++) {
+    const { voice, velocity } = hits[i];
+    const result = getInstrumentAndRuntime(voice, instruments, runtimes);
+    if (!result) continue;
+
+    const { inst, runtime } = result;
+    if (!runtime.samplerNode.loaded) continue;
+
+    scheduleVoiceCore(
+      voice,
+      step,
+      timeSeconds,
+      variationIndex,
+      anySolos,
+      hasOhat,
+      ohatIndex,
+      inst,
+      runtime,
+      instruments,
+      runtimes,
+      velocity,
+      true,
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -406,6 +507,7 @@ export function createOfflineSequence(
 ): SequenceInstance {
   const anySolos = hasAnySolo(instruments);
   const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
+  const precomputedPattern = buildPrecomputedPattern(pattern, 0);
 
   let currentBar = 0;
   let currentVariation = computeNextVariationIndex(variationCycle, 0, 0);
@@ -431,17 +533,21 @@ export function createOfflineSequence(
         }
 
         // Schedule all voices - uses same path as live playback
-        schedulePatternStep(
-          pattern,
-          step,
-          Time(time).toSeconds(),
-          currentVariation,
-          instruments,
-          runtimes,
-          anySolos,
-          hasOhat,
-          ohatIndex,
-        );
+        const hitsForStep =
+          precomputedPattern.stepsByVariation[currentVariation][step];
+        if (hitsForStep.length > 0) {
+          schedulePrecomputedStep(
+            hitsForStep,
+            step,
+            Time(time).toSeconds(),
+            currentVariation,
+            anySolos,
+            hasOhat,
+            ohatIndex,
+            instruments,
+            runtimes,
+          );
+        }
 
         totalStepsScheduled++;
 

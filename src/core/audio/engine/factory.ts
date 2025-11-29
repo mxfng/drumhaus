@@ -36,6 +36,7 @@ export function createStateProvider(): DrumSequenceStateProvider {
     },
     pattern: {
       getPattern: () => usePatternStore.getState().pattern,
+      getPatternVersion: () => usePatternStore.getState().patternVersion,
       getPlaybackVariation: () => usePatternStore.getState().playbackVariation,
       setPlaybackVariation: (index: number) =>
         usePatternStore.getState().setPlaybackVariation(index),
