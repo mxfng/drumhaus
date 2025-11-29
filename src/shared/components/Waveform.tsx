@@ -20,9 +20,11 @@ const Waveform: React.FC<WaveformProps> = ({
   onError,
   onLoad,
 }) => {
-  // Remove the leading directory and .wav file type from string
-  // Filenames for waveforms are auto-generated and thus have the same name as the audio file
-  const sampleFilename = (audioFile.split("/").pop() || "").split(".")[0] || "";
+  // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
+  const normalizedPath = audioFile
+    .replace(/^\/+/, "")
+    .replace(/^samples\//, "");
+  const sampleFilename = normalizedPath.replace(/\.[^.]+$/, "");
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);

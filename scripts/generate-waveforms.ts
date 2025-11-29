@@ -3,8 +3,8 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { bucketizeAmplitude } from "../src/core/audio/cache";
 import { WAVEFORM_BUCKET_COUNT } from "../src/core/audio/cache/constants";
+import { bucketizeAmplitude } from "../src/core/audio/cache/waveform";
 
 const fsp = fs.promises;
 
@@ -164,13 +164,20 @@ async function ensureDir(dir: string) {
   await fsp.mkdir(dir, { recursive: true });
 }
 
+function getOutputPath(wavPath: string): string {
+  const relative = path.relative(samplesDir, wavPath);
+  const dir = path.dirname(relative);
+  const base = path.basename(relative, path.extname(relative));
+  return path.join(waveformsDir, dir === "." ? "" : dir, `${base}.json`);
+}
+
 async function writeWaveform(
-  sourcePath: string,
+  targetPath: string,
   waveformBuckets: number[],
   meta: { sampleRate: number; durationMs: number },
 ) {
-  const filename = path.basename(sourcePath, path.extname(sourcePath));
-  const targetPath = path.join(waveformsDir, `${filename}.json`);
+  await ensureDir(path.dirname(targetPath));
+
   const payload = JSON.stringify(
     {
       version: 1,
@@ -205,7 +212,8 @@ async function main() {
       const parsed = parseWav(buffer);
       const mono = toMonoMagnitude(parsed.channels);
       const buckets = bucketizeAmplitude(mono, WAVEFORM_BUCKET_COUNT);
-      await writeWaveform(wavFile, buckets, parsed);
+      const targetPath = getOutputPath(wavFile);
+      await writeWaveform(targetPath, buckets, parsed);
       generated += 1;
     } catch (error) {
       console.error(`Failed to process ${wavFile}:`, error);
