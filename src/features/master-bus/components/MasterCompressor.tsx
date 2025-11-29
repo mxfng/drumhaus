@@ -1,5 +1,5 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
-import ParamKnob from "@/shared/components/Knob";
+import ParamKnob from "@/shared/lib/knob/Knob";
 import {
   compMixMapping,
   compRatioMapping,

@@ -5,7 +5,7 @@ import { now } from "tone/build/esm/index";
 import { INSTRUMENT_PAN_RANGE } from "@/core/audio/engine/constants";
 import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
-import ParamKnob from "@/shared/components/Knob";
+import ParamKnob from "@/shared/lib/knob/Knob";
 import {
   instrumentAttackMapping,
   instrumentReleaseMapping,
