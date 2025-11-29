@@ -67,6 +67,10 @@ export {
   waitForBuffersToLoad,
   type SampleDurationResult,
 } from "./buffer";
+export {
+  ensureAudioContextRunning,
+  getAudioContextHealth,
+} from "./audioContextManager";
 
 // Instrument Playback
 export { playInstrumentSample } from "./instrumentPlayback";
