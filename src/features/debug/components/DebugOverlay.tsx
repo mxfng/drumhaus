@@ -7,7 +7,6 @@ import { useDebugStore } from "@/features/debug/store/useDebugStore";
 interface DebugStats {
   fps: number;
   heapMB: number | null;
-  bpm: number;
   transportState: string;
   position: string;
   audioTime: number;
@@ -20,7 +19,6 @@ export const DebugOverlay = () => {
   const [stats, setStats] = useState<DebugStats>({
     fps: 0,
     heapMB: null,
-    bpm: 0,
     transportState: "stopped",
     position: "0:0:0",
     audioTime: 0,
@@ -65,7 +63,6 @@ export const DebugOverlay = () => {
 
       // Get Tone.js transport info
       const transport = getTransport();
-      const bpm = Math.round(transport.bpm.value);
       const transportState = transport.state;
       const position = transport.position.toString().split(".")[0];
 
@@ -82,7 +79,6 @@ export const DebugOverlay = () => {
       setStats({
         fps,
         heapMB,
-        bpm,
         transportState,
         position,
         audioTime,
@@ -115,10 +111,6 @@ export const DebugOverlay = () => {
             <span>{stats.heapMB} MB</span>
           </div>
         )}
-        <div className="flex justify-between gap-4">
-          <span className="opacity-70">BPM</span>
-          <span>{stats.bpm}</span>
-        </div>
         <div className="flex justify-between gap-4">
           <span className="opacity-70">State</span>
           <span className="capitalize">{stats.transportState}</span>

@@ -1,4 +1,3 @@
-import { useAudioContextLifecycleMonitor } from "@/core/audio/hooks/useAudioContextLifecycle";
 import { useAudioEngine } from "@/core/audio/hooks/useAudioEngine";
 import { DebugOverlay } from "@/features/debug/components/DebugOverlay";
 import { usePresetLoading } from "@/features/preset/hooks/usePresetLoading";
@@ -15,7 +14,6 @@ interface DrumhausProviderProps {
 export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
   // --- App-wide UI Hooks ---
   useRemoveInitialLoader();
-  useAudioContextLifecycleMonitor();
 
   // --- Service Worker Registration ---
   useServiceWorker();
