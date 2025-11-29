@@ -1,5 +1,3 @@
-import { motion } from "framer-motion";
-
 import { KNOB_ROTATION_RANGE_DEGREES } from "../lib/constants";
 
 const getKnobTickRotation = (
@@ -26,26 +24,16 @@ export function KnobTicks({ outerTickCount, lowPower }: KnobTicksProps) {
           KNOB_ROTATION_RANGE_DEGREES,
         );
 
-        if (lowPower) {
-          return (
-            <div
-              key={idx}
-              className="absolute inset-0 origin-center"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              <div className="bg-shadow-60 absolute top-[2%] left-1/2 h-0.5 w-0.5 -translate-x-1/2 rounded-full" />
-            </div>
-          );
-        }
-
         return (
-          <motion.div
+          <div
             key={idx}
             className="absolute inset-0 origin-center"
-            style={{ rotate: rotation }}
+            style={{
+              transform: `rotate(${rotation}deg)`,
+            }}
           >
             <div className="bg-shadow-60 absolute top-[2%] left-1/2 h-0.5 w-0.5 -translate-x-1/2 rounded-full" />
-          </motion.div>
+          </div>
         );
       })}
     </>
