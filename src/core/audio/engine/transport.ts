@@ -1,12 +1,7 @@
-import {
-  getContext,
-  getTransport,
-  now,
-  start,
-  Ticks,
-} from "tone/build/esm/index";
+import { getTransport, now, Ticks } from "tone/build/esm/index";
 
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { ensureAudioContextRunning } from "./audioContextManager";
 import {
   SEQUENCE_SUBDIVISION,
   STEP_COUNT,
@@ -19,13 +14,7 @@ import { stopRuntimeAtTime } from "./runtimeStops";
  * Start or resume the audio context
  */
 export async function startAudioContext(): Promise<void> {
-  const context = getContext();
-
-  if (context.state === "suspended") {
-    await context.resume();
-  } else if (context.state !== "running") {
-    await start();
-  }
+  await ensureAudioContextRunning("transport");
 }
 
 /**

@@ -30,14 +30,14 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
   );
 
   const handleInstrumentClick = useCallback(
-    (voiceIndex: number) => {
+    async (voiceIndex: number) => {
       const runtime = instrumentRuntimes.current[voiceIndex];
 
       if (mode === "trigger" && runtime) {
         // Trigger mode: play the sample
         const pitch = instruments[voiceIndex].params.pitch;
         const release = instruments[voiceIndex].params.release;
-        playInstrumentSample(runtime, pitch, release);
+        await playInstrumentSample(runtime, pitch, release);
       } else if (mode === "edit") {
         // Edit mode: open params dialog
         setEditingVoiceIndex(voiceIndex);

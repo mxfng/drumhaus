@@ -51,7 +51,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   /**
    * Play the sample or trigger custom callback interaction
    */
-  const playSample = useCallback(() => {
+  const playSample = useCallback(async () => {
     if (!runtime) return;
 
     if (onInteract) {
@@ -59,7 +59,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       return;
     }
 
-    playInstrumentSample(runtime, pitch, release);
+    await playInstrumentSample(runtime, pitch, release);
   }, [onInteract, runtime, pitch, release]);
 
   const handleWaveformError = useCallback((error: Error) => {
@@ -89,7 +89,9 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
         },
         className,
       )}
-      onPointerDown={playSample}
+      onPointerDown={() => {
+        void playSample();
+      }}
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}
