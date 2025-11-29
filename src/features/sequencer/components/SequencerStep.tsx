@@ -11,9 +11,25 @@ interface SequencerStepProps {
   variant?: "desktop" | "mobile";
   variation?: number;
   playbackVariation?: number;
-  onPointerStart: (stepIndex: number, isTriggerOn: boolean) => void;
-  onPointerEnter: (stepIndex: number, isTriggerOn: boolean) => void;
+  // Pointer handlers for desktop
+  onPointerStart?: (
+    event: React.PointerEvent<HTMLDivElement>,
+    stepIndex: number,
+    isTriggerOn: boolean,
+  ) => void;
+  onPointerEnter?: (
+    event: React.PointerEvent<HTMLDivElement>,
+    stepIndex: number,
+    isTriggerOn: boolean,
+  ) => void;
   onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
+  // Touch handlers for mobile (required for iOS Safari)
+  onTouchStart?: (
+    event: React.TouchEvent<HTMLDivElement>,
+    stepIndex: number,
+    isTriggerOn: boolean,
+  ) => void;
+  onTouchMove?: (event: React.TouchEvent<HTMLDivElement>) => void;
 }
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
@@ -26,6 +42,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onPointerStart,
   onPointerEnter,
   onPointerMove,
+  onTouchStart,
+  onTouchMove,
 }) => {
   const stepRef = useRef<HTMLDivElement>(null);
 
@@ -101,9 +119,19 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     <div
       ref={stepRef}
       data-step-index={stepIndex}
-      onPointerDown={() => onPointerStart(stepIndex, isTriggerOn)}
-      onPointerEnter={() => onPointerEnter(stepIndex, isTriggerOn)}
-      onPointerMove={onPointerMove}
+      onPointerDown={(event) => onPointerStart?.(event, stepIndex, isTriggerOn)}
+      onPointerEnter={(event) =>
+        onPointerEnter?.(event, stepIndex, isTriggerOn)
+      }
+      onPointerMove={(event) => {
+        onPointerMove?.(event);
+      }}
+      onTouchStart={(event) => {
+        onTouchStart?.(event, stepIndex, isTriggerOn);
+      }}
+      onTouchMove={(event) => {
+        onTouchMove?.(event);
+      }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
         "relative cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
