@@ -20,7 +20,7 @@ export const Header: React.FC = () => {
             <DrumhausTypographyLogo size={420} />
           </div>
           <div className="-mb-1 ml-4 text-left">
-            <p className="opacity-70">Browser Controlled</p>
+            <p className="opacity-70">Portable</p>
             <p className="opacity-70">Rhythmic Groove Machine</p>
           </div>
         </button>
