@@ -9,6 +9,7 @@ import {
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
 } from "../lib/constants";
+import { useKnobGuidance } from "./useKnobGuidance";
 
 interface UseKnobControlsParams {
   value: number;
@@ -20,6 +21,13 @@ interface UseKnobControlsParams {
   activeLabel?: string;
 }
 
+/**
+ * Centralized interaction/motion logic for the knob UI.
+ *
+ * - Manages drag lifecycle (pointer events), quantization, and rotation motion value
+ * - Keeps tooltip side/content in sync
+ * - Delegates first-use guidance to `useKnobGuidance`
+ */
 export function useKnobControls({
   value,
   stepSize = KNOB_VALUE_DEFAULT,
@@ -37,6 +45,9 @@ export function useKnobControls({
 
   const [isMoving, setIsMoving] = useState(false);
   const [tooltipSide, setTooltipSide] = useState<"left" | "right">("right");
+
+  const { showCoachmark, handleStart, handleMove, handleEnd } =
+    useKnobGuidance();
 
   const moveY = useMotionValue(quantizedValue);
 
@@ -62,6 +73,7 @@ export function useKnobControls({
 
     updateTooltipSide();
     setIsMoving(true);
+    handleStart({ x: ev.clientX, y: ev.clientY });
     initMoveYRef.current = ev.clientY;
     initValueRef.current = quantize(value, stepSize);
     ev.currentTarget.setPointerCapture(ev.pointerId);
@@ -74,6 +86,7 @@ export function useKnobControls({
       ev.preventDefault();
 
       const clientY = ev.clientY;
+      const clientX = ev.clientX;
       const deltaY = (initMoveYRef.current - clientY) * KNOB_SENSITIVITY;
 
       const newValue = clamp(
@@ -86,20 +99,25 @@ export function useKnobControls({
 
       moveY.set(q);
       onValueChange(q);
+      handleMove({ x: clientX, y: clientY });
     },
-    [isMoving, initMoveYRef, stepSize, onValueChange, moveY],
+    [isMoving, initMoveYRef, stepSize, onValueChange, moveY, handleMove],
   );
 
-  const handlePointerUp = useCallback((ev: PointerEvent) => {
-    setIsMoving(false);
-    if (ev.target instanceof HTMLElement) {
-      try {
-        ev.target.releasePointerCapture(ev.pointerId);
-      } catch {
-        // noop
+  const handlePointerUp = useCallback(
+    (ev: PointerEvent) => {
+      setIsMoving(false);
+      handleEnd({ x: ev.clientX, y: ev.clientY });
+      if (ev.target instanceof HTMLElement) {
+        try {
+          ev.target.releasePointerCapture(ev.pointerId);
+        } catch {
+          // noop
+        }
       }
-    }
-  }, []);
+    },
+    [handleEnd],
+  );
 
   const handleDoubleClick = (ev: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
@@ -159,5 +177,6 @@ export function useKnobControls({
     tooltipSide,
     tooltipContent,
     knobContainerRef,
+    showCoachmark,
   };
 }
