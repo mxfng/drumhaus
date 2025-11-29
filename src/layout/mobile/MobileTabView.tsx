@@ -20,105 +20,62 @@ export const MobileTabView: React.FC = () => {
     ease: [0.22, 1, 0.36, 1] as const, // Custom easing for smooth feel
   };
 
+  const renderPanel = (
+    key: string,
+    className: string,
+    children: React.ReactNode,
+  ) => (
+    <motion.div
+      key={key}
+      data-scrollable
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={transitionConfig}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+
+  const renderBusSubPanel = (key: string, child: React.ReactNode) =>
+    renderPanel(key, "flex h-full flex-col items-center justify-center", child);
+
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-hidden">
       {/* Tab Content */}
       <div className="relative flex-1 overflow-hidden shadow-[inset_0_8px_8px_-6px_var(--color-shadow-30),inset_0_-8px_8px_-6px_var(--color-shadow-30)]">
         <AnimatePresence initial={false} mode="wait">
-          {activeTab === "controls" && (
-            <motion.div
-              key="controls"
-              data-scrollable
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={transitionConfig}
-              className="absolute inset-0 flex h-full flex-col"
-            >
+          {activeTab === "controls" &&
+            renderPanel(
+              "controls",
+              "absolute inset-0 flex h-full flex-col",
               <div className="flex-1 overflow-hidden">
                 <MobileSequencer />
-              </div>
-            </motion.div>
-          )}
-          {activeTab === "instrument" && (
-            <motion.div
-              key="instrument"
-              data-scrollable
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={transitionConfig}
-              className="bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto"
-            >
-              <MobileInstrumentGrid mode={instrumentMode} />
-            </motion.div>
-          )}
-          {activeTab === "bus" && (
-            <motion.div
-              key="bus"
-              data-scrollable
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={transitionConfig}
-              className="absolute inset-0 flex h-full flex-col overflow-y-auto p-4"
-            >
+              </div>,
+            )}
+
+          {activeTab === "instrument" &&
+            renderPanel(
+              "instrument",
+              "bg-surface-raised absolute inset-0 flex h-full flex-col overflow-y-auto",
+              <MobileInstrumentGrid mode={instrumentMode} />,
+            )}
+
+          {activeTab === "bus" &&
+            renderPanel(
+              "bus",
+              "absolute inset-0 flex h-full flex-col overflow-y-auto p-4",
               <AnimatePresence initial={false} mode="wait">
-                {busSubTab === "comp" && (
-                  <motion.div
-                    key="comp"
-                    data-scrollable
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={transitionConfig}
-                    className="flex h-full flex-col items-center justify-center"
-                  >
-                    <MasterCompressor />
-                  </motion.div>
-                )}
-                {busSubTab === "fx" && (
-                  <motion.div
-                    key="fx"
-                    data-scrollable
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={transitionConfig}
-                    className="flex h-full flex-col items-center justify-center"
-                  >
-                    <MasterFX />
-                  </motion.div>
-                )}
-                {busSubTab === "level" && (
-                  <motion.div
-                    key="level"
-                    data-scrollable
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={transitionConfig}
-                    className="flex h-full flex-col items-center justify-center"
-                  >
-                    <MasterVolume />
-                  </motion.div>
-                )}
-                {busSubTab === "tempo" && (
-                  <motion.div
-                    key="tempo"
-                    data-scrollable
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={transitionConfig}
-                    className="flex h-full flex-col items-center justify-center"
-                  >
-                    <TransportControl />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
+                {busSubTab === "comp" &&
+                  renderBusSubPanel("comp", <MasterCompressor />)}
+                {busSubTab === "fx" && renderBusSubPanel("fx", <MasterFX />)}
+                {busSubTab === "level" &&
+                  renderBusSubPanel("level", <MasterVolume />)}
+                {busSubTab === "tempo" &&
+                  renderBusSubPanel("tempo", <TransportControl />)}
+              </AnimatePresence>,
+            )}
         </AnimatePresence>
       </div>
     </div>
