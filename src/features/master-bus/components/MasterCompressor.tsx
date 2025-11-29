@@ -1,10 +1,10 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
-import ParamKnob from "@/shared/lib/knob/Knob";
+import { ParamKnob } from "@/shared/knob/Knob";
 import {
   compMixMapping,
   compRatioMapping,
   compThresholdMapping,
-} from "@/shared/lib/knob/mapping";
+} from "@/shared/knob/lib/mapping";
 import { GainReductionMeter } from "./GainReductionMeter";
 
 export const MasterCompressor: React.FC = () => {

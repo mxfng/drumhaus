@@ -6,8 +6,8 @@ import {
   disposeFrequencyAnalyzer,
 } from "@/core/audio/engine";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { semitonesToRatio } from "@/shared/knob/lib/utils";
 import { clamp, normalize } from "@/shared/lib/utils";
-import { semitonesToRatio } from "../lib/knob/utils";
 
 const NUM_BARS = 128; // how many chunky bars
 const PIXEL_SIZE = 2; // quantized height step (px)

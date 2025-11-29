@@ -26,6 +26,7 @@ import {
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
 } from "@/core/audio/engine/constants";
+import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
   formatDisplayAttackDuration,
@@ -48,7 +49,6 @@ import {
   transformKnobValuePitch,
   transformKnobValueSplitFilter,
 } from "./transform";
-import { FormattedValue, ParamMapping } from "./types";
 
 // --- Core mapping factories ---
 

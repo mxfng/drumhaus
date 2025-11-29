@@ -25,7 +25,7 @@ import {
   phaserWetMapping,
   reverbDecayMapping,
   reverbWetMapping,
-} from "@/shared/lib/knob/mapping";
+} from "@/shared/knob/lib/mapping";
 import {
   MASTER_COMP_ATTACK,
   MASTER_COMP_KNEE,

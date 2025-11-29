@@ -6,8 +6,8 @@ import {
 } from "@/features/instrument/types/instrument";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
-import { pitchMapping } from "@/shared/lib/knob/mapping";
-import { transformKnobValueExponential } from "@/shared/lib/knob/transform";
+import { pitchMapping } from "@/shared/knob/lib/mapping";
+import { transformKnobValueExponential } from "@/shared/knob/lib/transform";
 import {
   INSTRUMENT_RELEASE_RANGE,
   SEQUENCE_EVENTS,

@@ -1,11 +1,11 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
-import ParamKnob from "@/shared/lib/knob/Knob";
+import { ParamKnob } from "@/shared/knob/Knob";
 import {
   highPassFilterMapping,
   lowPassFilterMapping,
   phaserWetMapping,
   reverbWetMapping,
-} from "@/shared/lib/knob/mapping";
+} from "@/shared/knob/lib/mapping";
 
 export const MasterFX: React.FC = () => {
   const lowPass = useMasterChainStore((state) => state.lowPass);

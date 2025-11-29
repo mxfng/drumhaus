@@ -5,8 +5,8 @@ import {
   instrumentPanMapping,
   instrumentVolumeMapping,
   splitFilterMapping,
-} from "@/shared/lib/knob/mapping";
-import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/lib/knob/transform";
+} from "@/shared/knob/lib/mapping";
+import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
 
 /**
  * Instrument parameters fall into two categories:
