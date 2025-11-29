@@ -3,22 +3,20 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
-import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
-import { ToastProvider, TooltipProvider } from "@/components/ui";
-import { useMobileWarning } from "@/hooks/useMobileWarning";
-import { AppErrorBoundary } from "@/providers/AppErrorBoundary";
-import { GlobalErrorHandler } from "@/providers/GlobalErrorHandler";
+import { AppErrorBoundary } from "@/core/providers/AppErrorBoundary";
+import { GlobalErrorHandler } from "@/core/providers/GlobalErrorHandler";
+import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
+import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
+import { ToastProvider, TooltipProvider } from "@/shared/ui";
 
 // Dynamically import Drumhaus component
 const DrumhausProvider = lazy(() =>
-  import("../providers/DrumhausProvider").then((module) => ({
+  import("../core/providers/DrumhausProvider").then((module) => ({
     default: module.DrumhausProvider,
   })),
 );
-const Drumhaus = lazy(() => import("../components/Drumhaus"));
-const DrumhausMobile = lazy(
-  () => import("../components/mobile/DrumhausMobile"),
-);
+const Drumhaus = lazy(() => import("../layout/desktop/Drumhaus"));
+const DrumhausMobile = lazy(() => import("../layout/mobile/DrumhausMobile"));
 
 function DrumhausFallback() {
   return (

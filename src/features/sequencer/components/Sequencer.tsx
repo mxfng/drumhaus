@@ -1,13 +1,12 @@
 import React from "react";
 
+import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
 import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { useScrollLock } from "@/hooks/ui/useScrollLock";
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { useTransportStore } from "@/stores/useTransportStore";
+import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
 interface StepMusicalState {
   isTriggerOn: boolean;
@@ -32,7 +31,6 @@ export const Sequencer: React.FC = () => {
 
   // --- Drag-paint logic ---
   const {
-    isDragging,
     handleStepMouseStart,
     handleStepTouchStart,
     handleStepTouchMove,
@@ -41,9 +39,6 @@ export const Sequencer: React.FC = () => {
     triggers,
     onToggleStep: (stepIndex) => toggleStep(voiceIndex, variation, stepIndex),
   });
-
-  // Lock scroll during drag
-  useScrollLock(isDragging);
 
   const currentVariation = pattern[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;

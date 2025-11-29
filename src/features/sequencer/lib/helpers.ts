@@ -1,6 +1,6 @@
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { clamp, quantize } from "@/lib/utils";
-import { Pattern, Voice } from "@/types/pattern";
+import { STEP_COUNT } from "@/core/audio/engine/constants";
+import { Pattern, Voice } from "@/features/sequencer/types/pattern";
+import { clamp, quantize } from "@/shared/lib/utils";
 
 /**
  * Creates an empty pattern with all triggers off and velocities at 1.0

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 
-import { getCurrentStepFromTransport } from "@/lib/audio/engine/transport";
-import { cn } from "@/lib/utils";
-import { useTransportStore } from "@/stores/useTransportStore";
+import { getCurrentStepFromTransport } from "@/core/audio/engine/transport";
+import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { cn } from "@/shared/lib/utils";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;

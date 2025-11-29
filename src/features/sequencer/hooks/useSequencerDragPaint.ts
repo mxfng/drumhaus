@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
+import { STEP_COUNT } from "@/core/audio/engine/constants";
 
 interface UseSequencerDragPaintProps {
   triggers: boolean[];
@@ -38,8 +38,6 @@ export const useSequencerDragPaint = ({
 
   const handleStepTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
     if (!isDragging) return;
-
-    event.preventDefault();
 
     const touch = event.touches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);

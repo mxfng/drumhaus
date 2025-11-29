@@ -1,10 +1,10 @@
 import React from "react";
 
+import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { useTransportStore } from "@/stores/useTransportStore";
+import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
 interface MobileSequencerRowProps {
   voiceIndex: number;

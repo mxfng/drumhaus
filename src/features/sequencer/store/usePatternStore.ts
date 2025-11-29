@@ -2,10 +2,10 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { Pattern } from "@/types/pattern";
-import type { VariationCycle } from "@/types/preset";
+import { Pattern } from "@/features/sequencer/types/pattern";
+import { VariationCycle } from "../types/sequencer";
 
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations

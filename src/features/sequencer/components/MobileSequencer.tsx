@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
-import { useSequencerControl } from "@/features/sequencer/hooks/useSequencerControl";
-import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { STEP_COUNT } from "@/lib/audio/engine/constants";
-import { INSTRUMENT_COLORS } from "../../../features/instruments/lib/colors";
+import { STEP_COUNT } from "@/core/audio/engine/constants";
+import { INSTRUMENT_COLORS } from "@/features/instrument/lib/colors";
+import { useSequencerControl } from "../hooks/useSequencerControl";
+import { usePatternStore } from "../store/usePatternStore";
 import { MobileSequencerRow } from "./MobileSequencerRow";
 import { MobileSequencerRowSelector } from "./MobileSequencerRowSelector";
+import { SequencerStepIndicator } from "./SequencerStepIndicator";
 
 export const MobileSequencer: React.FC = () => {
   const pattern = usePatternStore((state) => state.pattern);

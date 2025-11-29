@@ -1,11 +1,11 @@
 import * as Popover from "@radix-ui/react-popover";
 import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
 
-import { Button } from "@/components/ui";
-import { useInstrumentsStore } from "@/features/instruments/store/useInstrumentsStore";
+import { INSTRUMENT_COLORS } from "@/features/instrument/lib/colors";
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { cn } from "@/lib/utils";
-import { INSTRUMENT_COLORS } from "../../instruments/lib/colors";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/ui";
 
 interface MobileSequencerRowSelectorProps {
   voiceIndex: number;

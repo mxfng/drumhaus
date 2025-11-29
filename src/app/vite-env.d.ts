@@ -7,11 +7,11 @@ declare const __NODE_VERSION__: string;
 
 // Custom file type declarations
 declare module "*.dhkit" {
-  const content: import("./types/instrument").KitFileV1;
+  const content: import("@/features/kit/types/kit").KitFileV1;
   export default content;
 }
 
 declare module "*.dh" {
-  const content: import("./types/preset").PresetFileV1;
+  const content: import("@/features/preset/types/preset").PresetFileV1;
   export default content;
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { clampVelocity } from "@/features/sequencer/lib/helpers";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 interface SequencerVelocityProps {
   stepIndex: number;
