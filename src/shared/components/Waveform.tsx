@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { getCachedWaveform } from "@/core/audio/cache";
+import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
+import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
 
 interface WaveformProps {
   audioFile: string;
@@ -19,9 +20,11 @@ const Waveform: React.FC<WaveformProps> = ({
   onError,
   onLoad,
 }) => {
-  // Remove the leading directory and .wav file type from string
-  // Filenames for waveforms are auto-generated and thus have the same name as the audio file
-  const sampleFilename = (audioFile.split("/").pop() || "").split(".")[0] || "";
+  // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
+  const normalizedPath = audioFile
+    .replace(/^\/+/, "")
+    .replace(/^samples\//, "");
+  const sampleFilename = normalizedPath.replace(/\.[^.]+$/, "");
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -68,42 +71,37 @@ const Waveform: React.FC<WaveformProps> = ({
 
   useEffect(() => {
     const draw = (
-      amplitudeData: number[][],
+      waveform: TransientWaveformData,
       ctx: CanvasRenderingContext2D,
       canvasWidth: number,
       canvasHeight: number,
     ) => {
       ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.imageSmoothingEnabled = false;
 
-      const channelCount = amplitudeData.length;
-      const rectWidth = 1; // Adjust the width as needed
-      const gapWidth = 1; // Adjust the gap width as needed
+      const { buckets } = waveform;
+      if (!buckets.length) return;
 
-      for (let channel = 0; channel < channelCount; channel++) {
-        const channelData = amplitudeData[channel];
+      const centerY = canvasHeight / 2;
+      const maxHeight = Math.max(1, centerY - 1);
 
-        for (let i = 0; i < channelData.length; i++) {
-          const x = i * (rectWidth + gapWidth);
-          const y =
-            (Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2) +
-            channel * (canvasHeight / 2);
-          const rectHeight =
-            canvasHeight / 2 -
-            Math.abs((Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2));
+      // Keep bars and gaps the same pixel width regardless of bucket count
+      const totalUnits = buckets.length * 2 - 1; // bar + gap per bucket except last
+      const unitWidth = canvasWidth / totalUnits; // use exact division to span full width
+      const barWidth = unitWidth;
+      const gapWidth = unitWidth;
+      const stride = barWidth + gapWidth;
 
-          ctx.fillStyle = color;
-          ctx.fillRect(x, y, rectWidth, rectHeight);
-        }
+      ctx.fillStyle = color;
 
-        for (let i = 0; i < channelData.length; i++) {
-          const x = i * (rectWidth + gapWidth);
-          const rectHeight =
-            canvasHeight / 2 -
-            Math.abs((Math.log10(channelData[i] + 1) + 1) * (canvasHeight / 2));
+      for (let i = 0; i < buckets.length; i++) {
+        const normalized =
+          Math.max(0, Math.min(WAVEFORM_VALUE_SCALE, buckets[i])) /
+          WAVEFORM_VALUE_SCALE;
+        const barHeight = Math.max(1, Math.round(normalized * maxHeight));
+        const x = i * stride;
 
-          ctx.fillStyle = color;
-          ctx.fillRect(x, canvasHeight / 2, rectWidth, rectHeight);
-        }
+        ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2);
       }
     };
 
@@ -114,14 +112,13 @@ const Waveform: React.FC<WaveformProps> = ({
       return;
     }
 
-    canvas.width = finalWidth;
-    canvas.height = finalHeight;
+    canvas.width = Math.max(1, Math.floor(finalWidth));
+    canvas.height = Math.max(1, Math.floor(finalHeight));
 
     // Load waveform data using Cache API
     getCachedWaveform(sampleFilename)
       .then((data) => {
-        const amplitudeData: number[][] = data.amplitude_envelope;
-        draw(amplitudeData, ctx, canvas.width, canvas.height);
+        draw(data, ctx, canvas.width, canvas.height);
         if (onLoad) {
           onLoad();
         }

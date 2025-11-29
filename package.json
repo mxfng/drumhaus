@@ -10,7 +10,8 @@
     "format": "npx prettier . --write",
     "lint": "eslint src --max-warnings 0",
     "prepare": "husky",
-    "kit:new": "tsx scripts/new-kit.ts"
+    "kit:new": "tsx scripts/new-kit.ts",
+    "waveforms:build": "tsx scripts/generate-waveforms.ts"
   },
   "dependencies": {
     "@fontsource-variable/albert-sans": "^5.2.8",
@@ -61,6 +62,7 @@
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
+    "tsx": "^4.19.2",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "typescript": "^5",
