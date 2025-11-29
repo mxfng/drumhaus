@@ -1,0 +1,62 @@
+import { AudioWaveform, Turntable, Volume2, Waves } from "lucide-react";
+
+import { cn } from "@/shared/lib/utils";
+import { useMobileNavStore } from "@/shared/store/useMobileNavStore";
+import { Button } from "@/shared/ui";
+
+export type BusSubTab = "comp" | "fx" | "level" | "tempo";
+
+export const MobileBusContextMenu: React.FC = () => {
+  const activeSubTab = useMobileNavStore((state) => state.busSubTab);
+  const setBusSubTab = useMobileNavStore((state) => state.setBusSubTab);
+  return (
+    <div className="border-border bg-surface flex flex-col gap-2 border-t p-2">
+      <div className="hardware-button-group flex rounded-lg">
+        <Button
+          variant="hardware"
+          className={cn("flex-1 gap-2 rounded-l-lg rounded-r-none", {
+            "text-primary": activeSubTab === "comp",
+          })}
+          size="sm"
+          onClick={() => setBusSubTab("comp")}
+        >
+          <AudioWaveform size={16} />
+          <span className="text-xs">COMP</span>
+        </Button>
+        <Button
+          variant="hardware"
+          className={cn("flex-1 gap-2 rounded-none", {
+            "text-primary": activeSubTab === "fx",
+          })}
+          size="sm"
+          onClick={() => setBusSubTab("fx")}
+        >
+          <Waves size={16} />
+          <span className="text-xs">FX</span>
+        </Button>
+        <Button
+          variant="hardware"
+          className={cn("flex-1 gap-2 rounded-none", {
+            "text-primary": activeSubTab === "level",
+          })}
+          size="sm"
+          onClick={() => setBusSubTab("level")}
+        >
+          <Volume2 size={16} />
+          <span className="text-xs">LEVEL</span>
+        </Button>
+        <Button
+          variant="hardware"
+          className={cn("flex-1 gap-2 rounded-l-none rounded-r-lg", {
+            "text-primary": activeSubTab === "tempo",
+          })}
+          size="sm"
+          onClick={() => setBusSubTab("tempo")}
+        >
+          <Turntable size={16} />
+          <span className="text-xs">TEMPO</span>
+        </Button>
+      </div>
+    </div>
+  );
+};

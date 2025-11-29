@@ -1,0 +1,17 @@
+/// <reference types="vite/client" />
+
+// Build-time constants
+declare const __APP_VERSION__: string;
+declare const __BUILD_TIME__: string;
+declare const __NODE_VERSION__: string;
+
+// Custom file type declarations
+declare module "*.dhkit" {
+  const content: import("@/features/kit/types/kit").KitFileV1;
+  export default content;
+}
+
+declare module "*.dh" {
+  const content: import("@/features/preset/types/preset").PresetFileV1;
+  export default content;
+}
