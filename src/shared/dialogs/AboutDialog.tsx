@@ -4,6 +4,7 @@ import { getContext } from "tone";
 
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
 import { cn } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import {
   Dialog,
   DialogCloseButton,
@@ -47,6 +48,10 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
   const currentYear = new Date().getFullYear();
   const debugMode = useDebugStore((state) => state.debugMode);
   const toggleDebugMode = useDebugStore((state) => state.toggleDebugMode);
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+  const togglePotatoMode = usePerformanceStore(
+    (state) => state.togglePotatoMode,
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -78,24 +83,35 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <div className="flex gap-4">
-              <p className="font-semibold">Runtime</p>
-              <div className="flex text-xs">
-                <button
-                  onClick={toggleDebugMode}
-                  className={cn("cursor-pointer transition-opacity", {
-                    "opacity-80": debugMode,
-                    "opacity-40 hover:opacity-60": !debugMode,
-                  })}
-                >
-                  {debugMode ? "● Debug Mode" : "○ Debug Mode"}
-                </button>
-              </div>
-            </div>
+            <p className="font-semibold">Runtime</p>
             <div className="font-pixel flex flex-col gap-1">
               <p>{browser}</p>
               <p>Node {__NODE_VERSION__}</p>
               <p>{audioInfo.sampleRate} Hz</p>
+              <button
+                onClick={toggleDebugMode}
+                className={cn(
+                  "w-fit cursor-pointer p-0 text-xs transition-opacity",
+                  {
+                    "opacity-80": debugMode,
+                    "opacity-40 hover:opacity-60": !debugMode,
+                  },
+                )}
+              >
+                {debugMode ? "● Debug Mode" : "○ Debug Mode"}
+              </button>
+              <button
+                onClick={togglePotatoMode}
+                className={cn(
+                  "w-fit cursor-pointer p-0 text-xs transition-opacity",
+                  {
+                    "opacity-80": potatoMode,
+                    "opacity-40 hover:opacity-60": !potatoMode,
+                  },
+                )}
+              >
+                {potatoMode ? "● Potato Mode" : "○ Potato Mode"}
+              </button>
             </div>
           </div>
         </div>
@@ -127,7 +143,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               GitHub <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
           </div>
-          <div className="flex flex-col justify-end">
+          <div className="flex flex-col justify-end gap-2">
             <p className="text-xs">© 2023-{currentYear} Max Fung</p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
@@ -15,13 +16,20 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   playbackVariation,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
-  const baseClassName =
-    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full sm:transition-all sm:duration-75";
+  const baseClassName = cn(
+    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full",
+    !potatoMode && "sm:transition-all sm:duration-75",
+  );
 
   useEffect(() => {
     let lastIndicatorOn: boolean | null = null;
-    let lastOpacity: string | null = null;
+    let lastOpacityClass: string | null = null;
+
+    if (indicatorRef.current && potatoMode) {
+      indicatorRef.current.style.boxShadow = "none";
+    }
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isAccentBeat = stepIndex % 4 === 0;
@@ -39,39 +47,42 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
 
       if (!indicatorRef.current) return;
 
-      const opacity = indicatorIsOn ? "1" : isAccentBeat ? "0.6" : "0.2";
-      const shouldUpdateOpacity =
-        lastOpacity === null || opacity !== lastOpacity;
-      const shouldUpdateClass =
-        lastIndicatorOn === null || indicatorIsOn !== lastIndicatorOn;
+      const opacityClass = indicatorIsOn
+        ? "opacity-100"
+        : isAccentBeat
+          ? "opacity-60"
+          : "opacity-20";
 
-      if (shouldUpdateOpacity) {
-        indicatorRef.current.style.opacity = opacity;
-        lastOpacity = opacity;
+      if (opacityClass !== lastOpacityClass) {
+        indicatorRef.current.classList.remove(
+          "opacity-100",
+          "opacity-60",
+          "opacity-20",
+        );
+        indicatorRef.current.classList.add(opacityClass);
+        lastOpacityClass = opacityClass;
       }
 
-      if (shouldUpdateClass) {
-        indicatorRef.current.className = cn(
-          baseClassName,
-          indicatorIsOn ? "bg-primary" : "bg-foreground",
-        );
+      if (indicatorIsOn !== lastIndicatorOn) {
+        indicatorRef.current.classList.toggle("bg-primary", indicatorIsOn);
+        indicatorRef.current.classList.toggle("bg-foreground", !indicatorIsOn);
 
-        indicatorRef.current.style.boxShadow = indicatorIsOn
-          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-          : "none";
+        indicatorRef.current.style.boxShadow =
+          indicatorIsOn && !potatoMode
+            ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
+            : "none";
 
         lastIndicatorOn = indicatorIsOn;
       }
     });
 
     return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, baseClassName]);
+  }, [stepIndex, variation, playbackVariation, baseClassName, potatoMode]);
 
   return (
     <div
       ref={indicatorRef}
-      className={baseClassName}
-      style={{ opacity: 0.2 }}
+      className={cn(baseClassName, "bg-foreground", "opacity-20")}
     />
   );
 };
