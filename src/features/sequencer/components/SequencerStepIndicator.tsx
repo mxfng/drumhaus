@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { getCurrentStepFromTransport } from "@/core/audio/engine/transport";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
 
 interface SequencerStepIndicatorProps {
@@ -18,53 +17,54 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   const indicatorRef = useRef<HTMLDivElement>(null);
 
   const baseClassName =
-    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full transition-all duration-75";
+    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full sm:transition-all sm:duration-75";
 
   useEffect(() => {
-    let animationId: number;
+    let lastIndicatorOn: boolean | null = null;
+    let lastOpacity: string | null = null;
 
-    const updateIndicator = () => {
-      const { isPlaying } = useTransportStore.getState();
-      const currentStepIndex = isPlaying ? getCurrentStepFromTransport() : -1;
-
+    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isAccentBeat = stepIndex % 4 === 0;
       const isStepPlaying =
         isPlaying &&
         playbackVariation === variation &&
-        currentStepIndex === stepIndex;
+        currentStep === stepIndex;
       const isAccentPlayingOtherVariation =
         isPlaying &&
         playbackVariation !== variation &&
         isAccentBeat &&
-        currentStepIndex === stepIndex;
+        currentStep === stepIndex;
 
       const indicatorIsOn = isStepPlaying || isAccentPlayingOtherVariation;
 
-      // Update DOM directly without triggering React re-render
-      if (indicatorRef.current) {
-        const opacity = indicatorIsOn ? 1 : isAccentBeat ? 0.6 : 0.2;
-        indicatorRef.current.style.opacity = String(opacity);
+      if (!indicatorRef.current) return;
 
-        // Update background color
+      const opacity = indicatorIsOn ? "1" : isAccentBeat ? "0.6" : "0.2";
+      const shouldUpdateOpacity =
+        lastOpacity === null || opacity !== lastOpacity;
+      const shouldUpdateClass =
+        lastIndicatorOn === null || indicatorIsOn !== lastIndicatorOn;
+
+      if (shouldUpdateOpacity) {
+        indicatorRef.current.style.opacity = opacity;
+        lastOpacity = opacity;
+      }
+
+      if (shouldUpdateClass) {
         indicatorRef.current.className = cn(
           baseClassName,
           indicatorIsOn ? "bg-primary" : "bg-foreground",
         );
 
-        // Update LED glow effect
         indicatorRef.current.style.boxShadow = indicatorIsOn
           ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
           : "none";
+
+        lastIndicatorOn = indicatorIsOn;
       }
+    });
 
-      animationId = requestAnimationFrame(updateIndicator);
-    };
-
-    animationId = requestAnimationFrame(updateIndicator);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
+    return unsubscribe;
   }, [stepIndex, variation, playbackVariation, baseClassName]);
 
   return (

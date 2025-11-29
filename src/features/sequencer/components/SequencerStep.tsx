@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-import { getCurrentStepFromTransport } from "@/core/audio/engine/transport";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
 
 interface SequencerStepProps {
@@ -60,34 +59,28 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       return;
     }
 
-    let animationId: number;
+    let lastIsThisStepPlaying: boolean | null = null;
 
-    const updateCurrentStep = () => {
-      const { isPlaying } = useTransportStore.getState();
-      const currentStepIndex = isPlaying ? getCurrentStepFromTransport() : -1;
-
+    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isThisStepPlaying =
         isPlaying &&
         playbackVariation === variation &&
-        currentStepIndex === stepIndex;
+        currentStep === stepIndex;
 
-      // Update brightness directly without triggering React re-render
-      if (stepRef.current) {
-        if (isThisStepPlaying) {
-          stepRef.current.style.filter = "brightness(0.75)";
-        } else {
-          stepRef.current.style.filter = "";
-        }
+      // Only touch the DOM when the state actually changes
+      if (
+        stepRef.current &&
+        (lastIsThisStepPlaying === null ||
+          isThisStepPlaying !== lastIsThisStepPlaying)
+      ) {
+        stepRef.current.style.filter = isThisStepPlaying
+          ? "brightness(0.75)"
+          : "";
+        lastIsThisStepPlaying = isThisStepPlaying;
       }
+    });
 
-      animationId = requestAnimationFrame(updateCurrentStep);
-    };
-
-    animationId = requestAnimationFrame(updateCurrentStep);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
+    return unsubscribe;
   }, [stepIndex, variation, playbackVariation, variant]);
 
   const triggerStyles = {
@@ -134,7 +127,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "relative cursor-pointer overflow-hidden transition-all duration-300 ease-in-out",
+        "relative cursor-pointer overflow-hidden transition-[background-color,box-shadow] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
