@@ -10,7 +10,6 @@ import {
   startTransport,
   stopTransport,
 } from "@/lib/audio/engine";
-import { init } from "@/lib/preset";
 import type { InstrumentRuntime } from "@/types/instrument";
 
 interface TransportState {
@@ -34,8 +33,8 @@ export const useTransportStore = create<TransportState>()(
       immer((set) => ({
         // Initial state
         isPlaying: false,
-        bpm: init().transport.bpm,
-        swing: init().transport.swing,
+        bpm: 100, // Default value, overwritten by preset load
+        swing: 0, // Default value, overwritten by preset load
 
         // Actions
         togglePlay: async (instrumentRuntimes, onStop) => {

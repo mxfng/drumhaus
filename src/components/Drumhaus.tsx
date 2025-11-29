@@ -1,6 +1,5 @@
 import { useKeyboardShortcuts } from "@/hooks/ui/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/ui/useLayoutScale";
-import { useMobileWarning } from "@/hooks/useMobileWarning";
 import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { ControlsPanel } from "./controls/ControlsPanel";
@@ -21,14 +20,13 @@ const Drumhaus = () => {
 
   // --- Desktop-specific Hooks ---
   const { scale } = useLayoutScale();
-  useMobileWarning();
   useKeyboardShortcuts({
     instrumentRuntimes,
     instrumentRuntimesVersion,
   });
 
   return (
-    <>
+    <div className="h-screen w-screen overflow-auto">
       <div className="drumhaus-root">
         <div
           className="drumhaus-scale-wrapper"
@@ -71,7 +69,7 @@ const Drumhaus = () => {
       </div>
 
       <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
-    </>
+    </div>
   );
 };
 

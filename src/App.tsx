@@ -3,13 +3,11 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
-import {
-  AppErrorBoundary,
-  GlobalErrorHandler,
-} from "@/components/common/AppErrorBoundary";
 import { PixelatedSpinner } from "@/components/common/PixelatedSpinner";
 import { ToastProvider, TooltipProvider } from "@/components/ui";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
+import { AppErrorBoundary } from "@/providers/AppErrorBoundary";
+import { GlobalErrorHandler } from "@/providers/GlobalErrorHandler";
 
 // Dynamically import Drumhaus component
 const DrumhausProvider = lazy(() =>
@@ -78,16 +76,9 @@ export function App() {
         />
         <AppErrorBoundary>
           <GlobalErrorHandler />
-
           <Suspense fallback={<DrumhausFallback />}>
             <DrumhausProvider>
-              {isMobile ? (
-                <DrumhausMobile />
-              ) : (
-                <div className="h-screen w-screen overflow-auto">
-                  <Drumhaus />
-                </div>
-              )}
+              {isMobile ? <DrumhausMobile /> : <Drumhaus />}
             </DrumhausProvider>
           </Suspense>
         </AppErrorBoundary>
