@@ -1,9 +1,9 @@
+import { AboutDialog } from "@/components/dialog/AboutDialog";
 import { useRemoveInitialLoader } from "@/hooks/ui/useRemoveInitialLoader";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { usePresetLoading } from "@/hooks/usePresetLoading";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 import { useDialogStore } from "@/stores/useDialogStore";
-import { AboutDialog } from "../dialog/AboutDialog";
 import { DrumhausContext, type DrumhausContextValue } from "./DrumhausContext";
 
 interface DrumhausProviderProps {

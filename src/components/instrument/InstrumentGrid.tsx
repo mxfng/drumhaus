@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { useDrumhaus } from "@/components/DrumhausProvider";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePatternStore } from "@/stores/usePatternStore";
 import { INSTRUMENT_COLORS } from "../../lib/instrumentColors";
@@ -9,7 +9,7 @@ import { InstrumentControl } from "./InstrumentControl";
 const NO_OF_INSTRUMENTS = 8;
 
 export const InstrumentGrid: React.FC = () => {
-  const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
+  const { instrumentRuntimes } = useDrumhaus();
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
   // Dialog store

@@ -13,7 +13,7 @@ import { useMobileWarning } from "@/hooks/useMobileWarning";
 
 // Dynamically import Drumhaus component
 const DrumhausProvider = lazy(() =>
-  import("./components/DrumhausProvider/DrumhausProvider").then((module) => ({
+  import("./providers/DrumhausProvider").then((module) => ({
     default: module.DrumhausProvider,
   })),
 );

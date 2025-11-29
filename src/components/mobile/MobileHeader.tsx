@@ -1,6 +1,6 @@
 import { ListMusic } from "lucide-react";
 
-import { FrequencyAnalyzer } from "@/components/FrequencyAnalyzer";
+import { FrequencyAnalyzer } from "@/components/common/FrequencyAnalyzer";
 import { DrumhausLogo } from "@/components/icon/DrumhausLogo";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 

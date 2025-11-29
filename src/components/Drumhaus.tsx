@@ -1,26 +1,26 @@
 import { Pause, Play } from "lucide-react";
 
-import { useDrumhaus } from "@/components/DrumhausProvider";
 import { Button, Tooltip } from "@/components/ui";
 import { useKeyboardShortcuts } from "@/hooks/ui/useKeyboardShortcuts";
 import { useLayoutScale } from "@/hooks/ui/useLayoutScale";
 import { useMobileWarning } from "@/hooks/useMobileWarning";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { useTransportStore } from "@/stores/useTransportStore";
+import { DebugOverlay } from "./common/DebugOverlay";
+import FrequencyAnalyzer from "./common/FrequencyAnalyzer";
 import { MasterCompressor } from "./controls/master/MasterCompressor";
 import { MasterFX } from "./controls/master/MasterFX";
 import { MasterVolume } from "./controls/master/MasterVolume";
 import { PresetControl } from "./controls/PresetControl";
 import { SequencerControl } from "./controls/SequencerControl";
 import { TransportControl } from "./controls/TransportControl";
-import { DebugOverlay } from "./DebugOverlay";
 import { MobileDialog } from "./dialog/MobileDialog";
-import FrequencyAnalyzer from "./FrequencyAnalyzer";
 import { DrumhausLogo } from "./icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "./icon/DrumhausTypographyLogo";
 import { FungPeaceLogo } from "./icon/FungPeaceLogo";
 import { InstrumentGrid } from "./instrument/InstrumentGrid";
-import { Sequencer } from "./Sequencer";
+import { Sequencer } from "./sequencer/Sequencer";
 
 const Drumhaus = () => {
   // --- Context ---

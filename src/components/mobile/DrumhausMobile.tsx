@@ -4,9 +4,9 @@ import { ConfirmSelectPresetDialog } from "@/components/dialog/ConfirmSelectPres
 import { ExportDialog } from "@/components/dialog/ExportDialog";
 import { SaveDialog } from "@/components/dialog/SaveDialog";
 import { ShareDialog } from "@/components/dialog/ShareDialog";
-import { useDrumhaus } from "@/components/DrumhausProvider";
 import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { usePresetManager } from "@/hooks/usePresetManager";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { type BusSubTab } from "./contextmenu/MobileBusContextMenu";

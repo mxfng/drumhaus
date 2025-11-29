@@ -4,13 +4,13 @@ import { getCurrentStepFromTransport } from "@/lib/audio/transport";
 import { cn } from "@/lib/utils";
 import { useTransportStore } from "@/stores/useTransportStore";
 
-interface StepIndicatorProps {
+interface SequencerStepIndicatorProps {
   stepIndex: number;
   variation: number;
   playbackVariation: number;
 }
 
-export const StepIndicator: React.FC<StepIndicatorProps> = ({
+export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   stepIndex,
   variation,
   playbackVariation,

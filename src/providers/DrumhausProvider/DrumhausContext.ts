@@ -1,10 +1,10 @@
-import { createContext, type MutableRefObject } from "react";
+import { createContext, type RefObject } from "react";
 
 import type { InstrumentRuntime } from "@/types/instrument";
 import type { PresetFileV1 } from "@/types/preset";
 
 export interface DrumhausContextValue {
-  instrumentRuntimes: MutableRefObject<InstrumentRuntime[]>;
+  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
   loadPreset: (preset: PresetFileV1) => void;
 }

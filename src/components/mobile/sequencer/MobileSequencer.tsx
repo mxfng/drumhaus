@@ -1,6 +1,6 @@
 import React, { useState, type MutableRefObject } from "react";
 
-import { StepIndicator } from "@/components/StepIndicator";
+import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndicator";
 import { useSequencerControl } from "@/hooks/sequencer/useSequencerControl";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
 import { usePatternStore } from "@/stores/usePatternStore";
@@ -39,7 +39,7 @@ export const MobileSequencer: React.FC<MobileSequencerProps> = () => {
         {/* Step indicators */}
         <div className="bg-surface grid grid-cols-16">
           {steps.map((step) => (
-            <StepIndicator
+            <SequencerStepIndicator
               key={`step-indicator-${step}`}
               stepIndex={step}
               variation={variation}

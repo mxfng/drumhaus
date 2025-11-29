@@ -1,5 +1,5 @@
-import { useDrumhaus } from "@/components/DrumhausProvider";
 import { usePresetManager } from "@/hooks/usePresetManager";
+import { useDrumhaus } from "@/providers/DrumhausProvider";
 import { useDialogStore } from "@/stores/useDialogStore";
 import { usePresetMetaStore } from "@/stores/usePresetMetaStore";
 import { ConfirmSelectPresetDialog } from "../dialog/ConfirmSelectPresetDialog";

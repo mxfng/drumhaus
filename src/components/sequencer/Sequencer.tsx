@@ -1,8 +1,8 @@
 import React from "react";
 
 import { SequencerStep } from "@/components/sequencer/SequencerStep";
+import { SequencerStepIndicator } from "@/components/sequencer/SequencerStepIndicator";
 import { SequencerVelocity } from "@/components/sequencer/SequencerVelocity";
-import { StepIndicator } from "@/components/StepIndicator";
 import { useSequencerDragPaint } from "@/hooks/sequencer/useSequencerDragPaint";
 import { useScrollLock } from "@/hooks/ui/useScrollLock";
 import { STEP_COUNT } from "@/lib/audio/engine/constants";
@@ -76,7 +76,7 @@ export const Sequencer: React.FC = () => {
 
           return (
             <div key={`sequence-step-item-${step}`} className="col-span-1">
-              <StepIndicator
+              <SequencerStepIndicator
                 stepIndex={step}
                 variation={variation}
                 playbackVariation={playbackVariation}
