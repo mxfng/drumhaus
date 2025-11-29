@@ -16,6 +16,8 @@ interface InstrumentHeaderProps {
   waveformHeight?: number;
   runtime?: InstrumentRuntime;
   className?: string;
+  /** Optional override */
+  onInteract?: () => void;
 }
 
 export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
@@ -25,6 +27,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   waveformHeight,
   runtime,
   className,
+  onInteract,
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
@@ -45,10 +48,19 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
 
   const isRuntimeLoaded = !!runtime;
 
+  /**
+   * Play the sample or trigger custom callback interaction
+   */
   const playSample = useCallback(() => {
     if (!runtime) return;
+
+    if (onInteract) {
+      onInteract();
+      return;
+    }
+
     playInstrumentSample(runtime, pitch, release);
-  }, [runtime, pitch, release]);
+  }, [onInteract, runtime, pitch, release]);
 
   const handleWaveformError = useCallback((error: Error) => {
     setWaveformError(error);
@@ -77,7 +89,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
         },
         className,
       )}
-      onMouseDown={playSample}
+      onPointerDown={playSample}
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}

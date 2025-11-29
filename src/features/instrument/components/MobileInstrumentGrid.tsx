@@ -49,20 +49,17 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
   return (
     <>
       <div className="grid h-full w-full grid-cols-2 grid-rows-4 gap-px">
-        {Array.from({ length: 8 }).map((_, index) => {
+        {Array.from({ length: 8 }).map((_, index: number) => {
           // Reverse row order: bottom row = 1,2 ... top row = 7,8
           const row = Math.floor(index / 2); // Which row (0-3)
           const col = index % 2; // Which column (0-1)
           const flippedRow = 3 - row; // Flip row order
           const voiceIndex = flippedRow * 2 + col; // Calculate voiceIndex from flipped position
           const runtime = instrumentRuntimes.current[voiceIndex];
-          const isLoaded = !!runtime;
 
           return (
-            <button
+            <div
               key={`instrument-${voiceIndex}`}
-              onTouchStart={() => handleInstrumentClick(voiceIndex)}
-              disabled={!isLoaded}
               className="flex flex-col items-center justify-center pb-2 transition-colors"
               style={{
                 borderLeftColor: INSTRUMENT_COLORS[voiceIndex],
@@ -73,9 +70,10 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
                 index={voiceIndex}
                 color={INSTRUMENT_COLORS[voiceIndex]}
                 runtime={runtime}
-                className="pointer-events-none flex-col items-start"
+                className="flex-col items-start"
+                onInteract={() => handleInstrumentClick(voiceIndex)}
               />
-            </button>
+            </div>
           );
         })}
       </div>
