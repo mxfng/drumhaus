@@ -146,7 +146,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         onValueChange={setTune}
         label="TUNE"
         mapping={tuneMapping}
-        outerTickCount={25}
+        outerTickCount={15}
       />
       <ParamKnob
         value={filter}
@@ -160,6 +160,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         onValueChange={setPan}
         label="PAN"
         mapping={instrumentPanMapping}
+        outerTickCount={3}
       />
 
       <div className="col-span-2 flex h-36 w-full items-center justify-center py-4">

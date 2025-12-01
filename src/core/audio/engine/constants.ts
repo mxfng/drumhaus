@@ -10,7 +10,7 @@ export type Range = [number, number];
 
 // Tune
 export const INSTRUMENT_TUNE_BASE_FREQUENCY = 65.4064; // C2
-export const INSTRUMENT_TUNE_SEMITONE_RANGE = 24;
+export const INSTRUMENT_TUNE_SEMITONE_RANGE = 7;
 export const INSTRUMENT_TUNE_RANGE: Range = [
   INSTRUMENT_TUNE_BASE_FREQUENCY / 4,
   INSTRUMENT_TUNE_BASE_FREQUENCY * 4,

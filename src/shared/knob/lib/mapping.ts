@@ -3,7 +3,6 @@ import {
   INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_DEFAULT,
   INSTRUMENT_PAN_RANGE,
-  INSTRUMENT_TUNE_BASE_FREQUENCY,
   INSTRUMENT_TUNE_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_DEFAULT,
   INSTRUMENT_VOLUME_RANGE,
@@ -151,30 +150,23 @@ const withInfinityAtZero = (
 // --- Specialized mappings ---
 
 /**
- * Tune mapping with semitone quantization.
+ * Tune mapping for percussive tuning.
  * Uses transformKnobValueTune to ensure consistency with audio engine.
- * Center (50) = no tune change, ±24 semitones range.
+ * Center (50) = no tune change, ±7 semitones range.
  */
 export const tuneMapping: ParamMapping<number> = {
-  knobValueCount: 48, // 48 discrete positions for fine semitone control
+  knobValueCount: KNOB_VALUE_MAX,
   defaultKnobValue: 50, // Center = base frequency
 
   knobToDomain: (knobValue) => {
-    const freq = transformKnobValueTune(knobValue);
-    // Round to whole semitones for clean musical intervals
-    const ratio = freq / INSTRUMENT_TUNE_BASE_FREQUENCY;
-    const semitoneOffset = Math.round(Math.log2(ratio) * 12);
-    const cleanRatio = Math.pow(2, semitoneOffset / 12);
-    return INSTRUMENT_TUNE_BASE_FREQUENCY * cleanRatio;
+    return transformKnobValueTune(knobValue);
   },
 
   domainToKnob: (frequency) => inverseTransformKnobValueTune(frequency),
 
   format: (_frequency, knobValue) => {
-    // Calculate display semitone offset
     const normalized = (knobValue - 50) / 50;
-    const semitoneOffsetRaw = normalized * INSTRUMENT_TUNE_SEMITONE_RANGE;
-    const semitoneOffset = Math.round(semitoneOffsetRaw);
+    const semitoneOffset = normalized * INSTRUMENT_TUNE_SEMITONE_RANGE;
     return formatDisplayTuneSemitone(semitoneOffset);
   },
 };

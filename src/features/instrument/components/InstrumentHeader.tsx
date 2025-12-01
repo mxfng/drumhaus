@@ -76,7 +76,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-4 opacity-80 transition-opacity duration-300 hover:opacity-100",
+        "flex h-full w-full flex-col items-stretch gap-4",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
