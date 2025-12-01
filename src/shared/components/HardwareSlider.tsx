@@ -10,7 +10,7 @@ const sliderContainerVariants = cva("flex gap-2 flex-col", {
   variants: {
     orientation: {
       horizontal: "w-full",
-      vertical: "h-full",
+      vertical: "h-full w-fit",
     },
   },
   defaultVariants: {

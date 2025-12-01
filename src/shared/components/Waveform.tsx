@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
+import { cn } from "@/shared/lib/utils";
 
 interface WaveformProps {
   audioFile: string;
@@ -9,6 +10,7 @@ interface WaveformProps {
   height?: number;
   color?: string;
   onError?: (error: Error) => void;
+  className?: string;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
@@ -17,6 +19,7 @@ const Waveform: React.FC<WaveformProps> = ({
   height,
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
+  className,
 }) => {
   // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
   const normalizedPath = audioFile
@@ -127,8 +130,8 @@ const Waveform: React.FC<WaveformProps> = ({
   }, [sampleFilename, finalWidth, finalHeight, color, onError]);
 
   return (
-    <div ref={containerRef} className="h-full w-full">
-      <canvas ref={canvasRef} className="h-full w-full object-contain" />
+    <div ref={containerRef} className={cn("h-full w-full", className)}>
+      <canvas ref={canvasRef} className="h-full w-full" />
     </div>
   );
 };

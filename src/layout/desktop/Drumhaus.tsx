@@ -4,11 +4,16 @@ import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { MobileDialog } from "@/shared/dialogs/MobileDialog";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
-import { FungPeaceLogo } from "@/shared/icon/FungPeaceLogo";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import Footer from "./Footer";
 import { Header } from "./Header";
+
+const renderDivider = () => {
+  return (
+    <div className="h-1 w-full shadow-[inset_2px_1px_2px_0_var(--color-shadow-30)]" />
+  );
+};
 
 const Drumhaus = () => {
   // --- Context ---
@@ -33,37 +38,27 @@ const Drumhaus = () => {
           style={{ "--scale": scale } as React.CSSProperties}
         >
           <div className="animate-fade-in">
-            <div className="hidden h-[50px] lg:block" />
+            <div className="hidden lg:block" />
             <div className="neu-extra-tall bg-surface relative h-[900px] w-[1440px] overflow-clip rounded-xl">
               {/* Header */}
               <Header />
 
-              <div className="bg-shadow h-1 w-full" />
+              {renderDivider()}
 
               {/* Instrument Grid */}
               <InstrumentGrid key={instrumentRuntimesVersion} />
 
-              <div className="bg-shadow h-1 w-full" />
+              {renderDivider()}
 
               {/* Main Controls */}
               <ControlsPanel />
 
-              <div className="bg-shadow h-1 w-full" />
+              {renderDivider()}
 
               {/* Sequencer */}
-              <div className="p-6">
+              <div className="m-6">
                 <Sequencer />
               </div>
-
-              {/* Branding Link */}
-              <a
-                className="absolute right-2.5 bottom-2.5 opacity-20"
-                href="https://fung.studio/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                <FungPeaceLogo color="#B09374" size={70} />
-              </a>
             </div>
 
             {/* Footer */}

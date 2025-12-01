@@ -9,6 +9,8 @@ type PixelatedFrownyProps = {
   pixelSize?: number; // in px
   /** Gap between pixels */
   gap?: number; // in px
+  /** Optional className for the container */
+  className?: string;
 };
 
 export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
@@ -16,6 +18,7 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
   color = "#ff7b00",
   pixelSize = 4,
   gap = 4,
+  className,
 }) => {
   // 8x8 grid for a clearer frowny face
   const grid = 8;
@@ -39,34 +42,50 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
 
   return (
     <div
-      className="pixelated-frowny"
+      className={className}
       style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        display: "grid",
-        gridTemplateColumns: `repeat(${grid}, ${pixelSize}px)`,
-        gridTemplateRows: `repeat(${grid}, ${pixelSize}px)`,
-        gap: `${gap}px`,
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
-        alignContent: "center",
-        imageRendering: "pixelated",
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        containerType: "size",
       }}
     >
-      {Array.from({ length: total }).map((_, i) => {
-        const shouldFill = frownyPattern[i] === 1;
+      <div
+        className="pixelated-frowny"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          aspectRatio: "1",
+          display: "grid",
+          gridTemplateColumns: `repeat(${grid}, ${pixelSize}px)`,
+          gridTemplateRows: `repeat(${grid}, ${pixelSize}px)`,
+          gap: `${gap}px`,
+          justifyContent: "center",
+          alignContent: "center",
+          imageRendering: "pixelated",
+          transform: `scale(min(1, min(100cqw / ${size}, 100cqh / ${size})))`,
+          transformOrigin: "center",
+        }}
+      >
+        {Array.from({ length: total }).map((_, i) => {
+          const shouldFill = frownyPattern[i] === 1;
 
-        return (
-          <div
-            key={i}
-            className="pixelated-frowny__pixel"
-            style={{
-              width: `${pixelSize}px`,
-              height: `${pixelSize}px`,
-              backgroundColor: shouldFill ? color : "transparent",
-            }}
-          />
-        );
-      })}
+          return (
+            <div
+              key={i}
+              className="pixelated-frowny__pixel"
+              style={{
+                width: `${pixelSize}px`,
+                height: `${pixelSize}px`,
+                backgroundColor: shouldFill ? color : "transparent",
+              }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };

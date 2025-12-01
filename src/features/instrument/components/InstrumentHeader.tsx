@@ -76,7 +76,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-4",
+        "flex h-full w-full flex-col items-stretch gap-2",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
@@ -90,10 +90,10 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     >
       {/* Header */}
       <div className="flex w-full items-center gap-1.5">
-        <span className="font-pixel" style={{ color }}>
+        <span className="font-pixel text-sm" style={{ color }}>
           {index + 1}
         </span>
-        <Label className="text-foreground-emphasis font-pixel text-base">
+        <Label className="text-foreground-emphasis font-pixel text-sm">
           {instrumentMeta.name}
         </Label>
       </div>
@@ -108,6 +108,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
             width={waveformWidth}
             height={waveformHeight}
             onError={handleWaveformError}
+            className="h-6"
           />
         ) : (
           <PixelatedSpinner color={color} />

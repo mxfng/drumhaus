@@ -3,7 +3,7 @@ import { Pause, Play } from "lucide-react";
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { MasterCompressor } from "@/features/master-bus/components/MasterCompressor";
 import { MasterFX } from "@/features/master-bus/components/MasterFX";
-import { PresetControl } from "@/features/preset/components/PresetControl";
+import { MasterVolume } from "@/features/master-bus/components/MasterVolume";
 import { SequencerControl } from "@/features/sequencer/components/SequencerControl";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { Button, Tooltip } from "@/shared/ui";
@@ -14,7 +14,7 @@ export const ControlsPanel = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
   return (
-    <div className="grid h-60 w-full grid-cols-8 flex-row items-center">
+    <div className="grid w-full grid-cols-8 flex-row items-center p-6">
       {/* Play/Pause Button */}
       <div className="flex items-center justify-center">
         <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
@@ -41,16 +41,17 @@ export const ControlsPanel = () => {
       </div>
 
       {/* Preset Control */}
-      <div className="col-span-2 flex h-full flex-row py-3">
+      <div></div>
+      {/* <div className="col-span-2 flex h-full flex-row py-3">
         <PresetControl />
-      </div>
+      </div> */}
 
       <div></div>
 
       {/* Master Controls */}
       <MasterCompressor />
       <MasterFX />
-      {/* <MasterVolume /> */}
+      <MasterVolume />
     </div>
   );
 };

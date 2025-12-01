@@ -163,46 +163,47 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         outerTickCount={3}
       />
 
-      <div className="col-span-2 flex h-36 w-full items-center justify-center py-4">
+      {/* Spacer */}
+      <div />
+
+      {/* Level/volume slider */}
+      <div className="col-span-2 grid h-24 w-full grid-cols-3 place-items-center">
+        <div />
         <HardwareSlider
           mapping={instrumentVolumeMapping}
           value={volume}
           onValueChange={setVolume}
           orientation="vertical"
         />
-      </div>
-
-      <div className="col-span-2 flex w-full items-center justify-center px-3">
-        <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
-          <Tooltip content="Mute [M]" delayDuration={500}>
+        <div className="flex h-full w-6 flex-col items-center justify-center gap-2">
+          <Tooltip content={mute ? "Unmute" : "Mute"} side="right">
             <Button
               variant="hardware"
-              size="sm"
-              className={cn("rounded-l-lg rounded-r-none p-2", {
-                "text-primary": mute,
-              })}
+              size="xs"
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
+              className={cn("border-shadow-30 flex rounded-full border p-1.5", {
+                "text-primary": mute,
+              })}
             >
-              {mute ? <VolumeX /> : <Volume />}
+              {mute ? <VolumeX size={14} /> : <Volume size={14} />}
             </Button>
           </Tooltip>
-          <Tooltip content="Solo [S]" delayDuration={500}>
+          <Tooltip content={solo ? "Unsolo" : "Solo"} side="right">
             <Button
               variant="hardware"
-              size="sm"
-              className={cn("rounded-l-none rounded-r-lg p-2", {
-                "text-primary": solo,
-              })}
+              size="xs"
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
+              className={cn("border-shadow-30 flex rounded-full border p-1.5", {
+                "text-primary": solo,
+              })}
             >
-              <Headphones className={cn({ "text-primary": solo })} size={18} />
+              <Headphones className={cn({ "text-primary": solo })} />
             </Button>
           </Tooltip>
         </div>
       </div>
-      {/* Right: Volume */}
     </div>
   );
 };
