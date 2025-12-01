@@ -169,7 +169,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
       <div />
 
       {/* Level/volume slider */}
-      <div className="col-span-2 grid h-24 w-full grid-cols-3 place-items-center">
+      <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
         <GainMeter runtime={runtime} />
         <HardwareSlider
           mapping={instrumentVolumeMapping}
