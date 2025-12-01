@@ -78,9 +78,12 @@ export async function buildInstrumentRuntime(
   const pannerNode = new Panner(0);
 
   const meterNode = new Meter({
+    channelCount: 2,
     smoothing: 0.8,
     normalRange: true,
   });
+  // Ensure we always output normalized 0–1
+  meterNode.normalRange = true;
 
   const { url, baseUrl } = await resolveSamplerSource(
     instrument.sample.path,

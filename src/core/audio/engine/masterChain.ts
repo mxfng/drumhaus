@@ -199,15 +199,15 @@ export function connectInstrumentRuntime(
   instrument.samplerNode.chain(
     instrument.envelopeNode,
     instrument.filterNode,
-    instrument.meterNode,
     instrument.pannerNode,
+    instrument.meterNode,
   );
 
   // Connect instrument output to compressor section (parallel compression)
   // Signal splits: wet path through compressor, dry path with latency compensation
   // Multiple instruments connecting here are naturally summed by Web Audio
-  instrument.pannerNode.connect(master.compressor); // Wet path
-  instrument.pannerNode.connect(master.compDryDelay); // Dry path (with latency compensation)
+  instrument.meterNode.connect(master.compressor); // Wet path (post-pan, post-meter)
+  instrument.meterNode.connect(master.compDryDelay); // Dry path (with latency compensation)
 }
 
 /**
