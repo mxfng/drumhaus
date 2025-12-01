@@ -76,7 +76,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full items-stretch gap-4 opacity-80 transition-opacity duration-300 hover:opacity-100",
+        "flex h-full w-full flex-col items-stretch gap-4 opacity-80 transition-opacity duration-300 hover:opacity-100",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
@@ -89,7 +89,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}
-      <div className="flex w-1/3 items-center gap-1.5">
+      <div className="flex w-full items-center gap-1.5">
         <span className="font-pixel" style={{ color }}>
           {index + 1}
         </span>
@@ -99,7 +99,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       </div>
 
       {/* Waveform */}
-      <div className="relative flex w-2/3 flex-1 items-center justify-center overflow-visible">
+      <div className="relative flex flex-1 items-center justify-center overflow-visible">
         {waveformError ? (
           <PixelatedFrowny color={color} />
         ) : isRuntimeLoaded ? (

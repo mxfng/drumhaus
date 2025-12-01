@@ -6,7 +6,6 @@ import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
-  instrumentAttackMapping,
   instrumentDecayMapping,
   instrumentPanMapping,
   instrumentVolumeMapping,

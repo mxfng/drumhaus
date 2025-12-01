@@ -27,7 +27,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       className="group flex h-full w-full flex-col"
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
-      <div className="mx-4 h-8">
+      <div className="mx-4 mb-4">
         <InstrumentHeader
           index={index}
           color={color}

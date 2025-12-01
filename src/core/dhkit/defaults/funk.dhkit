@@ -23,7 +23,6 @@
         "path": "1/rw_kick.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 49,
         "filter": 50,
         "volume": 82,
@@ -47,7 +46,6 @@
         "path": "1/rw_kick2.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 10,
         "filter": 50,
         "volume": 79,
@@ -71,7 +69,6 @@
         "path": "1/rw_snare.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 42,
         "filter": 50,
         "volume": 77,
@@ -95,7 +92,6 @@
         "path": "1/rw_clap.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 10,
         "filter": 50,
         "volume": 82,
@@ -119,7 +115,6 @@
         "path": "1/rw_hat.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 10,
         "filter": 50,
         "volume": 82,
@@ -143,7 +138,6 @@
         "path": "1/rw_ohat.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 82,
@@ -167,7 +161,6 @@
         "path": "1/rw_perc_flam.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 40,
         "filter": 56,
         "volume": 79,
@@ -191,7 +184,6 @@
         "path": "1/rw_cymbal.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 84,

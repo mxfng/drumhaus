@@ -77,17 +77,21 @@ export const useInstrumentsStore = create<InstrumentsState>()(
           instruments: state.instruments,
         }),
         migrate: (persistedState: any, version: number) => {
-          // Migrate from v1 to v2: rename release → decay, pitch → tune
+          // Migrate from v1 to v2: rename release → decay, pitch → tune, remove attack
           if (version === 1) {
             const state = persistedState as { instruments: InstrumentData[] };
-            state.instruments = state.instruments.map((inst) => ({
-              ...inst,
-              params: {
-                ...inst.params,
-                decay: (inst.params as any).release ?? inst.params.decay,
-                tune: (inst.params as any).pitch ?? inst.params.tune,
-              },
-            }));
+            state.instruments = state.instruments.map((inst) => {
+              const oldParams = inst.params as any;
+              const { attack, release, pitch, ...rest } = oldParams;
+              return {
+                ...inst,
+                params: {
+                  ...rest,
+                  decay: release ?? oldParams.decay,
+                  tune: pitch ?? oldParams.tune,
+                },
+              };
+            });
           }
           return persistedState;
         },

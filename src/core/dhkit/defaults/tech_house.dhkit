@@ -23,7 +23,6 @@
         "path": "2/paris_kick.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 49,
         "filter": 50,
         "volume": 83,
@@ -47,7 +46,6 @@
         "path": "2/paris_bass.wav"
       },
       "params": {
-        "attack": 20,
         "decay": 63,
         "filter": 50,
         "volume": 83,
@@ -71,7 +69,6 @@
         "path": "2/paris_snare.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 42,
         "filter": 54,
         "volume": 85,
@@ -95,7 +92,6 @@
         "path": "2/paris_clap.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 40,
         "filter": 50,
         "volume": 87,
@@ -119,7 +115,6 @@
         "path": "2/paris_hat.wav"
       },
       "params": {
-        "attack": 4,
         "decay": 43,
         "filter": 50,
         "volume": 70,
@@ -143,7 +138,6 @@
         "path": "2/paris_ohat.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 82,
@@ -167,7 +161,6 @@
         "path": "2/paris_p_E.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 79,
         "filter": 55,
         "volume": 80,
@@ -191,7 +184,6 @@
         "path": "2/paris_p_Abm.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 79,

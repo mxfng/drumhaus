@@ -17,10 +17,6 @@ export const formatDisplayTuneSemitone = (semitoneOffset: number) => ({
   append: "st",
 });
 
-export const formatDisplayAttackDuration = (value: number) => {
-  return formatDisplayDuration(value);
-};
-
 export const formatDisplayDecayDuration = (value: number) => {
   return formatDisplayDuration(value);
 };

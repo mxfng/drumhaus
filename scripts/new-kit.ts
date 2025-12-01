@@ -39,7 +39,6 @@ interface KitFileV1 {
       };
     };
     params: {
-      attack: number;
       decay: number;
       filter: number;
       volume: number;
@@ -268,7 +267,6 @@ async function generateKit() {
             ...(attribution && { attribution }),
           },
           params: {
-            attack: 0,
             decay: 100,
             filter: 50,
             volume: 92,

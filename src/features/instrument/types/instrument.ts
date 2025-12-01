@@ -9,7 +9,6 @@ import { SampleData } from "@/features/kit/types/sample";
 import { InlineMeta } from "@/features/preset/types/meta";
 
 export interface InstrumentParams {
-  attack: number;
   decay: number;
   filter: number;
   volume: number;

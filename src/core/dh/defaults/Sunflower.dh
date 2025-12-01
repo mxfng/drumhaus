@@ -32,7 +32,6 @@
           "path": "9/kick_puffy.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 96,
@@ -56,7 +55,6 @@
           "path": "9/tom_clonk.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 88,
@@ -80,7 +78,6 @@
           "path": "9/snare_together.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 98,
@@ -104,7 +101,6 @@
           "path": "9/clap_hectic.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 43,
           "filter": 50,
           "volume": 76,
@@ -128,7 +124,6 @@
           "path": "9/hat_crisp.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 29,
           "filter": 50,
           "volume": 84,
@@ -152,7 +147,6 @@
           "path": "9/ohat_thick.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 80,
@@ -176,7 +170,6 @@
           "path": "9/perc_jungle.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 54,
           "filter": 50,
           "volume": 92,
@@ -200,7 +193,6 @@
           "path": "9/crash_legend.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 78,

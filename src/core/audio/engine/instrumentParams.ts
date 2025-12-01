@@ -1,7 +1,6 @@
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
-  instrumentAttackMapping,
   instrumentPanMapping,
   instrumentVolumeMapping,
   splitFilterMapping,
@@ -14,7 +13,7 @@ import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
  * 1. CONTINUOUS PARAMS (defined here):
  *    - Applied directly to audio nodes and stay active
  *    - Updated via subscription when store changes
- *    - Examples: attack, filter, pan, volume
+ *    - Examples: filter, pan, volume
  *
  * 2. PER-NOTE PARAMS (handled in drumSequence.ts):
  *    - Read from store during playback for each triggered note
@@ -22,7 +21,6 @@ import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
  *    - Examples: tune, decay, solo, mute
  */
 export interface ContinuousRuntimeParams {
-  attack: number;
   filter: number;
   pan: number;
   volume: number;
@@ -37,10 +35,6 @@ export function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: ContinuousRuntimeParams,
 ): void {
-  runtime.samplerNode.attack = instrumentAttackMapping.knobToDomain(
-    params.attack,
-  );
-
   // TODO: Should probably extract this check to the knob library.
   runtime.filterNode.type =
     params.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
@@ -58,7 +52,7 @@ export function applyInstrumentParams(
 
 /**
  * Subscribes a runtime to continuous params from the store.
- * Only syncs params that are applied to audio nodes (attack, filter, pan, volume).
+ * Only syncs params that are applied to audio nodes (filter, pan, volume).
  * Per-note params (tune, decay, solo, mute) are NOT synced here - they're read
  * during playback in drumSequence.ts
  */
@@ -71,7 +65,6 @@ export function subscribeRuntimeToInstrumentParams(
   const applyParamsIfChanged = (params: ContinuousRuntimeParams) => {
     if (
       prevParams &&
-      prevParams.attack === params.attack &&
       prevParams.filter === params.filter &&
       prevParams.pan === params.pan &&
       prevParams.volume === params.volume
@@ -89,7 +82,6 @@ export function subscribeRuntimeToInstrumentParams(
 
     // Only pass continuous params - per-note params are read during playback
     applyParamsIfChanged({
-      attack: instrument.params.attack,
       filter: instrument.params.filter,
       pan: instrument.params.pan,
       volume: instrument.params.volume,
@@ -100,7 +92,6 @@ export function subscribeRuntimeToInstrumentParams(
   const currentInstrument = useInstrumentsStore.getState().instruments[index];
   if (currentInstrument) {
     applyParamsIfChanged({
-      attack: currentInstrument.params.attack,
       filter: currentInstrument.params.filter,
       pan: currentInstrument.params.pan,
       volume: currentInstrument.params.volume,

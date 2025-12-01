@@ -1,6 +1,4 @@
 import {
-  INSTRUMENT_ATTACK_DEFAULT,
-  INSTRUMENT_ATTACK_RANGE,
   INSTRUMENT_DECAY_DEFAULT,
   INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_DEFAULT,
@@ -29,7 +27,6 @@ import {
 import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
-  formatDisplayAttackDuration,
   formatDisplayCompRatio,
   formatDisplayDecayDuration,
   formatDisplayFilter,
@@ -215,17 +212,6 @@ export const splitFilterMapping: ParamMapping<number> = {
 };
 
 // --- Instrument parameter mappings ---
-
-/**
- * Attack envelope time (exponential for natural feel)
- */
-export const instrumentAttackMapping = makeExponentialMapping(
-  INSTRUMENT_ATTACK_RANGE,
-  formatDisplayAttackDuration,
-  {
-    defaultKnobValue: INSTRUMENT_ATTACK_DEFAULT,
-  },
-);
 
 /**
  * Decay envelope time (exponential for natural feel)

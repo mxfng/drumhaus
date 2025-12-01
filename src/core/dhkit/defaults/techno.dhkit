@@ -23,7 +23,6 @@
         "path": "7/berlin_kick.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 60,
         "filter": 50,
         "volume": 92,
@@ -47,7 +46,6 @@
         "path": "7/berlin_bass.wav"
       },
       "params": {
-        "attack": 46,
         "decay": 56,
         "filter": 4,
         "volume": 90,
@@ -71,7 +69,6 @@
         "path": "7/berlin_snare.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 65,
         "filter": 54,
         "volume": 85,
@@ -95,7 +92,6 @@
         "path": "7/berlin_clap.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 49,
         "filter": 50,
         "volume": 76,
@@ -119,7 +115,6 @@
         "path": "7/berlin_hat.wav"
       },
       "params": {
-        "attack": 4,
         "decay": 51,
         "filter": 50,
         "volume": 75,
@@ -143,7 +138,6 @@
         "path": "7/berlin_ohat.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 83,
         "filter": 50,
         "volume": 69,
@@ -167,7 +161,6 @@
         "path": "7/berlin_stab.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 79,
         "filter": 55,
         "volume": 85,
@@ -191,7 +184,6 @@
         "path": "7/berlin_loop.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 88,

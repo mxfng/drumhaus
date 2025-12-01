@@ -23,7 +23,6 @@
         "path": "5/hs_kick.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 49,
         "filter": 50,
         "volume": 91,
@@ -47,7 +46,6 @@
         "path": "5/hs_kick2.wav"
       },
       "params": {
-        "attack": 20,
         "decay": 63,
         "filter": 50,
         "volume": 77,
@@ -71,7 +69,6 @@
         "path": "5/hs_snare.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 42,
         "filter": 54,
         "volume": 85,
@@ -95,7 +92,6 @@
         "path": "5/hs_clap.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 36,
         "filter": 50,
         "volume": 79,
@@ -119,7 +115,6 @@
         "path": "5/hs_hat.wav"
       },
       "params": {
-        "attack": 4,
         "decay": 26,
         "filter": 50,
         "volume": 86,
@@ -143,7 +138,6 @@
         "path": "5/hs_ohat.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 90,
@@ -167,7 +161,6 @@
         "path": "5/hs_perc.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 43,
         "filter": 55,
         "volume": 74,
@@ -191,7 +184,6 @@
         "path": "5/hs_crash.wav"
       },
       "params": {
-        "attack": 0,
         "decay": 100,
         "filter": 50,
         "volume": 88,

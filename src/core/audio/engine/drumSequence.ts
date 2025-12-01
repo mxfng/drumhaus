@@ -218,7 +218,7 @@ function getInstrumentAndRuntime(
  * Used by both online (step-based) and offline (time-based) scheduling.
  *
  * NOTE: This reads PER-NOTE params (tune, decay, solo, mute) from the store
- * on every trigger. CONTINUOUS params (attack, filter, pan, volume) are applied
+ * on every trigger. CONTINUOUS params (filter, pan, volume) are applied
  * to audio nodes via subscribeRuntimeToInstrumentParams in instrumentParams.ts
  */
 function scheduleVoiceCore(

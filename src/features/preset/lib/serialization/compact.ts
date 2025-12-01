@@ -114,7 +114,6 @@ type CompactVoice = {
  * Compact instrument params (only non-default values)
  */
 type CompactParams = {
-  a?: number; // attack
   d?: number; // decay
   f?: number; // filter
   v?: number; // volume
@@ -175,7 +174,6 @@ function encodeStepSequence(seq: StepSequence): CompactStepSequence {
 function encodeParams(params: InstrumentParams): CompactParams {
   const compact: CompactParams = {};
 
-  if (params.attack !== DEFAULT_PARAMS.attack) compact.a = params.attack;
   if (params.decay !== DEFAULT_PARAMS.decay) compact.d = params.decay;
   if (params.filter !== DEFAULT_PARAMS.filter) compact.f = params.filter;
   if (params.volume !== DEFAULT_PARAMS.volume) compact.v = params.volume;
@@ -268,7 +266,6 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
 
 function decodeParams(compact: CompactParams): InstrumentParams {
   return {
-    attack: compact.a ?? DEFAULT_PARAMS.attack,
     decay: compact.d ?? DEFAULT_PARAMS.decay,
     filter: compact.f ?? DEFAULT_PARAMS.filter,
     volume: compact.v ?? DEFAULT_PARAMS.volume,

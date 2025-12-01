@@ -32,7 +32,6 @@
           "path": "4/ts_kick.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 49,
           "filter": 50,
           "volume": 84,
@@ -56,7 +55,6 @@
           "path": "4/ts_kick2.wav"
         },
         "params": {
-          "attack": 20,
           "decay": 63,
           "filter": 50,
           "volume": 80,
@@ -80,7 +78,6 @@
           "path": "4/ts_snare.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 42,
           "filter": 56,
           "volume": 86,
@@ -104,7 +101,6 @@
           "path": "4/ts_clap.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 59,
@@ -128,7 +124,6 @@
           "path": "4/ts_hat.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 10,
           "filter": 50,
           "volume": 89,
@@ -152,7 +147,6 @@
           "path": "4/ts_ohat.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 90,
@@ -176,7 +170,6 @@
           "path": "4/ts_hat2.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 40,
           "filter": 56,
           "volume": 85,
@@ -200,7 +193,6 @@
           "path": "4/ts_hat3.wav"
         },
         "params": {
-          "attack": 0,
           "decay": 100,
           "filter": 50,
           "volume": 88,
