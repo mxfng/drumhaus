@@ -29,7 +29,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 21,
+        "decay": 21,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -58,7 +58,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 30,
+        "decay": 30,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -87,7 +87,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 28,
+        "decay": 28,
         "filter": 50,
         "volume": 90,
         "pan": 61,
@@ -116,7 +116,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 23,
+        "decay": 23,
         "filter": 50,
         "volume": 92,
         "pan": 36,
@@ -145,7 +145,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 29,
+        "decay": 29,
         "filter": 50,
         "volume": 83,
         "pan": 50,
@@ -174,7 +174,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 100,
+        "decay": 100,
         "filter": 50,
         "volume": 87,
         "pan": 27,
@@ -203,7 +203,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 54,
+        "decay": 54,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -232,7 +232,7 @@
       },
       "params": {
         "attack": 0,
-        "release": 100,
+        "decay": 100,
         "filter": 50,
         "volume": 78,
         "pan": 50,

@@ -80,7 +80,7 @@ const makeLinearMapping = (
 /**
  * Creates an exponential mapping for parameters that need non-linear response.
  * Uses transformKnobValueExponential to ensure consistency with audio engine.
- * Useful for time-based parameters (attack, release) and frequency.
+ * Useful for time-based parameters (attack, decay) and frequency.
  *
  * @param range - [min, max] range for the parameter
  * @param format - Display formatting function

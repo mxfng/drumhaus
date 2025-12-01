@@ -40,7 +40,7 @@ interface KitFileV1 {
     };
     params: {
       attack: number;
-      release: number;
+      decay: number;
       filter: number;
       volume: number;
       pan: number;
@@ -269,7 +269,7 @@ async function generateKit() {
           },
           params: {
             attack: 0,
-            release: 100,
+            decay: 100,
             filter: 50,
             volume: 92,
             pan: 50,

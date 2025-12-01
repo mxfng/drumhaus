@@ -71,11 +71,26 @@ export const useInstrumentsStore = create<InstrumentsState>()(
       })),
       {
         name: "drumhaus-instruments-storage",
-        version: 1,
+        version: 2,
         // Persist instruments but not durations (computed from samples)
         partialize: (state) => ({
           instruments: state.instruments,
         }),
+        migrate: (persistedState: any, version: number) => {
+          // Migrate from v1 to v2: rename release → decay, pitch → tune
+          if (version === 1) {
+            const state = persistedState as { instruments: InstrumentData[] };
+            state.instruments = state.instruments.map((inst) => ({
+              ...inst,
+              params: {
+                ...inst.params,
+                decay: (inst.params as any).release ?? inst.params.decay,
+                tune: (inst.params as any).pitch ?? inst.params.tune,
+              },
+            }));
+          }
+          return persistedState;
+        },
       },
     ),
     {
