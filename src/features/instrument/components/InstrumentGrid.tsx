@@ -47,7 +47,7 @@ export const InstrumentGrid: React.FC = () => {
   }, [handleArrowKeyPress]);
 
   return (
-    <div ref={instrumentsRef} className="grid w-full grid-cols-8 gap-4 px-6">
+    <div ref={instrumentsRef} className="grid w-full grid-cols-8 gap-4 p-6">
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes.current[index];
 

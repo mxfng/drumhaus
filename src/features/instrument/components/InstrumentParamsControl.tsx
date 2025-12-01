@@ -2,16 +2,16 @@ import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 import { now } from "tone/build/esm/index";
 
-import { INSTRUMENT_PAN_RANGE } from "@/core/audio/engine/constants";
 import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
   instrumentAttackMapping,
-  instrumentReleaseMapping,
+  instrumentDecayMapping,
+  instrumentPanMapping,
   instrumentVolumeMapping,
-  pitchMapping,
   splitFilterMapping,
+  tuneMapping,
 } from "@/shared/knob/lib/mapping";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
@@ -33,11 +33,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Read params from store
-  const attack = useInstrumentsStore(
-    (state) => state.instruments[index].params.attack,
-  );
-  const release = useInstrumentsStore(
-    (state) => state.instruments[index].params.release,
+  const decay = useInstrumentsStore(
+    (state) => state.instruments[index].params.decay,
   );
   const filter = useInstrumentsStore(
     (state) => state.instruments[index].params.filter,
@@ -48,8 +45,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const volume = useInstrumentsStore(
     (state) => state.instruments[index].params.volume,
   );
-  const pitch = useInstrumentsStore(
-    (state) => state.instruments[index].params.pitch,
+  const tune = useInstrumentsStore(
+    (state) => state.instruments[index].params.tune,
   );
   const mute = useInstrumentsStore(
     (state) => state.instruments[index].params.mute,
@@ -66,12 +63,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
   // Wrap store setters with instrument index
-  const setAttack = useCallback(
-    (value: number) => setInstrumentProperty(index, "attack", value),
-    [index, setInstrumentProperty],
-  );
-  const setRelease = useCallback(
-    (value: number) => setInstrumentProperty(index, "release", value),
+  const setDecay = useCallback(
+    (value: number) => setInstrumentProperty(index, "decay", value),
     [index, setInstrumentProperty],
   );
   const setFilter = useCallback(
@@ -86,8 +79,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     (value: number) => setInstrumentProperty(index, "volume", value),
     [index, setInstrumentProperty],
   );
-  const setPitch = useCallback(
-    (value: number) => setInstrumentProperty(index, "pitch", value),
+  const setTune = useCallback(
+    (value: number) => setInstrumentProperty(index, "tune", value),
     [index, setInstrumentProperty],
   );
   const toggleMute = useCallback(
@@ -144,16 +137,16 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     >
       {/* Top knobs - 2x2 grid */}
       <ParamKnob
-        value={release}
-        onValueChange={setRelease}
+        value={decay}
+        onValueChange={setDecay}
         label="DECAY"
-        mapping={instrumentReleaseMapping}
+        mapping={instrumentDecayMapping}
       />
       <ParamKnob
-        value={pitch}
-        onValueChange={setPitch}
+        value={tune}
+        onValueChange={setTune}
         label="TUNE"
-        mapping={pitchMapping}
+        mapping={tuneMapping}
         outerTickCount={25}
       />
       <ParamKnob
@@ -164,19 +157,20 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         outerTickCount={3}
       />
       <ParamKnob
-        value={attack}
-        onValueChange={setAttack}
+        value={pan}
+        onValueChange={setPan}
         label="PAN"
-        mapping={instrumentAttackMapping}
+        mapping={instrumentPanMapping}
       />
 
-      <ParamKnob
-        value={volume}
-        onValueChange={setVolume}
-        label="LEVEL"
-        mapping={instrumentVolumeMapping}
-        outerTickCount={13}
-      />
+      <div className="col-span-2 flex h-36 w-full items-center justify-center py-4">
+        <HardwareSlider
+          mapping={instrumentVolumeMapping}
+          value={volume}
+          onValueChange={setVolume}
+          orientation="vertical"
+        />
+      </div>
 
       <div className="col-span-2 flex w-full items-center justify-center px-3">
         <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">

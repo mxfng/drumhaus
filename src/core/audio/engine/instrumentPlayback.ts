@@ -1,10 +1,7 @@
 import { now } from "tone/build/esm/index";
 
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
-import {
-  instrumentReleaseMapping,
-  pitchMapping,
-} from "@/shared/knob/lib/mapping";
+import { instrumentDecayMapping, tuneMapping } from "@/shared/knob/lib/mapping";
 import { triggerInstrumentAtTime } from "./trigger";
 
 /**
@@ -12,16 +9,16 @@ import { triggerInstrumentAtTime } from "./trigger";
  */
 export async function playInstrumentSample(
   runtime: InstrumentRuntime,
-  pitch: number,
-  release: number,
+  tune: number,
+  decay: number,
 ) {
   if (!runtime.samplerNode.loaded) {
     return;
   }
 
   const time = now();
-  const pitchValue = pitchMapping.knobToDomain(pitch);
-  const releaseValue = instrumentReleaseMapping.knobToDomain(release);
+  const tuneValue = tuneMapping.knobToDomain(tune);
+  const decayValue = instrumentDecayMapping.knobToDomain(decay);
 
-  triggerInstrumentAtTime(runtime, pitchValue, releaseValue, time);
+  triggerInstrumentAtTime(runtime, tuneValue, decayValue, time);
 }

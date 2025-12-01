@@ -38,14 +38,20 @@ const Drumhaus = () => {
               {/* Header */}
               <Header />
 
+              <div className="bg-shadow h-1 w-full" />
+
               {/* Instrument Grid */}
               <InstrumentGrid key={instrumentRuntimesVersion} />
+
+              <div className="bg-shadow h-1 w-full" />
 
               {/* Main Controls */}
               <ControlsPanel />
 
+              <div className="bg-shadow h-1 w-full" />
+
               {/* Sequencer */}
-              <div>
+              <div className="p-6">
                 <Sequencer />
               </div>
 

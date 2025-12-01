@@ -38,11 +38,11 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
-  const pitch = useInstrumentsStore(
-    (state) => state.instruments[index].params.pitch,
+  const tune = useInstrumentsStore(
+    (state) => state.instruments[index].params.tune,
   );
-  const release = useInstrumentsStore(
-    (state) => state.instruments[index].params.release,
+  const decay = useInstrumentsStore(
+    (state) => state.instruments[index].params.decay,
   );
 
   const isRuntimeLoaded = !!runtime;
@@ -58,8 +58,8 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       return;
     }
 
-    await playInstrumentSample(runtime, pitch, release);
-  }, [onInteract, runtime, pitch, release]);
+    await playInstrumentSample(runtime, tune, decay);
+  }, [onInteract, runtime, tune, decay]);
 
   const handleWaveformError = useCallback((error: Error) => {
     setWaveformError(error);

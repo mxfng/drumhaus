@@ -1,15 +1,14 @@
-import { Time } from "tone/build/esm/index";
+import { Sequence, Time } from "tone/build/esm/index";
 
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
   InstrumentData,
   InstrumentRuntime,
 } from "@/features/instrument/types/instrument";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
-import {
-  instrumentReleaseMapping,
-  pitchMapping,
-} from "@/shared/knob/lib/mapping";
+import { instrumentDecayMapping, tuneMapping } from "@/shared/knob/lib/mapping";
 import {
   SEQUENCE_EVENTS,
   SEQUENCE_SUBDIVISION,
@@ -17,15 +16,8 @@ import {
   TRANSPORT_SWING_MAX,
   TRANSPORT_SWING_RANGE,
 } from "./constants";
-import { defaultSequencerFactory, defaultStateProvider } from "./factory";
 import { hasAnySolo } from "./solo";
 import { triggerInstrumentAtTime } from "./trigger";
-import {
-  DrumSequenceStateProvider,
-  Ref,
-  SequenceInstance,
-  SequencerFactory,
-} from "./types";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -90,88 +82,86 @@ function buildPrecomputedPattern(
  * Don't forget: make good music
  */
 export function createDrumSequence(
-  sequencerRef: Ref<SequenceInstance | null>,
-  instrumentRuntimes: Ref<InstrumentRuntime[]>,
+  sequencerRef: { current: Sequence | null },
+  instrumentRuntimes: { current: InstrumentRuntime[] },
   variationCycle: VariationCycle,
-  currentBar: Ref<number>,
-  currentVariation: Ref<number>,
-  stateProvider: DrumSequenceStateProvider = defaultStateProvider,
-  sequencerFactory: SequencerFactory = defaultSequencerFactory,
+  currentBar: { current: number },
+  currentVariation: { current: number },
 ): void {
   disposeDrumSequence(sequencerRef);
 
   let precomputedPattern = buildPrecomputedPattern(
-    stateProvider.pattern.getPattern(),
-    stateProvider.pattern.getPatternVersion(),
+    usePatternStore.getState().pattern,
+    usePatternStore.getState().patternVersion,
   );
 
-  sequencerRef.current = sequencerFactory
-    .createSequence(
-      (time, step: number) => {
-        // Grab fresh state every 16th note for responsive UI + audio
-        const instruments = stateProvider.instruments.getInstruments();
-        const currentRuntimes = instrumentRuntimes.current;
+  const sequence = new Sequence(
+    (time, step: number) => {
+      // Grab fresh state every 16th note for responsive UI + audio
+      const instruments = useInstrumentsStore.getState().instruments;
+      const currentRuntimes = instrumentRuntimes.current;
 
-        const currentPatternVersion = stateProvider.pattern.getPatternVersion();
-        if (currentPatternVersion !== precomputedPattern.version) {
-          precomputedPattern = buildPrecomputedPattern(
-            stateProvider.pattern.getPattern(),
-            currentPatternVersion,
-          );
-        }
+      const currentPatternVersion = usePatternStore.getState().patternVersion;
+      if (currentPatternVersion !== precomputedPattern.version) {
+        precomputedPattern = buildPrecomputedPattern(
+          usePatternStore.getState().pattern,
+          currentPatternVersion,
+        );
+      }
 
-        const { isFirstStep, isLastStep } = getStepBoundaries(step);
+      const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
-        const anySolos = hasAnySolo(instruments);
-        const { hasOhat, ohatIndex } = findOpenHatIndex(
+      const anySolos = hasAnySolo(instruments);
+      const { hasOhat, ohatIndex } = findOpenHatIndex(
+        instruments,
+        currentRuntimes,
+      );
+
+      if (isFirstStep) {
+        updateVariationForBarStart(
+          variationCycle,
+          currentBar,
+          currentVariation,
+        );
+      }
+
+      const variationIndex = currentVariation.current;
+
+      const hitsForStep =
+        precomputedPattern.stepsByVariation[variationIndex][step];
+
+      if (hitsForStep.length > 0) {
+        schedulePrecomputedStep(
+          hitsForStep,
+          step,
+          Time(time).toSeconds(),
+          variationIndex,
+          anySolos,
+          hasOhat,
+          ohatIndex,
           instruments,
           currentRuntimes,
         );
+      }
 
-        if (isFirstStep) {
-          updateVariationForBarStart(
-            variationCycle,
-            currentBar,
-            currentVariation,
-            stateProvider,
-          );
-        }
+      if (isLastStep) {
+        updateBarIndexAtEndOfBar(variationCycle, currentBar);
+      }
+    },
+    SEQUENCE_EVENTS,
+    SEQUENCE_SUBDIVISION,
+  );
 
-        const variationIndex = currentVariation.current;
-
-        const hitsForStep =
-          precomputedPattern.stepsByVariation[variationIndex][step];
-
-        if (hitsForStep.length > 0) {
-          schedulePrecomputedStep(
-            hitsForStep,
-            step,
-            Time(time).toSeconds(),
-            variationIndex,
-            anySolos,
-            hasOhat,
-            ohatIndex,
-            instruments,
-            currentRuntimes,
-          );
-        }
-
-        if (isLastStep) {
-          updateBarIndexAtEndOfBar(variationCycle, currentBar);
-        }
-      },
-      SEQUENCE_EVENTS,
-      SEQUENCE_SUBDIVISION,
-    )
-    .start(0);
+  sequence.start(0);
+  sequencerRef.current = sequence;
 }
 
 /**
  * Disposes a drum sequence, stopping it first if it's running.
  */
-export function disposeDrumSequence(
-  sequencerRef: Ref<SequenceInstance | null>,
-): void {
+export function disposeDrumSequence(sequencerRef: {
+  current: Sequence | null;
+}): void {
   const sequence = sequencerRef.current;
   if (!sequence) return;
 
@@ -227,7 +217,7 @@ function getInstrumentAndRuntime(
  * Shared core scheduling behavior once we know the instrument + runtime.
  * Used by both online (step-based) and offline (time-based) scheduling.
  *
- * NOTE: This reads PER-NOTE params (pitch, release, solo, mute) from the store
+ * NOTE: This reads PER-NOTE params (tune, decay, solo, mute) from the store
  * on every trigger. CONTINUOUS params (attack, filter, pan, volume) are applied
  * to audio nodes via subscribeRuntimeToInstrumentParams in instrumentParams.ts
  */
@@ -256,15 +246,15 @@ function scheduleVoiceCore(
 
   const velocity = velocityOverride ?? velocities[step];
   // Per-note params: read fresh from store for each trigger
-  const pitch = pitchMapping.knobToDomain(params.pitch);
-  const releaseTime = instrumentReleaseMapping.knobToDomain(params.release);
+  const tune = tuneMapping.knobToDomain(params.tune);
+  const decayTime = instrumentDecayMapping.knobToDomain(params.decay);
 
   // Closed hat mutes open hat
   if (inst.role === "hat" && hasOhat) {
     muteOpenHatAtTime(timeSeconds, instruments, runtimes, ohatIndex);
   }
 
-  triggerInstrumentAtTime(runtime, pitch, releaseTime, timeSeconds, velocity);
+  triggerInstrumentAtTime(runtime, tune, decayTime, timeSeconds, velocity);
 }
 
 /**
@@ -369,9 +359,8 @@ export function computeNextVariationIndex(
 
 function updateVariationForBarStart(
   variationCycle: VariationCycle,
-  currentBar: Ref<number>,
-  currentVariation: Ref<number>,
-  stateProvider: DrumSequenceStateProvider,
+  currentBar: { current: number },
+  currentVariation: { current: number },
 ): void {
   const nextVariationIndex = computeNextVariationIndex(
     variationCycle,
@@ -381,9 +370,9 @@ function updateVariationForBarStart(
 
   currentVariation.current = nextVariationIndex;
 
-  const playbackVariation = stateProvider.pattern.getPlaybackVariation();
+  const playbackVariation = usePatternStore.getState().playbackVariation;
   if (playbackVariation !== nextVariationIndex) {
-    stateProvider.pattern.setPlaybackVariation(nextVariationIndex);
+    usePatternStore.getState().setPlaybackVariation(nextVariationIndex);
   }
 }
 
@@ -404,7 +393,7 @@ export function computeNextBarIndex(
 
 function updateBarIndexAtEndOfBar(
   variationCycle: VariationCycle,
-  currentBar: Ref<number>,
+  currentBar: { current: number },
 ): void {
   currentBar.current = computeNextBarIndex(variationCycle, currentBar.current);
 }
@@ -436,8 +425,8 @@ export function muteOpenHatAtTime(
   const ohRuntime = runtimes[ohatIndex];
   if (!ohInst || !ohRuntime) return;
 
-  const ohPitch = pitchMapping.knobToDomain(ohInst.params.pitch);
-  ohRuntime.samplerNode.triggerRelease(ohPitch, time);
+  const ohTune = tuneMapping.knobToDomain(ohInst.params.tune);
+  ohRuntime.samplerNode.triggerRelease(ohTune, time);
 }
 
 // -----------------------------------------------------------------------------
@@ -477,8 +466,7 @@ export function createOfflineSequence(
   runtimes: InstrumentRuntime[],
   variationCycle: VariationCycle,
   bars: number,
-  sequencerFactory: SequencerFactory = defaultSequencerFactory,
-): SequenceInstance {
+): Sequence {
   const anySolos = hasAnySolo(instruments);
   const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
   const precomputedPattern = buildPrecomputedPattern(pattern, 0);
@@ -488,52 +476,51 @@ export function createOfflineSequence(
   let totalStepsScheduled = 0;
   const totalSteps = bars * STEP_COUNT;
 
-  const sequence = sequencerFactory
-    .createSequence(
-      (time, step: number) => {
-        // Stop scheduling after we've done all bars
-        if (totalStepsScheduled >= totalSteps) return;
+  const sequence = new Sequence(
+    (time, step: number) => {
+      // Stop scheduling after we've done all bars
+      if (totalStepsScheduled >= totalSteps) return;
 
-        const { isFirstStep, isLastStep } = getStepBoundaries(step);
+      const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
-        // Update variation at start of each bar
-        if (isFirstStep && totalStepsScheduled > 0) {
-          currentBar = computeNextBarIndex(variationCycle, currentBar);
-          currentVariation = computeNextVariationIndex(
-            variationCycle,
-            currentBar,
-            currentVariation,
-          );
-        }
+      // Update variation at start of each bar
+      if (isFirstStep && totalStepsScheduled > 0) {
+        currentBar = computeNextBarIndex(variationCycle, currentBar);
+        currentVariation = computeNextVariationIndex(
+          variationCycle,
+          currentBar,
+          currentVariation,
+        );
+      }
 
-        // Schedule all voices - uses same path as live playback
-        const hitsForStep =
-          precomputedPattern.stepsByVariation[currentVariation][step];
-        if (hitsForStep.length > 0) {
-          schedulePrecomputedStep(
-            hitsForStep,
-            step,
-            Time(time).toSeconds(),
-            currentVariation,
-            anySolos,
-            hasOhat,
-            ohatIndex,
-            instruments,
-            runtimes,
-          );
-        }
+      // Schedule all voices - uses same path as live playback
+      const hitsForStep =
+        precomputedPattern.stepsByVariation[currentVariation][step];
+      if (hitsForStep.length > 0) {
+        schedulePrecomputedStep(
+          hitsForStep,
+          step,
+          Time(time).toSeconds(),
+          currentVariation,
+          anySolos,
+          hasOhat,
+          ohatIndex,
+          instruments,
+          runtimes,
+        );
+      }
 
-        totalStepsScheduled++;
+      totalStepsScheduled++;
 
-        // Stop sequence after last step of final bar
-        if (isLastStep && totalStepsScheduled >= totalSteps) {
-          sequence.stop();
-        }
-      },
-      SEQUENCE_EVENTS,
-      SEQUENCE_SUBDIVISION,
-    )
-    .start(0);
+      // Stop sequence after last step of final bar
+      if (isLastStep && totalStepsScheduled >= totalSteps) {
+        sequence.stop();
+      }
+    },
+    SEQUENCE_EVENTS,
+    SEQUENCE_SUBDIVISION,
+  );
 
+  sequence.start(0);
   return sequence;
 }

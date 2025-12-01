@@ -44,7 +44,7 @@ interface KitFileV1 {
       filter: number;
       volume: number;
       pan: number;
-      pitch: number;
+      tune: number;
       solo: boolean;
       mute: boolean;
     };
@@ -273,7 +273,7 @@ async function generateKit() {
             filter: 50,
             volume: 92,
             pan: 50,
-            pitch: 50,
+            tune: 50,
             solo: false,
             mute: false,
           },

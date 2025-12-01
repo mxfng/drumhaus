@@ -19,7 +19,7 @@ import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
  * 2. PER-NOTE PARAMS (handled in drumSequence.ts):
  *    - Read from store during playback for each triggered note
  *    - Not applied to audio nodes in advance
- *    - Examples: pitch, release, solo, mute
+ *    - Examples: tune, release, solo, mute
  */
 export interface ContinuousRuntimeParams {
   attack: number;
@@ -30,7 +30,7 @@ export interface ContinuousRuntimeParams {
 
 /**
  * Applies continuous instrument params to audio nodes.
- * Does NOT handle per-note params (pitch, release, solo, mute) -
+ * Does NOT handle per-note params (tune, release, solo, mute) -
  * those are read during playback in drumSequence.ts
  */
 export function applyInstrumentParams(
@@ -59,7 +59,7 @@ export function applyInstrumentParams(
 /**
  * Subscribes a runtime to continuous params from the store.
  * Only syncs params that are applied to audio nodes (attack, filter, pan, volume).
- * Per-note params (pitch, release, solo, mute) are NOT synced here - they're read
+ * Per-note params (tune, release, solo, mute) are NOT synced here - they're read
  * during playback in drumSequence.ts
  */
 export function subscribeRuntimeToInstrumentParams(

@@ -10,11 +10,11 @@ import { InlineMeta } from "@/features/preset/types/meta";
 
 export interface InstrumentParams {
   attack: number;
-  release: number;
+  decay: number;
   filter: number;
   volume: number;
   pan: number;
-  pitch: number;
+  tune: number;
   solo: boolean;
   mute: boolean;
 }
@@ -46,7 +46,7 @@ export interface InstrumentData {
 export interface InstrumentRuntime {
   instrumentId: string; // matches InstrumentData.meta.id
   samplerNode: Sampler;
-  /** Used for release envelope and pseudo-monophonic behavior */
+  /** Used for decay envelope and pseudo-monophonic behavior */
   envelopeNode: AmplitudeEnvelope;
   filterNode: Filter;
   pannerNode: Panner;

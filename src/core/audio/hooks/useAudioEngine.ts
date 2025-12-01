@@ -1,4 +1,5 @@
 import { RefObject, useEffect, useRef, useState } from "react";
+import { Sequence } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
@@ -20,7 +21,6 @@ import {
   disposeMasterChainRuntimes,
   MasterChainRuntimes,
   releaseNonSoloRuntimes,
-  SequenceInstance,
   subscribeRuntimeToInstrumentParams,
   updateMasterChainParams,
   waitForBuffersToLoad,
@@ -40,7 +40,7 @@ export function useAudioEngine(): UseAudioEngineResult {
   // Audio engine refs (Tone.js runtime nodes)
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
-  const toneSequence = useRef<SequenceInstance | null>(null);
+  const toneSequence = useRef<Sequence | null>(null);
   const bar = useRef<number>(0);
   const chainVariation = useRef<number>(0);
 

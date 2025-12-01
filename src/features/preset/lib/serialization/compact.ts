@@ -115,11 +115,11 @@ type CompactVoice = {
  */
 type CompactParams = {
   a?: number; // attack
-  r?: number; // release
+  d?: number; // decay
   f?: number; // filter
   v?: number; // volume
   p?: number; // pan
-  t?: number; // pitch (using 't' to avoid conflict with 'p')
+  t?: number; // tune
   s?: number; // solo (1/0)
   m?: number; // mute (1/0)
 };
@@ -176,11 +176,11 @@ function encodeParams(params: InstrumentParams): CompactParams {
   const compact: CompactParams = {};
 
   if (params.attack !== DEFAULT_PARAMS.attack) compact.a = params.attack;
-  if (params.release !== DEFAULT_PARAMS.release) compact.r = params.release;
+  if (params.decay !== DEFAULT_PARAMS.decay) compact.d = params.decay;
   if (params.filter !== DEFAULT_PARAMS.filter) compact.f = params.filter;
   if (params.volume !== DEFAULT_PARAMS.volume) compact.v = params.volume;
   if (params.pan !== DEFAULT_PARAMS.pan) compact.p = params.pan;
-  if (params.pitch !== DEFAULT_PARAMS.pitch) compact.t = params.pitch;
+  if (params.tune !== DEFAULT_PARAMS.tune) compact.t = params.tune;
   if (params.solo !== DEFAULT_PARAMS.solo) compact.s = params.solo ? 1 : 0;
   if (params.mute !== DEFAULT_PARAMS.mute) compact.m = params.mute ? 1 : 0;
 
@@ -269,11 +269,11 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
 function decodeParams(compact: CompactParams): InstrumentParams {
   return {
     attack: compact.a ?? DEFAULT_PARAMS.attack,
-    release: compact.r ?? DEFAULT_PARAMS.release,
+    decay: compact.d ?? DEFAULT_PARAMS.decay,
     filter: compact.f ?? DEFAULT_PARAMS.filter,
     volume: compact.v ?? DEFAULT_PARAMS.volume,
     pan: compact.p ?? DEFAULT_PARAMS.pan,
-    pitch: compact.t ?? DEFAULT_PARAMS.pitch,
+    tune: compact.t ?? DEFAULT_PARAMS.tune,
     solo: compact.s === 1,
     mute: compact.m === 1,
   };

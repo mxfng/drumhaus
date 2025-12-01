@@ -12,7 +12,7 @@ export const formatDisplayVolumeInstrument = (value: number) => {
   return formatDisplayVolume(value, INSTRUMENT_VOLUME_RANGE[0]);
 };
 
-export const formatDisplayPitchSemitone = (semitoneOffset: number) => ({
+export const formatDisplayTuneSemitone = (semitoneOffset: number) => ({
   value: (semitoneOffset > 0 ? "+" : "") + semitoneOffset.toFixed(0),
   append: "st",
 });
@@ -21,7 +21,7 @@ export const formatDisplayAttackDuration = (value: number) => {
   return formatDisplayDuration(value);
 };
 
-export const formatDisplayReleaseDuration = (value: number) => {
+export const formatDisplayDecayDuration = (value: number) => {
   return formatDisplayDuration(value);
 };
 

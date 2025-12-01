@@ -8,26 +8,26 @@ export type Range = [number, number];
 // Instrument defaults & ranges
 // ============================================================================
 
-// Pitch
-export const INSTRUMENT_PITCH_BASE_FREQUENCY = 65.4064; // C2
-export const INSTRUMENT_PITCH_SEMITONE_RANGE = 24;
-export const INSTRUMENT_PITCH_RANGE: Range = [
-  INSTRUMENT_PITCH_BASE_FREQUENCY / 4,
-  INSTRUMENT_PITCH_BASE_FREQUENCY * 4,
+// Tune
+export const INSTRUMENT_TUNE_BASE_FREQUENCY = 65.4064; // C2
+export const INSTRUMENT_TUNE_SEMITONE_RANGE = 24;
+export const INSTRUMENT_TUNE_RANGE: Range = [
+  INSTRUMENT_TUNE_BASE_FREQUENCY / 4,
+  INSTRUMENT_TUNE_BASE_FREQUENCY * 4,
 ];
-export const INSTRUMENT_PITCH_DEFAULT = 50; // Knob center = base frequency
+export const INSTRUMENT_TUNE_DEFAULT = 50; // Knob center = base frequency
 
 // Level / pan
 export const INSTRUMENT_VOLUME_RANGE: Range = [-46, 4]; // dB
 export const INSTRUMENT_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 export const INSTRUMENT_PAN_RANGE: Range = [-1, 1];
-export const INSTRUMENT_PAN_DEFAULT = 0;
+export const INSTRUMENT_PAN_DEFAULT = 50;
 
 // Envelope
 export const INSTRUMENT_ATTACK_RANGE: Range = [0, 1];
 export const INSTRUMENT_ATTACK_DEFAULT = 0;
-export const INSTRUMENT_RELEASE_RANGE: Range = [0.005, 5];
-export const INSTRUMENT_RELEASE_DEFAULT = 100;
+export const INSTRUMENT_DECAY_RANGE: Range = [0.005, 5];
+export const INSTRUMENT_DECAY_DEFAULT = 100;
 
 // Filter
 export const INSTRUMENT_FILTER_RANGE: Range = [0, 15000]; // Hz

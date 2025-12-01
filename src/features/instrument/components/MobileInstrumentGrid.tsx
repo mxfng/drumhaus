@@ -35,9 +35,9 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
 
       if (mode === "trigger" && runtime) {
         // Trigger mode: play the sample
-        const pitch = instruments[voiceIndex].params.pitch;
-        const release = instruments[voiceIndex].params.release;
-        await playInstrumentSample(runtime, pitch, release);
+        const tune = instruments[voiceIndex].params.tune;
+        const decay = instruments[voiceIndex].params.decay;
+        await playInstrumentSample(runtime, tune, decay);
       } else if (mode === "edit") {
         // Edit mode: open params dialog
         setEditingVoiceIndex(voiceIndex);

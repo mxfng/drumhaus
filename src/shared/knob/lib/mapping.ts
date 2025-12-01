@@ -1,12 +1,12 @@
 import {
   INSTRUMENT_ATTACK_DEFAULT,
   INSTRUMENT_ATTACK_RANGE,
+  INSTRUMENT_DECAY_DEFAULT,
+  INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_DEFAULT,
   INSTRUMENT_PAN_RANGE,
-  INSTRUMENT_PITCH_BASE_FREQUENCY,
-  INSTRUMENT_PITCH_SEMITONE_RANGE,
-  INSTRUMENT_RELEASE_DEFAULT,
-  INSTRUMENT_RELEASE_RANGE,
+  INSTRUMENT_TUNE_BASE_FREQUENCY,
+  INSTRUMENT_TUNE_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_DEFAULT,
   INSTRUMENT_VOLUME_RANGE,
   MASTER_COMP_DEFAULT_MIX,
@@ -31,23 +31,23 @@ import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
   formatDisplayAttackDuration,
   formatDisplayCompRatio,
+  formatDisplayDecayDuration,
   formatDisplayFilter,
   formatDisplayPercentage,
-  formatDisplayPitchSemitone,
-  formatDisplayReleaseDuration,
+  formatDisplayTuneSemitone,
   formatDisplayVolumeInstrument as formatDisplayVolume,
   formatDisplayVolumeMaster,
 } from "./format";
 import {
   inverseTransformKnobValue,
   inverseTransformKnobValueExponential,
-  inverseTransformKnobValuePitch,
   inverseTransformKnobValueSplitFilter,
+  inverseTransformKnobValueTune,
   KNOB_ROTATION_THRESHOLD_L,
   transformKnobValueExponential,
   transformKnobValueLinear,
-  transformKnobValuePitch,
   transformKnobValueSplitFilter,
+  transformKnobValueTune,
 } from "./transform";
 
 // --- Core mapping factories ---
@@ -154,31 +154,31 @@ const withInfinityAtZero = (
 // --- Specialized mappings ---
 
 /**
- * Pitch mapping with semitone quantization.
- * Uses transformKnobValuePitch to ensure consistency with audio engine.
- * Center (50) = no pitch change, ±24 semitones range.
+ * Tune mapping with semitone quantization.
+ * Uses transformKnobValueTune to ensure consistency with audio engine.
+ * Center (50) = no tune change, ±24 semitones range.
  */
-export const pitchMapping: ParamMapping<number> = {
+export const tuneMapping: ParamMapping<number> = {
   knobValueCount: 48, // 48 discrete positions for fine semitone control
   defaultKnobValue: 50, // Center = base frequency
 
   knobToDomain: (knobValue) => {
-    const freq = transformKnobValuePitch(knobValue);
+    const freq = transformKnobValueTune(knobValue);
     // Round to whole semitones for clean musical intervals
-    const ratio = freq / INSTRUMENT_PITCH_BASE_FREQUENCY;
+    const ratio = freq / INSTRUMENT_TUNE_BASE_FREQUENCY;
     const semitoneOffset = Math.round(Math.log2(ratio) * 12);
     const cleanRatio = Math.pow(2, semitoneOffset / 12);
-    return INSTRUMENT_PITCH_BASE_FREQUENCY * cleanRatio;
+    return INSTRUMENT_TUNE_BASE_FREQUENCY * cleanRatio;
   },
 
-  domainToKnob: (frequency) => inverseTransformKnobValuePitch(frequency),
+  domainToKnob: (frequency) => inverseTransformKnobValueTune(frequency),
 
   format: (_frequency, knobValue) => {
     // Calculate display semitone offset
     const normalized = (knobValue - 50) / 50;
-    const semitoneOffsetRaw = normalized * INSTRUMENT_PITCH_SEMITONE_RANGE;
+    const semitoneOffsetRaw = normalized * INSTRUMENT_TUNE_SEMITONE_RANGE;
     const semitoneOffset = Math.round(semitoneOffsetRaw);
-    return formatDisplayPitchSemitone(semitoneOffset);
+    return formatDisplayTuneSemitone(semitoneOffset);
   },
 };
 
@@ -228,13 +228,13 @@ export const instrumentAttackMapping = makeExponentialMapping(
 );
 
 /**
- * Release envelope time (exponential for natural feel)
+ * Decay envelope time (exponential for natural feel)
  */
-export const instrumentReleaseMapping = makeExponentialMapping(
-  INSTRUMENT_RELEASE_RANGE,
-  formatDisplayReleaseDuration,
+export const instrumentDecayMapping = makeExponentialMapping(
+  INSTRUMENT_DECAY_RANGE,
+  formatDisplayDecayDuration,
   {
-    defaultKnobValue: INSTRUMENT_RELEASE_DEFAULT,
+    defaultKnobValue: INSTRUMENT_DECAY_DEFAULT,
   },
 );
 

@@ -131,8 +131,8 @@ export const TransportControl: React.FC = () => {
 
       <div className="w-full px-1">
         <HardwareSlider
-          sliderValue={swing}
-          setSliderValue={setSwing}
+          value={swing}
+          onValueChange={setSwing}
           title="SWING"
           defaultValue={0}
           transformRange={TRANSPORT_SWING_RANGE}

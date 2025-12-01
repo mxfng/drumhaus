@@ -13,8 +13,8 @@ import { stopRuntimeAtTime } from "./runtimeStops";
  */
 export function triggerInstrumentAtTime(
   runtime: InstrumentRuntime,
-  pitch: number,
-  release: number,
+  tune: number,
+  decay: number,
   time: number,
   velocity: number = 1,
 ): void {
@@ -24,6 +24,6 @@ export function triggerInstrumentAtTime(
   // Trigger envelope and sampler in sync
   const env = runtime.envelopeNode;
   env.triggerAttack(time);
-  env.triggerRelease(time + release);
-  runtime.samplerNode.triggerAttack(pitch, time, velocity);
+  env.triggerRelease(time + decay);
+  runtime.samplerNode.triggerAttack(tune, time, velocity);
 }

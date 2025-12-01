@@ -5,25 +5,6 @@
  * All Tone.js object creation should happen in this directory.
  */
 
-// Types
-export type {
-  Ref,
-  SequenceInstance,
-  DrumSequenceStateProvider,
-  SequencerFactory,
-  TimeUtils,
-} from "./types";
-
-// Factory
-export {
-  createStateProvider,
-  createSequencerFactory,
-  createTimeUtils,
-  defaultStateProvider,
-  defaultSequencerFactory,
-  defaultTimeUtils,
-} from "./factory";
-
 // Drum Sequence
 export {
   createDrumSequence,

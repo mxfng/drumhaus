@@ -28,7 +28,7 @@
         "filter": 13,
         "volume": 94,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -52,7 +52,7 @@
         "filter": 54,
         "volume": 85,
         "pan": 50,
-        "pitch": 45.833333333333336,
+        "tune": 45.833333333333336,
         "solo": false,
         "mute": false
       }
@@ -76,7 +76,7 @@
         "filter": 53,
         "volume": 89,
         "pan": 50,
-        "pitch": 52.083333333333336,
+        "tune": 52.083333333333336,
         "solo": false,
         "mute": false
       }
@@ -100,7 +100,7 @@
         "filter": 37,
         "volume": 98,
         "pan": 37,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -124,7 +124,7 @@
         "filter": 58,
         "volume": 86,
         "pan": 50,
-        "pitch": 45.833333333333336,
+        "tune": 45.833333333333336,
         "solo": false,
         "mute": false
       }
@@ -148,7 +148,7 @@
         "filter": 39,
         "volume": 90,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -172,7 +172,7 @@
         "filter": 65,
         "volume": 91,
         "pan": 33,
-        "pitch": 47.91666666666667,
+        "tune": 47.91666666666667,
         "solo": false,
         "mute": false
       }
@@ -196,7 +196,7 @@
         "filter": 26,
         "volume": 80,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
