@@ -22,14 +22,12 @@ import { InstrumentRuntime } from "../types/instrument";
 interface InstrumentParamsProps {
   index: number;
   instrumentIndex: number;
-  mobile?: boolean;
   runtime?: InstrumentRuntime;
 }
 
 export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   index,
   instrumentIndex,
-  mobile = false,
   runtime,
 }) => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
@@ -140,20 +138,23 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-2 place-items-center",
+        "grid min-h-0 w-full flex-1 grid-cols-2 place-items-center gap-2",
         isRuntimeLoaded ? "opacity-100" : "opacity-50",
-        {
-          "min-h-0 flex-1": mobile,
-          "h-full": !mobile,
-        },
       )}
     >
       {/* Top knobs - 2x2 grid */}
       <ParamKnob
-        value={attack}
-        onValueChange={setAttack}
-        label="ATTACK"
-        mapping={instrumentAttackMapping}
+        value={release}
+        onValueChange={setRelease}
+        label="DECAY"
+        mapping={instrumentReleaseMapping}
+      />
+      <ParamKnob
+        value={pitch}
+        onValueChange={setPitch}
+        label="TUNE"
+        mapping={pitchMapping}
+        outerTickCount={25}
       />
       <ParamKnob
         value={filter}
@@ -163,67 +164,12 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         outerTickCount={3}
       />
       <ParamKnob
-        value={release}
-        onValueChange={setRelease}
-        label="RELEASE"
-        mapping={instrumentReleaseMapping}
+        value={attack}
+        onValueChange={setAttack}
+        label="PAN"
+        mapping={instrumentAttackMapping}
       />
-      <ParamKnob
-        value={pitch}
-        onValueChange={setPitch}
-        label="PITCH"
-        mapping={pitchMapping}
-        outerTickCount={25}
-      />
-      <div className="grid w-full grid-cols-2 place-items-center gap-6 sm:gap-4">
-        <div className="col-span-2 w-full px-3">
-          <HardwareSlider
-            sliderValue={pan}
-            setSliderValue={setPan}
-            defaultValue={50}
-            leftLabel="L"
-            centerLabel="|"
-            rightLabel="R"
-            transformRange={INSTRUMENT_PAN_RANGE}
-            displayRange={[-100, 100]}
-            isDisabled={!isRuntimeLoaded}
-          />
-        </div>
-        <div className="col-span-2 flex w-full items-center justify-center px-3">
-          <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
-            <Tooltip content="Mute [M]" delayDuration={500}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-lg rounded-r-none p-2", {
-                  "text-primary": mute,
-                })}
-                onClick={handleToggleMute}
-                disabled={!isRuntimeLoaded}
-              >
-                {mute ? <VolumeX /> : <Volume />}
-              </Button>
-            </Tooltip>
-            <Tooltip content="Solo [S]" delayDuration={500}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-none rounded-r-lg p-2", {
-                  "text-primary": solo,
-                })}
-                onClick={toggleSolo}
-                disabled={!isRuntimeLoaded}
-              >
-                <Headphones
-                  className={cn({ "text-primary": solo })}
-                  size={18}
-                />
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
-      </div>
-      {/* Right: Volume */}
+
       <ParamKnob
         value={volume}
         onValueChange={setVolume}
@@ -231,6 +177,38 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         mapping={instrumentVolumeMapping}
         outerTickCount={13}
       />
+
+      <div className="col-span-2 flex w-full items-center justify-center px-3">
+        <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
+          <Tooltip content="Mute [M]" delayDuration={500}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn("rounded-l-lg rounded-r-none p-2", {
+                "text-primary": mute,
+              })}
+              onClick={handleToggleMute}
+              disabled={!isRuntimeLoaded}
+            >
+              {mute ? <VolumeX /> : <Volume />}
+            </Button>
+          </Tooltip>
+          <Tooltip content="Solo [S]" delayDuration={500}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn("rounded-l-none rounded-r-lg p-2", {
+                "text-primary": solo,
+              })}
+              onClick={toggleSolo}
+              disabled={!isRuntimeLoaded}
+            >
+              <Headphones className={cn({ "text-primary": solo })} size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
+      {/* Right: Volume */}
     </div>
   );
 };

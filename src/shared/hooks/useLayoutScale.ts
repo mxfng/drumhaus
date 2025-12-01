@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 
 import { clamp } from "@/shared/lib/utils";
 
-const DESIGN_WIDTH = 1538;
-const DESIGN_HEIGHT = 1100;
-const SCALE_PADDING = 32;
-const MIN_SCALE = 0.6;
+const DESIGN_WIDTH = 1440;
+const DESIGN_HEIGHT = 900;
+const SCALE_PADDING = 8;
+const MIN_SCALE = 0.4;
 const MAX_SCALE = 1.25;
 
 type LayoutScaleProps = {

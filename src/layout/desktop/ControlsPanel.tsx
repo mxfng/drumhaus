@@ -3,10 +3,8 @@ import { Pause, Play } from "lucide-react";
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { MasterCompressor } from "@/features/master-bus/components/MasterCompressor";
 import { MasterFX } from "@/features/master-bus/components/MasterFX";
-import { MasterVolume } from "@/features/master-bus/components/MasterVolume";
 import { PresetControl } from "@/features/preset/components/PresetControl";
 import { SequencerControl } from "@/features/sequencer/components/SequencerControl";
-import { TransportControl } from "@/features/transport/components/TransportControl";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { Button, Tooltip } from "@/shared/ui";
 
@@ -39,7 +37,7 @@ export const ControlsPanel = () => {
       {/* Sequencer & Transport Controls */}
       <div className="col-span-2 flex flex-row">
         <SequencerControl />
-        <TransportControl />
+        {/* <TransportControl /> */}
       </div>
 
       {/* Preset Control */}
@@ -47,10 +45,12 @@ export const ControlsPanel = () => {
         <PresetControl />
       </div>
 
+      <div></div>
+
       {/* Master Controls */}
       <MasterCompressor />
       <MasterFX />
-      <MasterVolume />
+      {/* <MasterVolume /> */}
     </div>
   );
 };

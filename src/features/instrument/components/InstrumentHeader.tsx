@@ -31,7 +31,6 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
   const [waveformError, setWaveformError] = useState<Error | null>(null);
-  const [waveformLoaded, setWaveformLoaded] = useState(false);
 
   const samplePath = useInstrumentsStore(
     (state) => state.instruments[index].sample.path,
@@ -66,14 +65,9 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     setWaveformError(error);
   }, []);
 
-  const handleWaveformLoad = useCallback(() => {
-    setWaveformLoaded(true);
-  }, []);
-
   // Reset waveform loaded state when sample changes
   useEffect(() => {
     queueMicrotask(() => {
-      setWaveformLoaded(false);
       setWaveformError(null);
     });
   }, [samplePath]);
@@ -82,7 +76,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-2 opacity-80 transition-opacity duration-300 hover:opacity-100",
+        "flex h-full w-full items-stretch gap-4 opacity-80 transition-opacity duration-300 hover:opacity-100",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
@@ -95,44 +89,28 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       disabled={!isRuntimeLoaded}
     >
       {/* Header */}
-      <div className="flex w-full items-center gap-2 py-1 pl-4">
-        <span className="font-pixel text-lg" style={{ color }}>
+      <div className="flex w-1/3 items-center gap-1.5">
+        <span className="font-pixel" style={{ color }}>
           {index + 1}
         </span>
-        <Label className="text-foreground-emphasis font-pixel text-lg font-medium">
+        <Label className="text-foreground-emphasis font-pixel text-base">
           {instrumentMeta.name}
         </Label>
       </div>
 
       {/* Waveform */}
-      <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-visible px-4">
-        {isRuntimeLoaded && waveformLoaded && !waveformError ? (
+      <div className="relative flex w-2/3 flex-1 items-center justify-center overflow-visible">
+        {waveformError ? (
+          <PixelatedFrowny color={color} />
+        ) : isRuntimeLoaded ? (
           <Waveform
             audioFile={samplePath}
             width={waveformWidth}
             height={waveformHeight}
             onError={handleWaveformError}
-            onLoad={handleWaveformLoad}
           />
-        ) : waveformError ? (
-          <div className="flex h-full w-full items-center justify-center">
-            <PixelatedFrowny color={color} />
-          </div>
         ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            {isRuntimeLoaded && !waveformLoaded && (
-              <div className="absolute opacity-0">
-                <Waveform
-                  audioFile={samplePath}
-                  width={waveformWidth}
-                  height={waveformHeight}
-                  onError={handleWaveformError}
-                  onLoad={handleWaveformLoad}
-                />
-              </div>
-            )}
-            <PixelatedSpinner color={color} />
-          </div>
+          <PixelatedSpinner color={color} />
         )}
       </div>
     </button>

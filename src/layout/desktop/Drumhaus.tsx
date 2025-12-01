@@ -34,20 +34,18 @@ const Drumhaus = () => {
         >
           <div className="animate-fade-in">
             <div className="hidden h-[50px] lg:block" />
-            <div className="neu-extra-tall bg-surface relative h-[1000px] w-[1538px] overflow-clip rounded-xl">
+            <div className="neu-extra-tall bg-surface relative h-[900px] w-[1440px] overflow-clip rounded-xl">
               {/* Header */}
               <Header />
 
               {/* Instrument Grid */}
-              <div className="shadow-[0_4px_8px_var(--color-shadow-60)]">
-                <InstrumentGrid key={instrumentRuntimesVersion} />
-              </div>
+              <InstrumentGrid key={instrumentRuntimesVersion} />
 
               {/* Main Controls */}
               <ControlsPanel />
 
               {/* Sequencer */}
-              <div className="p-8 shadow-[0_4px_8px_var(--color-shadow-60)]">
+              <div>
                 <Sequencer />
               </div>
 

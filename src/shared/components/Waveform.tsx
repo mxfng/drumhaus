@@ -9,7 +9,6 @@ interface WaveformProps {
   height?: number;
   color?: string;
   onError?: (error: Error) => void;
-  onLoad?: () => void;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
@@ -18,7 +17,6 @@ const Waveform: React.FC<WaveformProps> = ({
   height,
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
-  onLoad,
 }) => {
   // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
   const normalizedPath = audioFile
@@ -119,9 +117,6 @@ const Waveform: React.FC<WaveformProps> = ({
     getCachedWaveform(sampleFilename)
       .then((data) => {
         draw(data, ctx, canvas.width, canvas.height);
-        if (onLoad) {
-          onLoad();
-        }
       })
       .catch((error) => {
         console.error(`Failed to load waveform for ${sampleFilename}`, error);
@@ -129,7 +124,7 @@ const Waveform: React.FC<WaveformProps> = ({
           onError(error instanceof Error ? error : new Error(String(error)));
         }
       });
-  }, [sampleFilename, finalWidth, finalHeight, color, onError, onLoad]);
+  }, [sampleFilename, finalWidth, finalHeight, color, onError]);
 
   return (
     <div ref={containerRef} className="h-full w-full">

@@ -1,4 +1,3 @@
-import { cn } from "@/shared/lib/utils";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 import { InstrumentRuntime } from "../types/instrument";
 import { InstrumentHeader } from "./InstrumentHeader";
@@ -7,11 +6,9 @@ import { InstrumentParamsControl } from "./InstrumentParamsControl";
 type InstrumentControlParams = {
   runtime?: InstrumentRuntime;
   color?: string;
-  bg?: string;
   index: number;
   instrumentIndex: number;
   waveformWidth?: number;
-  fillHeight?: boolean;
 };
 
 export const InstrumentControl: React.FC<InstrumentControlParams> = ({
@@ -20,8 +17,6 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   instrumentIndex,
   color = "currentColor",
   waveformWidth,
-  fillHeight = false,
-  bg,
 }) => {
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
@@ -29,16 +24,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   return (
     <div
-      className={cn(
-        "group relative inset-0 h-[400px] w-full py-4 pt-4 transition-all duration-500",
-        {
-          "flex h-full flex-col": fillHeight,
-        },
-      )}
-      style={{ backgroundColor: bg }}
+      className="group flex h-full w-full flex-col"
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
-      <div className="h-24">
+      <div className="mx-4 h-8">
         <InstrumentHeader
           index={index}
           color={color}
@@ -47,11 +36,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         />
       </div>
 
-      <div className="h-40">
+      <div>
         <InstrumentParamsControl
           index={index}
           instrumentIndex={instrumentIndex}
-          mobile={fillHeight}
           runtime={runtime}
         />
       </div>

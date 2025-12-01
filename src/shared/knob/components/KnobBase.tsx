@@ -48,7 +48,7 @@ export const Knob: React.FC<KnobProps> = ({
   defaultValue = KNOB_VALUE_DEFAULT,
 }) => {
   const containerClass = {
-    default: "h-[160px] sm:h-[90px]",
+    default: "h-10 sm:h-20",
     lg: "h-[300px] sm:h-[180px]",
   }[size];
 

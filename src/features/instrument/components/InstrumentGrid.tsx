@@ -47,14 +47,13 @@ export const InstrumentGrid: React.FC = () => {
   }, [handleArrowKeyPress]);
 
   return (
-    <div ref={instrumentsRef} className="grid w-full grid-cols-8">
+    <div ref={instrumentsRef} className="grid w-full grid-cols-8 gap-4 px-6">
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes.current[index];
 
         return (
           <div
             key={`gridItem-${index}`}
-            className="col-span-1 w-[193px] transition-all duration-500"
             onPointerDown={() => toggleCurrentVoice(index)}
           >
             <InstrumentControl
@@ -63,11 +62,6 @@ export const InstrumentGrid: React.FC = () => {
               runtime={runtime}
               index={index}
               instrumentIndex={voiceIndex}
-              bg={
-                voiceIndex == index
-                  ? "var(--color-track-emphasis)"
-                  : "var(--color-track)"
-              }
             />
           </div>
         );
