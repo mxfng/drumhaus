@@ -5,7 +5,6 @@ import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
-import { Label } from "@/shared/ui";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 import { InstrumentRuntime } from "../types/instrument";
 
@@ -76,7 +75,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-2",
+        "flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,
@@ -93,9 +92,9 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
         <span className="font-pixel text-sm" style={{ color }}>
           {index + 1}
         </span>
-        <Label className="text-foreground-emphasis font-pixel text-sm">
+        <span className="text-foreground-emphasis font-pixel text-sm">
           {instrumentMeta.name}
-        </Label>
+        </span>
       </div>
 
       {/* Waveform */}

@@ -1,3 +1,5 @@
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import { cn } from "@/shared/lib/utils";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 import { InstrumentRuntime } from "../types/instrument";
 import { InstrumentHeader } from "./InstrumentHeader";
@@ -7,14 +9,12 @@ type InstrumentControlParams = {
   runtime?: InstrumentRuntime;
   color?: string;
   index: number;
-  instrumentIndex: number;
   waveformWidth?: number;
 };
 
 export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   runtime,
   index,
-  instrumentIndex,
   color = "currentColor",
   waveformWidth,
 }) => {
@@ -22,12 +22,24 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     (state) => state.instruments[index].meta,
   );
 
+  const isSelectedInstrument = usePatternStore(
+    (state) => state.voiceIndex === index,
+  );
+
   return (
     <div
-      className="group flex h-full w-full flex-col"
+      className={cn(
+        "group flex h-full w-full flex-col rounded-2xl border border-transparent",
+        {
+          "cursor-pointer": runtime,
+          "cursor-default": !runtime,
+        },
+        isSelectedInstrument &&
+          "border-primary-foreground/80 bg-primary-foreground/20",
+      )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
-      <div className="mx-4 mb-4">
+      <div className="mb-2">
         <InstrumentHeader
           index={index}
           color={color}
@@ -36,12 +48,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         />
       </div>
 
-      <div>
-        <InstrumentParamsControl
-          index={index}
-          instrumentIndex={instrumentIndex}
-          runtime={runtime}
-        />
+      <div className="mb-2">
+        <InstrumentParamsControl index={index} runtime={runtime} />
       </div>
     </div>
   );

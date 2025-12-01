@@ -3,6 +3,7 @@ import { Headphones, Volume, VolumeX } from "lucide-react";
 import { now } from "tone/build/esm/index";
 
 import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
@@ -20,13 +21,11 @@ import { InstrumentRuntime } from "../types/instrument";
 
 interface InstrumentParamsProps {
   index: number;
-  instrumentIndex: number;
   runtime?: InstrumentRuntime;
 }
 
 export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   index,
-  instrumentIndex,
   runtime,
 }) => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
@@ -60,6 +59,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   );
   const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
+
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
 
   // Wrap store setters with instrument index
   const setDecay = useCallback(
@@ -103,7 +104,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   // Keyboard shortcuts
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isAnyDialogOpen() && instrumentIndex == index) {
+      if (event.key === "m" && !isAnyDialogOpen() && index == voiceIndex) {
         handleToggleMute();
       }
     };
@@ -112,11 +113,11 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [instrumentIndex, index, handleToggleMute, isAnyDialogOpen]);
+  }, [index, voiceIndex, handleToggleMute, isAnyDialogOpen]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isAnyDialogOpen() && instrumentIndex == index) {
+      if (event.key === "s" && !isAnyDialogOpen() && index == voiceIndex) {
         toggleSolo();
       }
     };
@@ -125,7 +126,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [instrumentIndex, index, toggleSolo, isAnyDialogOpen]);
+  }, [index, voiceIndex, toggleSolo, isAnyDialogOpen]);
 
   return (
     <div

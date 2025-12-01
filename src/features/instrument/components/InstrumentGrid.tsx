@@ -49,7 +49,7 @@ export const InstrumentGrid: React.FC = () => {
   return (
     <div
       ref={instrumentsRef}
-      className="grid w-full grid-cols-8 gap-4 px-6 pt-4 pb-6"
+      className="grid w-full grid-cols-8 gap-4 px-6 py-3"
     >
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes.current[index];
@@ -64,7 +64,6 @@ export const InstrumentGrid: React.FC = () => {
               key={`Instrument-${index}`}
               runtime={runtime}
               index={index}
-              instrumentIndex={voiceIndex}
             />
           </div>
         );
