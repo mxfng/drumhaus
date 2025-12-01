@@ -18,6 +18,7 @@ import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Button, Tooltip } from "@/shared/ui";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 import { InstrumentRuntime } from "../types/instrument";
+import { GainMeter } from "./GainMeter";
 
 interface InstrumentParamsProps {
   index: number;
@@ -139,27 +140,27 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
       <ParamKnob
         value={decay}
         onValueChange={setDecay}
-        label="DECAY"
+        label="decay"
         mapping={instrumentDecayMapping}
       />
       <ParamKnob
         value={tune}
         onValueChange={setTune}
-        label="TUNE"
+        label="tune"
         mapping={tuneMapping}
         outerTickCount={15}
       />
       <ParamKnob
         value={filter}
         onValueChange={setFilter}
-        label="FILTER"
+        label="filter"
         mapping={splitFilterMapping}
         outerTickCount={3}
       />
       <ParamKnob
         value={pan}
         onValueChange={setPan}
-        label="PAN"
+        label="pan"
         mapping={instrumentPanMapping}
         outerTickCount={3}
       />
@@ -169,7 +170,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
 
       {/* Level/volume slider */}
       <div className="col-span-2 grid h-24 w-full grid-cols-3 place-items-center">
-        <div />
+        <GainMeter runtime={runtime} />
         <HardwareSlider
           mapping={instrumentVolumeMapping}
           value={volume}

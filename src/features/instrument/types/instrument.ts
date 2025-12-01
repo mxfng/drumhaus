@@ -1,6 +1,7 @@
 import {
   AmplitudeEnvelope,
   Filter,
+  Meter,
   Panner,
   Sampler,
 } from "tone/build/esm/index";
@@ -49,4 +50,6 @@ export interface InstrumentRuntime {
   envelopeNode: AmplitudeEnvelope;
   filterNode: Filter;
   pannerNode: Panner;
+  /** Meter for measuring output level (for UI gain meter) */
+  meterNode: Meter;
 }

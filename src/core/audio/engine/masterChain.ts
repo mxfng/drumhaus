@@ -192,12 +192,14 @@ export function connectInstrumentRuntime(
   instrument.samplerNode.disconnect();
   instrument.envelopeNode.disconnect();
   instrument.filterNode.disconnect();
+  instrument.meterNode.disconnect();
   instrument.pannerNode.disconnect();
 
-  // Chain instrument nodes together
+  // Chain core nodes
   instrument.samplerNode.chain(
     instrument.envelopeNode,
     instrument.filterNode,
+    instrument.meterNode,
     instrument.pannerNode,
   );
 

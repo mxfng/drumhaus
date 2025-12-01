@@ -2,6 +2,7 @@ import type { RefObject } from "react";
 import {
   AmplitudeEnvelope,
   Filter,
+  Meter,
   Panner,
   Sampler,
 } from "tone/build/esm/index";
@@ -66,13 +67,20 @@ export async function buildInstrumentRuntime(
   resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<InstrumentRuntime> {
   const filterNode = new Filter(0, "highpass");
+
   const envelopeNode = new AmplitudeEnvelope(
     ENVELOPE_DEFAULT_ATTACK,
     ENVELOPE_DEFAULT_DECAY,
     ENVELOPE_DEFAULT_SUSTAIN,
     ENVELOPE_DEFAULT_RELEASE,
   );
+
   const pannerNode = new Panner(0);
+
+  const meterNode = new Meter({
+    smoothing: 0.8,
+    normalRange: true,
+  });
 
   const { url, baseUrl } = await resolveSamplerSource(
     instrument.sample.path,
@@ -86,6 +94,7 @@ export async function buildInstrumentRuntime(
     envelopeNode,
     filterNode,
     pannerNode,
+    meterNode,
   };
 }
 
@@ -121,4 +130,5 @@ function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {
   runtime.envelopeNode.dispose();
   runtime.filterNode.dispose();
   runtime.pannerNode.dispose();
+  runtime.meterNode.dispose();
 }
