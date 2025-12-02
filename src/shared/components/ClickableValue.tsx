@@ -77,14 +77,6 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
     [mapping],
   );
 
-  // Update input value when prop changes (but not during edit)
-  useEffect(() => {
-    if (!isEditing && !isDragging) {
-      const formatted = formatDisplayValue(value);
-      setInputValue(formatted.value);
-    }
-  }, [value, isEditing, isDragging, formatDisplayValue]);
-
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isEditing) return;
 
@@ -118,7 +110,14 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
 
       onValueChange(quantized);
     },
-    [isDragging, dragStartY, dragStartValue, quantizeKnobValue, sensitivity],
+    [
+      isDragging,
+      dragStartY,
+      dragStartValue,
+      quantizeKnobValue,
+      sensitivity,
+      onValueChange,
+    ],
   );
 
   const handlePointerUp = useCallback(
