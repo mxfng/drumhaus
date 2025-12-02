@@ -16,11 +16,6 @@ import { Button, Label } from "@/shared/ui";
 
 type TempoMode = "bpm" | "swing";
 
-const MODE_COLORS: Record<TempoMode, string> = {
-  bpm: "var(--color-track-orange)",
-  swing: "var(--color-track-blue)",
-};
-
 export const TempoControls = () => {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
@@ -28,33 +23,21 @@ export const TempoControls = () => {
   const setSwing = useTransportStore((state) => state.setSwing);
   const [mode, setMode] = useState<TempoMode>("bpm");
 
-  const { mapping, value, highlightColor, label } = useMemo(() => {
+  const { mapping, value } = useMemo(() => {
     if (mode === "bpm") {
       return {
         mapping: transportBpmMapping,
         value: bpm,
-        highlightColor: MODE_COLORS.bpm,
-        label: "tempo",
       };
     }
 
     return {
       mapping: transportSwingMapping,
       value: swing,
-      highlightColor: MODE_COLORS.swing,
-      label: "swing",
     };
   }, [mode, bpm, swing]);
 
   const knobValue = mapping.domainToKnob(value);
-
-  const activeButtonStyle = useMemo(
-    () => ({
-      boxShadow: "var(--shadow-neu)",
-      borderColor: highlightColor,
-    }),
-    [highlightColor],
-  );
 
   const handleKnobChange = (newKnobValue: number) => {
     const domainValue = mapping.knobToDomain(newKnobValue);
@@ -82,7 +65,7 @@ export const TempoControls = () => {
       <ParamKnob
         value={knobValue}
         onValueChange={handleKnobChange}
-        label={label}
+        label=""
         mapping={mapping}
         outerTickCount={0}
         showTickIndicator={false}
@@ -93,11 +76,8 @@ export const TempoControls = () => {
           size="icon"
           className={cn(
             "font-pixel text-[10px] tracking-wide uppercase",
-            mode === "bpm"
-              ? "text-foreground-emphasis"
-              : "text-foreground-muted",
+            mode === "bpm" && "text-primary ring-primary ring-1",
           )}
-          style={mode === "bpm" ? activeButtonStyle : undefined}
           onClick={() => setMode("bpm")}
         >
           <Timer />
@@ -108,11 +88,8 @@ export const TempoControls = () => {
           size="icon"
           className={cn(
             "font-pixel text-[10px] tracking-wide uppercase",
-            mode === "swing"
-              ? "text-foreground-emphasis"
-              : "text-foreground-muted",
+            mode === "swing" && "text-primary ring-primary ring-1",
           )}
-          style={mode === "swing" ? activeButtonStyle : undefined}
           onClick={() => setMode("swing")}
         >
           <Music3 />
