@@ -16,14 +16,16 @@ export const InstrumentGrid: React.FC = () => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Get state from Sequencer Store
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
-  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
+  const mode = usePatternStore((state) => state.mode);
+  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
+
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
   const toggleCurrentVoice = useCallback(
     (voice: number) => {
-      setVoiceIndex(voice);
+      setVoiceMode(voice);
     },
-    [setVoiceIndex],
+    [setVoiceMode],
   );
 
   const handleArrowKeyPress = useCallback(

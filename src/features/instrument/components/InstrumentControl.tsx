@@ -22,8 +22,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     (state) => state.instruments[index].meta,
   );
 
-  const isSelectedInstrument = usePatternStore(
-    (state) => state.voiceIndex === index,
+  const isSelectedAndActive = usePatternStore(
+    (state) => state.mode.type === "voice" && state.mode.voiceIndex === index,
   );
 
   return (
@@ -34,7 +34,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           "cursor-pointer": runtime,
           "cursor-default": !runtime,
         },
-        isSelectedInstrument && "border-primary-foreground/80 bg-primary/5",
+        isSelectedAndActive && "border-primary-foreground/80 bg-primary/5",
       )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >

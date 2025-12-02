@@ -62,7 +62,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
 
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const mode = usePatternStore((state) => state.mode);
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 

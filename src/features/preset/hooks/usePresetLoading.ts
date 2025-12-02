@@ -40,7 +40,7 @@ export function usePresetLoading({
     (state) => state.setAllInstruments,
   );
 
-  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
+  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setPattern = usePatternStore((state) => state.setPattern);
   const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
@@ -90,7 +90,7 @@ export function usePresetLoading({
       loadPresetMeta(preset);
 
       // Update sequencer
-      setVoiceIndex(0);
+      setVoiceMode(0);
       setVariation(0);
       setPattern(migratePattern(preset.sequencer.pattern));
       setVariationCycle(preset.sequencer.variationCycle);
@@ -117,7 +117,7 @@ export function usePresetLoading({
       setSwing,
       setVariation,
       setVariationCycle,
-      setVoiceIndex,
+      setVoiceMode,
       togglePlay,
     ],
   );

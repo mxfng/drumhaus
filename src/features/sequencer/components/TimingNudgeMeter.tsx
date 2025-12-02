@@ -1,8 +1,9 @@
 import { TIMING_NUDGE_LEVELS } from "@/features/sequencer/lib/timing";
 import type { TimingNudge } from "@/features/sequencer/types/pattern";
 import { cn } from "@/shared/lib/utils";
+import { usePatternStore } from "../store/usePatternStore";
 
-interface TimingNudgeLedsProps {
+interface TimingNudgeMeterProps {
   timingNudge: TimingNudge | undefined;
   className?: string;
 }
@@ -12,16 +13,17 @@ interface TimingNudgeLedsProps {
  * Shows which nudge level is active: [-2, -1, 0, +1, +2]
  * Matches existing LED styles (GainMeter, SequencerVariationPreview).
  */
-export const TimingNudgeLeds: React.FC<TimingNudgeLedsProps> = ({
+export const TimingNudgeMeter: React.FC<TimingNudgeMeterProps> = ({
   timingNudge,
   className,
 }) => {
   const safeNudge = timingNudge ?? 0;
+  const voiceMode = usePatternStore((state) => state.mode.type === "voice");
 
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       {TIMING_NUDGE_LEVELS.map((level) => {
-        const isActive = level === safeNudge;
+        const isActive = level === safeNudge && voiceMode;
         return (
           <div
             key={level}

@@ -7,13 +7,14 @@ export const useSequencerControl = () => {
   // Get state from Pattern Store
   const variation = usePatternStore((state) => state.variation);
   const variationCycle = usePatternStore((state) => state.variationCycle);
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const mode = usePatternStore((state) => state.mode);
   const pattern = usePatternStore((state) => state.pattern);
-  const currentTriggers = usePatternStore(
-    (state) =>
-      state.pattern.voices[state.voiceIndex].variations[state.variation]
-        .triggers,
-  );
+
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+  const currentTriggers = usePatternStore((state) => {
+    const vi = state.mode.type === "voice" ? state.mode.voiceIndex : 0;
+    return state.pattern.voices[vi].variations[state.variation].triggers;
+  });
 
   // Get actions from store
   const setVariation = usePatternStore((state) => state.setVariation);

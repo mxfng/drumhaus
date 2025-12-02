@@ -98,9 +98,11 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       </div>
 
       {/* Waveform */}
-      <div className="relative flex flex-1 items-center justify-center overflow-visible">
+      <div className="relative flex h-6 flex-1 items-center justify-center overflow-visible">
         {waveformError ? (
-          <PixelatedFrowny color={color} />
+          <div className="h-6">
+            <PixelatedFrowny color={color} />
+          </div>
         ) : isRuntimeLoaded ? (
           <Waveform
             audioFile={samplePath}
@@ -110,7 +112,9 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
             className="h-6"
           />
         ) : (
-          <PixelatedSpinner color={color} />
+          <div className="h-6">
+            <PixelatedSpinner color={color} />
+          </div>
         )}
       </div>
     </button>

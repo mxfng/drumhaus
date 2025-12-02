@@ -21,6 +21,28 @@ import { hasAnySolo } from "./solo";
 import { triggerInstrumentAtTime } from "./trigger";
 
 // -----------------------------------------------------------------------------
+// Constants
+// -----------------------------------------------------------------------------
+
+/**
+ * Accent boost factor (TR-909 style).
+ * When a step is accented, its velocity is multiplied by this value.
+ * 1.3 = +30% velocity boost for accented steps
+ */
+const ACCENT_BOOST = 1.3;
+
+/**
+ * Velocity dampening factor when accents are present in a variation.
+ * Applied to ALL steps to create headroom for accent boost.
+ * This ensures accents are audible even when all velocities are at 1.0.
+ *
+ * Example with all velocities at 1.0:
+ * - Non-accented: 1.0 / 1.3 ≈ 0.77 (quieter)
+ * - Accented: (1.0 / 1.3) * 1.3 = 1.0 (normal volume)
+ */
+const ACCENT_DAMPEN = ACCENT_BOOST;
+
+// -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
 
@@ -48,6 +70,12 @@ function buildPrecomputedPattern(
     Array.from({ length: STEP_COUNT }, () => []),
   ];
 
+  // Check if each variation has any accents (used to determine if dampening is needed)
+  const hasAccents = [
+    pattern.variationMetadata[0].accent.some((a) => a),
+    pattern.variationMetadata[1].accent.some((a) => a),
+  ];
+
   for (let voiceIndex = 0; voiceIndex < pattern.voices.length; voiceIndex++) {
     const voice = pattern.voices[voiceIndex];
 
@@ -57,13 +85,31 @@ function buildPrecomputedPattern(
       variationIndex++
     ) {
       const variation = voice.variations[variationIndex];
+      const accentPattern = pattern.variationMetadata[variationIndex].accent;
+      const variationHasAccents = hasAccents[variationIndex];
 
       for (let step = 0; step < STEP_COUNT; step++) {
         if (!variation.triggers[step]) continue;
 
+        const baseVelocity = variation.velocities[step];
+        const isAccented = accentPattern[step];
+
+        let velocity: number;
+        if (variationHasAccents) {
+          // Variation has accents: dampen all velocities, then boost accented ones
+          // This creates relative dynamics even when all velocities are at 1.0
+          const dampenedVelocity = baseVelocity / ACCENT_DAMPEN;
+          velocity = isAccented
+            ? Math.min(1.0, dampenedVelocity * ACCENT_BOOST)
+            : dampenedVelocity;
+        } else {
+          // No accents in this variation: use velocity as-is
+          velocity = baseVelocity;
+        }
+
         stepsByVariation[variationIndex][step].push({
           voice,
-          velocity: variation.velocities[step],
+          velocity,
         });
       }
     }

@@ -12,7 +12,7 @@ const buttonVariants = cva(
           "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground",
         secondary: "hover:text-foreground-muted",
         hardware:
-          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg focus:ring-2 focus:ring-primary-muted focus:outline-none",
+          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg focus:ring-none focus:outline-none",
         hardwareIcon:
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
       },

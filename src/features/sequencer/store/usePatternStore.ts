@@ -9,6 +9,18 @@ import { clampNudge } from "@/features/sequencer/lib/timing";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "../types/sequencer";
 
+/**
+ * Sequencer mode - represents what the user is currently editing.
+ * Modes are mutually exclusive and determine sequencer grid behavior.
+ */
+export type SequencerMode =
+  | { type: "voice"; voiceIndex: number } // Editing a specific voice/instrument pattern
+  | { type: "accent" } // Editing accent pattern (variation-level)
+  | { type: "copy" } // Copy mode (future)
+  | { type: "paste" } // Paste mode (future)
+  | { type: "clear" } // Clear mode (future)
+  | { type: "random" }; // Random mode (future)
+
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations
   pattern: Pattern;
@@ -17,7 +29,9 @@ interface PatternState {
   // Sequencer controls
   variation: number; // A = 0, B = 1
   variationCycle: VariationCycle; // A = 0, B = 1, AB = 2, AAAB = 3
-  voiceIndex: number; // Currently selected voice (0-7)
+
+  // Sequencer mode (not persisted - UI state only)
+  mode: SequencerMode;
 
   // Playback context (which variation is actually being played by the engine)
   playbackVariation: number; // Mirrors the engine's active variation (A = 0, B = 1)
@@ -25,9 +39,13 @@ interface PatternState {
   // Actions
   setVariation: (variation: number) => void;
   setVariationCycle: (variationCycle: VariationCycle) => void;
-  setVoiceIndex: (voiceIndex: number) => void;
   setPattern: (pattern: Pattern) => void;
   setPlaybackVariation: (variation: number) => void;
+
+  // Mode actions
+  setMode: (mode: SequencerMode) => void;
+  setVoiceMode: (voiceIndex: number) => void;
+  toggleAccentMode: () => void;
 
   // Pattern manipulation
   toggleStep: (voiceIndex: number, variation: number, step: number) => void;
@@ -44,6 +62,9 @@ interface PatternState {
     velocities: number[],
   ) => void;
   clearPattern: (voiceIndex: number, variation: number) => void;
+
+  // Accent manipulation
+  toggleAccent: (variation: number, step: number) => void;
 
   // Timing nudge
   nudgeTimingLeft: () => void;
@@ -64,7 +85,7 @@ export const usePatternStore = create<PatternState>()(
         patternVersion: 0,
         variation: 0,
         variationCycle: "A",
-        voiceIndex: 0,
+        mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
 
         // Actions
@@ -76,8 +97,24 @@ export const usePatternStore = create<PatternState>()(
           set({ variationCycle });
         },
 
-        setVoiceIndex: (voiceIndex) => {
-          set({ voiceIndex });
+        setMode: (mode) => {
+          set({ mode });
+        },
+
+        setVoiceMode: (voiceIndex) => {
+          set({ mode: { type: "voice", voiceIndex } });
+        },
+
+        toggleAccentMode: () => {
+          set((state) => {
+            if (state.mode.type === "accent") {
+              // Exit accent mode, return to last voice (default to 0)
+              return { mode: { type: "voice", voiceIndex: 0 } };
+            } else {
+              // Enter accent mode
+              return { mode: { type: "accent" } };
+            }
+          });
         },
 
         setPattern: (pattern) => {
@@ -139,9 +176,23 @@ export const usePatternStore = create<PatternState>()(
           });
         },
 
+        toggleAccent: (variation, step) => {
+          set((state) => {
+            const currentValue =
+              state.pattern.variationMetadata[variation].accent[step];
+            state.pattern.variationMetadata[variation].accent[step] =
+              !currentValue;
+            state.patternVersion += 1;
+          });
+        },
+
         nudgeTimingLeft: () => {
           set((state) => {
-            const { voiceIndex, variation } = state;
+            // Only works in voice mode
+            if (state.mode.type !== "voice") return;
+
+            const { voiceIndex } = state.mode;
+            const { variation } = state;
             const currentNudge =
               state.pattern.voices[voiceIndex].variations[variation]
                 .timingNudge;
@@ -153,7 +204,11 @@ export const usePatternStore = create<PatternState>()(
 
         nudgeTimingRight: () => {
           set((state) => {
-            const { voiceIndex, variation } = state;
+            // Only works in voice mode
+            if (state.mode.type !== "voice") return;
+
+            const { voiceIndex } = state.mode;
+            const { variation } = state;
             const currentNudge =
               state.pattern.voices[voiceIndex].variations[variation]
                 .timingNudge;

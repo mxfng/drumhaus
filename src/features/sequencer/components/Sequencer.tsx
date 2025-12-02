@@ -22,12 +22,18 @@ export const Sequencer: React.FC = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
-  const triggers = usePatternStore(
-    (state) => state.pattern.voices[voiceIndex].variations[variation].triggers,
-  );
+  const mode = usePatternStore((state) => state.mode);
   const toggleStep = usePatternStore((state) => state.toggleStep);
+  const toggleAccent = usePatternStore((state) => state.toggleAccent);
   const setVelocity = usePatternStore((state) => state.setVelocity);
+
+  const accentMode = mode.type === "accent";
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+
+  // Get appropriate triggers based on mode
+  const triggers = accentMode
+    ? pattern.variationMetadata[variation].accent
+    : pattern.voices[voiceIndex].variations[variation].triggers;
 
   // --- Drag-paint logic ---
   const {
@@ -36,7 +42,10 @@ export const Sequencer: React.FC = () => {
     handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
-    onToggleStep: (stepIndex) => toggleStep(voiceIndex, variation, stepIndex),
+    onToggleStep: (stepIndex) =>
+      accentMode
+        ? toggleAccent(variation, stepIndex)
+        : toggleStep(voiceIndex, variation, stepIndex),
   });
 
   const currentVariation = pattern.voices[voiceIndex].variations[variation];
@@ -49,7 +58,10 @@ export const Sequencer: React.FC = () => {
   const getStepMusicalState = (step: number): StepMusicalState => {
     const isTriggerOn = triggers[step];
     const isGhosted =
-      isPlaying && playbackVariation !== variation && isTriggerOn;
+      !accentMode &&
+      isPlaying &&
+      playbackVariation !== variation &&
+      isTriggerOn;
 
     return {
       isTriggerOn,
@@ -83,14 +95,17 @@ export const Sequencer: React.FC = () => {
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
             />
-            <SequencerVelocity
-              stepIndex={step}
-              isTriggerOn={state.isTriggerOn}
-              velocityValue={state.velocityValue}
-              onSetVelocity={(stepIndex, velocity) =>
-                setVelocity(voiceIndex, variation, stepIndex, velocity)
-              }
-            />
+            {/* Hide velocity controls in accent mode */}
+            {!accentMode && (
+              <SequencerVelocity
+                stepIndex={step}
+                isTriggerOn={state.isTriggerOn}
+                velocityValue={state.velocityValue}
+                onSetVelocity={(stepIndex, velocity) =>
+                  setVelocity(voiceIndex, variation, stepIndex, velocity)
+                }
+              />
+            )}
           </div>
         );
       })}

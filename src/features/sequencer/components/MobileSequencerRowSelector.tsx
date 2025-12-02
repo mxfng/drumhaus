@@ -32,15 +32,15 @@ export const MobileSequencerRowSelector: React.FC<
 }) => {
   const instruments = useInstrumentsStore((state) => state.instruments);
   const instrument = instruments[voiceIndex];
-  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
+  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
 
   // Show popup above if in bottom half (rowIndex > 3), below otherwise
   const side = rowIndex > 3 ? "top" : "bottom";
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
-      // Set the voiceIndex when popover opens so operations work on correct instrument
-      setVoiceIndex(voiceIndex);
+      // Set the voiceMode when popover opens so operations work on correct instrument
+      setVoiceMode(voiceIndex);
     }
     onOpenChange(open);
   };
@@ -52,7 +52,7 @@ export const MobileSequencerRowSelector: React.FC<
       onOpenChange(false);
     } else {
       // Clicking a different row or opening when none selected - open it
-      setVoiceIndex(voiceIndex);
+      setVoiceMode(voiceIndex);
       onOpenChange(true);
     }
   };
