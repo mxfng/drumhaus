@@ -9,6 +9,7 @@ import { SaveDialog } from "@/features/preset/dialogs/SaveDialog";
 import { ShareDialog } from "@/features/preset/dialogs/ShareDialog";
 import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
+import { ScreenTransportDisplay } from "@/layout/desktop/ScreenTransportDisplay";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 
@@ -80,7 +81,7 @@ export const Screen: React.FC = () => {
   return (
     <>
       {/* Screen Display */}
-      <div className="bg-instrument/50 border-border text-foreground-emphasis col-span-4 overflow-hidden rounded-2xl border">
+      <div className="bg-instrument/50 border-border text-foreground-emphasis col-span-4 overflow-clip rounded-2xl border">
         <div className="grid h-full w-full grid-cols-2 rounded-2xl opacity-30">
           {/* Left Column - Equal heights */}
           <div className="border-foreground-emphasis flex h-full flex-col border-r">
@@ -134,18 +135,8 @@ export const Screen: React.FC = () => {
                 <FrequencyAnalyzer />
               </div>
             </div>
-            <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
-              <div className="grid w-full grid-cols-4">
-                <span>
-                  bpm <b className="pl-1">150</b>
-                </span>
-                <span>
-                  swing <b className="pl-1">0%</b>
-                </span>
-                <span className="col-span-2">
-                  cycle <b className="pl-1">A</b>
-                </span>
-              </div>
+            <div className="h-1/3">
+              <ScreenTransportDisplay />
             </div>
           </div>
         </div>

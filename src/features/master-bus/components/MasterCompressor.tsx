@@ -5,7 +5,6 @@ import {
   compRatioMapping,
   compThresholdMapping,
 } from "@/shared/knob/lib/mapping";
-import { GainReductionMeter } from "./GainReductionMeter";
 
 export const MasterCompressor: React.FC = () => {
   const threshold = useMasterChainStore((state) => state.compThreshold);
@@ -17,22 +16,18 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center">
+    <div className="grid aspect-square w-full grid-cols-2 place-items-center gap-2">
       {/* Threshold and Ratio */}
       <ParamKnob
         value={threshold}
         onValueChange={setThreshold}
-        label="THRESHOLD"
+        label="threshold"
         mapping={compThresholdMapping}
       />
-      {/* Gain Reduction Meter and Mix */}
-      <div className="flex h-full items-center justify-center py-8 sm:py-1">
-        <GainReductionMeter />
-      </div>
       <ParamKnob
         value={ratio}
         onValueChange={setRatio}
-        label="RATIO"
+        label="ratio"
         mapping={compRatioMapping}
         outerTickCount={8}
       />
@@ -40,7 +35,7 @@ export const MasterCompressor: React.FC = () => {
       <ParamKnob
         value={mix}
         onValueChange={setMix}
-        label="MIX"
+        label="mix"
         mapping={compMixMapping}
       />
     </div>

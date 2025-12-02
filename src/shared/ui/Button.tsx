@@ -12,7 +12,7 @@ const buttonVariants = cva(
           "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground",
         secondary: "hover:text-foreground-muted",
         hardware:
-          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border",
+          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg",
       },
       size: {
         xs: "h-10 sm:h-6 text-sm",

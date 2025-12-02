@@ -19,28 +19,29 @@ export const MasterFX: React.FC = () => {
   const setReverb = useMasterChainStore((state) => state.setReverb);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center">
+    <div className="grid aspect-square w-full grid-cols-2 place-items-center gap-2">
       <ParamKnob
-        label="LPF"
+        label="lowpass"
         mapping={lowPassFilterMapping}
         value={lowPass}
         onValueChange={setLowPass}
       />
       <ParamKnob
-        label="REVERB"
-        mapping={reverbWetMapping}
-        value={reverb}
-        onValueChange={setReverb}
-        outerTickCount={5}
-      />
-      <ParamKnob
-        label="HPF"
+        label="hipass"
         mapping={highPassFilterMapping}
         value={highPass}
         onValueChange={setHighPass}
       />
       <ParamKnob
-        label="PHASER"
+        label="reverb"
+        mapping={reverbWetMapping}
+        value={reverb}
+        onValueChange={setReverb}
+        outerTickCount={5}
+      />
+
+      <ParamKnob
+        label="phaser"
         mapping={phaserWetMapping}
         value={phaser}
         onValueChange={setPhaser}

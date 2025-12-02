@@ -1,11 +1,12 @@
-import { ClipboardPaste, Copy, Dices, Eraser } from "lucide-react";
-
-import { useSequencerControl } from "@/features/sequencer/hooks/useSequencerControl";
-import { cn } from "@/shared/lib/utils";
-import { Button, Label, Tooltip } from "@/shared/ui";
+import { Button, Tooltip } from "@/shared/ui";
+import { SequencerVariationButton } from "./SequencerVariationButton";
 
 // Tooltip constants
 const TOOLTIPS = {
+  VARIATION_CHAIN_SET: "Set variation chain",
+  VARIATION_CHAIN_SAVE: "Save variation chain",
+  VARIATION_CHAIN_TOGGLE_ON: "Toggle variation chain on",
+  VARIATION_CHAIN_TOGGLE_OFF: "Toggle variation chain off",
   VARIATION_A: "Select variation A",
   VARIATION_B: "Select variation B",
   CYCLE_A: "Play only variation A",
@@ -19,112 +20,127 @@ const TOOLTIPS = {
 } as const;
 
 export const SequencerControl: React.FC = () => {
-  const {
-    variation,
-    variationCycle,
-    setVariation,
-    setVariationCycle,
-    copySequence,
-    pasteSequence,
-    clearSequence,
-    randomSequence,
-  } = useSequencerControl();
+  // const {
+  //   variationCycle,
+  //   setVariationCycle,
+  //   copySequence,
+  //   pasteSequence,
+  //   clearSequence,
+  //   randomSequence,
+  // } = useSequencerControl();
 
   return (
-    <div className="flex w-full flex-col px-4">
-      <Label className="text-foreground-muted pb-2">SEQUENCER</Label>
-
-      <div className="flex justify-between gap-4 pb-8">
-        <div className="relative w-1/3">
-          <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
-            <Tooltip content={TOOLTIPS.VARIATION_A}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-lg rounded-r-none", {
-                  "text-primary": variation === 0,
-                })}
-                onClick={() => setVariation(0)}
-              >
-                A
-              </Button>
-            </Tooltip>
-            <Tooltip content={TOOLTIPS.VARIATION_B}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-none rounded-r-lg", {
-                  "text-primary": variation === 1,
-                })}
-                onClick={() => setVariation(1)}
-              >
-                B
-              </Button>
-            </Tooltip>
-          </div>
-          <Label className="absolute -bottom-5 left-1">VARI</Label>
-        </div>
-
-        <div className="relative w-2/3">
-          <div className="hardware-button-group grid grid-cols-4 rounded-lg">
-            <Tooltip content={TOOLTIPS.CYCLE_A}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-lg rounded-r-none", {
-                  "text-primary": variationCycle === "A",
-                })}
-                onClick={() => setVariationCycle("A")}
-              >
-                A
-              </Button>
-            </Tooltip>
-            <Tooltip content={TOOLTIPS.CYCLE_B}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-none", {
-                  "text-primary": variationCycle === "B",
-                })}
-                onClick={() => setVariationCycle("B")}
-              >
-                B
-              </Button>
-            </Tooltip>
-            <Tooltip content={TOOLTIPS.CYCLE_AB}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-none", {
-                  "text-primary": variationCycle === "AB",
-                })}
-                onClick={() => setVariationCycle("AB")}
-              >
-                AB
-              </Button>
-            </Tooltip>
-            <Tooltip content={TOOLTIPS.CYCLE_AAAB}>
-              <Button
-                variant="hardware"
-                size="sm"
-                className={cn(
-                  "rounded-l-none rounded-r-lg text-[10px] leading-tight",
-                  {
-                    "text-primary": variationCycle === "AAAB",
-                  },
-                )}
-                onClick={() => setVariationCycle("AAAB")}
-              >
-                AA
-                <br />
-                AB
-              </Button>
-            </Tooltip>
-          </div>
-          <Label className="absolute -bottom-5 left-1">CYCLE</Label>
-        </div>
+    <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full items-center justify-center">
+        <mark className="bg-foreground-muted text-surface rounded px-2 text-xs">
+          sequencer
+        </mark>
       </div>
-
+      {/* <div className="w-full h-12 sm:h-8 border">
+            <SequencerVariationPreview variation={variation} />
+          </div> */}
+      <div className="grid w-full grid-cols-4 gap-1">
+        <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>vari chain</span>
+          </Button>
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON}>
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>chain on</span>
+          </Button>
+        </Tooltip>
+        <div />
+        <div />
+        <Tooltip content={TOOLTIPS.VARIATION_A}>
+          <SequencerVariationButton variation={0} />
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.VARIATION_B}>
+          <SequencerVariationButton variation={1} />
+        </Tooltip>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>C</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>D</span>
+        </Button>
+      </div>
+      {/* 
+      <div className="relative w-2/3">
+        <div className="hardware-button-group grid grid-cols-4 rounded-lg">
+          <Tooltip content={TOOLTIPS.CYCLE_A}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn("rounded-l-lg rounded-r-none", {
+                "text-primary": variationCycle === "A",
+              })}
+              onClick={() => setVariationCycle("A")}
+            >
+              A
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.CYCLE_B}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn("rounded-none", {
+                "text-primary": variationCycle === "B",
+              })}
+              onClick={() => setVariationCycle("B")}
+            >
+              B
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.CYCLE_AB}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn("rounded-none", {
+                "text-primary": variationCycle === "AB",
+              })}
+              onClick={() => setVariationCycle("AB")}
+            >
+              AB
+            </Button>
+          </Tooltip>
+          <Tooltip content={TOOLTIPS.CYCLE_AAAB}>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(
+                "rounded-l-none rounded-r-lg text-[10px] leading-tight",
+                {
+                  "text-primary": variationCycle === "AAAB",
+                },
+              )}
+              onClick={() => setVariationCycle("AAAB")}
+            >
+              AA
+              <br />
+              AB
+            </Button>
+          </Tooltip>
+        </div>
+        <Label className="absolute -bottom-5 left-1">CYCLE</Label>
+      </div> */}
+      {/* 
       <div className="pb-4">
         <div className="hardware-button-group grid grid-cols-4 rounded-lg">
           <Tooltip content={TOOLTIPS.COPY}>
@@ -174,7 +190,7 @@ export const SequencerControl: React.FC = () => {
           <Label>CLEAR</Label>
           <Label>RAND</Label>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

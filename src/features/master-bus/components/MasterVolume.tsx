@@ -10,7 +10,7 @@ export const MasterVolume: React.FC = () => {
     <ParamKnob
       value={masterVolume}
       onValueChange={setMasterVolume}
-      label="MASTER LEVEL"
+      label="output level"
       mapping={masterVolumeMapping}
       outerTickCount={13}
       size="lg"
