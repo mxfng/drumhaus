@@ -1,22 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { clampVelocity } from "@/features/sequencer/lib/helpers";
+import { subscribeToPadState } from "@/features/sequencer/lib/padStateManager";
 import { cn } from "@/shared/lib/utils";
 
 interface SequencerVelocityProps {
   stepIndex: number;
-  isTriggerOn: boolean;
   velocityValue: number;
   onSetVelocity: (stepIndex: number, velocity: number) => void;
 }
 
 export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
   stepIndex,
-  isTriggerOn,
   velocityValue,
   onSetVelocity,
 }) => {
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
+  const [isTriggerOn, setIsTriggerOn] = useState<boolean>(false);
+
+  // Subscribe to pad state manager for trigger state
+  useEffect(() => {
+    const unsubscribe = subscribeToPadState(stepIndex, (padState) => {
+      setIsTriggerOn(padState.isTriggerOn);
+    });
+
+    return unsubscribe;
+  }, [stepIndex]);
 
   const updateVelocityFromPointer = (
     event: React.PointerEvent<HTMLDivElement>,

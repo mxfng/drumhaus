@@ -90,7 +90,15 @@ export const GrooveControls = () => {
         </div>
 
         {/* Empty space to balance layout */}
-        <div className="h-12 w-full sm:h-8" />
+        {/* <div className="h-12 w-full sm:h-8" />
+         */}
+
+        <Button variant="hardware" size="sm">
+          flam
+        </Button>
+        <Button variant="hardware" size="sm">
+          legato
+        </Button>
       </div>
     </HardwareModule>
   );

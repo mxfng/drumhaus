@@ -103,8 +103,6 @@ export const MobileInstrumentGrid: React.FC<MobileInstrumentGridProps> = ({
             <InstrumentParamsControl
               key={`mobile-edit-instrument-${editingVoiceIndex}-${instrumentRuntimesVersion}`}
               index={editingVoiceIndex}
-              instrumentIndex={editingVoiceIndex}
-              mobile
               runtime={instrumentRuntimes.current[editingVoiceIndex]}
             />
           </DialogContent>

@@ -10,6 +10,12 @@ interface GainMeterProps {
 }
 
 const DOT_COUNT = 5;
+const NORMAL_RANGE = true;
+const SMOOTHING = 0.8;
+const PEAK_HOLD_MS = 100; // Hold peaks for 100ms
+const PEAK_DECAY_RATE = 0.95; // How fast peaks decay after hold time
+const PEAK_DETECTION_THRESHOLD = 0.001; // Threshold for peak detection
+const METER_SCALING = 1.5;
 
 // Color classes for each dot level
 const DOT_COLORS = {
@@ -28,8 +34,6 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
   const meterRef = useRef<Meter | null>(null);
   const peakLevelRef = useRef(0);
   const peakHoldTimeRef = useRef(0);
-  const PEAK_HOLD_MS = 100; // Hold peaks for 100ms
-  const PEAK_DECAY_RATE = 0.95; // How fast peaks decay after hold time
 
   // Create our own meter and tap the instrument output
   useEffect(() => {
@@ -37,8 +41,8 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
 
     // Create meter and tap the panner output (just like FrequencyAnalyzer taps Destination)
     meterRef.current = new Meter({
-      normalRange: true,
-      smoothing: 0.8,
+      normalRange: NORMAL_RANGE,
+      smoothing: SMOOTHING,
     });
     runtime.pannerNode.connect(meterRef.current);
 
@@ -80,11 +84,13 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
 
       // Noise gate - ignore very quiet signals (below ~-60dB in normalized range)
       const gatedLevel =
-        peakLevelRef.current < 0.001 ? 0 : peakLevelRef.current;
+        peakLevelRef.current < PEAK_DETECTION_THRESHOLD
+          ? 0
+          : peakLevelRef.current;
 
       // Apply scaling to make the meter more sensitive to actual hits
       // This spreads the useful range (0.1-1.0) across all 5 dots
-      const normalized = clamp(gatedLevel * 1.5, 0, 1);
+      const normalized = clamp(gatedLevel * METER_SCALING, 0, 1);
 
       // Calculate how many dots should be lit
       const activeDots = Math.ceil(normalized * DOT_COUNT);

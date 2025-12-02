@@ -81,7 +81,10 @@ export const useInstrumentsStore = create<InstrumentsState>()(
           if (version === 1) {
             const state = persistedState as { instruments: InstrumentData[] };
             state.instruments = state.instruments.map((inst) => {
-              const oldParams = inst.params as Record<string, unknown>;
+              const oldParams = inst.params as unknown as Record<
+                string,
+                unknown
+              >;
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { attack: _attack, release, pitch, ...rest } = oldParams;
               return {
@@ -90,7 +93,7 @@ export const useInstrumentsStore = create<InstrumentsState>()(
                   ...rest,
                   decay: release ?? oldParams.decay,
                   tune: pitch ?? oldParams.tune,
-                },
+                } as InstrumentParams,
               };
             });
           }

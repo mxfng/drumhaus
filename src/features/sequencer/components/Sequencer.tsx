@@ -82,7 +82,6 @@ export const Sequencer: React.FC = () => {
             {!accentMode && (
               <SequencerVelocity
                 stepIndex={step}
-                isTriggerOn={state.isTriggerOn}
                 velocityValue={state.velocityValue}
                 onSetVelocity={(stepIndex, velocity) =>
                   setVelocity(voiceIndex, variation, stepIndex, velocity)
