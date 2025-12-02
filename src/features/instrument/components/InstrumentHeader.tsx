@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { playInstrumentSample } from "@/core/audio/engine";
-import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
-import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
@@ -99,23 +97,15 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
 
       {/* Waveform */}
       <div className="relative flex h-6 flex-1 items-center justify-center overflow-visible">
-        {waveformError ? (
-          <div className="h-6">
-            <PixelatedFrowny color={color} />
-          </div>
-        ) : isRuntimeLoaded ? (
-          <Waveform
-            audioFile={samplePath}
-            width={waveformWidth}
-            height={waveformHeight}
-            onError={handleWaveformError}
-            className="h-6"
-          />
-        ) : (
-          <div className="h-6">
-            <PixelatedSpinner color={color} />
-          </div>
-        )}
+        <Waveform
+          audioFile={samplePath}
+          width={waveformWidth}
+          height={waveformHeight}
+          color={color}
+          onError={handleWaveformError}
+          isLoadingExternal={!isRuntimeLoaded}
+          className="h-6"
+        />
       </div>
     </button>
   );

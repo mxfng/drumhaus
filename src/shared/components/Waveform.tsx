@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
+import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
+import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import { cn } from "@/shared/lib/utils";
 
 interface WaveformProps {
@@ -11,6 +13,8 @@ interface WaveformProps {
   color?: string;
   onError?: (error: Error) => void;
   className?: string;
+  /** Keep spinner visible even if waveform data is already loaded (e.g. external runtime pending). */
+  isLoadingExternal?: boolean;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
@@ -20,6 +24,7 @@ const Waveform: React.FC<WaveformProps> = ({
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
   className,
+  isLoadingExternal = false,
 }) => {
   // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
   const normalizedPath = audioFile
@@ -29,6 +34,10 @@ const Waveform: React.FC<WaveformProps> = ({
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [waveformData, setWaveformData] =
+    useState<TransientWaveformData | null>(null);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Auto-sizing: observe container dimensions if width/height not provided
   const [autoWidth, setAutoWidth] = useState<number>(170);
@@ -36,6 +45,44 @@ const Waveform: React.FC<WaveformProps> = ({
 
   const finalWidth = width ?? autoWidth;
   const finalHeight = height ?? autoHeight;
+
+  const drawWaveform = useCallback(
+    (
+      waveform: TransientWaveformData,
+      ctx: CanvasRenderingContext2D,
+      canvasWidth: number,
+      canvasHeight: number,
+    ) => {
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.imageSmoothingEnabled = false;
+
+      const { buckets } = waveform;
+      if (!buckets.length) return;
+
+      const centerY = canvasHeight / 2;
+      const maxHeight = Math.max(1, centerY - 1);
+
+      // Keep bars and gaps the same pixel width regardless of bucket count
+      const totalUnits = buckets.length * 2 - 1; // bar + gap per bucket except last
+      const unitWidth = canvasWidth / totalUnits; // use exact division to span full width
+      const barWidth = unitWidth;
+      const gapWidth = unitWidth;
+      const stride = barWidth + gapWidth;
+
+      ctx.fillStyle = color;
+
+      for (let i = 0; i < buckets.length; i++) {
+        const normalized =
+          Math.max(0, Math.min(WAVEFORM_VALUE_SCALE, buckets[i])) /
+          WAVEFORM_VALUE_SCALE;
+        const barHeight = Math.max(1, Math.round(normalized * maxHeight));
+        const x = i * stride;
+
+        ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2);
+      }
+    },
+    [color],
+  );
 
   // Auto-sizing with ResizeObserver
   useEffect(() => {
@@ -71,67 +118,83 @@ const Waveform: React.FC<WaveformProps> = ({
   }, [width, height]);
 
   useEffect(() => {
-    const draw = (
-      waveform: TransientWaveformData,
-      ctx: CanvasRenderingContext2D,
-      canvasWidth: number,
-      canvasHeight: number,
-    ) => {
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-      ctx.imageSmoothingEnabled = false;
+    let isMounted = true;
 
-      const { buckets } = waveform;
-      if (!buckets.length) return;
+    const loadWaveform = async () => {
+      setIsLoading(true);
+      setLoadError(null);
+      setWaveformData(null);
 
-      const centerY = canvasHeight / 2;
-      const maxHeight = Math.max(1, centerY - 1);
-
-      // Keep bars and gaps the same pixel width regardless of bucket count
-      const totalUnits = buckets.length * 2 - 1; // bar + gap per bucket except last
-      const unitWidth = canvasWidth / totalUnits; // use exact division to span full width
-      const barWidth = unitWidth;
-      const gapWidth = unitWidth;
-      const stride = barWidth + gapWidth;
-
-      ctx.fillStyle = color;
-
-      for (let i = 0; i < buckets.length; i++) {
-        const normalized =
-          Math.max(0, Math.min(WAVEFORM_VALUE_SCALE, buckets[i])) /
-          WAVEFORM_VALUE_SCALE;
-        const barHeight = Math.max(1, Math.round(normalized * maxHeight));
-        const x = i * stride;
-
-        ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2);
+      try {
+        const data = await getCachedWaveform(sampleFilename);
+        if (!isMounted) return;
+        setWaveformData(data);
+      } catch (error) {
+        if (!isMounted) return;
+        const normalizedError =
+          error instanceof Error ? error : new Error(String(error));
+        setLoadError(normalizedError);
+        console.error(`Failed to load waveform for ${sampleFilename}`, error);
+        if (onError) {
+          onError(normalizedError);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
+    void loadWaveform();
 
-    if (!canvas || !ctx) {
+    return () => {
+      isMounted = false;
+    };
+  }, [sampleFilename, onError]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx || !waveformData || loadError) {
       return;
     }
 
-    canvas.width = Math.max(1, Math.floor(finalWidth));
-    canvas.height = Math.max(1, Math.floor(finalHeight));
+    const canvasWidth = Math.max(1, Math.floor(finalWidth));
+    const canvasHeight = Math.max(1, Math.floor(finalHeight));
 
-    // Load waveform data using Cache API
-    getCachedWaveform(sampleFilename)
-      .then((data) => {
-        draw(data, ctx, canvas.width, canvas.height);
-      })
-      .catch((error) => {
-        console.error(`Failed to load waveform for ${sampleFilename}`, error);
-        if (onError) {
-          onError(error instanceof Error ? error : new Error(String(error)));
-        }
-      });
-  }, [sampleFilename, finalWidth, finalHeight, color, onError]);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    drawWaveform(waveformData, ctx, canvasWidth, canvasHeight);
+  }, [waveformData, finalWidth, finalHeight, drawWaveform, loadError]);
+
+  const showSpinner = isLoading || isLoadingExternal;
 
   return (
-    <div ref={containerRef} className={cn("h-full w-full", className)}>
-      <canvas ref={canvasRef} className="h-full w-full" />
+    <div ref={containerRef} className={cn("relative h-full w-full", className)}>
+      <canvas
+        ref={canvasRef}
+        className={cn("h-full w-full transition-opacity duration-150", {
+          "opacity-0": showSpinner || loadError,
+        })}
+      />
+
+      {showSpinner && !loadError && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <PixelatedSpinner
+            color={color}
+            size={Math.max(16, Math.min(finalHeight, 48))}
+            pixelSize={3}
+            gap={2}
+          />
+        </div>
+      )}
+
+      {loadError && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <PixelatedFrowny color={color} />
+        </div>
+      )}
     </div>
   );
 };
