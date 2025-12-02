@@ -54,7 +54,7 @@ const Drumhaus = () => {
               <ControlsPanel />
 
               {/* Sequencer */}
-              <div className="m-6">
+              <div className="p-6">
                 <Sequencer />
               </div>
             </div>

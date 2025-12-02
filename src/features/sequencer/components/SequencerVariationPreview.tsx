@@ -7,7 +7,6 @@ interface SequencerVariationPreviewProps {
 }
 
 const COLS = 16;
-const ROWS = 4;
 
 /**
  * Pattern preview for a specific variation.

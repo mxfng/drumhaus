@@ -13,6 +13,8 @@ const buttonVariants = cva(
         secondary: "hover:text-foreground-muted",
         hardware:
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg",
+        hardwareIcon:
+          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
       },
       size: {
         xs: "h-10 sm:h-6 text-sm",

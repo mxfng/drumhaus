@@ -19,7 +19,7 @@ export const MasterFX: React.FC = () => {
   const setReverb = useMasterChainStore((state) => state.setReverb);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center gap-2">
+    <>
       <ParamKnob
         label="lowpass"
         mapping={lowPassFilterMapping}
@@ -47,6 +47,6 @@ export const MasterFX: React.FC = () => {
         onValueChange={setPhaser}
         outerTickCount={5}
       />
-    </div>
+    </>
   );
 };

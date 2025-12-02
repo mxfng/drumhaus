@@ -1,8 +1,4 @@
-import {
-  HardwareModule,
-  HardwareModuleLabel,
-  HardwareModuleSpacer,
-} from "@/shared/components/HardwareModule";
+import { HardwareModule } from "@/shared/components/HardwareModule";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Button, Tooltip } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
@@ -43,18 +39,15 @@ export const SequencerControl: React.FC = () => {
 
   return (
     <HardwareModule>
-      <HardwareModuleLabel>sequencer</HardwareModuleLabel>
-      {/* <div className="w-full h-12 sm:h-8 border">
-            <SequencerVariationPreview variation={variation} />
-          </div> */}
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
+        {/* Variation chain and sequencer overview row */}
         <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
           <Button
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
           >
-            <span>vari chain</span>
+            <span className="leading-3">vari chain</span>
           </Button>
         </Tooltip>
         <Tooltip content={TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON}>
@@ -73,56 +66,69 @@ export const SequencerControl: React.FC = () => {
             <SequencerVariationPreview variation={variation} />
           )}
         </div>
+
+        {/* Variation pattern selection row */}
         <Tooltip content={TOOLTIPS.VARIATION_A}>
           <SequencerVariationButton variation={0} />
         </Tooltip>
         <Tooltip content={TOOLTIPS.VARIATION_B}>
           <SequencerVariationButton variation={1} />
         </Tooltip>
+
+        {/* mock for now */}
         <Button
           variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
+          className="font-pixel relative flex items-start justify-start overflow-hidden"
+          disabled
         >
-          <span>C</span>
+          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
+            C
+          </span>
         </Button>
+
+        {/* mock for now */}
         <Button
           variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
+          className="font-pixel relative flex items-start justify-start overflow-hidden"
+          disabled
         >
-          <span>D</span>
+          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
+            D
+          </span>
         </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>copy</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>paste</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>clear</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>random</span>
-        </Button>
+
+        {/* Pattern actions row */}
+        <div className="col-span-4 mx-auto grid w-5/6 grid-cols-4 gap-2">
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>copy</span>
+          </Button>
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>paste</span>
+          </Button>
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>clear</span>
+          </Button>
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>random</span>
+          </Button>
+        </div>
       </div>
-      <HardwareModuleSpacer />
     </HardwareModule>
   );
 };

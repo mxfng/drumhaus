@@ -183,11 +183,11 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
         <div className="flex h-full w-6 flex-col items-center justify-center gap-2">
           <Tooltip content={mute ? "Unmute" : "Mute"} side="right">
             <Button
-              variant="hardware"
+              variant="hardwareIcon"
               size="xs"
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
-              className={cn("rounded-full", {
+              className={cn({
                 "ring-primary ring": mute,
               })}
             >
@@ -196,11 +196,11 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
           </Tooltip>
           <Tooltip content={solo ? "Unsolo" : "Solo"} side="right">
             <Button
-              variant="hardware"
+              variant="hardwareIcon"
               size="xs"
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
-              className={cn("rounded-full", {
+              className={cn({
                 "ring-primary ring": solo,
               })}
             >

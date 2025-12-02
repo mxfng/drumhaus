@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import { cva, VariantProps } from "class-variance-authority";
 
 import { cn } from "@/shared/lib/utils";
 
@@ -12,19 +13,33 @@ export function HardwareModule({
   );
 }
 
+const hardwareModuleLabelVariants = cva(
+  " rounded px-2 text-xs inline-flex items-center justify-center gap-1",
+  {
+    variants: {
+      variant: {
+        default: "bg-foreground-muted text-surface",
+        outline: "border border-foreground bg-transparent text-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  },
+);
+
 /* HardwareModule Label */
 export const HardwareModuleLabel = forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> &
+    VariantProps<typeof hardwareModuleLabelVariants>
+>(({ className, children, variant, ...props }, ref) => (
   <div
     ref={ref}
     className={cn("flex h-4 w-full items-center justify-center", className)}
     {...props}
   >
-    <mark className="bg-foreground-muted text-surface rounded px-2 text-xs">
-      {children}
-    </mark>
+    <mark className={hardwareModuleLabelVariants({ variant })}>{children}</mark>
   </div>
 ));
 HardwareModuleLabel.displayName = "HardwareModuleLabel";

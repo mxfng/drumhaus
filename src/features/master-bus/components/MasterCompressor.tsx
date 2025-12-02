@@ -16,7 +16,7 @@ export const MasterCompressor: React.FC = () => {
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center gap-2">
+    <>
       {/* Threshold and Ratio */}
       <ParamKnob
         value={threshold}
@@ -38,6 +38,6 @@ export const MasterCompressor: React.FC = () => {
         label="mix"
         mapping={compMixMapping}
       />
-    </div>
+    </>
   );
 };

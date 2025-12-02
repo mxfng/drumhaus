@@ -59,43 +59,41 @@ export const Sequencer: React.FC = () => {
   };
 
   return (
-    <div className="w-full py-2 sm:py-0">
-      <div
-        key="sequence-grid"
-        className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-3"
-        onPointerMove={handleStepPointerMove}
-      >
-        {steps.map((step) => {
-          const state = getStepMusicalState(step);
+    <div
+      key="sequence-grid"
+      className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-4"
+      onPointerMove={handleStepPointerMove}
+    >
+      {steps.map((step) => {
+        const state = getStepMusicalState(step);
 
-          return (
-            <div key={`sequence-step-item-${step}`} className="col-span-1">
-              <SequencerStepIndicator
-                stepIndex={step}
-                variation={variation}
-                playbackVariation={playbackVariation}
-              />
-              <SequencerStep
-                stepIndex={step}
-                isTriggerOn={state.isTriggerOn}
-                isGhosted={state.isGhosted}
-                variant="desktop"
-                onPointerStart={handleStepPointerStart}
-                onPointerEnter={handleStepPointerEnter}
-                onPointerMove={handleStepPointerMove}
-              />
-              <SequencerVelocity
-                stepIndex={step}
-                isTriggerOn={state.isTriggerOn}
-                velocityValue={state.velocityValue}
-                onSetVelocity={(stepIndex, velocity) =>
-                  setVelocity(voiceIndex, variation, stepIndex, velocity)
-                }
-              />
-            </div>
-          );
-        })}
-      </div>
+        return (
+          <div key={`sequence-step-item-${step}`} className="col-span-1">
+            <SequencerStepIndicator
+              stepIndex={step}
+              variation={variation}
+              playbackVariation={playbackVariation}
+            />
+            <SequencerStep
+              stepIndex={step}
+              isTriggerOn={state.isTriggerOn}
+              isGhosted={state.isGhosted}
+              variant="desktop"
+              onPointerStart={handleStepPointerStart}
+              onPointerEnter={handleStepPointerEnter}
+              onPointerMove={handleStepPointerMove}
+            />
+            <SequencerVelocity
+              stepIndex={step}
+              isTriggerOn={state.isTriggerOn}
+              velocityValue={state.velocityValue}
+              onSetVelocity={(stepIndex, velocity) =>
+                setVelocity(voiceIndex, variation, stepIndex, velocity)
+              }
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

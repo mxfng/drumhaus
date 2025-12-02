@@ -8,7 +8,7 @@ import { ClickableValue } from "@/shared/components/ClickableValue";
 const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
 const [MIN_SWING, MAX_SWING] = TRANSPORT_SWING_RANGE;
 
-export const ScreenTransportDisplay: React.FC = () => {
+export const TransportControlScreen: React.FC = () => {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
