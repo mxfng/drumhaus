@@ -134,13 +134,16 @@ export const Screen: React.FC = () => {
                 <FrequencyAnalyzer />
               </div>
             </div>
-            <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center rounded-tl-full px-2 pl-4 text-sm">
+            <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
               <div className="grid w-full grid-cols-4">
                 <span>
-                  bpm <b>150</b>
+                  bpm <b className="pl-1">150</b>
                 </span>
                 <span>
-                  swing <b>0%</b>
+                  swing <b className="pl-1">0%</b>
+                </span>
+                <span className="col-span-2">
+                  cycle <b className="pl-1">A</b>
                 </span>
               </div>
             </div>
