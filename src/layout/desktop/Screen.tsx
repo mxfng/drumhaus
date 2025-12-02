@@ -1,4 +1,5 @@
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
+import { KitNavigator } from "@/features/kit/components/KitNavigator";
 import { KitSelector } from "@/features/kit/components/KitSelector";
 import { PresetActions } from "@/features/preset/components/PresetActions";
 import { PresetSelector } from "@/features/preset/components/PresetSelector";
@@ -52,6 +53,30 @@ export const Screen: React.FC = () => {
     if (preset) loadPreset(preset);
   };
 
+  const handlePreviousKit = () => {
+    const currentIndex = kits.findIndex(
+      (kit) => kit.meta.id === currentKitMeta.id,
+    );
+    if (currentIndex > 0) {
+      switchKit(kits[currentIndex - 1].meta.id);
+    } else {
+      // Wrap to last kit
+      switchKit(kits[kits.length - 1].meta.id);
+    }
+  };
+
+  const handleNextKit = () => {
+    const currentIndex = kits.findIndex(
+      (kit) => kit.meta.id === currentKitMeta.id,
+    );
+    if (currentIndex < kits.length - 1) {
+      switchKit(kits[currentIndex + 1].meta.id);
+    } else {
+      // Wrap to first kit
+      switchKit(kits[0].meta.id);
+    }
+  };
+
   return (
     <>
       {/* Screen Display */}
@@ -79,7 +104,7 @@ export const Screen: React.FC = () => {
               </div>
             </div>
 
-            {/* Kit Row: 1/6 label + fill selector + 1/6 space */}
+            {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
             <div className="border-foreground-emphasis flex w-full flex-1 items-center gap-2 pl-2 text-sm">
               <div className="w-1/6">
                 <mark className="bg-foreground-emphasis text-instrument rounded px-1">
@@ -93,18 +118,23 @@ export const Screen: React.FC = () => {
                   onSelect={handleKitChange}
                 />
               </div>
-              <div className="w-1/4"></div>
+              <div className="bg-foreground-emphasis h-full w-1/4">
+                <KitNavigator
+                  onPrevious={handlePreviousKit}
+                  onNext={handleNextKit}
+                />
+              </div>
             </div>
           </div>
 
           {/* Right Column - 2/3 and 1/3 split */}
           <div className="flex h-full flex-col">
-            <div className="border-foreground-emphasis relative h-2/3 min-h-0 border-b">
+            <div className="border-foreground-emphasis relative h-2/3 min-h-0">
               <div className="absolute inset-0">
                 <FrequencyAnalyzer />
               </div>
             </div>
-            <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center px-2 text-sm">
+            <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center rounded-tl-full px-2 pl-4 text-sm">
               Hello
             </div>
           </div>
