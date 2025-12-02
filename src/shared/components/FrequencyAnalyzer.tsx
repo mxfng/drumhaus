@@ -5,7 +5,7 @@ import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
 } from "@/core/audio/engine";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { subscribeToPlaybackAnimation } from "@/core/audio/lib/playbackAnimationManager";
 import { semitonesToRatio } from "@/shared/knob/lib/utils";
 import { clamp, normalize } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
@@ -33,11 +33,7 @@ export function FrequencyAnalyzer({
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const animationFrameId = useRef<number | null>(null);
-  const isPlaying = useTransportStore((state) => state.isPlaying);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
-  const frameInterval = potatoMode ? 1000 / 30 : 1000 / 60;
-  const lastFrameRef = useRef(0);
   const [dimensions, setDimensions] = useState({
     width: width || 550,
     height: height || 90,
@@ -76,14 +72,7 @@ export function FrequencyAnalyzer({
       };
     }
 
-    const drawFrame = (now: number) => {
-      // 30fps throttle
-      if (now - lastFrameRef.current < frameInterval) {
-        animationFrameId.current = requestAnimationFrame(drawFrame);
-        return;
-      }
-      lastFrameRef.current = now;
-
+    const drawFrame = () => {
       const analyzer = analyzerRef.current;
       if (!analyzer) return;
 
@@ -141,7 +130,7 @@ export function FrequencyAnalyzer({
 
         let barHeight = boosted * canvas.height;
 
-        // Quantize height to pixel steps for “pixel” look
+        // Quantize height to pixel steps for "pixel" look
         const pixelsHigh = Math.round(barHeight / PIXEL_SIZE);
         barHeight = pixelsHigh * PIXEL_SIZE;
 
@@ -151,20 +140,16 @@ export function FrequencyAnalyzer({
         ctx.fillStyle = "#ff7b00";
         ctx.fillRect(x, y, barWidth, barHeight);
       }
-
-      animationFrameId.current = requestAnimationFrame(drawFrame);
     };
 
-    animationFrameId.current = requestAnimationFrame(drawFrame);
+    // Subscribe to playback animation (only runs when playing)
+    const unsubscribe = subscribeToPlaybackAnimation(drawFrame);
 
     return () => {
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
-      }
+      unsubscribe();
       disposeFrequencyAnalyzer(analyzerRef);
     };
-  }, [isPlaying, numBars, potatoMode, frameInterval]);
+  }, [numBars, potatoMode]);
 
   return (
     <div ref={containerRef} className="h-full w-full">

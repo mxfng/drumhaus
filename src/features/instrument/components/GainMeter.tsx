@@ -1,10 +1,9 @@
 import { useEffect, useRef } from "react";
 import { Meter } from "tone";
 
+import { subscribeToPlaybackAnimation } from "@/core/audio/lib/playbackAnimationManager";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { clamp } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface GainMeterProps {
   runtime?: InstrumentRuntime;
@@ -27,10 +26,6 @@ const DOT_COLORS = {
 export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const meterRef = useRef<Meter | null>(null);
-  const isPlaying = useTransportStore((state) => state.isPlaying);
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
-  const frameInterval = potatoMode ? 1000 / 30 : 1000 / 60;
-  const lastFrameRef = useRef(0);
   const peakLevelRef = useRef(0);
   const peakHoldTimeRef = useRef(0);
   const PEAK_HOLD_MS = 100; // Hold peaks for 100ms
@@ -63,15 +58,7 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
   useEffect(() => {
     if (!runtime || !meterRef.current) return;
 
-    let animationFrameId: number;
-
     const updateMeter = (now: number) => {
-      if (now - lastFrameRef.current < frameInterval) {
-        animationFrameId = requestAnimationFrame(updateMeter);
-        return;
-      }
-      lastFrameRef.current = now;
-
       if (!meterRef.current) return;
 
       // Get level from meter (0-1 range due to normalRange)
@@ -118,16 +105,13 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
           ...(isActive ? activeClass : inactiveClass).split(" "),
         );
       });
-
-      animationFrameId = requestAnimationFrame(updateMeter);
     };
 
-    animationFrameId = requestAnimationFrame(updateMeter);
+    // Subscribe to playback animation (only runs when playing)
+    const unsubscribe = subscribeToPlaybackAnimation(updateMeter);
 
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [runtime, isPlaying, potatoMode, frameInterval]);
+    return unsubscribe;
+  }, [runtime]);
 
   return (
     <div className="flex h-full flex-col-reverse items-center justify-center gap-1.5">

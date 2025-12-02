@@ -1,5 +1,6 @@
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { getCurrentStepFromTransport } from "@/core/audio/engine/transport";
+import { subscribeToPlaybackAnimation } from "@/core/audio/lib/playbackAnimationManager";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
@@ -36,9 +37,8 @@ interface StepListeners {
 // Listener registry: Map<stepIndex, StepListeners>
 const stepListenersMap = new Map<number, StepListeners>();
 
-let animationFrameId: number | null = null;
-let lastFrameTime = 0;
-const FRAME_INTERVAL = 1000 / 30; // 30 FPS cap
+let unsubscribePlaybackAnimation: (() => void) | null = null;
+let unsubscribePatternStore: (() => void) | null = null;
 
 /**
  * Core state calculation logic
@@ -49,13 +49,14 @@ const FRAME_INTERVAL = 1000 / 30; // 30 FPS cap
  * - Variation context (viewing vs playing)
  */
 function calculatePadState(stepIndex: number): PadState {
-  // Granular selectors for transport state
-  const isPlaying = useTransportStore.getState().isPlaying;
+  // Get current state from stores
+  const transportState = useTransportStore.getState();
+  const patternState = usePatternStore.getState();
 
-  // Granular selectors for pattern state
-  const mode = usePatternStore((state) => state.mode);
-  const variation = usePatternStore((state) => state.variation);
-  const playbackVariation = usePatternStore((state) => state.playbackVariation);
+  const isPlaying = transportState.isPlaying;
+  const mode = patternState.mode;
+  const variation = patternState.variation;
+  const playbackVariation = patternState.playbackVariation;
 
   const currentStep = isPlaying ? getCurrentStepFromTransport() : -1;
   const isThisStepPlaying = currentStep === stepIndex;
@@ -69,11 +70,9 @@ function calculatePadState(stepIndex: number): PadState {
     case "voice": {
       const voiceIndex = mode.voiceIndex;
 
-      // Granular selector for specific voice variation triggers
-      const triggers = usePatternStore(
-        (state) =>
-          state.pattern.voices[voiceIndex].variations[variation].triggers,
-      );
+      // Get trigger state for this step
+      const triggers =
+        patternState.pattern.voices[voiceIndex].variations[variation].triggers;
       isTriggerOn = triggers[stepIndex];
 
       // Ghosting: trigger is on, but we're viewing a different variation than what's playing
@@ -87,10 +86,9 @@ function calculatePadState(stepIndex: number): PadState {
     }
 
     case "accent": {
-      // Granular selector for accent pattern triggers
-      const accentTriggers = usePatternStore(
-        (state) => state.pattern.variationMetadata[variation].accent,
-      );
+      // Get accent trigger state for this step
+      const accentTriggers =
+        patternState.pattern.variationMetadata[variation].accent;
       isTriggerOn = accentTriggers[stepIndex];
       // No ghosting in accent mode, always full brightness
       brightness = 1;
@@ -118,51 +116,63 @@ function calculatePadState(stepIndex: number): PadState {
 }
 
 /**
- * Main animation frame tick
- * Calculates state for all subscribed pads and notifies listeners only when state changes
+ * Update all subscribed pads
+ * Called during playback (for timing) and on pattern changes (for triggers)
  */
-function tick(now: number) {
-  if (now - lastFrameTime >= FRAME_INTERVAL) {
-    lastFrameTime = now;
+function updateAllPads(): void {
+  stepListenersMap.forEach((stepData, stepIndex) => {
+    const newState = calculatePadState(stepIndex);
+    const { lastState } = stepData;
 
-    // Calculate and emit state for each subscribed step
-    stepListenersMap.forEach((stepData, stepIndex) => {
-      const newState = calculatePadState(stepIndex);
-      const { lastState } = stepData;
+    // Only notify if state actually changed
+    if (
+      !lastState ||
+      lastState.brightness !== newState.brightness ||
+      lastState.isPlaying !== newState.isPlaying ||
+      lastState.isTriggerOn !== newState.isTriggerOn
+    ) {
+      stepData.lastState = newState;
+      stepData.listeners.forEach((listener) => listener(newState));
+    }
+  });
+}
 
-      // Only notify if state actually changed
-      if (
-        !lastState ||
-        lastState.brightness !== newState.brightness ||
-        lastState.isPlaying !== newState.isPlaying ||
-        lastState.isTriggerOn !== newState.isTriggerOn
-      ) {
-        stepData.lastState = newState;
-        stepData.listeners.forEach((listener) => listener(newState));
-      }
+/**
+ * Start subscriptions to playback animation and pattern changes
+ */
+function startSubscriptions(): void {
+  // Subscribe to playback animation (only runs when playing)
+  if (unsubscribePlaybackAnimation === null) {
+    unsubscribePlaybackAnimation = subscribeToPlaybackAnimation(() => {
+      updateAllPads();
     });
   }
 
-  animationFrameId = requestAnimationFrame(tick);
+  // Subscribe to pattern store changes (runs when paused for instant updates)
+  if (unsubscribePatternStore === null) {
+    unsubscribePatternStore = usePatternStore.subscribe(() => {
+      // Only update when NOT playing (playback animation handles playing state)
+      const isPlaying = useTransportStore.getState().isPlaying;
+      if (!isPlaying) {
+        updateAllPads();
+      }
+    });
+  }
 }
 
 /**
- * Ensure the animation frame ticker is running
+ * Stop subscriptions if no listeners remain
  */
-function ensureTickerRunning(): void {
-  if (animationFrameId !== null) return;
-  lastFrameTime = 0;
-  animationFrameId = requestAnimationFrame(tick);
-}
-
-/**
- * Stop the ticker if no listeners remain
- */
-function stopTickerIfIdle(): void {
-  if (stepListenersMap.size === 0 && animationFrameId !== null) {
-    cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
-    lastFrameTime = 0;
+function stopSubscriptionsIfIdle(): void {
+  if (stepListenersMap.size === 0) {
+    if (unsubscribePlaybackAnimation) {
+      unsubscribePlaybackAnimation();
+      unsubscribePlaybackAnimation = null;
+    }
+    if (unsubscribePatternStore) {
+      unsubscribePatternStore();
+      unsubscribePatternStore = null;
+    }
   }
 }
 
@@ -201,7 +211,7 @@ export function subscribeToPadState(
   }
 
   stepData.listeners.add(listener);
-  ensureTickerRunning();
+  startSubscriptions();
 
   // Immediately invoke with current state
   const initialState = calculatePadState(stepIndex);
@@ -217,7 +227,7 @@ export function subscribeToPadState(
         stepListenersMap.delete(stepIndex);
       }
     }
-    stopTickerIfIdle();
+    stopSubscriptionsIfIdle();
   };
 }
 
@@ -226,9 +236,5 @@ export function subscribeToPadState(
  * Useful when mode changes or other non-temporal state updates occur
  */
 export function invalidateAllPadStates(): void {
-  stepListenersMap.forEach((stepData, stepIndex) => {
-    const newState = calculatePadState(stepIndex);
-    stepData.lastState = newState;
-    stepData.listeners.forEach((listener) => listener(newState));
-  });
+  updateAllPads();
 }
