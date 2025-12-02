@@ -1,4 +1,4 @@
-import { AudioWaveform, Pause, Play, PlusIcon } from "lucide-react";
+import { AudioWaveform, Pause, Play, PlusIcon, Speaker } from "lucide-react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { MasterCompressor } from "@/features/master-bus/components/MasterCompressor";
@@ -11,7 +11,9 @@ import {
   HardwareModuleLabel,
   HardwareModuleSpacer,
 } from "@/shared/components/HardwareModule";
-import { Button, Tooltip } from "@/shared/ui";
+import { ParamKnob } from "@/shared/knob/Knob";
+import { masterVolumeMapping } from "@/shared/knob/lib/mapping";
+import { Button, Label, Tooltip } from "@/shared/ui";
 
 export const ControlsPanel = () => {
   const { instrumentRuntimes } = useDrumhaus();
@@ -32,7 +34,7 @@ export const ControlsPanel = () => {
           compressor <AudioWaveform size={12} />
         </HardwareModuleLabel>
       </div>
-      <HardwareModuleLabel>output</HardwareModuleLabel>
+      <div />
 
       {/* Play/Pause Button */}
       <div className="flex items-center justify-center">
@@ -92,7 +94,34 @@ export const ControlsPanel = () => {
         </HardwareModule>
       </div>
 
-      <div />
+      <div className="mx-auto flex w-5/6 flex-col items-center justify-center gap-4 px-4">
+        <ParamKnob
+          value={0}
+          onValueChange={() => {}}
+          label=""
+          mapping={masterVolumeMapping}
+        />
+        <div className="grid grid-cols-3 place-items-center gap-2">
+          <Button
+            variant="hardwareIcon"
+            size="icon"
+            className="relative w-6 overflow-hidden"
+          >
+            <Speaker size={12} />
+          </Button>
+
+          <Button variant="hardwareIcon" size="icon">
+            <Speaker size={12} />
+          </Button>
+
+          <Button variant="hardwareIcon" size="icon">
+            <Speaker size={12} />
+          </Button>
+          <Label className="text-[10px]">tempo</Label>
+          <Label className="text-[10px]">swing</Label>
+          <Label className="text-[10px]">tap</Label>
+        </div>
+      </div>
 
       {/* Master Controls */}
       <HardwareModule className="col-span-2">

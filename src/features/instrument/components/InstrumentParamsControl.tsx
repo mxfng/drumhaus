@@ -180,11 +180,11 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
           onValueChange={setVolume}
           orientation="vertical"
         />
-        <div className="flex h-full w-6 flex-col items-center justify-center gap-2">
+        <div className="flex h-full flex-col items-center justify-center gap-2">
           <Tooltip content={mute ? "Unmute" : "Mute"} side="right">
             <Button
               variant="hardwareIcon"
-              size="xs"
+              size="icon"
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
               className={cn({
@@ -197,7 +197,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
           <Tooltip content={solo ? "Unsolo" : "Solo"} side="right">
             <Button
               variant="hardwareIcon"
-              size="xs"
+              size="icon"
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
               className={cn({

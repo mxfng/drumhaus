@@ -17,6 +17,7 @@ const buttonVariants = cva(
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
       },
       size: {
+        icon: "h-6 w-6",
         xs: "h-10 sm:h-6 text-sm",
         sm: "h-12 sm:h-8 text-sm",
         default: "h-14 sm:h-10",
