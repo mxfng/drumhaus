@@ -9,7 +9,6 @@ export const MasterBusControls: React.FC = () => {
       <HardwareModule className="col-span-2 flex h-full items-center justify-center">
         <div className="col-span-2 grid grid-cols-4 gap-2">
           <MasterFX />
-          <div />
           <MasterCompressor />
         </div>
       </HardwareModule>

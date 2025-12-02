@@ -7,6 +7,12 @@ type PresetActionsProps = {
   onOpenFromFile: () => void;
 };
 
+/**
+ * TODO: Remaining features
+ *
+ * - Collapse export and share buttons into single export modal with tabs for type... Link, file, MIDI
+ * - Add a delete preset button for managing custom presets
+ */
 export const PresetActions: React.FC<PresetActionsProps> = ({
   onOpenFromFile,
 }) => {

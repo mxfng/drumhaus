@@ -28,13 +28,13 @@ export const MasterFX: React.FC = () => {
   return (
     <>
       <ParamKnob
-        label="lowpass"
+        label="filter" // TODO
         mapping={lowPassFilterMapping}
         value={lowPass}
         onValueChange={setLowPass}
       />
       <ParamKnob
-        label="hipass"
+        label="saturation" // TODO
         mapping={highPassFilterMapping}
         value={highPass}
         onValueChange={setHighPass}
