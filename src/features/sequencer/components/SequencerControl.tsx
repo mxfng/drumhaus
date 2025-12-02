@@ -1,5 +1,13 @@
+import {
+  HardwareModule,
+  HardwareModuleLabel,
+  HardwareModuleSpacer,
+} from "@/shared/components/HardwareModule";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Button, Tooltip } from "@/shared/ui";
+import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
+import { SequencerVariationPreview } from "./SequencerVariationPreview";
 
 // Tooltip constants
 const TOOLTIPS = {
@@ -20,6 +28,10 @@ const TOOLTIPS = {
 } as const;
 
 export const SequencerControl: React.FC = () => {
+  const { variation } = usePatternStore();
+
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+
   // const {
   //   variationCycle,
   //   setVariationCycle,
@@ -30,12 +42,8 @@ export const SequencerControl: React.FC = () => {
   // } = useSequencerControl();
 
   return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="flex w-full items-center justify-center">
-        <mark className="bg-foreground-muted text-surface rounded px-2 text-xs">
-          sequencer
-        </mark>
-      </div>
+    <HardwareModule>
+      <HardwareModuleLabel>sequencer</HardwareModuleLabel>
       {/* <div className="w-full h-12 sm:h-8 border">
             <SequencerVariationPreview variation={variation} />
           </div> */}
@@ -58,8 +66,13 @@ export const SequencerControl: React.FC = () => {
             <span>chain on</span>
           </Button>
         </Tooltip>
-        <div />
-        <div />
+        <div className="col-span-2">
+          {potatoMode ? (
+            <div className="h-8 w-full" />
+          ) : (
+            <SequencerVariationPreview variation={variation} />
+          )}
+        </div>
         <Tooltip content={TOOLTIPS.VARIATION_A}>
           <SequencerVariationButton variation={0} />
         </Tooltip>
@@ -109,116 +122,7 @@ export const SequencerControl: React.FC = () => {
           <span>random</span>
         </Button>
       </div>
-      {/* 
-      <div className="relative w-2/3">
-        <div className="hardware-button-group grid grid-cols-4 rounded-lg">
-          <Tooltip content={TOOLTIPS.CYCLE_A}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className={cn("rounded-l-lg rounded-r-none", {
-                "text-primary": variationCycle === "A",
-              })}
-              onClick={() => setVariationCycle("A")}
-            >
-              A
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.CYCLE_B}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className={cn("rounded-none", {
-                "text-primary": variationCycle === "B",
-              })}
-              onClick={() => setVariationCycle("B")}
-            >
-              B
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.CYCLE_AB}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className={cn("rounded-none", {
-                "text-primary": variationCycle === "AB",
-              })}
-              onClick={() => setVariationCycle("AB")}
-            >
-              AB
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.CYCLE_AAAB}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className={cn(
-                "rounded-l-none rounded-r-lg text-[10px] leading-tight",
-                {
-                  "text-primary": variationCycle === "AAAB",
-                },
-              )}
-              onClick={() => setVariationCycle("AAAB")}
-            >
-              AA
-              <br />
-              AB
-            </Button>
-          </Tooltip>
-        </div>
-        <Label className="absolute -bottom-5 left-1">CYCLE</Label>
-      </div> */}
-      {/* 
-      <div className="pb-4">
-        <div className="hardware-button-group grid grid-cols-4 rounded-lg">
-          <Tooltip content={TOOLTIPS.COPY}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className="rounded-l-lg rounded-r-none"
-              onClick={copySequence}
-            >
-              <Copy size={16} />
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.PASTE}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className="rounded-none"
-              onClick={pasteSequence}
-            >
-              <ClipboardPaste size={16} />
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.CLEAR}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className="rounded-none"
-              onClick={clearSequence}
-            >
-              <Eraser size={16} />
-            </Button>
-          </Tooltip>
-          <Tooltip content={TOOLTIPS.RANDOM}>
-            <Button
-              variant="hardware"
-              size="sm"
-              className="rounded-l-none rounded-r-lg"
-              onClick={randomSequence}
-            >
-              <Dices size={16} />
-            </Button>
-          </Tooltip>
-        </div>
-        <div className="mt-1 grid grid-cols-4 text-center">
-          <Label>COPY</Label>
-          <Label>PASTE</Label>
-          <Label>CLEAR</Label>
-          <Label>RAND</Label>
-        </div>
-      </div> */}
-    </div>
+      <HardwareModuleSpacer />
+    </HardwareModule>
   );
 };
