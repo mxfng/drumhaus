@@ -14,22 +14,24 @@ export const ControlsPanel = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
   return (
-    <div className="grid w-full grid-cols-8 flex-row items-center p-6">
+    <div className="grid w-full grid-cols-8 flex-row items-center gap-4 p-6">
       {/* Play/Pause Button */}
       <div className="flex items-center justify-center">
         <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
           <Button
             variant="hardware"
             size="lg"
-            className="neu-medium-raised h-[140px] w-[140px] rounded-lg shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]"
+            className="border-shadow-30 aspect-square h-full w-auto rounded-xl border p-3"
             onClick={() => togglePlay(instrumentRuntimes.current)}
             onKeyDown={(ev) => ev.preventDefault()}
           >
-            {isPlaying ? (
-              <Pause fill="currentColor" size={50} strokeWidth={1} />
-            ) : (
-              <Play fill="currentColor" size={50} strokeWidth={1} />
-            )}
+            <div className="neu-medium-raised flex h-full w-full items-center justify-center rounded-full shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]">
+              {isPlaying ? (
+                <Pause fill="currentColor" size={50} strokeWidth={1} />
+              ) : (
+                <Play fill="currentColor" size={50} strokeWidth={1} />
+              )}
+            </div>
           </Button>
         </Tooltip>
       </div>

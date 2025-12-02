@@ -119,8 +119,7 @@ export const Knob: React.FC<KnobProps> = ({
           >
             {/* Tick Mark */}
             <svg
-              className="absolute top-[2%] left-1/2 -translate-x-1/2"
-              width="calc(1/24*100%)"
+              className="absolute top-[2%] left-1/2 w-[4.17%] -translate-x-1/2"
               height="19%"
               viewBox="0 0 2 20"
               preserveAspectRatio="none"

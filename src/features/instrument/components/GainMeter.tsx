@@ -56,11 +56,11 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
     return () => {
       if (meterRef.current) {
         try {
-          runtime.pannerNode.disconnect(meterRef.current);
+          // Just dispose the meter - it will handle disconnection internally
+          meterRef.current.dispose();
         } catch (e) {
-          console.warn("Error disconnecting meter:", e);
+          console.warn("Error disposing meter:", e);
         }
-        meterRef.current.dispose();
         meterRef.current = null;
       }
     };
