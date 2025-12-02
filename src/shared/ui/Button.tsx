@@ -14,7 +14,7 @@ const buttonVariants = cva(
         hardware:
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg focus:ring-none focus:outline-none",
         hardwareIcon:
-          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
+          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square focus:ring-none focus:outline-none",
       },
       size: {
         icon: "h-6 w-6",
