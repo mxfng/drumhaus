@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
+import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "../types/sequencer";
@@ -172,20 +173,18 @@ export const usePatternStore = create<PatternState>()(
           variation: state.variation,
           variationCycle: state.variationCycle,
         }),
-        // Migration: add timingNudge field to old patterns
+        // Migration: ensure all pattern fields are up-to-date
         migrate: (persistedState: any, version: number) => {
-          if (version === 0) {
+          if (version === 0 && persistedState?.pattern) {
             // Migrate from version 0 to version 1: add timingNudge to all step sequences
-            if (persistedState?.pattern) {
-              persistedState.pattern.forEach((voice: any) => {
-                if (voice?.variations) {
-                  voice.variations.forEach((variation: any) => {
-                    if (variation && variation.timingNudge === undefined) {
-                      variation.timingNudge = 0;
-                    }
-                  });
-                }
-              });
+            try {
+              persistedState.pattern = migratePatternUnsafe(
+                persistedState.pattern,
+              );
+            } catch (error) {
+              console.error("Failed to migrate pattern:", error);
+              // Fall back to empty pattern if migration fails
+              persistedState.pattern = createEmptyPattern();
             }
           }
           return persistedState as PatternState;

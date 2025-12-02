@@ -7,6 +7,7 @@ import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainS
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
+import { migratePattern } from "@/features/sequencer/lib/migrations";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useToast } from "@/shared/ui";
@@ -91,7 +92,7 @@ export function usePresetLoading({
       // Update sequencer
       setVoiceIndex(0);
       setVariation(0);
-      setPattern(preset.sequencer.pattern);
+      setPattern(migratePattern(preset.sequencer.pattern));
       setVariationCycle(preset.sequencer.variationCycle);
 
       // Update transport

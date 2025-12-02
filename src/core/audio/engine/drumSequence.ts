@@ -251,7 +251,8 @@ function scheduleVoiceCore(
   const decayTime = instrumentDecayMapping.knobToDomain(params.decay);
 
   // Apply timing nudge: convert beat offset to seconds based on current BPM
-  const timingNudge = variation.timingNudge;
+  // Default to 0 for backward compatibility with presets that don't have timingNudge
+  const timingNudge = variation.timingNudge ?? 0;
   const beatOffset = nudgeToBeatOffset(timingNudge);
   const bpm = getTransport().bpm.value;
   const secondsPerBeat = 60 / bpm;
