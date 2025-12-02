@@ -37,7 +37,7 @@ export const ControlsPanel = () => {
       <TempoControls />
 
       {/* Pattern Controls */}
-      <div className="border-border col-span-2 flex flex-row border-x px-4">
+      <div className="border-border col-span-2 flex h-full flex-row items-center justify-center border-x px-4">
         <SequencerControl />
       </div>
 
@@ -45,7 +45,7 @@ export const ControlsPanel = () => {
       <GrooveControls />
 
       {/* Master Controls */}
-      <HardwareModule className="border-border col-span-2 border-x">
+      <HardwareModule className="border-border col-span-2 flex h-full items-center justify-center border-l">
         <div className="col-span-2 grid grid-cols-4 gap-2">
           <MasterFX />
         </div>
