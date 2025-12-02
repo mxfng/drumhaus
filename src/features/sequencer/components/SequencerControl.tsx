@@ -122,7 +122,7 @@ export const SequencerControl: React.FC = () => {
           size="sm"
           className="relative overflow-hidden"
         >
-          <span>random</span>
+          <span>undo</span>
         </Button>
       </div>
     </HardwareModule>

@@ -55,7 +55,7 @@ export const GrooveControls = () => {
         {/* dummy for now, maybe useful */}
         <Button variant="hardware" size="sm">
           <span className="rounded px-1 leading-3 transition-colors duration-200">
-            acc on
+            flam
           </span>
         </Button>
 
@@ -94,10 +94,10 @@ export const GrooveControls = () => {
          */}
 
         <Button variant="hardware" size="sm">
-          flam
+          ratchet
         </Button>
         <Button variant="hardware" size="sm">
-          legato
+          random
         </Button>
       </div>
     </HardwareModule>
