@@ -93,7 +93,7 @@ export const Screen: React.FC = () => {
                   onSelect={handleKitChange}
                 />
               </div>
-              <div className="w-1/6"></div>
+              <div className="w-1/4"></div>
             </div>
           </div>
 
