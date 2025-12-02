@@ -19,7 +19,8 @@ export type SequencerMode =
   | { type: "copy" } // Copy mode (future)
   | { type: "paste" } // Paste mode (future)
   | { type: "clear" } // Clear mode (future)
-  | { type: "random" }; // Random mode (future)
+  | { type: "random" } // Random mode (future)
+  | { type: "variationChain" }; // Variation chain mode (future)
 
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 2 variations

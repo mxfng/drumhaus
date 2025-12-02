@@ -46,6 +46,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span className="leading-3">vari chain</span>
           </Button>
@@ -55,6 +56,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span>chain on</span>
           </Button>
@@ -103,6 +105,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span>copy</span>
           </Button>
@@ -110,6 +113,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span>paste</span>
           </Button>
@@ -117,6 +121,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span>clear</span>
           </Button>
@@ -124,6 +129,7 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
+            disabled
           >
             <span>random</span>
           </Button>
