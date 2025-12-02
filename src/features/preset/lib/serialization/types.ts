@@ -60,4 +60,8 @@ export interface OptimizedStepSequence {
   // Example: { "2": 0.56, "7": 0.82 } means steps 2 and 7 have custom velocities
   // All other steps default to 1.0
   velocities: { [stepIndex: string]: number };
+
+  // Timing nudge: only store if non-zero (for backward compatibility)
+  // -2 to +2 range, defaults to 0 if missing
+  timingNudge?: number;
 }

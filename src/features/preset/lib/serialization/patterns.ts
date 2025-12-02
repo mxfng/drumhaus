@@ -42,10 +42,17 @@ function optimizeStepSequence(
     }
   });
 
-  return {
+  const optimized: OptimizedStepSequence = {
     triggers: stepSequence.triggers,
     velocities: sparseVelocities,
   };
+
+  // Only store timingNudge if non-zero (for optimization)
+  if (stepSequence.timingNudge !== 0) {
+    optimized.timingNudge = stepSequence.timingNudge;
+  }
+
+  return optimized;
 }
 
 /**
@@ -80,5 +87,6 @@ function hydrateStepSequence(
   return {
     triggers: optimizedSequence.triggers,
     velocities,
+    timingNudge: (optimizedSequence.timingNudge ?? 0) as -2 | -1 | 0 | 1 | 2,
   };
 }

@@ -1,10 +1,11 @@
-import { Sequence, Time } from "tone/build/esm/index";
+import { getTransport, Sequence, Time } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
   InstrumentData,
   InstrumentRuntime,
 } from "@/features/instrument/types/instrument";
+import { nudgeToBeatOffset } from "@/features/sequencer/lib/timing";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
@@ -249,12 +250,20 @@ function scheduleVoiceCore(
   const tune = tuneMapping.knobToDomain(params.tune);
   const decayTime = instrumentDecayMapping.knobToDomain(params.decay);
 
+  // Apply timing nudge: convert beat offset to seconds based on current BPM
+  const timingNudge = variation.timingNudge;
+  const beatOffset = nudgeToBeatOffset(timingNudge);
+  const bpm = getTransport().bpm.value;
+  const secondsPerBeat = 60 / bpm;
+  const nudgeSeconds = beatOffset * secondsPerBeat;
+  const adjustedTime = timeSeconds + nudgeSeconds;
+
   // Closed hat mutes open hat
   if (inst.role === "hat" && hasOhat) {
-    muteOpenHatAtTime(timeSeconds, instruments, runtimes, ohatIndex);
+    muteOpenHatAtTime(adjustedTime, instruments, runtimes, ohatIndex);
   }
 
-  triggerInstrumentAtTime(runtime, tune, decayTime, timeSeconds, velocity);
+  triggerInstrumentAtTime(runtime, tune, decayTime, adjustedTime, velocity);
 }
 
 /**

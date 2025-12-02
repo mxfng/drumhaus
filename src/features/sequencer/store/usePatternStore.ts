@@ -4,7 +4,8 @@ import { immer } from "zustand/middleware/immer";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
-import { Pattern } from "@/features/sequencer/types/pattern";
+import { clampNudge } from "@/features/sequencer/lib/timing";
+import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { VariationCycle } from "../types/sequencer";
 
 interface PatternState {
@@ -42,6 +43,15 @@ interface PatternState {
     velocities: number[],
   ) => void;
   clearPattern: (voiceIndex: number, variation: number) => void;
+
+  // Timing nudge
+  nudgeTimingLeft: () => void;
+  nudgeTimingRight: () => void;
+  setTimingNudge: (
+    voiceIndex: number,
+    variation: number,
+    nudge: TimingNudge,
+  ) => void;
 }
 
 export const usePatternStore = create<PatternState>()(
@@ -121,10 +131,40 @@ export const usePatternStore = create<PatternState>()(
             state.patternVersion += 1;
           });
         },
+
+        nudgeTimingLeft: () => {
+          set((state) => {
+            const { voiceIndex, variation } = state;
+            const currentNudge =
+              state.pattern[voiceIndex].variations[variation].timingNudge;
+            state.pattern[voiceIndex].variations[variation].timingNudge =
+              clampNudge(currentNudge - 1);
+            state.patternVersion += 1;
+          });
+        },
+
+        nudgeTimingRight: () => {
+          set((state) => {
+            const { voiceIndex, variation } = state;
+            const currentNudge =
+              state.pattern[voiceIndex].variations[variation].timingNudge;
+            state.pattern[voiceIndex].variations[variation].timingNudge =
+              clampNudge(currentNudge + 1);
+            state.patternVersion += 1;
+          });
+        },
+
+        setTimingNudge: (voiceIndex, variation, nudge) => {
+          set((state) => {
+            state.pattern[voiceIndex].variations[variation].timingNudge = nudge;
+            state.patternVersion += 1;
+          });
+        },
       })),
 
       {
         name: "drumhaus-sequencer-storage",
+        version: 1,
         // Persist pattern and settings
         partialize: (state) => ({
           pattern: state.pattern,
@@ -132,6 +172,24 @@ export const usePatternStore = create<PatternState>()(
           variation: state.variation,
           variationCycle: state.variationCycle,
         }),
+        // Migration: add timingNudge field to old patterns
+        migrate: (persistedState: any, version: number) => {
+          if (version === 0) {
+            // Migrate from version 0 to version 1: add timingNudge to all step sequences
+            if (persistedState?.pattern) {
+              persistedState.pattern.forEach((voice: any) => {
+                if (voice?.variations) {
+                  voice.variations.forEach((variation: any) => {
+                    if (variation && variation.timingNudge === undefined) {
+                      variation.timingNudge = 0;
+                    }
+                  });
+                }
+              });
+            }
+          }
+          return persistedState as PatternState;
+        },
       },
     ),
     {

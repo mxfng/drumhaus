@@ -95,10 +95,12 @@ function dequantizeVelocity(quantized: number): number {
  * Compact step sequence format
  * - t: 4-char hex (bit-packed triggers)
  * - v: sparse velocities as ints 0-100
+ * - n: timing nudge (omit if 0)
  */
 type CompactStepSequence = {
   t: string; // hex-encoded bit-packed triggers
   v?: Record<string, number>; // sparse velocities (quantized to 0-100)
+  n?: number; // timing nudge (-2 to +2, omit if 0)
 };
 
 /**
@@ -166,6 +168,11 @@ function encodeStepSequence(seq: StepSequence): CompactStepSequence {
 
   if (Object.keys(velocities).length > 0) {
     compact.v = velocities;
+  }
+
+  // Timing nudge (only if non-zero)
+  if (seq.timingNudge !== 0) {
+    compact.n = seq.timingNudge;
   }
 
   return compact;
@@ -261,7 +268,11 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
     });
   }
 
-  return { triggers, velocities };
+  return {
+    triggers,
+    velocities,
+    timingNudge: (compact.n ?? 0) as -2 | -1 | 0 | 1 | 2,
+  };
 }
 
 function decodeParams(compact: CompactParams): InstrumentParams {

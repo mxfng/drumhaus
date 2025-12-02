@@ -1,4 +1,11 @@
 /**
+ * Timing nudge offset in micro-steps (units of 1/96 note).
+ * Shifts all triggers for this variation earlier (negative) or later (positive).
+ * -2 = very early, -1 = early, 0 = on-grid, +1 = late, +2 = very late
+ */
+export type TimingNudge = -2 | -1 | 0 | 1 | 2;
+
+/**
  * Represents one instrument's step sequence over a single bar (16 steps).
  */
 export type StepSequence = {
@@ -9,6 +16,11 @@ export type StepSequence = {
   /** 16 velocity values (0.0 to 1.0) controlling the volume/intensity of each step.
    *  A value of 1.0 = full velocity (hard hit), 0.5 = half velocity (soft hit). */
   velocities: number[]; // length: 16, range: [0..1]
+
+  /** Timing nudge offset for this variation (in 1/96 note increments).
+   *  Applies a consistent timing shift to all triggered steps in this sequence.
+   *  Defaults to 0 (on-grid). */
+  timingNudge: TimingNudge;
 };
 
 /**
