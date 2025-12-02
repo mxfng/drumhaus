@@ -7,6 +7,13 @@ import {
   reverbWetMapping,
 } from "@/shared/knob/lib/mapping";
 
+/*
+TODO: Add remaining features
+
+- Compress filter knobs into single split filter knob
+- Add saturation to master chain and set up saturation knob where 2nd filter knob is
+
+ */
 export const MasterFX: React.FC = () => {
   const lowPass = useMasterChainStore((state) => state.lowPass);
   const highPass = useMasterChainStore((state) => state.highPass);

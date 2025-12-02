@@ -2,6 +2,11 @@ import { PresetControl } from "@/features/preset/components/PresetControl";
 import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
 
+/*
+TODO: Add remaining features
+
+- Dynamic screen right column changes based on current mode (pattern, groove, etc.)
+ */
 export const Screen: React.FC = () => {
   return (
     <>

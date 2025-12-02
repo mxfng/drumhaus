@@ -1,16 +1,11 @@
 import { AudioWaveform, PlusIcon } from "lucide-react";
 
 import { GrooveControls } from "@/features/groove/components/GrooveControls";
-import { MasterCompressor } from "@/features/master-bus/components/MasterCompressor";
-import { MasterFX } from "@/features/master-bus/components/MasterFX";
-import { MasterVolume } from "@/features/master-bus/components/MasterVolume";
+import { MasterBusControls } from "@/features/master-bus/components/MasterBusControls";
 import { SequencerControl } from "@/features/sequencer/components/SequencerControl";
 import { PlayPauseButton } from "@/features/transport/components/PlayPauseButton";
 import { TempoControls } from "@/features/transport/components/TempoControls";
-import {
-  HardwareModule,
-  HardwareModuleLabel,
-} from "@/shared/components/HardwareModule";
+import { HardwareModuleLabel } from "@/shared/components/HardwareModule";
 
 export const ControlsPanel = () => {
   return (
@@ -47,17 +42,7 @@ export const ControlsPanel = () => {
       </div>
 
       {/* Master Controls */}
-      <HardwareModule className="col-span-2 flex h-full items-center justify-center">
-        <div className="col-span-2 grid grid-cols-4 gap-2">
-          <MasterFX />
-          <div />
-          <MasterCompressor />
-        </div>
-      </HardwareModule>
-
-      <div className="flex items-center justify-center px-4">
-        <MasterVolume />
-      </div>
+      <MasterBusControls />
     </div>
   );
 };

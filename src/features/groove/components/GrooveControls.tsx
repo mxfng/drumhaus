@@ -13,6 +13,20 @@ const TOOLTIPS = {
   TIMING_NUDGE_RIGHT: "Nudge timing right",
 } as const;
 
+/**
+ * Work in progress
+ * TODO: Add the remaining features
+ *
+ * Flam — “Human grace-note before the main hit.”
+ * A flam adds a quiet pre-hit just before the step, giving snares, claps, and percussion a natural, human feel. It mimics the way a drummer strikes slightly early with one stick, creating expressive accents and groove variation.
+ *
+ * Ratchet — “Fast extra hit after the step.”
+ * Ratchet adds a rapid second hit after the main step (1/32 subdivision), increasing rhythmic density. Perfect for techno hats, rolling snares, and energetic electronic fills.
+ *
+ * Random is being moved into groove from the sequencer controls, so we will need to refactor a bit and add it here.
+ * It was destructured via randomSequence from useSequencerControl() but we might want to just add it here instead.
+ */
+
 export const GrooveControls = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const mode = usePatternStore((state) => state.mode);

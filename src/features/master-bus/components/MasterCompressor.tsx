@@ -6,6 +6,13 @@ import {
   compThresholdMapping,
 } from "@/shared/knob/lib/mapping";
 
+/*
+TODO: Add remaining features
+
+There is an awkward 1st space since the compressor is only 3 knobs in a 4 row grid.
+
+We could think about what we want to do with the 1st space.
+*/
 export const MasterCompressor: React.FC = () => {
   const threshold = useMasterChainStore((state) => state.compThreshold);
   const ratio = useMasterChainStore((state) => state.compRatio);
