@@ -29,7 +29,6 @@ export const SequencerVariationButton = forwardRef<
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     setVariation(variation);
-    console.log("clicked", variation);
     onClick?.(e);
   };
 
