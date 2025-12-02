@@ -14,7 +14,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
   return (
     <div className="text-instrument grid h-5 w-full grid-cols-4">
       <div className="flex items-center justify-center">
-        <Tooltip content="Previous kit" delayDuration={500}>
+        <Tooltip content="Previous kit" delayDuration={500} side="bottom">
           <Button
             onClick={onPrevious}
             size="xs"
@@ -33,7 +33,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
       <div className="flex items-center justify-center"></div>
 
       <div className="flex items-center justify-center">
-        <Tooltip content="Next kit" delayDuration={500}>
+        <Tooltip content="Next kit" delayDuration={500} side="bottom">
           <Button
             onClick={onNext}
             size="xs"

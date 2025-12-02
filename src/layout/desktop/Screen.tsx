@@ -80,7 +80,7 @@ export const Screen: React.FC = () => {
   return (
     <>
       {/* Screen Display */}
-      <div className="bg-instrument/50 border-border font-pixel text-foreground-emphasis col-span-4 overflow-hidden rounded-2xl border">
+      <div className="bg-instrument/50 border-border text-foreground-emphasis col-span-4 overflow-hidden rounded-2xl border">
         <div className="grid h-full w-full grid-cols-2 rounded-2xl opacity-30">
           {/* Left Column - Equal heights */}
           <div className="border-foreground-emphasis flex h-full flex-col border-r">
@@ -88,7 +88,7 @@ export const Screen: React.FC = () => {
             <div className="border-foreground-emphasis flex w-full flex-1 items-center gap-2 border-b pl-2 text-sm">
               <div className="w-1/6">
                 <mark className="bg-foreground-emphasis text-instrument rounded px-1">
-                  PRESET
+                  preset
                 </mark>
               </div>
               <div className="flex-1">
@@ -108,7 +108,7 @@ export const Screen: React.FC = () => {
             <div className="border-foreground-emphasis flex w-full flex-1 items-center gap-2 pl-2 text-sm">
               <div className="w-1/6">
                 <mark className="bg-foreground-emphasis text-instrument rounded px-1">
-                  KIT
+                  kit
                 </mark>
               </div>
               <div className="flex-1">
@@ -130,12 +130,19 @@ export const Screen: React.FC = () => {
           {/* Right Column - 2/3 and 1/3 split */}
           <div className="flex h-full flex-col">
             <div className="border-foreground-emphasis relative h-2/3 min-h-0">
-              <div className="absolute inset-0">
+              <div className="absolute inset-0 pl-3">
                 <FrequencyAnalyzer />
               </div>
             </div>
             <div className="bg-foreground-emphasis text-instrument flex h-1/3 items-center rounded-tl-full px-2 pl-4 text-sm">
-              Hello
+              <div className="grid w-full grid-cols-4">
+                <span>
+                  bpm <b>150</b>
+                </span>
+                <span>
+                  swing <b>0%</b>
+                </span>
+              </div>
             </div>
           </div>
         </div>
