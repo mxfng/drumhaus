@@ -76,13 +76,14 @@ export const useInstrumentsStore = create<InstrumentsState>()(
         partialize: (state) => ({
           instruments: state.instruments,
         }),
-        migrate: (persistedState: any, version: number) => {
+        migrate: (persistedState: unknown, version: number) => {
           // Migrate from v1 to v2: rename release → decay, pitch → tune, remove attack
           if (version === 1) {
             const state = persistedState as { instruments: InstrumentData[] };
             state.instruments = state.instruments.map((inst) => {
-              const oldParams = inst.params as any;
-              const { attack, release, pitch, ...rest } = oldParams;
+              const oldParams = inst.params as Record<string, unknown>;
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { attack: _attack, release, pitch, ...rest } = oldParams;
               return {
                 ...inst,
                 params: {

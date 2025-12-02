@@ -22,6 +22,7 @@ import {
   MASTER_REVERB_WET_RANGE,
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
+  TRANSPORT_SWING_RANGE,
 } from "@/core/audio/engine/constants";
 import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
@@ -329,4 +330,12 @@ export const compMixMapping = makeLinearMapping(
   {
     defaultKnobValue: MASTER_COMP_DEFAULT_MIX,
   },
+);
+
+/**
+ * Transport swing (0-100%)
+ */
+export const transportSwingMapping = makeLinearMapping(
+  TRANSPORT_SWING_RANGE,
+  formatDisplayPercentage,
 );

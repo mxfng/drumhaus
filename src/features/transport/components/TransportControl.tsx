@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import {
-  TRANSPORT_BPM_RANGE,
-  TRANSPORT_SWING_RANGE,
-} from "@/core/audio/engine/constants";
+import { TRANSPORT_BPM_RANGE } from "@/core/audio/engine/constants";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
+import { transportSwingMapping } from "@/shared/knob/lib/mapping";
 import { clamp } from "@/shared/lib/utils";
 import { Input, Label } from "@/shared/ui";
 
@@ -131,11 +129,10 @@ export const TransportControl: React.FC = () => {
 
       <div className="w-full px-1">
         <HardwareSlider
+          mapping={transportSwingMapping}
           value={swing}
           onValueChange={setSwing}
-          title="SWING"
-          defaultValue={0}
-          transformRange={TRANSPORT_SWING_RANGE}
+          label="SWING"
         />
       </div>
     </div>
