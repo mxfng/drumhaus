@@ -91,7 +91,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : variant === "desktop"
-        ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40"
+        ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40"
         : "bg-instrument";
   };
 
@@ -110,7 +110,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   const borderRadius =
     variant === "desktop"
-      ? "rounded-[0_8px_0_8px] sm:rounded-[0_22px_0_22px]"
+      ? "rounded-[0_8px_0_8px] sm:rounded-[0_16px_0_16px]"
       : "";
 
   const sizeClasses =
@@ -135,7 +135,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "relative cursor-pointer overflow-hidden",
+        "border-border relative cursor-pointer overflow-hidden border",
         potatoMode
           ? "transition-none"
           : "transition-[background-color,box-shadow] duration-300 ease-in-out",

@@ -53,7 +53,9 @@ export const ControlsPanel = () => {
       {/* Master Controls */}
       <MasterCompressor />
       <MasterFX />
-      <MasterVolume />
+      <div className="flex items-center justify-center">
+        <MasterVolume />
+      </div>
     </div>
   );
 };
