@@ -24,7 +24,7 @@ const TOOLTIPS = {
 } as const;
 
 export const SequencerControl: React.FC = () => {
-  const { variation } = usePatternStore();
+  const variation = usePatternStore((state) => state.variation);
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 

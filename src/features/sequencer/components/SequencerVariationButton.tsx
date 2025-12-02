@@ -20,7 +20,8 @@ export const SequencerVariationButton = React.forwardRef<
   HTMLButtonElement,
   SequencerVariationButtonProps
 >(({ variation, ...props }, ref) => {
-  const { variation: currentVariation, setVariation } = usePatternStore();
+  const currentVariation = usePatternStore((state) => state.variation);
+  const setVariation = usePatternStore((state) => state.setVariation);
 
   const displayVariation = variation === 0 ? "A" : "B";
   const isActive = currentVariation === variation;

@@ -15,7 +15,7 @@ const COLS = 16;
 export const SequencerVariationPreview: React.FC<
   SequencerVariationPreviewProps
 > = ({ variation, className }) => {
-  const { pattern } = usePatternStore();
+  const pattern = usePatternStore((state) => state.pattern);
 
   // Row 0: voices 6+7, Row 1: voices 4+5, Row 2: voices 2+3, Row 3: voices 0+1
   const voicePairs = [

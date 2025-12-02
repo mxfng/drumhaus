@@ -14,14 +14,12 @@ const TOOLTIPS = {
 } as const;
 
 export const GrooveControls = () => {
-  const {
-    pattern,
-    mode,
-    variation,
-    nudgeTimingLeft,
-    nudgeTimingRight,
-    toggleAccentMode,
-  } = usePatternStore();
+  const pattern = usePatternStore((state) => state.pattern);
+  const mode = usePatternStore((state) => state.mode);
+  const variation = usePatternStore((state) => state.variation);
+  const nudgeTimingLeft = usePatternStore((state) => state.nudgeTimingLeft);
+  const nudgeTimingRight = usePatternStore((state) => state.nudgeTimingRight);
+  const toggleAccentMode = usePatternStore((state) => state.toggleAccentMode);
 
   const accentMode = mode.type === "accent";
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
