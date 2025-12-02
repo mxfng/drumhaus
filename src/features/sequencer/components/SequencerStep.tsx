@@ -1,16 +1,12 @@
 import React, { useEffect, useRef } from "react";
 
-import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
+import { subscribeToPadState } from "@/features/sequencer/lib/padStateManager";
 import { cn } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
-  isTriggerOn: boolean;
-  isGhosted: boolean;
   variant?: "desktop" | "mobile";
-  variation?: number;
-  playbackVariation?: number;
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -34,11 +30,7 @@ interface SequencerStepProps {
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
   stepIndex,
-  isTriggerOn,
-  isGhosted,
   variant = "desktop",
-  variation,
-  playbackVariation,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
@@ -51,37 +43,34 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
 
-  // Track current step for mobile variant using requestAnimationFrame
+  // Track trigger state from pad manager
+  const [isTriggerOn, setIsTriggerOn] = React.useState(false);
+
+  // Subscribe to pad state manager for all pad state
   useEffect(() => {
-    if (
-      variant !== "mobile" ||
-      variation === undefined ||
-      playbackVariation === undefined
-    ) {
-      return;
-    }
+    const unsubscribe = subscribeToPadState(stepIndex, (padState) => {
+      if (!stepRef.current) return;
 
-    let lastIsThisStepPlaying: boolean | null = null;
+      // Update trigger state for event handlers
+      setIsTriggerOn(padState.isTriggerOn);
 
-    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
-      const isThisStepPlaying =
-        isPlaying &&
-        playbackVariation === variation &&
-        currentStep === stepIndex;
+      // Apply brightness (dimming/ghosting)
+      if (padState.brightness !== 1) {
+        stepRef.current.style.opacity = padState.brightness.toString();
+      } else {
+        stepRef.current.style.opacity = "";
+      }
 
-      // Only touch the DOM when the state actually changes
-      if (
-        stepRef.current &&
-        (lastIsThisStepPlaying === null ||
-          isThisStepPlaying !== lastIsThisStepPlaying)
-      ) {
-        stepRef.current.classList.toggle("brightness-75", isThisStepPlaying);
-        lastIsThisStepPlaying = isThisStepPlaying;
+      // Mobile variant: apply brightness filter when step is playing
+      if (variant === "mobile" && padState.isPlaying) {
+        stepRef.current.classList.add("brightness-75");
+      } else if (variant === "mobile") {
+        stepRef.current.classList.remove("brightness-75");
       }
     });
 
     return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, variant]);
+  }, [stepIndex, variant]);
 
   const getTriggerClassName = () => {
     if (potatoMode) {
@@ -97,15 +86,13 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   const triggerStyles = {
     className: getTriggerClassName(),
-    opacity: isGhosted
-      ? 0.7
-      : isTriggerOn
-        ? 1
-        : variant === "mobile" && !isTriggerOn
-          ? isAccentBeat
-            ? 1
-            : 0.75
-          : 1,
+    opacity: isTriggerOn
+      ? 1
+      : variant === "mobile" && !isTriggerOn
+        ? isAccentBeat
+          ? 1
+          : 0.75
+        : 1,
   };
 
   const borderRadius =

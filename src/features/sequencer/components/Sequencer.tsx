@@ -6,18 +6,12 @@ import { SequencerStepIndicator } from "@/features/sequencer/components/Sequence
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
 interface StepMusicalState {
-  isTriggerOn: boolean;
-  isGhosted: boolean;
   velocityValue: number;
 }
 
 export const Sequencer: React.FC = () => {
-  // --- Transport Store ---
-  const isPlaying = useTransportStore((state) => state.isPlaying);
-
   // --- Pattern Store ---
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
@@ -56,16 +50,7 @@ export const Sequencer: React.FC = () => {
   );
 
   const getStepMusicalState = (step: number): StepMusicalState => {
-    const isTriggerOn = triggers[step];
-    const isGhosted =
-      !accentMode &&
-      isPlaying &&
-      playbackVariation !== variation &&
-      isTriggerOn;
-
     return {
-      isTriggerOn,
-      isGhosted,
       velocityValue: velocities[step],
     };
   };
@@ -88,8 +73,6 @@ export const Sequencer: React.FC = () => {
             />
             <SequencerStep
               stepIndex={step}
-              isTriggerOn={state.isTriggerOn}
-              isGhosted={state.isGhosted}
               variant="desktop"
               onPointerStart={handleStepPointerStart}
               onPointerEnter={handleStepPointerEnter}
