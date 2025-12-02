@@ -34,8 +34,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           "cursor-pointer": runtime,
           "cursor-default": !runtime,
         },
-        isSelectedInstrument &&
-          "border-primary-foreground/80 bg-primary-foreground/20",
+        isSelectedInstrument && "border-primary-foreground/80 bg-primary/5",
       )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >

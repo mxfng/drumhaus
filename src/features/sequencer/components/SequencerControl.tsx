@@ -39,7 +39,7 @@ export const SequencerControl: React.FC = () => {
       {/* <div className="w-full h-12 sm:h-8 border">
             <SequencerVariationPreview variation={variation} />
           </div> */}
-      <div className="grid w-full grid-cols-4 gap-1">
+      <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
         <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
           <Button
             variant="hardware"
@@ -79,6 +79,34 @@ export const SequencerControl: React.FC = () => {
           className="relative overflow-hidden"
         >
           <span>D</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>copy</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>paste</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>clear</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>random</span>
         </Button>
       </div>
       {/* 
