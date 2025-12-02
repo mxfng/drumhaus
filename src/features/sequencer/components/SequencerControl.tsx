@@ -41,20 +41,11 @@ export const SequencerControl: React.FC = () => {
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
         {/* Variation chain and sequencer overview row */}
-        <div className="col-span-2">
-          {potatoMode ? (
-            <div className="h-8 w-full" />
-          ) : (
-            <SequencerVariationPreview variation={variation} />
-          )}
-        </div>
-
         <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
           <Button
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
-            disabled
           >
             <span className="leading-3">vari chain</span>
           </Button>
@@ -64,11 +55,17 @@ export const SequencerControl: React.FC = () => {
             variant="hardware"
             size="sm"
             className="relative overflow-hidden"
-            disabled
           >
             <span>chain on</span>
           </Button>
         </Tooltip>
+        <div className="col-span-2">
+          {potatoMode ? (
+            <div className="h-8 w-full" />
+          ) : (
+            <SequencerVariationPreview variation={variation} />
+          )}
+        </div>
 
         {/* Variation pattern selection row */}
         <Tooltip content={TOOLTIPS.VARIATION_A} side="left">
@@ -82,7 +79,6 @@ export const SequencerControl: React.FC = () => {
         <Button
           variant="hardware"
           className="font-pixel relative flex items-start justify-start overflow-hidden"
-          disabled
         >
           <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
             C
@@ -93,7 +89,6 @@ export const SequencerControl: React.FC = () => {
         <Button
           variant="hardware"
           className="font-pixel relative flex items-start justify-start overflow-hidden"
-          disabled
         >
           <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
             D
@@ -101,40 +96,34 @@ export const SequencerControl: React.FC = () => {
         </Button>
 
         {/* Pattern actions row */}
-        <div className="col-span-4 mx-auto grid w-5/6 grid-cols-4 gap-2">
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-            disabled
-          >
-            <span>copy</span>
-          </Button>
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-            disabled
-          >
-            <span>paste</span>
-          </Button>
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-            disabled
-          >
-            <span>clear</span>
-          </Button>
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-            disabled
-          >
-            <span>random</span>
-          </Button>
-        </div>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>copy</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>paste</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>clear</span>
+        </Button>
+        <Button
+          variant="hardware"
+          size="sm"
+          className="relative overflow-hidden"
+        >
+          <span>random</span>
+        </Button>
       </div>
     </HardwareModule>
   );

@@ -53,6 +53,8 @@ const Drumhaus = () => {
               {/* Main Controls */}
               <ControlsPanel />
 
+              {renderDivider()}
+
               {/* Sequencer */}
               <div className="p-6">
                 <Sequencer />

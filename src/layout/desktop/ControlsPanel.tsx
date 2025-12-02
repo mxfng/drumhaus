@@ -14,7 +14,7 @@ import {
 
 export const ControlsPanel = () => {
   return (
-    <div className="grid w-full grid-cols-8 flex-row items-center gap-y-2 px-6 py-2">
+    <div className="grid w-full grid-cols-8 flex-row items-center gap-y-1 px-6 py-4">
       {/* Module Labels */}
       <div />
       <HardwareModuleLabel>tempo</HardwareModuleLabel>
@@ -50,11 +50,9 @@ export const ControlsPanel = () => {
       <HardwareModule className="col-span-2 flex h-full items-center justify-center">
         <div className="col-span-2 grid grid-cols-4 gap-2">
           <MasterFX />
-        </div>
-
-        <HardwareModule className="mx-auto grid w-3/4 grid-cols-3">
+          <div />
           <MasterCompressor />
-        </HardwareModule>
+        </div>
       </HardwareModule>
 
       <div className="flex items-center justify-center px-4">
