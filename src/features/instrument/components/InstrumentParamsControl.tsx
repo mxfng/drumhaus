@@ -184,8 +184,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               size="xs"
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
-              className={cn("border-shadow-30 flex rounded-full border p-1.5", {
-                "text-primary": mute,
+              className={cn("rounded-full", {
+                "text-primary border-primary": mute,
               })}
             >
               {mute ? <VolumeX size={14} /> : <Volume size={14} />}
@@ -197,8 +197,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               size="xs"
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
-              className={cn("border-shadow-30 flex rounded-full border p-1.5", {
-                "text-primary": solo,
+              className={cn("rounded-full", {
+                "text-primary border-primary": solo,
               })}
             >
               <Headphones className={cn({ "text-primary": solo })} />

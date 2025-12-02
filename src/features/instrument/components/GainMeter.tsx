@@ -21,13 +21,7 @@ const DOT_COLORS = {
     "bg-yellow-500 shadow-[0_0_4px_rgba(234,179,8,0.6)]", // Dot 4
     "bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.6)]", // Dot 5
   ],
-  inactive: [
-    "bg-shadow-30",
-    "bg-shadow-30",
-    "bg-shadow-30",
-    "bg-shadow-30",
-    "bg-shadow-30",
-  ],
+  inactive: ["bg-border", "bg-border", "bg-border", "bg-border", "bg-border"],
 };
 
 export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {

@@ -49,7 +49,7 @@ export const InstrumentGrid: React.FC = () => {
   return (
     <div
       ref={instrumentsRef}
-      className="grid w-full grid-cols-8 gap-4 px-6 py-3"
+      className="divide-border grid w-full grid-cols-8 divide-x px-6 py-3"
     >
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes.current[index];
@@ -58,6 +58,7 @@ export const InstrumentGrid: React.FC = () => {
           <div
             key={`gridItem-${index}`}
             onPointerDown={() => toggleCurrentVoice(index)}
+            className="px-2"
           >
             <InstrumentControl
               color={INSTRUMENT_COLORS[index]}

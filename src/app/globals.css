@@ -19,7 +19,7 @@
   --color-track-orange: #e9902f;
   --color-track-red: #d72529;
   --color-track-green: #27991a;
-  --color-border: #c3ad97;
+  --color-border: rgb(176 147 116 / 0.3);
 
   /* Neumorphic colors */
   --color-shadow: rgb(176 147 116);

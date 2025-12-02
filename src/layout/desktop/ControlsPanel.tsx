@@ -21,7 +21,7 @@ export const ControlsPanel = () => {
           <Button
             variant="hardware"
             size="lg"
-            className="border-shadow-30 aspect-square h-full w-auto rounded-xl border p-3"
+            className="aspect-square h-full w-auto rounded-xl p-3"
             onClick={() => togglePlay(instrumentRuntimes.current)}
             onKeyDown={(ev) => ev.preventDefault()}
           >

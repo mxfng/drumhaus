@@ -153,7 +153,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
             </FormField>
 
             {/* Audio settings group */}
-            <div className="border-shadow-30 space-y-8 rounded-lg border p-4">
+            <div className="border-border space-y-8 rounded-lg border p-4">
               {/* Length */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
