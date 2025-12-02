@@ -41,6 +41,14 @@ export const SequencerControl: React.FC = () => {
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
         {/* Variation chain and sequencer overview row */}
+        <div className="col-span-2">
+          {potatoMode ? (
+            <div className="h-8 w-full" />
+          ) : (
+            <SequencerVariationPreview variation={variation} />
+          )}
+        </div>
+
         <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
           <Button
             variant="hardware"
@@ -61,13 +69,6 @@ export const SequencerControl: React.FC = () => {
             <span>chain on</span>
           </Button>
         </Tooltip>
-        <div className="col-span-2">
-          {potatoMode ? (
-            <div className="h-8 w-full" />
-          ) : (
-            <SequencerVariationPreview variation={variation} />
-          )}
-        </div>
 
         {/* Variation pattern selection row */}
         <Tooltip content={TOOLTIPS.VARIATION_A} side="left">

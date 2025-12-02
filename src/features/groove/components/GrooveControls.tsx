@@ -32,38 +32,10 @@ export const GrooveControls = () => {
   const canNudgeRight = currentNudge < 2 && mode.type === "voice";
 
   return (
-    <div className="mx-auto w-5/6 px-4">
-      <HardwareModule>
-        <div className="grid grid-cols-3 place-items-center gap-x-2 gap-y-4">
-          {/* Accent mode button */}
-          <div className="col-span-3 mx-auto">
-            <Tooltip content={TOOLTIPS.ACCENT_MODE}>
-              <Button
-                variant="hardware"
-                className={cn(
-                  "relative overflow-hidden",
-                  accentMode && "ring-primary ring-2",
-                )}
-                onClick={toggleAccentMode}
-              >
-                <span
-                  className={cn(
-                    "rounded border px-1 transition-colors duration-200",
-                    accentMode
-                      ? "border-primary text-primary"
-                      : "border-foreground-muted group-hover:border-primary-muted border-dashed",
-                  )}
-                >
-                  accent
-                </span>
-              </Button>
-            </Tooltip>
-          </div>
-
-          {/* Timing nudge */}
-          <div className="col-span-3 mt-2 flex items-center justify-center">
-            <TimingNudgeMeter timingNudge={currentNudge} />
-          </div>
+    <HardwareModule>
+      <div className="grid w-full grid-cols-2 place-items-center gap-x-2 gap-y-4">
+        {/* Timing nudge */}
+        <div className="col-span-2 mt-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 sm:h-8">
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="bottom">
             <Button
               variant="hardwareIcon"
@@ -75,7 +47,11 @@ export const GrooveControls = () => {
               <ArrowLeft size={12} />
             </Button>
           </Tooltip>
-          <Label className="flex items-center justify-center">nudge</Label>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <Label className="flex items-center justify-center">nudge</Label>
+            <TimingNudgeMeter timingNudge={currentNudge} />
+          </div>
+
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_RIGHT} side="bottom">
             <Button
               variant="hardwareIcon"
@@ -88,7 +64,37 @@ export const GrooveControls = () => {
             </Button>
           </Tooltip>
         </div>
-      </HardwareModule>
-    </div>
+
+        {/* Accent mode button */}
+        <Tooltip content={TOOLTIPS.ACCENT_MODE}>
+          <Button
+            variant="hardware"
+            className={cn(accentMode && "ring-primary ring-2")}
+            onClick={toggleAccentMode}
+          >
+            <span
+              className={cn(
+                "rounded border px-1 transition-colors duration-200",
+                accentMode
+                  ? "border-primary text-primary"
+                  : "border-foreground-muted group-hover:border-primary-muted border-dashed",
+              )}
+            >
+              accent
+            </span>
+          </Button>
+        </Tooltip>
+
+        {/* dummy for now, maybe useful */}
+        <Button variant="hardware" onClick={toggleAccentMode} disabled>
+          <span className="rounded px-1 leading-3 transition-colors duration-200">
+            acc bypass
+          </span>
+        </Button>
+
+        {/* Empty space to balance layout */}
+        <div className="h-12 w-full sm:h-8" />
+      </div>
+    </HardwareModule>
   );
 };
