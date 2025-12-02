@@ -1,10 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 
-interface SequencerVariationButtonProps {
+interface SequencerVariationButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variation: number;
 }
 
@@ -16,26 +17,33 @@ interface SequencerVariationButtonProps {
  * - Clicking switches the current variation to this variation.
  * - Shows a primary outline when this is the currently selected variation.
  */
-export const SequencerVariationButton = React.forwardRef<
+export const SequencerVariationButton = forwardRef<
   HTMLButtonElement,
   SequencerVariationButtonProps
->(({ variation, ...props }, ref) => {
+>(({ variation, onClick, className, ...props }, ref) => {
   const currentVariation = usePatternStore((state) => state.variation);
   const setVariation = usePatternStore((state) => state.setVariation);
 
   const displayVariation = variation === 0 ? "A" : "B";
   const isActive = currentVariation === variation;
 
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setVariation(variation);
+    console.log("clicked", variation);
+    onClick?.(e);
+  };
+
   return (
     <Button
       ref={ref}
       variant="hardware"
-      onClick={() => setVariation(variation)}
+      onClick={handleClick}
       className={cn(
         "font-pixel relative flex items-start justify-start overflow-hidden",
         {
           "ring-primary ring": isActive,
         },
+        className,
       )}
       {...props}
     >

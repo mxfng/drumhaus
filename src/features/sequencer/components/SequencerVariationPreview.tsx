@@ -15,6 +15,8 @@ const COLS = 16;
 export const SequencerVariationPreview: React.FC<
   SequencerVariationPreviewProps
 > = ({ variation, className }) => {
+  // Subscribe to the entire pattern but only for the specific variation
+  // Zustand will use shallow equality check on the pattern object
   const pattern = usePatternStore((state) => state.pattern);
 
   // Row 0: voices 6+7, Row 1: voices 4+5, Row 2: voices 2+3, Row 3: voices 0+1

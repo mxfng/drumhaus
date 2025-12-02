@@ -20,7 +20,9 @@ const Drumhaus = () => {
   const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
 
   // --- Store State ---
-  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const isMobileDialogOpen = useDialogStore(
+    (state) => state.activeDialog === "mobile",
+  );
   const closeDialog = useDialogStore((state) => state.closeDialog);
 
   // --- Desktop-specific Hooks ---
@@ -67,7 +69,7 @@ const Drumhaus = () => {
         </div>
       </div>
 
-      <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
+      <MobileDialog isOpen={isMobileDialogOpen} onClose={closeDialog} />
     </div>
   );
 };
