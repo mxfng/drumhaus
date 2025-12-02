@@ -13,13 +13,13 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="hardware-button-group mt-2 grid grid-cols-4 rounded-lg">
+    <div className="text-instrument grid h-5 w-full grid-cols-4">
       <div className="flex items-center justify-center">
         <Tooltip content="Save preset" delayDuration={500}>
           <Button
-            variant="hardware"
             onClick={() => openDialog("save")}
-            className="w-full rounded-l-lg"
+            size="xs"
+            className="h-5 bg-transparent p-0.5"
           >
             <Save
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -32,9 +32,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       <div className="flex items-center justify-center">
         <Tooltip content="Load preset" delayDuration={500}>
           <Button
-            variant="hardware"
             onClick={onOpenFromFile}
-            className="w-full"
+            size="xs"
+            className="h-5 bg-transparent p-0.5"
           >
             <FolderOpen
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -47,9 +47,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       <div className="flex items-center justify-center">
         <Tooltip content="Share preset" delayDuration={500}>
           <Button
-            variant="hardware"
             onClick={() => openDialog("share")}
-            className="w-full"
+            size="xs"
+            className="h-5 bg-transparent p-0.5"
           >
             <Share2
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -62,9 +62,9 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       <div className="flex items-center justify-center">
         <Tooltip content="Export" delayDuration={500}>
           <Button
-            variant="hardware"
             onClick={() => openDialog("export")}
-            className="w-full rounded-r-lg"
+            size="xs"
+            className="h-5 bg-transparent p-0.5"
           >
             <Download
               className="group-hover:text-primary-muted transition-all duration-200"

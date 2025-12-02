@@ -1,4 +1,4 @@
-import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
+import { Screen } from "@/layout/desktop/Screen";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "@/shared/icon/DrumhausTypographyLogo";
 import { useDialogStore } from "@/shared/store/useDialogStore";
@@ -14,7 +14,7 @@ export const Header: React.FC = () => {
           onClick={() => openDialog("about")}
         >
           <div className="text-primary flex items-end">
-            <DrumhausLogo size={28} />
+            <DrumhausLogo size={32} />
           </div>
           <div className="text-primary ml-1.5 flex items-end">
             <DrumhausTypographyLogo size={280} />
@@ -26,13 +26,7 @@ export const Header: React.FC = () => {
         </button>
       </div>
 
-      <div className="bg-instrument col-span-2 overflow-hidden rounded-2xl border opacity-60">
-        <FrequencyAnalyzer />
-      </div>
-      <div className="bg-instrument col-span-2 overflow-hidden rounded-2xl border opacity-60">
-        <p>Hello</p>
-        <p>Hello</p>
-      </div>
+      <Screen />
     </div>
   );
 };

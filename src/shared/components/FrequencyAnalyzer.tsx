@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Analyser } from "tone";
 
 import {
@@ -26,17 +26,42 @@ interface FrequencyAnalyzerProps {
 }
 
 export function FrequencyAnalyzer({
-  width = 550,
-  height = 90,
+  width,
+  height,
   numBars = NUM_BARS,
 }: FrequencyAnalyzerProps = {}) {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
   const frameInterval = potatoMode ? 1000 / 30 : 1000 / 60;
   const lastFrameRef = useRef(0);
+  const [dimensions, setDimensions] = useState({
+    width: width || 550,
+    height: height || 90,
+  });
+
+  // Measure container size on mount and resize
+  useEffect(() => {
+    if (!width || !height) {
+      const updateDimensions = () => {
+        if (containerRef.current) {
+          const { width: containerWidth, height: containerHeight } =
+            containerRef.current.getBoundingClientRect();
+          setDimensions({
+            width: Math.floor(containerWidth),
+            height: Math.floor(containerHeight),
+          });
+        }
+      };
+
+      updateDimensions();
+      window.addEventListener("resize", updateDimensions);
+      return () => window.removeEventListener("resize", updateDimensions);
+    }
+  }, [width, height]);
 
   useEffect(() => {
     createFrequencyAnalyzer(analyzerRef);
@@ -142,12 +167,14 @@ export function FrequencyAnalyzer({
   }, [isPlaying, numBars, potatoMode, frameInterval]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      className="h-full w-full object-fill"
-    />
+    <div ref={containerRef} className="h-full w-full">
+      <canvas
+        ref={canvasRef}
+        width={dimensions.width}
+        height={dimensions.height}
+        className="h-full w-full"
+      />
+    </div>
   );
 }
 
