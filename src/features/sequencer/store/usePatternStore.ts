@@ -174,20 +174,19 @@ export const usePatternStore = create<PatternState>()(
           variationCycle: state.variationCycle,
         }),
         // Migration: ensure all pattern fields are up-to-date
-        migrate: (persistedState: any, version: number) => {
-          if (version === 0 && persistedState?.pattern) {
+        migrate: (persistedState: unknown, version: number) => {
+          const state = persistedState as Partial<PatternState>;
+          if (version === 0 && state?.pattern) {
             // Migrate from version 0 to version 1: add timingNudge to all step sequences
             try {
-              persistedState.pattern = migratePatternUnsafe(
-                persistedState.pattern,
-              );
+              state.pattern = migratePatternUnsafe(state.pattern);
             } catch (error) {
               console.error("Failed to migrate pattern:", error);
               // Fall back to empty pattern if migration fails
-              persistedState.pattern = createEmptyPattern();
+              state.pattern = createEmptyPattern();
             }
           }
-          return persistedState as PatternState;
+          return state as PatternState;
         },
       },
     ),

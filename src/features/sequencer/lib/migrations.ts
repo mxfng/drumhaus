@@ -36,13 +36,13 @@ function migrateStepSequence<T extends { timingNudge?: number }>(
  * Migrates any unknown pattern structure (e.g., from localStorage).
  * Safely handles malformed or partial data.
  */
-export function migratePatternUnsafe(pattern: any): Pattern {
+export function migratePatternUnsafe(pattern: unknown): Pattern {
   if (!Array.isArray(pattern)) {
     throw new Error("Invalid pattern: expected array");
   }
 
-  return pattern.map((voice: any) => {
-    if (!voice || !Array.isArray(voice.variations)) {
+  return pattern.map((voice: unknown) => {
+    if (!isValidVoice(voice)) {
       throw new Error("Invalid voice: missing variations");
     }
 
@@ -57,15 +57,32 @@ export function migratePatternUnsafe(pattern: any): Pattern {
 }
 
 /**
+ * Type guard to check if unknown value is a valid voice structure.
+ */
+function isValidVoice(
+  voice: unknown,
+): voice is { variations: unknown[] } & Record<string, unknown> {
+  return (
+    typeof voice === "object" &&
+    voice !== null &&
+    "variations" in voice &&
+    Array.isArray((voice as { variations: unknown }).variations)
+  );
+}
+
+/**
  * Migrates a single step sequence from unknown structure.
  */
-function migrateStepSequenceUnsafe(sequence: any) {
-  if (!sequence) {
+function migrateStepSequenceUnsafe(sequence: unknown) {
+  if (!sequence || typeof sequence !== "object") {
     throw new Error("Invalid step sequence: null or undefined");
   }
 
   return {
     ...sequence,
-    timingNudge: sequence.timingNudge ?? 0,
+    timingNudge:
+      "timingNudge" in sequence && typeof sequence.timingNudge === "number"
+        ? sequence.timingNudge
+        : 0,
   };
 }
