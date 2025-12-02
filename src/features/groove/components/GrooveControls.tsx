@@ -14,7 +14,7 @@ export const GrooveControls = () => {
     usePatternStore();
 
   const currentNudge =
-    pattern[voiceIndex]?.variations[variation]?.timingNudge ?? 0;
+    pattern.voices[voiceIndex]?.variations[variation]?.timingNudge ?? 0;
   const canNudgeLeft = currentNudge > -2;
   const canNudgeRight = currentNudge < 2;
 

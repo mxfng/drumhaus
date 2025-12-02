@@ -24,7 +24,7 @@ export const Sequencer: React.FC = () => {
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
   const triggers = usePatternStore(
-    (state) => state.pattern[voiceIndex].variations[variation].triggers,
+    (state) => state.pattern.voices[voiceIndex].variations[variation].triggers,
   );
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const setVelocity = usePatternStore((state) => state.setVelocity);
@@ -39,7 +39,7 @@ export const Sequencer: React.FC = () => {
     onToggleStep: (stepIndex) => toggleStep(voiceIndex, variation, stepIndex),
   });
 
-  const currentVariation = pattern[voiceIndex].variations[variation];
+  const currentVariation = pattern.voices[voiceIndex].variations[variation];
   const velocities = currentVariation.velocities;
   const steps: number[] = Array.from(
     { length: STEP_COUNT },

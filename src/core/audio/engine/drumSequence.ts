@@ -48,8 +48,8 @@ function buildPrecomputedPattern(
     Array.from({ length: STEP_COUNT }, () => []),
   ];
 
-  for (let voiceIndex = 0; voiceIndex < pattern.length; voiceIndex++) {
-    const voice = pattern[voiceIndex];
+  for (let voiceIndex = 0; voiceIndex < pattern.voices.length; voiceIndex++) {
+    const voice = pattern.voices[voiceIndex];
 
     for (
       let variationIndex = 0;

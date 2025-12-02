@@ -11,7 +11,8 @@ export const useSequencerControl = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const currentTriggers = usePatternStore(
     (state) =>
-      state.pattern[state.voiceIndex].variations[state.variation].triggers,
+      state.pattern.voices[state.voiceIndex].variations[state.variation]
+        .triggers,
   );
 
   // Get actions from store
@@ -28,7 +29,9 @@ export const useSequencerControl = () => {
 
   const copySequence = () => {
     setCopiedTriggers(currentTriggers);
-    setCopiedVelocities(pattern[voiceIndex].variations[variation].velocities);
+    setCopiedVelocities(
+      pattern.voices[voiceIndex].variations[variation].velocities,
+    );
   };
 
   const pasteSequence = () => {

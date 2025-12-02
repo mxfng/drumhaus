@@ -46,6 +46,7 @@ export interface ShareableKit {
  */
 export interface OptimizedPattern {
   voices: OptimizedVoice[]; // 8 voices
+  variationMetadata: [OptimizedVariationMetadata, OptimizedVariationMetadata]; // [A metadata, B metadata]
 }
 
 export interface OptimizedVoice {
@@ -64,4 +65,13 @@ export interface OptimizedStepSequence {
   // Timing nudge: only store if non-zero (for backward compatibility)
   // -2 to +2 range, defaults to 0 if missing
   timingNudge?: number;
+}
+
+/**
+ * Variation-level metadata (applies to all instruments in a variation)
+ */
+export interface OptimizedVariationMetadata {
+  // Accent pattern: 16 booleans (will compress to 2 bytes with bit packing)
+  // Only store if any accents are enabled (for optimization)
+  accent?: boolean[];
 }

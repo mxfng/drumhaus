@@ -47,7 +47,8 @@ export const MobileSequencer: React.FC = () => {
       <div className="grid flex-1 auto-rows-[minmax(3.5rem,1fr)] gap-px">
         {Array.from({ length: 8 }).map((_, index) => {
           const voiceIndex = 7 - index;
-          const triggers = pattern[voiceIndex].variations[variation].triggers;
+          const triggers =
+            pattern.voices[voiceIndex].variations[variation].triggers;
           const isOpen = openVoiceIndex === voiceIndex;
 
           return (

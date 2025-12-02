@@ -134,6 +134,7 @@ export type CompactPreset = {
   n?: string; // preset name
   ip: CompactParams[]; // instrument params (8 items, only non-defaults)
   pt: CompactVoice[]; // pattern voices (8 items)
+  ac?: [string?, string?]; // accent patterns (hex-encoded, omit if no accents) [A, B]
   vc?: string; // variation cycle (omit if "AB")
   bpm?: number; // bpm (omit if 120)
   sw?: number; // swing (omit if 0)
@@ -225,12 +226,25 @@ export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
     ip: preset.kit.instruments.map((inst: InstrumentData) =>
       encodeParams(inst.params),
     ),
-    pt: preset.sequencer.pattern.map((voice: Voice) => ({
+    pt: preset.sequencer.pattern.voices.map((voice: Voice) => ({
       i: voice.instrumentIndex,
       a: encodeStepSequence(voice.variations[0]),
       b: encodeStepSequence(voice.variations[1]),
     })),
   };
+
+  // Encode accent patterns (only if any accents exist)
+  const accentA = preset.sequencer.pattern.variationMetadata[0].accent;
+  const accentB = preset.sequencer.pattern.variationMetadata[1].accent;
+  const hasAccentsA = accentA.some((a) => a);
+  const hasAccentsB = accentB.some((a) => a);
+
+  if (hasAccentsA || hasAccentsB) {
+    compact.ac = [
+      hasAccentsA ? packTriggers(accentA) : undefined,
+      hasAccentsB ? packTriggers(accentB) : undefined,
+    ];
+  }
 
   // Always include preset name
   compact.n = preset.meta.name;
@@ -311,10 +325,25 @@ export function decodeCompactPreset(
 
   const defaultKit = kitLoader(kitId);
 
-  const pattern: Pattern = compact.pt.map((voice) => ({
-    instrumentIndex: voice.i,
-    variations: [decodeStepSequence(voice.a), decodeStepSequence(voice.b)],
-  }));
+  const pattern: Pattern = {
+    voices: compact.pt.map((voice) => ({
+      instrumentIndex: voice.i,
+      variations: [decodeStepSequence(voice.a), decodeStepSequence(voice.b)],
+    })),
+    // Decode accent patterns (default to no accents if not present)
+    variationMetadata: [
+      {
+        accent: compact.ac?.[0]
+          ? unpackTriggers(compact.ac[0])
+          : Array(STEP_COUNT).fill(false),
+      },
+      {
+        accent: compact.ac?.[1]
+          ? unpackTriggers(compact.ac[1])
+          : Array(STEP_COUNT).fill(false),
+      },
+    ],
+  };
 
   const instruments = defaultKit.instruments.map((inst, idx: number) => ({
     ...inst,

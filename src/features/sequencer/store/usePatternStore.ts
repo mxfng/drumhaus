@@ -94,13 +94,17 @@ export const usePatternStore = create<PatternState>()(
         toggleStep: (voiceIndex, variation, step) => {
           set((state) => {
             const currentValue =
-              state.pattern[voiceIndex].variations[variation].triggers[step];
-            state.pattern[voiceIndex].variations[variation].triggers[step] =
-              !currentValue;
+              state.pattern.voices[voiceIndex].variations[variation].triggers[
+                step
+              ];
+            state.pattern.voices[voiceIndex].variations[variation].triggers[
+              step
+            ] = !currentValue;
             // Set default velocity to 1 when enabling a step
             if (!currentValue) {
-              state.pattern[voiceIndex].variations[variation].velocities[step] =
-                1;
+              state.pattern.voices[voiceIndex].variations[variation].velocities[
+                step
+              ] = 1;
             }
             state.patternVersion += 1;
           });
@@ -108,16 +112,18 @@ export const usePatternStore = create<PatternState>()(
 
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
-            state.pattern[voiceIndex].variations[variation].velocities[step] =
-              velocity;
+            state.pattern.voices[voiceIndex].variations[variation].velocities[
+              step
+            ] = velocity;
             state.patternVersion += 1;
           });
         },
 
         updatePattern: (voiceIndex, variation, triggers, velocities) => {
           set((state) => {
-            state.pattern[voiceIndex].variations[variation].triggers = triggers;
-            state.pattern[voiceIndex].variations[variation].velocities =
+            state.pattern.voices[voiceIndex].variations[variation].triggers =
+              triggers;
+            state.pattern.voices[voiceIndex].variations[variation].velocities =
               velocities;
             state.patternVersion += 1;
           });
@@ -125,9 +131,9 @@ export const usePatternStore = create<PatternState>()(
 
         clearPattern: (voiceIndex, variation) => {
           set((state) => {
-            state.pattern[voiceIndex].variations[variation].triggers =
+            state.pattern.voices[voiceIndex].variations[variation].triggers =
               Array(STEP_COUNT).fill(false);
-            state.pattern[voiceIndex].variations[variation].velocities =
+            state.pattern.voices[voiceIndex].variations[variation].velocities =
               Array(STEP_COUNT).fill(1);
             state.patternVersion += 1;
           });
@@ -137,8 +143,9 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             const { voiceIndex, variation } = state;
             const currentNudge =
-              state.pattern[voiceIndex].variations[variation].timingNudge;
-            state.pattern[voiceIndex].variations[variation].timingNudge =
+              state.pattern.voices[voiceIndex].variations[variation]
+                .timingNudge;
+            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
               clampNudge(currentNudge - 1);
             state.patternVersion += 1;
           });
@@ -148,8 +155,9 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             const { voiceIndex, variation } = state;
             const currentNudge =
-              state.pattern[voiceIndex].variations[variation].timingNudge;
-            state.pattern[voiceIndex].variations[variation].timingNudge =
+              state.pattern.voices[voiceIndex].variations[variation]
+                .timingNudge;
+            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
               clampNudge(currentNudge + 1);
             state.patternVersion += 1;
           });
@@ -157,7 +165,8 @@ export const usePatternStore = create<PatternState>()(
 
         setTimingNudge: (voiceIndex, variation, nudge) => {
           set((state) => {
-            state.pattern[voiceIndex].variations[variation].timingNudge = nudge;
+            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
+              nudge;
             state.patternVersion += 1;
           });
         },
@@ -165,7 +174,7 @@ export const usePatternStore = create<PatternState>()(
 
       {
         name: "drumhaus-sequencer-storage",
-        version: 1,
+        version: 2,
         // Persist pattern and settings
         partialize: (state) => ({
           pattern: state.pattern,
@@ -174,10 +183,12 @@ export const usePatternStore = create<PatternState>()(
           variationCycle: state.variationCycle,
         }),
         // Migration: ensure all pattern fields are up-to-date
-        migrate: (persistedState: unknown, version: number) => {
+        migrate: (persistedState: unknown) => {
           const state = persistedState as Partial<PatternState>;
-          if (version === 0 && state?.pattern) {
-            // Migrate from version 0 to version 1: add timingNudge to all step sequences
+          if (state?.pattern) {
+            // Migrate pattern to latest format (handles all versions)
+            // - Version 0->2: adds timingNudge + converts to { voices, variationMetadata }
+            // - Version 1->2: converts Voice[] to { voices, variationMetadata }
             try {
               state.pattern = migratePatternUnsafe(state.pattern);
             } catch (error) {

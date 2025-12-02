@@ -1,12 +1,14 @@
 import type {
   Pattern,
   StepSequence,
+  VariationMetadata,
   Voice,
 } from "@/features/sequencer/types/pattern";
 import { STEP_COUNT } from "../../../../core/audio/engine/constants";
 import type {
   OptimizedPattern,
   OptimizedStepSequence,
+  OptimizedVariationMetadata,
   OptimizedVoice,
 } from "./types";
 
@@ -16,7 +18,11 @@ import type {
  */
 export function optimizePattern(pattern: Pattern): OptimizedPattern {
   return {
-    voices: pattern.map(optimizeVoice),
+    voices: pattern.voices.map(optimizeVoice),
+    variationMetadata: [
+      optimizeVariationMetadata(pattern.variationMetadata[0]),
+      optimizeVariationMetadata(pattern.variationMetadata[1]),
+    ],
   };
 }
 
@@ -56,11 +62,29 @@ function optimizeStepSequence(
 }
 
 /**
+ * Optimizes variation metadata by only storing accent if any steps are accented
+ */
+function optimizeVariationMetadata(
+  metadata: VariationMetadata,
+): OptimizedVariationMetadata {
+  // Only store accent array if any accents are enabled
+  const hasAccents = metadata.accent.some((accented) => accented);
+
+  return hasAccents ? { accent: metadata.accent } : {};
+}
+
+/**
  * Hydrates an optimized pattern back to full Pattern format
  * Fills missing velocities with default value of 1.0
  */
 export function hydratePattern(optimizedPattern: OptimizedPattern): Pattern {
-  return optimizedPattern.voices.map(hydrateVoice);
+  return {
+    voices: optimizedPattern.voices.map(hydrateVoice),
+    variationMetadata: [
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[0]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[1]),
+    ],
+  };
 }
 
 function hydrateVoice(optimizedVoice: OptimizedVoice): Voice {
@@ -88,5 +112,16 @@ function hydrateStepSequence(
     triggers: optimizedSequence.triggers,
     velocities,
     timingNudge: (optimizedSequence.timingNudge ?? 0) as -2 | -1 | 0 | 1 | 2,
+  };
+}
+
+/**
+ * Hydrates variation metadata, filling in defaults for missing accent data
+ */
+function hydrateVariationMetadata(
+  optimizedMetadata: OptimizedVariationMetadata,
+): VariationMetadata {
+  return {
+    accent: optimizedMetadata.accent ?? Array(STEP_COUNT).fill(false),
   };
 }

@@ -36,9 +36,9 @@ export const SequencerVariationPreview: React.FC<
         <div key={rowIdx} className="flex gap-1.5">
           {Array.from({ length: COLS }).map((_, stepIdx) => {
             const triggers1 =
-              pattern[voice1]?.variations[variation]?.triggers || [];
+              pattern.voices[voice1]?.variations[variation]?.triggers || [];
             const triggers2 =
-              pattern[voice2]?.variations[variation]?.triggers || [];
+              pattern.voices[voice2]?.variations[variation]?.triggers || [];
 
             // Merge: trigger is on if EITHER voice has it active
             const isTriggerOn = triggers1[stepIdx] || triggers2[stepIdx];

@@ -3,10 +3,11 @@ import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import { clamp, quantize } from "@/shared/lib/utils";
 
 /**
- * Creates an empty pattern with all triggers off and velocities at 1.0
+ * Creates an empty pattern with all triggers off, velocities at 1.0, and no accents.
+ * Returns the complete Pattern structure with 8 voices and variation metadata.
  */
 export function createEmptyPattern(): Pattern {
-  const pattern: Pattern = [];
+  const voices: Voice[] = [];
 
   for (let instrumentIndex = 0; instrumentIndex < 8; instrumentIndex++) {
     const voice: Voice = {
@@ -24,10 +25,16 @@ export function createEmptyPattern(): Pattern {
         },
       ],
     };
-    pattern.push(voice);
+    voices.push(voice);
   }
 
-  return pattern;
+  return {
+    voices,
+    variationMetadata: [
+      { accent: Array.from({ length: STEP_COUNT }, () => false) },
+      { accent: Array.from({ length: STEP_COUNT }, () => false) },
+    ],
+  };
 }
 
 /**

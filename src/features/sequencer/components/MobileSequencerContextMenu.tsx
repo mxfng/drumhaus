@@ -37,7 +37,7 @@ export const MobileSequencerContextMenu: React.FC = () => {
             {Array.from({ length: 8 }).map((_, voiceIdx) => {
               const voiceIndex = 7 - voiceIdx; // Reversed like in the main grid
               const triggers =
-                pattern[voiceIndex].variations[otherVariation].triggers;
+                pattern.voices[voiceIndex].variations[otherVariation].triggers;
 
               return triggers.map((isTriggerOn, stepIndex) => (
                 <div
