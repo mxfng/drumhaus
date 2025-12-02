@@ -70,7 +70,7 @@ export const SequencerControl: React.FC = () => {
         </div>
 
         {/* Variation pattern selection row */}
-        <Tooltip content={TOOLTIPS.VARIATION_A}>
+        <Tooltip content={TOOLTIPS.VARIATION_A} side="left">
           <SequencerVariationButton variation={0} />
         </Tooltip>
         <Tooltip content={TOOLTIPS.VARIATION_B}>

@@ -1,3 +1,5 @@
+import React from "react";
+
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
@@ -14,9 +16,10 @@ interface SequencerVariationButtonProps {
  * - Clicking switches the current variation to this variation.
  * - Shows a primary outline when this is the currently selected variation.
  */
-export const SequencerVariationButton: React.FC<
+export const SequencerVariationButton = React.forwardRef<
+  HTMLButtonElement,
   SequencerVariationButtonProps
-> = ({ variation }) => {
+>(({ variation, ...props }, ref) => {
   const { variation: currentVariation, setVariation } = usePatternStore();
 
   const displayVariation = variation === 0 ? "A" : "B";
@@ -24,6 +27,7 @@ export const SequencerVariationButton: React.FC<
 
   return (
     <Button
+      ref={ref}
       variant="hardware"
       onClick={() => setVariation(variation)}
       className={cn(
@@ -32,6 +36,7 @@ export const SequencerVariationButton: React.FC<
           "ring-primary ring": isActive,
         },
       )}
+      {...props}
     >
       <span
         className={cn(
@@ -45,4 +50,5 @@ export const SequencerVariationButton: React.FC<
       </span>
     </Button>
   );
-};
+});
+SequencerVariationButton.displayName = "SequencerVariationButton";
