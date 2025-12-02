@@ -34,6 +34,8 @@ export interface KnobProps {
   step?: number; // if you want 8 options for a knob, step = 100 / 7
   /** Default value for the knob */
   defaultValue?: number;
+  /** Hide the rotating tick indicator at the top of the knob */
+  showTickIndicator?: boolean;
 }
 
 export const Knob: React.FC<KnobProps> = ({
@@ -46,6 +48,7 @@ export const Knob: React.FC<KnobProps> = ({
   outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
   step: stepSize = KNOB_VALUE_DEFAULT,
   defaultValue = KNOB_VALUE_DEFAULT,
+  showTickIndicator = true,
 }) => {
   const containerClass = {
     default: "h-10 sm:h-20",
@@ -117,23 +120,24 @@ export const Knob: React.FC<KnobProps> = ({
               rotate: rotation,
             }}
           >
-            {/* Tick Mark */}
-            <svg
-              className="absolute top-[2%] left-1/2 w-[4.17%] -translate-x-1/2"
-              height="19%"
-              viewBox="0 0 2 20"
-              preserveAspectRatio="none"
-            >
-              <line
-                x1="1"
-                y1="0"
-                x2="1"
-                y2="20"
-                className="stroke-shadow-60"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            {showTickIndicator && (
+              <svg
+                className="absolute top-[2%] left-1/2 w-[4.17%] -translate-x-1/2"
+                height="19%"
+                viewBox="0 0 2 20"
+                preserveAspectRatio="none"
+              >
+                <line
+                  x1="1"
+                  y1="0"
+                  x2="1"
+                  y2="20"
+                  className="stroke-shadow-60"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
           </motion.div>
 
           {/* Knob Base (Fixed and motionless for shadow effect) */}
@@ -171,11 +175,13 @@ export const Knob: React.FC<KnobProps> = ({
           </div>
 
           {/* Outer ticks */}
-          <KnobTicks
-            outerTickCount={
-              potatoMode ? Math.min(outerTickCount, 16) : outerTickCount
-            }
-          />
+          {outerTickCount > 0 && (
+            <KnobTicks
+              outerTickCount={
+                potatoMode ? Math.min(outerTickCount, 16) : outerTickCount
+              }
+            />
+          )}
         </div>
       </Tooltip>
 

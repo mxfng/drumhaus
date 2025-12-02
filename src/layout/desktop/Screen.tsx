@@ -1,5 +1,5 @@
 import { PresetControl } from "@/features/preset/components/PresetControl";
-import { TransportControlScreen } from "@/features/transport/components/TransportControlScreen";
+import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
 
 export const Screen: React.FC = () => {
@@ -21,7 +21,7 @@ export const Screen: React.FC = () => {
               </div>
             </div>
             <div className="h-1/3">
-              <TransportControlScreen />
+              <TempoControlsScreen />
             </div>
           </div>
         </div>

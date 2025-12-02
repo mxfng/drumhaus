@@ -1,43 +1,43 @@
-import {
-  TRANSPORT_BPM_RANGE,
-  TRANSPORT_SWING_RANGE,
-} from "@/core/audio/engine/constants";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { ClickableValue } from "@/shared/components/ClickableValue";
+import {
+  transportBpmMapping,
+  transportSwingMapping,
+} from "@/shared/knob/lib/mapping";
 
-const [MIN_BPM, MAX_BPM] = TRANSPORT_BPM_RANGE;
-const [MIN_SWING, MAX_SWING] = TRANSPORT_SWING_RANGE;
-
-export const TransportControlScreen: React.FC = () => {
+export const TempoControlsScreen: React.FC = () => {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
   const setSwing = useTransportStore((state) => state.setSwing);
 
-  const formatSwing = (value: number) => `${Math.round(value)}%`;
-  const parseSwing = (text: string) => parseFloat(text.replace("%", ""));
+  const bpmKnobValue = transportBpmMapping.domainToKnob(bpm);
+  const handleBpmChange = (knobValue: number) => {
+    const domainValue = transportBpmMapping.knobToDomain(knobValue);
+    setBpm(Math.round(domainValue));
+  };
+
+  const swingKnobValue = transportSwingMapping.domainToKnob(swing);
+  const handleSwingChange = (knobValue: number) => {
+    const domainValue = transportSwingMapping.knobToDomain(knobValue);
+    setSwing(domainValue);
+  };
 
   return (
     <div className="bg-foreground-emphasis text-instrument flex h-full items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
       <div className="grid w-full grid-cols-4">
         <ClickableValue
-          value={bpm}
-          onValueChange={setBpm}
-          min={MIN_BPM}
-          max={MAX_BPM}
-          stepSize={1}
+          value={bpmKnobValue}
+          onValueChange={handleBpmChange}
+          mapping={transportBpmMapping}
           sensitivity={0.3}
           label="bpm"
           labelClassName="text-xs"
         />
         <ClickableValue
-          value={swing}
-          onValueChange={setSwing}
-          min={MIN_SWING}
-          max={MAX_SWING}
-          stepSize={1}
-          formatValue={formatSwing}
-          parseValue={parseSwing}
+          value={swingKnobValue}
+          onValueChange={handleSwingChange}
+          mapping={transportSwingMapping}
           sensitivity={0.2}
           label="swing"
           labelClassName="text-xs"

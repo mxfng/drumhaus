@@ -22,15 +22,18 @@ import {
   MASTER_REVERB_WET_RANGE,
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
+  TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_RANGE,
 } from "@/core/audio/engine/constants";
 import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
+  formatDisplayBpm,
   formatDisplayCompRatio,
   formatDisplayDecayDuration,
   formatDisplayFilter,
   formatDisplayPercentage,
+  formatDisplayPercentageValue,
   formatDisplayTuneSemitone,
   formatDisplayVolumeInstrument as formatDisplayVolume,
   formatDisplayVolumeMaster,
@@ -337,5 +340,24 @@ export const compMixMapping = makeLinearMapping(
  */
 export const transportSwingMapping = makeLinearMapping(
   TRANSPORT_SWING_RANGE,
-  formatDisplayPercentage,
+  formatDisplayPercentageValue,
+  {
+    knobValueCount: TRANSPORT_SWING_RANGE[1] - TRANSPORT_SWING_RANGE[0],
+    defaultKnobValue: inverseTransformKnobValue(
+      TRANSPORT_SWING_RANGE[0],
+      TRANSPORT_SWING_RANGE,
+    ),
+  },
+);
+
+/**
+ * Transport tempo (BPM)
+ */
+export const transportBpmMapping = makeLinearMapping(
+  TRANSPORT_BPM_RANGE,
+  formatDisplayBpm,
+  {
+    knobValueCount: TRANSPORT_BPM_RANGE[1] - TRANSPORT_BPM_RANGE[0],
+    defaultKnobValue: inverseTransformKnobValue(100, TRANSPORT_BPM_RANGE),
+  },
 );

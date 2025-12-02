@@ -17,7 +17,7 @@ export const ControlsPanel = () => {
     <div className="grid w-full grid-cols-8 flex-row items-center gap-y-2 px-6 py-2">
       {/* Module Labels */}
       <div />
-      <HardwareModuleLabel>transport</HardwareModuleLabel>
+      <HardwareModuleLabel>tempo</HardwareModuleLabel>
       <HardwareModuleLabel className="col-span-2">pattern</HardwareModuleLabel>
       <HardwareModuleLabel>groove</HardwareModuleLabel>
 

@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { KNOB_VALUE_MAX, KNOB_VALUE_MIN } from "@/shared/knob/lib/constants";
+import { ParamMapping } from "@/shared/knob/types/types";
 import { clamp, quantize } from "@/shared/lib/utils";
 import { Input } from "@/shared/ui";
 
 interface ClickableValueProps {
-  value: number;
-  onValueChange: (value: number) => void;
-  min: number;
-  max: number;
-  stepSize?: number;
-  formatValue?: (value: number) => string;
+  value: number; // Knob value (0-100)
+  onValueChange: (knobValue: number) => void;
+  mapping: ParamMapping<number>;
   parseValue?: (text: string) => number;
   sensitivity?: number;
   className?: string;
@@ -17,6 +16,8 @@ interface ClickableValueProps {
   label?: string;
   labelClassName?: string;
 }
+
+const defaultParse = (text: string) => parseFloat(text);
 
 /**
  * A text display that becomes an input on click, and supports drag-to-change like a knob.
@@ -26,11 +27,8 @@ interface ClickableValueProps {
 export const ClickableValue: React.FC<ClickableValueProps> = ({
   value,
   onValueChange,
-  min,
-  max,
-  stepSize = 1,
-  formatValue = (v) => v.toString(),
-  parseValue = (text) => parseFloat(text),
+  mapping,
+  parseValue = defaultParse,
   sensitivity = 0.5,
   className = "",
   onEditingChange,
@@ -40,19 +38,52 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
-  const [inputValue, setInputValue] = useState(formatValue(value));
+  const [inputValue, setInputValue] = useState(
+    () => mapping.format(mapping.knobToDomain(value), value).value,
+  );
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartValue, setDragStartValue] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+
+  const knobStepSize =
+    mapping.knobValueCount > 0 ? 100 / mapping.knobValueCount : 1;
+
+  const quantizeKnobValue = useCallback(
+    (knobValue: number) => {
+      const clamped = clamp(knobValue, KNOB_VALUE_MIN, KNOB_VALUE_MAX);
+      const snapped = quantize(clamped, knobStepSize);
+      const domainValue = mapping.knobToDomain(snapped);
+      return clamp(
+        mapping.domainToKnob(domainValue, snapped),
+        KNOB_VALUE_MIN,
+        KNOB_VALUE_MAX,
+      );
+    },
+    [mapping, knobStepSize],
+  );
+
+  const formatDisplayValue = useCallback(
+    (knobValue: number) => {
+      const formatted = mapping.format(
+        mapping.knobToDomain(knobValue),
+        knobValue,
+      );
+      return {
+        value: formatted.value,
+        append: formatted.append,
+      };
+    },
+    [mapping],
+  );
 
   // Update input value when prop changes (but not during edit)
   useEffect(() => {
     if (!isEditing && !isDragging) {
-      setInputValue(formatValue(value));
+      const formatted = formatDisplayValue(value);
+      setInputValue(formatted.value);
     }
-  }, [value, isEditing, isDragging, formatValue]);
+  }, [value, isEditing, isDragging, formatDisplayValue]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isEditing) return;
@@ -78,21 +109,16 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
       }
 
       const adjustedDeltaY = (dragStartY - e.clientY) * sensitivity;
-      const newValue = clamp(dragStartValue + adjustedDeltaY, min, max);
-      const quantized = quantize(newValue, stepSize);
+      const newValue = clamp(
+        dragStartValue + adjustedDeltaY,
+        KNOB_VALUE_MIN,
+        KNOB_VALUE_MAX,
+      );
+      const quantized = quantizeKnobValue(newValue);
 
       onValueChange(quantized);
     },
-    [
-      isDragging,
-      dragStartY,
-      dragStartValue,
-      sensitivity,
-      min,
-      max,
-      stepSize,
-      onValueChange,
-    ],
+    [isDragging, dragStartY, dragStartValue, quantizeKnobValue, sensitivity],
   );
 
   const handlePointerUp = useCallback(
@@ -105,7 +131,8 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
       if (!hasDragged) {
         setIsEditing(true);
         onEditingChange?.(true);
-        setInputValue(value.toString());
+        const formatted = formatDisplayValue(value);
+        setInputValue(formatted.value);
         setTimeout(() => inputRef.current?.select(), 0);
       }
 
@@ -117,7 +144,7 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
         }
       }
     },
-    [isDragging, hasDragged, value, onEditingChange],
+    [formatDisplayValue, isDragging, hasDragged, value, onEditingChange],
   );
 
   const handleClick = (e: React.MouseEvent) => {
@@ -132,12 +159,15 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
   const handleSubmit = () => {
     const parsed = parseValue(inputValue);
     if (!isNaN(parsed)) {
-      const clamped = clamp(parsed, min, max);
-      const quantized = quantize(clamped, stepSize);
-      onValueChange(quantized);
-      setInputValue(formatValue(quantized));
+      const quantizedKnobValue = quantizeKnobValue(
+        mapping.domainToKnob(parsed),
+      );
+      onValueChange(quantizedKnobValue);
+      const formatted = formatDisplayValue(quantizedKnobValue);
+      setInputValue(formatted.value);
     } else {
-      setInputValue(formatValue(value));
+      const formatted = formatDisplayValue(value);
+      setInputValue(formatted.value);
     }
     setIsEditing(false);
     onEditingChange?.(false);
@@ -147,7 +177,8 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
     if (e.key === "Enter") {
       handleSubmit();
     } else if (e.key === "Escape") {
-      setInputValue(formatValue(value));
+      const formatted = formatDisplayValue(value);
+      setInputValue(formatted.value);
       setIsEditing(false);
       onEditingChange?.(false);
     }
@@ -168,9 +199,10 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
     };
   }, [isDragging, handlePointerMove, handlePointerUp]);
 
+  const formattedDisplay = formatDisplayValue(value);
+
   return (
     <div
-      ref={containerRef}
       className={className}
       onPointerDown={handlePointerDown}
       onClick={handleClick}
@@ -189,7 +221,10 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
       ) : (
         <>
           {label && <span className={labelClassName}>{label} </span>}
-          <b className={label ? "pl-1" : ""}>{formatValue(value)}</b>
+          <b className={label ? "pl-1" : ""}>{formattedDisplay.value}</b>
+          {!label && formattedDisplay.append ? (
+            <span className="pl-1">{formattedDisplay.append}</span>
+          ) : null}
         </>
       )}
     </div>
