@@ -69,7 +69,7 @@ const Waveform: React.FC<WaveformProps> = ({
       const gapWidth = unitWidth;
       const stride = barWidth + gapWidth;
 
-      ctx.fillStyle = color;
+      ctx.fillStyle = "#ff7b00"; // hardcoded due to canvas limitations
 
       for (let i = 0; i < buckets.length; i++) {
         const normalized =
@@ -81,7 +81,7 @@ const Waveform: React.FC<WaveformProps> = ({
         ctx.fillRect(x, centerY - barHeight, barWidth, barHeight * 2);
       }
     },
-    [color],
+    [],
   );
 
   // Auto-sizing with ResizeObserver
