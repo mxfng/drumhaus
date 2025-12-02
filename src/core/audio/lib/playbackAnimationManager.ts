@@ -1,8 +1,7 @@
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 /**
- * Callback invoked on each animation frame during playback
+ * Callback invoked on each animation frame
  * @param now - Current timestamp from requestAnimationFrame
  * @param deltaTime - Time elapsed since last frame (ms)
  */
@@ -15,12 +14,10 @@ const listeners = new Set<AnimationCallback>();
 
 let animationFrameId: number | null = null;
 let lastFrameTime = 0;
-let lastIsPlaying = false;
-let unsubscribeTransport: (() => void) | null = null;
 
 /**
  * Main animation frame tick
- * Runs only when isPlaying is true
+ * Runs continuously while there are active listeners
  */
 function tick(now: number) {
   const potatoMode = usePerformanceStore.getState().potatoMode;
@@ -69,54 +66,20 @@ function stopTicker(): void {
 }
 
 /**
- * Handle transport play/pause state changes
- */
-function handlePlaybackStateChange(isPlaying: boolean): void {
-  if (isPlaying === lastIsPlaying) return;
-  lastIsPlaying = isPlaying;
-
-  if (isPlaying && listeners.size > 0) {
-    startTicker();
-  } else if (!isPlaying) {
-    stopTicker();
-  }
-}
-
-/**
- * Ensure we're subscribed to transport state changes
- */
-function ensureTransportSubscription(): void {
-  if (unsubscribeTransport !== null) return;
-
-  // Subscribe to transport store changes
-  unsubscribeTransport = useTransportStore.subscribe((state) => {
-    handlePlaybackStateChange(state.isPlaying);
-  });
-
-  // Initialize with current state
-  const currentIsPlaying = useTransportStore.getState().isPlaying;
-  handlePlaybackStateChange(currentIsPlaying);
-}
-
-/**
- * Cleanup transport subscription if no listeners remain
+ * Stop ticker if no listeners remain
  */
 function cleanupIfIdle(): void {
   if (listeners.size === 0) {
     stopTicker();
-    if (unsubscribeTransport) {
-      unsubscribeTransport();
-      unsubscribeTransport = null;
-    }
-    lastIsPlaying = false;
   }
 }
 
 /**
  * Subscribe to playback animation frames
  *
- * Animation callbacks are only invoked when transport is playing.
- * When playback stops, all animation frames are automatically paused.
+ * Animation callbacks run continuously while subscribed, allowing meters
+ * and visualizations to animate naturally even when transport is paused.
+ * This ensures feedback for preview sounds and smooth decay animations.
  *
  * @param callback - Function to invoke on each animation frame
  * @returns Unsubscribe function
@@ -136,11 +99,9 @@ export function subscribeToPlaybackAnimation(
   callback: AnimationCallback,
 ): () => void {
   listeners.add(callback);
-  ensureTransportSubscription();
 
-  // If already playing, start ticker immediately
-  const isPlaying = useTransportStore.getState().isPlaying;
-  if (isPlaying && animationFrameId === null) {
+  // Start ticker if this is the first listener
+  if (animationFrameId === null) {
     startTicker();
   }
 
@@ -158,6 +119,5 @@ export function getPlaybackAnimationState() {
   return {
     isRunning: animationFrameId !== null,
     listenerCount: listeners.size,
-    isPlaying: lastIsPlaying,
   };
 }
