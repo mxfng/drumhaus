@@ -120,7 +120,18 @@ export const usePatternStore = create<PatternState>()(
         },
 
         setVoiceMode: (voiceIndex) => {
-          set({ voiceIndex, mode: { type: "voice", voiceIndex } });
+          set((state) => {
+            if (state.mode.type === "ratchet" || state.mode.type === "flam") {
+              // If in ratchet or flam mode, just update the voice index
+              return {
+                voiceIndex,
+                mode: { type: state.mode.type, voiceIndex },
+              };
+            } else {
+              // Otherwise, update both the voice index and mode
+              return { voiceIndex, mode: { type: "voice", voiceIndex } };
+            }
+          });
         },
 
         toggleAccentMode: () => {
