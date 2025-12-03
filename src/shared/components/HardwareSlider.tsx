@@ -19,7 +19,7 @@ const sliderContainerVariants = cva("flex gap-2 flex-col", {
 });
 
 const sliderTrackVariants = cva(
-  "flex items-center rounded-lg shadow-(--slider-track-shadow)",
+  "flex items-center rounded-lg bg-(--slider-track-bg) shadow-(--slider-track-shadow)",
   {
     variants: {
       orientation: {
@@ -98,7 +98,6 @@ export const HardwareSlider = <TValue = number,>({
       >
         <SliderPrimitive.Track
           className={cn(sliderTrackVariants({ orientation }))}
-          style={{ background: "var(--slider-track-bg)" }}
         >
           <SliderPrimitive.Range
             className={cn(

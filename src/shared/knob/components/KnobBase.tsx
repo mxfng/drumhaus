@@ -52,7 +52,7 @@ export const Knob: React.FC<KnobProps> = ({
 }) => {
   const containerClass = {
     default: "h-20",
-    lg: "h-[180px]",
+    lg: "h-44",
   }[size];
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
@@ -132,7 +132,7 @@ export const Knob: React.FC<KnobProps> = ({
                   y1="0"
                   x2="1"
                   y2="20"
-                  className="stroke-shadow-60"
+                  className="stroke-foreground-muted"
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
@@ -143,7 +143,7 @@ export const Knob: React.FC<KnobProps> = ({
           {/* Knob Base (Fixed and motionless for shadow effect) */}
           <div
             className={cn(
-              "flex aspect-square h-4/5 items-center justify-center rounded-full",
+              "border-shadow-30 flex aspect-square h-4/5 items-center justify-center rounded-full border",
               potatoMode
                 ? "bg-surface border-border border"
                 : "shadow-(--shadow-neu-tall)",
@@ -155,7 +155,7 @@ export const Knob: React.FC<KnobProps> = ({
             {/* Raised Knob Edge */}
             <div
               className={cn(
-                "border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full",
+                "border-shadow-30 relative flex h-3/5 w-3/5 items-center justify-center rounded-full border",
                 potatoMode ? "" : "shadow-(--shadow-neu-tall-raised)",
               )}
               style={{
@@ -165,7 +165,7 @@ export const Knob: React.FC<KnobProps> = ({
               {/* Raised Knob Inner Circle */}
               <div
                 className={cn(
-                  "absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full",
+                  "border-shadow-10 absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full border",
                   potatoMode
                     ? "bg-surface"
                     : "bg-surface-groove raised shadow-(--knob-shadow-center)",

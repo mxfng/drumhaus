@@ -30,7 +30,7 @@ export const SelectTrigger = forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "font-pixel placeholder:-light focus:ring-primary-muted flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+      "font-pixel placeholder:-light focus:ring-primary-muted flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
     {...props}

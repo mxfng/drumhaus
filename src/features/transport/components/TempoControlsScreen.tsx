@@ -43,7 +43,7 @@ export const TempoControlsScreen: React.FC = () => {
           labelClassName="text-xs"
         />
         <span className="col-span-2">
-          <span className="text-xs">vari chain</span>
+          <span className="text-xs">chain</span>
           <b className="pl-1">ABABCDCD</b>
         </span>
       </div>

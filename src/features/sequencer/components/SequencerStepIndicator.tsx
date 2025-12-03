@@ -65,7 +65,10 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
 
       if (indicatorIsOn !== lastIndicatorOn) {
         indicatorRef.current.classList.toggle("bg-primary", indicatorIsOn);
-        indicatorRef.current.classList.toggle("bg-foreground", !indicatorIsOn);
+        indicatorRef.current.classList.toggle(
+          "bg-foreground-emphasis",
+          !indicatorIsOn,
+        );
 
         indicatorRef.current.style.boxShadow =
           indicatorIsOn && !potatoMode
@@ -82,7 +85,7 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   return (
     <div
       ref={indicatorRef}
-      className={cn(baseClassName, "bg-foreground", "opacity-20")}
+      className={cn(baseClassName, "bg-foreground-emphasis", "opacity-20")}
     />
   );
 };

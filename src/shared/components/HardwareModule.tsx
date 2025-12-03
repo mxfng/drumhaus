@@ -18,7 +18,7 @@ const hardwareModuleLabelVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-foreground-muted text-surface",
+        default: "bg-foreground text-surface",
         outline: "border border-foreground bg-transparent text-foreground",
       },
     },

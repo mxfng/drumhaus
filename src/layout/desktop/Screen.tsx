@@ -11,10 +11,10 @@ export const Screen: React.FC = () => {
   return (
     <>
       {/* Screen Display */}
-      <div className="bg-instrument/50 border-border text-foreground-emphasis col-span-4 overflow-clip rounded-2xl border">
-        <div className="grid h-full w-full grid-cols-2 rounded-2xl opacity-40">
+      <div className="bg-instrument border-border text-foreground col-span-4 overflow-clip rounded-2xl border">
+        <div className="grid h-full w-full grid-cols-2 rounded-2xl">
           {/* Left Column - Equal heights */}
-          <div className="border-foreground-emphasis flex h-full flex-col border-r">
+          <div className="border-foreground flex h-full flex-col border-r">
             <PresetControl />
           </div>
 

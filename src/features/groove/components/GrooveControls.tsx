@@ -50,31 +50,22 @@ export const GrooveControls = () => {
         <Tooltip content={TOOLTIPS.ACCENT_MODE}>
           <Button
             variant="hardware"
-            className={cn(accentMode && "ring-primary ring-2")}
+            className={cn(
+              accentMode && "border-primary border-2 transition-colors",
+            )}
             onClick={toggleAccentMode}
             size="sm"
           >
-            <span
-              className={cn(
-                "rounded border px-1 transition-colors duration-200",
-                accentMode
-                  ? "border-primary text-primary"
-                  : "border-foreground group-hover:border-primary-muted border-dotted",
-              )}
-            >
-              accent
-            </span>
+            <span className={cn(accentMode && "text-primary")}>accent</span>
           </Button>
         </Tooltip>
         {/* dummy for now, maybe useful */}
         <Button variant="hardware" size="sm">
-          <span className="rounded px-1 leading-3 transition-colors duration-200">
-            flam
-          </span>
+          flam
         </Button>
 
         {/* Timing nudge */}
-        <div className="border-border surface-raised col-span-2 grid h-10 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
+        <div className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="bottom">
             <Button
               variant="hardwareIcon"

@@ -4,7 +4,6 @@ import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid";
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
-import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import { Footer } from "./Footer";
@@ -33,7 +32,8 @@ const Drumhaus = () => {
   const closeDialog = useDialogStore((state) => state.closeDialog);
 
   // --- Desktop-specific Hooks ---
-  const { scale } = useLayoutScale();
+  // const { scale } = useLayoutScale();
+
   useKeyboardShortcuts({
     instrumentRuntimes,
     instrumentRuntimesVersion,
@@ -41,12 +41,9 @@ const Drumhaus = () => {
 
   return (
     <>
-      <div className="drumhaus-root">
-        <div
-          className="drumhaus-scale-wrapper animate-fade-in"
-          style={{ "--scale": scale } as React.CSSProperties}
-        >
-          <div className="neu-extra-tall bg-surface relative h-225 w-360 overflow-clip rounded-xl">
+      <div className="drumhaus-root animate-fade-in">
+        <div className="drumhaus-scale-wrapper">
+          <div className="border-border relative h-225 w-360 overflow-clip rounded-xl border">
             {/* Header */}
             <Header />
 

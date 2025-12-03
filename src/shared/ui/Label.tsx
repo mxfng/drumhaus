@@ -7,7 +7,7 @@ import { cn } from "@/shared/lib/utils";
 const labelVariants = cva("text-xs", {
   variants: {
     variant: {
-      default: "text-foreground-muted",
+      default: "text-foreground",
       outline:
         "inline-flex items-center justify-center rounded-full bg-primary/10 text-foreground px-2.5 py-1 text-xs font-medium",
     },

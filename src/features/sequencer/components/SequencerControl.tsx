@@ -165,7 +165,7 @@ export const SequencerControl: React.FC = () => {
         </Tooltip>
         <div className="col-span-2">
           {potatoMode ? (
-            <div className="h-8 w-full" />
+            <div className="h-10 w-full" />
           ) : (
             <SequencerVariationPreview variation={variation} />
           )}

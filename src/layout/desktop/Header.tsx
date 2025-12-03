@@ -7,7 +7,7 @@ export const Header: React.FC = () => {
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="surface grid h-24 grid-cols-8 p-6">
+    <div className="grid h-24 grid-cols-8 p-6">
       <div className="col-span-4 flex flex-row items-end">
         <button
           className="flex cursor-pointer items-end"
@@ -20,8 +20,8 @@ export const Header: React.FC = () => {
             <DrumhausTypographyLogo size={280} />
           </div>
           <div className="-mb-1 ml-4 text-left text-sm">
-            <p className="opacity-70">Computer Controlled</p>
-            <p className="opacity-70">Rhythmic Groove Machine</p>
+            <p>Computer Controlled</p>
+            <p>Rhythmic Groove Machine</p>
           </div>
         </button>
       </div>

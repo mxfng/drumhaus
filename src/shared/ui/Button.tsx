@@ -12,15 +12,15 @@ const buttonVariants = cva(
           "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground",
         secondary: "hover:text-foreground-muted",
         hardware:
-          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg focus:ring-none focus:outline-none",
+          "neu-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg focus:ring-none focus:outline-none",
         hardwareIcon:
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square focus:ring-none focus:outline-none",
       },
       size: {
-        icon: "h-6 w-6",
-        xs: "h-6 text-sm",
-        sm: "h-8 text-sm",
-        default: "h-10",
+        icon: "h-8 w-8",
+        xs: "h-8 text-sm",
+        sm: "h-10 text-sm",
+        default: "h-12",
       },
     },
     defaultVariants: {
