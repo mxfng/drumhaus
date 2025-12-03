@@ -205,7 +205,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
                 "ring-primary ring-2": solo,
               })}
             >
-              <Headphones className={cn({ "text-primary": solo })} />
+              <Headphones className={cn({ "text-primary": solo })} size={14} />
             </Button>
           </Tooltip>
         </div>

@@ -105,7 +105,7 @@ body,
 #root {
   width: 100%;
   height: 100%;
-  background-color: var(--color-surface);
+  background-color: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -moz-user-select: none;
