@@ -20,7 +20,7 @@ const MobileDialog = lazy(() =>
 
 const renderDivider = () => {
   return (
-    <div className="h-1 w-full shadow-[inset_2px_1px_2px_0_var(--color-shadow-30)]" />
+    <div className="bg-shadow-10 h-1 w-full shadow-[inset_2px_1px_2px_0_var(--color-shadow-30)]" />
   );
 };
 

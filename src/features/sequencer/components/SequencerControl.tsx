@@ -1,5 +1,4 @@
 import { HardwareModule } from "@/shared/components/HardwareModule";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Button, Tooltip } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
@@ -130,8 +129,6 @@ Scope: Local to the current variation, never global.
 export const SequencerControl: React.FC = () => {
   const variation = usePatternStore((state) => state.variation);
 
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
-
   // const {
   //   variationCycle,
   //   setVariationCycle,
@@ -164,11 +161,7 @@ export const SequencerControl: React.FC = () => {
           </Button>
         </Tooltip>
         <div className="col-span-2">
-          {potatoMode ? (
-            <div className="h-10 w-full" />
-          ) : (
-            <SequencerVariationPreview variation={variation} />
-          )}
+          <SequencerVariationPreview variation={variation} />
         </div>
 
         {/* Variation pattern selection row */}

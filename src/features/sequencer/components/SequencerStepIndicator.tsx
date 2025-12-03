@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
@@ -16,20 +15,12 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   playbackVariation,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
-  const baseClassName = cn(
-    "mb-4 h-1 w-full rounded-full",
-    !potatoMode && "transition-all duration-75",
-  );
+  const baseClassName = "mb-4 h-1 w-full rounded-full";
 
   useEffect(() => {
     let lastIndicatorOn: boolean | null = null;
     let lastOpacityClass: string | null = null;
-
-    if (indicatorRef.current && potatoMode) {
-      indicatorRef.current.style.boxShadow = "none";
-    }
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isAccentBeat = stepIndex % 4 === 0;
@@ -70,17 +61,16 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
           !indicatorIsOn,
         );
 
-        indicatorRef.current.style.boxShadow =
-          indicatorIsOn && !potatoMode
-            ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-            : "none";
+        indicatorRef.current.style.boxShadow = indicatorIsOn
+          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
+          : "none";
 
         lastIndicatorOn = indicatorIsOn;
       }
     });
 
     return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, baseClassName, potatoMode]);
+  }, [stepIndex, variation, playbackVariation, baseClassName]);
 
   return (
     <div

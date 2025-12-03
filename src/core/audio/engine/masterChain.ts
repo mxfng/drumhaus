@@ -24,15 +24,12 @@ import {
   phaserWetMapping,
   reverbDecayMapping,
   reverbWetMapping,
-  saturationWetMapping,
 } from "@/shared/knob/lib/mapping";
 import {
   MASTER_COMP_KNEE,
   MASTER_COMP_LATENCY,
   MASTER_COMP_MAKEUP_GAIN,
   MASTER_COMP_RELEASE,
-  MASTER_DRUM_DISTORTION_AMOUNT,
-  MASTER_DRUM_DISTORTION_OVERSAMPLE,
   MASTER_FILTER_RANGE,
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
@@ -46,6 +43,9 @@ import {
   MASTER_PRESENCE_GAIN,
   MASTER_PRESENCE_Q,
   MASTER_REVERB_PRE_FILTER_FREQ,
+  MASTER_SATURATION_MAX_AMOUNT,
+  MASTER_SATURATION_OVERSAMPLE,
+  MASTER_SATURATION_WET_RANGE,
 } from "./constants";
 import { applySplitFilterWithRamp } from "./splitFilter";
 
@@ -82,6 +82,7 @@ export type MasterChainSettings = {
   // Split filter settings (single filter that switches type, same as instrument filter)
   filter: number; // Raw knob value 0-100
   saturationWet: number;
+  saturationAmount: number;
   phaserWet: number;
   reverbWet: number;
   reverbDecay: number;
@@ -337,8 +338,8 @@ export async function buildMasterChainNodes(
 
   // Drum saturation: crunchier user-controllable distortion
   const saturation = new Distortion({
-    distortion: MASTER_DRUM_DISTORTION_AMOUNT,
-    oversample: MASTER_DRUM_DISTORTION_OVERSAMPLE,
+    distortion: settings.saturationAmount,
+    oversample: MASTER_SATURATION_OVERSAMPLE,
     wet: settings.saturationWet,
   });
 
@@ -386,9 +387,11 @@ export async function buildMasterChainNodes(
 export function mapParamsToSettings(
   params: MasterChainParams,
 ): MasterChainSettings {
+  const saturationNormalized = params.saturation * 0.01; // 0-1
   return {
     filter: params.filter, // Pass raw knob value for split filter logic
-    saturationWet: saturationWetMapping.knobToDomain(params.saturation),
+    saturationWet: saturationNormalized * MASTER_SATURATION_WET_RANGE[1],
+    saturationAmount: saturationNormalized * MASTER_SATURATION_MAX_AMOUNT,
     phaserWet: phaserWetMapping.knobToDomain(params.phaser),
     reverbWet: reverbWetMapping.knobToDomain(params.reverb),
     reverbDecay: reverbDecayMapping.knobToDomain(params.reverb),
@@ -429,6 +432,7 @@ function applySettingsToRuntimes(
 
   // Saturation wet/dry mix
   runtimes.saturation.wet.value = settings.saturationWet;
+  runtimes.saturation.distortion = settings.saturationAmount;
 
   // Effect send settings
   runtimes.phaserSendGain.gain.value = settings.phaserWet;

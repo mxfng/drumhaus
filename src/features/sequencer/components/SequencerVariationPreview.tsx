@@ -1,4 +1,5 @@
 import { cn } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { usePatternStore } from "../store/usePatternStore";
 
 interface SequencerVariationPreviewProps {
@@ -17,6 +18,8 @@ export const SequencerVariationPreview: React.FC<
 > = ({ variation, className }) => {
   const pattern = usePatternStore((state) => state.pattern);
 
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+
   // Row 0: voices 6+7, Row 1: voices 4+5, Row 2: voices 2+3, Row 3: voices 0+1
   const voicePairs = [
     [6, 7],
@@ -24,6 +27,10 @@ export const SequencerVariationPreview: React.FC<
     [2, 3],
     [0, 1],
   ];
+
+  if (potatoMode) {
+    return <div className="h-10 w-full" />;
+  }
 
   return (
     <div

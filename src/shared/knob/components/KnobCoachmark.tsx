@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
+
 interface KnobCoachmarkProps {
   visible: boolean;
   message: string;
@@ -19,7 +21,11 @@ export function KnobCoachmark({
   const [render, setRender] = useState(visible);
   const [isShown, setIsShown] = useState(false);
 
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+
   useEffect(() => {
+    if (potatoMode) return;
+
     let showTimeout: number | undefined;
     let hideTimeout: number | undefined;
     let raf: number | undefined;
@@ -41,10 +47,10 @@ export function KnobCoachmark({
       if (hideTimeout) window.clearTimeout(hideTimeout);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [visible]);
+  }, [visible, potatoMode]);
 
   useEffect(() => {
-    if (!render) return;
+    if (!render || potatoMode) return;
 
     const updatePosition = () => {
       const el = anchorRef.current;
@@ -64,9 +70,9 @@ export function KnobCoachmark({
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [render, anchorRef]);
+  }, [render, anchorRef, potatoMode]);
 
-  if (!render || !position) return null;
+  if (!render || !position || potatoMode) return null;
 
   return createPortal(
     <div

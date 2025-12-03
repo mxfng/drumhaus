@@ -45,6 +45,7 @@ export const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open (legacy)
 export const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off (legacy)
 
 export const MASTER_SATURATION_WET_RANGE: Range = [0, 0.5]; // 0-100% wet for drum saturation
+export const MASTER_SATURATION_MAX_AMOUNT = 0.3; // Caps drive to keep it musical
 export const MASTER_SATURATION_DEFAULT = 0; // Knob 0 = no saturation
 
 export const MASTER_PHASER_WET_RANGE: Range = [0, 1];
@@ -133,9 +134,8 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
 // Master FX: Analog coloration / EQ
 // ============================================================================
 
-// User-controllable drum distortion (crunchier)
-export const MASTER_DRUM_DISTORTION_AMOUNT = 0.4; // Default distortion amount
-export const MASTER_DRUM_DISTORTION_OVERSAMPLE = "4x";
+// User-controllable drum saturation
+export const MASTER_SATURATION_OVERSAMPLE = "4x";
 
 // High shelf rolloff - tames harsh hats / sibilance
 export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
