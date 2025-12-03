@@ -137,6 +137,8 @@ html.potato-mode *,
 html.potato-mode *::before,
 html.potato-mode *::after {
   box-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
 }
 
 /* Scrollbar styling */
