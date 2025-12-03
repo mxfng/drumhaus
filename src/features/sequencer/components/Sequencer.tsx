@@ -13,6 +13,7 @@ interface StepMusicalState {
   velocityValue: number;
   isTriggerOn: boolean;
   brightness: number;
+  isGuideActive: boolean;
 }
 
 export const Sequencer: React.FC = () => {
@@ -40,6 +41,7 @@ export const Sequencer: React.FC = () => {
     mode.type === "voice" || mode.type === "ratchet" || mode.type === "flam"
       ? mode.voiceIndex
       : 0;
+  const showInstrumentGuide = ratchetMode || flamMode;
 
   // Get appropriate triggers based on mode
   let triggers: boolean[];
@@ -52,6 +54,9 @@ export const Sequencer: React.FC = () => {
   } else {
     triggers = pattern.voices[voiceIndex].variations[variation].triggers;
   }
+
+  const instrumentTriggers =
+    pattern.voices[voiceIndex].variations[variation].triggers;
 
   // Calculate ghosting: viewing different variation than what's playing
   const isGhosted = isPlaying && playbackVariation !== variation && !accentMode;
@@ -85,13 +90,15 @@ export const Sequencer: React.FC = () => {
 
   const getStepMusicalState = (step: number): StepMusicalState => {
     const isTriggerOn = triggers[step];
-    // Ghosting: 0.7 brightness when trigger is on but viewing different variation
-    const brightness = isGhosted && isTriggerOn ? 0.7 : 1;
+    const isGuideActive = showInstrumentGuide && instrumentTriggers[step];
+    // Ghosting: 0.7 brightness when trigger (or guide) is on but viewing different variation
+    const brightness = isGhosted && (isTriggerOn || isGuideActive) ? 0.7 : 1;
 
     return {
       velocityValue: velocities[step],
       isTriggerOn,
       brightness,
+      isGuideActive,
     };
   };
 
@@ -115,6 +122,7 @@ export const Sequencer: React.FC = () => {
               stepIndex={step}
               isTriggerOn={state.isTriggerOn}
               brightness={state.brightness}
+              isGuideActive={state.isGuideActive}
               onPointerStart={handleStepPointerStart}
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}

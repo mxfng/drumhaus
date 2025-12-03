@@ -7,6 +7,7 @@ interface SequencerStepProps {
   stepIndex: number;
   isTriggerOn: boolean;
   brightness: number;
+  isGuideActive?: boolean;
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -32,6 +33,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   stepIndex,
   isTriggerOn,
   brightness,
+  isGuideActive = false,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
@@ -42,20 +44,25 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
+  const isGuideOnly = isGuideActive && !isTriggerOn;
 
   const getTriggerClassName = () => {
     if (potatoMode) {
-      return isTriggerOn ? "bg-primary" : "bg-instrument";
+      if (isTriggerOn) return "bg-primary";
+      if (isGuideOnly) return "bg-foreground-muted";
+      return "bg-instrument";
     }
 
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
-      : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
+      : isGuideOnly
+        ? "bg-foreground-muted shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
+        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
   };
 
   const triggerStyles = {
     className: getTriggerClassName(),
-    opacity: isTriggerOn ? 1 : !isTriggerOn ? (isAccentBeat ? 1 : 0.75) : 1,
+    opacity: isTriggerOn || isGuideOnly ? 1 : isAccentBeat ? 1 : 0.75,
   };
 
   const borderRadius = "rounded-[0_16px_0_16px]";
@@ -92,7 +99,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
       }}
     >
-      {isTriggerOn && !potatoMode && (
+      {(isTriggerOn || isGuideOnly) && !potatoMode && (
         <div
           className={cn(
             "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
