@@ -14,6 +14,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -38,10 +40,14 @@ export const FloatingMenu: React.FC = () => {
   const nightMode = useNightModeStore((state) => state.nightMode);
   const toggleNightMode = useNightModeStore((state) => state.toggleNightMode);
 
+  const scale = useLayoutScaleStore((state) => state.scale);
   const setScale = useLayoutScaleStore((state) => state.setScale);
   const fitToScreen = useLayoutScaleStore((state) => state.fitToScreen);
   const zoomIn = useLayoutScaleStore((state) => state.zoomIn);
   const zoomOut = useLayoutScaleStore((state) => state.zoomOut);
+
+  const isAtMinScale = scale <= SCALE_OPTIONS[0];
+  const isAtMaxScale = scale >= SCALE_OPTIONS[SCALE_OPTIONS.length - 1];
 
   const handleTogglePotatoMode = () => {
     if (nightMode) {
@@ -106,17 +112,26 @@ export const FloatingMenu: React.FC = () => {
               <DropdownMenuItem onSelect={fitToScreen}>
                 Fit to Screen
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={zoomOut}>Zoom Out</DropdownMenuItem>
-              <DropdownMenuItem onSelect={zoomIn}>Zoom In</DropdownMenuItem>
+              <DropdownMenuItem onSelect={zoomOut} disabled={isAtMinScale}>
+                Zoom Out
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={zoomIn} disabled={isAtMaxScale}>
+                Zoom In
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {SCALE_MENU_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onSelect={() => setScale(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuRadioGroup
+                value={scale.toString()}
+                onValueChange={(value) => setScale(parseInt(value))}
+              >
+                {SCALE_MENU_OPTIONS.map((option) => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value.toString()}
+                  >
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         </DropdownMenuContent>
