@@ -157,9 +157,8 @@ export function usePresetLoading({
     hasLoadedFromUrlRef.current = true;
 
     try {
-      const { urlToPreset } = await import(
-        "@/features/preset/lib/serialization"
-      );
+      const { urlToPreset } =
+        await import("@/features/preset/lib/serialization");
       const preset = urlToPreset(presetParam);
       loadPreset(preset);
 
