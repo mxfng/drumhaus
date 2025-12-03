@@ -114,6 +114,44 @@ body,
   -webkit-user-select: none;
   user-select: none;
   transition: background-color 1.5s ease-in-out;
+  overflow: auto;
+}
+
+/* Scrollbar styling */
+html,
+body,
+#root {
+  /* Modern scrollbar styling (Firefox) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary-muted) var(--color-shadow);
+}
+
+/* WebKit/Blink scrollbar styling (Chrome, Safari, Edge) */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+#root::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+#root::-webkit-scrollbar-thumb {
+  background: var(--color-foreground-emphasis);
+  border-radius: 6px;
+  border: 2px solid var(--color-background);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+#root::-webkit-scrollbar-thumb:hover {
+  background: var(--color-foreground);
 }
 
 /* Night mode */
@@ -198,9 +236,10 @@ a {
 
 .drumhaus-scale-wrapper {
   position: absolute;
-  width: var(--app-width);
+  width: calc(var(--app-width) + var(--app-padding) * var(--layout-scale, 1));
   height: calc(
-    var(--app-height) + var(--app-footer-height) + var(--app-header-height)
+    var(--app-height) + var(--app-footer-height) + var(--app-header-height) *
+      var(--layout-scale, 1)
   );
   top: 50%;
   left: 50%;

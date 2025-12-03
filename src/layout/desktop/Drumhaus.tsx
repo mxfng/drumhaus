@@ -5,6 +5,7 @@ import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid"
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
+import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import { FloatingMenu } from "./FloatingMenu";
@@ -35,6 +36,8 @@ const Drumhaus = () => {
 
   // --- Desktop-specific Hooks ---
   const { scale } = useLayoutScale();
+
+  useMobileWarning();
 
   useKeyboardShortcuts({
     instrumentRuntimes,
