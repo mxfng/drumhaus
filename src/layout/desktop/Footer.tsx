@@ -19,14 +19,6 @@ export const Footer: React.FC = () => (
     >
       Max Fung.
     </a>
-    <a
-      href="https://ko-fi.com/maxfung"
-      target="_blank"
-      rel="noreferrer"
-      className="ml-1 text-sm"
-    >
-      Support on ko-fi.
-    </a>
   </div>
 );
 
