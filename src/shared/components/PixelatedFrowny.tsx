@@ -17,11 +17,11 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
-  gap = 6,
+  gap = 1,
   className,
 }) => {
   // 8x8 grid for a clearer frowny face
-  const grid = 8;
+  const grid = 6;
   const total = grid * grid;
 
   // Define the frowny face pattern
@@ -30,14 +30,12 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
   // clear, classic frowny face expression in 8x8 grid
   // prettier-ignore
   const frownyPattern = [
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,1,0,0,1,0,0,
-    0,0,0,0,0,0,0,0,
-    0,0,1,1,1,1,0,0,
-    0,1,0,0,0,0,1,0,
-    0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,
+    0,1,0,0,1,0,
+    0,0,0,0,0,0,
+    0,1,1,1,1,0,
+    1,0,0,0,0,1,
+    0,0,0,0,0,0
   ];
 
   return (
@@ -71,7 +69,7 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
             <div
               key={i}
               className={cn(
-                "bg-border rounded-full",
+                "bg-border/20 rounded-full",
                 shouldFill && "shadow-[0_0_8px_rgba(255,123,0,0.6)]",
               )}
               style={{
