@@ -2,7 +2,7 @@ import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
 export const MIN_CHAIN_REPEAT = 1;
 export const MAX_CHAIN_REPEAT = 8;
-export const MAX_CHAIN_STEPS = 16;
+export const MAX_CHAIN_STEPS = 8;
 export const DEFAULT_CHAIN: PatternChain = {
   steps: [{ variation: 0, repeats: 1 }],
 };
@@ -13,15 +13,13 @@ export function clampVariationId(variation: number): VariationId {
   return variation as VariationId;
 }
 
-export function clampChainStepIndex(index: number): number {
-  if (index < 0) return 0;
-  if (index >= MAX_CHAIN_STEPS) return MAX_CHAIN_STEPS - 1;
-  return index;
-}
-
-export function sanitizeChain(chain?: PatternChain): PatternChain {
+export function sanitizeChain(
+  chain?: PatternChain,
+  options?: { allowEmpty?: boolean },
+): PatternChain {
+  const allowEmpty = options?.allowEmpty ?? false;
   if (!chain || !Array.isArray(chain.steps)) {
-    return DEFAULT_CHAIN;
+    return allowEmpty ? { steps: [] } : DEFAULT_CHAIN;
   }
 
   const steps = chain.steps
@@ -35,7 +33,11 @@ export function sanitizeChain(chain?: PatternChain): PatternChain {
     }))
     .filter((step) => step.repeats > 0);
 
-  return { steps: steps.length > 0 ? steps : DEFAULT_CHAIN.steps };
+  if (steps.length === 0) {
+    return allowEmpty ? { steps: [] } : DEFAULT_CHAIN;
+  }
+
+  return { steps };
 }
 
 export function legacyCycleToChain(

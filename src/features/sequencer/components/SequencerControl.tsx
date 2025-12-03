@@ -134,7 +134,9 @@ export const SequencerControl: React.FC = () => {
   const voiceIndex = usePatternStore((state) => state.voiceIndex);
   const setMode = usePatternStore((state) => state.setMode);
   const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
-  const setChainEditStep = usePatternStore((state) => state.setChainEditStep);
+  const startChainEdit = usePatternStore((state) => state.startChainEdit);
+  const setChain = usePatternStore((state) => state.setChain);
+  const chainDraft = usePatternStore((state) => state.chainDraft);
 
   // const {
   //   variationCycle,
@@ -149,10 +151,14 @@ export const SequencerControl: React.FC = () => {
 
   const handleToggleChainEdit = () => {
     if (isChainEdit) {
+      // On exit, commit the drafted chain only if something was punched in
+      if (chainDraft.steps.length > 0) {
+        setChain(chainDraft);
+      }
       setMode({ type: "voice", voiceIndex });
       return;
     }
-    setChainEditStep(0);
+    startChainEdit();
   };
 
   const handleToggleChainEnabled = () => {
@@ -184,7 +190,7 @@ export const SequencerControl: React.FC = () => {
             })}
             onClick={handleToggleChainEnabled}
           >
-            <span>{chainEnabled ? "chain on" : "chain off"}</span>
+            <span>chain on</span>
           </Button>
         </Tooltip>
         <div className="col-span-2">

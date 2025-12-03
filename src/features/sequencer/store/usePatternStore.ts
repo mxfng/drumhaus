@@ -4,11 +4,11 @@ import { immer } from "zustand/middleware/immer";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import {
-  clampChainStepIndex,
   clampVariationId,
   DEFAULT_CHAIN,
   legacyCycleToChain,
   MAX_CHAIN_REPEAT,
+  MAX_CHAIN_STEPS,
   MIN_CHAIN_REPEAT,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
@@ -31,7 +31,7 @@ export type SequencerMode =
   | { type: "paste" } // Paste mode (future)
   | { type: "clear" } // Clear mode (future)
   | { type: "random" } // Random mode (future)
-  | { type: "variationChain"; stepIndex: number }; // Variation chain mode
+  | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 4 variations
@@ -43,6 +43,7 @@ interface PatternState {
   chain: PatternChain;
   chainEnabled: boolean;
   chainVersion: number;
+  chainDraft: PatternChain;
 
   // Current voice index (tracked separately for mode memory)
   voiceIndex: number;
@@ -57,9 +58,9 @@ interface PatternState {
   setVariation: (variation: number) => void;
   setChain: (chain: PatternChain) => void;
   setChainEnabled: (enabled: boolean) => void;
-  setChainEditStep: (stepIndex: number) => void;
+  startChainEdit: () => void;
+  resetChainDraft: () => void;
   writeChainStep: (variation: VariationId) => void;
-  updateChainStepRepeat: (stepIndex: number, delta: number) => void;
   setPattern: (pattern: Pattern) => void;
   setPlaybackVariation: (variation: number) => void;
 
@@ -116,6 +117,7 @@ export const usePatternStore = create<PatternState>()(
         chain: DEFAULT_CHAIN,
         chainEnabled: false,
         chainVersion: 0,
+        chainDraft: { steps: [] },
         mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
         voiceIndex: 0,
@@ -139,12 +141,16 @@ export const usePatternStore = create<PatternState>()(
           });
         },
 
-        setChainEditStep: (stepIndex) => {
+        startChainEdit: () => {
+          set({
+            chainDraft: { steps: [] },
+            mode: { type: "variationChain" },
+          });
+        },
+
+        resetChainDraft: () => {
           set((state) => {
-            state.mode = {
-              type: "variationChain",
-              stepIndex: clampChainStepIndex(stepIndex),
-            };
+            state.chainDraft = { steps: [] };
           });
         },
 
@@ -155,65 +161,46 @@ export const usePatternStore = create<PatternState>()(
               return;
             }
 
-            const chain = sanitizeChain(state.chain);
-            const targetIndex = clampChainStepIndex(state.mode.stepIndex);
+            const chain = sanitizeChain(state.chainDraft, { allowEmpty: true });
             const steps = [...chain.steps];
-            steps[targetIndex] = {
-              variation: clampVariationId(variation),
-              repeats: MIN_CHAIN_REPEAT,
-            };
+            const lastStep = steps[steps.length - 1];
+            const variationId = clampVariationId(variation);
 
-            state.chain = sanitizeChain({
-              steps: steps.slice(0, targetIndex + 1),
-            });
-            state.chainVersion += 1;
-
-            state.mode = {
-              type: "variationChain",
-              stepIndex: clampChainStepIndex(targetIndex + 1),
-            };
-          });
-        },
-
-        updateChainStepRepeat: (stepIndex, delta) => {
-          set((state) => {
-            const sanitized = sanitizeChain(state.chain);
-            const index = clampChainStepIndex(stepIndex);
-            const currentStep =
-              sanitized.steps[index] ??
-              ({
-                variation: clampVariationId(state.variation),
-                repeats: MIN_CHAIN_REPEAT,
-              } as const);
-
-            const repeats = Math.min(
-              MAX_CHAIN_REPEAT,
-              Math.max(MIN_CHAIN_REPEAT, currentStep.repeats + delta),
+            // Calculate total bars in current chain
+            const totalBars = steps.reduce(
+              (sum, step) => sum + step.repeats,
+              0,
             );
 
-            const steps = [...sanitized.steps];
-            steps[index] = { ...currentStep, repeats };
-
-            state.chain = sanitizeChain({ steps });
-            state.chainVersion += 1;
-
-            if (state.mode.type === "variationChain") {
-              state.mode.stepIndex = index;
+            if (
+              lastStep &&
+              lastStep.variation === variationId &&
+              lastStep.repeats < MAX_CHAIN_REPEAT &&
+              totalBars < MAX_CHAIN_STEPS
+            ) {
+              // Increment repeat of last step if it won't exceed 8 total bars
+              lastStep.repeats += 1;
+              steps[steps.length - 1] = lastStep;
+            } else if (
+              steps.length < MAX_CHAIN_STEPS &&
+              totalBars < MAX_CHAIN_STEPS
+            ) {
+              // Add new step if it won't exceed 8 total bars
+              steps.push({ variation: variationId, repeats: MIN_CHAIN_REPEAT });
             }
+
+            state.chainDraft = sanitizeChain(
+              {
+                steps,
+              },
+              { allowEmpty: true },
+            );
           });
         },
 
         setMode: (mode) => {
           if (mode.type === "voice") {
             set({ voiceIndex: mode.voiceIndex });
-          } else if (mode.type === "variationChain") {
-            set({
-              mode: {
-                type: "variationChain",
-                stepIndex: clampChainStepIndex(mode.stepIndex),
-              },
-            });
-            return;
           }
           set({ mode });
         },
@@ -441,6 +428,7 @@ export const usePatternStore = create<PatternState>()(
           state.chain = sanitizeChain(state.chain ?? legacy.chain);
           state.chainEnabled = state.chainEnabled ?? legacy.chainEnabled;
           state.chainVersion = state.chainVersion ?? 0;
+          state.chainDraft = { steps: [] };
 
           return state as PatternState;
         },
