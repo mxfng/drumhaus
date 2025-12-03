@@ -59,7 +59,7 @@
     20px 20px 50px var(--color-shadow-30),
     -30px -30px 60px var(--color-highlight-40);
   --shadow-neu-raised:
-    1px 1px 3px var(--color-shadow-10), -1px -1px 3px var(--color-highlight-17);
+    2px 2px 6px var(--color-shadow-10), -2px -2px 6px var(--color-highlight-17);
   --shadow-neu-tall-raised:
     12px 12px 18px var(--color-shadow-10),
     -16px -16px 24px var(--color-highlight-20);

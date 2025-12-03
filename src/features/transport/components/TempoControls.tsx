@@ -127,7 +127,7 @@ export const TempoControls = () => {
             size="icon"
             className={cn(
               "font-pixel text-[10px] tracking-wide uppercase",
-              mode === "bpm" && "text-primary ring-primary ring-2",
+              mode === "bpm" && "border-primary text-primary transition-colors",
             )}
             onClick={() => setMode("bpm")}
           >
@@ -141,7 +141,8 @@ export const TempoControls = () => {
             size="icon"
             className={cn(
               "font-pixel text-[10px] tracking-wide uppercase",
-              mode === "swing" && "text-primary ring-primary ring-2",
+              mode === "swing" &&
+                "border-primary text-primary transition-colors",
             )}
             onClick={() => setMode("swing")}
           >
