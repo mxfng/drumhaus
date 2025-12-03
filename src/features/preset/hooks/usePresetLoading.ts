@@ -29,6 +29,7 @@ export function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
   const { toast } = useToast();
+
   const hasLoadedFromUrlRef = useRef(false);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);

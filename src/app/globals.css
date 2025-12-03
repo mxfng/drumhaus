@@ -163,19 +163,6 @@ a {
   );
 }
 
-.hardware-button-group {
-  box-shadow:
-    var(--shadow-neu),
-    0 0 2px 3px var(--color-shadow-10);
-}
-
-.hardware-button-group > *:not(:first-child) > button,
-.hardware-button-group > button:not(:first-child) {
-  box-shadow:
-    inset 1px 0 0 var(--color-shadow-50),
-    inset 2px 0 0 var(--color-highlight-20);
-}
-
 .surface {
   background: var(--color-surface);
   color: var(--color-foreground);
@@ -187,60 +174,6 @@ a {
     var(--color-gradient-light),
     var(--color-gradient-dark)
   );
-}
-
-/* Loader */
-.initial-loader {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-surface);
-  z-index: 9999;
-  transition: opacity 0.3s ease;
-}
-
-.initial-loader--hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.pixelated-spinner__pixel {
-  animation: pixelated-spinner-pulse 1s ease-in-out infinite;
-}
-
-.toast-root[data-swipe="move"] {
-  transform: translateX(var(--radix-toast-swipe-move-x));
-}
-
-.toast-root[data-swipe="cancel"] {
-  transform: translateX(0);
-  transition: transform 200ms ease-out;
-}
-
-.toast-root[data-swipe="end"] {
-  animation: toast-swipe-out 100ms ease-out forwards;
-}
-
-/* Animations */
-@keyframes toast-swipe-out {
-  from {
-    transform: translateX(var(--radix-toast-swipe-end-x));
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes pixelated-spinner-pulse {
-  0%,
-  100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 1;
-  }
 }
 
 @keyframes fade-in {

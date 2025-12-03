@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { TimingNudgeMeter } from "@/features/sequencer/components/TimingNudgeMeter";
+import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { cn } from "@/shared/lib/utils";

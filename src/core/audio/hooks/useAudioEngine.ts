@@ -1,5 +1,5 @@
 import { RefObject, useEffect, useRef, useState } from "react";
-import { Sequence } from "tone/build/esm/index";
+import type { Sequence } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
@@ -7,7 +7,7 @@ import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/features/master-bus/store/useMasterChainStore";
-import { MasterChainParams } from "@/features/master-bus/types/master";
+import type { MasterChainParams } from "@/features/master-bus/types/master";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import {

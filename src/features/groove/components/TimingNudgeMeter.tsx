@@ -1,7 +1,7 @@
 import { TIMING_NUDGE_LEVELS } from "@/features/sequencer/lib/timing";
 import type { TimingNudge } from "@/features/sequencer/types/pattern";
 import { cn } from "@/shared/lib/utils";
-import { usePatternStore } from "../store/usePatternStore";
+import { usePatternStore } from "../../sequencer/store/usePatternStore";
 
 interface TimingNudgeMeterProps {
   timingNudge: TimingNudge | undefined;

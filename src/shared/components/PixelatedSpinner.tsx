@@ -1,4 +1,4 @@
-import React from "react";
+import "@/app/pixelated-spinner.css";
 
 type PixelatedSpinnerProps = {
   /** Overall size of the spinner box (width = height) */
