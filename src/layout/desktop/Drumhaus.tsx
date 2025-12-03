@@ -1,13 +1,20 @@
+import { lazy, Suspense } from "react";
+
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid";
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
-import { MobileDialog } from "@/shared/dialogs/MobileDialog";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import Footer from "./Footer";
 import { Header } from "./Header";
+
+const MobileDialog = lazy(() =>
+  import("@/shared/dialogs/MobileDialog").then((module) => ({
+    default: module.MobileDialog,
+  })),
+);
 
 const renderDivider = () => {
   return (
@@ -33,44 +40,43 @@ const Drumhaus = () => {
   });
 
   return (
-    <div className="h-screen w-screen overflow-auto">
+    <>
       <div className="drumhaus-root">
         <div
-          className="drumhaus-scale-wrapper"
+          className="drumhaus-scale-wrapper animate-fade-in"
           style={{ "--scale": scale } as React.CSSProperties}
         >
-          <div className="animate-fade-in">
-            <div className="hidden lg:block" />
-            <div className="neu-extra-tall bg-surface relative h-[900px] w-[1440px] overflow-clip rounded-xl">
-              {/* Header */}
-              <Header />
+          <div className="neu-extra-tall bg-surface relative h-225 w-360 overflow-clip rounded-xl">
+            {/* Header */}
+            <Header />
 
-              {renderDivider()}
+            {renderDivider()}
 
-              {/* Instrument Grid */}
-              <InstrumentGrid key={instrumentRuntimesVersion} />
+            {/* Instrument Grid */}
+            <InstrumentGrid key={instrumentRuntimesVersion} />
 
-              {renderDivider()}
+            {renderDivider()}
 
-              {/* Main Controls */}
-              <ControlsPanel />
+            {/* Main Controls */}
+            <ControlsPanel />
 
-              {renderDivider()}
+            {renderDivider()}
 
-              {/* Sequencer */}
-              <div className="p-6">
-                <Sequencer />
-              </div>
+            {/* Sequencer */}
+            <div className="p-6">
+              <Sequencer />
             </div>
-
-            {/* Footer */}
-            <Footer />
           </div>
+
+          {/* Footer */}
+          <Footer />
         </div>
       </div>
 
-      <MobileDialog isOpen={isMobileDialogOpen} onClose={closeDialog} />
-    </div>
+      <Suspense fallback={null}>
+        <MobileDialog isOpen={isMobileDialogOpen} onClose={closeDialog} />
+      </Suspense>
+    </>
   );
 };
 

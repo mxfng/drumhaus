@@ -101,22 +101,6 @@ a {
   text-decoration: none;
 }
 
-/* Layout */
-.drumhaus-root {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-}
-
-.drumhaus-scale-wrapper {
-  width: 1440px;
-  height: 900px;
-  transform-origin: center center;
-}
-
 /* Neumorphic utilities */
 .neu {
   box-shadow: var(--shadow-neu);
@@ -170,28 +154,20 @@ a {
   );
 }
 
-/* Responsive */
-@media (max-width: 1023px) {
-  .drumhaus-root {
-    position: static;
-    inset: auto;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding: 16px;
-    overflow: auto;
-  }
-
-  .drumhaus-scale-wrapper {
-    transform: none;
-    transform-origin: none;
-    width: auto;
-    height: auto;
-    min-height: 100vh;
-  }
+/* Layout */
+.drumhaus-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  padding: unset;
 }
 
-@media (min-width: 1024px) {
-  .drumhaus-scale-wrapper {
-    transform: scale(var(--scale, 1));
-  }
+.drumhaus-scale-wrapper {
+  width: 90rem; /* w-360 in Tailwind, 1440px */
+  height: 56.25rem; /* h-225 in Tailwind, 900px */
+  transform-origin: center center;
+  transform: scale(var(--scale, 1));
 }

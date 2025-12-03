@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 
 import { clamp } from "@/shared/lib/utils";
 
-const DESIGN_WIDTH = 1440;
-const DESIGN_HEIGHT = 900;
-const SCALE_PADDING = 8;
-const MIN_SCALE = 0.4;
+const DESIGN_WIDTH_REM = 90; // w-360 in Tailwind, 1440px
+const DESIGN_HEIGHT_REM = 56.25; // h-225 in Tailwind, 900px
+const SCALE_PADDING_REM = 3; // 3rem
+const MIN_SCALE = 0.1;
 const MAX_SCALE = 1.25;
 
 type LayoutScaleProps = {
@@ -24,12 +24,20 @@ export const useLayoutScale = (): LayoutScaleProps => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const availableWidth = viewportWidth - SCALE_PADDING;
-      const availableHeight = viewportHeight - SCALE_PADDING;
+      // Convert rem to pixels based on root font size
+      const rootFontSize = parseFloat(
+        getComputedStyle(document.documentElement).fontSize,
+      );
+      const designWidthPx = DESIGN_WIDTH_REM * rootFontSize;
+      const designHeightPx = DESIGN_HEIGHT_REM * rootFontSize;
+      const scalePaddingPx = SCALE_PADDING_REM * rootFontSize;
+
+      const availableWidth = viewportWidth - scalePaddingPx;
+      const availableHeight = viewportHeight - scalePaddingPx;
 
       let nextScale = Math.min(
-        availableWidth / DESIGN_WIDTH,
-        availableHeight / DESIGN_HEIGHT,
+        availableWidth / designWidthPx,
+        availableHeight / designHeightPx,
       );
 
       if (!Number.isFinite(nextScale) || nextScale <= 0) {
