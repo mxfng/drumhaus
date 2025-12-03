@@ -4,8 +4,7 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 
-interface SequencerVariationButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variation: number;
 }
 
