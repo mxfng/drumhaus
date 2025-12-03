@@ -77,7 +77,8 @@ export const SelectScrollDownButton = forwardRef<
 SelectScrollDownButton.displayName = "SelectScrollDownButton";
 
 export interface SelectContentProps
-  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>,
+  extends
+    React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>,
     VariantProps<typeof selectContentVariants> {}
 
 export const SelectContent = forwardRef<

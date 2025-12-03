@@ -27,9 +27,8 @@ export async function generateShareUrl(
   const slug = toPresetSlug(normalizedName);
 
   // Avoid bundling compression unless needed
-  const { shareablePresetToUrl } = await import(
-    "@/features/preset/lib/serialization"
-  );
+  const { shareablePresetToUrl } =
+    await import("@/features/preset/lib/serialization");
   const urlParam = shareablePresetToUrl(preset);
 
   return `${baseUrl}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
