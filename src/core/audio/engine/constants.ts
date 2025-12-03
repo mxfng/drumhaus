@@ -133,12 +133,8 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
 // Master FX: Analog coloration / EQ
 // ============================================================================
 
-// Tape warmth saturation (very gentle, always on)
-export const MASTER_TAPE_SATURATION_ORDER = 1; // Chebyshev order
-export const MASTER_TAPE_SATURATION_WET = 0.03; // 3% wet - subtle tape warmth
-
 // User-controllable drum saturation (crunchier)
-export const MASTER_DRUM_SATURATION_ORDER = 5; // Higher order for crunchier sound
+export const MASTER_DRUM_SATURATION_ORDER = 1; // Higher order for crunchier sound
 export const MASTER_DRUM_SATURATION_MAX_WET = 1.0; // Can go fully wet
 
 // High shelf rolloff - tames harsh hats / sibilance
@@ -158,6 +154,13 @@ export const ENVELOPE_DEFAULT_ATTACK = 0;
 export const ENVELOPE_DEFAULT_DECAY = 0;
 export const ENVELOPE_DEFAULT_SUSTAIN = 1;
 export const ENVELOPE_DEFAULT_RELEASE = 0.05;
+
+// ============================================================================
+// General split filter
+// ============================================================================
+
+export const SPLIT_FILTER_DEFAULT_RAMP_TIME = 0.01;
+export const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
 
 // ============================================================================
 // Export / rendering

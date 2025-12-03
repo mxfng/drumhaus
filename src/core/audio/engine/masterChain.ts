@@ -45,8 +45,6 @@ import {
   MASTER_PRESENCE_GAIN,
   MASTER_PRESENCE_Q,
   MASTER_REVERB_PRE_FILTER_FREQ,
-  MASTER_TAPE_SATURATION_ORDER,
-  MASTER_TAPE_SATURATION_WET,
 } from "./constants";
 import { applySplitFilterWithRamp } from "./splitFilter";
 
@@ -73,7 +71,6 @@ export interface MasterChainRuntimes {
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
   // Output processing
-  tapeWarmth: Chebyshev; // Subtle fixed tape warmth (always on)
   saturation: Chebyshev; // User-controllable crunchier saturation for drums
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Rolls off harsh highs
@@ -163,7 +160,6 @@ export function disposeMasterChainRuntimes(
     { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
-    { name: "tapeWarmth", node: runtimes.current.tapeWarmth },
     { name: "saturation", node: runtimes.current.saturation },
     { name: "presenceDip", node: runtimes.current.presenceDip },
     { name: "highShelf", node: runtimes.current.highShelf },
@@ -248,16 +244,13 @@ export function chainMasterChainNodes(
   // Input filters (after compressor section)
   masterChain.lowPassFilter.chain(masterChain.highPassFilter);
 
-  // Main signal goes to tape warmth (subtle, always on)
-  masterChain.highPassFilter.connect(masterChain.tapeWarmth);
-
   // Parallel phaser send: filtered to keep sub bass clean
   masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
   masterChain.phaserPreFilter.chain(
     masterChain.phaser,
     masterChain.phaserSendGain,
   );
-  masterChain.phaserSendGain.connect(masterChain.tapeWarmth);
+  masterChain.phaserSendGain.connect(masterChain.saturation);
 
   // Parallel reverb send: filtered to keep low end dry
   masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
@@ -265,11 +258,11 @@ export function chainMasterChainNodes(
     masterChain.reverb,
     masterChain.reverbSendGain,
   );
-  masterChain.reverbSendGain.connect(masterChain.tapeWarmth);
+  masterChain.reverbSendGain.connect(masterChain.saturation);
 
-  // Output chain: tape warmth → drum saturation (user-controllable) → EQ → limiter
-  masterChain.tapeWarmth.chain(
-    masterChain.saturation,
+  // Output chain: drum saturation (user-controllable) → EQ → limiter
+  masterChain.highPassFilter.connect(masterChain.saturation);
+  masterChain.saturation.chain(
     masterChain.presenceDip,
     masterChain.highShelf,
     masterChain.limiter,
@@ -341,12 +334,6 @@ export async function buildMasterChainNodes(
   const compDryDelay = new Delay(MASTER_COMP_LATENCY);
   const compDryGain = new Gain(1 - settings.compMix);
 
-  // Tape warmth: subtle fixed saturation (always on, not user-controllable)
-  const tapeWarmth = new Chebyshev({
-    order: MASTER_TAPE_SATURATION_ORDER,
-    wet: MASTER_TAPE_SATURATION_WET,
-  });
-
   // Drum saturation: crunchier user-controllable saturation
   const saturation = new Chebyshev({
     order: MASTER_DRUM_SATURATION_ORDER,
@@ -384,7 +371,6 @@ export async function buildMasterChainNodes(
     reverbPreFilter,
     reverb,
     reverbSendGain,
-    tapeWarmth,
     saturation,
     presenceDip,
     highShelf,

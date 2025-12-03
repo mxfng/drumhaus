@@ -2,9 +2,10 @@ import { Filter } from "tone/build/esm/index";
 
 import { splitFilterMapping } from "@/shared/knob/lib/mapping";
 import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
-
-export const SPLIT_FILTER_DEFAULT_RAMP_TIME = 0.01;
-export const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
+import {
+  SPLIT_FILTER_BYPASS_FLOOR_HZ,
+  SPLIT_FILTER_DEFAULT_RAMP_TIME,
+} from "./constants";
 
 type SplitFilterConfig = {
   minFrequency: number;
