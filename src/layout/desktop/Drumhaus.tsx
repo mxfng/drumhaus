@@ -4,6 +4,7 @@ import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid";
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
+import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import { FloatingMenu } from "./FloatingMenu";
@@ -33,7 +34,7 @@ const Drumhaus = () => {
   const closeDialog = useDialogStore((state) => state.closeDialog);
 
   // --- Desktop-specific Hooks ---
-  // const { scale } = useLayoutScale();
+  const { scale } = useLayoutScale();
 
   useKeyboardShortcuts({
     instrumentRuntimes,
@@ -42,9 +43,21 @@ const Drumhaus = () => {
 
   return (
     <>
-      <div className="drumhaus-root animate-fade-in">
+      <div
+        className="drumhaus-root animate-fade-in"
+        style={{
+          // @ts-expect-error - CSS custom property
+          "--layout-scale": scale / 100,
+        }}
+      >
         <FloatingMenu />
-        <div className="drumhaus-scale-wrapper">
+        <div
+          className="drumhaus-scale-wrapper"
+          style={{
+            transform: `scale(${scale / 100})`,
+            transformOrigin: "center center",
+          }}
+        >
           {/* Header buffer */}
           <div className="h-10" />
 

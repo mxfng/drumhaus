@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
 import { AboutDialog } from "@/shared/dialogs/AboutDialog";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
+import {
+  SCALE_OPTIONS,
+  useLayoutScaleStore,
+} from "@/shared/store/useLayoutScaleStore";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import {
   DropdownMenu,
@@ -16,19 +20,10 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui";
 
-const SCALE_OPTIONS = [
-  { value: 50, label: "50%" },
-  { value: 60, label: "60%" },
-  { value: 70, label: "70%" },
-  { value: 80, label: "80%" },
-  { value: 90, label: "90%" },
-  { value: 100, label: "100%" },
-  { value: 120, label: "120%" },
-  { value: 140, label: "140%" },
-  { value: 160, label: "160%" },
-  { value: 180, label: "180%" },
-  { value: 200, label: "200%" },
-];
+const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
+  value,
+  label: `${value}%`,
+}));
 
 export const FloatingMenu: React.FC = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -40,25 +35,10 @@ export const FloatingMenu: React.FC = () => {
     (state) => state.togglePotatoMode,
   );
 
-  const handleScaleSelect = (scale: number) => {
-    // TODO: Implement layout scaling
-    console.log("Scale selected:", scale);
-  };
-
-  const handleFitToScreen = () => {
-    // TODO: Implement fit to screen
-    console.log("Fit to screen");
-  };
-
-  const handleZoomOut = () => {
-    // TODO: Implement zoom out
-    console.log("Zoom out");
-  };
-
-  const handleZoomIn = () => {
-    // TODO: Implement zoom in
-    console.log("Zoom in");
-  };
+  const setScale = useLayoutScaleStore((state) => state.setScale);
+  const fitToScreen = useLayoutScaleStore((state) => state.fitToScreen);
+  const zoomIn = useLayoutScaleStore((state) => state.zoomIn);
+  const zoomOut = useLayoutScaleStore((state) => state.zoomOut);
 
   return (
     <>
@@ -71,6 +51,17 @@ export const FloatingMenu: React.FC = () => {
         <DropdownMenuContent align="start" side="right">
           <DropdownMenuItem onSelect={() => setIsAboutOpen(true)}>
             About Drumhaus
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              window.open(
+                "https://github.com/mxfng/drumhaus/issues",
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+          >
+            Report an Issue
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem
@@ -89,20 +80,16 @@ export const FloatingMenu: React.FC = () => {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>Resize App</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onSelect={handleFitToScreen}>
+              <DropdownMenuItem onSelect={fitToScreen}>
                 Fit to Screen
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={handleZoomOut}>
-                Zoom Out
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={handleZoomIn}>
-                Zoom In
-              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={zoomOut}>Zoom Out</DropdownMenuItem>
+              <DropdownMenuItem onSelect={zoomIn}>Zoom In</DropdownMenuItem>
               <DropdownMenuSeparator />
-              {SCALE_OPTIONS.map((option) => (
+              {SCALE_MENU_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
-                  onSelect={() => handleScaleSelect(option.value)}
+                  onSelect={() => setScale(option.value)}
                 >
                   {option.label}
                 </DropdownMenuItem>
