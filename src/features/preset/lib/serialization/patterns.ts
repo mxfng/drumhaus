@@ -58,6 +58,15 @@ function optimizeStepSequence(
     optimized.timingNudge = stepSequence.timingNudge;
   }
 
+  // Only store ratchets/flams if any are enabled
+  if (stepSequence.ratchets?.some((r) => r)) {
+    optimized.ratchets = stepSequence.ratchets;
+  }
+
+  if (stepSequence.flams?.some((f) => f)) {
+    optimized.flams = stepSequence.flams;
+  }
+
   return optimized;
 }
 
@@ -112,8 +121,12 @@ function hydrateStepSequence(
     triggers: optimizedSequence.triggers,
     velocities,
     timingNudge: (optimizedSequence.timingNudge ?? 0) as -2 | -1 | 0 | 1 | 2,
-    ratchets: Array(STEP_COUNT).fill(false),
-    flams: Array(STEP_COUNT).fill(false),
+    ratchets:
+      optimizedSequence.ratchets ??
+      Array.from({ length: STEP_COUNT }, () => false),
+    flams:
+      optimizedSequence.flams ??
+      Array.from({ length: STEP_COUNT }, () => false),
   };
 }
 

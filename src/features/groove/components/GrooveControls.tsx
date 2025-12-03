@@ -13,6 +13,8 @@ const TOOLTIPS = {
   SHOW_VELOCITY: "Toggle velocity controls visibility",
   TIMING_NUDGE_LEFT: "Nudge timing left",
   TIMING_NUDGE_RIGHT: "Nudge timing right",
+  RATCHET_MODE: "Toggle ratchet mode (rapid second hit)",
+  FLAM_MODE: "Toggle flam mode (human grace-note before the main hit)",
 } as const;
 
 /**
@@ -86,7 +88,7 @@ export const GrooveControls = () => {
 
         {/* Timing nudge */}
         <div className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
-          <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="bottom">
+          <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="left">
             <Button
               variant="hardwareIcon"
               size="icon"
@@ -101,7 +103,7 @@ export const GrooveControls = () => {
             <Label className="flex items-center justify-center">nudge</Label>
             <TimingNudgeMeter timingNudge={currentNudge} />
           </div>
-          <Tooltip content={TOOLTIPS.TIMING_NUDGE_RIGHT} side="bottom">
+          <Tooltip content={TOOLTIPS.TIMING_NUDGE_RIGHT} side="right">
             <Button
               variant="hardwareIcon"
               size="icon"
@@ -114,26 +116,30 @@ export const GrooveControls = () => {
           </Tooltip>
         </div>
 
-        <Button
-          variant="hardware"
-          size="sm"
-          onClick={toggleRatchetMode}
-          className={cn(
-            ratchetMode && "border-primary text-primary transition-colors",
-          )}
-        >
-          ratchet
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          onClick={toggleFlamMode}
-          className={cn(
-            flamMode && "border-primary text-primary transition-colors",
-          )}
-        >
-          flam
-        </Button>
+        <Tooltip content={TOOLTIPS.RATCHET_MODE} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            onClick={toggleRatchetMode}
+            className={cn(
+              ratchetMode && "border-primary text-primary transition-colors",
+            )}
+          >
+            ratchet
+          </Button>
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.FLAM_MODE} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            onClick={toggleFlamMode}
+            className={cn(
+              flamMode && "border-primary text-primary transition-colors",
+            )}
+          >
+            flam
+          </Button>
+        </Tooltip>
       </div>
     </HardwareModule>
   );

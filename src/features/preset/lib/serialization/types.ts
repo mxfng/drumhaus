@@ -65,6 +65,10 @@ export interface OptimizedStepSequence {
   // Timing nudge: only store if non-zero (for backward compatibility)
   // -2 to +2 range, defaults to 0 if missing
   timingNudge?: number;
+
+  // Ratchets/flams: only store if any steps have them enabled
+  ratchets?: boolean[];
+  flams?: boolean[];
 }
 
 /**

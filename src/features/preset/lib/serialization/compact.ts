@@ -96,11 +96,15 @@ function dequantizeVelocity(quantized: number): number {
  * - t: 4-char hex (bit-packed triggers)
  * - v: sparse velocities as ints 0-100
  * - n: timing nudge (omit if 0)
+ * - r: ratchets (bit-packed, omit if none)
+ * - f: flams (bit-packed, omit if none)
  */
 type CompactStepSequence = {
   t: string; // hex-encoded bit-packed triggers
   v?: Record<string, number>; // sparse velocities (quantized to 0-100)
   n?: number; // timing nudge (-2 to +2, omit if 0)
+  r?: string; // ratchets (bit-packed)
+  f?: string; // flams (bit-packed)
 };
 
 /**
@@ -180,6 +184,15 @@ function encodeStepSequence(seq: StepSequence): CompactStepSequence {
   // Timing nudge (only if non-zero)
   if (seq.timingNudge !== 0) {
     compact.n = seq.timingNudge;
+  }
+
+  // Ratchets/flams (only if any are enabled)
+  if (seq.ratchets?.some((r) => r)) {
+    compact.r = packTriggers(seq.ratchets);
+  }
+
+  if (seq.flams?.some((f) => f)) {
+    compact.f = packTriggers(seq.flams);
   }
 
   return compact;
@@ -291,12 +304,19 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
     });
   }
 
+  const ratchets = compact.r
+    ? unpackTriggers(compact.r)
+    : Array(STEP_COUNT).fill(false);
+  const flams = compact.f
+    ? unpackTriggers(compact.f)
+    : Array(STEP_COUNT).fill(false);
+
   return {
     triggers,
     velocities,
     timingNudge: (compact.n ?? 0) as -2 | -1 | 0 | 1 | 2,
-    ratchets: Array(STEP_COUNT).fill(false),
-    flams: Array(STEP_COUNT).fill(false),
+    ratchets,
+    flams,
   };
 }
 
