@@ -6,6 +6,7 @@ import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
+import { FloatingMenu } from "./FloatingMenu";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
@@ -42,6 +43,7 @@ const Drumhaus = () => {
   return (
     <>
       <div className="drumhaus-root animate-fade-in">
+        <FloatingMenu />
         <div className="drumhaus-scale-wrapper">
           {/* Header buffer */}
           <div className="h-10" />
