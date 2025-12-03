@@ -2,7 +2,7 @@ import React from "react";
 import { Heart } from "lucide-react";
 
 export const Footer: React.FC = () => (
-  <div className="text-foreground flex h-10 w-full items-center justify-center">
+  <div className="text-foreground-emphasis flex h-10 w-full items-center justify-center">
     <p className="text-sm">
       Made with{" "}
       <Heart

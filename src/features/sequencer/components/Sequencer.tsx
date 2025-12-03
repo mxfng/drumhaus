@@ -1,6 +1,7 @@
 import React from "react";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
+import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
 import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
@@ -26,6 +27,9 @@ export const Sequencer: React.FC = () => {
 
   // --- Transport Store ---
   const isPlaying = useTransportStore((state) => state.isPlaying);
+
+  // --- Groove Store ---
+  const showVelocity = useGrooveStore((state) => state.showVelocity);
 
   const accentMode = mode.type === "accent";
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
@@ -94,9 +98,9 @@ export const Sequencer: React.FC = () => {
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
             />
-            {/* Hide velocity controls in accent mode */}
+            {/* Hide velocity controls in accent mode or when showVelocity is off */}
             <div className="mt-3 h-3.5 w-full">
-              {!accentMode && (
+              {!accentMode && showVelocity && (
                 <SequencerVelocity
                   stepIndex={step}
                   velocityValue={state.velocityValue}

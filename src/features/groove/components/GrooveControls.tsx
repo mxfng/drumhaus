@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter";
+import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { cn } from "@/shared/lib/utils";
@@ -9,6 +10,7 @@ import { Button, Label, Tooltip } from "@/shared/ui";
 // Tooltip constants
 const TOOLTIPS = {
   ACCENT_MODE: "Toggle accent mode",
+  SHOW_VELOCITY: "Toggle velocity controls visibility",
   TIMING_NUDGE_LEFT: "Nudge timing left",
   TIMING_NUDGE_RIGHT: "Nudge timing right",
 } as const;
@@ -22,9 +24,6 @@ const TOOLTIPS = {
  *
  * Ratchet — “Fast extra hit after the step.”
  * Ratchet adds a rapid second hit after the main step (1/32 subdivision), increasing rhythmic density. Perfect for techno hats, rolling snares, and energetic electronic fills.
- *
- * Random is being moved into groove from the sequencer controls, so we will need to refactor a bit and add it here.
- * It was destructured via randomSequence from useSequencerControl() but we might want to just add it here instead.
  */
 
 export const GrooveControls = () => {
@@ -34,6 +33,11 @@ export const GrooveControls = () => {
   const nudgeTimingLeft = usePatternStore((state) => state.nudgeTimingLeft);
   const nudgeTimingRight = usePatternStore((state) => state.nudgeTimingRight);
   const toggleAccentMode = usePatternStore((state) => state.toggleAccentMode);
+
+  const showVelocity = useGrooveStore((state) => state.showVelocity);
+  const toggleShowVelocity = useGrooveStore(
+    (state) => state.toggleShowVelocity,
+  );
 
   const accentMode = mode.type === "accent";
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
@@ -57,10 +61,20 @@ export const GrooveControls = () => {
             <span className={cn(accentMode && "text-primary")}>accent</span>
           </Button>
         </Tooltip>
-        {/* dummy for now, maybe useful */}
-        <Button variant="hardware" size="sm">
-          flam
-        </Button>
+        {/* Show velocity toggle */}
+        <Tooltip content={TOOLTIPS.SHOW_VELOCITY}>
+          <Button
+            variant="hardware"
+            size="sm"
+            className={cn(
+              "leading-3",
+              showVelocity && "border-primary transition-colors",
+            )}
+            onClick={toggleShowVelocity}
+          >
+            <span className={cn(showVelocity && "text-primary")}>velocity</span>
+          </Button>
+        </Tooltip>
 
         {/* Timing nudge */}
         <div className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
@@ -96,7 +110,7 @@ export const GrooveControls = () => {
           ratchet
         </Button>
         <Button variant="hardware" size="sm">
-          random
+          flam
         </Button>
       </div>
     </HardwareModule>
