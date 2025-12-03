@@ -174,12 +174,13 @@ export function useAudioEngine(): UseAudioEngineResult {
 
         // Extract current params
         const currentParams: MasterChainParams = {
-          lowPass: state.lowPass,
-          highPass: state.highPass,
+          filter: state.filter,
+          saturation: state.saturation,
           phaser: state.phaser,
           reverb: state.reverb,
           compThreshold: state.compThreshold,
           compRatio: state.compRatio,
+          compAttack: state.compAttack,
           compMix: state.compMix,
           masterVolume: state.masterVolume,
         };
@@ -187,12 +188,13 @@ export function useAudioEngine(): UseAudioEngineResult {
         // Only update if params actually changed
         if (
           !prevParams ||
-          prevParams.lowPass !== currentParams.lowPass ||
-          prevParams.highPass !== currentParams.highPass ||
+          prevParams.filter !== currentParams.filter ||
+          prevParams.saturation !== currentParams.saturation ||
           prevParams.phaser !== currentParams.phaser ||
           prevParams.reverb !== currentParams.reverb ||
           prevParams.compThreshold !== currentParams.compThreshold ||
           prevParams.compRatio !== currentParams.compRatio ||
+          prevParams.compAttack !== currentParams.compAttack ||
           prevParams.compMix !== currentParams.compMix ||
           prevParams.masterVolume !== currentParams.masterVolume
         ) {

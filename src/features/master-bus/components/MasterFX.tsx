@@ -1,43 +1,37 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
-  highPassFilterMapping,
-  lowPassFilterMapping,
   phaserWetMapping,
   reverbWetMapping,
+  saturationWetMapping,
+  splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
 
-/*
-TODO: Add remaining features
-
-- Compress filter knobs into single split filter knob
-- Add saturation to master chain and set up saturation knob where 2nd filter knob is
-
- */
 export const MasterFX: React.FC = () => {
-  const lowPass = useMasterChainStore((state) => state.lowPass);
-  const highPass = useMasterChainStore((state) => state.highPass);
+  const filter = useMasterChainStore((state) => state.filter);
+  const saturation = useMasterChainStore((state) => state.saturation);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
-  const setLowPass = useMasterChainStore((state) => state.setLowPass);
-  const setHighPass = useMasterChainStore((state) => state.setHighPass);
+  const setFilter = useMasterChainStore((state) => state.setFilter);
+  const setSaturation = useMasterChainStore((state) => state.setSaturation);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
   const setReverb = useMasterChainStore((state) => state.setReverb);
 
   return (
     <>
       <ParamKnob
-        label="filter" // TODO
-        mapping={lowPassFilterMapping}
-        value={lowPass}
-        onValueChange={setLowPass}
+        label="filter"
+        mapping={splitFilterMapping}
+        value={filter}
+        onValueChange={setFilter}
+        outerTickCount={3}
       />
       <ParamKnob
-        label="saturation" // TODO
-        mapping={highPassFilterMapping}
-        value={highPass}
-        onValueChange={setHighPass}
+        label="saturation"
+        mapping={saturationWetMapping}
+        value={saturation}
+        onValueChange={setSaturation}
       />
       <ParamKnob
         label="reverb"

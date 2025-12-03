@@ -142,14 +142,20 @@ export type CompactPreset = {
 };
 
 type CompactMasterChain = Partial<{
-  lp: number; // lowPass
-  hp: number; // highPass
+  // New format
+  f: number; // filter (unified split filter)
+  s: number; // saturation
   ph: number; // phaser
   rv: number; // reverb
   ct: number; // compThreshold
   cr: number; // compRatio
+  ca: number; // compAttack
   cm: number; // compMix
   mv: number; // masterVolume
+
+  // Legacy format (for backward compatibility during decode)
+  lp?: number; // lowPass (legacy)
+  hp?: number; // highPass (legacy)
 }>;
 
 // --- ENCODE FUNCTIONS ---
@@ -197,14 +203,17 @@ function encodeMasterChain(
   chain: MasterChainParams,
 ): CompactMasterChain | undefined {
   const mc: CompactMasterChain = {};
-  if (chain.lowPass !== DEFAULT_MASTER_CHAIN.lowPass) mc.lp = chain.lowPass;
-  if (chain.highPass !== DEFAULT_MASTER_CHAIN.highPass) mc.hp = chain.highPass;
+  if (chain.filter !== DEFAULT_MASTER_CHAIN.filter) mc.f = chain.filter;
+  if (chain.saturation !== DEFAULT_MASTER_CHAIN.saturation)
+    mc.s = chain.saturation;
   if (chain.phaser !== DEFAULT_MASTER_CHAIN.phaser) mc.ph = chain.phaser;
   if (chain.reverb !== DEFAULT_MASTER_CHAIN.reverb) mc.rv = chain.reverb;
   if (chain.compThreshold !== DEFAULT_MASTER_CHAIN.compThreshold)
     mc.ct = chain.compThreshold;
   if (chain.compRatio !== DEFAULT_MASTER_CHAIN.compRatio)
     mc.cr = chain.compRatio;
+  if (chain.compAttack !== DEFAULT_MASTER_CHAIN.compAttack)
+    mc.ca = chain.compAttack;
   if (chain.compMix !== DEFAULT_MASTER_CHAIN.compMix) mc.cm = chain.compMix;
   if (chain.masterVolume !== DEFAULT_MASTER_CHAIN.masterVolume)
     mc.mv = chain.masterVolume;
@@ -302,15 +311,37 @@ function decodeParams(compact: CompactParams): InstrumentParams {
 }
 
 function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
+  // Handle legacy format (lp/hp) or new format (f/s/ca)
+  if (compact?.f !== undefined) {
+    // New format
+    return {
+      filter: compact.f,
+      saturation: compact.s ?? DEFAULT_MASTER_CHAIN.saturation,
+      phaser: compact.ph ?? DEFAULT_MASTER_CHAIN.phaser,
+      reverb: compact.rv ?? DEFAULT_MASTER_CHAIN.reverb,
+      compThreshold: compact.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
+      compRatio: compact.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
+      compAttack: compact.ca ?? DEFAULT_MASTER_CHAIN.compAttack,
+      compMix: compact.cm ?? DEFAULT_MASTER_CHAIN.compMix,
+      masterVolume: compact.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
+    };
+  }
+
+  // Legacy format: convert lp/hp to unified filter
+  // This will be further processed by migrateMasterChainParams
   return {
-    lowPass: compact?.lp ?? DEFAULT_MASTER_CHAIN.lowPass,
-    highPass: compact?.hp ?? DEFAULT_MASTER_CHAIN.highPass,
+    filter: DEFAULT_MASTER_CHAIN.filter,
+    saturation: DEFAULT_MASTER_CHAIN.saturation,
     phaser: compact?.ph ?? DEFAULT_MASTER_CHAIN.phaser,
     reverb: compact?.rv ?? DEFAULT_MASTER_CHAIN.reverb,
     compThreshold: compact?.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
     compRatio: compact?.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
+    compAttack: compact?.ca ?? DEFAULT_MASTER_CHAIN.compAttack,
     compMix: compact?.cm ?? DEFAULT_MASTER_CHAIN.compMix,
     masterVolume: compact?.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
+    // Include legacy values for migration
+    lowPass: compact?.lp,
+    highPass: compact?.hp,
   };
 }
 

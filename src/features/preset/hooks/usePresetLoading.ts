@@ -7,7 +7,10 @@ import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainS
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { migratePattern } from "@/features/sequencer/lib/migrations";
+import {
+  migrateMasterChainParams,
+  migratePattern,
+} from "@/features/sequencer/lib/migrations";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useToast } from "@/shared/ui";
@@ -100,8 +103,8 @@ export function usePresetLoading({
       setBpm(preset.transport.bpm);
       setSwing(preset.transport.swing);
 
-      // Update master chain
-      setAllMasterChain(preset.masterChain);
+      // Update master chain (with migration for legacy formats)
+      setAllMasterChain(migrateMasterChainParams(preset.masterChain));
 
       // Update instruments (triggers audio engine reload)
       setAllInstruments(preset.kit.instruments);

@@ -1,4 +1,10 @@
-import { STEP_COUNT } from "@/core/audio/engine/constants";
+import {
+  MASTER_COMP_DEFAULT_ATTACK,
+  MASTER_FILTER_DEFAULT,
+  MASTER_SATURATION_DEFAULT,
+  STEP_COUNT,
+} from "@/core/audio/engine/constants";
+import { MasterChainParams } from "@/features/master-bus/types/master";
 import {
   Pattern,
   StepSequence,
@@ -214,4 +220,56 @@ function migrateVariationMetadataUnsafe(metadata: unknown): VariationMetadata {
       : Array.from({ length: STEP_COUNT }, () => false);
 
   return { accent };
+}
+
+/**
+ * Migrates master chain params from legacy format to current format.
+ * Handles conversion from separate lowPass/highPass to unified filter parameter.
+ *
+ * Legacy format: { lowPass, highPass, ... }
+ * Current format: { filter, saturation, compAttack, ... }
+ */
+export function migrateMasterChainParams(
+  params: MasterChainParams | unknown,
+): MasterChainParams {
+  const rawParams = params as Partial<MasterChainParams>;
+
+  // If new format already exists, use it (with defaults for missing fields)
+  if (rawParams.filter !== undefined) {
+    return {
+      filter: rawParams.filter ?? MASTER_FILTER_DEFAULT,
+      saturation: rawParams.saturation ?? MASTER_SATURATION_DEFAULT,
+      phaser: rawParams.phaser ?? 0,
+      reverb: rawParams.reverb ?? 0,
+      compThreshold: rawParams.compThreshold ?? 100,
+      compRatio: rawParams.compRatio ?? 50,
+      compAttack: rawParams.compAttack ?? MASTER_COMP_DEFAULT_ATTACK,
+      compMix: rawParams.compMix ?? 70,
+      masterVolume: rawParams.masterVolume ?? 92,
+    };
+  }
+
+  // Legacy format: convert lowPass/highPass to unified filter
+  // Strategy: if highPass > 0, use highpass mode; otherwise use lowpass mode
+  const legacyLowPass = rawParams.lowPass ?? 100;
+  const legacyHighPass = rawParams.highPass ?? 0;
+
+  // Determine filter mode based on which filter was more "active"
+  // If highPass was being used (not at minimum), prefer highpass mode
+  const useHighPassMode = legacyHighPass > 0;
+  const filter = useHighPassMode
+    ? 50 + Math.round(legacyHighPass / 2) // Map 0-100 highPass to 50-100 filter
+    : Math.round(legacyLowPass / 2); // Map 0-100 lowPass to 0-50 filter
+
+  return {
+    filter,
+    saturation: MASTER_SATURATION_DEFAULT, // New parameter
+    phaser: rawParams.phaser ?? 0,
+    reverb: rawParams.reverb ?? 0,
+    compThreshold: rawParams.compThreshold ?? 100,
+    compRatio: rawParams.compRatio ?? 50,
+    compAttack: rawParams.compAttack ?? MASTER_COMP_DEFAULT_ATTACK, // New parameter
+    compMix: rawParams.compMix ?? 70,
+    masterVolume: rawParams.masterVolume ?? 92,
+  };
 }

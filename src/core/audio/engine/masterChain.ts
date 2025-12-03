@@ -16,22 +16,25 @@ import {
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import { MasterChainParams } from "@/features/master-bus/types/master";
 import {
+  compAttackMapping,
   compMixMapping,
   compRatioMapping,
   compThresholdMapping,
-  highPassFilterMapping,
-  lowPassFilterMapping,
   masterVolumeMapping,
   phaserWetMapping,
   reverbDecayMapping,
   reverbWetMapping,
+  saturationWetMapping,
+  splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
+import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
 import {
-  MASTER_COMP_ATTACK,
   MASTER_COMP_KNEE,
   MASTER_COMP_LATENCY,
   MASTER_COMP_MAKEUP_GAIN,
   MASTER_COMP_RELEASE,
+  MASTER_DRUM_SATURATION_ORDER,
+  MASTER_FILTER_RANGE,
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
   MASTER_LIMITER_THRESHOLD,
@@ -44,8 +47,8 @@ import {
   MASTER_PRESENCE_GAIN,
   MASTER_PRESENCE_Q,
   MASTER_REVERB_PRE_FILTER_FREQ,
-  MASTER_SATURATION_AMOUNT,
-  MASTER_SATURATION_WET,
+  MASTER_TAPE_SATURATION_ORDER,
+  MASTER_TAPE_SATURATION_WET,
 } from "./constants";
 
 // -----------------------------------------------------------------------------
@@ -71,20 +74,23 @@ export interface MasterChainRuntimes {
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
   // Output processing
-  saturation: Chebyshev; // Subtle harmonic warmth
+  tapeWarmth: Chebyshev; // Subtle fixed tape warmth (always on)
+  saturation: Chebyshev; // User-controllable crunchier saturation for drums
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Rolls off harsh highs
   limiter: Limiter;
 }
 
 export type MasterChainSettings = {
-  lowPassFrequency: number;
-  highPassFrequency: number;
+  // Split filter settings (single filter that switches type, same as instrument filter)
+  filter: number; // Raw knob value 0-100
+  saturationWet: number;
   phaserWet: number;
   reverbWet: number;
   reverbDecay: number;
   compThreshold: number;
   compRatio: number;
+  compAttack: number;
   compMix: number; // 0-1 wet/dry mix for parallel compression
   masterVolume: number;
 };
@@ -158,6 +164,7 @@ export function disposeMasterChainRuntimes(
     { name: "reverbPreFilter", node: runtimes.current.reverbPreFilter },
     { name: "reverb", node: runtimes.current.reverb },
     { name: "reverbSendGain", node: runtimes.current.reverbSendGain },
+    { name: "tapeWarmth", node: runtimes.current.tapeWarmth },
     { name: "saturation", node: runtimes.current.saturation },
     { name: "presenceDip", node: runtimes.current.presenceDip },
     { name: "highShelf", node: runtimes.current.highShelf },
@@ -247,8 +254,8 @@ export function chainMasterChainNodes(
   // Input filters (after compressor section)
   masterChain.lowPassFilter.chain(masterChain.highPassFilter);
 
-  // Main signal goes to saturation
-  masterChain.highPassFilter.connect(masterChain.saturation);
+  // Main signal goes to tape warmth (subtle, always on)
+  masterChain.highPassFilter.connect(masterChain.tapeWarmth);
 
   // Parallel phaser send: filtered to keep sub bass clean
   masterChain.highPassFilter.connect(masterChain.phaserPreFilter);
@@ -256,7 +263,7 @@ export function chainMasterChainNodes(
     masterChain.phaser,
     masterChain.phaserSendGain,
   );
-  masterChain.phaserSendGain.connect(masterChain.saturation);
+  masterChain.phaserSendGain.connect(masterChain.tapeWarmth);
 
   // Parallel reverb send: filtered to keep low end dry
   masterChain.highPassFilter.connect(masterChain.reverbPreFilter);
@@ -264,10 +271,11 @@ export function chainMasterChainNodes(
     masterChain.reverb,
     masterChain.reverbSendGain,
   );
-  masterChain.reverbSendGain.connect(masterChain.saturation);
+  masterChain.reverbSendGain.connect(masterChain.tapeWarmth);
 
-  // Output chain: saturation adds warmth, EQ tames harshness
-  masterChain.saturation.chain(
+  // Output chain: tape warmth → drum saturation (user-controllable) → EQ → limiter
+  masterChain.tapeWarmth.chain(
+    masterChain.saturation,
     masterChain.presenceDip,
     masterChain.highShelf,
     masterChain.limiter,
@@ -287,8 +295,14 @@ export function chainMasterChainNodes(
 export async function buildMasterChainNodes(
   settings: MasterChainSettings,
 ): Promise<MasterChainRuntimes> {
-  const lowPassFilter = new Filter(settings.lowPassFrequency, "lowpass");
-  const highPassFilter = new Filter(settings.highPassFrequency, "highpass");
+  // Split filter: single filter that switches between lowpass and highpass (same as instrument filter)
+  const filterType: BiquadFilterType =
+    settings.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
+  const filterFrequency = splitFilterMapping.knobToDomain(settings.filter);
+
+  const lowPassFilter = new Filter(filterFrequency, filterType);
+  // highPassFilter is kept for chain compatibility but acts as pass-through
+  const highPassFilter = new Filter(MASTER_FILTER_RANGE[0], "highpass");
 
   // High-pass filter before phaser keeps sub bass clean
   const phaserPreFilter = new Filter(MASTER_PHASER_PRE_FILTER_FREQ, "highpass");
@@ -320,7 +334,7 @@ export async function buildMasterChainNodes(
   const compressor = new Compressor({
     threshold: settings.compThreshold,
     ratio: settings.compRatio,
-    attack: MASTER_COMP_ATTACK,
+    attack: settings.compAttack,
     release: MASTER_COMP_RELEASE,
     knee: MASTER_COMP_KNEE, // Hard knee for punchy transients
   });
@@ -334,10 +348,16 @@ export async function buildMasterChainNodes(
   const compDryDelay = new Delay(MASTER_COMP_LATENCY);
   const compDryGain = new Gain(1 - settings.compMix);
 
-  // Subtle saturation for analog warmth
+  // Tape warmth: subtle fixed saturation (always on, not user-controllable)
+  const tapeWarmth = new Chebyshev({
+    order: MASTER_TAPE_SATURATION_ORDER,
+    wet: MASTER_TAPE_SATURATION_WET,
+  });
+
+  // Drum saturation: crunchier user-controllable saturation
   const saturation = new Chebyshev({
-    order: MASTER_SATURATION_AMOUNT,
-    wet: MASTER_SATURATION_WET,
+    order: MASTER_DRUM_SATURATION_ORDER,
+    wet: settings.saturationWet,
   });
 
   // Presence dip - tames harsh 3-5kHz "ice pick" frequencies
@@ -371,6 +391,7 @@ export async function buildMasterChainNodes(
     reverbPreFilter,
     reverb,
     reverbSendGain,
+    tapeWarmth,
     saturation,
     presenceDip,
     highShelf,
@@ -385,13 +406,14 @@ export function mapParamsToSettings(
   params: MasterChainParams,
 ): MasterChainSettings {
   return {
-    lowPassFrequency: lowPassFilterMapping.knobToDomain(params.lowPass),
-    highPassFrequency: highPassFilterMapping.knobToDomain(params.highPass),
+    filter: params.filter, // Pass raw knob value for split filter logic
+    saturationWet: saturationWetMapping.knobToDomain(params.saturation),
     phaserWet: phaserWetMapping.knobToDomain(params.phaser),
     reverbWet: reverbWetMapping.knobToDomain(params.reverb),
     reverbDecay: reverbDecayMapping.knobToDomain(params.reverb),
     compThreshold: compThresholdMapping.knobToDomain(params.compThreshold),
     compRatio: compRatioMapping.knobToDomain(params.compRatio),
+    compAttack: compAttackMapping.knobToDomain(params.compAttack),
     compMix: compMixMapping.knobToDomain(params.compMix),
     masterVolume: masterVolumeMapping.knobToDomain(params.masterVolume),
   };
@@ -408,13 +430,21 @@ function applySettingsToRuntimes(
   // Compressor settings
   runtimes.compressor.threshold.value = settings.compThreshold;
   runtimes.compressor.ratio.value = settings.compRatio;
+  runtimes.compressor.attack.value = settings.compAttack;
   // Parallel compression wet/dry mix
   runtimes.compWetGain.gain.value = settings.compMix;
   runtimes.compDryGain.gain.value = 1 - settings.compMix;
 
-  // Filter settings
-  runtimes.lowPassFilter.frequency.value = settings.lowPassFrequency;
-  runtimes.highPassFilter.frequency.value = settings.highPassFrequency;
+  // Split filter settings (same as instrument filter implementation)
+  runtimes.lowPassFilter.type =
+    settings.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
+  runtimes.lowPassFilter.frequency.value = splitFilterMapping.knobToDomain(
+    settings.filter,
+  );
+  // highPassFilter stays as pass-through (no need to update)
+
+  // Saturation wet/dry mix
+  runtimes.saturation.wet.value = settings.saturationWet;
 
   // Effect send settings
   runtimes.phaserSendGain.gain.value = settings.phaserWet;

@@ -6,6 +6,8 @@ import {
   INSTRUMENT_TUNE_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_DEFAULT,
   INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_ATTACK_RANGE,
+  MASTER_COMP_DEFAULT_ATTACK,
   MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_DEFAULT_RATIO,
   MASTER_COMP_DEFAULT_THRESHOLD,
@@ -20,6 +22,8 @@ import {
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_DEFAULT,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_DEFAULT,
+  MASTER_SATURATION_WET_RANGE,
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
   TRANSPORT_BPM_RANGE,
@@ -332,6 +336,33 @@ export const compMixMapping = makeLinearMapping(
   formatDisplayPercentage,
   {
     defaultKnobValue: MASTER_COMP_DEFAULT_MIX,
+  },
+);
+
+/**
+ * Compressor attack time (exponential for natural feel)
+ */
+export const compAttackMapping = makeExponentialMapping(
+  MASTER_COMP_ATTACK_RANGE,
+  (value) => {
+    if (value < 0.01) {
+      return { value: (value * 1000).toFixed(1), append: "ms" };
+    }
+    return { value: (value * 1000).toFixed(0), append: "ms" };
+  },
+  {
+    defaultKnobValue: MASTER_COMP_DEFAULT_ATTACK,
+  },
+);
+
+/**
+ * Saturation wet/dry mix (0-40%)
+ */
+export const saturationWetMapping = makeLinearMapping(
+  MASTER_SATURATION_WET_RANGE,
+  formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_SATURATION_DEFAULT,
   },
 );
 

@@ -40,8 +40,12 @@ export const INSTRUMENT_MUTE_DEFAULT = false;
 // ============================================================================
 
 export const MASTER_FILTER_RANGE: Range = [0, 15000]; // Hz
-export const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open
-export const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off
+export const MASTER_FILTER_DEFAULT = 50; // Knob 50 = center (transition point)
+export const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open (legacy)
+export const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off (legacy)
+
+export const MASTER_SATURATION_WET_RANGE: Range = [0, 1]; // 0-100% wet for drum saturation
+export const MASTER_SATURATION_DEFAULT = 0; // Knob 0 = no saturation
 
 export const MASTER_PHASER_WET_RANGE: Range = [0, 1];
 export const MASTER_PHASER_DEFAULT = 0; // Knob 0 = off
@@ -111,7 +115,9 @@ export const MASTER_COMP_DEFAULT_RATIO = 50; // Knob ~50% ≈ mid ratio (~4.5:1)
 export const MASTER_COMP_MIX_RANGE: Range = [0, 1]; // Parallel wet/dry
 export const MASTER_COMP_DEFAULT_MIX = 70; // 70% wet for parallel comp
 
-export const MASTER_COMP_ATTACK = 0.01; // 10 ms - catches transients
+export const MASTER_COMP_ATTACK_RANGE: Range = [0.001, 0.1]; // 1ms - 100ms
+export const MASTER_COMP_DEFAULT_ATTACK = 50; // Knob ~50% ≈ ~10ms
+export const MASTER_COMP_ATTACK = 0.01; // 10 ms - catches transients (legacy constant)
 export const MASTER_COMP_RELEASE = 0.05; // 50 ms - fast recovery, punchy drums
 export const MASTER_COMP_KNEE = 0; // dB - hard knee
 export const MASTER_COMP_MAKEUP_GAIN = 1.5; // dB - compensates gain reduction
@@ -127,9 +133,13 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
 // Master FX: Analog coloration / EQ
 // ============================================================================
 
-// Saturation (very gentle)
-export const MASTER_SATURATION_AMOUNT = 1; // Chebyshev order
-export const MASTER_SATURATION_WET = 0.03; // 3% wet
+// Tape warmth saturation (very gentle, always on)
+export const MASTER_TAPE_SATURATION_ORDER = 1; // Chebyshev order
+export const MASTER_TAPE_SATURATION_WET = 0.03; // 3% wet - subtle tape warmth
+
+// User-controllable drum saturation (crunchier)
+export const MASTER_DRUM_SATURATION_ORDER = 5; // Higher order for crunchier sound
+export const MASTER_DRUM_SATURATION_MAX_WET = 1.0; // Can go fully wet
 
 // High shelf rolloff - tames harsh hats / sibilance
 export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
