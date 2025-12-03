@@ -1,4 +1,4 @@
-import React from "react";
+import { cn } from "@/shared/lib/utils";
 
 type PixelatedFrownyProps = {
   /** Overall size of the frowny face box (width = height) */
@@ -17,7 +17,7 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
-  gap = 4,
+  gap = 6,
   className,
 }) => {
   // 8x8 grid for a clearer frowny face
@@ -42,24 +42,18 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
 
   return (
     <div
-      className={className}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        containerType: "size",
-      }}
+      className={cn(
+        "flex h-full w-full items-center justify-center overflow-hidden",
+        className,
+      )}
+      style={{ containerType: "size" }}
     >
       <div
-        className="pixelated-frowny"
+        className="pixelated-frowny grid"
         style={{
           width: `${size}px`,
           height: `${size}px`,
           aspectRatio: "1",
-          display: "grid",
           gridTemplateColumns: `repeat(${grid}, ${pixelSize}px)`,
           gridTemplateRows: `repeat(${grid}, ${pixelSize}px)`,
           gap: `${gap}px`,
@@ -76,11 +70,19 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
           return (
             <div
               key={i}
-              className="pixelated-frowny__pixel"
+              className={cn(
+                "bg-border rounded-full",
+                shouldFill && "shadow-[0_0_8px_rgba(255,123,0,0.6)]",
+              )}
               style={{
                 width: `${pixelSize}px`,
                 height: `${pixelSize}px`,
-                backgroundColor: shouldFill ? color : "transparent",
+                ...(shouldFill
+                  ? {
+                      backgroundColor: color,
+                      boxShadow: `0 0 8px ${color}`,
+                    }
+                  : {}),
               }}
             />
           );

@@ -1,5 +1,7 @@
 import "@/app/pixelated-spinner.css";
 
+import { cn } from "@/shared/lib/utils";
+
 type PixelatedSpinnerProps = {
   /** Overall size of the spinner box (width = height) */
   size?: number; // in px
@@ -13,38 +15,37 @@ type PixelatedSpinnerProps = {
   className?: string;
 };
 
+const GRID = 3;
+const RING_ORDER = [1, 2, 5, 8, 7, 6, 3, 0]; // clockwise around the center
+
 export const PixelatedSpinner: React.FC<PixelatedSpinnerProps> = ({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
-  gap = 4,
+  gap = 6,
   className,
 }) => {
-  const grid = 4;
-  const total = grid * grid;
+  const total = GRID * GRID;
+  const glow = `0 0 8px ${color}`;
 
   return (
     <div
-      className={className}
+      className={cn(
+        "flex h-full w-full items-center justify-center overflow-hidden",
+        className,
+      )}
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
         containerType: "size",
       }}
     >
       <div
-        className="pixelated-spinner"
+        className="grid"
         style={{
           width: `${size}px`,
           height: `${size}px`,
           aspectRatio: "1",
-          display: "grid",
-          gridTemplateColumns: `repeat(${grid}, ${pixelSize}px)`,
-          gridTemplateRows: `repeat(${grid}, ${pixelSize}px)`,
+          gridTemplateColumns: `repeat(${GRID}, ${pixelSize}px)`,
+          gridTemplateRows: `repeat(${GRID}, ${pixelSize}px)`,
           gap: `${gap}px`,
           justifyContent: "center",
           alignContent: "center",
@@ -53,18 +54,28 @@ export const PixelatedSpinner: React.FC<PixelatedSpinnerProps> = ({
           transformOrigin: "center",
         }}
       >
-        {Array.from({ length: total }).map((_, i) => {
-          const delay = (i * 0.1) % 1;
+        {Array.from({ length: total }).map((_, index) => {
+          const orderIndex = RING_ORDER.indexOf(index);
+          const isRingDot = orderIndex !== -1;
 
           return (
-            <div
-              key={i}
-              className="pixelated-spinner__pixel"
+            <span
+              key={index}
+              className={cn(
+                "bg-border rounded-full",
+                isRingDot && "pixelated-spinner__pixel",
+                !isRingDot && "opacity-40",
+              )}
               style={{
                 width: `${pixelSize}px`,
                 height: `${pixelSize}px`,
-                backgroundColor: color,
-                animationDelay: `${delay}s`,
+                ...(isRingDot
+                  ? {
+                      backgroundColor: color,
+                      boxShadow: glow,
+                      animationDelay: `${orderIndex * 0.08}s`,
+                    }
+                  : {}),
               }}
             />
           );

@@ -1,13 +1,16 @@
 .pixelated-spinner__pixel {
-  animation: pixelated-spinner-pulse 1s ease-in-out infinite;
+  animation: pixelated-spinner-pulse 0.9s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes pixelated-spinner-pulse {
   0%,
   100% {
-    opacity: 0.2;
+    opacity: 0.35;
+    transform: scale(0.85);
   }
   50% {
     opacity: 1;
+    transform: scale(1.1);
   }
 }
