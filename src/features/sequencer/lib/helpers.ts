@@ -17,11 +17,15 @@ export function createEmptyPattern(): Pattern {
           triggers: Array.from({ length: STEP_COUNT }, () => false),
           velocities: Array.from({ length: STEP_COUNT }, () => 1),
           timingNudge: 0,
+          ratchets: Array.from({ length: STEP_COUNT }, () => false),
+          flams: Array.from({ length: STEP_COUNT }, () => false),
         },
         {
           triggers: Array.from({ length: STEP_COUNT }, () => false),
           velocities: Array.from({ length: STEP_COUNT }, () => 1),
           timingNudge: 0,
+          ratchets: Array.from({ length: STEP_COUNT }, () => false),
+          flams: Array.from({ length: STEP_COUNT }, () => false),
         },
       ],
     };

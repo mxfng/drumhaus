@@ -16,6 +16,8 @@ import { VariationCycle } from "../types/sequencer";
 export type SequencerMode =
   | { type: "voice"; voiceIndex: number } // Editing a specific voice/instrument pattern
   | { type: "accent" } // Editing accent pattern (variation-level)
+  | { type: "ratchet"; voiceIndex: number } // Editing ratchet pattern for voice
+  | { type: "flam"; voiceIndex: number } // Editing flam pattern for voice
   | { type: "copy" } // Copy mode (future)
   | { type: "paste" } // Paste mode (future)
   | { type: "clear" } // Clear mode (future)
@@ -30,6 +32,9 @@ interface PatternState {
   // Sequencer controls
   variation: number; // A = 0, B = 1
   variationCycle: VariationCycle; // A = 0, B = 1, AB = 2, AAAB = 3
+
+  // Current voice index (tracked separately for mode memory)
+  voiceIndex: number;
 
   // Sequencer mode (not persisted - UI state only)
   mode: SequencerMode;
@@ -47,6 +52,8 @@ interface PatternState {
   setMode: (mode: SequencerMode) => void;
   setVoiceMode: (voiceIndex: number) => void;
   toggleAccentMode: () => void;
+  toggleRatchetMode: () => void;
+  toggleFlamMode: () => void;
 
   // Pattern manipulation
   toggleStep: (voiceIndex: number, variation: number, step: number) => void;
@@ -66,6 +73,12 @@ interface PatternState {
 
   // Accent manipulation
   toggleAccent: (variation: number, step: number) => void;
+
+  // Ratchet manipulation
+  toggleRatchet: (voiceIndex: number, variation: number, step: number) => void;
+
+  // Flam manipulation
+  toggleFlam: (voiceIndex: number, variation: number, step: number) => void;
 
   // Timing nudge
   nudgeTimingLeft: () => void;
@@ -88,6 +101,7 @@ export const usePatternStore = create<PatternState>()(
         variationCycle: "A",
         mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
+        voiceIndex: 0,
 
         // Actions
         setVariation: (variation) => {
@@ -99,21 +113,46 @@ export const usePatternStore = create<PatternState>()(
         },
 
         setMode: (mode) => {
+          if (mode.type === "voice") {
+            set({ voiceIndex: mode.voiceIndex });
+          }
           set({ mode });
         },
 
         setVoiceMode: (voiceIndex) => {
-          set({ mode: { type: "voice", voiceIndex } });
+          set({ voiceIndex, mode: { type: "voice", voiceIndex } });
         },
 
         toggleAccentMode: () => {
           set((state) => {
             if (state.mode.type === "accent") {
-              // Exit accent mode, return to last voice (default to 0)
-              return { mode: { type: "voice", voiceIndex: 0 } };
+              // Exit accent mode, return to last voice
+              return { mode: { type: "voice", voiceIndex: state.voiceIndex } };
             } else {
               // Enter accent mode
               return { mode: { type: "accent" } };
+            }
+          });
+        },
+
+        toggleRatchetMode: () => {
+          set((state) => {
+            if (state.mode.type === "ratchet") {
+              return { mode: { type: "voice", voiceIndex: state.voiceIndex } };
+            } else {
+              return {
+                mode: { type: "ratchet", voiceIndex: state.voiceIndex },
+              };
+            }
+          });
+        },
+
+        toggleFlamMode: () => {
+          set((state) => {
+            if (state.mode.type === "flam") {
+              return { mode: { type: "voice", voiceIndex: state.voiceIndex } };
+            } else {
+              return { mode: { type: "flam", voiceIndex: state.voiceIndex } };
             }
           });
         },
@@ -182,6 +221,31 @@ export const usePatternStore = create<PatternState>()(
             const currentValue =
               state.pattern.variationMetadata[variation].accent[step];
             state.pattern.variationMetadata[variation].accent[step] =
+              !currentValue;
+            state.patternVersion += 1;
+          });
+        },
+
+        toggleRatchet: (voiceIndex, variation, step) => {
+          set((state) => {
+            const currentValue =
+              state.pattern.voices[voiceIndex].variations[variation].ratchets[
+                step
+              ];
+            state.pattern.voices[voiceIndex].variations[variation].ratchets[
+              step
+            ] = !currentValue;
+            state.patternVersion += 1;
+          });
+        },
+
+        toggleFlam: (voiceIndex, variation, step) => {
+          set((state) => {
+            const currentValue =
+              state.pattern.voices[voiceIndex].variations[variation].flams[
+                step
+              ];
+            state.pattern.voices[voiceIndex].variations[variation].flams[step] =
               !currentValue;
             state.patternVersion += 1;
           });

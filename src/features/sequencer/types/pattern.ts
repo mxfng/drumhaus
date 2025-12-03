@@ -21,6 +21,16 @@ export type StepSequence = {
    *  Applies a consistent timing shift to all triggered steps in this sequence.
    *  Defaults to 0 (on-grid). */
   timingNudge: TimingNudge;
+
+  /** 16 boolean flags indicating which steps have ratchet enabled.
+   *  When enabled, adds an additional 1/32 note trigger after the main hit.
+   *  Creates rapid-fire double-hit effect. */
+  ratchets: boolean[]; // length: 16
+
+  /** 16 boolean flags indicating which steps have flam enabled.
+   *  When enabled, triggers a grace note before the main hit (TR-909 style).
+   *  Creates classic "double stick" flam sound. */
+  flams: boolean[]; // length: 16
 };
 
 /**

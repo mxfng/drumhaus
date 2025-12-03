@@ -66,13 +66,22 @@ export function migratePattern(pattern: Pattern | unknown): Pattern {
 /**
  * Migrates a single step sequence to ensure all required fields exist.
  */
-function migrateStepSequence<T extends { timingNudge?: number }>(
-  sequence: T,
-): T {
+function migrateStepSequence<
+  T extends {
+    timingNudge?: number;
+    ratchets?: boolean[];
+    flams?: boolean[];
+  },
+>(sequence: T): T {
   return {
     ...sequence,
     // Add timingNudge field if missing (pre-v1 patterns)
     timingNudge: sequence.timingNudge ?? 0,
+    // Add ratchets field if missing
+    ratchets:
+      sequence.ratchets ?? Array.from({ length: STEP_COUNT }, () => false),
+    // Add flams field if missing
+    flams: sequence.flams ?? Array.from({ length: STEP_COUNT }, () => false),
   };
 }
 
@@ -195,12 +204,24 @@ function migrateStepSequenceUnsafe(sequence: unknown) {
     throw new Error("Invalid step sequence: null or undefined");
   }
 
+  const ratchets =
+    "ratchets" in sequence && Array.isArray(sequence.ratchets)
+      ? sequence.ratchets
+      : Array.from({ length: STEP_COUNT }, () => false);
+
+  const flams =
+    "flams" in sequence && Array.isArray(sequence.flams)
+      ? sequence.flams
+      : Array.from({ length: STEP_COUNT }, () => false);
+
   return {
     ...sequence,
     timingNudge:
       "timingNudge" in sequence && typeof sequence.timingNudge === "number"
         ? sequence.timingNudge
         : 0,
+    ratchets,
+    flams,
   };
 }
 

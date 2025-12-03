@@ -42,6 +42,26 @@ const ACCENT_BOOST = 1.3;
  */
 const ACCENT_DAMPEN = ACCENT_BOOST;
 
+/**
+ * Ratchet timing offset in beats (1/32 note).
+ * When ratchet is enabled, adds an additional trigger after the main hit.
+ * 1/32 = 0.03125 beats in 4/4 time
+ */
+const RATCHET_OFFSET_BEATS = 0.03125;
+
+/**
+ * Flam timing offset in seconds.
+ * Grace note is triggered this many seconds before the main hit (TR-909 style).
+ * Creates classic "double stick" flam sound.
+ */
+const FLAM_OFFSET_SECONDS = 0.015; // 15ms
+
+/**
+ * Flam grace note velocity multiplier.
+ * Grace note is played at reduced velocity compared to main hit.
+ */
+const FLAM_GRACE_VELOCITY = 0.6;
+
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
@@ -287,6 +307,8 @@ function scheduleVoiceCore(
   const variation = voice.variations[variationIndex];
   const triggers = variation.triggers;
   const velocities = variation.velocities;
+  const ratchets = variation.ratchets ?? [];
+  const flams = variation.flams ?? [];
 
   if (!skipTriggerCheck && !triggers[step]) return;
   if ((anySolos && !params.solo) || params.mute) return;
@@ -310,7 +332,30 @@ function scheduleVoiceCore(
     muteOpenHatAtTime(adjustedTime, instruments, runtimes, ohatIndex);
   }
 
+  // Check for flam: trigger grace note before main hit
+  const hasFlam = flams[step] ?? false;
+  if (hasFlam) {
+    const flamGraceTime = adjustedTime - FLAM_OFFSET_SECONDS;
+    const flamGraceVelocity = velocity * FLAM_GRACE_VELOCITY;
+    triggerInstrumentAtTime(
+      runtime,
+      tune,
+      decayTime,
+      flamGraceTime,
+      flamGraceVelocity,
+    );
+  }
+
+  // Main trigger
   triggerInstrumentAtTime(runtime, tune, decayTime, adjustedTime, velocity);
+
+  // Check for ratchet: trigger additional hit after main hit
+  const hasRatchet = ratchets[step] ?? false;
+  if (hasRatchet) {
+    const ratchetOffsetSeconds = RATCHET_OFFSET_BEATS * secondsPerBeat;
+    const ratchetTime = adjustedTime + ratchetOffsetSeconds;
+    triggerInstrumentAtTime(runtime, tune, decayTime, ratchetTime, velocity);
+  }
 }
 
 /**

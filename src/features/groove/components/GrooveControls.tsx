@@ -34,12 +34,17 @@ export const GrooveControls = () => {
   const nudgeTimingRight = usePatternStore((state) => state.nudgeTimingRight);
   const toggleAccentMode = usePatternStore((state) => state.toggleAccentMode);
 
+  const toggleFlamMode = usePatternStore((state) => state.toggleFlamMode);
+  const toggleRatchetMode = usePatternStore((state) => state.toggleRatchetMode);
+
   const showVelocity = useGrooveStore((state) => state.showVelocity);
   const toggleShowVelocity = useGrooveStore(
     (state) => state.toggleShowVelocity,
   );
 
   const accentMode = mode.type === "accent";
+  const flamMode = mode.type === "flam";
+  const ratchetMode = mode.type === "ratchet";
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
   const currentNudge =
@@ -54,11 +59,13 @@ export const GrooveControls = () => {
         <Tooltip content={TOOLTIPS.ACCENT_MODE}>
           <Button
             variant="hardware"
-            className={cn(accentMode && "border-primary transition-colors")}
+            className={cn(
+              accentMode && "border-primary text-primary transition-colors",
+            )}
             onClick={toggleAccentMode}
             size="sm"
           >
-            <span className={cn(accentMode && "text-primary")}>accent</span>
+            accent
           </Button>
         </Tooltip>
         {/* Show velocity toggle */}
@@ -68,11 +75,12 @@ export const GrooveControls = () => {
             size="sm"
             className={cn(
               "leading-3",
-              showVelocity && "border-primary transition-colors",
+              showVelocity && "border-primary text-primary transition-colors",
             )}
             onClick={toggleShowVelocity}
+            disabled={mode.type !== "voice"}
           >
-            <span className={cn(showVelocity && "text-primary")}>velocity</span>
+            velocity
           </Button>
         </Tooltip>
 
@@ -106,10 +114,24 @@ export const GrooveControls = () => {
           </Tooltip>
         </div>
 
-        <Button variant="hardware" size="sm">
+        <Button
+          variant="hardware"
+          size="sm"
+          onClick={toggleRatchetMode}
+          className={cn(
+            ratchetMode && "border-primary text-primary transition-colors",
+          )}
+        >
           ratchet
         </Button>
-        <Button variant="hardware" size="sm">
+        <Button
+          variant="hardware"
+          size="sm"
+          onClick={toggleFlamMode}
+          className={cn(
+            flamMode && "border-primary text-primary transition-colors",
+          )}
+        >
           flam
         </Button>
       </div>

@@ -23,6 +23,8 @@ export const Sequencer: React.FC = () => {
   const mode = usePatternStore((state) => state.mode);
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const toggleAccent = usePatternStore((state) => state.toggleAccent);
+  const toggleRatchet = usePatternStore((state) => state.toggleRatchet);
+  const toggleFlam = usePatternStore((state) => state.toggleFlam);
   const setVelocity = usePatternStore((state) => state.setVelocity);
 
   // --- Transport Store ---
@@ -32,12 +34,24 @@ export const Sequencer: React.FC = () => {
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
   const accentMode = mode.type === "accent";
-  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+  const ratchetMode = mode.type === "ratchet";
+  const flamMode = mode.type === "flam";
+  const voiceIndex =
+    mode.type === "voice" || mode.type === "ratchet" || mode.type === "flam"
+      ? mode.voiceIndex
+      : 0;
 
   // Get appropriate triggers based on mode
-  const triggers = accentMode
-    ? pattern.variationMetadata[variation].accent
-    : pattern.voices[voiceIndex].variations[variation].triggers;
+  let triggers: boolean[];
+  if (accentMode) {
+    triggers = pattern.variationMetadata[variation].accent;
+  } else if (ratchetMode) {
+    triggers = pattern.voices[voiceIndex].variations[variation].ratchets;
+  } else if (flamMode) {
+    triggers = pattern.voices[voiceIndex].variations[variation].flams;
+  } else {
+    triggers = pattern.voices[voiceIndex].variations[variation].triggers;
+  }
 
   // Calculate ghosting: viewing different variation than what's playing
   const isGhosted = isPlaying && playbackVariation !== variation && !accentMode;
@@ -49,10 +63,17 @@ export const Sequencer: React.FC = () => {
     handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
-    onToggleStep: (stepIndex) =>
-      accentMode
-        ? toggleAccent(variation, stepIndex)
-        : toggleStep(voiceIndex, variation, stepIndex),
+    onToggleStep: (stepIndex) => {
+      if (accentMode) {
+        toggleAccent(variation, stepIndex);
+      } else if (ratchetMode) {
+        toggleRatchet(voiceIndex, variation, stepIndex);
+      } else if (flamMode) {
+        toggleFlam(voiceIndex, variation, stepIndex);
+      } else {
+        toggleStep(voiceIndex, variation, stepIndex);
+      }
+    },
   });
 
   const currentVariation = pattern.voices[voiceIndex].variations[variation];
@@ -98,9 +119,9 @@ export const Sequencer: React.FC = () => {
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
             />
-            {/* Hide velocity controls in accent mode or when showVelocity is off */}
+            {/* Hide velocity controls in accent/ratchet/flam mode or when showVelocity is off */}
             <div className="mt-3 h-3.5 w-full">
-              {!accentMode && showVelocity && (
+              {!accentMode && !ratchetMode && !flamMode && showVelocity && (
                 <SequencerVelocity
                   stepIndex={step}
                   velocityValue={state.velocityValue}

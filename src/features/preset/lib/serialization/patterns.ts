@@ -112,6 +112,8 @@ function hydrateStepSequence(
     triggers: optimizedSequence.triggers,
     velocities,
     timingNudge: (optimizedSequence.timingNudge ?? 0) as -2 | -1 | 0 | 1 | 2,
+    ratchets: Array(STEP_COUNT).fill(false),
+    flams: Array(STEP_COUNT).fill(false),
   };
 }
 

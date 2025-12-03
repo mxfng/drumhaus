@@ -21,7 +21,7 @@ export const MasterFX: React.FC = () => {
   return (
     <>
       <ParamKnob
-        label="filter"
+        label="filter" // TODO: fix routing to use 2 nodes so we dont reload nodes mid playback
         mapping={splitFilterMapping}
         value={filter}
         onValueChange={setFilter}

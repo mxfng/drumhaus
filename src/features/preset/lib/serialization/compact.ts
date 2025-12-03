@@ -295,6 +295,8 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
     triggers,
     velocities,
     timingNudge: (compact.n ?? 0) as -2 | -1 | 0 | 1 | 2,
+    ratchets: Array(STEP_COUNT).fill(false),
+    flams: Array(STEP_COUNT).fill(false),
   };
 }
 

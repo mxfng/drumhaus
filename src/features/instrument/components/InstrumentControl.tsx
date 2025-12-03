@@ -23,7 +23,11 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   );
 
   const isSelectedAndActive = usePatternStore(
-    (state) => state.mode.type === "voice" && state.mode.voiceIndex === index,
+    (state) =>
+      (state.mode.type === "voice" ||
+        state.mode.type === "ratchet" ||
+        state.mode.type === "flam") &&
+      state.mode.voiceIndex === index,
   );
 
   return (
