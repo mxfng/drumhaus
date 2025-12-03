@@ -30,17 +30,17 @@
     "@tailwindcss/vite": "^4.1.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.24",
-    "immer": "^10.1.1",
-    "lucide-react": "^0.554.0",
+    "framer-motion": "^12.23.25",
+    "immer": "^11.0.1",
+    "lucide-react": "^0.555.0",
     "pako": "^2.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "tone": "^15.1.22",
-    "zod": "^4.1.12",
-    "zustand": "^5.0.8"
+    "zod": "^4.1.13",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/css": "^0.14.1",
@@ -50,10 +50,10 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@types/node": "^24.10.1",
     "@types/pako": "^2.0.4",
-    "@types/react": "^19.2.6",
+    "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
     "@vitejs/plugin-react": "^5.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.1",
@@ -68,8 +68,8 @@
     "prettier-plugin-tailwindcss": "^0.7.1",
     "tsx": "^4.19.2",
     "typescript": "^5",
-    "typescript-eslint": "^8.47.0",
-    "vite": "^7.2.4"
+    "typescript-eslint": "^8.48.1",
+    "vite": "^7.2.6"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
