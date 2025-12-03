@@ -38,17 +38,14 @@ export const SequencerVariationButton = forwardRef<
       variant="hardware"
       onClick={handleClick}
       className={cn(
-        "font-pixel relative flex items-start justify-start overflow-hidden",
-        {
-          "ring-primary ring": isActive,
-        },
+        "font-pixel relative flex items-start justify-start overflow-hidden transition-colors duration-400",
         className,
       )}
       {...props}
     >
       <span
         className={cn(
-          "bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded",
+          "bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded-tr rounded-bl transition-colors duration-400",
           {
             "bg-primary": isActive,
           },

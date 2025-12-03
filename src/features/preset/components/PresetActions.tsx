@@ -25,7 +25,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             onClick={() => openDialog("save")}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <Save
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -40,7 +40,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             onClick={onOpenFromFile}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <FolderOpen
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -55,7 +55,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             onClick={() => openDialog("share")}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <Share2
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -70,7 +70,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
           <Button
             onClick={() => openDialog("export")}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <Download
               className="group-hover:text-primary-muted transition-all duration-200"

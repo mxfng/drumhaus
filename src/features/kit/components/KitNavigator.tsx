@@ -18,7 +18,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
           <Button
             onClick={onPrevious}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <ChevronLeft
               className="group-hover:text-primary-muted transition-all duration-200"
@@ -37,7 +37,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
           <Button
             onClick={onNext}
             size="xs"
-            className="h-5 bg-transparent p-0.5"
+            className="h-full rounded-none bg-transparent p-0.5"
           >
             <ChevronRight
               className="group-hover:text-primary-muted transition-all duration-200"
