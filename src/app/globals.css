@@ -117,12 +117,6 @@ a {
   transform-origin: center center;
 }
 
-@media (min-width: 1024px) {
-  .drumhaus-scale-wrapper {
-    transform: scale(var(--scale, 1));
-  }
-}
-
 /* Neumorphic utilities */
 .neu {
   box-shadow: var(--shadow-neu);
@@ -176,142 +170,6 @@ a {
   );
 }
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out;
-}
-
-/* tailwindcss-animate keyframes */
-@keyframes enter {
-  from {
-    opacity: var(--tw-enter-opacity, 1);
-    transform: translate3d(
-        var(--tw-enter-translate-x, 0),
-        var(--tw-enter-translate-y, 0),
-        0
-      )
-      scale3d(
-        var(--tw-enter-scale, 1),
-        var(--tw-enter-scale, 1),
-        var(--tw-enter-scale, 1)
-      )
-      rotate(var(--tw-enter-rotate, 0));
-  }
-}
-
-@keyframes exit {
-  to {
-    opacity: var(--tw-exit-opacity, 1);
-    transform: translate3d(
-        var(--tw-exit-translate-x, 0),
-        var(--tw-exit-translate-y, 0),
-        0
-      )
-      scale3d(
-        var(--tw-exit-scale, 1),
-        var(--tw-exit-scale, 1),
-        var(--tw-exit-scale, 1)
-      )
-      rotate(var(--tw-exit-rotate, 0));
-  }
-}
-
-/* Animation utilities */
-@utility animate-in {
-  animation-name: enter;
-  animation-duration: var(--animate-duration);
-  --tw-enter-opacity: initial;
-  --tw-enter-scale: initial;
-  --tw-enter-rotate: initial;
-  --tw-enter-translate-x: initial;
-  --tw-enter-translate-y: initial;
-}
-
-@utility animate-out {
-  animation-name: exit;
-  animation-duration: var(--animate-duration);
-  --tw-exit-opacity: initial;
-  --tw-exit-scale: initial;
-  --tw-exit-rotate: initial;
-  --tw-exit-translate-x: initial;
-  --tw-exit-translate-y: initial;
-}
-
-/* Fade utilities */
-@utility fade-in {
-  --tw-enter-opacity: 0;
-}
-
-@utility fade-in-0 {
-  --tw-enter-opacity: 0;
-}
-
-@utility fade-out {
-  --tw-exit-opacity: 0;
-}
-
-@utility fade-out-0 {
-  --tw-exit-opacity: 0;
-}
-
-/* Zoom utilities */
-@utility zoom-in {
-  --tw-enter-scale: 0;
-}
-
-@utility zoom-in-95 {
-  --tw-enter-scale: 0.95;
-}
-
-@utility zoom-out {
-  --tw-exit-scale: 0;
-}
-
-@utility zoom-out-95 {
-  --tw-exit-scale: 0.95;
-}
-
-/* Slide utilities */
-@utility slide-in-from-top {
-  --tw-enter-translate-y: -100%;
-}
-
-@utility slide-in-from-top-2 {
-  --tw-enter-translate-y: -0.5rem;
-}
-
-@utility slide-in-from-bottom {
-  --tw-enter-translate-y: 100%;
-}
-
-@utility slide-in-from-bottom-2 {
-  --tw-enter-translate-y: 0.5rem;
-}
-
-@utility slide-in-from-left {
-  --tw-enter-translate-x: -100%;
-}
-
-@utility slide-in-from-left-2 {
-  --tw-enter-translate-x: -0.5rem;
-}
-
-@utility slide-in-from-right {
-  --tw-enter-translate-x: 100%;
-}
-
-@utility slide-in-from-right-2 {
-  --tw-enter-translate-x: 0.5rem;
-}
-
 /* Responsive */
 @media (max-width: 1023px) {
   .drumhaus-root {
@@ -329,5 +187,11 @@ a {
     width: auto;
     height: auto;
     min-height: 100vh;
+  }
+}
+
+@media (min-width: 1024px) {
+  .drumhaus-scale-wrapper {
+    transform: scale(var(--scale, 1));
   }
 }
