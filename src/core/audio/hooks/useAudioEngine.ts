@@ -44,7 +44,6 @@ export function useAudioEngine(): UseAudioEngineResult {
   const playbackVariationRef = useRef<number>(0);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
-  const chainVersion = usePatternStore((state) => state.chainVersion);
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const activeVariation = usePatternStore((state) => state.variation);
@@ -71,7 +70,13 @@ export function useAudioEngine(): UseAudioEngineResult {
     return () => {
       disposeDrumSequence(toneSequence);
     };
-  }, [isPlaying, instrumentRuntimesVersion, chainVersion]);
+  }, [
+    isPlaying,
+    instrumentRuntimesVersion,
+    chain,
+    chainEnabled,
+    activeVariation,
+  ]);
 
   // When any instrument is soloed, immediately release all non-solo runtimes
   useEffect(() => {

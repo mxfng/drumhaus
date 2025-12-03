@@ -15,6 +15,7 @@ export const TempoControlsScreen: React.FC = () => {
   const setSwing = useTransportStore((state) => state.setSwing);
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const playbackVariation = usePatternStore((state) => state.playbackVariation);
 
   const bpmKnobValue = transportBpmMapping.domainToKnob(bpm);
   const handleBpmChange = (knobValue: number) => {
@@ -35,7 +36,7 @@ export const TempoControlsScreen: React.FC = () => {
 
   return (
     <ScreenBar>
-      <div className="grid w-full grid-cols-4">
+      <div className="grid w-full grid-cols-5 gap-4">
         <ClickableValue
           value={bpmKnobValue}
           onValueChange={handleBpmChange}
@@ -52,9 +53,15 @@ export const TempoControlsScreen: React.FC = () => {
           label="swing"
           labelClassName="text-xs"
         />
+        <span className="flex items-center justify-start">
+          <span className="pr-2 text-xs">play</span>
+          <span className="bg-screen text-screen-foreground rounded-tr rounded-bl px-1 text-xs">
+            {VARIATION_LABELS[playbackVariation]}
+          </span>
+        </span>
         <span className="col-span-2">
           <span className="text-xs">chain</span>
-          <b className="pl-1">{chainEnabled ? chainString : "—"}</b>
+          <span className="pl-1">{chainEnabled ? chainString : "—"}</span>
         </span>
       </div>
     </ScreenBar>

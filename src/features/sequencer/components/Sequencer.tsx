@@ -2,6 +2,7 @@ import React from "react";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
+import { ChainVisualization } from "@/features/sequencer/components/ChainVisualization";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
 import { SequencerStepIndicator } from "@/features/sequencer/components/SequencerStepIndicator";
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
@@ -34,6 +35,7 @@ export const Sequencer: React.FC = () => {
   // --- Groove Store ---
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
+  const isChainEdit = mode.type === "variationChain";
   const accentMode = mode.type === "accent";
   const ratchetMode = mode.type === "ratchet";
   const flamMode = mode.type === "flam";
@@ -101,6 +103,11 @@ export const Sequencer: React.FC = () => {
       isGuideActive,
     };
   };
+
+  // Show chain visualization when in chain edit mode
+  if (isChainEdit) {
+    return <ChainVisualization />;
+  }
 
   return (
     <div

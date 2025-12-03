@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "./potato.css";
 
+/* Custom animations */
+@keyframes outline-pulse {
+  0%,
+  100% {
+    outline-color: rgb(255 123 0 / 0.4);
+  }
+  50% {
+    outline-color: rgb(255 123 0 / 0.7);
+  }
+}
+
 @theme {
   /* Layout */
   --app-width: 90rem; /* w-360 in Tailwind, 1440px */
@@ -77,6 +88,10 @@
 
   /* Animation duration */
   --animate-duration: 150ms;
+
+  /* Custom animations */
+  --animate-outline-pulse: outline-pulse 2s cubic-bezier(0.4, 0, 0.6, 1)
+    infinite;
 
   /* Knob component */
   --knob-gradient: linear-gradient(

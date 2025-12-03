@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 
+import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
@@ -47,8 +48,10 @@ export const SequencerVariationButton = forwardRef<
       className={cn(
         "font-pixel relative flex items-start justify-start overflow-hidden transition-colors duration-400",
         {
-          "border-primary text-primary transition-colors": isActive,
+          "border-primary text-primary transition-colors":
+            isActive && !isChainEdit,
         },
+        interactableHighlight(isChainEdit),
         className,
       )}
       {...props}
@@ -57,7 +60,7 @@ export const SequencerVariationButton = forwardRef<
         className={cn(
           "bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded-tr rounded-bl transition-colors duration-400",
           {
-            "bg-primary": isActive,
+            "bg-primary": isActive && !isChainEdit,
           },
         )}
       >

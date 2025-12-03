@@ -7,6 +7,7 @@ interface SequencerStepProps {
   isTriggerOn: boolean;
   brightness: number;
   isGuideActive?: boolean;
+  color?: string; // Optional custom color class for override
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -26,6 +27,7 @@ interface SequencerStepProps {
     isTriggerOn: boolean,
   ) => void;
   onTouchMove?: (event: React.TouchEvent<HTMLDivElement>) => void;
+  disabled?: boolean;
 }
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
@@ -33,17 +35,24 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   isTriggerOn,
   brightness,
   isGuideActive = false,
+  color,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
   onTouchStart,
   onTouchMove,
+  disabled = false,
 }) => {
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
   const isGuideOnly = isGuideActive && !isTriggerOn;
 
   const getTriggerClassName = () => {
+    // Use custom color if provided
+    if (color && isTriggerOn) {
+      return color;
+    }
+
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
@@ -63,17 +72,24 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   return (
     <div
       data-step-index={stepIndex}
-      onPointerDown={(event) => onPointerStart?.(event, stepIndex, isTriggerOn)}
-      onPointerEnter={(event) =>
-        onPointerEnter?.(event, stepIndex, isTriggerOn)
-      }
+      onPointerDown={(event) => {
+        if (disabled) return;
+        onPointerStart?.(event, stepIndex, isTriggerOn);
+      }}
+      onPointerEnter={(event) => {
+        if (disabled) return;
+        onPointerEnter?.(event, stepIndex, isTriggerOn);
+      }}
       onPointerMove={(event) => {
+        if (disabled) return;
         onPointerMove?.(event);
       }}
       onTouchStart={(event) => {
+        if (disabled) return;
         onTouchStart?.(event, stepIndex, isTriggerOn);
       }}
       onTouchMove={(event) => {
+        if (disabled) return;
         onTouchMove?.(event);
       }}
       onContextMenu={(e) => e.preventDefault()}
@@ -82,10 +98,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         sizeClasses,
         borderRadius,
         triggerStyles.className,
+        disabled && "pointer-events-none",
       )}
-      style={{
-        opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
-      }}
     >
       {(isTriggerOn || isGuideOnly) && (
         <div
@@ -93,6 +107,13 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
             "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
             borderRadius,
           )}
+          style={{
+            opacity: disabled
+              ? 0.5
+              : brightness !== 1
+                ? brightness
+                : triggerStyles.opacity,
+          }}
         />
       )}
     </div>
