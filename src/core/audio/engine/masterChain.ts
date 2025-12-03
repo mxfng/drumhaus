@@ -195,18 +195,6 @@ export function connectInstrumentRuntime(
   instrument: InstrumentRuntime,
   master: MasterChainRuntimes,
 ): void {
-  // Disconnect existing links to avoid duplicated chains when re-connecting
-  instrument.samplerNode.disconnect();
-  instrument.envelopeNode.disconnect();
-  instrument.filterNode.disconnect();
-  // Only disconnect from the master chain so taps (meters/analyzers) stay connected
-  try {
-    instrument.pannerNode.disconnect(master.compressor);
-    instrument.pannerNode.disconnect(master.compDryDelay);
-  } catch (error) {
-    console.warn("Error disconnecting panner from master chain:", error);
-  }
-
   // Chain core nodes
   instrument.samplerNode.chain(
     instrument.envelopeNode,
