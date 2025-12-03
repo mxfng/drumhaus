@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Meter } from "tone";
 
-import { subscribeToPlaybackAnimation } from "@/core/audio/lib/playbackAnimationManager";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp } from "@/shared/lib/utils";
 
 interface GainMeterProps {

@@ -5,8 +5,8 @@ import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
 } from "@/core/audio/engine";
-import { subscribeToPlaybackAnimation } from "@/core/audio/lib/playbackAnimationManager";
 import { semitonesToRatio } from "@/shared/knob/lib/utils";
+import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp, normalize } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 

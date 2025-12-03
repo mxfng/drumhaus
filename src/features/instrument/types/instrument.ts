@@ -47,6 +47,7 @@ export interface InstrumentRuntime {
   samplerNode: Sampler;
   /** Used for decay envelope and pseudo-monophonic behavior */
   envelopeNode: AmplitudeEnvelope;
-  filterNode: Filter;
+  lowPassFilterNode: Filter;
+  highPassFilterNode: Filter;
   pannerNode: Panner;
 }

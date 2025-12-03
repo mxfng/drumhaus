@@ -10,6 +10,7 @@ import {
 import type { MasterChainParams } from "@/features/master-bus/types/master";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { prepareSampleSourceResolver } from "../cache/sample";
 import {
   connectInstrumentsToMasterChain,
   createDrumSequence,
@@ -25,7 +26,6 @@ import {
   updateMasterChainParams,
   waitForBuffersToLoad,
 } from "../engine";
-import { prepareSampleSourceResolver } from "../sampleSources";
 import { useAudioContextGuards } from "./useAudioContextGuards";
 
 interface UseAudioEngineResult {

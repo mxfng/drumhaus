@@ -25,9 +25,7 @@ import {
   reverbDecayMapping,
   reverbWetMapping,
   saturationWetMapping,
-  splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
-import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
 import {
   MASTER_COMP_KNEE,
   MASTER_COMP_LATENCY,
@@ -50,6 +48,7 @@ import {
   MASTER_TAPE_SATURATION_ORDER,
   MASTER_TAPE_SATURATION_WET,
 } from "./constants";
+import { applySplitFilterWithRamp } from "./splitFilter";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -198,7 +197,8 @@ export function connectInstrumentRuntime(
   // Chain core nodes
   instrument.samplerNode.chain(
     instrument.envelopeNode,
-    instrument.filterNode,
+    instrument.lowPassFilterNode,
+    instrument.highPassFilterNode,
     instrument.pannerNode,
   );
 
@@ -289,14 +289,13 @@ export function chainMasterChainNodes(
 export async function buildMasterChainNodes(
   settings: MasterChainSettings,
 ): Promise<MasterChainRuntimes> {
-  // Split filter: single filter that switches between lowpass and highpass (same as instrument filter)
-  const filterType: BiquadFilterType =
-    settings.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
-  const filterFrequency = splitFilterMapping.knobToDomain(settings.filter);
-
-  const lowPassFilter = new Filter(filterFrequency, filterType);
-  // highPassFilter is kept for chain compatibility but acts as pass-through
+  // Split filter: dedicated LP/HP nodes to avoid type switching artifacts
+  const lowPassFilter = new Filter(MASTER_FILTER_RANGE[1], "lowpass");
   const highPassFilter = new Filter(MASTER_FILTER_RANGE[0], "highpass");
+  applySplitFilterWithRamp(lowPassFilter, highPassFilter, settings.filter, {
+    minFrequency: MASTER_FILTER_RANGE[0],
+    maxFrequency: MASTER_FILTER_RANGE[1],
+  });
 
   // High-pass filter before phaser keeps sub bass clean
   const phaserPreFilter = new Filter(MASTER_PHASER_PRE_FILTER_FREQ, "highpass");
@@ -430,12 +429,15 @@ function applySettingsToRuntimes(
   runtimes.compDryGain.gain.value = 1 - settings.compMix;
 
   // Split filter settings (same as instrument filter implementation)
-  runtimes.lowPassFilter.type =
-    settings.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
-  runtimes.lowPassFilter.frequency.value = splitFilterMapping.knobToDomain(
+  applySplitFilterWithRamp(
+    runtimes.lowPassFilter,
+    runtimes.highPassFilter,
     settings.filter,
+    {
+      minFrequency: MASTER_FILTER_RANGE[0],
+      maxFrequency: MASTER_FILTER_RANGE[1],
+    },
   );
-  // highPassFilter stays as pass-through (no need to update)
 
   // Saturation wet/dry mix
   runtimes.saturation.wet.value = settings.saturationWet;

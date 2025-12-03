@@ -3,9 +3,9 @@ import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
   instrumentPanMapping,
   instrumentVolumeMapping,
-  splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
-import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
+import { INSTRUMENT_FILTER_RANGE } from "./constants";
+import { applySplitFilterWithRamp } from "./splitFilter";
 
 /**
  * Instrument parameters fall into two categories:
@@ -35,11 +35,14 @@ export function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: ContinuousRuntimeParams,
 ): void {
-  // TODO: Should probably extract this check to the knob library.
-  runtime.filterNode.type =
-    params.filter <= KNOB_ROTATION_THRESHOLD_L ? "lowpass" : "highpass";
-  runtime.filterNode.frequency.value = splitFilterMapping.knobToDomain(
+  applySplitFilterWithRamp(
+    runtime.lowPassFilterNode,
+    runtime.highPassFilterNode,
     params.filter,
+    {
+      minFrequency: INSTRUMENT_FILTER_RANGE[0],
+      maxFrequency: INSTRUMENT_FILTER_RANGE[1],
+    },
   );
 
   runtime.pannerNode.pan.value = instrumentPanMapping.knobToDomain(params.pan);

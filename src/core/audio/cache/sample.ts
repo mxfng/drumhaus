@@ -1,4 +1,4 @@
-import { getCachedAudioUrl, preCacheAudioFiles } from "./cache";
+import { getCachedAudioUrl, preCacheAudioFiles } from ".";
 
 export type SamplerSource = { url: string; baseUrl?: string };
 export type SampleSourceResolver = (

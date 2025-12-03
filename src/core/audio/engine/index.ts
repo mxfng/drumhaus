@@ -47,7 +47,7 @@ export {
   prepareSampleSourceResolver,
   type SampleSourceResolver,
   type SamplerSource,
-} from "../sampleSources";
+} from "../cache/sample";
 
 // Buffer
 export {

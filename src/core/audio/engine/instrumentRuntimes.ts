@@ -14,12 +14,13 @@ import {
   defaultSampleSourceResolver,
   SamplerSource,
   SampleSourceResolver,
-} from "../sampleSources";
+} from "../cache/sample";
 import {
   ENVELOPE_DEFAULT_ATTACK,
   ENVELOPE_DEFAULT_DECAY,
   ENVELOPE_DEFAULT_RELEASE,
   ENVELOPE_DEFAULT_SUSTAIN,
+  INSTRUMENT_FILTER_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "./constants";
 
@@ -65,7 +66,9 @@ export async function buildInstrumentRuntime(
   instrument: InstrumentData,
   resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<InstrumentRuntime> {
-  const filterNode = new Filter(0, "highpass");
+  // Separate filters avoid switching Tone filter types mid-rotation
+  const lowPassFilterNode = new Filter(INSTRUMENT_FILTER_RANGE[1], "lowpass");
+  const highPassFilterNode = new Filter(INSTRUMENT_FILTER_RANGE[0], "highpass");
 
   const envelopeNode = new AmplitudeEnvelope(
     ENVELOPE_DEFAULT_ATTACK,
@@ -86,7 +89,8 @@ export async function buildInstrumentRuntime(
     instrumentId: instrument.meta.id,
     samplerNode,
     envelopeNode,
-    filterNode,
+    lowPassFilterNode,
+    highPassFilterNode,
     pannerNode,
   };
 }
@@ -121,6 +125,7 @@ function createSampler(url: string, baseUrl?: string): Promise<Sampler> {
 function disposeInstrumentRuntime(runtime: InstrumentRuntime): void {
   runtime.samplerNode.dispose();
   runtime.envelopeNode.dispose();
-  runtime.filterNode.dispose();
+  runtime.lowPassFilterNode.dispose();
+  runtime.highPassFilterNode.dispose();
   runtime.pannerNode.dispose();
 }
