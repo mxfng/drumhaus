@@ -6,9 +6,12 @@ import { SequencerStepIndicator } from "@/features/sequencer/components/Sequence
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
 interface StepMusicalState {
   velocityValue: number;
+  isTriggerOn: boolean;
+  brightness: number;
 }
 
 export const Sequencer: React.FC = () => {
@@ -21,6 +24,9 @@ export const Sequencer: React.FC = () => {
   const toggleAccent = usePatternStore((state) => state.toggleAccent);
   const setVelocity = usePatternStore((state) => state.setVelocity);
 
+  // --- Transport Store ---
+  const isPlaying = useTransportStore((state) => state.isPlaying);
+
   const accentMode = mode.type === "accent";
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
@@ -28,6 +34,9 @@ export const Sequencer: React.FC = () => {
   const triggers = accentMode
     ? pattern.variationMetadata[variation].accent
     : pattern.voices[voiceIndex].variations[variation].triggers;
+
+  // Calculate ghosting: viewing different variation than what's playing
+  const isGhosted = isPlaying && playbackVariation !== variation && !accentMode;
 
   // --- Drag-paint logic ---
   const {
@@ -50,15 +59,21 @@ export const Sequencer: React.FC = () => {
   );
 
   const getStepMusicalState = (step: number): StepMusicalState => {
+    const isTriggerOn = triggers[step];
+    // Ghosting: 0.7 brightness when trigger is on but viewing different variation
+    const brightness = isGhosted && isTriggerOn ? 0.7 : 1;
+
     return {
       velocityValue: velocities[step],
+      isTriggerOn,
+      brightness,
     };
   };
 
   return (
     <div
       key="sequence-grid"
-      className="grid h-full w-full grid-cols-16 gap-4"
+      className="grid h-40 w-full grid-cols-16 gap-4 p-6"
       onPointerMove={handleStepPointerMove}
     >
       {steps.map((step) => {
@@ -73,20 +88,25 @@ export const Sequencer: React.FC = () => {
             />
             <SequencerStep
               stepIndex={step}
+              isTriggerOn={state.isTriggerOn}
+              brightness={state.brightness}
               onPointerStart={handleStepPointerStart}
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
             />
             {/* Hide velocity controls in accent mode */}
-            {!accentMode && (
-              <SequencerVelocity
-                stepIndex={step}
-                velocityValue={state.velocityValue}
-                onSetVelocity={(stepIndex, velocity) =>
-                  setVelocity(voiceIndex, variation, stepIndex, velocity)
-                }
-              />
-            )}
+            <div className="mt-3 h-3.5 w-full">
+              {!accentMode && (
+                <SequencerVelocity
+                  stepIndex={step}
+                  velocityValue={state.velocityValue}
+                  isTriggerOn={state.isTriggerOn}
+                  onSetVelocity={(stepIndex, velocity) =>
+                    setVelocity(voiceIndex, variation, stepIndex, velocity)
+                  }
+                />
+              )}
+            </div>
           </div>
         );
       })}

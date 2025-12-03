@@ -50,9 +50,7 @@ export const GrooveControls = () => {
         <Tooltip content={TOOLTIPS.ACCENT_MODE}>
           <Button
             variant="hardware"
-            className={cn(
-              accentMode && "border-primary border-2 transition-colors",
-            )}
+            className={cn(accentMode && "border-primary transition-colors")}
             onClick={toggleAccentMode}
             size="sm"
           >

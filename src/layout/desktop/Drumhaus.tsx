@@ -81,9 +81,7 @@ const Drumhaus = () => {
             {renderDivider()}
 
             {/* Sequencer */}
-            <div className="p-6">
-              <Sequencer />
-            </div>
+            <Sequencer />
           </div>
 
           {/* Footer */}

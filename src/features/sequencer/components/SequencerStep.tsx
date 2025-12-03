@@ -1,11 +1,12 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
-import { subscribeToPadState } from "@/features/sequencer/lib/padStateManager";
 import { cn } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
+  isTriggerOn: boolean;
+  brightness: number;
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -29,38 +30,18 @@ interface SequencerStepProps {
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
   stepIndex,
+  isTriggerOn,
+  brightness,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
   onTouchStart,
   onTouchMove,
 }) => {
-  const stepRef = useRef<HTMLDivElement>(null);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
-
-  // Track trigger state from pad manager
-  const [isTriggerOn, setIsTriggerOn] = React.useState(false);
-
-  // Subscribe to pad state manager for all pad state
-  useEffect(() => {
-    const unsubscribe = subscribeToPadState(stepIndex, (padState) => {
-      if (!stepRef.current) return;
-
-      // Update trigger state for event handlers
-      setIsTriggerOn(padState.isTriggerOn);
-
-      // Apply brightness (dimming/ghosting)
-      if (padState.brightness !== 1) {
-        stepRef.current.style.opacity = padState.brightness.toString();
-      } else {
-        stepRef.current.style.opacity = "";
-      }
-    });
-    return unsubscribe;
-  }, [stepIndex]);
 
   const getTriggerClassName = () => {
     if (potatoMode) {
@@ -83,7 +64,6 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   return (
     <div
-      ref={stepRef}
       data-step-index={stepIndex}
       onPointerDown={(event) => onPointerStart?.(event, stepIndex, isTriggerOn)}
       onPointerEnter={(event) =>
@@ -103,13 +83,13 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         "border-border relative cursor-pointer overflow-hidden border",
         potatoMode
           ? "transition-none"
-          : "transition-[background-color,box-shadow] duration-300 ease-in-out",
+          : "transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
       )}
       style={{
-        opacity: triggerStyles.opacity,
+        opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
       }}
     >
       {isTriggerOn && !potatoMode && (
