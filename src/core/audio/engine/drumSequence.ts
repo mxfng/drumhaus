@@ -45,9 +45,9 @@ const ACCENT_DAMPEN = ACCENT_BOOST;
 /**
  * Ratchet timing offset in beats (1/32 note).
  * When ratchet is enabled, adds an additional trigger after the main hit.
- * 1/32 = 0.03125 beats in 4/4 time
+ * 32nd note = 1/8 of a quarter note = 0.125 beats in 4/4 time
  */
-const RATCHET_OFFSET_BEATS = 0.03125;
+const RATCHET_OFFSET_BEATS = 0.125;
 
 /**
  * Flam timing offset in seconds.
