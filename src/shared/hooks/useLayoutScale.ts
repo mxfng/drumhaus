@@ -5,7 +5,7 @@ import { clamp } from "@/shared/lib/utils";
 const DESIGN_WIDTH_REM = 90; // w-360 in Tailwind, 1440px
 const DESIGN_HEIGHT_REM = 56.25; // h-225 in Tailwind, 900px
 const SCALE_PADDING_REM = 3; // 3rem
-const MIN_SCALE = 0.1;
+const MIN_SCALE = 0.25;
 const MAX_SCALE = 1.25;
 
 type LayoutScaleProps = {
