@@ -91,7 +91,7 @@ export const FloatingMenu: React.FC = () => {
             onCheckedChange={toggleDebugMode}
             disabled={potatoMode}
           >
-            Dev Mode
+            Debug Mode
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
             checked={potatoMode}
