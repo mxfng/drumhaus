@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --port 4444",
     "build": "tsc && vite build",
+    "build:sourcemaps": "tsc && vite build --sourcemap",
+    "build:sourcemaps:watch": "tsc && vite build --sourcemap --watch",
     "preview": "vite preview --port 4444",
     "format": "npx prettier . --write",
     "lint": "eslint src --max-warnings 0",
