@@ -49,14 +49,14 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const getTriggerClassName = () => {
     if (potatoMode) {
       if (isTriggerOn) return "bg-primary";
-      if (isGuideOnly) return "bg-foreground-muted";
+      if (isGuideOnly) return "bg-surface";
       return "bg-instrument";
     }
 
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
-        ? "bg-foreground-muted shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
+        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
         : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
   };
 
