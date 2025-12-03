@@ -4,7 +4,8 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 
-interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SequencerVariationButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variation: number;
 }
 
@@ -38,6 +39,9 @@ export const SequencerVariationButton = forwardRef<
       onClick={handleClick}
       className={cn(
         "font-pixel relative flex items-start justify-start overflow-hidden transition-colors duration-400",
+        {
+          "border-primary text-primary transition-colors": isActive,
+        },
         className,
       )}
       {...props}
