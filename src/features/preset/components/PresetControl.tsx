@@ -1,15 +1,39 @@
+import { lazy, Suspense } from "react";
+
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { KitNavigator } from "@/features/kit/components/KitNavigator";
 import { KitSelector } from "@/features/kit/components/KitSelector";
 import { PresetActions } from "@/features/preset/components/PresetActions";
 import { PresetSelector } from "@/features/preset/components/PresetSelector";
-import { ConfirmSelectPresetDialog } from "@/features/preset/dialogs/ConfirmSelectPresetDialog";
-import { ExportDialog } from "@/features/preset/dialogs/ExportDialog";
-import { SaveDialog } from "@/features/preset/dialogs/SaveDialog";
-import { ShareDialog } from "@/features/preset/dialogs/ShareDialog";
 import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
+
+const ShareDialog = lazy(() =>
+  import("@/features/preset/dialogs/ShareDialog").then((module) => ({
+    default: module.ShareDialog,
+  })),
+);
+
+const SaveDialog = lazy(() =>
+  import("@/features/preset/dialogs/SaveDialog").then((module) => ({
+    default: module.SaveDialog,
+  })),
+);
+
+const ExportDialog = lazy(() =>
+  import("@/features/preset/dialogs/ExportDialog").then((module) => ({
+    default: module.ExportDialog,
+  })),
+);
+
+const ConfirmSelectPresetDialog = lazy(() =>
+  import("@/features/preset/dialogs/ConfirmSelectPresetDialog").then(
+    (module) => ({
+      default: module.ConfirmSelectPresetDialog,
+    }),
+  ),
+);
 
 export const PresetControl: React.FC = () => {
   const { loadPreset } = useDrumhaus();
@@ -117,25 +141,36 @@ export const PresetControl: React.FC = () => {
         </div>
       </div>
 
-      <SaveDialog
-        isOpen={activeDialog === "save"}
-        onClose={closeDialog}
-        onSave={exportPreset}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <SaveDialog
+          isOpen={activeDialog === "save"}
+          onClose={closeDialog}
+          onSave={exportPreset}
+        />
+      </Suspense>
 
-      <ShareDialog
-        isOpen={activeDialog === "share"}
-        onClose={closeDialog}
-        onShare={sharePreset}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ShareDialog
+          isOpen={activeDialog === "share"}
+          onClose={closeDialog}
+          onShare={sharePreset}
+        />
+      </Suspense>
 
-      <ExportDialog isOpen={activeDialog === "export"} onClose={closeDialog} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ExportDialog
+          isOpen={activeDialog === "export"}
+          onClose={closeDialog}
+        />
+      </Suspense>
 
-      <ConfirmSelectPresetDialog
-        isOpen={activeDialog === "presetChange"}
-        onClose={closeDialog}
-        onSelect={handleConfirmPresetChange}
-      />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ConfirmSelectPresetDialog
+          isOpen={activeDialog === "presetChange"}
+          onClose={closeDialog}
+          onSelect={handleConfirmPresetChange}
+        />
+      </Suspense>
     </>
   );
 };
