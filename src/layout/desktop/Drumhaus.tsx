@@ -7,7 +7,7 @@ import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
-import Footer from "./Footer";
+import { Footer } from "./Footer";
 import { Header } from "./Header";
 
 const MobileDialog = lazy(() =>
