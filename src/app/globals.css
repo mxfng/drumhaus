@@ -11,6 +11,7 @@
   /* Colors */
   /* 244 235 236 */
   --color-background: #d5cdc3;
+  --color-black: #0a0a0f;
   --color-foreground: #a6866c;
   --color-foreground-muted: #c3ad97;
   --color-foreground-emphasis: #65503e;
@@ -49,18 +50,18 @@
   --shadow-neu:
     3px 3px 9px var(--color-shadow-60), -3px -3px 9px var(--color-highlight-30);
   --shadow-neu-md:
-    6px 6px 9px var(--color-shadow-50),
+    6px 6px 9px var(--color-shadow-30),
     -10px -10px 24px var(--color-highlight-20);
   --shadow-neu-tall:
-    10px 12px 18px var(--color-shadow-50),
+    10px 12px 18px var(--color-shadow-30),
     -10px -20px 20px var(--color-highlight-30);
   --shadow-neu-xl:
-    20px 20px 50px var(--color-shadow-50),
+    20px 20px 50px var(--color-shadow-30),
     -30px -30px 60px var(--color-highlight-40);
   --shadow-neu-raised:
-    1px 1px 3px var(--color-shadow-30), -1px -1px 3px var(--color-highlight-17);
+    1px 1px 3px var(--color-shadow-10), -1px -1px 3px var(--color-highlight-17);
   --shadow-neu-tall-raised:
-    12px 12px 18px var(--color-shadow-30),
+    12px 12px 18px var(--color-shadow-10),
     -16px -16px 24px var(--color-highlight-20);
   --shadow-inset:
     inset 2px 2px 4px var(--color-shadow-60),
@@ -105,13 +106,21 @@ body,
 #root {
   width: 100%;
   height: 100%;
-  background-color: var(--color-background);
+  background-color: var(--color-instrument);
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -moz-user-select: none;
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
+  transition: background-color 1.5s ease-in-out;
+}
+
+/* Night mode */
+html.night-mode,
+body.night-mode,
+#root.night-mode {
+  background-color: var(--color-black);
 }
 
 a {
@@ -193,11 +202,8 @@ a {
   height: calc(
     var(--app-height) + var(--app-footer-height) + var(--app-header-height)
   );
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: auto;
+  top: 50%;
+  left: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -7,6 +7,7 @@ import {
   SCALE_OPTIONS,
   useLayoutScaleStore,
 } from "@/shared/store/useLayoutScaleStore";
+import { useNightModeStore } from "@/shared/store/useNightModeStore";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import {
   DropdownMenu,
@@ -34,11 +35,25 @@ export const FloatingMenu: React.FC = () => {
   const togglePotatoMode = usePerformanceStore(
     (state) => state.togglePotatoMode,
   );
+  const nightMode = useNightModeStore((state) => state.nightMode);
+  const toggleNightMode = useNightModeStore((state) => state.toggleNightMode);
 
   const setScale = useLayoutScaleStore((state) => state.setScale);
   const fitToScreen = useLayoutScaleStore((state) => state.fitToScreen);
   const zoomIn = useLayoutScaleStore((state) => state.zoomIn);
   const zoomOut = useLayoutScaleStore((state) => state.zoomOut);
+
+  const handleTogglePotatoMode = () => {
+    if (nightMode) {
+      toggleNightMode();
+    }
+
+    if (debugMode) {
+      toggleDebugMode();
+    }
+
+    togglePotatoMode();
+  };
 
   return (
     <>
@@ -65,14 +80,22 @@ export const FloatingMenu: React.FC = () => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem
+            checked={nightMode}
+            onCheckedChange={toggleNightMode}
+            disabled={potatoMode}
+          >
+            Night Mode
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem
             checked={debugMode}
             onCheckedChange={toggleDebugMode}
+            disabled={potatoMode}
           >
-            Debug Mode
+            Dev Mode
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
             checked={potatoMode}
-            onCheckedChange={togglePotatoMode}
+            onCheckedChange={handleTogglePotatoMode}
           >
             Potato Mode
           </DropdownMenuCheckboxItem>

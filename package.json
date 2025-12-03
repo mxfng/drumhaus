@@ -38,6 +38,7 @@
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
+    "three": "^0.181.2",
     "tone": "^15.1.22",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
@@ -52,6 +53,7 @@
     "@types/pako": "^2.0.4",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.181.0",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
     "@vitejs/plugin-react": "^5.1.1",

@@ -54,14 +54,14 @@ const Drumhaus = () => {
         <div
           className="drumhaus-scale-wrapper"
           style={{
-            transform: `scale(${scale / 100})`,
+            transform: `translate(-50%, -50%) scale(${scale / 100})`,
             transformOrigin: "center center",
           }}
         >
           {/* Header buffer */}
           <div className="h-10" />
 
-          <div className="neu-extra-tall surface border-border relative h-225 w-360 overflow-clip rounded-xl border">
+          <div className="neu-medium-raised surface border-border relative h-225 w-360 overflow-clip rounded-xl border">
             {/* Header */}
             <Header />
 
