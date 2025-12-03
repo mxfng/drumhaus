@@ -4,6 +4,7 @@ import { Meter } from "tone";
 import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp } from "@/shared/lib/utils";
+import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface GainMeterProps {
   runtime?: InstrumentRuntime;
@@ -35,9 +36,11 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
   const peakLevelRef = useRef(0);
   const peakHoldTimeRef = useRef(0);
 
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+
   // Create our own meter and tap the instrument output
   useEffect(() => {
-    if (!runtime) return;
+    if (!runtime || potatoMode) return;
 
     // Create meter and tap the panner output (just like FrequencyAnalyzer taps Destination)
     meterRef.current = new Meter({
@@ -57,10 +60,10 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
         meterRef.current = null;
       }
     };
-  }, [runtime]);
+  }, [runtime, potatoMode]);
 
   useEffect(() => {
-    if (!runtime || !meterRef.current) return;
+    if (!runtime || !meterRef.current || potatoMode) return;
 
     const updateMeter = (now: number) => {
       if (!meterRef.current) return;
@@ -117,7 +120,11 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
     const unsubscribe = subscribeToPlaybackAnimation(updateMeter);
 
     return unsubscribe;
-  }, [runtime]);
+  }, [runtime, potatoMode]);
+
+  if (potatoMode) {
+    return <div className="h-full w-full" />;
+  }
 
   return (
     <div className="flex h-full flex-col-reverse items-center justify-center gap-1.5">

@@ -1,7 +1,6 @@
 import React from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -40,19 +39,11 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onTouchStart,
   onTouchMove,
 }) => {
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
-
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
   const isGuideOnly = isGuideActive && !isTriggerOn;
 
   const getTriggerClassName = () => {
-    if (potatoMode) {
-      if (isTriggerOn) return "bg-primary";
-      if (isGuideOnly) return "bg-surface";
-      return "bg-instrument";
-    }
-
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
@@ -87,10 +78,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "border-border relative cursor-pointer overflow-hidden border",
-        potatoMode
-          ? "transition-none"
-          : "transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
+        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
@@ -99,7 +87,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
       }}
     >
-      {(isTriggerOn || isGuideOnly) && !potatoMode && (
+      {(isTriggerOn || isGuideOnly) && (
         <div
           className={cn(
             "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",

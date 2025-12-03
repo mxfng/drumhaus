@@ -15,7 +15,6 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import { Button, Tooltip } from "@/shared/ui";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 import { InstrumentRuntime } from "../types/instrument";
@@ -64,8 +63,6 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
 
   const mode = usePatternStore((state) => state.mode);
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
-
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
   // Wrap store setters with instrument index
   const setDecay = useCallback(
@@ -174,7 +171,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
 
       {/* Level/volume slider */}
       <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
-        {potatoMode ? <div /> : <GainMeter runtime={runtime} />}
+        <GainMeter runtime={runtime} />
         <HardwareSlider
           mapping={instrumentVolumeMapping}
           value={volume}
