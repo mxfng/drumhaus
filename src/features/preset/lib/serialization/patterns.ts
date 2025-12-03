@@ -12,6 +12,11 @@ import type {
   OptimizedVoice,
 } from "./types";
 
+const EMPTY_OPTIMIZED_SEQUENCE: OptimizedStepSequence = {
+  triggers: Array.from({ length: STEP_COUNT }, () => false),
+  velocities: {},
+};
+
 /**
  * Optimizes a pattern for URL sharing by using sparse velocity encoding
  * Only stores velocities that differ from the default value of 1.0
@@ -22,6 +27,8 @@ export function optimizePattern(pattern: Pattern): OptimizedPattern {
     variationMetadata: [
       optimizeVariationMetadata(pattern.variationMetadata[0]),
       optimizeVariationMetadata(pattern.variationMetadata[1]),
+      optimizeVariationMetadata(pattern.variationMetadata[2]),
+      optimizeVariationMetadata(pattern.variationMetadata[3]),
     ],
   };
 }
@@ -32,6 +39,8 @@ function optimizeVoice(voice: Voice): OptimizedVoice {
     variations: [
       optimizeStepSequence(voice.variations[0]),
       optimizeStepSequence(voice.variations[1]),
+      optimizeStepSequence(voice.variations[2]),
+      optimizeStepSequence(voice.variations[3]),
     ],
   };
 }
@@ -92,6 +101,8 @@ export function hydratePattern(optimizedPattern: OptimizedPattern): Pattern {
     variationMetadata: [
       hydrateVariationMetadata(optimizedPattern.variationMetadata[0]),
       hydrateVariationMetadata(optimizedPattern.variationMetadata[1]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[2]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[3]),
     ],
   };
 }
@@ -100,8 +111,18 @@ function hydrateVoice(optimizedVoice: OptimizedVoice): Voice {
   return {
     instrumentIndex: optimizedVoice.instrumentIndex,
     variations: [
-      hydrateStepSequence(optimizedVoice.variations[0]),
-      hydrateStepSequence(optimizedVoice.variations[1]),
+      hydrateStepSequence(
+        optimizedVoice.variations[0] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[1] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[2] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[3] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
     ],
   };
 }
@@ -134,9 +155,9 @@ function hydrateStepSequence(
  * Hydrates variation metadata, filling in defaults for missing accent data
  */
 function hydrateVariationMetadata(
-  optimizedMetadata: OptimizedVariationMetadata,
+  optimizedMetadata?: OptimizedVariationMetadata,
 ): VariationMetadata {
   return {
-    accent: optimizedMetadata.accent ?? Array(STEP_COUNT).fill(false),
+    accent: optimizedMetadata?.accent ?? Array(STEP_COUNT).fill(false),
   };
 }

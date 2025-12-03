@@ -9,7 +9,10 @@ import {
 } from "@/features/instrument/types/instrument";
 import { getMasterChainParams } from "@/features/master-bus/store/useMasterChainStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { VariationCycle } from "@/features/sequencer/types/sequencer";
+import {
+  PatternChain,
+  VariationId,
+} from "@/features/sequencer/types/sequencer";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import {
   applyInstrumentParams,
@@ -49,7 +52,8 @@ export async function exportToWav(
   onProgress?.({ phase: "preparing", percent: 0 });
 
   // Gather current state from stores
-  const { pattern, variationCycle } = usePatternStore.getState();
+  const { pattern, chain, chainEnabled, variation } =
+    usePatternStore.getState();
   const { instruments } = useInstrumentsStore.getState();
   const { bpm, swing } = useTransportStore.getState();
   const masterChainParams = getMasterChainParams();
@@ -88,7 +92,9 @@ export async function exportToWav(
         pattern,
         instruments,
         runtimes,
-        variationCycle,
+        chain,
+        chainEnabled,
+        variation as VariationId,
         options.bars,
       );
 
@@ -117,20 +123,19 @@ export async function exportToWav(
 }
 
 /**
- * Get suggested number of bars based on variation cycle
+ * Get suggested number of bars based on the active chain.
+ * We suggest two full passes of the chain to keep exports loop-friendly.
  */
-export function getSuggestedBars(variationCycle: VariationCycle): number {
-  switch (variationCycle) {
-    case "A":
-    case "B":
-      return 2;
-    case "AB":
-      return 4;
-    case "AAAB":
-      return 8;
-    default:
-      return 2;
-  }
+export function getSuggestedBars(
+  chain: PatternChain,
+  chainEnabled: boolean,
+): number {
+  if (!chainEnabled) return 2;
+
+  const totalRepeats = chain.steps.reduce((sum, step) => sum + step.repeats, 0);
+
+  const recommended = Math.max(1, totalRepeats * 2);
+  return Math.min(8, recommended);
 }
 
 /**

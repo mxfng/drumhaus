@@ -5,10 +5,17 @@ import {
   InstrumentData,
   InstrumentRuntime,
 } from "@/features/instrument/types/instrument";
+import {
+  clampVariationId,
+  sanitizeChain,
+} from "@/features/sequencer/lib/chain";
 import { nudgeToBeatOffset } from "@/features/sequencer/lib/timing";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
-import { VariationCycle } from "@/features/sequencer/types/sequencer";
+import {
+  PatternChain,
+  VariationId,
+} from "@/features/sequencer/types/sequencer";
 import { instrumentDecayMapping, tuneMapping } from "@/shared/knob/lib/mapping";
 import {
   SEQUENCE_EVENTS,
@@ -62,6 +69,8 @@ const FLAM_OFFSET_SECONDS = 0.015; // 15ms
  */
 const FLAM_GRACE_VELOCITY = 0.6;
 
+const VARIATION_COUNT = 4;
+
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
@@ -81,27 +90,31 @@ type PrecomputedPattern = {
   stepsByVariation: PrecomputedHit[][][]; // [variation][step][hits]
 };
 
+type ChainPlaybackState = {
+  stepIndex: number;
+  repeatsRemaining: number;
+};
+
 function buildPrecomputedPattern(
   pattern: Pattern,
   version: number,
 ): PrecomputedPattern {
-  const stepsByVariation: PrecomputedHit[][][] = [
-    Array.from({ length: STEP_COUNT }, () => []),
-    Array.from({ length: STEP_COUNT }, () => []),
-  ];
+  const stepsByVariation: PrecomputedHit[][][] = Array.from(
+    { length: VARIATION_COUNT },
+    () => Array.from({ length: STEP_COUNT }, () => []),
+  );
 
   // Check if each variation has any accents (used to determine if dampening is needed)
-  const hasAccents = [
-    pattern.variationMetadata[0].accent.some((a) => a),
-    pattern.variationMetadata[1].accent.some((a) => a),
-  ];
+  const hasAccents = pattern.variationMetadata.map((meta) =>
+    meta.accent.some((a) => a),
+  );
 
   for (let voiceIndex = 0; voiceIndex < pattern.voices.length; voiceIndex++) {
     const voice = pattern.voices[voiceIndex];
 
     for (
       let variationIndex = 0;
-      variationIndex < voice.variations.length;
+      variationIndex < VARIATION_COUNT;
       variationIndex++
     ) {
       const variation = voice.variations[variationIndex];
@@ -151,8 +164,11 @@ function buildPrecomputedPattern(
 export function createDrumSequence(
   sequencerRef: { current: Sequence | null },
   instrumentRuntimes: { current: InstrumentRuntime[] },
-  variationCycle: VariationCycle,
-  currentBar: { current: number },
+  playbackConfig: {
+    chain: PatternChain;
+    chainEnabled: boolean;
+    activeVariation: VariationId;
+  },
   currentVariation: { current: number },
 ): void {
   disposeDrumSequence(sequencerRef);
@@ -160,6 +176,21 @@ export function createDrumSequence(
   let precomputedPattern = buildPrecomputedPattern(
     usePatternStore.getState().pattern,
     usePatternStore.getState().patternVersion,
+  );
+
+  const playbackChain = sanitizeChain(playbackConfig.chain);
+  const chainState: ChainPlaybackState = {
+    stepIndex: 0,
+    repeatsRemaining: playbackChain.steps[0]?.repeats ?? 1,
+  };
+  const fallbackVariation = clampVariationId(playbackConfig.activeVariation);
+  const chainEnabled = playbackConfig.chainEnabled;
+
+  updatePlaybackVariation(
+    currentVariation,
+    chainEnabled
+      ? (playbackChain.steps[0]?.variation ?? fallbackVariation)
+      : clampVariationId(usePatternStore.getState().variation ?? 0),
   );
 
   const sequence = new Sequence(
@@ -186,9 +217,11 @@ export function createDrumSequence(
 
       if (isFirstStep) {
         updateVariationForBarStart(
-          variationCycle,
-          currentBar,
+          chainEnabled,
+          playbackChain,
+          chainState,
           currentVariation,
+          fallbackVariation,
         );
       }
 
@@ -212,7 +245,7 @@ export function createDrumSequence(
       }
 
       if (isLastStep) {
-        updateBarIndexAtEndOfBar(variationCycle, currentBar);
+        advanceChainAtEndOfBar(chainEnabled, playbackChain, chainState);
       }
     },
     SEQUENCE_EVENTS,
@@ -436,67 +469,61 @@ function schedulePrecomputedStep(
 }
 
 // -----------------------------------------------------------------------------
-// Variation & bar helpers
+// Variation & chain helpers
 // -----------------------------------------------------------------------------
 
-export function computeNextVariationIndex(
-  variationCycle: VariationCycle,
-  currentBarIndex: number,
-  currentVariationIndex: number,
-): number {
-  switch (variationCycle) {
-    case "A":
-      return 0;
-    case "B":
-      return 1;
-    case "AB":
-      return currentBarIndex === 0 ? 0 : 1;
-    case "AAAB":
-      return currentBarIndex === 3 ? 1 : 0;
-    default:
-      return currentVariationIndex;
+function updatePlaybackVariation(
+  currentVariation: { current: number },
+  nextVariation: number,
+): void {
+  const clamped = clampVariationId(nextVariation);
+  currentVariation.current = clamped;
+
+  const playbackVariation = usePatternStore.getState().playbackVariation;
+  if (playbackVariation !== clamped) {
+    usePatternStore.getState().setPlaybackVariation(clamped);
   }
 }
 
 function updateVariationForBarStart(
-  variationCycle: VariationCycle,
-  currentBar: { current: number },
+  chainEnabled: boolean,
+  chain: PatternChain,
+  chainState: ChainPlaybackState,
   currentVariation: { current: number },
+  fallbackVariation: VariationId,
 ): void {
-  const nextVariationIndex = computeNextVariationIndex(
-    variationCycle,
-    currentBar.current,
-    currentVariation.current,
-  );
-
-  currentVariation.current = nextVariationIndex;
-
-  const playbackVariation = usePatternStore.getState().playbackVariation;
-  if (playbackVariation !== nextVariationIndex) {
-    usePatternStore.getState().setPlaybackVariation(nextVariationIndex);
+  if (!chainEnabled || chain.steps.length === 0) {
+    const latestVariation = clampVariationId(
+      usePatternStore.getState().variation ?? fallbackVariation,
+    );
+    updatePlaybackVariation(currentVariation, latestVariation);
+    return;
   }
+
+  if (chainState.stepIndex >= chain.steps.length) {
+    chainState.stepIndex = 0;
+    chainState.repeatsRemaining = chain.steps[0].repeats;
+  }
+
+  const currentStep = chain.steps[chainState.stepIndex];
+  updatePlaybackVariation(currentVariation, currentStep.variation);
 }
 
-export function computeNextBarIndex(
-  variationCycle: VariationCycle,
-  currentBar: number,
-): number {
-  if (
-    variationCycle === "A" ||
-    variationCycle === "B" ||
-    (variationCycle === "AB" && currentBar > 0) ||
-    (variationCycle === "AAAB" && currentBar > 2)
-  ) {
-    return 0;
-  }
-  return currentBar + 1;
-}
-
-function updateBarIndexAtEndOfBar(
-  variationCycle: VariationCycle,
-  currentBar: { current: number },
+function advanceChainAtEndOfBar(
+  chainEnabled: boolean,
+  chain: PatternChain,
+  chainState: ChainPlaybackState,
 ): void {
-  currentBar.current = computeNextBarIndex(variationCycle, currentBar.current);
+  if (!chainEnabled || chain.steps.length === 0) return;
+
+  chainState.repeatsRemaining -= 1;
+
+  if (chainState.repeatsRemaining <= 0) {
+    chainState.stepIndex =
+      (chainState.stepIndex + 1) % Math.max(chain.steps.length, 1);
+    chainState.repeatsRemaining =
+      chain.steps[chainState.stepIndex]?.repeats ?? 1;
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -565,15 +592,25 @@ export function createOfflineSequence(
   pattern: Pattern,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
-  variationCycle: VariationCycle,
+  chain: PatternChain,
+  chainEnabled: boolean,
+  activeVariation: VariationId,
   bars: number,
 ): Sequence {
   const anySolos = hasAnySolo(instruments);
   const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
   const precomputedPattern = buildPrecomputedPattern(pattern, 0);
 
-  let currentBar = 0;
-  let currentVariation = computeNextVariationIndex(variationCycle, 0, 0);
+  const playbackChain = sanitizeChain(chain);
+  const chainState: ChainPlaybackState = {
+    stepIndex: 0,
+    repeatsRemaining: playbackChain.steps[0]?.repeats ?? 1,
+  };
+
+  const chainIsActive = chainEnabled && playbackChain.steps.length > 0;
+  let currentVariation = chainIsActive
+    ? (playbackChain.steps[0]?.variation ?? clampVariationId(activeVariation))
+    : clampVariationId(activeVariation);
   let totalStepsScheduled = 0;
   const totalSteps = bars * STEP_COUNT;
 
@@ -586,12 +623,17 @@ export function createOfflineSequence(
 
       // Update variation at start of each bar
       if (isFirstStep && totalStepsScheduled > 0) {
-        currentBar = computeNextBarIndex(variationCycle, currentBar);
-        currentVariation = computeNextVariationIndex(
-          variationCycle,
-          currentBar,
-          currentVariation,
-        );
+        if (chainIsActive) {
+          if (chainState.stepIndex >= playbackChain.steps.length) {
+            chainState.stepIndex = 0;
+            chainState.repeatsRemaining = playbackChain.steps[0]?.repeats ?? 1;
+          }
+          currentVariation =
+            playbackChain.steps[chainState.stepIndex]?.variation ??
+            clampVariationId(activeVariation);
+        } else {
+          currentVariation = clampVariationId(activeVariation);
+        }
       }
 
       // Schedule all voices - uses same path as live playback
@@ -616,6 +658,18 @@ export function createOfflineSequence(
       // Stop sequence after last step of final bar
       if (isLastStep && totalStepsScheduled >= totalSteps) {
         sequence.stop();
+      }
+
+      if (isLastStep && chainIsActive) {
+        chainState.repeatsRemaining -= 1;
+
+        if (chainState.repeatsRemaining <= 0) {
+          chainState.stepIndex =
+            (chainState.stepIndex + 1) %
+            Math.max(playbackChain.steps.length, 1);
+          chainState.repeatsRemaining =
+            playbackChain.steps[chainState.stepIndex]?.repeats ?? 1;
+        }
       }
     },
     SEQUENCE_EVENTS,

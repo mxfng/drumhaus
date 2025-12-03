@@ -41,11 +41,13 @@ export function useAudioEngine(): UseAudioEngineResult {
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
   const toneSequence = useRef<Sequence | null>(null);
-  const bar = useRef<number>(0);
-  const chainVariation = useRef<number>(0);
+  const playbackVariationRef = useRef<number>(0);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
-  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const chainVersion = usePatternStore((state) => state.chainVersion);
+  const chain = usePatternStore((state) => state.chain);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const activeVariation = usePatternStore((state) => state.variation);
 
   const instrumentSamplePaths = useInstrumentsStore((state) =>
     state.instruments.map((inst) => inst.sample.path).join(","),
@@ -57,16 +59,19 @@ export function useAudioEngine(): UseAudioEngineResult {
       createDrumSequence(
         toneSequence,
         instrumentRuntimes,
-        variationCycle,
-        bar,
-        chainVariation,
+        {
+          chain,
+          chainEnabled,
+          activeVariation,
+        },
+        playbackVariationRef,
       );
     }
 
     return () => {
       disposeDrumSequence(toneSequence);
     };
-  }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
+  }, [isPlaying, instrumentRuntimesVersion, chainVersion]);
 
   // When any instrument is soloed, immediately release all non-solo runtimes
   useEffect(() => {

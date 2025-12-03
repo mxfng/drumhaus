@@ -8,6 +8,11 @@ import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import {
+  DEFAULT_CHAIN,
+  legacyCycleToChain,
+  sanitizeChain,
+} from "@/features/sequencer/lib/chain";
+import {
   migrateMasterChainParams,
   migratePattern,
 } from "@/features/sequencer/lib/migrations";
@@ -47,7 +52,8 @@ export function usePresetLoading({
   const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setPattern = usePatternStore((state) => state.setPattern);
-  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
+  const setChain = usePatternStore((state) => state.setChain);
+  const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
 
   const setAllMasterChain = useMasterChainStore(
     (state) => state.setAllMasterChain,
@@ -95,9 +101,23 @@ export function usePresetLoading({
 
       // Update sequencer
       setVoiceMode(0);
-      setVariation(0);
-      setPattern(migratePattern(preset.sequencer.pattern));
-      setVariationCycle(preset.sequencer.variationCycle);
+      const migratedPattern = migratePattern(preset.sequencer.pattern);
+      const legacyCycle = legacyCycleToChain(
+        preset.sequencer.variationCycle,
+        0,
+      );
+      const chain = sanitizeChain(
+        preset.sequencer.chain ?? legacyCycle.chain ?? DEFAULT_CHAIN,
+      );
+      const initialVariation =
+        chain.steps[0]?.variation ?? legacyCycle.variation ?? 0;
+
+      setVariation(initialVariation);
+      setPattern(migratedPattern);
+      setChain(chain);
+      setChainEnabled(
+        preset.sequencer.chainEnabled ?? legacyCycle.chainEnabled ?? false,
+      );
 
       // Update transport
       setBpm(preset.transport.bpm);
@@ -119,8 +139,9 @@ export function usePresetLoading({
       setBpm,
       setPattern,
       setSwing,
+      setChain,
+      setChainEnabled,
       setVariation,
-      setVariationCycle,
       setVoiceMode,
       togglePlay,
     ],

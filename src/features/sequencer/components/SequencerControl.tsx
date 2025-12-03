@@ -1,4 +1,5 @@
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { cn } from "@/shared/lib/utils";
 import { Button, Tooltip } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
@@ -128,6 +129,12 @@ Scope: Local to the current variation, never global.
  */
 export const SequencerControl: React.FC = () => {
   const variation = usePatternStore((state) => state.variation);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const mode = usePatternStore((state) => state.mode);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const setMode = usePatternStore((state) => state.setMode);
+  const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
+  const setChainEditStep = usePatternStore((state) => state.setChainEditStep);
 
   // const {
   //   variationCycle,
@@ -138,6 +145,20 @@ export const SequencerControl: React.FC = () => {
   //   randomSequence,
   // } = useSequencerControl();
 
+  const isChainEdit = mode.type === "variationChain";
+
+  const handleToggleChainEdit = () => {
+    if (isChainEdit) {
+      setMode({ type: "voice", voiceIndex });
+      return;
+    }
+    setChainEditStep(0);
+  };
+
+  const handleToggleChainEnabled = () => {
+    setChainEnabled(!chainEnabled);
+  };
+
   return (
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
@@ -146,7 +167,10 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className="relative overflow-hidden"
+            className={cn("relative overflow-hidden", {
+              "border-primary text-primary": isChainEdit,
+            })}
+            onClick={handleToggleChainEdit}
           >
             <span className="leading-3">vari chain</span>
           </Button>
@@ -155,9 +179,12 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className="relative overflow-hidden"
+            className={cn("relative overflow-hidden", {
+              "border-primary text-primary": chainEnabled,
+            })}
+            onClick={handleToggleChainEnabled}
           >
-            <span>chain on</span>
+            <span>{chainEnabled ? "chain on" : "chain off"}</span>
           </Button>
         </Tooltip>
         <div className="col-span-2">
@@ -171,26 +198,12 @@ export const SequencerControl: React.FC = () => {
         <Tooltip content={TOOLTIPS.VARIATION_B}>
           <SequencerVariationButton variation={1} />
         </Tooltip>
-
-        {/* mock for now */}
-        <Button
-          variant="hardware"
-          className="font-pixel relative flex items-start justify-start overflow-hidden"
-        >
-          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
-            C
-          </span>
-        </Button>
-
-        {/* mock for now */}
-        <Button
-          variant="hardware"
-          className="font-pixel relative flex items-start justify-start overflow-hidden"
-        >
-          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
-            D
-          </span>
-        </Button>
+        <Tooltip content="Select variation C">
+          <SequencerVariationButton variation={2} />
+        </Tooltip>
+        <Tooltip content="Select variation D">
+          <SequencerVariationButton variation={3} />
+        </Tooltip>
 
         {/* Pattern actions row */}
         <Button

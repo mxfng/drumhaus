@@ -6,7 +6,6 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 export const useSequencerControl = () => {
   // Get state from Pattern Store
   const variation = usePatternStore((state) => state.variation);
-  const variationCycle = usePatternStore((state) => state.variationCycle);
   const mode = usePatternStore((state) => state.mode);
   const pattern = usePatternStore((state) => state.pattern);
 
@@ -18,7 +17,6 @@ export const useSequencerControl = () => {
 
   // Get actions from store
   const setVariation = usePatternStore((state) => state.setVariation);
-  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
   const updateSequence = usePatternStore((state) => state.updatePattern);
   const clearSequence = usePatternStore((state) => state.clearPattern);
 
@@ -59,13 +57,11 @@ export const useSequencerControl = () => {
   return {
     // State
     variation,
-    variationCycle,
     voiceIndex,
     hasCopiedSequence: !!(copiedTriggers && copiedVelocities),
 
     // Actions
     setVariation,
-    setVariationCycle,
     copySequence,
     pasteSequence,
     clearSequence: handleClearSequence,

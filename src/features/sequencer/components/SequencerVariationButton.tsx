@@ -3,9 +3,10 @@ import React, { forwardRef } from "react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
+import { VARIATION_LABELS, VariationId } from "../types/sequencer";
 
 interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variation: number;
+  variation: VariationId;
 }
 
 /**
@@ -22,12 +23,19 @@ export const SequencerVariationButton = forwardRef<
 >(({ variation, onClick, className, ...props }, ref) => {
   const currentVariation = usePatternStore((state) => state.variation);
   const setVariation = usePatternStore((state) => state.setVariation);
+  const mode = usePatternStore((state) => state.mode);
+  const writeChainStep = usePatternStore((state) => state.writeChainStep);
 
-  const displayVariation = variation === 0 ? "A" : "B";
+  const displayVariation = VARIATION_LABELS[variation] ?? "?";
   const isActive = currentVariation === variation;
+  const isChainEdit = mode.type === "variationChain";
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setVariation(variation);
+    if (isChainEdit) {
+      writeChainStep(variation);
+    } else {
+      setVariation(variation);
+    }
     onClick?.(e);
   };
 

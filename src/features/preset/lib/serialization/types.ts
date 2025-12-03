@@ -1,6 +1,9 @@
 import { InstrumentParams } from "@/features/instrument/types/instrument";
 import { MasterChainParams } from "@/features/master-bus/types/master";
-import { VariationCycle } from "@/features/sequencer/types/sequencer";
+import {
+  PatternChain,
+  VariationCycle,
+} from "@/features/sequencer/types/sequencer";
 import { TransportParams } from "@/features/transport/types/transport";
 import { Meta } from "../../types/meta";
 
@@ -24,7 +27,9 @@ export interface ShareablePreset {
   transport: TransportParams; // bpm, swing
   sequencer: {
     pattern: OptimizedPattern;
-    variationCycle: VariationCycle;
+    variationCycle?: VariationCycle;
+    chain: PatternChain;
+    chainEnabled: boolean;
   };
   masterChain: MasterChainParams; // All 7 effect params
 }
@@ -46,12 +51,22 @@ export interface ShareableKit {
  */
 export interface OptimizedPattern {
   voices: OptimizedVoice[]; // 8 voices
-  variationMetadata: [OptimizedVariationMetadata, OptimizedVariationMetadata]; // [A metadata, B metadata]
+  variationMetadata: [
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+  ]; // [A, B, C, D]
 }
 
 export interface OptimizedVoice {
   instrumentIndex: number; // 0-7
-  variations: [OptimizedStepSequence, OptimizedStepSequence]; // [A, B]
+  variations: [
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+  ]; // [A, B, C, D]
 }
 
 export interface OptimizedStepSequence {
