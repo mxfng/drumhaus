@@ -88,7 +88,8 @@ export const NightSky: React.FC = () => {
 
       // Draw stars
       stars.forEach((star) => {
-        // Apply rotation
+        // Apply rotation, need to reassign z and not double compute
+        // eslint-disable-next-line prefer-const
         let { x, z } = rotateY(star.x, star.z, rotationRef.current.y);
         let { y } = rotateX(star.y, z, rotationRef.current.x);
         ({ y, z } = rotateX(y, z, rotationRef.current.x));
