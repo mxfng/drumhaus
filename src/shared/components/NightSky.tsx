@@ -1,131 +1,147 @@
 import { useEffect, useRef } from "react";
-import * as THREE from "three";
+
+interface Star {
+  x: number;
+  y: number;
+  z: number;
+  r: number;
+  g: number;
+  b: number;
+  size: number;
+}
 
 export const NightSky: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const starsRef = useRef<THREE.Points | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+  const starsRef = useRef<Star[]>([]);
+  const rotationRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-
-    // Setup
     const canvas = canvasRef.current;
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: false,
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    rendererRef.current = renderer;
+    if (!canvas) return;
 
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
 
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000,
-    );
-    camera.position.z = 2;
-    cameraRef.current = camera;
+    // Setup canvas size
+    const updateSize = () => {
+      canvas.width = window.innerWidth * window.devicePixelRatio;
+      canvas.height = window.innerHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    updateSize();
 
-    // Create stars
+    // Generate stars
     const starCount = 2000;
-    const positions = new Float32Array(starCount * 3);
-    const colors = new Float32Array(starCount * 3);
-    const sizes = new Float32Array(starCount);
+    const stars: Star[] = [];
 
     for (let i = 0; i < starCount; i++) {
-      const i3 = i * 3;
-
-      // Position
-      positions[i3] = (Math.random() - 0.5) * 10;
-      positions[i3 + 1] = (Math.random() - 0.5) * 10;
-      positions[i3 + 2] = (Math.random() - 0.5) * 10;
-
-      // Color (slight variations of white/blue)
       const colorVariation = Math.random();
-      colors[i3] = 0.8 + colorVariation * 0.2; // R
-      colors[i3 + 1] = 0.8 + colorVariation * 0.2; // G
-      colors[i3 + 2] = 0.9 + colorVariation * 0.1; // B (slightly more blue)
-
-      // Size
-      sizes[i] = Math.random() * 2 + 0.5;
+      stars.push({
+        x: (Math.random() - 0.5) * 10,
+        y: (Math.random() - 0.5) * 10,
+        z: (Math.random() - 0.5) * 10,
+        r: 0.8 + colorVariation * 0.2,
+        g: 0.8 + colorVariation * 0.2,
+        b: 0.9 + colorVariation * 0.1,
+        size: Math.random() * 2 + 0.5,
+      });
     }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-
-    const material = new THREE.PointsMaterial({
-      size: 0.03,
-      sizeAttenuation: true,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.8,
-      blending: THREE.AdditiveBlending,
-    });
-
-    const stars = new THREE.Points(geometry, material);
-    scene.add(stars);
     starsRef.current = stars;
 
-    // Animation
+    // 3D rotation helpers
+    const rotateY = (x: number, z: number, angle: number) => {
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      return {
+        x: x * cos - z * sin,
+        z: x * sin + z * cos,
+      };
+    };
+
+    const rotateX = (y: number, z: number, angle: number) => {
+      const cos = Math.cos(angle);
+      const sin = Math.sin(angle);
+      return {
+        y: y * cos - z * sin,
+        z: y * sin + z * cos,
+      };
+    };
+
+    // Animation loop
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
 
-      if (starsRef.current) {
-        // Slow rotation for parallax effect
-        starsRef.current.rotation.y += 0.0001;
-        starsRef.current.rotation.x += 0.00005;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
 
-        // Twinkling effect by modulating opacity
-        const time = Date.now() * 0.001;
-        const material = starsRef.current.material as THREE.PointsMaterial;
-        material.opacity = 0.7 + Math.sin(time * 0.5) * 0.1;
-      }
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
 
-      renderer.render(scene, camera);
+      // Update rotation
+      rotationRef.current.y += 0.0001;
+      rotationRef.current.x += 0.00005;
+
+      // Twinkling effect
+      const time = Date.now() * 0.001;
+      const baseOpacity = 0.7 + Math.sin(time * 0.5) * 0.1;
+
+      // Draw stars
+      stars.forEach((star) => {
+        // Apply rotation
+        let { x, z } = rotateY(star.x, star.z, rotationRef.current.y);
+        let { y } = rotateX(star.y, z, rotationRef.current.x);
+        ({ y, z } = rotateX(y, z, rotationRef.current.x));
+
+        // Simple perspective projection
+        const fov = 2;
+        const scale = fov / (fov + z);
+        const x2d = x * scale * width * 0.15 + width / 2;
+        const y2d = y * scale * height * 0.15 + height / 2;
+
+        // Size with perspective
+        const size = star.size * scale * 2;
+
+        // Skip if behind camera or off-screen
+        if (z < -fov || size < 0.1) return;
+        if (x2d < -50 || x2d > width + 50 || y2d < -50 || y2d > height + 50)
+          return;
+
+        // Draw star with glow effect (Minecraft-style squares)
+        const opacity = baseOpacity * (0.6 + scale * 0.4);
+        ctx.globalCompositeOperation = "lighter"; // Additive blending
+
+        // Glow (larger square)
+        const glowSize = size * 1.5;
+        ctx.fillStyle = `rgba(${star.r * 255}, ${star.g * 255}, ${star.b * 255}, ${opacity * 0.3})`;
+        ctx.fillRect(
+          x2d - glowSize,
+          y2d - glowSize,
+          glowSize * 2,
+          glowSize * 2,
+        );
+
+        // Core (sharp square)
+        ctx.fillStyle = `rgba(${star.r * 255}, ${star.g * 255}, ${star.b * 255}, ${opacity})`;
+        ctx.fillRect(x2d - size, y2d - size, size * 2, size * 2);
+      });
+
+      ctx.globalCompositeOperation = "source-over";
     };
 
     animate();
 
     // Handle resize
     const handleResize = () => {
-      if (!cameraRef.current || !rendererRef.current) return;
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-
-      cameraRef.current.aspect = width / height;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(width, height);
+      updateSize();
     };
-
     window.addEventListener("resize", handleResize);
 
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
-
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current);
-      }
-
-      if (starsRef.current) {
-        starsRef.current.geometry.dispose();
-        (starsRef.current.material as THREE.Material).dispose();
-      }
-
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
       }
     };
   }, []);
