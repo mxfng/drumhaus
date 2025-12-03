@@ -71,10 +71,7 @@ export function DialogHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "flex flex-col space-y-1.5 text-center sm:text-left",
-        className,
-      )}
+      className={cn("flex flex-col space-y-1.5 text-left", className)}
       {...props}
     />
   );
@@ -87,10 +84,7 @@ export function DialogFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
-        className,
-      )}
+      className={cn("flex flex-row justify-end space-x-2", className)}
       {...props}
     />
   );

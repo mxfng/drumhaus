@@ -15,8 +15,6 @@ const selectContentVariants = cva(
     variants: {
       variant: {
         default: "shadow-neu bg-primary text-primary-foreground",
-        mobile:
-          "bg-primary-muted text-primary-foreground border border-primary/20",
       },
     },
     defaultVariants: {

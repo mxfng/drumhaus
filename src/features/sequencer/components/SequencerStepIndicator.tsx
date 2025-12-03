@@ -19,8 +19,8 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
   const baseClassName = cn(
-    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full",
-    !potatoMode && "sm:transition-all sm:duration-75",
+    "mb-4 h-1 w-full rounded-full",
+    !potatoMode && "transition-all duration-75",
   );
 
   useEffect(() => {

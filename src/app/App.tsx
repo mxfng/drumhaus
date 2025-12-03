@@ -90,9 +90,6 @@ export function App() {
         property="og:description"
         content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
       />
-
-      <DrumhausFallback />
-
       <Suspense fallback={<DrumhausFallback />}>
         <ToastProvider>
           <AppErrorBoundary>

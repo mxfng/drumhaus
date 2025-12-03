@@ -103,10 +103,6 @@ export const GrooveControls = () => {
           </Tooltip>
         </div>
 
-        {/* Empty space to balance layout */}
-        {/* <div className="h-12 w-full sm:h-8" />
-         */}
-
         <Button variant="hardware" size="sm">
           ratchet
         </Button>

@@ -58,7 +58,7 @@ export const Sequencer: React.FC = () => {
   return (
     <div
       key="sequence-grid"
-      className="grid h-full w-full grid-cols-8 gap-x-1 gap-y-3 sm:grid-cols-16 sm:gap-4"
+      className="grid h-full w-full grid-cols-16 gap-4"
       onPointerMove={handleStepPointerMove}
     >
       {steps.map((step) => {
@@ -73,7 +73,6 @@ export const Sequencer: React.FC = () => {
             />
             <SequencerStep
               stepIndex={step}
-              variant="desktop"
               onPointerStart={handleStepPointerStart}
               onPointerEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}

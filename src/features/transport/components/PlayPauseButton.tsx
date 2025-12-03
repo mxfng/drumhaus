@@ -10,11 +10,10 @@ export const PlayPauseButton = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex aspect-square w-full items-center justify-center p-2">
       <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
         <Button
           variant="hardware"
-          size="lg"
           className="aspect-square h-full w-auto rounded-xl p-3"
           onClick={() => togglePlay(instrumentRuntimes.current)}
           onKeyDown={(ev) => ev.preventDefault()}

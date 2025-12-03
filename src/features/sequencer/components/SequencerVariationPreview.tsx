@@ -28,7 +28,7 @@ export const SequencerVariationPreview: React.FC<
   return (
     <div
       className={cn(
-        "flex h-12 w-full flex-col items-center justify-center gap-1.5 sm:h-8",
+        "flex h-8 w-full flex-col items-center justify-center gap-1.5",
         className,
       )}
     >

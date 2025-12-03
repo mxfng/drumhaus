@@ -51,8 +51,8 @@ export const Knob: React.FC<KnobProps> = ({
   showTickIndicator = true,
 }) => {
   const containerClass = {
-    default: "h-10 sm:h-20",
-    lg: "h-[300px] sm:h-[180px]",
+    default: "h-20",
+    lg: "h-[180px]",
   }[size];
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);

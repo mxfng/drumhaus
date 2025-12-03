@@ -6,7 +6,6 @@ import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
-  variant?: "desktop" | "mobile";
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLDivElement>,
@@ -30,7 +29,6 @@ interface SequencerStepProps {
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
   stepIndex,
-  variant = "desktop",
   onPointerStart,
   onPointerEnter,
   onPointerMove,
@@ -60,17 +58,9 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       } else {
         stepRef.current.style.opacity = "";
       }
-
-      // Mobile variant: apply brightness filter when step is playing
-      if (variant === "mobile" && padState.isPlaying) {
-        stepRef.current.classList.add("brightness-75");
-      } else if (variant === "mobile") {
-        stepRef.current.classList.remove("brightness-75");
-      }
     });
-
     return unsubscribe;
-  }, [stepIndex, variant]);
+  }, [stepIndex]);
 
   const getTriggerClassName = () => {
     if (potatoMode) {
@@ -79,29 +69,17 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
-      : variant === "desktop"
-        ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40"
-        : "bg-instrument";
+      : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
   };
 
   const triggerStyles = {
     className: getTriggerClassName(),
-    opacity: isTriggerOn
-      ? 1
-      : variant === "mobile" && !isTriggerOn
-        ? isAccentBeat
-          ? 1
-          : 0.75
-        : 1,
+    opacity: isTriggerOn ? 1 : !isTriggerOn ? (isAccentBeat ? 1 : 0.75) : 1,
   };
 
-  const borderRadius =
-    variant === "desktop"
-      ? "rounded-[0_8px_0_8px] sm:rounded-[0_16px_0_16px]"
-      : "";
+  const borderRadius = "rounded-[0_16px_0_16px]";
 
-  const sizeClasses =
-    variant === "desktop" ? "aspect-square w-full" : "h-full w-full";
+  const sizeClasses = "aspect-square w-full";
 
   return (
     <div
