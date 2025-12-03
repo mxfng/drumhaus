@@ -1,7 +1,7 @@
 import React from "react";
 
 export const Footer: React.FC = () => (
-  <div className="flex h-10 w-full items-center justify-center">
+  <div className="text-foreground-muted flex h-10 w-full items-center justify-center">
     <p className="text-sm">Designed with love by</p>
     <a
       href="https://fung.studio/"
@@ -15,7 +15,7 @@ export const Footer: React.FC = () => (
       href="https://ko-fi.com/maxfung"
       target="_blank"
       rel="noreferrer"
-      className="text-foreground-muted ml-1 text-sm"
+      className="ml-1 text-sm"
     >
       Support on ko-fi.
     </a>

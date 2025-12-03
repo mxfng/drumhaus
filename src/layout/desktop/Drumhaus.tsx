@@ -43,6 +43,9 @@ const Drumhaus = () => {
     <>
       <div className="drumhaus-root animate-fade-in">
         <div className="drumhaus-scale-wrapper">
+          {/* Header buffer */}
+          <div className="h-10" />
+
           <div className="border-border relative h-225 w-360 overflow-clip rounded-xl border">
             {/* Header */}
             <Header />

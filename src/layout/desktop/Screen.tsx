@@ -20,7 +20,7 @@ export const Screen: React.FC = () => {
 
           {/* Right Column - 2/3 and 1/3 split */}
           <div className="flex h-full flex-col">
-            <div className="border-foreground-emphasis relative h-2/3 min-h-0">
+            <div className="border-foreground relative h-2/3 min-h-0">
               <div className="absolute inset-0 pl-3">
                 <FrequencyAnalyzer />
               </div>

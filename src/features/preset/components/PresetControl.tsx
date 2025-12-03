@@ -79,9 +79,9 @@ export const PresetControl: React.FC = () => {
   return (
     <>
       {/* Preset Row: 1/6 label + fill selector + 1/6 actions */}
-      <div className="border-foreground-emphasis flex w-full flex-1 items-center gap-2 border-b pl-2 text-sm">
+      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 border-b pl-2 text-sm">
         <div className="w-1/6">
-          <mark className="bg-foreground-emphasis text-instrument rounded px-1">
+          <mark className="bg-screen-foreground text-instrument rounded px-1">
             preset
           </mark>
         </div>
@@ -93,15 +93,15 @@ export const PresetControl: React.FC = () => {
             onSelect={handlePresetChange}
           />
         </div>
-        <div className="bg-foreground-emphasis h-full w-1/4">
+        <div className="bg-screen-foreground h-full w-1/4">
           <PresetActions onOpenFromFile={importPreset} />
         </div>
       </div>
 
       {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
-      <div className="border-foreground-emphasis flex w-full flex-1 items-center gap-2 pl-2 text-sm">
+      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 pl-2 text-sm">
         <div className="w-1/6">
-          <mark className="bg-foreground-emphasis text-instrument rounded px-1">
+          <mark className="bg-screen-foreground text-instrument rounded px-1">
             kit
           </mark>
         </div>
@@ -112,7 +112,7 @@ export const PresetControl: React.FC = () => {
             onSelect={handleKitChange}
           />
         </div>
-        <div className="bg-foreground-emphasis h-full w-1/4">
+        <div className="bg-screen-foreground h-full w-1/4">
           <KitNavigator onPrevious={handlePreviousKit} onNext={handleNextKit} />
         </div>
       </div>

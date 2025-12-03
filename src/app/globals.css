@@ -5,7 +5,8 @@
   --app-width: 90rem; /* w-360 in Tailwind, 1440px */
   --app-height: 56.25rem; /* h-225 in Tailwind, 900px */
   --app-footer-height: 2.5rem; /* h-18 in Tailwind, 72px */
-  --app-padding: 4rem; /* p-12 in Tailwind, 48px */
+  --app-header-height: 2.5rem; /* h-18 in Tailwind, 72px */
+  --app-padding: 5rem; /* p-12 in Tailwind, 48px */
 
   /* Colors */
   /* 244 235 236 */
@@ -13,6 +14,8 @@
   --color-foreground: #a6866c;
   --color-foreground-muted: #c3ad97;
   --color-foreground-emphasis: #65503e;
+  --color-screen: rgb(237, 231, 225);
+  --color-screen-foreground: rgba(101, 80, 62, 0.8);
   --color-primary: #ff7b00;
   --color-primary-muted: #ff9633;
   --color-primary-foreground: #ffffff;
@@ -174,14 +177,18 @@ a {
   position: relative;
   width: 100%;
   height: 100%;
-  min-width: calc(var(--app-width));
-  min-height: calc(var(--app-height) + var(--app-footer-height));
+  min-width: calc(var(--app-width) + var(--app-padding));
+  min-height: calc(
+    var(--app-height) + var(--app-footer-height) + var(--app-header-height)
+  );
 }
 
 .drumhaus-scale-wrapper {
   position: absolute;
   width: var(--app-width);
-  height: calc(var(--app-height) + var(--app-footer-height));
+  height: calc(
+    var(--app-height) + var(--app-footer-height) + var(--app-header-height)
+  );
   top: 0;
   left: 0;
   right: 0;

@@ -24,7 +24,7 @@ export const TempoControlsScreen: React.FC = () => {
   };
 
   return (
-    <div className="bg-foreground-emphasis text-instrument flex h-full items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
+    <div className="bg-screen-foreground text-instrument flex h-full items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
       <div className="grid w-full grid-cols-4">
         <ClickableValue
           value={bpmKnobValue}
