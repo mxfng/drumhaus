@@ -44,7 +44,7 @@ const Drumhaus = lazy(() => import("../layout/desktop/Drumhaus"));
 
 function DrumhausFallback() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center">
+    <div className="flex h-dvh w-dvw items-center justify-center">
       <PixelatedSpinner size={64} />
     </div>
   );
