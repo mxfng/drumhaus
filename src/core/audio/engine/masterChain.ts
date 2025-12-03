@@ -1,9 +1,9 @@
 import type { RefObject } from "react";
 import {
   BiquadFilter,
-  Chebyshev,
   Compressor,
   Delay,
+  Distortion,
   Filter,
   Gain,
   getDestination,
@@ -31,7 +31,8 @@ import {
   MASTER_COMP_LATENCY,
   MASTER_COMP_MAKEUP_GAIN,
   MASTER_COMP_RELEASE,
-  MASTER_DRUM_SATURATION_ORDER,
+  MASTER_DRUM_DISTORTION_AMOUNT,
+  MASTER_DRUM_DISTORTION_OVERSAMPLE,
   MASTER_FILTER_RANGE,
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
@@ -71,7 +72,7 @@ export interface MasterChainRuntimes {
   reverb: Reverb;
   reverbSendGain: Gain; // Controls reverb send amount
   // Output processing
-  saturation: Chebyshev; // User-controllable crunchier saturation for drums
+  saturation: Distortion; // User-controllable crunchier saturation for drums
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Rolls off harsh highs
   limiter: Limiter;
@@ -334,9 +335,10 @@ export async function buildMasterChainNodes(
   const compDryDelay = new Delay(MASTER_COMP_LATENCY);
   const compDryGain = new Gain(1 - settings.compMix);
 
-  // Drum saturation: crunchier user-controllable saturation
-  const saturation = new Chebyshev({
-    order: MASTER_DRUM_SATURATION_ORDER,
+  // Drum saturation: crunchier user-controllable distortion
+  const saturation = new Distortion({
+    distortion: MASTER_DRUM_DISTORTION_AMOUNT,
+    oversample: MASTER_DRUM_DISTORTION_OVERSAMPLE,
     wet: settings.saturationWet,
   });
 
