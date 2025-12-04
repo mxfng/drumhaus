@@ -3,9 +3,9 @@ import { lazy, Suspense } from "react";
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid";
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
-import { useKeyboardShortcuts } from "@/shared/hooks/useKeyboardShortcuts";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
+import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { ControlsPanel } from "./ControlsPanel";
 import { FloatingMenu } from "./FloatingMenu";
@@ -39,7 +39,7 @@ const Drumhaus = () => {
 
   useMobileWarning();
 
-  useKeyboardShortcuts({
+  useSpacebarTogglePlay({
     instrumentRuntimes,
     instrumentRuntimesVersion,
   });

@@ -4,40 +4,34 @@ import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 
-interface UseKeyboardShortcutsProps {
+interface UseSpacebarTogglePlayProps {
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
 }
 
-export function useKeyboardShortcuts({
+export function useSpacebarTogglePlay({
   instrumentRuntimes,
   instrumentRuntimesVersion,
-}: UseKeyboardShortcutsProps) {
+}: UseSpacebarTogglePlayProps) {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
-  // Spacebar to play/pause (DAW-style global shortcut)
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key !== " ") {
-        return;
-      }
+      if (e.key !== " ") return;
 
-      // Only allow space in text inputs
       const activeElement = document.activeElement;
       const isTextInput =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
-        activeElement instanceof HTMLSelectElement;
+        activeElement instanceof HTMLSelectElement ||
+        (activeElement instanceof HTMLElement &&
+          activeElement.isContentEditable);
 
-      if (isTextInput) {
-        return;
-      }
+      if (isTextInput) return;
 
-      // Prevent space from triggering buttons/controls and scrolling page
       e.preventDefault();
 
-      // Global play/pause unless dialog is open
       if (!isAnyDialogOpen()) {
         togglePlay(instrumentRuntimes.current);
       }
