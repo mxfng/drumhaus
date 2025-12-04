@@ -44,7 +44,7 @@
   --color-track-green: #27991a;
   --color-border: rgb(176 147 116 / 0.6);
   /* Focus indicator color - used for focus-visible:ring-* classes. For "on" state, use outline-primary instead */
-  --color-ring: #ff7b00;
+  --color-ring: #c3ad97;
 
   /* Neumorphic colors */
   --color-shadow: rgb(176 147 116);
@@ -266,6 +266,14 @@ a {
   align-items: center;
 }
 
+/* Focus utilities */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
 /* --------------------------- Animations --------------------------- */
 
 @keyframes fade-in {
@@ -369,14 +377,6 @@ a {
 
 @utility zoom-out-95 {
   --tw-exit-scale: 0.95;
-}
-
-/* Focus utilities */
-@utility focus-ring {
-  &:focus-visible {
-    outline: 2px solid var(--color-ring);
-    outline-offset: 2px;
-  }
 }
 
 /* Slide utilities */
