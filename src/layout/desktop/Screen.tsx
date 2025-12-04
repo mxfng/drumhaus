@@ -1,5 +1,5 @@
 import { PresetControl } from "@/features/preset/components/PresetControl";
-import { ChainEditPrompt } from "@/features/sequencer/components/ChainEditPrompt";
+import { ChainEditScreen } from "@/features/sequencer/components/ChainEditScreen";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
@@ -25,7 +25,7 @@ export const Screen: React.FC = () => {
 
           {/* Right Column - 2/3 and 1/3 split */}
           {isChainEditing ? (
-            <ChainEditPrompt />
+            <ChainEditScreen />
           ) : (
             <div className="flex h-full flex-col">
               <div className="border-foreground relative min-h-0 flex-1">

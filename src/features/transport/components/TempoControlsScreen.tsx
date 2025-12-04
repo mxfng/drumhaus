@@ -57,7 +57,7 @@ export const TempoControlsScreen: React.FC = () => {
 
         <span className="flex w-full items-center justify-start">
           <span className="pr-2 pl-1 text-xs">play</span>
-          <span className="bg-screen text-screen-foreground rounded-tr rounded-bl px-1 text-xs">
+          <span className="bg-screen text-screen-foreground flex w-4.5 items-center justify-center rounded-tr rounded-bl px-1 text-xs">
             {VARIATION_LABELS[playbackVariation]}
           </span>
         </span>
