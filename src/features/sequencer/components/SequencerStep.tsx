@@ -105,7 +105,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       {(isTriggerOn || isGuideOnly) && (
         <div
           className={cn(
-            "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%) pointer-events-none absolute inset-0 disabled:opacity-50",
+            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
             borderRadius,
           )}
           style={{
