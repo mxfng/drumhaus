@@ -94,25 +94,20 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
+        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out disabled:pointer-events-none",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
-        disabled && "pointer-events-none",
       )}
     >
       {(isTriggerOn || isGuideOnly) && (
         <div
           className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
+            "bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%) pointer-events-none absolute inset-0 disabled:opacity-50",
             borderRadius,
           )}
           style={{
-            opacity: disabled
-              ? 0.5
-              : brightness !== 1
-                ? brightness
-                : triggerStyles.opacity,
+            opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
           }}
         />
       )}
