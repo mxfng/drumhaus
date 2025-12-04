@@ -24,6 +24,7 @@ import {
   phaserWetMapping,
   reverbDecayMapping,
   reverbWetMapping,
+  saturationAmountMapping,
   saturationWetMapping,
 } from "@/shared/knob/lib/mapping";
 import {
@@ -389,7 +390,7 @@ export function mapParamsToSettings(
   return {
     filter: params.filter, // Pass raw knob value for split filter logic
     saturationWet: saturationWetMapping.knobToDomain(params.saturation),
-    saturationAmount: saturationWetMapping.knobToDomain(params.saturation),
+    saturationAmount: saturationAmountMapping.knobToDomain(params.saturation),
     phaserWet: phaserWetMapping.knobToDomain(params.phaser),
     reverbWet: reverbWetMapping.knobToDomain(params.reverb),
     reverbDecay: reverbDecayMapping.knobToDomain(params.reverb),

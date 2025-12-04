@@ -43,9 +43,8 @@ export const MASTER_FILTER_RANGE: Range = [0, 15000]; // Hz
 export const MASTER_FILTER_DEFAULT = 50; // Knob 50 = center (transition point)
 export const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open (legacy)
 export const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off (legacy)
-
-export const MASTER_SATURATION_WET_RANGE: Range = [0, 0.5]; // 0-100% wet for drum saturation
-export const MASTER_SATURATION_MAX_AMOUNT = 0.3; // Caps drive to keep it musical
+export const MASTER_SATURATION_WET_RANGE: Range = [0, 1]; // 0-100% wet for drum saturation
+export const MASTER_SATURATION_AMOUNT_RANGE: Range = [0, 0.25]; // 0-25% drive amount
 export const MASTER_SATURATION_DEFAULT = 0; // Knob 0 = no saturation
 
 export const MASTER_PHASER_WET_RANGE: Range = [0, 1];
@@ -135,7 +134,7 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
 // ============================================================================
 
 // User-controllable drum saturation
-export const MASTER_SATURATION_OVERSAMPLE = "4x";
+export const MASTER_SATURATION_OVERSAMPLE = "none";
 
 // High shelf rolloff - tames harsh hats / sibilance
 export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
