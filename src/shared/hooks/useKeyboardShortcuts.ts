@@ -16,21 +16,29 @@ export function useKeyboardShortcuts({
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
-  // Spacebar to play/pause
+  // Spacebar to play/pause (DAW-style global shortcut)
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      // Don't intercept Space if an interactive element is focused
+      if (e.key !== " ") {
+        return;
+      }
+
+      // Only allow space in text inputs
       const activeElement = document.activeElement;
-      const isInteractiveElementFocused =
-        activeElement instanceof HTMLButtonElement ||
+      const isTextInput =
         activeElement instanceof HTMLInputElement ||
         activeElement instanceof HTMLTextAreaElement ||
-        activeElement instanceof HTMLSelectElement ||
-        activeElement?.getAttribute("role") === "slider" ||
-        activeElement?.hasAttribute("tabindex");
+        activeElement instanceof HTMLSelectElement;
 
-      if (e.key === " " && !isAnyDialogOpen() && !isInteractiveElementFocused) {
-        e.preventDefault(); // Prevent page scroll
+      if (isTextInput) {
+        return;
+      }
+
+      // Prevent space from triggering buttons/controls and scrolling page
+      e.preventDefault();
+
+      // Global play/pause unless dialog is open
+      if (!isAnyDialogOpen()) {
         togglePlay(instrumentRuntimes.current);
       }
     };

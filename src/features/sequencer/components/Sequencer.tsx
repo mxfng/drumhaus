@@ -63,6 +63,19 @@ export const Sequencer: React.FC = () => {
   // Calculate ghosting: viewing different variation than what's playing
   const isGhosted = isPlaying && playbackVariation !== variation && !accentMode;
 
+  // --- Step toggle logic ---
+  const handleToggleStep = (stepIndex: number) => {
+    if (accentMode) {
+      toggleAccent(variation, stepIndex);
+    } else if (ratchetMode) {
+      toggleRatchet(voiceIndex, variation, stepIndex);
+    } else if (flamMode) {
+      toggleFlam(voiceIndex, variation, stepIndex);
+    } else {
+      toggleStep(voiceIndex, variation, stepIndex);
+    }
+  };
+
   // --- Drag-paint logic ---
   const {
     handleStepPointerStart,
@@ -70,17 +83,7 @@ export const Sequencer: React.FC = () => {
     handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
-    onToggleStep: (stepIndex) => {
-      if (accentMode) {
-        toggleAccent(variation, stepIndex);
-      } else if (ratchetMode) {
-        toggleRatchet(voiceIndex, variation, stepIndex);
-      } else if (flamMode) {
-        toggleFlam(voiceIndex, variation, stepIndex);
-      } else {
-        toggleStep(voiceIndex, variation, stepIndex);
-      }
-    },
+    onToggleStep: handleToggleStep,
   });
 
   const currentVariation = pattern.voices[voiceIndex].variations[variation];
@@ -172,6 +175,7 @@ export const Sequencer: React.FC = () => {
               isGuideActive={state.isGuideActive}
               color={state.color}
               disabled={state.disabled}
+              onClick={state.disabled ? undefined : handleToggleStep}
               onPointerStart={
                 state.disabled ? undefined : handleStepPointerStart
               }

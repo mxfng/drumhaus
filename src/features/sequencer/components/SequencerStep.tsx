@@ -8,6 +8,8 @@ interface SequencerStepProps {
   brightness: number;
   isGuideActive?: boolean;
   color?: string; // Optional custom color class for override
+  // Click handler for keyboard accessibility (Enter key)
+  onClick?: (stepIndex: number) => void;
   // Pointer handlers for desktop
   onPointerStart?: (
     event: React.PointerEvent<HTMLButtonElement>,
@@ -36,6 +38,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   brightness,
   isGuideActive = false,
   color,
+  onClick,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
@@ -72,6 +75,13 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   return (
     <button
       data-step-index={stepIndex}
+      onClick={(event) => {
+        if (disabled) return;
+        // Only trigger on keyboard clicks (Enter key), not pointer/mouse events
+        if (event.detail === 0) {
+          onClick?.(stepIndex);
+        }
+      }}
       onPointerDown={(event) => {
         if (disabled) return;
         onPointerStart?.(event, stepIndex, isTriggerOn);
