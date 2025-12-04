@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { MAX_CHAIN_STEPS } from "@/features/sequencer/lib/chain";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
-import { ScreenBar } from "@/shared/components/ScreenBar";
+import { ScreenBar } from "@/layout/ScreenBar";
 import { cn } from "@/shared/lib/utils";
 
 export const ChainEditScreen: React.FC = () => {

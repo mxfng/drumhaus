@@ -3,7 +3,7 @@ import React from "react";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
-import { ScreenBar } from "@/shared/components/ScreenBar";
+import { ScreenBar } from "@/layout/ScreenBar";
 import { cn } from "@/shared/lib/utils";
 
 export const FlamEditScreen: React.FC = () => {

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
+import { useNightModeStore } from "@/features/night/store/useNightModeStore";
 import { AboutDialog } from "@/shared/dialogs/AboutDialog";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
 import {
   SCALE_OPTIONS,
   useLayoutScaleStore,
 } from "@/shared/store/useLayoutScaleStore";
-import { useNightModeStore } from "@/shared/store/useNightModeStore";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import {
   DropdownMenu,

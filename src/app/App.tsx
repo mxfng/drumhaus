@@ -3,9 +3,9 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
+import { useNightModeStore } from "@/features/night/store/useNightModeStore";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import { useServiceWorker } from "@/shared/hooks/useServiceWorker";
-import { useNightModeStore } from "@/shared/store/useNightModeStore";
 
 // Lazily import providers
 
@@ -43,7 +43,7 @@ const DrumhausProvider = lazy(() =>
 
 const Drumhaus = lazy(() => import("../layout/Drumhaus"));
 const NightSky = lazy(() =>
-  import("@/shared/components/NightSky").then((module) => ({
+  import("@/features/night/components/NightSky").then((module) => ({
     default: module.NightSky,
   })),
 );

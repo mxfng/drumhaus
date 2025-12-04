@@ -1,8 +1,8 @@
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { ScreenBar } from "@/layout/ScreenBar";
 import { ClickableValue } from "@/shared/components/ClickableValue";
-import { ScreenBar } from "@/shared/components/ScreenBar";
 import {
   transportBpmMapping,
   transportSwingMapping,
