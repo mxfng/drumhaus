@@ -1,4 +1,4 @@
-import { MasterChainParams } from "@/core/audio/engine/types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 import { KitFileV1 } from "@/features/kit/types/kit";
 import { SequencerData } from "@/features/sequencer/types/sequencer";
 import { TransportParams } from "@/features/transport/types/transport";

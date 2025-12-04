@@ -4,7 +4,7 @@ import {
   MASTER_SATURATION_DEFAULT,
   STEP_COUNT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "@/core/audio/engine/types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 import {
   Pattern,
