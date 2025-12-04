@@ -1,5 +1,6 @@
 import React, { forwardRef } from "react";
 
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
@@ -47,10 +48,7 @@ export const SequencerVariationButton = forwardRef<
       onClick={handleClick}
       className={cn(
         "font-pixel relative flex items-start justify-start overflow-hidden p-1 transition-colors duration-400",
-        {
-          "border-primary text-primary transition-colors":
-            isActive && !isChainEdit,
-        },
+        buttonActive(isActive && !isChainEdit),
         interactableHighlight(isChainEdit),
         className,
       )}

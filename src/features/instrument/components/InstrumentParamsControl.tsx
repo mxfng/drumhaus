@@ -13,6 +13,7 @@ import {
   splitFilterMapping,
   tuneMapping,
 } from "@/shared/knob/lib/mapping";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Button, Tooltip } from "@/shared/ui";
@@ -185,9 +186,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               size="icon"
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
-              className={cn({
-                "outline-primary outline-2": mute,
-              })}
+              className={buttonActive(mute)}
             >
               {mute ? <VolumeX size={14} /> : <Volume size={14} />}
             </Button>
@@ -198,9 +197,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               size="icon"
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
-              className={cn({
-                "outline-primary outline-2": solo,
-              })}
+              className={buttonActive(solo)}
             >
               <Headphones className={cn({ "text-primary": solo })} size={14} />
             </Button>

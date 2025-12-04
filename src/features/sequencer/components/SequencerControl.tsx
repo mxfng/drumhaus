@@ -1,4 +1,5 @@
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { Button, Tooltip } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
@@ -173,9 +174,10 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn("relative overflow-hidden", {
-              "border-primary text-primary": isChainEdit,
-            })}
+            className={cn(
+              "relative overflow-hidden",
+              buttonActive(isChainEdit),
+            )}
             onClick={handleToggleChainEdit}
           >
             <span className="leading-3">vari chain</span>
@@ -185,9 +187,10 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn("relative overflow-hidden", {
-              "border-primary text-primary": chainEnabled,
-            })}
+            className={cn(
+              "relative overflow-hidden",
+              buttonActive(chainEnabled),
+            )}
             onClick={handleToggleChainEnabled}
           >
             <span>chain on</span>

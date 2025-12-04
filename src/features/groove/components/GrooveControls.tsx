@@ -4,6 +4,7 @@ import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter"
 import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { Button, Label, Tooltip } from "@/shared/ui";
 
@@ -62,9 +63,7 @@ export const GrooveControls = () => {
         <Tooltip content={TOOLTIPS.ACCENT_MODE}>
           <Button
             variant="hardware"
-            className={cn(
-              accentMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(accentMode)}
             onClick={toggleAccentMode}
             size="sm"
           >
@@ -76,12 +75,7 @@ export const GrooveControls = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn(
-              "leading-3",
-              voiceMode &&
-                showVelocity &&
-                "border-primary text-primary transition-colors",
-            )}
+            className={cn("leading-3", buttonActive(voiceMode && showVelocity))}
             onClick={toggleShowVelocity}
             disabled={mode.type !== "voice"}
           >
@@ -90,7 +84,10 @@ export const GrooveControls = () => {
         </Tooltip>
 
         {/* Timing nudge */}
-        <div className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
+        <div
+          aria-disabled={!canNudgeLeft || !canNudgeRight}
+          className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border aria-disabled:opacity-50"
+        >
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="left">
             <Button
               variant="hardwareIcon"
@@ -124,9 +121,7 @@ export const GrooveControls = () => {
             variant="hardware"
             size="sm"
             onClick={toggleRatchetMode}
-            className={cn(
-              ratchetMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(ratchetMode)}
           >
             ratchet
           </Button>
@@ -136,9 +131,7 @@ export const GrooveControls = () => {
             variant="hardware"
             size="sm"
             onClick={toggleFlamMode}
-            className={cn(
-              flamMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(flamMode)}
           >
             flam
           </Button>
