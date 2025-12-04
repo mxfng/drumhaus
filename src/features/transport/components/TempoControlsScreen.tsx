@@ -7,6 +7,7 @@ import {
   transportBpmMapping,
   transportSwingMapping,
 } from "@/shared/knob/lib/mapping";
+import { cn } from "@/shared/lib/utils";
 
 export const TempoControlsScreen: React.FC = () => {
   const bpm = useTransportStore((state) => state.bpm);
@@ -36,7 +37,7 @@ export const TempoControlsScreen: React.FC = () => {
 
   return (
     <ScreenBar>
-      <div className="grid w-full grid-cols-5 gap-4">
+      <div className="grid w-full grid-cols-5 place-items-stretch gap-0">
         <ClickableValue
           value={bpmKnobValue}
           onValueChange={handleBpmChange}
@@ -53,15 +54,22 @@ export const TempoControlsScreen: React.FC = () => {
           label="swing"
           labelClassName="text-xs"
         />
-        <span className="flex items-center justify-start">
-          <span className="pr-2 text-xs">play</span>
+
+        <span className="flex w-full items-center justify-start">
+          <span className="pr-2 pl-1 text-xs">play</span>
           <span className="bg-screen text-screen-foreground rounded-tr rounded-bl px-1 text-xs">
             {VARIATION_LABELS[playbackVariation]}
           </span>
         </span>
-        <span className="col-span-2">
+        <span className="col-span-2 flex w-full items-center justify-start">
           <span className="text-xs">chain</span>
-          <span className="pl-1">{chainEnabled ? chainString : "—"}</span>
+          <span
+            className={cn("flex-1 pl-1", {
+              "flex w-full items-center justify-center": !chainEnabled,
+            })}
+          >
+            {chainEnabled ? chainString : "—"}
+          </span>
         </span>
       </div>
     </ScreenBar>

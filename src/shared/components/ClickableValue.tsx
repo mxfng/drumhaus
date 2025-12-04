@@ -220,9 +220,11 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
       ) : (
         <>
           {label && <span className={labelClassName}>{label} </span>}
-          <span className={label ? "pl-1" : ""}>{formattedDisplay.value}</span>
+          <span className={label ? "pl-0.5" : ""}>
+            {formattedDisplay.value}
+          </span>
           {!label && formattedDisplay.append ? (
-            <span className="pl-1">{formattedDisplay.append}</span>
+            <span className="pl-0.5">{formattedDisplay.append}</span>
           ) : null}
         </>
       )}
