@@ -41,7 +41,7 @@ const DrumhausProvider = lazy(() =>
 
 // Lazily import app
 
-const Drumhaus = lazy(() => import("../layout/desktop/Drumhaus"));
+const Drumhaus = lazy(() => import("../layout/Drumhaus"));
 const NightSky = lazy(() =>
   import("@/shared/components/NightSky").then((module) => ({
     default: module.NightSky,

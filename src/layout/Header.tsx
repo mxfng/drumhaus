@@ -1,4 +1,4 @@
-import { Screen } from "@/layout/desktop/Screen";
+import { Screen } from "@/layout/Screen";
 import { DrumhausLogo } from "@/shared/icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "@/shared/icon/DrumhausTypographyLogo";
 import { useDialogStore } from "@/shared/store/useDialogStore";
