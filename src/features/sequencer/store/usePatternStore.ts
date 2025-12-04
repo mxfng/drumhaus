@@ -3,11 +3,20 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
+import {
+  clampVariationId,
+  DEFAULT_CHAIN,
+  legacyCycleToChain,
+  MAX_CHAIN_REPEAT,
+  MAX_CHAIN_STEPS,
+  MIN_CHAIN_REPEAT,
+  sanitizeChain,
+} from "@/features/sequencer/lib/chain";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
-import { VariationCycle } from "../types/sequencer";
+import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -22,16 +31,19 @@ export type SequencerMode =
   | { type: "paste" } // Paste mode (future)
   | { type: "clear" } // Clear mode (future)
   | { type: "random" } // Random mode (future)
-  | { type: "variationChain" }; // Variation chain mode (future)
+  | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
-  // Pattern data - 8 voices, each with instrumentIndex and 2 variations
+  // Pattern data - 8 voices, each with instrumentIndex and 4 variations
   pattern: Pattern;
   patternVersion: number;
 
   // Sequencer controls
-  variation: number; // A = 0, B = 1
-  variationCycle: VariationCycle; // A = 0, B = 1, AB = 2, AAAB = 3
+  variation: VariationId; // A = 0, B = 1, C = 2, D = 3
+  chain: PatternChain;
+  chainEnabled: boolean;
+  chainVersion: number;
+  chainDraft: PatternChain;
 
   // Current voice index (tracked separately for mode memory)
   voiceIndex: number;
@@ -40,11 +52,15 @@ interface PatternState {
   mode: SequencerMode;
 
   // Playback context (which variation is actually being played by the engine)
-  playbackVariation: number; // Mirrors the engine's active variation (A = 0, B = 1)
+  playbackVariation: VariationId; // Mirrors the engine's active variation (A = 0, B = 1)
 
   // Actions
   setVariation: (variation: number) => void;
-  setVariationCycle: (variationCycle: VariationCycle) => void;
+  setChain: (chain: PatternChain) => void;
+  setChainEnabled: (enabled: boolean) => void;
+  startChainEdit: () => void;
+  resetChainDraft: () => void;
+  writeChainStep: (variation: VariationId) => void;
   setPattern: (pattern: Pattern) => void;
   setPlaybackVariation: (variation: number) => void;
 
@@ -98,18 +114,88 @@ export const usePatternStore = create<PatternState>()(
         pattern: createEmptyPattern(),
         patternVersion: 0,
         variation: 0,
-        variationCycle: "A",
+        chain: DEFAULT_CHAIN,
+        chainEnabled: false,
+        chainVersion: 0,
+        chainDraft: { steps: [] },
         mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
         voiceIndex: 0,
 
         // Actions
         setVariation: (variation) => {
-          set({ variation });
+          set({ variation: clampVariationId(variation) });
         },
 
-        setVariationCycle: (variationCycle) => {
-          set({ variationCycle });
+        setChain: (chain) => {
+          set((state) => {
+            state.chain = sanitizeChain(chain);
+            state.chainVersion += 1;
+          });
+        },
+
+        setChainEnabled: (enabled) => {
+          set((state) => {
+            state.chainEnabled = enabled;
+            state.chainVersion += 1;
+          });
+        },
+
+        startChainEdit: () => {
+          set({
+            chainDraft: { steps: [] },
+            mode: { type: "variationChain" },
+          });
+        },
+
+        resetChainDraft: () => {
+          set((state) => {
+            state.chainDraft = { steps: [] };
+          });
+        },
+
+        writeChainStep: (variation) => {
+          set((state) => {
+            if (state.mode.type !== "variationChain") {
+              state.variation = clampVariationId(variation);
+              return;
+            }
+
+            const chain = sanitizeChain(state.chainDraft, { allowEmpty: true });
+            const steps = [...chain.steps];
+            const lastStep = steps[steps.length - 1];
+            const variationId = clampVariationId(variation);
+
+            // Calculate total bars in current chain
+            const totalBars = steps.reduce(
+              (sum, step) => sum + step.repeats,
+              0,
+            );
+
+            if (
+              lastStep &&
+              lastStep.variation === variationId &&
+              lastStep.repeats < MAX_CHAIN_REPEAT &&
+              totalBars < MAX_CHAIN_STEPS
+            ) {
+              // Increment repeat of last step if it won't exceed 8 total bars
+              lastStep.repeats += 1;
+              steps[steps.length - 1] = lastStep;
+            } else if (
+              steps.length < MAX_CHAIN_STEPS &&
+              totalBars < MAX_CHAIN_STEPS
+            ) {
+              // Add new step if it won't exceed 8 total bars
+              steps.push({ variation: variationId, repeats: MIN_CHAIN_REPEAT });
+            }
+
+            state.chainDraft = sanitizeChain(
+              {
+                steps,
+              },
+              { allowEmpty: true },
+            );
+          });
         },
 
         setMode: (mode) => {
@@ -176,7 +262,7 @@ export const usePatternStore = create<PatternState>()(
         },
 
         setPlaybackVariation: (variation) => {
-          set({ playbackVariation: variation });
+          set({ playbackVariation: clampVariationId(variation) });
         },
 
         toggleStep: (voiceIndex, variation, step) => {
@@ -305,29 +391,45 @@ export const usePatternStore = create<PatternState>()(
 
       {
         name: "drumhaus-sequencer-storage",
-        version: 2,
+        version: 3,
         // Persist pattern and settings
         partialize: (state) => ({
           pattern: state.pattern,
           patternVersion: state.patternVersion,
           variation: state.variation,
-          variationCycle: state.variationCycle,
+          chain: state.chain,
+          chainEnabled: state.chainEnabled,
+          chainVersion: state.chainVersion,
         }),
         // Migration: ensure all pattern fields are up-to-date
         migrate: (persistedState: unknown) => {
-          const state = persistedState as Partial<PatternState>;
-          if (state?.pattern) {
-            // Migrate pattern to latest format (handles all versions)
-            // - Version 0->2: adds timingNudge + converts to { voices, variationMetadata }
-            // - Version 1->2: converts Voice[] to { voices, variationMetadata }
-            try {
-              state.pattern = migratePatternUnsafe(state.pattern);
-            } catch (error) {
-              console.error("Failed to migrate pattern:", error);
-              // Fall back to empty pattern if migration fails
-              state.pattern = createEmptyPattern();
-            }
+          const state = persistedState as Partial<PatternState> & {
+            variationCycle?: VariationCycle;
+          };
+
+          // Migrate pattern to latest format (handles all versions)
+          try {
+            state.pattern = migratePatternUnsafe(
+              state.pattern ?? createEmptyPattern(),
+            );
+          } catch (error) {
+            console.error("Failed to migrate pattern:", error);
+            state.pattern = createEmptyPattern();
           }
+
+          const legacy = legacyCycleToChain(
+            state.variationCycle,
+            state.variation ?? 0,
+          );
+
+          state.variation = clampVariationId(
+            state.variation ?? legacy.variation,
+          );
+          state.chain = sanitizeChain(state.chain ?? legacy.chain);
+          state.chainEnabled = state.chainEnabled ?? legacy.chainEnabled;
+          state.chainVersion = state.chainVersion ?? 0;
+          state.chainDraft = { steps: [] };
+
           return state as PatternState;
         },
       },

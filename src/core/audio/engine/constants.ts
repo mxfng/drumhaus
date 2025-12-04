@@ -43,9 +43,8 @@ export const MASTER_FILTER_RANGE: Range = [0, 15000]; // Hz
 export const MASTER_FILTER_DEFAULT = 50; // Knob 50 = center (transition point)
 export const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open (legacy)
 export const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off (legacy)
-
-export const MASTER_SATURATION_WET_RANGE: Range = [0, 0.5]; // 0-100% wet for drum saturation
-export const MASTER_SATURATION_MAX_AMOUNT = 0.3; // Caps drive to keep it musical
+export const MASTER_SATURATION_WET_RANGE: Range = [0, 1]; // 0-100% wet for drum saturation
+export const MASTER_SATURATION_AMOUNT_RANGE: Range = [0, 0.25]; // 0-25% drive amount
 export const MASTER_SATURATION_DEFAULT = 0; // Knob 0 = no saturation
 
 export const MASTER_PHASER_WET_RANGE: Range = [0, 1];
@@ -135,7 +134,7 @@ export const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
 // ============================================================================
 
 // User-controllable drum saturation
-export const MASTER_SATURATION_OVERSAMPLE = "4x";
+export const MASTER_SATURATION_OVERSAMPLE = "none";
 
 // High shelf rolloff - tames harsh hats / sibilance
 export const MASTER_HIGH_SHELF_FREQ = 8000; // Hz
@@ -168,3 +167,36 @@ export const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
 
 export const EXPORT_TAIL_TIME = 2; // Seconds
 export const EXPORT_CHANNEL_COUNT = 2;
+
+// ============================================================================
+// Audio context
+// ============================================================================
+
+export const AUDIO_CONTEXT_CHECK_THROTTLE_MS = 100;
+
+// ============================================================================
+// Sequencer, Pattern, and Groove
+// ============================================================================
+
+export const RATCHET_OFFSET_BEATS = 0.125;
+export const FLAM_OFFSET_SECONDS = 0.015;
+export const FLAM_GRACE_VELOCITY = 0.6;
+/**
+ * Accent boost factor (TR-909 style).
+ * When a step is accented, its velocity is multiplied by this value.
+ * 1.3 = +30% velocity boost for accented steps
+ */
+export const ACCENT_BOOST = 1.3;
+
+/**
+ * Velocity dampening factor when accents are present in a variation.
+ * Applied to ALL steps to create headroom for accent boost.
+ * This ensures accents are audible even when all velocities are at 1.0.
+ *
+ * Example with all velocities at 1.0:
+ * - Non-accented: 1.0 / 1.3 ≈ 0.77 (quieter)
+ * - Accented: (1.0 / 1.3) * 1.3 = 1.0 (normal volume)
+ */
+export const ACCENT_DAMPEN = ACCENT_BOOST;
+
+export const VARIATION_COUNT = 4;

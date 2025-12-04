@@ -22,6 +22,7 @@ import {
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_DEFAULT,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_AMOUNT_RANGE,
   MASTER_SATURATION_DEFAULT,
   MASTER_SATURATION_WET_RANGE,
   MASTER_VOLUME_DEFAULT,
@@ -356,10 +357,21 @@ export const compAttackMapping = makeExponentialMapping(
 );
 
 /**
- * Saturation wet/dry mix (0-40%)
+ * Saturation wet/dry mix (0-100%)
  */
 export const saturationWetMapping = makeLinearMapping(
   MASTER_SATURATION_WET_RANGE,
+  formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_SATURATION_DEFAULT,
+  },
+);
+
+/**
+ * Saturation amount (0-100%)
+ */
+export const saturationAmountMapping = makeLinearMapping(
+  MASTER_SATURATION_AMOUNT_RANGE,
   formatDisplayPercentage,
   {
     defaultKnobValue: MASTER_SATURATION_DEFAULT,

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { KNOB_VALUE_MAX, KNOB_VALUE_MIN } from "@/shared/knob/lib/constants";
 import { ParamMapping } from "@/shared/knob/types/types";
-import { clamp, quantize } from "@/shared/lib/utils";
+import { clamp, cn, quantize } from "@/shared/lib/utils";
 import { Input } from "@/shared/ui";
 
 interface ClickableValueProps {
@@ -151,6 +151,68 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
     e.preventDefault();
   };
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (isEditing) return; // Input handles its own keyboard events
+
+      const largeStep = knobStepSize * 10;
+      let newValue = value;
+
+      switch (e.key) {
+        case "ArrowUp":
+        case "ArrowRight":
+          e.preventDefault();
+          newValue = Math.min(KNOB_VALUE_MAX, value + knobStepSize);
+          break;
+        case "ArrowDown":
+        case "ArrowLeft":
+          e.preventDefault();
+          newValue = Math.max(KNOB_VALUE_MIN, value - knobStepSize);
+          break;
+        case "PageUp":
+          e.preventDefault();
+          newValue = Math.min(KNOB_VALUE_MAX, value + largeStep);
+          break;
+        case "PageDown":
+          e.preventDefault();
+          newValue = Math.max(KNOB_VALUE_MIN, value - largeStep);
+          break;
+        case "Home":
+          e.preventDefault();
+          newValue = KNOB_VALUE_MIN;
+          break;
+        case "End":
+          e.preventDefault();
+          newValue = KNOB_VALUE_MAX;
+          break;
+        case "Enter":
+        case " ": {
+          e.preventDefault();
+          setIsEditing(true);
+          onEditingChange?.(true);
+          const formatted = formatDisplayValue(value);
+          setInputValue(formatted.value);
+          setTimeout(() => inputRef.current?.select(), 0);
+          return;
+        }
+      }
+
+      if (newValue !== value) {
+        const quantized = quantizeKnobValue(newValue);
+        onValueChange(quantized);
+      }
+    },
+    [
+      isEditing,
+      value,
+      knobStepSize,
+      quantizeKnobValue,
+      onValueChange,
+      formatDisplayValue,
+      onEditingChange,
+    ],
+  );
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
@@ -172,7 +234,7 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
     onEditingChange?.(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSubmit();
     } else if (e.key === "Escape") {
@@ -202,9 +264,16 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
 
   return (
     <div
-      className={className}
+      className={cn("focus-ring", className)}
       onPointerDown={handlePointerDown}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={isEditing ? -1 : 0}
+      role="slider"
+      aria-label={label || "Value"}
+      aria-valuemin={KNOB_VALUE_MIN}
+      aria-valuemax={KNOB_VALUE_MAX}
+      aria-valuenow={value}
       style={{ cursor: isDragging ? "ns-resize" : "pointer" }}
     >
       {isEditing ? (
@@ -213,16 +282,18 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleSubmit}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleInputKeyDown}
           className="m-0 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-center leading-none shadow-none ring-0 ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
           style={{ height: "auto", minHeight: "0", lineHeight: "inherit" }}
         />
       ) : (
         <>
           {label && <span className={labelClassName}>{label} </span>}
-          <b className={label ? "pl-1" : ""}>{formattedDisplay.value}</b>
+          <span className={label ? "pl-0.5" : ""}>
+            {formattedDisplay.value}
+          </span>
           {!label && formattedDisplay.append ? (
-            <span className="pl-1">{formattedDisplay.append}</span>
+            <span className="pl-0.5">{formattedDisplay.append}</span>
           ) : null}
         </>
       )}

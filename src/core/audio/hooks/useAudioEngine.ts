@@ -1,13 +1,12 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import type { Sequence } from "tone/build/esm/index";
 
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/features/master-bus/store/useMasterChainStore";
-import type { MasterChainParams } from "@/features/master-bus/types/master";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { prepareSampleSourceResolver } from "../cache/sample";
@@ -26,6 +25,7 @@ import {
   updateMasterChainParams,
   waitForBuffersToLoad,
 } from "../engine";
+import { MasterChainParams } from "../engine/fx/masterChain/types";
 import { useAudioContextGuards } from "./useAudioContextGuards";
 
 interface UseAudioEngineResult {
@@ -41,11 +41,12 @@ export function useAudioEngine(): UseAudioEngineResult {
   const instrumentRuntimes = useRef<InstrumentRuntime[]>([]);
   const [instrumentRuntimesVersion, setInstrumentRuntimesVersion] = useState(0);
   const toneSequence = useRef<Sequence | null>(null);
-  const bar = useRef<number>(0);
-  const chainVariation = useRef<number>(0);
+  const playbackVariationRef = useRef<number>(0);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
-  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const chain = usePatternStore((state) => state.chain);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const activeVariation = usePatternStore((state) => state.variation);
 
   const instrumentSamplePaths = useInstrumentsStore((state) =>
     state.instruments.map((inst) => inst.sample.path).join(","),
@@ -57,16 +58,23 @@ export function useAudioEngine(): UseAudioEngineResult {
       createDrumSequence(
         toneSequence,
         instrumentRuntimes,
-        variationCycle,
-        bar,
-        chainVariation,
+        {
+          chain,
+          chainEnabled,
+          activeVariation,
+        },
+        playbackVariationRef,
       );
     }
 
     return () => {
       disposeDrumSequence(toneSequence);
     };
-  }, [isPlaying, instrumentRuntimesVersion, variationCycle]);
+    // Note: activeVariation is intentionally omitted from dependencies.
+    // When chainEnabled=true, the chain controls playback (not UI variation).
+    // When chainEnabled=false, variation changes are read from store on each bar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, instrumentRuntimesVersion, chain, chainEnabled]);
 
   // When any instrument is soloed, immediately release all non-solo runtimes
   useEffect(() => {
@@ -100,8 +108,7 @@ export function useAudioEngine(): UseAudioEngineResult {
         const samplePaths = instruments.map((inst) => inst.sample.path);
         const resolveSampleSource =
           await prepareSampleSourceResolver(samplePaths);
-        await createInstrumentRuntimes(
-          instrumentRuntimes,
+        instrumentRuntimes.current = await createInstrumentRuntimes(
           instruments,
           resolveSampleSource,
         );
@@ -118,7 +125,7 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     return () => {
       cancelled = true;
-      disposeInstrumentRuntimes(instrumentRuntimes);
+      disposeInstrumentRuntimes(instrumentRuntimes.current);
     };
   }, [instrumentSamplePaths]);
 
@@ -145,8 +152,11 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     const initializeMasterChain = async () => {
       // Get initial params without subscribing
-      await createMasterChainRuntimes(
-        masterChainRuntimes,
+      // Dispose old runtimes if any exist
+      disposeMasterChainRuntimes(masterChainRuntimes.current);
+
+      // Create new runtimes and assign to ref
+      masterChainRuntimes.current = await createMasterChainRuntimes(
         getMasterChainParams(),
       );
 
@@ -173,7 +183,7 @@ export function useAudioEngine(): UseAudioEngineResult {
         if (!masterChainRuntimes.current) return;
 
         // Extract current params
-        const currentParams: MasterChainParams = {
+        const currentParams = {
           filter: state.filter,
           saturation: state.saturation,
           phaser: state.phaser,
@@ -219,7 +229,8 @@ export function useAudioEngine(): UseAudioEngineResult {
       }
       // Only dispose on unmount, not on every instrument change
       if (isInitialized.current) {
-        disposeMasterChainRuntimes(masterChainRuntimes);
+        disposeMasterChainRuntimes(masterChainRuntimes.current);
+        masterChainRuntimes.current = null;
         isInitialized.current = false;
       }
     };

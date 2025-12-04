@@ -19,7 +19,7 @@ export function TooltipProvider({ children }: { children: React.ReactNode }) {
 export function Tooltip({
   children,
   content,
-  delayDuration = 500,
+  delayDuration = 2000,
   side = "top",
   open,
 }: TooltipProps) {
@@ -30,7 +30,7 @@ export function Tooltip({
         <TooltipPrimitive.Content
           side={side}
           sideOffset={4}
-          className="bg-primary font-pixel shadow-neu animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 text-primary-foreground z-50 rounded-md px-3 py-1.5 text-sm"
+          className="bg-primary shadow-neu animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 text-primary-foreground z-50 rounded-md px-2 py-0.5 text-xs"
         >
           {content}
           <TooltipPrimitive.Arrow className="fill-primary" />

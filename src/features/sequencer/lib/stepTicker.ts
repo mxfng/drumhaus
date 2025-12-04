@@ -1,4 +1,4 @@
-import { getCurrentStepFromTransport } from "@/core/audio/engine/transport";
+import { getCurrentStepFromTransport } from "@/core/audio/engine/transport/transport";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 
 type StepListener = (payload: {

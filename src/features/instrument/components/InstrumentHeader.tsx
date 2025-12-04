@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { playInstrumentSample } from "@/core/audio/engine";
+import { triggerInstrument } from "@/core/audio/engine";
+import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
-import { InstrumentRuntime } from "../types/instrument";
 
 interface InstrumentHeaderProps {
   index: number;
@@ -55,7 +55,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       return;
     }
 
-    await playInstrumentSample(runtime, tune, decay);
+    await triggerInstrument(runtime, tune, decay);
   }, [onInteract, runtime, tune, decay]);
 
   const handleWaveformError = useCallback((error: Error) => {
@@ -73,7 +73,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
+        "focus-ring flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,

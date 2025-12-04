@@ -14,6 +14,8 @@ interface StepMusicalState {
   isTriggerOn: boolean;
   brightness: number;
   isGuideActive: boolean;
+  color?: string;
+  disabled?: boolean;
 }
 
 export const Sequencer: React.FC = () => {
@@ -22,6 +24,7 @@ export const Sequencer: React.FC = () => {
   const variation = usePatternStore((state) => state.variation);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
   const mode = usePatternStore((state) => state.mode);
+  const chainDraft = usePatternStore((state) => state.chainDraft);
   const toggleStep = usePatternStore((state) => state.toggleStep);
   const toggleAccent = usePatternStore((state) => state.toggleAccent);
   const toggleRatchet = usePatternStore((state) => state.toggleRatchet);
@@ -34,13 +37,12 @@ export const Sequencer: React.FC = () => {
   // --- Groove Store ---
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
+  const isChainEdit = mode.type === "variationChain";
   const accentMode = mode.type === "accent";
   const ratchetMode = mode.type === "ratchet";
   const flamMode = mode.type === "flam";
-  const voiceIndex =
-    mode.type === "voice" || mode.type === "ratchet" || mode.type === "flam"
-      ? mode.voiceIndex
-      : 0;
+  const voiceMode = mode.type === "voice";
+  const voiceIndex = voiceMode || ratchetMode || flamMode ? mode.voiceIndex : 0;
   const showInstrumentGuide = ratchetMode || flamMode;
 
   // Get appropriate triggers based on mode
@@ -61,6 +63,19 @@ export const Sequencer: React.FC = () => {
   // Calculate ghosting: viewing different variation than what's playing
   const isGhosted = isPlaying && playbackVariation !== variation && !accentMode;
 
+  // --- Step toggle logic ---
+  const handleToggleStep = (stepIndex: number) => {
+    if (accentMode) {
+      toggleAccent(variation, stepIndex);
+    } else if (ratchetMode) {
+      toggleRatchet(voiceIndex, variation, stepIndex);
+    } else if (flamMode) {
+      toggleFlam(voiceIndex, variation, stepIndex);
+    } else {
+      toggleStep(voiceIndex, variation, stepIndex);
+    }
+  };
+
   // --- Drag-paint logic ---
   const {
     handleStepPointerStart,
@@ -68,17 +83,7 @@ export const Sequencer: React.FC = () => {
     handleStepPointerEnter,
   } = useSequencerDragPaint({
     triggers,
-    onToggleStep: (stepIndex) => {
-      if (accentMode) {
-        toggleAccent(variation, stepIndex);
-      } else if (ratchetMode) {
-        toggleRatchet(voiceIndex, variation, stepIndex);
-      } else if (flamMode) {
-        toggleFlam(voiceIndex, variation, stepIndex);
-      } else {
-        toggleStep(voiceIndex, variation, stepIndex);
-      }
-    },
+    onToggleStep: handleToggleStep,
   });
 
   const currentVariation = pattern.voices[voiceIndex].variations[variation];
@@ -88,10 +93,55 @@ export const Sequencer: React.FC = () => {
     (_, index) => index,
   );
 
+  // --- Chain Mode Helpers ---
+  const variationColors = [
+    "bg-blue-500/30 border-blue-500/50", // A
+    "bg-green-500/30 border-green-500/50", // B
+    "bg-yellow-500/30 border-yellow-500/50", // C
+    "bg-red-500/30 border-red-500/50", // D
+  ];
+
+  const getChainStepVariation = (stepIndex: number): number | null => {
+    const totalBars = chainDraft.steps.reduce(
+      (sum, step) => sum + step.repeats,
+      0,
+    );
+    const barIndex = Math.floor(stepIndex / 2);
+
+    if (barIndex >= totalBars) {
+      return null;
+    }
+
+    let currentBar = 0;
+    for (const step of chainDraft.steps) {
+      if (barIndex < currentBar + step.repeats) {
+        return step.variation;
+      }
+      currentBar += step.repeats;
+    }
+
+    return null;
+  };
+
   const getStepMusicalState = (step: number): StepMusicalState => {
+    // Chain edit mode: show variation chain visualization
+    if (isChainEdit) {
+      const chainVariation = getChainStepVariation(step);
+      const isEmpty = chainVariation === null;
+
+      return {
+        velocityValue: 0,
+        isTriggerOn: !isEmpty,
+        brightness: 1,
+        isGuideActive: false,
+        color: !isEmpty ? variationColors[chainVariation] : undefined,
+        disabled: true,
+      };
+    }
+
+    // Normal sequencer mode
     const isTriggerOn = triggers[step];
     const isGuideActive = showInstrumentGuide && instrumentTriggers[step];
-    // Ghosting: 0.7 brightness when trigger (or guide) is on but viewing different variation
     const brightness = isGhosted && (isTriggerOn || isGuideActive) ? 0.7 : 1;
 
     return {
@@ -123,13 +173,20 @@ export const Sequencer: React.FC = () => {
               isTriggerOn={state.isTriggerOn}
               brightness={state.brightness}
               isGuideActive={state.isGuideActive}
-              onPointerStart={handleStepPointerStart}
-              onPointerEnter={handleStepPointerEnter}
-              onPointerMove={handleStepPointerMove}
+              color={state.color}
+              disabled={state.disabled}
+              onClick={state.disabled ? undefined : handleToggleStep}
+              onPointerStart={
+                state.disabled ? undefined : handleStepPointerStart
+              }
+              onPointerEnter={
+                state.disabled ? undefined : handleStepPointerEnter
+              }
+              onPointerMove={state.disabled ? undefined : handleStepPointerMove}
             />
-            {/* Hide velocity controls in accent/ratchet/flam mode or when showVelocity is off */}
-            <div className="mt-3 h-3.5 w-full">
-              {!accentMode && !ratchetMode && !flamMode && showVelocity && (
+            {/* Hide velocity controls in accent/ratchet/flam/chain mode or when showVelocity is off */}
+            <div className="h-3.5 w-full">
+              {voiceMode && showVelocity && (
                 <SequencerVelocity
                   stepIndex={step}
                   velocityValue={state.velocityValue}

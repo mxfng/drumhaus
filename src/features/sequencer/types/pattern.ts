@@ -35,18 +35,18 @@ export type StepSequence = {
 
 /**
  * Represents one voice/lane in the drum sequencer, tied to a specific instrument.
- * Each voice has two variations (A and B), allowing for pattern alternation during playback.
+ * Each voice has four variations (A-D), allowing for pattern alternation during playback.
  */
 export type Voice = {
   /** Index (0–7) identifying which instrument in the kit this voice plays. */
   instrumentIndex: number; // range: [0..7]
 
-  /** Two step sequences representing the A and B variations of this voice. */
-  variations: [StepSequence, StepSequence]; // [A variation, B variation]
+  /** Four step sequences representing the A, B, C, and D variations of this voice. */
+  variations: [StepSequence, StepSequence, StepSequence, StepSequence]; // [A, B, C, D]
 };
 
 /**
- * Metadata for a single pattern variation (A or B).
+ * Metadata for a single pattern variation (A-D).
  * Contains variation-level data that applies to ALL instruments/voices for that variation.
  * This is separate from per-voice variation data (triggers, velocities, timingNudge).
  */
@@ -63,7 +63,7 @@ export type VariationMetadata = {
  * Represents a complete drum pattern with 8 voices and variation-level metadata.
  *
  * IMPORTANT: This structure separates two kinds of variation data:
- * 1. PER-VOICE variation data: Each voice has its own A/B patterns (voice.variations)
+ * 1. PER-VOICE variation data: Each voice has its own A/B/C/D patterns (voice.variations)
  *    - Contains triggers, velocities, and timingNudge for that specific instrument
  *    - Example: Kick drum has different patterns in variation A vs B
  *
@@ -78,11 +78,16 @@ export type VariationMetadata = {
  */
 export type Pattern = {
   /** 8 voices, one per instrument slot (0-7).
-   *  Each voice contains per-instrument pattern data for both A and B variations. */
+   *  Each voice contains per-instrument pattern data for A, B, C, and D variations. */
   voices: Voice[]; // length: 8
 
-  /** Metadata for variation A and B that applies to ALL voices.
+  /** Metadata for variations A-D that applies to ALL voices.
    *  Contains variation-level settings like accent patterns.
-   *  Index 0 = variation A metadata, Index 1 = variation B metadata. */
-  variationMetadata: [VariationMetadata, VariationMetadata]; // [A metadata, B metadata]
+   *  Index 0 = variation A metadata, Index 1 = variation B metadata, etc. */
+  variationMetadata: [
+    VariationMetadata,
+    VariationMetadata,
+    VariationMetadata,
+    VariationMetadata,
+  ]; // [A, B, C, D]
 };

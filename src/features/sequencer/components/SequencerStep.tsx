@@ -7,25 +7,29 @@ interface SequencerStepProps {
   isTriggerOn: boolean;
   brightness: number;
   isGuideActive?: boolean;
+  color?: string; // Optional custom color class for override
+  // Click handler for keyboard accessibility (Enter key)
+  onClick?: (stepIndex: number) => void;
   // Pointer handlers for desktop
   onPointerStart?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
   onPointerEnter?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerMove?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   // Touch handlers for mobile (required for iOS Safari)
   onTouchStart?: (
-    event: React.TouchEvent<HTMLDivElement>,
+    event: React.TouchEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onTouchMove?: (event: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove?: (event: React.TouchEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
 }
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
@@ -33,17 +37,25 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   isTriggerOn,
   brightness,
   isGuideActive = false,
+  color,
+  onClick,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
   onTouchStart,
   onTouchMove,
+  disabled = false,
 }) => {
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
   const isGuideOnly = isGuideActive && !isTriggerOn;
 
   const getTriggerClassName = () => {
+    // Use custom color if provided
+    if (color && isTriggerOn) {
+      return color;
+    }
+
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
@@ -61,40 +73,56 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const sizeClasses = "aspect-square w-full";
 
   return (
-    <div
+    <button
       data-step-index={stepIndex}
-      onPointerDown={(event) => onPointerStart?.(event, stepIndex, isTriggerOn)}
-      onPointerEnter={(event) =>
-        onPointerEnter?.(event, stepIndex, isTriggerOn)
-      }
+      onClick={(event) => {
+        if (disabled) return;
+        // Only trigger on keyboard clicks (Enter key), not pointer/mouse events
+        if (event.detail === 0) {
+          onClick?.(stepIndex);
+        }
+      }}
+      onPointerDown={(event) => {
+        if (disabled) return;
+        onPointerStart?.(event, stepIndex, isTriggerOn);
+      }}
+      onPointerEnter={(event) => {
+        if (disabled) return;
+        onPointerEnter?.(event, stepIndex, isTriggerOn);
+      }}
       onPointerMove={(event) => {
+        if (disabled) return;
         onPointerMove?.(event);
       }}
       onTouchStart={(event) => {
+        if (disabled) return;
         onTouchStart?.(event, stepIndex, isTriggerOn);
       }}
       onTouchMove={(event) => {
+        if (disabled) return;
         onTouchMove?.(event);
       }}
       onContextMenu={(e) => e.preventDefault()}
+      disabled={disabled}
+      type="button"
       className={cn(
-        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
+        "border-border focus-ring relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out disabled:pointer-events-none disabled:opacity-50",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
       )}
-      style={{
-        opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
-      }}
     >
       {(isTriggerOn || isGuideOnly) && (
         <div
           className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
+            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
             borderRadius,
           )}
+          style={{
+            opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
+          }}
         />
       )}
-    </div>
+    </button>
   );
 };

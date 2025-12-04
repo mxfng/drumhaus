@@ -13,7 +13,7 @@ import {
   MASTER_SATURATION_DEFAULT,
   MASTER_VOLUME_DEFAULT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "../types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 
 /**
  * Selector to get MasterChainParams from the store state

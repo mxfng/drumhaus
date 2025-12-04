@@ -27,6 +27,20 @@ export function createEmptyPattern(): Pattern {
           ratchets: Array.from({ length: STEP_COUNT }, () => false),
           flams: Array.from({ length: STEP_COUNT }, () => false),
         },
+        {
+          triggers: Array.from({ length: STEP_COUNT }, () => false),
+          velocities: Array.from({ length: STEP_COUNT }, () => 1),
+          timingNudge: 0,
+          ratchets: Array.from({ length: STEP_COUNT }, () => false),
+          flams: Array.from({ length: STEP_COUNT }, () => false),
+        },
+        {
+          triggers: Array.from({ length: STEP_COUNT }, () => false),
+          velocities: Array.from({ length: STEP_COUNT }, () => 1),
+          timingNudge: 0,
+          ratchets: Array.from({ length: STEP_COUNT }, () => false),
+          flams: Array.from({ length: STEP_COUNT }, () => false),
+        },
       ],
     };
     voices.push(voice);
@@ -35,6 +49,8 @@ export function createEmptyPattern(): Pattern {
   return {
     voices,
     variationMetadata: [
+      { accent: Array.from({ length: STEP_COUNT }, () => false) },
+      { accent: Array.from({ length: STEP_COUNT }, () => false) },
       { accent: Array.from({ length: STEP_COUNT }, () => false) },
       { accent: Array.from({ length: STEP_COUNT }, () => false) },
     ],

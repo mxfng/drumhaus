@@ -4,12 +4,79 @@ import {
   MASTER_SATURATION_DEFAULT,
   STEP_COUNT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "@/features/master-bus/types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
+import { clampNudge } from "@/features/sequencer/lib/timing";
 import {
   Pattern,
   StepSequence,
   VariationMetadata,
 } from "@/features/sequencer/types/pattern";
+
+const EMPTY_SEQUENCE: StepSequence = {
+  triggers: Array.from({ length: STEP_COUNT }, () => false),
+  velocities: Array.from({ length: STEP_COUNT }, () => 1),
+  timingNudge: 0,
+  ratchets: Array.from({ length: STEP_COUNT }, () => false),
+  flams: Array.from({ length: STEP_COUNT }, () => false),
+};
+
+const EMPTY_VARIATION_METADATA: VariationMetadata = {
+  accent: Array.from({ length: STEP_COUNT }, () => false),
+};
+
+function normalizeVariations(
+  variations: StepSequence[],
+): [StepSequence, StepSequence, StepSequence, StepSequence] {
+  return [
+    migrateStepSequence(variations?.[0] ?? EMPTY_SEQUENCE),
+    migrateStepSequence(variations?.[1] ?? EMPTY_SEQUENCE),
+    migrateStepSequence(variations?.[2] ?? EMPTY_SEQUENCE),
+    migrateStepSequence(variations?.[3] ?? EMPTY_SEQUENCE),
+  ];
+}
+
+function normalizeVariationMetadata(
+  metadata: VariationMetadata[] | undefined,
+): [
+  VariationMetadata,
+  VariationMetadata,
+  VariationMetadata,
+  VariationMetadata,
+] {
+  return [
+    migrateVariationMetadata(metadata?.[0] ?? EMPTY_VARIATION_METADATA),
+    migrateVariationMetadata(metadata?.[1] ?? EMPTY_VARIATION_METADATA),
+    migrateVariationMetadata(metadata?.[2] ?? EMPTY_VARIATION_METADATA),
+    migrateVariationMetadata(metadata?.[3] ?? EMPTY_VARIATION_METADATA),
+  ];
+}
+
+function normalizeVariationsUnsafe(
+  variations: unknown[],
+): [StepSequence, StepSequence, StepSequence, StepSequence] {
+  return [
+    migrateStepSequenceUnsafe(variations?.[0]),
+    migrateStepSequenceUnsafe(variations?.[1]),
+    migrateStepSequenceUnsafe(variations?.[2]),
+    migrateStepSequenceUnsafe(variations?.[3]),
+  ];
+}
+
+function normalizeVariationMetadataUnsafe(
+  metadata: unknown[] | undefined,
+): [
+  VariationMetadata,
+  VariationMetadata,
+  VariationMetadata,
+  VariationMetadata,
+] {
+  return [
+    migrateVariationMetadataUnsafe(metadata?.[0]),
+    migrateVariationMetadataUnsafe(metadata?.[1]),
+    migrateVariationMetadataUnsafe(metadata?.[2]),
+    migrateVariationMetadataUnsafe(metadata?.[3]),
+  ];
+}
 
 /**
  * Migrates a pattern to the current version, ensuring all required fields exist.
@@ -32,16 +99,10 @@ export function migratePattern(pattern: Pattern | unknown): Pattern {
     return {
       voices: pattern.map((voice) => ({
         ...voice,
-        variations: [
-          migrateStepSequence(voice.variations[0]),
-          migrateStepSequence(voice.variations[1]),
-        ] as [(typeof voice.variations)[0], (typeof voice.variations)[1]],
+        variations: normalizeVariations(voice.variations as StepSequence[]),
       })),
       // Add default empty accent patterns for both variations
-      variationMetadata: [
-        { accent: Array.from({ length: STEP_COUNT }, () => false) },
-        { accent: Array.from({ length: STEP_COUNT }, () => false) },
-      ],
+      variationMetadata: normalizeVariationMetadata(undefined),
     };
   }
 
@@ -51,15 +112,11 @@ export function migratePattern(pattern: Pattern | unknown): Pattern {
   return {
     voices: modernPattern.voices.map((voice) => ({
       ...voice,
-      variations: [
-        migrateStepSequence(voice.variations[0]),
-        migrateStepSequence(voice.variations[1]),
-      ] as [(typeof voice.variations)[0], (typeof voice.variations)[1]],
+      variations: normalizeVariations(voice.variations as StepSequence[]),
     })),
-    variationMetadata: [
-      migrateVariationMetadata(modernPattern.variationMetadata?.[0]),
-      migrateVariationMetadata(modernPattern.variationMetadata?.[1]),
-    ],
+    variationMetadata: normalizeVariationMetadata(
+      modernPattern.variationMetadata as VariationMetadata[],
+    ),
   };
 }
 
@@ -119,19 +176,13 @@ export function migratePatternUnsafe(pattern: unknown): Pattern {
 
       return {
         instrumentIndex: voiceObj.instrumentIndex,
-        variations: [
-          migrateStepSequenceUnsafe(voiceObj.variations[0]),
-          migrateStepSequenceUnsafe(voiceObj.variations[1]),
-        ] as [StepSequence, StepSequence],
+        variations: normalizeVariationsUnsafe(voiceObj.variations),
       };
     });
 
     return {
       voices,
-      variationMetadata: [
-        { accent: Array.from({ length: STEP_COUNT }, () => false) },
-        { accent: Array.from({ length: STEP_COUNT }, () => false) },
-      ],
+      variationMetadata: normalizeVariationMetadataUnsafe(undefined),
     };
   }
 
@@ -152,19 +203,15 @@ export function migratePatternUnsafe(pattern: unknown): Pattern {
 
     return {
       instrumentIndex: voiceObj.instrumentIndex,
-      variations: [
-        migrateStepSequenceUnsafe(voiceObj.variations[0]),
-        migrateStepSequenceUnsafe(voiceObj.variations[1]),
-      ] as [StepSequence, StepSequence],
+      variations: normalizeVariationsUnsafe(voiceObj.variations),
     };
   });
 
   return {
     voices,
-    variationMetadata: [
-      migrateVariationMetadataUnsafe(pattern.variationMetadata?.[0]),
-      migrateVariationMetadataUnsafe(pattern.variationMetadata?.[1]),
-    ],
+    variationMetadata: normalizeVariationMetadataUnsafe(
+      pattern.variationMetadata as VariationMetadata[],
+    ),
   };
 }
 
@@ -204,6 +251,16 @@ function migrateStepSequenceUnsafe(sequence: unknown) {
     throw new Error("Invalid step sequence: null or undefined");
   }
 
+  const triggers =
+    "triggers" in sequence && Array.isArray(sequence.triggers)
+      ? sequence.triggers
+      : Array.from({ length: STEP_COUNT }, () => false);
+
+  const velocities =
+    "velocities" in sequence && Array.isArray(sequence.velocities)
+      ? sequence.velocities
+      : Array.from({ length: STEP_COUNT }, () => 1);
+
   const ratchets =
     "ratchets" in sequence && Array.isArray(sequence.ratchets)
       ? sequence.ratchets
@@ -214,12 +271,16 @@ function migrateStepSequenceUnsafe(sequence: unknown) {
       ? sequence.flams
       : Array.from({ length: STEP_COUNT }, () => false);
 
+  const timingNudge =
+    "timingNudge" in sequence && typeof sequence.timingNudge === "number"
+      ? clampNudge(sequence.timingNudge)
+      : 0;
+
   return {
     ...sequence,
-    timingNudge:
-      "timingNudge" in sequence && typeof sequence.timingNudge === "number"
-        ? sequence.timingNudge
-        : 0,
+    triggers,
+    velocities,
+    timingNudge,
     ratchets,
     flams,
   };

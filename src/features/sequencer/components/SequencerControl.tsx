@@ -1,4 +1,6 @@
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { buttonActive } from "@/shared/lib/buttonActive";
+import { cn } from "@/shared/lib/utils";
 import { Button, Tooltip } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
@@ -6,46 +8,30 @@ import { SequencerVariationPreview } from "./SequencerVariationPreview";
 
 // Tooltip constants
 const TOOLTIPS = {
-  VARIATION_CHAIN_SET: "Set variation chain",
-  VARIATION_CHAIN_SAVE: "Save variation chain",
-  VARIATION_CHAIN_TOGGLE_ON: "Toggle variation chain on",
-  VARIATION_CHAIN_TOGGLE_OFF: "Toggle variation chain off",
-  VARIATION_A: "Select variation A",
-  VARIATION_B: "Select variation B",
-  CYCLE_A: "Play only variation A",
-  CYCLE_B: "Play only variation B",
-  CYCLE_AB: "Alternate A and B each bar",
-  CYCLE_AAAB: "Play A three times, then B",
-  COPY: "Copy current sequence",
-  PASTE: "Paste copied sequence",
-  CLEAR: "Clear current sequence",
-  RANDOM: "Generate random sequence",
+  VARIATION_CHAIN_SET: "Program a variation chain",
+  VARIATION_CHAIN_SAVE: "Store the current chain",
+  VARIATION_CHAIN_TOGGLE_ON: "Play the variation chain",
+  VARIATION_CHAIN_TOGGLE_OFF: "Play this variation only",
+
+  VARIATION_A: "Variation A",
+  VARIATION_B: "Variation B",
+  VARIATION_C: "Variation C",
+  VARIATION_D: "Variation D",
+
+  COPY_TOGGLE_ON: "Enter copy mode and select a source",
+  COPY_TOGGLE_OFF: "Exit copy mode",
+
+  PASTE_TOGGLE_ON: "Enter paste mode and select a target",
+  PASTE_TOGGLE_OFF: "Exit paste mode",
+
+  CLEAR_TOGGLE_ON: "Enter clear mode and select a target",
+  CLEAR_TOGGLE_OFF: "Exit clear mode",
+
+  UNDO: "Undo the last change",
 } as const;
 
 /*
 TODO: Add the remaining features
-
-Variation Chain (Vari Chain) — “Program a sequence of A/B/C/D patterns.”
-
-Vari Chain lets the user build a custom playback sequence using the four variations (A, B, C, D). The user taps the Vari Chain button, then presses A/B/C/D in order to create a chain up to 8 steps long (e.g., A → A → C → D). When active, playback follows this chain instead of looping a single variation.
-
-Purpose: Create longer phrases, evolving loops, and structured patterns.
-Edit Mode: Press Vari Chain to enter chain-edit; tap variations to add; press again to exit.
-Storage: Chain is saved per kit/pattern.
-Max length: 8 slots (configurable).
-
-Chain On — “Play the programmed chain instead of a single variation.”
-
-Chain On toggles between two playback modes:
-
-Chain Off: Loop the selected variation (A/B/C/D).
-
-Chain On: Follow the chain sequence created with Vari Chain.
-
-When Chain On is active, the sequencer advances through the chain and loops it continuously. Turning it off returns playback to the currently selected variation.
-
-Purpose: Perform live, switch between loop vs phrase, control flow quickly.
-Display: Highlighted state indicates chain playback is enabled.
 
 Multi-Step Copy / Paste / Clear — “Command first, then choose the target.”
 
@@ -128,6 +114,14 @@ Scope: Local to the current variation, never global.
  */
 export const SequencerControl: React.FC = () => {
   const variation = usePatternStore((state) => state.variation);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const mode = usePatternStore((state) => state.mode);
+  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const setMode = usePatternStore((state) => state.setMode);
+  const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
+  const startChainEdit = usePatternStore((state) => state.startChainEdit);
+  const setChain = usePatternStore((state) => state.setChain);
+  const chainDraft = usePatternStore((state) => state.chainDraft);
 
   // const {
   //   variationCycle,
@@ -138,24 +132,62 @@ export const SequencerControl: React.FC = () => {
   //   randomSequence,
   // } = useSequencerControl();
 
+  const isChainEdit = mode.type === "variationChain";
+
+  const handleToggleChainEdit = () => {
+    if (isChainEdit) {
+      // On exit, commit the drafted chain only if something was punched in
+      if (chainDraft.steps.length > 0) {
+        setChain(chainDraft);
+      }
+      setMode({ type: "voice", voiceIndex });
+      return;
+    }
+    startChainEdit();
+  };
+
+  const handleToggleChainEnabled = () => {
+    setChainEnabled(!chainEnabled);
+  };
+
   return (
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
         {/* Variation chain and sequencer overview row */}
-        <Tooltip content={TOOLTIPS.VARIATION_CHAIN_SET}>
+        <Tooltip
+          content={
+            isChainEdit
+              ? TOOLTIPS.VARIATION_CHAIN_SAVE
+              : TOOLTIPS.VARIATION_CHAIN_SET
+          }
+        >
           <Button
             variant="hardware"
             size="sm"
-            className="relative overflow-hidden"
+            className={cn(
+              "relative overflow-hidden",
+              buttonActive(isChainEdit),
+            )}
+            onClick={handleToggleChainEdit}
           >
             <span className="leading-3">vari chain</span>
           </Button>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON}>
+        <Tooltip
+          content={
+            chainEnabled
+              ? TOOLTIPS.VARIATION_CHAIN_TOGGLE_OFF
+              : TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON
+          }
+        >
           <Button
             variant="hardware"
             size="sm"
-            className="relative overflow-hidden"
+            className={cn(
+              "relative overflow-hidden",
+              buttonActive(chainEnabled),
+            )}
+            onClick={handleToggleChainEnabled}
           >
             <span>chain on</span>
           </Button>
@@ -171,56 +203,50 @@ export const SequencerControl: React.FC = () => {
         <Tooltip content={TOOLTIPS.VARIATION_B}>
           <SequencerVariationButton variation={1} />
         </Tooltip>
-
-        {/* mock for now */}
-        <Button
-          variant="hardware"
-          className="font-pixel relative flex items-start justify-start overflow-hidden"
-        >
-          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
-            C
-          </span>
-        </Button>
-
-        {/* mock for now */}
-        <Button
-          variant="hardware"
-          className="font-pixel relative flex items-start justify-start overflow-hidden"
-        >
-          <span className="bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded">
-            D
-          </span>
-        </Button>
+        <Tooltip content={TOOLTIPS.VARIATION_C}>
+          <SequencerVariationButton variation={2} />
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.VARIATION_D}>
+          <SequencerVariationButton variation={3} />
+        </Tooltip>
 
         {/* Pattern actions row */}
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>copy</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>paste</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>clear</span>
-        </Button>
-        <Button
-          variant="hardware"
-          size="sm"
-          className="relative overflow-hidden"
-        >
-          <span>undo</span>
-        </Button>
+        <Tooltip content={TOOLTIPS.COPY_TOGGLE_ON} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>copy</span>
+          </Button>
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.PASTE_TOGGLE_ON} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>paste</span>
+          </Button>
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.CLEAR_TOGGLE_ON} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>clear</span>
+          </Button>
+        </Tooltip>
+        <Tooltip content={TOOLTIPS.UNDO} side="bottom">
+          <Button
+            variant="hardware"
+            size="sm"
+            className="relative overflow-hidden"
+          >
+            <span>undo</span>
+          </Button>
+        </Tooltip>
       </div>
     </HardwareModule>
   );

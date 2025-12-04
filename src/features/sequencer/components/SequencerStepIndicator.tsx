@@ -5,14 +5,14 @@ import { cn } from "@/shared/lib/utils";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
-  variation: number;
-  playbackVariation: number;
+  variation?: number;
+  playbackVariation?: number;
 }
 
 export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   stepIndex,
-  variation,
-  playbackVariation,
+  variation = undefined,
+  playbackVariation = undefined,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
 

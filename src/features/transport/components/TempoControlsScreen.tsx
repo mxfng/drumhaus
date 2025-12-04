@@ -1,15 +1,22 @@
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { ScreenBar } from "@/layout/ScreenBar";
 import { ClickableValue } from "@/shared/components/ClickableValue";
 import {
   transportBpmMapping,
   transportSwingMapping,
 } from "@/shared/knob/lib/mapping";
+import { cn } from "@/shared/lib/utils";
 
 export const TempoControlsScreen: React.FC = () => {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
   const setSwing = useTransportStore((state) => state.setSwing);
+  const chain = usePatternStore((state) => state.chain);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const playbackVariation = usePatternStore((state) => state.playbackVariation);
 
   const bpmKnobValue = transportBpmMapping.domainToKnob(bpm);
   const handleBpmChange = (knobValue: number) => {
@@ -23,9 +30,14 @@ export const TempoControlsScreen: React.FC = () => {
     setSwing(domainValue);
   };
 
+  // Convert chain to string format (e.g., "AABBABCD")
+  const chainString = chain.steps
+    .map((step) => VARIATION_LABELS[step.variation].repeat(step.repeats))
+    .join("");
+
   return (
-    <div className="bg-screen-foreground text-instrument flex h-full items-center rounded-tl-full px-2 pt-0.5 pl-4 text-sm">
-      <div className="grid w-full grid-cols-4">
+    <ScreenBar>
+      <div className="grid w-full grid-cols-5 place-items-stretch gap-0">
         <ClickableValue
           value={bpmKnobValue}
           onValueChange={handleBpmChange}
@@ -42,11 +54,24 @@ export const TempoControlsScreen: React.FC = () => {
           label="swing"
           labelClassName="text-xs"
         />
-        <span className="col-span-2">
+
+        <span className="flex w-full items-center justify-start">
+          <span className="pr-2 pl-1 text-xs">play</span>
+          <span className="bg-screen text-screen-foreground flex h-3.5 w-4 items-center justify-center rounded-tr rounded-bl px-1 text-xs">
+            {VARIATION_LABELS[playbackVariation]}
+          </span>
+        </span>
+        <span className="col-span-2 flex w-full items-center justify-start">
           <span className="text-xs">chain</span>
-          <b className="pl-1">ABABCDCD</b>
+          <span
+            className={cn("flex-1 pl-1", {
+              "flex w-full items-center justify-center": !chainEnabled,
+            })}
+          >
+            {chainEnabled ? chainString : "—"}
+          </span>
         </span>
       </div>
-    </div>
+    </ScreenBar>
   );
 };

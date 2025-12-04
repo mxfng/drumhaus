@@ -1,11 +1,14 @@
 import React, { forwardRef } from "react";
 
+import { buttonActive } from "@/shared/lib/buttonActive";
+import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
+import { VARIATION_LABELS, VariationId } from "../types/sequencer";
 
 interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variation: number;
+  variation: VariationId;
 }
 
 /**
@@ -22,12 +25,19 @@ export const SequencerVariationButton = forwardRef<
 >(({ variation, onClick, className, ...props }, ref) => {
   const currentVariation = usePatternStore((state) => state.variation);
   const setVariation = usePatternStore((state) => state.setVariation);
+  const mode = usePatternStore((state) => state.mode);
+  const writeChainStep = usePatternStore((state) => state.writeChainStep);
 
-  const displayVariation = variation === 0 ? "A" : "B";
+  const displayVariation = VARIATION_LABELS[variation] ?? "?";
   const isActive = currentVariation === variation;
+  const isChainEdit = mode.type === "variationChain";
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setVariation(variation);
+    if (isChainEdit) {
+      writeChainStep(variation);
+    } else {
+      setVariation(variation);
+    }
     onClick?.(e);
   };
 
@@ -37,10 +47,9 @@ export const SequencerVariationButton = forwardRef<
       variant="hardware"
       onClick={handleClick}
       className={cn(
-        "font-pixel relative flex items-start justify-start overflow-hidden transition-colors duration-400",
-        {
-          "border-primary text-primary transition-colors": isActive,
-        },
+        "font-pixel relative flex items-start justify-start overflow-hidden p-1 transition-colors duration-400",
+        buttonActive(isActive && !isChainEdit),
+        interactableHighlight(isChainEdit),
         className,
       )}
       {...props}
@@ -49,7 +58,7 @@ export const SequencerVariationButton = forwardRef<
         className={cn(
           "bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded-tr rounded-bl transition-colors duration-400",
           {
-            "bg-primary": isActive,
+            "bg-primary": isActive && !isChainEdit,
           },
         )}
       >

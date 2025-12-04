@@ -1,4 +1,4 @@
-import "@/app/pixelated-spinner.css";
+import "@/app/styles/pixelated-spinner.css";
 
 import { cn } from "@/shared/lib/utils";
 

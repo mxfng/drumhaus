@@ -62,7 +62,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   isOpen,
   onClose,
 }) => {
-  const variationCycle = usePatternStore((state) => state.variationCycle);
+  const chain = usePatternStore((state) => state.chain);
+  const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const bpm = useTransportStore((state) => state.bpm);
   const presetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
@@ -75,15 +76,16 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   const [isExporting, setIsExporting] = useState(false);
 
   const { toast } = useToast();
+  const recommendedBars = getSuggestedBars(chain, chainEnabled);
 
   // Set defaults when dialog opens
   useEffect(() => {
     if (isOpen) {
       setFilename(presetName);
-      setBars(getSuggestedBars(variationCycle));
+      setBars(recommendedBars);
       setIsExporting(false);
     }
-  }, [isOpen, variationCycle, presetName]);
+  }, [isOpen, chain, chainEnabled, presetName, recommendedBars]);
 
   const baseDuration = calculateExportDuration(bars, bpm);
   const duration = baseDuration + (includeTail ? 2 : 0);
@@ -184,8 +186,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
                   ))}
                 </div>
                 <p className="text-foreground-muted text-xs">
-                  Recommended: {getSuggestedBars(variationCycle)}{" "}
-                  {getSuggestedBars(variationCycle) === 1 ? "bar" : "bars"}
+                  Recommended: {recommendedBars}{" "}
+                  {recommendedBars === 1 ? "bar" : "bars"}
                 </p>
               </div>
 

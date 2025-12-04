@@ -4,19 +4,19 @@ import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter"
 import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { Button, Label, Tooltip } from "@/shared/ui";
 
 // Tooltip constants
 const TOOLTIPS = {
-  ACCENT_MODE: "Toggle accent mode",
-  SHOW_VELOCITY: "Toggle velocity controls visibility",
-  TIMING_NUDGE_LEFT: "Nudge timing left",
-  TIMING_NUDGE_RIGHT: "Nudge timing right",
-  RATCHET_MODE: "Toggle ratchet mode (rapid second hit)",
-  FLAM_MODE: "Toggle flam mode (human grace-note before the main hit)",
+  ACCENT_MODE: "Toggle accent mode (pronounced hits)",
+  SHOW_VELOCITY: "Show or hide velocity controls",
+  TIMING_NUDGE_LEFT: "Shift timing earlier",
+  TIMING_NUDGE_RIGHT: "Shift timing later",
+  RATCHET_MODE: "Toggle ratchet mode (extra rapid hits)",
+  FLAM_MODE: "Toggle flam mode (a quick pre-hit)",
 } as const;
-
 /**
  * Work in progress
  * TODO: Add the remaining features
@@ -47,7 +47,8 @@ export const GrooveControls = () => {
   const accentMode = mode.type === "accent";
   const flamMode = mode.type === "flam";
   const ratchetMode = mode.type === "ratchet";
-  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+  const voiceMode = mode.type === "voice";
+  const voiceIndex = voiceMode ? mode.voiceIndex : 0;
 
   const currentNudge =
     pattern.voices[voiceIndex]?.variations[variation]?.timingNudge ?? 0;
@@ -61,9 +62,7 @@ export const GrooveControls = () => {
         <Tooltip content={TOOLTIPS.ACCENT_MODE}>
           <Button
             variant="hardware"
-            className={cn(
-              accentMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(accentMode)}
             onClick={toggleAccentMode}
             size="sm"
           >
@@ -75,10 +74,7 @@ export const GrooveControls = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn(
-              "leading-3",
-              showVelocity && "border-primary text-primary transition-colors",
-            )}
+            className={cn("leading-3", buttonActive(voiceMode && showVelocity))}
             onClick={toggleShowVelocity}
             disabled={mode.type !== "voice"}
           >
@@ -87,7 +83,10 @@ export const GrooveControls = () => {
         </Tooltip>
 
         {/* Timing nudge */}
-        <div className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border">
+        <div
+          aria-disabled={!canNudgeLeft || !canNudgeRight}
+          className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border aria-disabled:opacity-50"
+        >
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="left">
             <Button
               variant="hardwareIcon"
@@ -121,9 +120,7 @@ export const GrooveControls = () => {
             variant="hardware"
             size="sm"
             onClick={toggleRatchetMode}
-            className={cn(
-              ratchetMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(ratchetMode)}
           >
             ratchet
           </Button>
@@ -133,9 +130,7 @@ export const GrooveControls = () => {
             variant="hardware"
             size="sm"
             onClick={toggleFlamMode}
-            className={cn(
-              flamMode && "border-primary text-primary transition-colors",
-            )}
+            className={buttonActive(flamMode)}
           >
             flam
           </Button>
