@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { playInstrumentSample } from "@/core/audio/engine";
+import { triggerInstrument } from "@/core/audio/engine";
+import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
-import { InstrumentRuntime } from "../types/instrument";
 
 interface InstrumentHeaderProps {
   index: number;
@@ -55,7 +55,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       return;
     }
 
-    await playInstrumentSample(runtime, tune, decay);
+    await triggerInstrument(runtime, tune, decay);
   }, [onInteract, runtime, tune, decay]);
 
   const handleWaveformError = useCallback((error: Error) => {

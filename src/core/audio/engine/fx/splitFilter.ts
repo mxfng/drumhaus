@@ -5,14 +5,14 @@ import { KNOB_ROTATION_THRESHOLD_L } from "@/shared/knob/lib/transform";
 import {
   SPLIT_FILTER_BYPASS_FLOOR_HZ,
   SPLIT_FILTER_DEFAULT_RAMP_TIME,
-} from "./constants";
+} from "../constants";
 
-type SplitFilterConfig = {
+interface SplitFilterConfig {
   minFrequency: number;
   maxFrequency: number;
   rampTime?: number;
   bypassFloorHz?: number;
-};
+}
 
 /**
  * Applies split-filter behavior (LP on left, HP on right) to dedicated filter nodes

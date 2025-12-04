@@ -2,11 +2,11 @@
 
 import { Offline } from "tone/build/esm/index";
 
-import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
   InstrumentData,
   InstrumentRuntime,
-} from "@/features/instrument/types/instrument";
+} from "@/core/audio/engine/instrument/types";
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { getMasterChainParams } from "@/features/master-bus/store/useMasterChainStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import {
@@ -16,9 +16,9 @@ import {
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import {
   applyInstrumentParams,
-  buildInstrumentRuntime,
   configureTransportTiming,
-  connectInstrumentRuntime,
+  connectInstrumentToMasterChain,
+  createInstrumentRuntime,
   createOfflineSequence,
   initializeMasterChain,
   MasterChainRuntimes,
@@ -156,7 +156,7 @@ async function buildOfflineInstrumentRuntimes(
 
   for (const instrument of instruments) {
     // Build runtime using shared builder
-    const runtime = await buildInstrumentRuntime(instrument);
+    const runtime = await createInstrumentRuntime(instrument);
 
     // Apply instrument params
     applyInstrumentParams(runtime, {
@@ -166,7 +166,7 @@ async function buildOfflineInstrumentRuntimes(
     });
 
     // Connect to master chain
-    connectInstrumentRuntime(runtime, masterChain);
+    connectInstrumentToMasterChain(runtime, masterChain);
 
     runtimes.push(runtime);
   }

@@ -1,7 +1,7 @@
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { cn } from "@/shared/lib/utils";
+import { InstrumentRuntime } from "../../../core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
-import { InstrumentRuntime } from "../types/instrument";
 import { InstrumentHeader } from "./InstrumentHeader";
 import { InstrumentParamsControl } from "./InstrumentParamsControl";
 

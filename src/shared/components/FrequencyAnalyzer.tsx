@@ -4,7 +4,7 @@ import { Analyser } from "tone";
 import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
-} from "@/core/audio/engine";
+} from "@/core/audio/frequencyAnalyzer";
 import { semitonesToRatio } from "@/shared/knob/lib/utils";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp, normalize } from "@/shared/lib/utils";

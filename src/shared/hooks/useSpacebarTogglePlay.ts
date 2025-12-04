@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from "react";
 
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 

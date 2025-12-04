@@ -1,13 +1,12 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import type { Sequence } from "tone/build/esm/index";
 
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
   getMasterChainParams,
   useMasterChainStore,
 } from "@/features/master-bus/store/useMasterChainStore";
-import type { MasterChainParams } from "@/features/master-bus/types/master";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { prepareSampleSourceResolver } from "../cache/sample";
@@ -26,6 +25,7 @@ import {
   updateMasterChainParams,
   waitForBuffersToLoad,
 } from "../engine";
+import { MasterChainParams } from "../engine/fx/masterChain/types";
 import { useAudioContextGuards } from "./useAudioContextGuards";
 
 interface UseAudioEngineResult {
@@ -108,8 +108,7 @@ export function useAudioEngine(): UseAudioEngineResult {
         const samplePaths = instruments.map((inst) => inst.sample.path);
         const resolveSampleSource =
           await prepareSampleSourceResolver(samplePaths);
-        await createInstrumentRuntimes(
-          instrumentRuntimes,
+        instrumentRuntimes.current = await createInstrumentRuntimes(
           instruments,
           resolveSampleSource,
         );
@@ -126,7 +125,7 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     return () => {
       cancelled = true;
-      disposeInstrumentRuntimes(instrumentRuntimes);
+      disposeInstrumentRuntimes(instrumentRuntimes.current);
     };
   }, [instrumentSamplePaths]);
 
@@ -153,8 +152,11 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     const initializeMasterChain = async () => {
       // Get initial params without subscribing
-      await createMasterChainRuntimes(
-        masterChainRuntimes,
+      // Dispose old runtimes if any exist
+      disposeMasterChainRuntimes(masterChainRuntimes.current);
+
+      // Create new runtimes and assign to ref
+      masterChainRuntimes.current = await createMasterChainRuntimes(
         getMasterChainParams(),
       );
 
@@ -181,7 +183,7 @@ export function useAudioEngine(): UseAudioEngineResult {
         if (!masterChainRuntimes.current) return;
 
         // Extract current params
-        const currentParams: MasterChainParams = {
+        const currentParams = {
           filter: state.filter,
           saturation: state.saturation,
           phaser: state.phaser,
@@ -227,7 +229,8 @@ export function useAudioEngine(): UseAudioEngineResult {
       }
       // Only dispose on unmount, not on every instrument change
       if (isInitialized.current) {
-        disposeMasterChainRuntimes(masterChainRuntimes);
+        disposeMasterChainRuntimes(masterChainRuntimes.current);
+        masterChainRuntimes.current = null;
         isInitialized.current = false;
       }
     };

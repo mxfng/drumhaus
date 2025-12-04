@@ -1,10 +1,7 @@
 import { now } from "tone/build/esm/index";
 
-import {
-  InstrumentData,
-  InstrumentRuntime,
-} from "@/features/instrument/types/instrument";
-import { stopRuntimeAtTime } from "./runtimeStops";
+import { triggerInstrumentReleaseAtTime } from "./trigger";
+import { InstrumentData, InstrumentRuntime } from "./types";
 
 /**
  * Release all active voices on non-solo instruments so soloing immediately silences them.
@@ -22,7 +19,7 @@ export function releaseNonSoloRuntimes(
     if (!runtime || !instrument) continue;
     if (instrument.params.solo) continue;
 
-    stopRuntimeAtTime(runtime, time);
+    triggerInstrumentReleaseAtTime(runtime, time);
   }
 }
 

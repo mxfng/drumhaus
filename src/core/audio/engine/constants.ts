@@ -167,3 +167,36 @@ export const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
 
 export const EXPORT_TAIL_TIME = 2; // Seconds
 export const EXPORT_CHANNEL_COUNT = 2;
+
+// ============================================================================
+// Audio context
+// ============================================================================
+
+export const AUDIO_CONTEXT_CHECK_THROTTLE_MS = 100;
+
+// ============================================================================
+// Sequencer, Pattern, and Groove
+// ============================================================================
+
+export const RATCHET_OFFSET_BEATS = 0.125;
+export const FLAM_OFFSET_SECONDS = 0.015;
+export const FLAM_GRACE_VELOCITY = 0.6;
+/**
+ * Accent boost factor (TR-909 style).
+ * When a step is accented, its velocity is multiplied by this value.
+ * 1.3 = +30% velocity boost for accented steps
+ */
+export const ACCENT_BOOST = 1.3;
+
+/**
+ * Velocity dampening factor when accents are present in a variation.
+ * Applied to ALL steps to create headroom for accent boost.
+ * This ensures accents are audible even when all velocities are at 1.0.
+ *
+ * Example with all velocities at 1.0:
+ * - Non-accented: 1.0 / 1.3 ≈ 0.77 (quieter)
+ * - Accented: (1.0 / 1.3) * 1.3 = 1.0 (normal volume)
+ */
+export const ACCENT_DAMPEN = ACCENT_BOOST;
+
+export const VARIATION_COUNT = 4;

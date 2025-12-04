@@ -2,10 +2,6 @@ import { getTransport, Sequence, Time } from "tone/build/esm/index";
 
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
-  InstrumentData,
-  InstrumentRuntime,
-} from "@/features/instrument/types/instrument";
-import {
   clampVariationId,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
@@ -21,33 +17,26 @@ import {
   SEQUENCE_EVENTS,
   SEQUENCE_SUBDIVISION,
   STEP_COUNT,
-  TRANSPORT_SWING_MAX,
-  TRANSPORT_SWING_RANGE,
-} from "./constants";
-import { hasAnySolo } from "./solo";
-import { triggerInstrumentAtTime } from "./trigger";
+} from "../constants";
+import { hasAnySolo } from "../instrument/solo";
+import {
+  getOHatVoiceIndex,
+  triggerInstrumentAtTime,
+  triggerOHatReleaseAtTime,
+} from "../instrument/trigger";
+import type { InstrumentData, InstrumentRuntime } from "../instrument/types";
+import {
+  advanceChainAtEndOfBar,
+  ChainPlaybackState,
+  getStepBoundaries,
+  updatePlaybackVariation,
+  updateVariationForBarStart,
+} from "../variation/chain";
+import { buildPrecomputedPattern, PrecomputedHit } from "./precompute";
 
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
-
-/**
- * Accent boost factor (TR-909 style).
- * When a step is accented, its velocity is multiplied by this value.
- * 1.3 = +30% velocity boost for accented steps
- */
-const ACCENT_BOOST = 1.3;
-
-/**
- * Velocity dampening factor when accents are present in a variation.
- * Applied to ALL steps to create headroom for accent boost.
- * This ensures accents are audible even when all velocities are at 1.0.
- *
- * Example with all velocities at 1.0:
- * - Non-accented: 1.0 / 1.3 ≈ 0.77 (quieter)
- * - Accented: (1.0 / 1.3) * 1.3 = 1.0 (normal volume)
- */
-const ACCENT_DAMPEN = ACCENT_BOOST;
 
 /**
  * Ratchet timing offset in beats (1/32 note).
@@ -69,8 +58,6 @@ const FLAM_OFFSET_SECONDS = 0.015; // 15ms
  */
 const FLAM_GRACE_VELOCITY = 0.6;
 
-const VARIATION_COUNT = 4;
-
 // -----------------------------------------------------------------------------
 // Types
 // -----------------------------------------------------------------------------
@@ -79,80 +66,6 @@ type InstrumentRuntimePair = {
   inst: InstrumentData;
   runtime: InstrumentRuntime;
 };
-
-type PrecomputedHit = {
-  voice: Voice;
-  velocity: number;
-};
-
-type PrecomputedPattern = {
-  version: number;
-  stepsByVariation: PrecomputedHit[][][]; // [variation][step][hits]
-};
-
-type ChainPlaybackState = {
-  stepIndex: number;
-  repeatsRemaining: number;
-};
-
-function buildPrecomputedPattern(
-  pattern: Pattern,
-  version: number,
-): PrecomputedPattern {
-  const stepsByVariation: PrecomputedHit[][][] = Array.from(
-    { length: VARIATION_COUNT },
-    () => Array.from({ length: STEP_COUNT }, () => []),
-  );
-
-  // Check if each variation has any accents (used to determine if dampening is needed)
-  const hasAccents = pattern.variationMetadata.map((meta) =>
-    meta.accent.some((a) => a),
-  );
-
-  for (let voiceIndex = 0; voiceIndex < pattern.voices.length; voiceIndex++) {
-    const voice = pattern.voices[voiceIndex];
-
-    for (
-      let variationIndex = 0;
-      variationIndex < VARIATION_COUNT;
-      variationIndex++
-    ) {
-      const variation = voice.variations[variationIndex];
-      const accentPattern = pattern.variationMetadata[variationIndex].accent;
-      const variationHasAccents = hasAccents[variationIndex];
-
-      for (let step = 0; step < STEP_COUNT; step++) {
-        if (!variation.triggers[step]) continue;
-
-        const baseVelocity = variation.velocities[step];
-        const isAccented = accentPattern[step];
-
-        let velocity: number;
-        if (variationHasAccents) {
-          // Variation has accents: dampen all velocities, then boost accented ones
-          // This creates relative dynamics even when all velocities are at 1.0
-          const dampenedVelocity = baseVelocity / ACCENT_DAMPEN;
-          velocity = isAccented
-            ? Math.min(1.0, dampenedVelocity * ACCENT_BOOST)
-            : dampenedVelocity;
-        } else {
-          // No accents in this variation: use velocity as-is
-          velocity = baseVelocity;
-        }
-
-        stepsByVariation[variationIndex][step].push({
-          voice,
-          velocity,
-        });
-      }
-    }
-  }
-
-  return {
-    version,
-    stepsByVariation,
-  };
-}
 
 // -----------------------------------------------------------------------------
 // Public API: sequence lifecycle
@@ -210,7 +123,7 @@ export function createDrumSequence(
       const { isFirstStep, isLastStep } = getStepBoundaries(step);
 
       const anySolos = hasAnySolo(instruments);
-      const { hasOhat, ohatIndex } = findOpenHatIndex(
+      const { hasOhat, ohatIndex } = getOHatVoiceIndex(
         instruments,
         currentRuntimes,
       );
@@ -276,19 +189,6 @@ export function disposeDrumSequence(sequencerRef: {
 // -----------------------------------------------------------------------------
 // Core scheduling helpers
 // -----------------------------------------------------------------------------
-
-/**
- * Checks if step is first or last in the sequence.
- */
-function getStepBoundaries(step: number): {
-  isFirstStep: boolean;
-  isLastStep: boolean;
-} {
-  return {
-    isFirstStep: step === SEQUENCE_EVENTS[0],
-    isLastStep: step === SEQUENCE_EVENTS[SEQUENCE_EVENTS.length - 1],
-  };
-}
 
 /**
  * Schedules all voices in a pattern for a given step.
@@ -362,7 +262,7 @@ function scheduleVoiceCore(
 
   // Closed hat mutes open hat
   if (inst.role === "hat" && hasOhat) {
-    muteOpenHatAtTime(adjustedTime, instruments, runtimes, ohatIndex);
+    triggerOHatReleaseAtTime(adjustedTime, instruments, runtimes, ohatIndex);
   }
 
   // Check for flam: trigger grace note before main hit
@@ -469,117 +369,6 @@ function schedulePrecomputedStep(
 }
 
 // -----------------------------------------------------------------------------
-// Variation & chain helpers
-// -----------------------------------------------------------------------------
-
-function updatePlaybackVariation(
-  currentVariation: { current: number },
-  nextVariation: number,
-): void {
-  const clamped = clampVariationId(nextVariation);
-  currentVariation.current = clamped;
-
-  const playbackVariation = usePatternStore.getState().playbackVariation;
-  if (playbackVariation !== clamped) {
-    usePatternStore.getState().setPlaybackVariation(clamped);
-  }
-}
-
-function updateVariationForBarStart(
-  chainEnabled: boolean,
-  chain: PatternChain,
-  chainState: ChainPlaybackState,
-  currentVariation: { current: number },
-  fallbackVariation: VariationId,
-): void {
-  if (!chainEnabled || chain.steps.length === 0) {
-    const latestVariation = clampVariationId(
-      usePatternStore.getState().variation ?? fallbackVariation,
-    );
-    updatePlaybackVariation(currentVariation, latestVariation);
-    return;
-  }
-
-  if (chainState.stepIndex >= chain.steps.length) {
-    chainState.stepIndex = 0;
-    chainState.repeatsRemaining = chain.steps[0].repeats;
-  }
-
-  const currentStep = chain.steps[chainState.stepIndex];
-  updatePlaybackVariation(currentVariation, currentStep.variation);
-}
-
-function advanceChainAtEndOfBar(
-  chainEnabled: boolean,
-  chain: PatternChain,
-  chainState: ChainPlaybackState,
-): void {
-  if (!chainEnabled || chain.steps.length === 0) return;
-
-  chainState.repeatsRemaining -= 1;
-
-  if (chainState.repeatsRemaining <= 0) {
-    chainState.stepIndex =
-      (chainState.stepIndex + 1) % Math.max(chain.steps.length, 1);
-    chainState.repeatsRemaining =
-      chain.steps[chainState.stepIndex]?.repeats ?? 1;
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Hat helpers
-// -----------------------------------------------------------------------------
-
-export function findOpenHatIndex(
-  instruments: InstrumentData[],
-  runtimes: InstrumentRuntime[],
-): { hasOhat: boolean; ohatIndex: number } {
-  const ohatIndex = instruments.findIndex(
-    (instrument) => instrument.role === "ohat",
-  );
-  return {
-    hasOhat: ohatIndex !== -1 && Boolean(runtimes[ohatIndex]),
-    ohatIndex,
-  };
-}
-
-export function muteOpenHatAtTime(
-  time: number,
-  instruments: InstrumentData[],
-  runtimes: InstrumentRuntime[],
-  ohatIndex: number,
-): void {
-  const ohInst = instruments[ohatIndex];
-  const ohRuntime = runtimes[ohatIndex];
-  if (!ohInst || !ohRuntime) return;
-
-  const ohTune = tuneMapping.knobToDomain(ohInst.params.tune);
-  ohRuntime.samplerNode.triggerRelease(ohTune, time);
-}
-
-// -----------------------------------------------------------------------------
-// Transport helpers
-// -----------------------------------------------------------------------------
-
-/**
- * Configures transport timing settings.
- * Works with both online (getTransport) and offline transport objects.
- */
-export function configureTransportTiming(
-  transport: {
-    bpm: { value: number };
-    swing: number;
-    swingSubdivision: string;
-  },
-  bpm: number,
-  swing: number,
-): void {
-  transport.bpm.value = bpm;
-  transport.swing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
-  transport.swingSubdivision = SEQUENCE_SUBDIVISION;
-}
-
-// -----------------------------------------------------------------------------
 // Offline scheduling
 // -----------------------------------------------------------------------------
 
@@ -598,7 +387,7 @@ export function createOfflineSequence(
   bars: number,
 ): Sequence {
   const anySolos = hasAnySolo(instruments);
-  const { hasOhat, ohatIndex } = findOpenHatIndex(instruments, runtimes);
+  const { hasOhat, ohatIndex } = getOHatVoiceIndex(instruments, runtimes);
   const precomputedPattern = buildPrecomputedPattern(pattern, 0);
 
   const playbackChain = sanitizeChain(chain);

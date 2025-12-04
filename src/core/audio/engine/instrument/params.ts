@@ -1,11 +1,11 @@
+import { applySplitFilterWithRamp } from "@/core/audio/engine/fx/splitFilter";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import {
   instrumentPanMapping,
   instrumentVolumeMapping,
 } from "@/shared/knob/lib/mapping";
-import { INSTRUMENT_FILTER_RANGE } from "./constants";
-import { applySplitFilterWithRamp } from "./splitFilter";
+import { INSTRUMENT_FILTER_RANGE } from "../constants";
+import type { InstrumentRuntime } from "./types";
 
 /**
  * Instrument parameters fall into two categories:

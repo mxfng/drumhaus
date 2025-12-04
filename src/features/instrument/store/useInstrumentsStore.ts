@@ -2,8 +2,11 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import {
+  InstrumentData,
+  InstrumentParams,
+} from "@/core/audio/engine/instrument/types";
 import { drumhaus } from "@/core/dhkit";
-import { InstrumentData, InstrumentParams } from "../types/instrument";
 
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters

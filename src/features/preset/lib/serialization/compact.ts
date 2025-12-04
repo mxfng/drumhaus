@@ -1,10 +1,10 @@
 import { DEFAULT_VELOCITY, STEP_COUNT } from "@/core/audio/engine/constants";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 import {
   InstrumentData,
   InstrumentParams,
-} from "@/features/instrument/types/instrument";
+} from "@/core/audio/engine/instrument/types";
 import { KitFileV1 } from "@/features/kit/types/kit";
-import { MasterChainParams } from "@/features/master-bus/types/master";
 import {
   clampVariationId,
   DEFAULT_CHAIN,

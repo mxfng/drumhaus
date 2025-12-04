@@ -1,8 +1,8 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
 
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";

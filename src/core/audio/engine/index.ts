@@ -9,38 +9,47 @@
 export {
   createDrumSequence,
   disposeDrumSequence,
-  configureTransportTiming,
   createOfflineSequence,
-} from "./drumSequence";
+} from "./sequencer/sequencer";
 
-// Instrument Runtimes
+// Instrument Processing (unified module)
 export {
+  // Lifecycle
+  createInstrumentRuntime,
   createInstrumentRuntimes,
+  disposeInstrumentRuntime,
   disposeInstrumentRuntimes,
-  buildInstrumentRuntime,
-} from "./instrumentRuntimes";
-export {
+  // Nodes
+  buildInstrumentNodes,
+  disposeInstrumentNodes,
+  // Routing
+  chainInstrumentNodes,
+  connectInstrumentToMasterChain,
+  connectInstrumentsToMasterChain,
+  // Parameters
   subscribeRuntimeToInstrumentParams,
   applyInstrumentParams,
-} from "./instrumentParams";
-
-// Master Chain
-export {
-  createMasterChainRuntimes,
-  initializeMasterChain,
-  connectInstrumentsToMasterChain,
-  connectInstrumentRuntime,
-  updateMasterChainParams,
-  disposeMasterChainRuntimes,
-  type MasterChainRuntimes,
-} from "./masterChain";
-export {
+  // Triggering
+  triggerInstrumentAtTime,
+  triggerInstrument,
+  stopInstrumentRuntimeAtTime,
+  releaseAllInstrumentRuntimes,
+  // Solo/Mute
   releaseNonSoloRuntimes,
   hasAnySolo,
   getSoloStates,
   soloStatesChanged,
   createSoloChangeHandler,
-} from "./solo";
+} from "./instrument";
+
+// Master Chain
+export {
+  createMasterChainRuntimes,
+  initializeMasterChain,
+  updateMasterChainParams,
+  disposeMasterChainRuntimes,
+  type MasterChainRuntimes,
+} from "./fx/masterChain";
 
 // Sample Sources
 export {
@@ -50,24 +59,13 @@ export {
 } from "../cache/sample";
 
 // Buffer
+export { awaitBufferLoaded as waitForBuffersToLoad } from "./buffer/buffer";
+
+// Audio Context
 export {
-  getSampleDuration,
-  waitForBuffersToLoad,
-  type SampleDurationResult,
-} from "./buffer";
-export {
-  ensureAudioContextRunning,
+  ensureAudioContextIsRunning as ensureAudioContextIsRunning,
   getAudioContextHealth,
-} from "./audioContextManager";
-
-// Instrument Playback
-export { playInstrumentSample } from "./instrumentPlayback";
-
-// Frequency Analyzer
-export {
-  createFrequencyAnalyzer,
-  disposeFrequencyAnalyzer,
-} from "./frequencyAnalyzer";
+} from "./context/manager";
 
 // Transport
 export {
@@ -77,6 +75,5 @@ export {
   getCurrentTime,
   setTransportBpm,
   setTransportSwing,
-  releaseAllRuntimes,
-} from "./transport";
-export { stopRuntimeAtTime } from "./runtimeStops";
+  configureTransportTiming,
+} from "./transport/transport";

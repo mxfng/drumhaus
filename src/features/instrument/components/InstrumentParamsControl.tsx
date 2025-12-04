@@ -1,8 +1,9 @@
 import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
-import { now } from "tone/build/esm/index";
 
-import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
+import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
+import { useInstrumentControls } from "@/core/audio/hooks/useInstrumentControls";
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
 import { ParamKnob } from "@/shared/knob/Knob";
@@ -17,8 +18,6 @@ import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Button, Tooltip } from "@/shared/ui";
-import { useInstrumentsStore } from "../store/useInstrumentsStore";
-import { InstrumentRuntime } from "../types/instrument";
 import { GainMeter } from "./GainMeter";
 
 interface InstrumentParamsProps {
@@ -59,8 +58,9 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const setInstrumentProperty = useInstrumentsStore(
     (state) => state.setInstrumentProperty,
   );
-  const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
-  const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
+
+  // Get instrument control actions with proper audio cleanup
+  const { toggleMute, toggleSolo } = useInstrumentControls(index, runtime);
 
   const mode = usePatternStore((state) => state.mode);
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
@@ -86,21 +86,6 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     (value: number) => setInstrumentProperty(index, "tune", value),
     [index, setInstrumentProperty],
   );
-  const toggleMute = useCallback(
-    () => toggleMuteStore(index),
-    [index, toggleMuteStore],
-  );
-  const toggleSolo = useCallback(
-    () => toggleSoloStore(index),
-    [index, toggleSoloStore],
-  );
-
-  const handleToggleMute = useCallback(() => {
-    if (!mute && runtime?.samplerNode) {
-      stopRuntimeAtTime(runtime, now());
-    }
-    toggleMute();
-  }, [toggleMute, mute, runtime]);
 
   const isRuntimeLoaded = !!runtime;
 
@@ -108,7 +93,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
       if (event.key === "m" && !isAnyDialogOpen() && index == voiceIndex) {
-        handleToggleMute();
+        toggleMute();
       }
     };
 
@@ -116,7 +101,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [index, voiceIndex, handleToggleMute, isAnyDialogOpen]);
+  }, [index, voiceIndex, toggleMute, isAnyDialogOpen]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
@@ -184,7 +169,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
             <Button
               variant="hardwareIcon"
               size="icon"
-              onClick={handleToggleMute}
+              onClick={toggleMute}
               disabled={!isRuntimeLoaded}
               className={buttonActive(mute)}
             >

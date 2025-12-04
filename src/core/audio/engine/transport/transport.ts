@@ -1,20 +1,18 @@
 import { getTransport, now, Ticks } from "tone/build/esm/index";
 
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
-import { ensureAudioContextRunning } from "./audioContextManager";
 import {
   SEQUENCE_SUBDIVISION,
   STEP_COUNT,
   TRANSPORT_SWING_MAX,
   TRANSPORT_SWING_RANGE,
-} from "./constants";
-import { stopRuntimeAtTime } from "./runtimeStops";
+} from "../constants";
+import { ensureAudioContextIsRunning } from "../context/manager";
 
 /**
  * Start or resume the audio context
  */
 export async function startAudioContext(): Promise<void> {
-  await ensureAudioContextRunning("transport");
+  await ensureAudioContextIsRunning("transport");
 }
 
 /**
@@ -55,15 +53,21 @@ export function setTransportSwing(swing: number): void {
 }
 
 /**
- * Releases all samples on all instrument runtimes. Used when stopping playback to prevent audio from continuing
+ * Configures transport timing settings.
+ * Works with both online (getTransport) and offline transport objects.
  */
-export function releaseAllRuntimes(
-  runtimes: InstrumentRuntime[],
-  time: number = getCurrentTime(),
+export function configureTransportTiming(
+  transport: {
+    bpm: { value: number };
+    swing: number;
+    swingSubdivision: string;
+  },
+  bpm: number,
+  swing: number,
 ): void {
-  runtimes.forEach((runtime) => {
-    stopRuntimeAtTime(runtime, time);
-  });
+  transport.bpm.value = bpm;
+  transport.swing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
+  transport.swingSubdivision = SEQUENCE_SUBDIVISION;
 }
 
 /**

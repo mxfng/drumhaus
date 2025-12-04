@@ -1,5 +1,5 @@
-import { InstrumentParams } from "@/features/instrument/types/instrument";
-import { MasterChainParams } from "@/features/master-bus/types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
+import { InstrumentParams } from "@/core/audio/engine/instrument/types";
 import {
   PatternChain,
   VariationCycle,

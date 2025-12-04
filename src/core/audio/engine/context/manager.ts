@@ -1,4 +1,6 @@
-import { getContext, start } from "tone/build/esm/index";
+import { BaseContext, getContext, start } from "tone/build/esm/index";
+
+import { AUDIO_CONTEXT_CHECK_THROTTLE_MS } from "../constants";
 
 type AudioContextState = "running" | "suspended" | "closed";
 
@@ -14,27 +16,32 @@ const health: AudioContextHealth = {
   lastResume: null,
 };
 
-const ENSURE_THROTTLE_MS = 250;
+function throttleAudioContextCheck(
+  health: AudioContextHealth,
+  context: BaseContext,
+): boolean {
+  const now = performance.now();
+  health.state = context.state as AudioContextState;
+  health.lastCheck = now;
+
+  return !!(
+    health.lastResume &&
+    now - health.lastResume < AUDIO_CONTEXT_CHECK_THROTTLE_MS &&
+    health.state === "running"
+  );
+}
 
 /**
  * Ensure the shared Tone.js audio context is running.
  * Safe to call on every user gesture; throttles redundant resume attempts.
  */
-export async function ensureAudioContextRunning(
+export async function ensureAudioContextIsRunning(
   source: string = "unknown",
 ): Promise<boolean> {
   const context = getContext();
-  const now = performance.now();
-
-  health.state = context.state as AudioContextState;
-  health.lastCheck = now;
 
   // Avoid hammering resume/start in quick succession
-  if (
-    health.lastResume &&
-    now - health.lastResume < ENSURE_THROTTLE_MS &&
-    context.state === "running"
-  ) {
+  if (throttleAudioContextCheck(health, context)) {
     return true;
   }
 

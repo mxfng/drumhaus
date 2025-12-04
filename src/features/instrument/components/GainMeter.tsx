@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Meter } from "tone";
 
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
