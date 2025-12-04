@@ -30,7 +30,7 @@ export const SelectTrigger = forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "font-pixel placeholder:-light focus-visible:ring-ring flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+      "font-pixel placeholder:-light focus-ring flex h-10 w-full items-center justify-between rounded-md bg-transparent px-3 py-2 disabled:cursor-not-allowed disabled:opacity-50",
       className,
     )}
     {...props}
@@ -89,9 +89,8 @@ export const SelectContent = forwardRef<
       data-scrollable
       className={cn(
         selectContentVariants({ variant }),
-        position === "popper"
-          ? "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1"
-          : "",
+        position === "popper" &&
+          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className,
       )}
       position={position}
@@ -101,9 +100,8 @@ export const SelectContent = forwardRef<
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
-          position === "popper"
-            ? "h-[--radix-select-trigger-height] w-full min-w-[--radix-select-trigger-width]"
-            : "",
+          position === "popper" &&
+            "h-[--radix-select-trigger-height] w-full min-w-[--radix-select-trigger-width]",
         )}
       >
         {children}
@@ -120,7 +118,10 @@ export const SelectLabel = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={`font-pixel py-1.5 pr-2 pl-8 text-sm font-semibold ${className ?? ""}`}
+    className={cn(
+      "font-pixel py-1.5 pr-2 pl-8 text-sm font-semibold",
+      className,
+    )}
     {...props}
   />
 ));
@@ -132,7 +133,13 @@ export const SelectItem = forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
-    className={`font-pixel focus:bg-primary-muted focus:text-primary-foreground relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 ${className ?? ""} `}
+    className={cn(
+      "font-pixel focus:bg-primary-muted focus:text-primary-foreground focus-ring",
+      "relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none",
+      "select-none",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      className,
+    )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">

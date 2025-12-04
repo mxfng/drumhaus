@@ -19,7 +19,18 @@ export function useKeyboardShortcuts({
   // Spacebar to play/pause
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === " " && !isAnyDialogOpen()) {
+      // Don't intercept Space if an interactive element is focused
+      const activeElement = document.activeElement;
+      const isInteractiveElementFocused =
+        activeElement instanceof HTMLButtonElement ||
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement ||
+        activeElement instanceof HTMLSelectElement ||
+        activeElement?.getAttribute("role") === "slider" ||
+        activeElement?.hasAttribute("tabindex");
+
+      if (e.key === " " && !isAnyDialogOpen() && !isInteractiveElementFocused) {
+        e.preventDefault(); // Prevent page scroll
         togglePlay(instrumentRuntimes.current);
       }
     };

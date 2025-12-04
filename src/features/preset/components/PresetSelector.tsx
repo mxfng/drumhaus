@@ -26,7 +26,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   return (
     <div className="group w-full">
       <Select value={selectedPresetId} onValueChange={onSelect}>
-        <SelectTrigger className="text-screen-foreground h-5 w-full cursor-pointer bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+        <SelectTrigger className="text-screen-foreground h-5 w-full cursor-pointer bg-transparent px-0 focus-visible:ring-offset-0">
           <SelectValue />
           <ChevronsUpDown className="group-hover:text-primary-muted h-4 w-4 transition-all duration-200" />
         </SelectTrigger>

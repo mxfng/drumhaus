@@ -10,7 +10,7 @@ export const Header: React.FC = () => {
     <div className="grid h-24 grid-cols-8 p-6">
       <div className="col-span-4 flex flex-row items-end">
         <button
-          className="flex cursor-pointer items-end"
+          className="focus-ring flex cursor-pointer items-end"
           onClick={() => openDialog("about")}
         >
           <div className="text-primary flex items-end">

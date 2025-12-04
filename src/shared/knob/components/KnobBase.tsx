@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/shared/lib/utils";
 import { Label, Tooltip } from "@/shared/ui";
 import { useKnobControls } from "../hooks/useKnobControls";
+import { createKnobKeyboardHandler } from "../lib/accessibility";
 import {
   KNOB_OUTER_TICK_COUNT_DEFAULT,
   KNOB_VALUE_DEFAULT,
@@ -73,6 +74,14 @@ export const Knob: React.FC<KnobProps> = ({
     activeLabel,
   });
 
+  const handleKeyDown = createKnobKeyboardHandler({
+    value,
+    stepSize,
+    onValueChange,
+    onReset: () => onValueChange(defaultValue),
+    disabled,
+  });
+
   return (
     <div
       className={cn(
@@ -101,12 +110,13 @@ export const Knob: React.FC<KnobProps> = ({
           <motion.div
             className={cn(
               "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
-              disabled
-                ? "pointer-events-none cursor-not-allowed"
-                : "cursor-grab",
+              "focus-ring cursor-grab aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
             )}
             onPointerDown={handlePointerDown}
             onDoubleClick={handleDoubleClick}
+            onKeyDown={handleKeyDown}
+            tabIndex={disabled ? -1 : 0}
+            role="slider"
             aria-label={label}
             aria-valuemin={KNOB_VALUE_MIN}
             aria-valuemax={KNOB_VALUE_MAX}
@@ -114,6 +124,7 @@ export const Knob: React.FC<KnobProps> = ({
             style={{
               rotate: rotation,
             }}
+            aria-disabled={disabled}
           >
             {showTickIndicator && (
               <svg

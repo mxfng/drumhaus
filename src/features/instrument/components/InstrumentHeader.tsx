@@ -73,7 +73,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
     <button
       ref={waveButtonRef}
       className={cn(
-        "flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
+        "focus-ring flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
         {
           "cursor-pointer": isRuntimeLoaded && !waveformError,
           "cursor-default": !isRuntimeLoaded || waveformError,

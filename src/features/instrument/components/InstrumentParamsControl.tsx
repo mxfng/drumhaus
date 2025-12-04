@@ -186,7 +186,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               onClick={handleToggleMute}
               disabled={!isRuntimeLoaded}
               className={cn({
-                "ring-ring ring-2": mute,
+                "outline-primary outline-2": mute,
               })}
             >
               {mute ? <VolumeX size={14} /> : <Volume size={14} />}
@@ -199,7 +199,7 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
               onClick={toggleSolo}
               disabled={!isRuntimeLoaded}
               className={cn({
-                "ring-ring ring-2": solo,
+                "outline-primary outline-2": solo,
               })}
             >
               <Headphones className={cn({ "text-primary": solo })} size={14} />
