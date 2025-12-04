@@ -76,6 +76,17 @@ export const FloatingMenu: React.FC = () => {
           <DropdownMenuItem
             onSelect={() => {
               window.open(
+                "https://ko-fi.com/maxfung",
+                "_blank",
+                "noopener,noreferrer",
+              );
+            }}
+          >
+            Donate
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              window.open(
                 "https://github.com/mxfng/drumhaus/issues",
                 "_blank",
                 "noopener,noreferrer",

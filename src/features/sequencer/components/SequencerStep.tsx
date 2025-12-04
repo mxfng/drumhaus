@@ -56,8 +56,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
-        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
-        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
+        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] enabled:hover:bg-foreground-muted/90"
+        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] enabled:hover:bg-primary-muted/40";
   };
 
   const triggerStyles = {
@@ -94,7 +94,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       }}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out disabled:pointer-events-none",
+        "border-border relative overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out enabled:cursor-pointer disabled:pointer-events-none",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
