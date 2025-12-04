@@ -1,3 +1,4 @@
+import { ComingSoonTooltipContent } from "@/shared/components/ComingSoonTooltipContent";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
@@ -164,10 +165,7 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn(
-              "relative overflow-hidden",
-              buttonActive(isChainEdit),
-            )}
+            className={cn(buttonActive(isChainEdit))}
             onClick={handleToggleChainEdit}
           >
             <span className="leading-3">vari chain</span>
@@ -183,10 +181,7 @@ export const SequencerControl: React.FC = () => {
           <Button
             variant="hardware"
             size="sm"
-            className={cn(
-              "relative overflow-hidden",
-              buttonActive(chainEnabled),
-            )}
+            className={cn(buttonActive(chainEnabled))}
             onClick={handleToggleChainEnabled}
           >
             <span>chain on</span>
@@ -211,39 +206,41 @@ export const SequencerControl: React.FC = () => {
         </Tooltip>
 
         {/* Pattern actions row */}
-        <Tooltip content={TOOLTIPS.COPY_TOGGLE_ON} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-          >
+        <Tooltip
+          content={
+            <ComingSoonTooltipContent tooltip={TOOLTIPS.COPY_TOGGLE_ON} />
+          }
+          side="bottom"
+        >
+          <Button variant="hardware" size="sm" className="opacity-50">
             <span>copy</span>
           </Button>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.PASTE_TOGGLE_ON} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-          >
+        <Tooltip
+          content={
+            <ComingSoonTooltipContent tooltip={TOOLTIPS.PASTE_TOGGLE_ON} />
+          }
+          side="bottom"
+        >
+          <Button variant="hardware" size="sm" className="opacity-50">
             <span>paste</span>
           </Button>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.CLEAR_TOGGLE_ON} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-          >
+        <Tooltip
+          content={
+            <ComingSoonTooltipContent tooltip={TOOLTIPS.CLEAR_TOGGLE_ON} />
+          }
+          side="bottom"
+        >
+          <Button variant="hardware" size="sm" className="opacity-50">
             <span>clear</span>
           </Button>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.UNDO} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            className="relative overflow-hidden"
-          >
+        <Tooltip
+          content={<ComingSoonTooltipContent tooltip={TOOLTIPS.UNDO} />}
+          side="bottom"
+        >
+          <Button variant="hardware" size="sm" className="opacity-50">
             <span>undo</span>
           </Button>
         </Tooltip>

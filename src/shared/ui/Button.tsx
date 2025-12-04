@@ -15,13 +15,15 @@ const buttonVariants = cva(
           "neu-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg",
         hardwareIcon:
           "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
+        screen: "rounded-none bg-transparent p-0.5 hover:bg-screen/20",
       },
       size: {
-        icon: "h-8 w-8",
         xs: "h-8 text-sm",
         sm: "h-10 text-sm",
         default: "h-12",
         lg: "h-16",
+        icon: "h-8 w-8",
+        screen: "h-full",
       },
     },
     defaultVariants: {

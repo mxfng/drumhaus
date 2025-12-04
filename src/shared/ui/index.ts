@@ -8,6 +8,7 @@ export * from "./Label";
 export * from "./RadioGroup";
 export * from "./Select";
 export * from "./Slider";
+export * from "./Tabs";
 export * from "./Toast";
 export * from "./ToastContext";
 export * from "./Tooltip";

@@ -9,12 +9,6 @@ import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 
-const ShareDialog = lazy(() =>
-  import("@/features/preset/dialogs/ShareDialog").then((module) => ({
-    default: module.ShareDialog,
-  })),
-);
-
 const SaveDialog = lazy(() =>
   import("@/features/preset/dialogs/SaveDialog").then((module) => ({
     default: module.SaveDialog,
@@ -141,7 +135,7 @@ export const PresetControl: React.FC = () => {
         </div>
       </div>
 
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={null}>
         <SaveDialog
           isOpen={activeDialog === "save"}
           onClose={closeDialog}
@@ -149,22 +143,15 @@ export const PresetControl: React.FC = () => {
         />
       </Suspense>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <ShareDialog
-          isOpen={activeDialog === "share"}
+      <Suspense fallback={null}>
+        <ExportDialog
+          isOpen={activeDialog === "export"}
           onClose={closeDialog}
           onShare={sharePreset}
         />
       </Suspense>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <ExportDialog
-          isOpen={activeDialog === "export"}
-          onClose={closeDialog}
-        />
-      </Suspense>
-
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={null}>
         <ConfirmSelectPresetDialog
           isOpen={activeDialog === "presetChange"}
           onClose={closeDialog}
