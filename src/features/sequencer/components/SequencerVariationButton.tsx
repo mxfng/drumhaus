@@ -46,7 +46,7 @@ export const SequencerVariationButton = forwardRef<
       variant="hardware"
       onClick={handleClick}
       className={cn(
-        "font-pixel relative flex items-start justify-start overflow-hidden transition-colors duration-400",
+        "font-pixel relative flex items-start justify-start overflow-hidden p-1 transition-colors duration-400",
         {
           "border-primary text-primary transition-colors":
             isActive && !isChainEdit,

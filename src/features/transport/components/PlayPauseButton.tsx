@@ -14,7 +14,7 @@ export const PlayPauseButton = () => {
       <Tooltip content={isPlaying ? "Pause [Space]" : "Play [Space]"}>
         <Button
           variant="hardware"
-          className="aspect-square h-full w-auto rounded-xl p-3"
+          className="aspect-square h-full w-auto rounded-xl p-3 [&_svg]:size-[50px]!"
           onClick={() => togglePlay(instrumentRuntimes.current)}
           onKeyDown={(ev) => ev.preventDefault()}
         >

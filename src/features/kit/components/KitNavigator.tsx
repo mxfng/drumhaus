@@ -12,7 +12,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
   onNext,
 }) => {
   return (
-    <div className="text-instrument grid h-5 w-full grid-cols-4">
+    <div className="text-instrument grid h-full w-full grid-cols-4">
       <div className="flex items-center justify-center">
         <Tooltip content="Previous kit" delayDuration={500} side="bottom">
           <Button
