@@ -11,6 +11,26 @@ export const ChainEditScreen: React.FC = () => {
   const chain = usePatternStore((state) => state.chainDraft);
   const totalBars = chain.steps.reduce((sum, step) => sum + step.repeats, 0);
 
+  // Variation colors matching sequencer visualization
+  const variationStyles = [
+    {
+      bg: "bg-blue-500/20",
+      border: "border-blue-500/60",
+      text: "text-blue-400",
+    }, // A
+    {
+      bg: "bg-green-500/20",
+      border: "border-green-500/60",
+      text: "text-green-400",
+    }, // B
+    {
+      bg: "bg-yellow-500/20",
+      border: "border-yellow-500/60",
+      text: "text-yellow-400",
+    }, // C
+    { bg: "bg-red-500/20", border: "border-red-500/60", text: "text-red-400" }, // D
+  ];
+
   return (
     <div className="bg-instrument flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 flex-wrap items-center gap-1 px-5 lowercase">
@@ -18,6 +38,7 @@ export const ChainEditScreen: React.FC = () => {
           const isActive = idx === chain.steps.length;
           const label = VARIATION_LABELS[step.variation];
           const isLast = idx === chain.steps.length - 1;
+          const colors = variationStyles[step.variation];
           return (
             <React.Fragment key={`${step.variation}-${idx}`}>
               <div
@@ -25,14 +46,12 @@ export const ChainEditScreen: React.FC = () => {
                   "flex items-center justify-center gap-1 rounded-tr rounded-bl border px-1 text-xs",
                   isActive
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-foreground text-foreground",
+                    : cn(colors.bg, colors.border, colors.text),
                 )}
               >
                 <span className="font-semibold uppercase">{label}</span>
                 {step.repeats > 1 && (
-                  <span className="text-foreground-muted text-xs">
-                    ×{step.repeats}
-                  </span>
+                  <span className="text-xs opacity-70">×{step.repeats}</span>
                 )}
               </div>
               {!isLast && (

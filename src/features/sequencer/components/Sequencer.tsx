@@ -181,7 +181,7 @@ export const Sequencer: React.FC = () => {
               onPointerMove={state.disabled ? undefined : handleStepPointerMove}
             />
             {/* Hide velocity controls in accent/ratchet/flam/chain mode or when showVelocity is off */}
-            <div className="mt-3 h-3.5 w-full">
+            <div className="h-3.5 w-full">
               {voiceMode && showVelocity && (
                 <SequencerVelocity
                   stepIndex={step}

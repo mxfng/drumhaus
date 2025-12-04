@@ -1,3 +1,6 @@
+import { AccentEditScreen } from "@/features/groove/components/AccentEditScreen";
+import { FlamEditScreen } from "@/features/groove/components/FlamEditScreen";
+import { RatchetEditScreen } from "@/features/groove/components/RatchetEditScreen";
 import { PresetControl } from "@/features/preset/components/PresetControl";
 import { ChainEditScreen } from "@/features/sequencer/components/ChainEditScreen";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
@@ -11,7 +14,31 @@ TODO: Add remaining features
  */
 export const Screen: React.FC = () => {
   const mode = usePatternStore((state) => state.mode);
-  const isChainEditing = mode.type === "variationChain";
+
+  // Determine which screen to show based on mode
+  let rightColumn: React.ReactNode;
+
+  if (mode.type === "variationChain") {
+    rightColumn = <ChainEditScreen />;
+  } else if (mode.type === "accent") {
+    rightColumn = <AccentEditScreen />;
+  } else if (mode.type === "flam") {
+    rightColumn = <FlamEditScreen />;
+  } else if (mode.type === "ratchet") {
+    rightColumn = <RatchetEditScreen />;
+  } else {
+    // Default: frequency analyzer and tempo controls
+    rightColumn = (
+      <div className="flex h-full flex-col">
+        <div className="border-foreground relative min-h-0 flex-1">
+          <div className="absolute inset-0 pl-4">
+            <FrequencyAnalyzer />
+          </div>
+        </div>
+        <TempoControlsScreen />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -23,19 +50,8 @@ export const Screen: React.FC = () => {
             <PresetControl />
           </div>
 
-          {/* Right Column - 2/3 and 1/3 split */}
-          {isChainEditing ? (
-            <ChainEditScreen />
-          ) : (
-            <div className="flex h-full flex-col">
-              <div className="border-foreground relative min-h-0 flex-1">
-                <div className="absolute inset-0 pl-4">
-                  <FrequencyAnalyzer />
-                </div>
-              </div>
-              <TempoControlsScreen />
-            </div>
-          )}
+          {/* Right Column - Dynamic based on mode */}
+          {rightColumn}
         </div>
       </div>
     </>

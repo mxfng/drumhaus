@@ -70,13 +70,11 @@ export function useAudioEngine(): UseAudioEngineResult {
     return () => {
       disposeDrumSequence(toneSequence);
     };
-  }, [
-    isPlaying,
-    instrumentRuntimesVersion,
-    chain,
-    chainEnabled,
-    activeVariation,
-  ]);
+    // Note: activeVariation is intentionally omitted from dependencies.
+    // When chainEnabled=true, the chain controls playback (not UI variation).
+    // When chainEnabled=false, variation changes are read from store on each bar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying, instrumentRuntimesVersion, chain, chainEnabled]);
 
   // When any instrument is soloed, immediately release all non-solo runtimes
   useEffect(() => {

@@ -10,23 +10,23 @@ interface SequencerStepProps {
   color?: string; // Optional custom color class for override
   // Pointer handlers for desktop
   onPointerStart?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
   onPointerEnter?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerMove?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   // Touch handlers for mobile (required for iOS Safari)
   onTouchStart?: (
-    event: React.TouchEvent<HTMLDivElement>,
+    event: React.TouchEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onTouchMove?: (event: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove?: (event: React.TouchEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }
 
@@ -56,8 +56,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     return isTriggerOn
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
-        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] enabled:hover:bg-foreground-muted/90"
-        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] enabled:hover:bg-primary-muted/40";
+        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
+        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
   };
 
   const triggerStyles = {
@@ -70,7 +70,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const sizeClasses = "aspect-square w-full";
 
   return (
-    <div
+    <button
       data-step-index={stepIndex}
       onPointerDown={(event) => {
         if (disabled) return;
@@ -93,8 +93,10 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         onTouchMove?.(event);
       }}
       onContextMenu={(e) => e.preventDefault()}
+      disabled={disabled}
+      type="button"
       className={cn(
-        "border-border relative overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out enabled:cursor-pointer disabled:pointer-events-none",
+        "border-border relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out disabled:pointer-events-none disabled:opacity-50",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
@@ -111,6 +113,6 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
           }}
         />
       )}
-    </div>
+    </button>
   );
 };

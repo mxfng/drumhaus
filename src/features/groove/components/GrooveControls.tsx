@@ -47,7 +47,8 @@ export const GrooveControls = () => {
   const accentMode = mode.type === "accent";
   const flamMode = mode.type === "flam";
   const ratchetMode = mode.type === "ratchet";
-  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+  const voiceMode = mode.type === "voice";
+  const voiceIndex = voiceMode ? mode.voiceIndex : 0;
 
   const currentNudge =
     pattern.voices[voiceIndex]?.variations[variation]?.timingNudge ?? 0;
@@ -77,7 +78,9 @@ export const GrooveControls = () => {
             size="sm"
             className={cn(
               "leading-3",
-              showVelocity && "border-primary text-primary transition-colors",
+              voiceMode &&
+                showVelocity &&
+                "border-primary text-primary transition-colors",
             )}
             onClick={toggleShowVelocity}
             disabled={mode.type !== "voice"}
