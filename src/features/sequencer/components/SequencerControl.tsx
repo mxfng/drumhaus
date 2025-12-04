@@ -211,6 +211,7 @@ export const SequencerControl: React.FC = () => {
             <ComingSoonTooltipContent tooltip={TOOLTIPS.COPY_TOGGLE_ON} />
           }
           side="bottom"
+          delayDuration={0}
         >
           <Button variant="hardware" size="sm" className="opacity-50">
             <span>copy</span>
@@ -221,6 +222,7 @@ export const SequencerControl: React.FC = () => {
             <ComingSoonTooltipContent tooltip={TOOLTIPS.PASTE_TOGGLE_ON} />
           }
           side="bottom"
+          delayDuration={0}
         >
           <Button variant="hardware" size="sm" className="opacity-50">
             <span>paste</span>
@@ -231,6 +233,7 @@ export const SequencerControl: React.FC = () => {
             <ComingSoonTooltipContent tooltip={TOOLTIPS.CLEAR_TOGGLE_ON} />
           }
           side="bottom"
+          delayDuration={0}
         >
           <Button variant="hardware" size="sm" className="opacity-50">
             <span>clear</span>
@@ -239,6 +242,7 @@ export const SequencerControl: React.FC = () => {
         <Tooltip
           content={<ComingSoonTooltipContent tooltip={TOOLTIPS.UNDO} />}
           side="bottom"
+          delayDuration={0}
         >
           <Button variant="hardware" size="sm" className="opacity-50">
             <span>undo</span>

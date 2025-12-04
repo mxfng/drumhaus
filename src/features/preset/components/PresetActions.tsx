@@ -21,7 +21,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
 
   return (
     <div className="text-instrument grid h-full w-full grid-cols-4">
-      <Tooltip content="Save preset" delayDuration={500}>
+      <Tooltip content="Save preset" delayDuration={0}>
         <Button
           onClick={() => openDialog("save")}
           variant="screen"
@@ -34,7 +34,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         </Button>
       </Tooltip>
 
-      <Tooltip content="Load preset" delayDuration={500}>
+      <Tooltip content="Load preset" delayDuration={0}>
         <Button onClick={onOpenFromFile} variant="screen" size="screen">
           <FolderOpen
             className="group-hover:text-primary-muted transition-all duration-200"
@@ -43,7 +43,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
         </Button>
       </Tooltip>
 
-      <Tooltip content="Export" delayDuration={500}>
+      <Tooltip content="Export" delayDuration={0}>
         <Button
           onClick={() => openDialog("export")}
           variant="screen"
@@ -58,7 +58,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
 
       <Tooltip
         content={<ComingSoonTooltipContent tooltip="Delete custom preset" />}
-        delayDuration={500}
+        delayDuration={0}
       >
         <Button variant="screen" size="screen" className="opacity-50">
           <Trash

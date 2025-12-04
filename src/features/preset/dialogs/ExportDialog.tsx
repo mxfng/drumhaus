@@ -18,7 +18,6 @@ interface ExportDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onShare: (name: string) => Promise<string>;
-  defaultTab?: "link" | "wav";
 }
 
 type ExportTab = "link" | "wav";
@@ -28,9 +27,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   isOpen,
   onClose,
   onShare,
-  defaultTab = "link",
 }) => {
-  const [activeTab, setActiveTab] = useState<ExportTab>(defaultTab);
+  const [activeTab, setActiveTab] = useState<"link" | "wav">("link");
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -41,7 +39,6 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
         <DialogCloseButton />
 
         <Tabs
-          key={defaultTab}
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as ExportTab)}
         >
