@@ -11,6 +11,7 @@ import {
   transportBpmMapping,
   transportSwingMapping,
 } from "@/shared/knob/lib/mapping";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { clamp, cn } from "@/shared/lib/utils";
 import { Button, Label, Tooltip } from "@/shared/ui";
 
@@ -21,9 +22,9 @@ const TAP_TEMPO_MIN_TAPS = 2; // Need at least 2 taps to calculate BPM
 
 // Tooltip constants
 const TOOLTIPS = {
-  TAP_TEMPO: "Tap tempo",
-  BPM: "Toggle BPM mode",
-  SWING: "Toggle swing mode",
+  TAP_TEMPO: "Tap to set tempo",
+  BPM: "Adjust the tempo",
+  SWING: "Adjust the swing",
 } as const;
 
 export const TempoControls = () => {
@@ -127,7 +128,7 @@ export const TempoControls = () => {
             size="icon"
             className={cn(
               "font-pixel text-[10px] tracking-wide uppercase",
-              mode === "bpm" && "border-primary text-primary transition-colors",
+              buttonActive(mode === "bpm"),
             )}
             onClick={() => setMode("bpm")}
           >
@@ -141,8 +142,7 @@ export const TempoControls = () => {
             size="icon"
             className={cn(
               "font-pixel text-[10px] tracking-wide uppercase",
-              mode === "swing" &&
-                "border-primary text-primary transition-colors",
+              buttonActive(mode === "swing"),
             )}
             onClick={() => setMode("swing")}
           >

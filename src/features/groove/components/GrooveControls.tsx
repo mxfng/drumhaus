@@ -10,14 +10,13 @@ import { Button, Label, Tooltip } from "@/shared/ui";
 
 // Tooltip constants
 const TOOLTIPS = {
-  ACCENT_MODE: "Toggle accent mode",
-  SHOW_VELOCITY: "Toggle velocity controls visibility",
-  TIMING_NUDGE_LEFT: "Nudge timing left",
-  TIMING_NUDGE_RIGHT: "Nudge timing right",
-  RATCHET_MODE: "Toggle ratchet mode (rapid second hit)",
-  FLAM_MODE: "Toggle flam mode (human grace-note before the main hit)",
+  ACCENT_MODE: "Toggle accent mode (pronounced hits)",
+  SHOW_VELOCITY: "Show or hide velocity controls",
+  TIMING_NUDGE_LEFT: "Shift timing earlier",
+  TIMING_NUDGE_RIGHT: "Shift timing later",
+  RATCHET_MODE: "Toggle ratchet mode (extra rapid hits)",
+  FLAM_MODE: "Toggle flam mode (a quick pre-hit)",
 } as const;
-
 /**
  * Work in progress
  * TODO: Add the remaining features
