@@ -1,0 +1,110 @@
+@theme {
+  /* ==================== Layout ==================== */
+  --app-width: 90rem; /* w-360 in Tailwind, 1440px */
+  --app-height: 56.25rem; /* h-225 in Tailwind, 900px */
+  --app-footer-height: 2.5rem; /* h-18 in Tailwind, 72px */
+  --app-header-height: 2.5rem; /* h-18 in Tailwind, 72px */
+  --app-padding: 5rem; /* p-12 in Tailwind, 48px */
+
+  /* ==================== Colors ==================== */
+  /* Base colors */
+  --color-background: #d5cdc3;
+  --color-black: #0a0a0f;
+  --color-foreground: #a6866c;
+  --color-foreground-muted: #c3ad97;
+  --color-foreground-emphasis: #65503e;
+
+  /* Screen colors */
+  --color-screen: rgb(237, 231, 225);
+  --color-screen-foreground: rgba(101, 80, 62, 0.8);
+
+  /* Primary colors */
+  --color-primary: #ff7b00;
+  --color-primary-muted: #ff9633;
+  --color-primary-foreground: #ffffff;
+
+  /* Surface colors */
+  --color-muted: #d0bdad;
+  --color-surface: rgb(244, 235, 236);
+  --color-instrument: rgb(237, 231, 225);
+  --color-surface-groove: #efe6de;
+
+  /* Track colors */
+  --color-track: #e8e3dd;
+  --color-track-emphasis: #f7f1ea;
+  --color-track-blue: #213062;
+  --color-track-orange: #e9902f;
+  --color-track-red: #d72529;
+  --color-track-green: #27991a;
+
+  /* Border and focus colors */
+  --color-border: rgb(176 147 116 / 0.6);
+  --color-ring: #c3ad97;
+
+  /* ==================== Neumorphic Colors ==================== */
+  --color-shadow: rgb(176 147 116);
+  --color-shadow-10: rgb(176 147 116 / 0.1);
+  --color-shadow-30: rgb(176 147 116 / 0.3);
+  --color-shadow-50: rgb(176 147 116 / 0.5);
+  --color-shadow-60: rgb(176 147 116 / 0.6);
+  --color-highlight: rgb(251 245 255);
+  --color-highlight-17: rgb(251 245 255 / 0.17);
+  --color-highlight-20: rgb(251 245 255 / 0.2);
+  --color-highlight-30: rgb(251 245 255 / 0.3);
+  --color-highlight-40: rgb(251 245 255 / 0.4);
+  --color-gradient-light: rgb(251 245 255);
+  --color-gradient-dark: rgb(239 228 217);
+
+  /* ==================== Shadows ==================== */
+  --shadow-neu:
+    3px 3px 9px var(--color-shadow-60), -3px -3px 9px var(--color-highlight-30);
+  --shadow-neu-md:
+    6px 6px 9px var(--color-shadow-30),
+    -10px -10px 24px var(--color-highlight-20);
+  --shadow-neu-tall:
+    10px 12px 18px var(--color-shadow-30),
+    -10px -20px 20px var(--color-highlight-30);
+  --shadow-neu-xl:
+    20px 20px 50px var(--color-shadow-30),
+    -30px -30px 60px var(--color-highlight-40);
+  --shadow-neu-raised:
+    2px 2px 6px var(--color-shadow-10), -2px -2px 6px var(--color-highlight-17);
+  --shadow-neu-tall-raised:
+    12px 12px 18px var(--color-shadow-10),
+    -16px -16px 24px var(--color-highlight-20);
+  --shadow-inset:
+    inset 2px 2px 4px var(--color-shadow-60),
+    inset -1px -1px 3px var(--color-highlight-30);
+
+  /* ==================== Typography ==================== */
+  --font-sans: "Albert Sans Variable", system-ui, sans-serif;
+  --font-pixel: "Fusion Pixel 12px Monospaced SC", sans-serif;
+  --font-family-pixel: var(--font-pixel);
+
+  /* ==================== Animation ==================== */
+  --animate-duration: 150ms;
+  --animate-outline-pulse: outline-pulse 2s cubic-bezier(0.4, 0, 0.6, 1)
+    infinite;
+
+  /* ==================== Components: Knob ==================== */
+  --knob-gradient: linear-gradient(
+    120deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+  --knob-shadow-ring: 0 0 2px 4px var(--color-shadow-10);
+  --knob-shadow-inset:
+    inset 2px 2px 4px var(--color-highlight-30),
+    inset -2px -2px 4px var(--color-shadow-30);
+  --knob-shadow:
+    var(--shadow-neu-tall-raised), var(--knob-shadow-ring),
+    var(--knob-shadow-inset);
+  --knob-shadow-center:
+    var(--shadow-neu), var(--knob-shadow-ring), var(--knob-shadow-inset);
+
+  /* ==================== Components: Slider ==================== */
+  --slider-track-bg: var(--color-foreground-emphasis);
+  --slider-track-shadow:
+    inset 0 2px 4px var(--color-shadow),
+    inset 0 -1px 2px var(--color-highlight-20), 0 0 0 2px var(--color-shadow-30);
+}
