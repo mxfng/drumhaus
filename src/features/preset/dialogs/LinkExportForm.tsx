@@ -4,14 +4,7 @@ import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import { useClipboard } from "@/shared/hooks/useClipboard";
 import { presetNameSchema } from "@/shared/lib/schemas";
-import {
-  Button,
-  DialogDescription,
-  DialogFooter,
-  Input,
-  Label,
-  useToast,
-} from "@/shared/ui";
+import { Button, DialogDescription, Input, Label, useToast } from "@/shared/ui";
 
 interface LinkExportFormProps {
   onShare: (name: string) => Promise<string>;
@@ -91,7 +84,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
 
   if (step === "result") {
     return (
-      <>
+      <div className="flex flex-col gap-6">
         <div className="space-y-6">
           <DialogDescription>
             Your link is ready! Share it with anyone to let them load your
@@ -120,29 +113,27 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <div className="flex flex-row justify-end space-x-2">
           <Button variant="secondary" onClick={onClose}>
             Close
           </Button>
           <Button onClick={handleCopy}>
             {hasCopied ? "Copied!" : "Copy Link"}
           </Button>
-        </DialogFooter>
-      </>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <div className="pb-6">
-          <DialogDescription className="pb-6">
-            Create a shareable link to send your preset to others.
-          </DialogDescription>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="space-y-6">
+        <DialogDescription>
+          Create a shareable link to send your preset to others.
+        </DialogDescription>
 
-          <Label htmlFor="presetName" className="mb-2 block">
-            Preset name
-          </Label>
+        <div className="space-y-2">
+          <Label htmlFor="presetName">Preset name</Label>
           <Input
             id="presetName"
             value={presetName}
@@ -151,28 +142,28 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
           />
           {error && <p className="text-track-red mt-1 text-sm">{error}</p>}
         </div>
+      </div>
 
-        <DialogFooter>
-          <Button variant="secondary" onClick={onClose} type="button">
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={!isValid || isLoading}
-            className="text-primary-foreground flex items-center"
-          >
-            <span className="mr-2">Get Link</span>
-            {isLoading && (
-              <PixelatedSpinner
-                color="currentColor"
-                size={20}
-                pixelSize={2}
-                gap={2}
-              />
-            )}
-          </Button>
-        </DialogFooter>
-      </form>
-    </>
+      <div className="flex flex-row justify-end space-x-2">
+        <Button variant="secondary" onClick={onClose} type="button">
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={!isValid || isLoading}
+          className="text-primary-foreground flex items-center"
+        >
+          <span className="mr-2">Get Link</span>
+          {isLoading && (
+            <PixelatedSpinner
+              color="currentColor"
+              size={20}
+              pixelSize={2}
+              gap={2}
+            />
+          )}
+        </Button>
+      </div>
+    </form>
   );
 };

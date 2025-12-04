@@ -12,7 +12,7 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
   onNext,
 }) => {
   return (
-    <div className="text-instrument grid h-full w-full grid-cols-4">
+    <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip content="Previous kit" side="bottom" delayDuration={0}>
         <Button onClick={onPrevious} variant="screen" size="screen">
           <ChevronLeft

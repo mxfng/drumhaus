@@ -13,7 +13,6 @@ import {
   Button,
   Checkbox,
   DialogDescription,
-  DialogFooter,
   Input,
   Label,
   RadioGroup,
@@ -113,8 +112,8 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="space-y-6 pb-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <div className="space-y-6">
         <DialogDescription>
           Export your pattern as a WAV audio file.
         </DialogDescription>
@@ -129,7 +128,7 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
           />
         </FormField>
 
-        <div className="border-border space-y-8 rounded-lg border p-4">
+        <div className="space-y-8 rounded-lg border p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="bars">Length</Label>
@@ -176,10 +175,7 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
               {sampleRateOptions.map((option) => (
                 <div key={option.value} className="flex items-center gap-2">
                   <RadioGroupItem value={option.value} id={option.value} />
-                  <Label
-                    htmlFor={option.value}
-                    className="cursor-pointer font-normal"
-                  >
+                  <Label htmlFor={option.value} className="font-normal">
                     {option.label}
                   </Label>
                 </div>
@@ -197,16 +193,14 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
               onCheckedChange={(checked) => setIncludeTail(checked === true)}
               disabled={isExporting}
             />
-            <Label htmlFor="includeTail" className="cursor-pointer">
-              Include reverb tail
-            </Label>
+            <Label htmlFor="includeTail">Include reverb tail</Label>
           </div>
         </div>
 
         <div>Duration: {duration.toFixed(1)}s</div>
       </div>
 
-      <DialogFooter>
+      <div className="flex flex-row justify-end space-x-2">
         <Button
           variant="secondary"
           onClick={onClose}
@@ -232,7 +226,7 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
             />
           )}
         </Button>
-      </DialogFooter>
+      </div>
     </form>
   );
 };

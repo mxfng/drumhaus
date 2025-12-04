@@ -99,7 +99,7 @@ export const PresetControl: React.FC = () => {
       {/* Preset Row: 1/6 label + fill selector + 1/6 actions */}
       <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 border-b pl-2 text-sm">
         <div className="w-1/6">
-          <mark className="bg-screen-foreground text-instrument rounded px-1">
+          <mark className="bg-screen-foreground text-screen rounded px-1">
             preset
           </mark>
         </div>
@@ -119,7 +119,7 @@ export const PresetControl: React.FC = () => {
       {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
       <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 pl-2 text-sm">
         <div className="w-1/6">
-          <mark className="bg-screen-foreground text-instrument rounded px-1">
+          <mark className="bg-screen-foreground text-screen rounded px-1">
             kit
           </mark>
         </div>

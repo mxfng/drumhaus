@@ -9,25 +9,27 @@
   /* ==================== Colors ==================== */
   /* Base colors */
   --color-background: #d5cdc3;
-  --color-black: #0a0a0f;
+  --color-background-night: #0a0a0f;
   --color-foreground: #a6866c;
   --color-foreground-muted: #c3ad97;
   --color-foreground-emphasis: #65503e;
-
-  /* Screen colors */
-  --color-screen: rgb(237, 231, 225);
-  --color-screen-foreground: rgba(101, 80, 62, 0.8);
 
   /* Primary colors */
   --color-primary: #ff7b00;
   --color-primary-muted: #ff9633;
   --color-primary-foreground: #ffffff;
 
+  /* Secondary colors */
+  --color-secondary: rgb(237, 231, 225);
+  --color-secondary-foreground: var(--color-foreground);
+
+  /* Screen colors */
+  --color-screen: var(--color-secondary);
+  --color-screen-foreground: rgba(101, 80, 62, 0.8);
+
   /* Surface colors */
-  --color-muted: #d0bdad;
   --color-surface: rgb(244, 235, 236);
-  --color-instrument: rgb(237, 231, 225);
-  --color-surface-groove: #efe6de;
+  --color-knob: #efe6de;
 
   /* Track colors */
   --color-track: #e8e3dd;
@@ -38,7 +40,7 @@
   --color-track-green: #27991a;
 
   /* Border and focus colors */
-  --color-border: rgb(176 147 116 / 0.6);
+  --color-border: var(--color-shadow-60);
   --color-ring: #c3ad97;
 
   /* ==================== Neumorphic Colors ==================== */

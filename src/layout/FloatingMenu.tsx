@@ -65,7 +65,7 @@ export const FloatingMenu: React.FC = () => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="text-primary border-primary hover:bg-primary-muted/20 focus-ring fixed top-2 left-2 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent opacity-60 backdrop-blur-xl transition-all duration-500 hover:opacity-100">
+          <button className="text-primary border-primary hover:bg-primary-muted/20 focus-ring fixed top-2 left-2 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent opacity-80 backdrop-blur-xl transition-all duration-500 hover:opacity-100">
             <DrumhausLogo size={20} fill="currentColor" />
           </button>
         </DropdownMenuTrigger>

@@ -85,7 +85,7 @@ export const GrooveControls = () => {
         {/* Timing nudge */}
         <div
           aria-disabled={!canNudgeLeft || !canNudgeRight}
-          className="border-border surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border aria-disabled:opacity-50"
+          className="surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border aria-disabled:opacity-50"
         >
           <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="left">
             <Button

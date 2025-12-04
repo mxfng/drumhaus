@@ -123,7 +123,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                   Create a shareable link to send your preset to others.
                 </DialogDescription>
 
-                <Label htmlFor="presetName" className="mb-2 block">
+                <Label htmlFor="presetName" className="mb-2">
                   Preset name
                 </Label>
                 <Input

@@ -110,7 +110,6 @@ export const Knob: React.FC<KnobProps> = ({
           <motion.div
             className={cn(
               "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
-              "focus-ring cursor-grab aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
             )}
             onPointerDown={handlePointerDown}
             onDoubleClick={handleDoubleClick}
@@ -161,7 +160,7 @@ export const Knob: React.FC<KnobProps> = ({
               }}
             >
               {/* Raised Knob Inner Circle */}
-              <div className="border-shadow-10 bg-surface-groove raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-(--knob-shadow-center)" />
+              <div className="border-shadow-10 bg-knob raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-(--knob-shadow-center)" />
             </div>
           </div>
 

@@ -32,7 +32,7 @@ export const ChainEditScreen: React.FC = () => {
   ];
 
   return (
-    <div className="bg-instrument flex h-full flex-col gap-1 pt-1">
+    <div className="bg-screen flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 flex-wrap items-center gap-1 px-5 lowercase">
         {chain.steps.map((step, idx) => {
           const isActive = idx === chain.steps.length;

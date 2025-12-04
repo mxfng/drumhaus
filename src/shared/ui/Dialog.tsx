@@ -115,7 +115,7 @@ DialogDescription.displayName = "DialogDescription";
 /* Dialog Close Button */
 export function DialogCloseButton() {
   return (
-    <DialogPrimitive.Close className="focus-ring absolute top-4 right-4 cursor-pointer rounded-sm opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none">
+    <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100">
       <X className="h-5 w-5" />
       <span className="sr-only">Close</span>
     </DialogPrimitive.Close>

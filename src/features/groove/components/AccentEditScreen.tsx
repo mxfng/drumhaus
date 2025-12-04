@@ -15,7 +15,7 @@ export const AccentEditScreen: React.FC = () => {
   const variationLabel = VARIATION_LABELS[variation];
 
   return (
-    <div className="bg-instrument flex h-full flex-col gap-1 pt-1">
+    <div className="bg-screen flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 items-center gap-1 px-5">
         {/* Show 16 step indicators */}
         {accentCount > 0 &&

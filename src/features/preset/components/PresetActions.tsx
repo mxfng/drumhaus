@@ -20,7 +20,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
-    <div className="text-instrument grid h-full w-full grid-cols-4">
+    <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip content="Save preset" delayDuration={0}>
         <Button
           onClick={() => openDialog("save")}

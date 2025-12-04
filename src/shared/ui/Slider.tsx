@@ -10,10 +10,10 @@ export const Slider = forwardRef<
     className={`relative flex w-full touch-none items-center select-none ${className ?? ""} `}
     {...props}
   >
-    <SliderPrimitive.Track className="bg-background shadow-inset relative h-2 w-full grow cursor-pointer overflow-hidden rounded-full">
+    <SliderPrimitive.Track className="bg-background relative h-2 w-full grow overflow-hidden rounded-full border">
       <SliderPrimitive.Range className="bg-primary absolute h-full" />
     </SliderPrimitive.Track>
-    <SliderPrimitive.Thumb className="shadow-neu-raised focus-ring block h-5 w-5 cursor-pointer rounded-full bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] transition-colors disabled:pointer-events-none disabled:opacity-50" />
+    <SliderPrimitive.Thumb className="shadow-neu-raised block h-5 w-5 rounded-full border bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))] transition-colors" />
   </SliderPrimitive.Root>
 ));
 Slider.displayName = "Slider";

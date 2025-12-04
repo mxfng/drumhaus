@@ -21,6 +21,74 @@ a {
   text-decoration: underline;
 }
 
+/* Default border color */
+*:not([class*="border-"]) {
+  border-color: var(--color-border);
+}
+
+/* ==================== Cursor Behaviors ==================== */
+
+/* Interactive elements get pointer cursor */
+button:not(:disabled),
+a,
+summary,
+label,
+[role="button"]:not([aria-disabled="true"]),
+[role="tab"]:not([aria-disabled="true"]),
+[role="option"]:not([aria-disabled="true"]),
+select:not(:disabled),
+[data-radix-collection-item]:not([data-disabled]) {
+  cursor: pointer;
+}
+
+/* Disabled elements get not-allowed cursor and reduced interaction */
+button:disabled,
+[aria-disabled="true"],
+[data-disabled],
+:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Text input elements get text cursor */
+input:not([type="button"]):not([type="submit"]):not([type="reset"]):not(
+    [type="checkbox"]
+  ):not([type="radio"]):not(:disabled),
+textarea:not(:disabled),
+[contenteditable="true"] {
+  cursor: text;
+}
+
+/* Draggable elements get grab cursor */
+[role="slider"]:not(:disabled),
+input[type="range"]:not(:disabled),
+[data-radix-slider-thumb]:not(:disabled) {
+  cursor: grab;
+}
+
+[role="slider"]:active:not(:disabled),
+input[type="range"]:active:not(:disabled),
+[data-radix-slider-thumb]:active:not(:disabled) {
+  cursor: grabbing;
+}
+
+/* ==================== Focus Indicators ==================== */
+
+/* All focusable elements get consistent focus ring */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="slider"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
 /* ==================== Scrollbar Styling ==================== */
 
 /* Modern scrollbar styling (Firefox) */
@@ -64,5 +132,5 @@ body::-webkit-scrollbar-thumb:hover,
 html.night-mode,
 body.night-mode,
 #root.night-mode {
-  background-color: var(--color-black);
+  background-color: var(--color-background-night);
 }

@@ -12,7 +12,7 @@ export const TabsList = forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "bg-background-muted inline-flex h-10 items-center justify-center rounded-md p-1",
+      "bg-secondary inline-flex h-11 items-center justify-center rounded-xl border p-1",
       className,
     )}
     {...props}
@@ -27,7 +27,7 @@ export const TabsTrigger = forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "focus-ring data-[state=active]:bg-background data-[state=active]:text-foreground-emphasis inline-flex items-center justify-center rounded-sm px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm",
+      "data-[state=active]:text-foreground-emphasis data-[state=active]:shadow-neu-raised inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all data-[state=active]:border data-[state=active]:bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))]",
       className,
     )}
     {...props}
@@ -41,7 +41,7 @@ export const TabsContent = forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    className={cn("focus-ring mt-2", className)}
+    className={cn("mt-4", className)}
     {...props}
   />
 ));

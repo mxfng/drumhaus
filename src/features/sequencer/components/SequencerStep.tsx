@@ -106,7 +106,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       disabled={disabled}
       type="button"
       className={cn(
-        "border-border focus-ring relative cursor-pointer overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out disabled:pointer-events-none disabled:opacity-50",
+        "relative overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,

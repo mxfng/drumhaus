@@ -4,17 +4,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
 
 const buttonVariants = cva(
-  "transition-all duration-200 cursor-pointer flex items-center justify-center w-full focus-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0",
+  "transition-all duration-200 flex items-center justify-center [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0",
   {
     variants: {
       variant: {
         primary:
-          "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground",
-        secondary: "hover:text-foreground-muted",
+          "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground px-6",
+        secondary: "hover:text-foreground-muted px-6",
         hardware:
-          "neu-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-lg",
+          "neu-raised text-foreground group hover:text-primary-muted font-light border rounded-lg w-full",
         hardwareIcon:
-          "surface-raised text-foreground group hover:text-primary-muted font-light border-border border rounded-full aspect-square",
+          "surface-raised text-foreground group hover:text-primary-muted font-light border rounded-full aspect-square",
         screen: "rounded-none bg-transparent p-0.5 hover:bg-screen/20",
       },
       size: {
@@ -23,7 +23,7 @@ const buttonVariants = cva(
         default: "h-12",
         lg: "h-16",
         icon: "h-8 w-8",
-        screen: "h-full",
+        screen: "h-full w-full",
       },
     },
     defaultVariants: {

@@ -113,7 +113,7 @@ export const HardwareSlider = <TValue = number,>({
           open={isDragging}
         >
           <SliderPrimitive.Thumb
-            className="font-pixel bg-surface border-border focus-ring block h-4 w-4 cursor-grab rounded-full border"
+            className="font-pixel bg-surface block h-4 w-4 rounded-full border"
             aria-label={label || "Slider thumb"}
             aria-valuemin={0}
             aria-valuemax={100}
