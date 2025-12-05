@@ -110,18 +110,14 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
     return (
       <div className="flex flex-col gap-6">
         <div className="space-y-6">
-          <h1 className="text-foreground-emphasis mb-2 font-semibold">
-            Success!
-          </h1>
+          <h1 className="mb-3 font-medium">Success!</h1>
           <DialogDescription>
             Your link has been copied to the clipboard! Paste it anywhere to
             share your preset.
           </DialogDescription>
 
           <div>
-            <p className="text-foreground-emphasis mb-2 font-semibold">
-              How it works
-            </p>
+            <p className="mb-3 font-medium">How it works</p>
             <p className="text-muted-foreground text-sm">
               Your entire preset is packed into this tiny URL using some custom
               compression magic, and is entirely self-contained. For more info,

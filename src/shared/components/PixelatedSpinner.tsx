@@ -31,10 +31,12 @@ export const PixelatedSpinner: React.FC<PixelatedSpinnerProps> = ({
   return (
     <div
       className={cn(
-        "flex h-full w-full items-center justify-center overflow-hidden",
+        "flex items-center justify-center overflow-hidden",
         className,
       )}
       style={{
+        width: `${size}px`,
+        height: `${size}px`,
         containerType: "size",
       }}
     >
