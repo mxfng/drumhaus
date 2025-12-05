@@ -127,10 +127,10 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
               compression magic, and is entirely self-contained. For more info,
               check out the{" "}
               <a
-                href="https://github.com/mxfng/drumhaus"
+                href="https://github.com/mxfng/drumhaus/blob/main/src/features/preset/lib/serialization/compact.ts"
                 className="text-primary underline"
               >
-                Drumhaus GitHub repository
+                source code
               </a>
               .
             </p>
