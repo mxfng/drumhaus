@@ -14,7 +14,7 @@ export const FormLabel = forwardRef<
   <FormPrimitive.Label
     ref={ref}
     className={cn(
-      "text-foreground-emphasis data-invalid:text-track-red mb-1 block text-sm font-medium",
+      "text-foreground-emphasis data-invalid:text-destructive mb-1 block text-sm font-medium",
       className,
     )}
     {...props}
@@ -30,7 +30,7 @@ export const FormMessage = forwardRef<
 >(({ className, ...props }, ref) => (
   <FormPrimitive.Message
     ref={ref}
-    className={cn("text-track-red mb-1", className)}
+    className={cn("text-destructive mb-1", className)}
     {...props}
   />
 ));

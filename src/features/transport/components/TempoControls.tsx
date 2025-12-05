@@ -13,7 +13,13 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { clamp, cn } from "@/shared/lib/utils";
-import { Button, Label, Tooltip } from "@/shared/ui";
+import {
+  Button,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/ui";
 
 type TempoMode = "bpm" | "swing";
 
@@ -122,43 +128,52 @@ export const TempoControls = () => {
         showTickIndicator={false}
       />
       <div className="grid grid-cols-3 place-items-center gap-2">
-        <Tooltip content={TOOLTIPS.BPM}>
-          <Button
-            variant="hardwareIcon"
-            size="icon"
-            className={cn(
-              "font-pixel text-[10px] tracking-wide uppercase",
-              buttonActive(mode === "bpm"),
-            )}
-            onClick={() => setMode("bpm")}
-          >
-            <Timer />
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware-icon"
+              size="icon-sm"
+              className={cn(
+                "font-pixel text-[10px] tracking-wide uppercase",
+                buttonActive(mode === "bpm"),
+              )}
+              onClick={() => setMode("bpm")}
+            >
+              <Timer />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.BPM}</TooltipContent>
         </Tooltip>
 
-        <Tooltip content={TOOLTIPS.SWING}>
-          <Button
-            variant="hardwareIcon"
-            size="icon"
-            className={cn(
-              "font-pixel text-[10px] tracking-wide uppercase",
-              buttonActive(mode === "swing"),
-            )}
-            onClick={() => setMode("swing")}
-          >
-            <Music3 />
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware-icon"
+              size="icon-sm"
+              className={cn(
+                "font-pixel text-[10px] tracking-wide uppercase",
+                buttonActive(mode === "swing"),
+              )}
+              onClick={() => setMode("swing")}
+            >
+              <Music3 />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.SWING}</TooltipContent>
         </Tooltip>
 
-        <Tooltip content={TOOLTIPS.TAP_TEMPO}>
-          <Button
-            variant="hardwareIcon"
-            size="icon"
-            className="font-pixel text-foreground-muted text-[10px] tracking-wide uppercase"
-            onClick={handleTapTempo}
-          >
-            <ArrowDownToDot />
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware-icon"
+              size="icon-sm"
+              className="font-pixel text-foreground-muted text-[10px] tracking-wide uppercase"
+              onClick={handleTapTempo}
+            >
+              <ArrowDownToDot />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.TAP_TEMPO}</TooltipContent>
         </Tooltip>
         <Label className="text-[10px]">bpm</Label>
         <Label className="text-[10px]">swing</Label>

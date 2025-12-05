@@ -2,7 +2,7 @@ import { AudioLines, FolderOpen, Save, Trash } from "lucide-react";
 
 import { ComingSoonTooltipContent } from "@/shared/components/ComingSoonTooltipContent";
 import { useDialogStore } from "@/shared/store/useDialogStore";
-import { Button, Tooltip } from "@/shared/ui";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 type PresetActionsProps = {
   onOpenFromFile: () => void;
@@ -21,51 +21,62 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
 
   return (
     <div className="text-screen grid h-full w-full grid-cols-4">
-      <Tooltip content="Save preset" delayDuration={0}>
-        <Button
-          onClick={() => openDialog("save")}
-          variant="screen"
-          size="screen"
-        >
-          <Save
-            className="group-hover:text-primary-muted transition-all duration-200"
-            size={20}
-          />
-        </Button>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={() => openDialog("save")}
+            variant="screen"
+            size="screen"
+          >
+            <Save
+              className="group-hover:text-accent transition-all duration-200"
+              size={20}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Save preset</TooltipContent>
       </Tooltip>
 
-      <Tooltip content="Load preset" delayDuration={0}>
-        <Button onClick={onOpenFromFile} variant="screen" size="screen">
-          <FolderOpen
-            className="group-hover:text-primary-muted transition-all duration-200"
-            size={20}
-          />
-        </Button>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button onClick={onOpenFromFile} variant="screen" size="screen">
+            <FolderOpen
+              className="group-hover:text-accent transition-all duration-200"
+              size={20}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Load preset</TooltipContent>
       </Tooltip>
 
-      <Tooltip content="Export" delayDuration={0}>
-        <Button
-          onClick={() => openDialog("export")}
-          variant="screen"
-          size="screen"
-        >
-          <AudioLines
-            className="group-hover:text-primary-muted transition-all duration-200"
-            size={20}
-          />
-        </Button>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={() => openDialog("export")}
+            variant="screen"
+            size="screen"
+          >
+            <AudioLines
+              className="group-hover:text-accent transition-all duration-200"
+              size={20}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Export</TooltipContent>
       </Tooltip>
 
-      <Tooltip
-        content={<ComingSoonTooltipContent tooltip="Delete custom preset" />}
-        delayDuration={0}
-      >
-        <Button variant="screen" size="screen" className="opacity-50">
-          <Trash
-            className="group-hover:text-primary-muted transition-all duration-200"
-            size={20}
-          />
-        </Button>
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button variant="screen" size="screen" className="opacity-50">
+            <Trash
+              className="group-hover:text-accent transition-all duration-200"
+              size={20}
+            />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <ComingSoonTooltipContent tooltip="Delete custom preset" />
+        </TooltipContent>
       </Tooltip>
     </div>
   );

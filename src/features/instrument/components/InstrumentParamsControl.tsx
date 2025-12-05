@@ -17,7 +17,7 @@ import {
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
-import { Button, Tooltip } from "@/shared/ui";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { GainMeter } from "./GainMeter";
 
 interface InstrumentParamsProps {
@@ -165,27 +165,40 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
           orientation="vertical"
         />
         <div className="flex h-full flex-col items-center justify-center gap-2">
-          <Tooltip content={mute ? "Unmute" : "Mute"} side="right">
-            <Button
-              variant="hardwareIcon"
-              size="icon"
-              onClick={toggleMute}
-              disabled={!isRuntimeLoaded}
-              className={buttonActive(mute)}
-            >
-              {mute ? <VolumeX size={14} /> : <Volume size={14} />}
-            </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="hardware-icon"
+                size="icon-sm"
+                onClick={toggleMute}
+                disabled={!isRuntimeLoaded}
+                className={buttonActive(mute)}
+              >
+                {mute ? <VolumeX size={14} /> : <Volume size={14} />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {mute ? "Unmute" : "Mute"}
+            </TooltipContent>
           </Tooltip>
-          <Tooltip content={solo ? "Unsolo" : "Solo"} side="right">
-            <Button
-              variant="hardwareIcon"
-              size="icon"
-              onClick={toggleSolo}
-              disabled={!isRuntimeLoaded}
-              className={buttonActive(solo)}
-            >
-              <Headphones className={cn({ "text-primary": solo })} size={14} />
-            </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="hardware-icon"
+                size="icon-sm"
+                onClick={toggleSolo}
+                disabled={!isRuntimeLoaded}
+                className={buttonActive(solo)}
+              >
+                <Headphones
+                  className={cn({ "text-primary": solo })}
+                  size={14}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {solo ? "Unsolo" : "Solo"}
+            </TooltipContent>
           </Tooltip>
         </div>
       </div>

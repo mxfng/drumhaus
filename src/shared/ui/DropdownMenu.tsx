@@ -17,7 +17,7 @@ const dropdownMenuContentVariants = cva(
   {
     variants: {
       variant: {
-        default: "shadow-neu bg-primary text-primary-foreground",
+        default: "shadow-neu bg-popover text-popover-foreground",
       },
     },
     defaultVariants: {
@@ -55,7 +55,7 @@ export const DropdownMenuItem = forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "font-pixel focus:bg-primary-muted focus:text-primary-foreground relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none",
+      "font-pixel focus:bg-accent focus:text-primary-foreground relative flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none",
       inset && "pl-8",
       className,
     )}
@@ -71,7 +71,7 @@ export const DropdownMenuCheckboxItem = forwardRef<
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
-      "font-pixel focus:bg-primary-muted focus:text-primary-foreground relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none",
+      "font-pixel focus:bg-accent focus:text-primary-foreground relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none",
       className,
     )}
     checked={checked}
@@ -94,7 +94,7 @@ export const DropdownMenuRadioItem = forwardRef<
   <DropdownMenuPrimitive.RadioItem
     ref={ref}
     className={cn(
-      "font-pixel focus:bg-primary-muted focus:text-primary-foreground relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "font-pixel focus:bg-accent focus:text-primary-foreground relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm transition-colors outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
     {...props}
@@ -133,7 +133,7 @@ export const DropdownMenuSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("bg-primary-foreground/50 -mx-1 my-1 h-px", className)}
+    className={cn("bg-popover-foreground/50 -mx-1 my-1 h-px", className)}
     {...props}
   />
 ));
@@ -164,7 +164,7 @@ export const DropdownMenuSubTrigger = forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "font-pixel focus:bg-primary-muted data-[state=open]:bg-primary-muted flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none",
+      "font-pixel focus:bg-accent data-[state=open]:bg-accent flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none",
       inset && "pl-8",
       className,
     )}

@@ -84,7 +84,7 @@ export function Coachmark({
 
   return createPortal(
     <div
-      className="bg-primary text-primary-foreground rounded-md shadow-(--shadow-neu-tall) transition-opacity"
+      className="bg-popover text-popover-foreground rounded-md shadow-(--shadow-neu-tall) transition-opacity"
       style={{
         position: "fixed",
         top: position.top,

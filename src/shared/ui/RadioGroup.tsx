@@ -23,13 +23,13 @@ export const RadioGroupItem = forwardRef<
   <RadioGroupPrimitive.Item
     ref={ref}
     className={cn(
-      "border-shadow data-[state=checked]:border-primary-muted data-[state=checked]:text-primary-muted bg-secondary aspect-square h-4 w-4 rounded-full border",
+      "border-shadow data-[state=checked]:border-accent data-[state=checked]:text-accent bg-secondary aspect-square h-4 w-4 rounded-full border",
       className,
     )}
     {...props}
   >
     <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-      <Circle className="fill-primary-muted h-2 w-2" />
+      <Circle className="fill-accent h-2 w-2" />
     </RadioGroupPrimitive.Indicator>
   </RadioGroupPrimitive.Item>
 ));

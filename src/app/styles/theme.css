@@ -13,11 +13,15 @@
   --color-foreground: #a6866c;
   --color-foreground-muted: #c3ad97;
   --color-foreground-emphasis: #65503e;
+  --color-accent: #c3ad97;
 
   /* Primary colors */
   --color-primary: #ff7b00;
-  --color-primary-muted: #ff9633;
+  --color-primary-muted: var(--color-accent);
   --color-primary-foreground: #ffffff;
+
+  --color-accent: #ff9633;
+  --color-accent-foreground: var(--color-primary-foreground);
 
   /* Secondary colors */
   --color-secondary: rgb(237, 231, 225);
@@ -26,6 +30,14 @@
   /* Screen colors */
   --color-screen: var(--color-secondary);
   --color-screen-foreground: rgba(101, 80, 62, 0.8);
+
+  --color-popover: var(--color-primary);
+  --color-popover-foreground: var(--color-primary-foreground);
+
+  --color-destructive: var(--color-track-red);
+  --color-destructive-foreground: var(--color-primary-foreground);
+
+  --color-muted: var(--color-shadow-10);
 
   /* Surface colors */
   --color-surface: rgb(244, 235, 236);

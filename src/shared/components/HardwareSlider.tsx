@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 
 import { ParamMapping } from "@/shared/knob/types/types";
 import { cn } from "@/shared/lib/utils";
-import { Label, Tooltip } from "@/shared/ui";
+import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 const sliderContainerVariants = cva("flex gap-2 flex-col", {
   variants: {
@@ -106,19 +106,19 @@ export const HardwareSlider = <TValue = number,>({
             )}
           />
         </SliderPrimitive.Track>
-        <Tooltip
-          content={formattedTransformedValue}
-          delayDuration={0}
-          side={tooltipSide}
-          open={isDragging}
-        >
-          <SliderPrimitive.Thumb
-            className="font-pixel bg-surface block h-4 w-4 rounded-full border"
-            aria-label={label || "Slider thumb"}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={value}
-          />
+        <Tooltip open={isDragging}>
+          <TooltipTrigger asChild>
+            <SliderPrimitive.Thumb
+              className="font-pixel bg-surface block h-4 w-4 rounded-full border"
+              aria-label={label || "Slider thumb"}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={value}
+            />
+          </TooltipTrigger>
+          <TooltipContent side={tooltipSide}>
+            {formattedTransformedValue}
+          </TooltipContent>
         </Tooltip>
       </SliderPrimitive.Root>
 

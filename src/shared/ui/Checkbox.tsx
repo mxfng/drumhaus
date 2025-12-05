@@ -11,7 +11,7 @@ export const Checkbox = forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "border-foreground-muted data-[state=checked]:bg-primary-muted data-[state=checked]:border-primary-muted peer h-4 w-4 shrink-0 rounded-sm border",
+      "data-[state=checked]:bg-accent data-[state=checked]:border-accent peer bg-secondary h-4 w-4 shrink-0 rounded-sm border",
       className,
     )}
     {...props}

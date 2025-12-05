@@ -7,6 +7,7 @@ import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
 import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
 import { useDialogStore } from "@/shared/store/useDialogStore";
+import { Separator } from "@/shared/ui";
 import { ControlsPanel } from "./ControlsPanel";
 import { FloatingMenu } from "./FloatingMenu";
 import { Footer } from "./Footer";
@@ -17,12 +18,6 @@ const MobileDialog = lazy(() =>
     default: module.MobileDialog,
   })),
 );
-
-const renderDivider = () => {
-  return (
-    <div className="bg-shadow-10 h-1 w-full shadow-[inset_2px_1px_2px_0_var(--color-shadow-30)]" />
-  );
-};
 
 const Drumhaus = () => {
   // --- Context ---
@@ -68,17 +63,17 @@ const Drumhaus = () => {
             {/* Header */}
             <Header />
 
-            {renderDivider()}
+            <Separator variant="neumorphic" />
 
             {/* Instrument Grid */}
             <InstrumentGrid key={instrumentRuntimesVersion} />
 
-            {renderDivider()}
+            <Separator variant="neumorphic" />
 
             {/* Main Controls */}
             <ControlsPanel />
 
-            {renderDivider()}
+            <Separator variant="neumorphic" />
 
             {/* Sequencer */}
             <Sequencer />

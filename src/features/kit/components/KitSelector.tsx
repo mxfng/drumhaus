@@ -1,5 +1,3 @@
-import { ChevronsUpDown } from "lucide-react";
-
 import {
   Select,
   SelectContent,
@@ -23,9 +21,11 @@ export const KitSelector: React.FC<KitSelectorProps> = ({
   return (
     <div className="group w-full">
       <Select value={selectedKitId} onValueChange={onSelect}>
-        <SelectTrigger className="text-screen-foreground h-5 w-full cursor-pointer bg-transparent px-0 focus-visible:ring-offset-0">
+        <SelectTrigger
+          size="screen"
+          className="text-screen-foreground w-full cursor-pointer border-transparent bg-transparent px-0 focus-visible:ring-offset-0"
+        >
           <SelectValue />
-          <ChevronsUpDown className="group-hover:text-primary-muted h-4 w-4 transition-all duration-200" />
         </SelectTrigger>
         <SelectContent>
           {kits.map((kit) => (

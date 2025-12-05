@@ -6,7 +6,13 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
-import { Button, Label, Tooltip } from "@/shared/ui";
+import {
+  Button,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/shared/ui";
 
 // Tooltip constants
 const TOOLTIPS = {
@@ -59,27 +65,36 @@ export const GrooveControls = () => {
     <HardwareModule>
       <div className="grid w-full grid-cols-2 place-items-center gap-x-2 gap-y-4">
         {/* Accent mode button */}
-        <Tooltip content={TOOLTIPS.ACCENT_MODE}>
-          <Button
-            variant="hardware"
-            className={buttonActive(accentMode)}
-            onClick={toggleAccentMode}
-            size="sm"
-          >
-            accent
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware"
+              className={buttonActive(accentMode)}
+              onClick={toggleAccentMode}
+              size="sm"
+            >
+              accent
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.ACCENT_MODE}</TooltipContent>
         </Tooltip>
         {/* Show velocity toggle */}
-        <Tooltip content={TOOLTIPS.SHOW_VELOCITY}>
-          <Button
-            variant="hardware"
-            size="sm"
-            className={cn("leading-3", buttonActive(voiceMode && showVelocity))}
-            onClick={toggleShowVelocity}
-            disabled={mode.type !== "voice"}
-          >
-            velocity
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(
+                "leading-3",
+                buttonActive(voiceMode && showVelocity),
+              )}
+              onClick={toggleShowVelocity}
+              disabled={mode.type !== "voice"}
+            >
+              velocity
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.SHOW_VELOCITY}</TooltipContent>
         </Tooltip>
 
         {/* Timing nudge */}
@@ -87,53 +102,69 @@ export const GrooveControls = () => {
           aria-disabled={!canNudgeLeft || !canNudgeRight}
           className="surface-raised col-span-2 grid h-12 grid-cols-3 place-items-center gap-x-2 gap-y-4 rounded-lg border aria-disabled:opacity-50"
         >
-          <Tooltip content={TOOLTIPS.TIMING_NUDGE_LEFT} side="left">
-            <Button
-              variant="hardwareIcon"
-              size="icon"
-              className="relative overflow-hidden"
-              onClick={nudgeTimingLeft}
-              disabled={!canNudgeLeft}
-            >
-              <ArrowLeft size={12} />
-            </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="hardware-icon"
+                size="icon-sm"
+                className="relative overflow-hidden"
+                onClick={nudgeTimingLeft}
+                disabled={!canNudgeLeft}
+              >
+                <ArrowLeft size={12} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              {TOOLTIPS.TIMING_NUDGE_LEFT}
+            </TooltipContent>
           </Tooltip>
           <div className="flex flex-col items-center justify-center gap-1.5">
             <Label className="flex items-center justify-center">nudge</Label>
             <TimingNudgeMeter timingNudge={currentNudge} />
           </div>
-          <Tooltip content={TOOLTIPS.TIMING_NUDGE_RIGHT} side="right">
-            <Button
-              variant="hardwareIcon"
-              size="icon"
-              className="relative overflow-hidden"
-              onClick={nudgeTimingRight}
-              disabled={!canNudgeRight}
-            >
-              <ArrowRight size={12} />
-            </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="hardware-icon"
+                size="icon-sm"
+                className="relative overflow-hidden"
+                onClick={nudgeTimingRight}
+                disabled={!canNudgeRight}
+              >
+                <ArrowRight size={12} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {TOOLTIPS.TIMING_NUDGE_RIGHT}
+            </TooltipContent>
           </Tooltip>
         </div>
 
-        <Tooltip content={TOOLTIPS.RATCHET_MODE} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            onClick={toggleRatchetMode}
-            className={buttonActive(ratchetMode)}
-          >
-            ratchet
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware"
+              size="sm"
+              onClick={toggleRatchetMode}
+              className={buttonActive(ratchetMode)}
+            >
+              ratchet
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{TOOLTIPS.RATCHET_MODE}</TooltipContent>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.FLAM_MODE} side="bottom">
-          <Button
-            variant="hardware"
-            size="sm"
-            onClick={toggleFlamMode}
-            className={buttonActive(flamMode)}
-          >
-            flam
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware"
+              size="sm"
+              onClick={toggleFlamMode}
+              className={buttonActive(flamMode)}
+            >
+              flam
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">{TOOLTIPS.FLAM_MODE}</TooltipContent>
         </Tooltip>
       </div>
     </HardwareModule>

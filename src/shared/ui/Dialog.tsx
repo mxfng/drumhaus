@@ -13,7 +13,7 @@ const dialogVariants = cva(
         default:
           "bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))]",
         primary:
-          "bg-primary text-primary-foreground rounded-none rounded-tr-4xl rounded-bl-4xl",
+          "bg-popover text-popover-foreground rounded-none rounded-tr-4xl rounded-bl-4xl",
       },
     },
     defaultVariants: {
@@ -84,7 +84,7 @@ export function DialogFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex flex-row justify-end space-x-2", className)}
+      className={cn("mt-8 flex flex-row justify-end space-x-2", className)}
       {...props}
     />
   );

@@ -1,10 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import { useClipboard } from "@/shared/hooks/useClipboard";
 import { presetNameSchema } from "@/shared/lib/schemas";
-import { Button, DialogDescription, Input, Label, useToast } from "@/shared/ui";
+import {
+  Button,
+  DialogDescription,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  Input,
+  useToast,
+} from "@/shared/ui";
 
 interface LinkExportFormProps {
   onShare: (name: string) => Promise<string>;
@@ -12,6 +24,10 @@ interface LinkExportFormProps {
 }
 
 type ShareStep = "input" | "result";
+
+const linkSchema = z.object({
+  presetName: presetNameSchema.trim(),
+});
 
 export const LinkExportForm: React.FC<LinkExportFormProps> = ({
   onShare,
@@ -22,39 +38,25 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
   );
 
   const [step, setStep] = useState<ShareStep>("input");
-  const [editedName, setEditedName] = useState<string | null>(null);
   const [shareableLink, setShareableLink] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const { toast } = useToast();
   const { onCopy, hasCopied } = useClipboard();
 
-  const presetName = editedName ?? currentPresetName;
-  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
+  const form = useForm<z.infer<typeof linkSchema>>({
+    resolver: zodResolver(linkSchema),
+    defaultValues: { presetName: currentPresetName },
+    mode: "onChange",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEditedName(value);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting, isValid },
+  } = form;
 
-    const result = presetNameSchema.safeParse(value);
-    if (!result.success) {
-      setError(result.error.issues[0].message);
-    } else {
-      setError(null);
-    }
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    const result = presetNameSchema.safeParse(presetName.trim());
-    if (!result.success) {
-      setError(result.error.issues[0].message);
-      return;
-    }
-
-    setIsLoading(true);
+  const onSubmit = handleSubmit(async ({ presetName }) => {
     try {
       const link = await onShare(presetName.trim());
       setShareableLink(link);
@@ -69,10 +71,8 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
         status: "error",
         duration: 3000,
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  });
 
   const handleCopy = () => {
     onCopy(shareableLink);
@@ -81,6 +81,19 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
       duration: 3000,
     });
   };
+
+  const handleClose = () => {
+    setStep("input");
+    setShareableLink("");
+    reset({ presetName: currentPresetName });
+    onClose();
+  };
+
+  useEffect(() => {
+    if (step === "input") {
+      reset({ presetName: currentPresetName });
+    }
+  }, [currentPresetName, reset, step]);
 
   if (step === "result") {
     return (
@@ -91,7 +104,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
             preset.
           </DialogDescription>
 
-          <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+          <div className="bg-secondary h-10 w-full rounded-lg border">
             <div className="flex h-full items-center justify-center">
               <button
                 onClick={handleCopy}
@@ -103,10 +116,10 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
           </div>
 
           <div>
-            <p className="text-foreground-muted mb-2 text-xs font-semibold">
+            <p className="text-foreground-emphasis mb-2 font-semibold">
               How it works
             </p>
-            <p className="text-foreground-muted text-xs">
+            <p>
               Your entire preset is packed into this tiny URL using some custom
               compression magic, and is entirely self-contained.
             </p>
@@ -114,7 +127,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
         </div>
 
         <div className="flex flex-row justify-end space-x-2">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={handleClose}>
             Close
           </Button>
           <Button onClick={handleCopy}>
@@ -126,35 +139,37 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <div className="space-y-6">
         <DialogDescription>
           Create a shareable link to send your preset to others.
         </DialogDescription>
 
-        <div className="space-y-2">
-          <Label htmlFor="presetName">Preset name</Label>
-          <Input
-            id="presetName"
-            value={presetName}
-            onChange={handleChange}
-            autoFocus
-          />
-          {error && <p className="text-track-red mt-1 text-sm">{error}</p>}
-        </div>
+        <FieldGroup>
+          <Field data-invalid={Boolean(errors.presetName)}>
+            <FieldLabel htmlFor="presetName">Preset name</FieldLabel>
+            <Input
+              id="presetName"
+              autoFocus
+              aria-invalid={Boolean(errors.presetName)}
+              {...register("presetName")}
+            />
+            <FieldError errors={errors.presetName} />
+          </Field>
+        </FieldGroup>
       </div>
 
       <div className="flex flex-row justify-end space-x-2">
-        <Button variant="ghost" onClick={onClose} type="button">
+        <Button variant="ghost" onClick={handleClose} type="button">
           Cancel
         </Button>
         <Button
           type="submit"
-          disabled={!isValid || isLoading}
+          disabled={!isValid || isSubmitting}
           className="text-primary-foreground flex items-center"
         >
           <span className="mr-2">Get Link</span>
-          {isLoading && (
+          {isSubmitting && (
             <PixelatedSpinner
               color="currentColor"
               size={20}

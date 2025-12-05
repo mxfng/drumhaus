@@ -133,7 +133,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                   autoFocus
                 />
                 {error && (
-                  <p className="text-track-red mt-1 text-sm">{error}</p>
+                  <p className="text-destructive mt-1 text-sm">{error}</p>
                 )}
               </div>
 

@@ -10,7 +10,7 @@ import { HardwareModule } from "@/shared/components/HardwareModule";
 import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
-import { Button, Tooltip } from "@/shared/ui";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
 import { SequencerVariationPreview } from "./SequencerVariationPreview";
@@ -85,99 +85,111 @@ export const SequencerControl: React.FC = () => {
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
         {/* Variation chain and sequencer overview row */}
-        <Tooltip
-          content={
-            isChainEdit
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              ref={variChainButtonRef}
+              variant="hardware"
+              size="sm"
+              className={cn(buttonActive(isChainEdit))}
+              onClick={handleToggleChainEdit}
+            >
+              <span className="leading-3">vari chain</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {isChainEdit
               ? TOOLTIPS.VARIATION_CHAIN_SAVE
-              : TOOLTIPS.VARIATION_CHAIN_SET
-          }
-        >
-          <Button
-            ref={variChainButtonRef}
-            variant="hardware"
-            size="sm"
-            className={cn(buttonActive(isChainEdit))}
-            onClick={handleToggleChainEdit}
-          >
-            <span className="leading-3">vari chain</span>
-          </Button>
+              : TOOLTIPS.VARIATION_CHAIN_SET}
+          </TooltipContent>
         </Tooltip>
-        <Tooltip
-          content={
-            chainEnabled
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(buttonActive(chainEnabled))}
+              onClick={handleToggleChainEnabled}
+            >
+              <span>chain on</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {chainEnabled
               ? TOOLTIPS.VARIATION_CHAIN_TOGGLE_OFF
-              : TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON
-          }
-        >
-          <Button
-            variant="hardware"
-            size="sm"
-            className={cn(buttonActive(chainEnabled))}
-            onClick={handleToggleChainEnabled}
-          >
-            <span>chain on</span>
-          </Button>
+              : TOOLTIPS.VARIATION_CHAIN_TOGGLE_ON}
+          </TooltipContent>
         </Tooltip>
         <div className="col-span-2">
           <SequencerVariationPreview variation={variation} />
         </div>
 
         {/* Variation pattern selection row */}
-        <Tooltip content={TOOLTIPS.VARIATION_A} side="left">
-          <SequencerVariationButton variation={0} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SequencerVariationButton variation={0} />
+          </TooltipTrigger>
+          <TooltipContent side="left">{TOOLTIPS.VARIATION_A}</TooltipContent>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.VARIATION_B}>
-          <SequencerVariationButton variation={1} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SequencerVariationButton variation={1} />
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.VARIATION_B}</TooltipContent>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.VARIATION_C}>
-          <SequencerVariationButton variation={2} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SequencerVariationButton variation={2} />
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.VARIATION_C}</TooltipContent>
         </Tooltip>
-        <Tooltip content={TOOLTIPS.VARIATION_D}>
-          <SequencerVariationButton variation={3} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <SequencerVariationButton variation={3} />
+          </TooltipTrigger>
+          <TooltipContent>{TOOLTIPS.VARIATION_D}</TooltipContent>
         </Tooltip>
 
         {/* Pattern actions row */}
-        <Tooltip
-          content={
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="hardware" size="sm" className="opacity-50">
+              <span>copy</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
             <ComingSoonTooltipContent tooltip={TOOLTIPS.COPY_TOGGLE_ON} />
-          }
-          side="bottom"
-          delayDuration={0}
-        >
-          <Button variant="hardware" size="sm" className="opacity-50">
-            <span>copy</span>
-          </Button>
+          </TooltipContent>
         </Tooltip>
-        <Tooltip
-          content={
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="hardware" size="sm" className="opacity-50">
+              <span>paste</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
             <ComingSoonTooltipContent tooltip={TOOLTIPS.PASTE_TOGGLE_ON} />
-          }
-          side="bottom"
-          delayDuration={0}
-        >
-          <Button variant="hardware" size="sm" className="opacity-50">
-            <span>paste</span>
-          </Button>
+          </TooltipContent>
         </Tooltip>
-        <Tooltip
-          content={
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="hardware" size="sm" className="opacity-50">
+              <span>clear</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
             <ComingSoonTooltipContent tooltip={TOOLTIPS.CLEAR_TOGGLE_ON} />
-          }
-          side="bottom"
-          delayDuration={0}
-        >
-          <Button variant="hardware" size="sm" className="opacity-50">
-            <span>clear</span>
-          </Button>
+          </TooltipContent>
         </Tooltip>
-        <Tooltip
-          content={<ComingSoonTooltipContent tooltip={TOOLTIPS.UNDO} />}
-          side="bottom"
-          delayDuration={0}
-        >
-          <Button variant="hardware" size="sm" className="opacity-50">
-            <span>undo</span>
-          </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="hardware" size="sm" className="opacity-50">
+              <span>undo</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            <ComingSoonTooltipContent tooltip={TOOLTIPS.UNDO} />
+          </TooltipContent>
         </Tooltip>
       </div>
       <Coachmark
