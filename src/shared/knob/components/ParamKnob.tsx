@@ -14,6 +14,8 @@ interface ParamKnobProps<TValue> {
   outerTickCount?: number;
   /** Size of the knob - `"default"` is 90px, `"lg"` is 180px */
   size?: KnobSize;
+  /** Hide the rotating tick indicator and rely on context instead */
+  showTickIndicator?: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ function ParamKnob<TValue>({
   onValueChange: onKnobValueChange,
   outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
   size = "default",
+  showTickIndicator = true,
 }: ParamKnobProps<TValue>) {
   const quantizationStep = 100 / mapping.knobValueCount;
 
@@ -49,6 +52,7 @@ function ParamKnob<TValue>({
       defaultValue={mapping.defaultKnobValue}
       outerTickCount={outerTickCount}
       size={size}
+      showTickIndicator={showTickIndicator}
     />
   );
 }

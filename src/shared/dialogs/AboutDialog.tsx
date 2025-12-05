@@ -2,12 +2,8 @@ import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { getContext } from "tone";
 
-import { useDebugStore } from "@/features/debug/store/useDebugStore";
-import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 import {
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -15,6 +11,7 @@ import {
 } from "@/shared/ui";
 import { DrumhausLogo } from "../../shared/icon/DrumhausLogo";
 import { DrumhausTypographyLogo } from "../../shared/icon/DrumhausTypographyLogo";
+import { FungPeaceLogo } from "../icon/FungPeaceLogo";
 
 interface AboutDialogProps {
   isOpen: boolean;
@@ -46,12 +43,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
   const browser = useMemo(() => getBrowserInfo(), []);
   const audioInfo = useMemo(() => getAudioContextInfo(), []);
   const currentYear = new Date().getFullYear();
-  const debugMode = useDebugStore((state) => state.debugMode);
-  const toggleDebugMode = useDebugStore((state) => state.toggleDebugMode);
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
-  const togglePotatoMode = usePerformanceStore(
-    (state) => state.togglePotatoMode,
-  );
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -59,7 +50,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="hidden">About</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
         <div className="mb-8 flex flex-col items-start gap-2">
           <div className="flex items-baseline gap-2">
@@ -88,30 +78,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               <p>{browser}</p>
               <p>Node {__NODE_VERSION__}</p>
               <p>{audioInfo.sampleRate} Hz</p>
-              <button
-                onClick={toggleDebugMode}
-                className={cn(
-                  "w-fit cursor-pointer p-0 text-xs transition-opacity",
-                  {
-                    "opacity-80": debugMode,
-                    "opacity-40 hover:opacity-60": !debugMode,
-                  },
-                )}
-              >
-                {debugMode ? "● Debug Mode" : "○ Debug Mode"}
-              </button>
-              <button
-                onClick={togglePotatoMode}
-                className={cn(
-                  "w-fit cursor-pointer p-0 text-xs transition-opacity",
-                  {
-                    "opacity-80": potatoMode,
-                    "opacity-40 hover:opacity-60": !potatoMode,
-                  },
-                )}
-              >
-                {potatoMode ? "● Potato Mode" : "○ Potato Mode"}
-              </button>
             </div>
           </div>
         </div>
@@ -144,6 +110,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </a>
           </div>
           <div className="flex flex-col justify-end gap-2">
+            <FungPeaceLogo size={48} />
             <p className="text-xs">© 2023-{currentYear} Max Fung</p>
           </div>
         </div>

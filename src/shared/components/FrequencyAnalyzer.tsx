@@ -1,12 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Analyser } from "tone";
 
 import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
-} from "@/core/audio/engine";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
+} from "@/core/audio/frequencyAnalyzer";
 import { semitonesToRatio } from "@/shared/knob/lib/utils";
+import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp, normalize } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
@@ -26,17 +26,38 @@ interface FrequencyAnalyzerProps {
 }
 
 export function FrequencyAnalyzer({
-  width = 550,
-  height = 90,
+  width,
+  height,
   numBars = NUM_BARS,
 }: FrequencyAnalyzerProps = {}) {
   const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animationFrameId = useRef<number | null>(null);
-  const isPlaying = useTransportStore((state) => state.isPlaying);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
-  const frameInterval = potatoMode ? 1000 / 30 : 1000 / 60;
-  const lastFrameRef = useRef(0);
+  const [dimensions, setDimensions] = useState({
+    width: width || 550,
+    height: height || 90,
+  });
+
+  // Measure container size on mount and resize
+  useEffect(() => {
+    if (!width || !height) {
+      const updateDimensions = () => {
+        if (containerRef.current) {
+          const { width: containerWidth, height: containerHeight } =
+            containerRef.current.getBoundingClientRect();
+          setDimensions({
+            width: Math.floor(containerWidth),
+            height: Math.floor(containerHeight),
+          });
+        }
+      };
+
+      updateDimensions();
+      window.addEventListener("resize", updateDimensions);
+      return () => window.removeEventListener("resize", updateDimensions);
+    }
+  }, [width, height]);
 
   useEffect(() => {
     createFrequencyAnalyzer(analyzerRef);
@@ -51,14 +72,7 @@ export function FrequencyAnalyzer({
       };
     }
 
-    const drawFrame = (now: number) => {
-      // 30fps throttle
-      if (now - lastFrameRef.current < frameInterval) {
-        animationFrameId.current = requestAnimationFrame(drawFrame);
-        return;
-      }
-      lastFrameRef.current = now;
-
+    const drawFrame = () => {
       const analyzer = analyzerRef.current;
       if (!analyzer) return;
 
@@ -116,7 +130,7 @@ export function FrequencyAnalyzer({
 
         let barHeight = boosted * canvas.height;
 
-        // Quantize height to pixel steps for “pixel” look
+        // Quantize height to pixel steps for "pixel" look
         const pixelsHigh = Math.round(barHeight / PIXEL_SIZE);
         barHeight = pixelsHigh * PIXEL_SIZE;
 
@@ -126,28 +140,26 @@ export function FrequencyAnalyzer({
         ctx.fillStyle = "#ff7b00";
         ctx.fillRect(x, y, barWidth, barHeight);
       }
-
-      animationFrameId.current = requestAnimationFrame(drawFrame);
     };
 
-    animationFrameId.current = requestAnimationFrame(drawFrame);
+    // Subscribe to playback animation (only runs when playing)
+    const unsubscribe = subscribeToPlaybackAnimation(drawFrame);
 
     return () => {
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
-      }
+      unsubscribe();
       disposeFrequencyAnalyzer(analyzerRef);
     };
-  }, [isPlaying, numBars, potatoMode, frameInterval]);
+  }, [numBars, potatoMode]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      className="h-full w-full object-fill"
-    />
+    <div ref={containerRef} className="h-full w-full">
+      <canvas
+        ref={canvasRef}
+        width={dimensions.width}
+        height={dimensions.height}
+        className="h-full w-full"
+      />
+    </div>
   );
 }
 

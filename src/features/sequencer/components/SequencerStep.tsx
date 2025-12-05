@@ -1,160 +1,128 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
-import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepProps {
   stepIndex: number;
   isTriggerOn: boolean;
-  isGhosted: boolean;
-  variant?: "desktop" | "mobile";
-  variation?: number;
-  playbackVariation?: number;
+  brightness: number;
+  isGuideActive?: boolean;
+  color?: string; // Optional custom color class for override
+  // Click handler for keyboard accessibility (Enter key)
+  onClick?: (stepIndex: number) => void;
   // Pointer handlers for desktop
   onPointerStart?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
   onPointerEnter?: (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onPointerMove?: (event: React.PointerEvent<HTMLDivElement>) => void;
+  onPointerMove?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   // Touch handlers for mobile (required for iOS Safari)
   onTouchStart?: (
-    event: React.TouchEvent<HTMLDivElement>,
+    event: React.TouchEvent<HTMLButtonElement>,
     stepIndex: number,
     isTriggerOn: boolean,
   ) => void;
-  onTouchMove?: (event: React.TouchEvent<HTMLDivElement>) => void;
+  onTouchMove?: (event: React.TouchEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
 }
 
 export const SequencerStep: React.FC<SequencerStepProps> = ({
   stepIndex,
   isTriggerOn,
-  isGhosted,
-  variant = "desktop",
-  variation,
-  playbackVariation,
+  brightness,
+  isGuideActive = false,
+  color,
+  onClick,
   onPointerStart,
   onPointerEnter,
   onPointerMove,
   onTouchStart,
   onTouchMove,
+  disabled = false,
 }) => {
-  const stepRef = useRef<HTMLDivElement>(null);
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
-
   // Accent beats (every 4th step) for visual emphasis
   const isAccentBeat = stepIndex % 4 === 0;
-
-  // Track current step for mobile variant using requestAnimationFrame
-  useEffect(() => {
-    if (
-      variant !== "mobile" ||
-      variation === undefined ||
-      playbackVariation === undefined
-    ) {
-      return;
-    }
-
-    let lastIsThisStepPlaying: boolean | null = null;
-
-    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
-      const isThisStepPlaying =
-        isPlaying &&
-        playbackVariation === variation &&
-        currentStep === stepIndex;
-
-      // Only touch the DOM when the state actually changes
-      if (
-        stepRef.current &&
-        (lastIsThisStepPlaying === null ||
-          isThisStepPlaying !== lastIsThisStepPlaying)
-      ) {
-        stepRef.current.classList.toggle("brightness-75", isThisStepPlaying);
-        lastIsThisStepPlaying = isThisStepPlaying;
-      }
-    });
-
-    return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, variant]);
+  const isGuideOnly = isGuideActive && !isTriggerOn;
 
   const getTriggerClassName = () => {
-    if (potatoMode) {
-      return isTriggerOn ? "bg-primary" : "bg-instrument";
+    // Use custom color if provided
+    if (color && isTriggerOn) {
+      return color;
     }
 
     return isTriggerOn
-      ? "bg-primary shadow-neu hover:primary-muted"
-      : variant === "desktop"
-        ? "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,1)_inset] hover:bg-primary-muted/40"
-        : "bg-instrument";
+      ? "bg-primary shadow-neu hover:accent"
+      : isGuideOnly
+        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
+        : "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
   };
 
   const triggerStyles = {
     className: getTriggerClassName(),
-    opacity: isGhosted
-      ? 0.7
-      : isTriggerOn
-        ? 1
-        : variant === "mobile" && !isTriggerOn
-          ? isAccentBeat
-            ? 1
-            : 0.75
-          : 1,
+    opacity: isTriggerOn || isGuideOnly ? 1 : isAccentBeat ? 1 : 0.75,
   };
 
-  const borderRadius =
-    variant === "desktop"
-      ? "rounded-[0_8px_0_8px] sm:rounded-[0_22px_0_22px]"
-      : "";
+  const borderRadius = "rounded-[0_16px_0_16px]";
 
-  const sizeClasses =
-    variant === "desktop" ? "aspect-square w-full" : "h-full w-full";
+  const sizeClasses = "aspect-square w-full";
 
   return (
-    <div
-      ref={stepRef}
+    <button
       data-step-index={stepIndex}
-      onPointerDown={(event) => onPointerStart?.(event, stepIndex, isTriggerOn)}
-      onPointerEnter={(event) =>
-        onPointerEnter?.(event, stepIndex, isTriggerOn)
-      }
+      onClick={(event) => {
+        if (disabled) return;
+        // Only trigger on keyboard clicks (Enter key), not pointer/mouse events
+        if (event.detail === 0) {
+          onClick?.(stepIndex);
+        }
+      }}
+      onPointerDown={(event) => {
+        if (disabled) return;
+        onPointerStart?.(event, stepIndex, isTriggerOn);
+      }}
+      onPointerEnter={(event) => {
+        if (disabled) return;
+        onPointerEnter?.(event, stepIndex, isTriggerOn);
+      }}
       onPointerMove={(event) => {
+        if (disabled) return;
         onPointerMove?.(event);
       }}
       onTouchStart={(event) => {
+        if (disabled) return;
         onTouchStart?.(event, stepIndex, isTriggerOn);
       }}
       onTouchMove={(event) => {
+        if (disabled) return;
         onTouchMove?.(event);
       }}
       onContextMenu={(e) => e.preventDefault()}
+      disabled={disabled}
+      type="button"
       className={cn(
-        "relative cursor-pointer overflow-hidden",
-        potatoMode
-          ? "transition-none"
-          : "transition-[background-color,box-shadow] duration-300 ease-in-out",
+        "relative overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
         sizeClasses,
         borderRadius,
         triggerStyles.className,
       )}
-      style={{
-        opacity: triggerStyles.opacity,
-      }}
     >
-      {isTriggerOn && !potatoMode && (
+      {(isTriggerOn || isGuideOnly) && (
         <div
           className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
+            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
             borderRadius,
           )}
+          style={{
+            opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
+          }}
         />
       )}
-    </div>
+    </button>
   );
 };

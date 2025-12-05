@@ -1,38 +1,41 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
+  compAttackMapping,
   compMixMapping,
   compRatioMapping,
   compThresholdMapping,
 } from "@/shared/knob/lib/mapping";
-import { GainReductionMeter } from "./GainReductionMeter";
 
 export const MasterCompressor: React.FC = () => {
+  const attack = useMasterChainStore((state) => state.compAttack);
   const threshold = useMasterChainStore((state) => state.compThreshold);
   const ratio = useMasterChainStore((state) => state.compRatio);
   const mix = useMasterChainStore((state) => state.compMix);
 
+  const setAttack = useMasterChainStore((state) => state.setCompAttack);
   const setThreshold = useMasterChainStore((state) => state.setCompThreshold);
   const setRatio = useMasterChainStore((state) => state.setCompRatio);
   const setMix = useMasterChainStore((state) => state.setCompMix);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center">
-      {/* Threshold and Ratio */}
+    <>
+      <ParamKnob
+        value={attack}
+        onValueChange={setAttack}
+        label="punch"
+        mapping={compAttackMapping}
+      />
       <ParamKnob
         value={threshold}
         onValueChange={setThreshold}
-        label="THRESHOLD"
+        label="threshold"
         mapping={compThresholdMapping}
       />
-      {/* Gain Reduction Meter and Mix */}
-      <div className="flex h-full items-center justify-center py-8 sm:py-1">
-        <GainReductionMeter />
-      </div>
       <ParamKnob
         value={ratio}
         onValueChange={setRatio}
-        label="RATIO"
+        label="ratio"
         mapping={compRatioMapping}
         outerTickCount={8}
       />
@@ -40,9 +43,9 @@ export const MasterCompressor: React.FC = () => {
       <ParamKnob
         value={mix}
         onValueChange={setMix}
-        label="MIX"
+        label="mix"
         mapping={compMixMapping}
       />
-    </div>
+    </>
   );
 };

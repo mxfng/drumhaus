@@ -2,34 +2,25 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
-  variation: number;
-  playbackVariation: number;
+  variation?: number;
+  playbackVariation?: number;
 }
 
 export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   stepIndex,
-  variation,
-  playbackVariation,
+  variation = undefined,
+  playbackVariation = undefined,
 }) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
-  const baseClassName = cn(
-    "sm:mb-4 h-2 sm:h-1 w-full sm:rounded-full",
-    !potatoMode && "sm:transition-all sm:duration-75",
-  );
+  const baseClassName = "mb-4 h-1 w-full rounded-full";
 
   useEffect(() => {
     let lastIndicatorOn: boolean | null = null;
     let lastOpacityClass: string | null = null;
-
-    if (indicatorRef.current && potatoMode) {
-      indicatorRef.current.style.boxShadow = "none";
-    }
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isAccentBeat = stepIndex % 4 === 0;
@@ -65,24 +56,26 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
 
       if (indicatorIsOn !== lastIndicatorOn) {
         indicatorRef.current.classList.toggle("bg-primary", indicatorIsOn);
-        indicatorRef.current.classList.toggle("bg-foreground", !indicatorIsOn);
+        indicatorRef.current.classList.toggle(
+          "bg-foreground-emphasis",
+          !indicatorIsOn,
+        );
 
-        indicatorRef.current.style.boxShadow =
-          indicatorIsOn && !potatoMode
-            ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-            : "none";
+        indicatorRef.current.style.boxShadow = indicatorIsOn
+          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
+          : "none";
 
         lastIndicatorOn = indicatorIsOn;
       }
     });
 
     return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, baseClassName, potatoMode]);
+  }, [stepIndex, variation, playbackVariation, baseClassName]);
 
   return (
     <div
       ref={indicatorRef}
-      className={cn(baseClassName, "bg-foreground", "opacity-20")}
+      className={cn(baseClassName, "bg-foreground-emphasis", "opacity-20")}
     />
   );
 };

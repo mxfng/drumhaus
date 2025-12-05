@@ -1,14 +1,13 @@
 import {
-  INSTRUMENT_ATTACK_DEFAULT,
-  INSTRUMENT_ATTACK_RANGE,
+  INSTRUMENT_DECAY_DEFAULT,
+  INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_DEFAULT,
   INSTRUMENT_PAN_RANGE,
-  INSTRUMENT_PITCH_BASE_FREQUENCY,
-  INSTRUMENT_PITCH_SEMITONE_RANGE,
-  INSTRUMENT_RELEASE_DEFAULT,
-  INSTRUMENT_RELEASE_RANGE,
+  INSTRUMENT_TUNE_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_DEFAULT,
   INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_ATTACK_RANGE,
+  MASTER_COMP_DEFAULT_ATTACK,
   MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_DEFAULT_RATIO,
   MASTER_COMP_DEFAULT_THRESHOLD,
@@ -23,31 +22,37 @@ import {
   MASTER_REVERB_DECAY_RANGE,
   MASTER_REVERB_DEFAULT,
   MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_AMOUNT_RANGE,
+  MASTER_SATURATION_DEFAULT,
+  MASTER_SATURATION_WET_RANGE,
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
+  TRANSPORT_BPM_RANGE,
+  TRANSPORT_SWING_RANGE,
 } from "@/core/audio/engine/constants";
 import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
 import {
-  formatDisplayAttackDuration,
+  formatDisplayBpm,
   formatDisplayCompRatio,
+  formatDisplayDecayDuration,
   formatDisplayFilter,
   formatDisplayPercentage,
-  formatDisplayPitchSemitone,
-  formatDisplayReleaseDuration,
+  formatDisplayPercentageValue,
+  formatDisplayTuneSemitone,
   formatDisplayVolumeInstrument as formatDisplayVolume,
   formatDisplayVolumeMaster,
 } from "./format";
 import {
   inverseTransformKnobValue,
   inverseTransformKnobValueExponential,
-  inverseTransformKnobValuePitch,
   inverseTransformKnobValueSplitFilter,
+  inverseTransformKnobValueTune,
   KNOB_ROTATION_THRESHOLD_L,
   transformKnobValueExponential,
   transformKnobValueLinear,
-  transformKnobValuePitch,
   transformKnobValueSplitFilter,
+  transformKnobValueTune,
 } from "./transform";
 
 // --- Core mapping factories ---
@@ -80,7 +85,7 @@ const makeLinearMapping = (
 /**
  * Creates an exponential mapping for parameters that need non-linear response.
  * Uses transformKnobValueExponential to ensure consistency with audio engine.
- * Useful for time-based parameters (attack, release) and frequency.
+ * Useful for time-based parameters (attack, decay) and frequency.
  *
  * @param range - [min, max] range for the parameter
  * @param format - Display formatting function
@@ -154,31 +159,24 @@ const withInfinityAtZero = (
 // --- Specialized mappings ---
 
 /**
- * Pitch mapping with semitone quantization.
- * Uses transformKnobValuePitch to ensure consistency with audio engine.
- * Center (50) = no pitch change, ±24 semitones range.
+ * Tune mapping for percussive tuning.
+ * Uses transformKnobValueTune to ensure consistency with audio engine.
+ * Center (50) = no tune change, ±7 semitones range.
  */
-export const pitchMapping: ParamMapping<number> = {
-  knobValueCount: 48, // 48 discrete positions for fine semitone control
+export const tuneMapping: ParamMapping<number> = {
+  knobValueCount: KNOB_VALUE_MAX,
   defaultKnobValue: 50, // Center = base frequency
 
   knobToDomain: (knobValue) => {
-    const freq = transformKnobValuePitch(knobValue);
-    // Round to whole semitones for clean musical intervals
-    const ratio = freq / INSTRUMENT_PITCH_BASE_FREQUENCY;
-    const semitoneOffset = Math.round(Math.log2(ratio) * 12);
-    const cleanRatio = Math.pow(2, semitoneOffset / 12);
-    return INSTRUMENT_PITCH_BASE_FREQUENCY * cleanRatio;
+    return transformKnobValueTune(knobValue);
   },
 
-  domainToKnob: (frequency) => inverseTransformKnobValuePitch(frequency),
+  domainToKnob: (frequency) => inverseTransformKnobValueTune(frequency),
 
   format: (_frequency, knobValue) => {
-    // Calculate display semitone offset
     const normalized = (knobValue - 50) / 50;
-    const semitoneOffsetRaw = normalized * INSTRUMENT_PITCH_SEMITONE_RANGE;
-    const semitoneOffset = Math.round(semitoneOffsetRaw);
-    return formatDisplayPitchSemitone(semitoneOffset);
+    const semitoneOffset = normalized * INSTRUMENT_TUNE_SEMITONE_RANGE;
+    return formatDisplayTuneSemitone(semitoneOffset);
   },
 };
 
@@ -217,24 +215,13 @@ export const splitFilterMapping: ParamMapping<number> = {
 // --- Instrument parameter mappings ---
 
 /**
- * Attack envelope time (exponential for natural feel)
+ * Decay envelope time (exponential for natural feel)
  */
-export const instrumentAttackMapping = makeExponentialMapping(
-  INSTRUMENT_ATTACK_RANGE,
-  formatDisplayAttackDuration,
+export const instrumentDecayMapping = makeExponentialMapping(
+  INSTRUMENT_DECAY_RANGE,
+  formatDisplayDecayDuration,
   {
-    defaultKnobValue: INSTRUMENT_ATTACK_DEFAULT,
-  },
-);
-
-/**
- * Release envelope time (exponential for natural feel)
- */
-export const instrumentReleaseMapping = makeExponentialMapping(
-  INSTRUMENT_RELEASE_RANGE,
-  formatDisplayReleaseDuration,
-  {
-    defaultKnobValue: INSTRUMENT_RELEASE_DEFAULT,
+    defaultKnobValue: INSTRUMENT_DECAY_DEFAULT,
   },
 );
 
@@ -350,5 +337,70 @@ export const compMixMapping = makeLinearMapping(
   formatDisplayPercentage,
   {
     defaultKnobValue: MASTER_COMP_DEFAULT_MIX,
+  },
+);
+
+/**
+ * Compressor attack time (exponential for natural feel)
+ */
+export const compAttackMapping = makeExponentialMapping(
+  MASTER_COMP_ATTACK_RANGE,
+  (value) => {
+    if (value < 0.01) {
+      return { value: (value * 1000).toFixed(1), append: "ms" };
+    }
+    return { value: (value * 1000).toFixed(0), append: "ms" };
+  },
+  {
+    defaultKnobValue: MASTER_COMP_DEFAULT_ATTACK,
+  },
+);
+
+/**
+ * Saturation wet/dry mix (0-100%)
+ */
+export const saturationWetMapping = makeLinearMapping(
+  MASTER_SATURATION_WET_RANGE,
+  formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_SATURATION_DEFAULT,
+  },
+);
+
+/**
+ * Saturation amount (0-100%)
+ */
+export const saturationAmountMapping = makeLinearMapping(
+  MASTER_SATURATION_AMOUNT_RANGE,
+  formatDisplayPercentage,
+  {
+    defaultKnobValue: MASTER_SATURATION_DEFAULT,
+  },
+);
+
+/**
+ * Transport swing (0-100%)
+ */
+export const transportSwingMapping = makeLinearMapping(
+  TRANSPORT_SWING_RANGE,
+  formatDisplayPercentageValue,
+  {
+    knobValueCount: TRANSPORT_SWING_RANGE[1] - TRANSPORT_SWING_RANGE[0],
+    defaultKnobValue: inverseTransformKnobValue(
+      TRANSPORT_SWING_RANGE[0],
+      TRANSPORT_SWING_RANGE,
+    ),
+  },
+);
+
+/**
+ * Transport tempo (BPM)
+ */
+export const transportBpmMapping = makeLinearMapping(
+  TRANSPORT_BPM_RANGE,
+  formatDisplayBpm,
+  {
+    knobValueCount: TRANSPORT_BPM_RANGE[1] - TRANSPORT_BPM_RANGE[0],
+    defaultKnobValue: inverseTransformKnobValue(100, TRANSPORT_BPM_RANGE),
   },
 );

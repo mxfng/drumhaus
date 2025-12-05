@@ -17,7 +17,7 @@ export function getCurrentPreset(
   kitMeta: Meta,
 ): PresetFileV1 {
   const instruments = useInstrumentsStore.getState().instruments;
-  const { pattern, variationCycle } = usePatternStore.getState();
+  const { pattern, chain, chainEnabled } = usePatternStore.getState();
   const { bpm, swing } = useTransportStore.getState();
   const masterChain = getMasterChainParams();
 
@@ -40,7 +40,8 @@ export function getCurrentPreset(
     },
     sequencer: {
       pattern,
-      variationCycle,
+      chain,
+      chainEnabled,
     },
     masterChain,
   };

@@ -1,7 +1,6 @@
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -24,7 +23,6 @@ export const ConfirmSelectPresetDialog: React.FC<
         <DialogHeader>
           <DialogTitle>Switch Preset?</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
         <div className="space-y-2 pb-4">
           <DialogDescription>
@@ -37,7 +35,7 @@ export const ConfirmSelectPresetDialog: React.FC<
         </div>
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={onSelect}>Switch Anyway</Button>

@@ -1,14 +1,21 @@
 import type {
   Pattern,
   StepSequence,
+  VariationMetadata,
   Voice,
 } from "@/features/sequencer/types/pattern";
 import { STEP_COUNT } from "../../../../core/audio/engine/constants";
 import type {
   OptimizedPattern,
   OptimizedStepSequence,
+  OptimizedVariationMetadata,
   OptimizedVoice,
 } from "./types";
+
+const EMPTY_OPTIMIZED_SEQUENCE: OptimizedStepSequence = {
+  triggers: Array.from({ length: STEP_COUNT }, () => false),
+  velocities: {},
+};
 
 /**
  * Optimizes a pattern for URL sharing by using sparse velocity encoding
@@ -16,7 +23,13 @@ import type {
  */
 export function optimizePattern(pattern: Pattern): OptimizedPattern {
   return {
-    voices: pattern.map(optimizeVoice),
+    voices: pattern.voices.map(optimizeVoice),
+    variationMetadata: [
+      optimizeVariationMetadata(pattern.variationMetadata[0]),
+      optimizeVariationMetadata(pattern.variationMetadata[1]),
+      optimizeVariationMetadata(pattern.variationMetadata[2]),
+      optimizeVariationMetadata(pattern.variationMetadata[3]),
+    ],
   };
 }
 
@@ -26,6 +39,8 @@ function optimizeVoice(voice: Voice): OptimizedVoice {
     variations: [
       optimizeStepSequence(voice.variations[0]),
       optimizeStepSequence(voice.variations[1]),
+      optimizeStepSequence(voice.variations[2]),
+      optimizeStepSequence(voice.variations[3]),
     ],
   };
 }
@@ -42,10 +57,38 @@ function optimizeStepSequence(
     }
   });
 
-  return {
+  const optimized: OptimizedStepSequence = {
     triggers: stepSequence.triggers,
     velocities: sparseVelocities,
   };
+
+  // Only store timingNudge if non-zero (for optimization)
+  if (stepSequence.timingNudge !== 0) {
+    optimized.timingNudge = stepSequence.timingNudge;
+  }
+
+  // Only store ratchets/flams if any are enabled
+  if (stepSequence.ratchets?.some((r) => r)) {
+    optimized.ratchets = stepSequence.ratchets;
+  }
+
+  if (stepSequence.flams?.some((f) => f)) {
+    optimized.flams = stepSequence.flams;
+  }
+
+  return optimized;
+}
+
+/**
+ * Optimizes variation metadata by only storing accent if any steps are accented
+ */
+function optimizeVariationMetadata(
+  metadata: VariationMetadata,
+): OptimizedVariationMetadata {
+  // Only store accent array if any accents are enabled
+  const hasAccents = metadata.accent.some((accented) => accented);
+
+  return hasAccents ? { accent: metadata.accent } : {};
 }
 
 /**
@@ -53,15 +96,33 @@ function optimizeStepSequence(
  * Fills missing velocities with default value of 1.0
  */
 export function hydratePattern(optimizedPattern: OptimizedPattern): Pattern {
-  return optimizedPattern.voices.map(hydrateVoice);
+  return {
+    voices: optimizedPattern.voices.map(hydrateVoice),
+    variationMetadata: [
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[0]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[1]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[2]),
+      hydrateVariationMetadata(optimizedPattern.variationMetadata[3]),
+    ],
+  };
 }
 
 function hydrateVoice(optimizedVoice: OptimizedVoice): Voice {
   return {
     instrumentIndex: optimizedVoice.instrumentIndex,
     variations: [
-      hydrateStepSequence(optimizedVoice.variations[0]),
-      hydrateStepSequence(optimizedVoice.variations[1]),
+      hydrateStepSequence(
+        optimizedVoice.variations[0] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[1] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[2] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
+      hydrateStepSequence(
+        optimizedVoice.variations[3] ?? EMPTY_OPTIMIZED_SEQUENCE,
+      ),
     ],
   };
 }
@@ -80,5 +141,23 @@ function hydrateStepSequence(
   return {
     triggers: optimizedSequence.triggers,
     velocities,
+    timingNudge: (optimizedSequence.timingNudge ?? 0) as -2 | -1 | 0 | 1 | 2,
+    ratchets:
+      optimizedSequence.ratchets ??
+      Array.from({ length: STEP_COUNT }, () => false),
+    flams:
+      optimizedSequence.flams ??
+      Array.from({ length: STEP_COUNT }, () => false),
+  };
+}
+
+/**
+ * Hydrates variation metadata, filling in defaults for missing accent data
+ */
+function hydrateVariationMetadata(
+  optimizedMetadata?: OptimizedVariationMetadata,
+): VariationMetadata {
+  return {
+    accent: optimizedMetadata?.accent ?? Array(STEP_COUNT).fill(false),
   };
 }

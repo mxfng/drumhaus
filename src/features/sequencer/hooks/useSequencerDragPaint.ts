@@ -53,7 +53,7 @@ export const useSequencerDragPaint = ({
   );
 
   const handleStepPointerStart = (
-    event: React.PointerEvent<HTMLDivElement>,
+    event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isCurrentlyOn: boolean,
   ) => {
@@ -65,7 +65,7 @@ export const useSequencerDragPaint = ({
   };
 
   const handleStepTouchStart = (
-    _event: React.TouchEvent<HTMLDivElement>,
+    _event: React.TouchEvent<HTMLButtonElement>,
     stepIndex: number,
     isCurrentlyOn: boolean,
   ) => {
@@ -78,7 +78,7 @@ export const useSequencerDragPaint = ({
     onToggleStep(stepIndex);
   };
 
-  const handleStepPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handleStepPointerMove = (event: React.PointerEvent<HTMLElement>) => {
     if (activeInputRef.current !== "pointer") return;
     if (
       activePointerIdRef.current !== null &&
@@ -90,7 +90,7 @@ export const useSequencerDragPaint = ({
   };
 
   const handleStepPointerEnter = (
-    _event: React.PointerEvent<HTMLDivElement>,
+    _event: React.PointerEvent<HTMLButtonElement>,
     stepIndex: number,
     isCurrentlyOn: boolean,
   ) => {
@@ -101,7 +101,7 @@ export const useSequencerDragPaint = ({
     }
   };
 
-  const handleStepTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+  const handleStepTouchMove = (event: React.TouchEvent<HTMLButtonElement>) => {
     if (activeInputRef.current === "pointer") return;
     const touch = event.touches[0];
     if (touch) {

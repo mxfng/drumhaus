@@ -5,15 +5,15 @@ import { cn } from "@/shared/lib/utils";
 
 interface SequencerVelocityProps {
   stepIndex: number;
-  isTriggerOn: boolean;
   velocityValue: number;
+  isTriggerOn: boolean;
   onSetVelocity: (stepIndex: number, velocity: number) => void;
 }
 
 export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
   stepIndex,
-  isTriggerOn,
   velocityValue,
+  isTriggerOn,
   onSetVelocity,
 }) => {
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
@@ -73,8 +73,7 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
   return (
     <div
       className={cn(
-        "group outline-primary relative mt-2 h-4 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out sm:mt-3 sm:h-3.5",
-        "hidden sm:block",
+        "group outline-primary relative mt-1 h-3.5 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
         isTriggerOn ? "cursor-grab" : "pointer-events-none cursor-default",
       )}
       style={{ opacity: isTriggerOn ? 0.6 : 0 }}

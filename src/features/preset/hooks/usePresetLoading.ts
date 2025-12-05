@@ -1,12 +1,21 @@
 import { RefObject, useCallback, useEffect, useRef } from "react";
 
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
+import {
+  DEFAULT_CHAIN,
+  legacyCycleToChain,
+  sanitizeChain,
+} from "@/features/sequencer/lib/chain";
+import {
+  migrateMasterChainParams,
+  migratePattern,
+} from "@/features/sequencer/lib/migrations";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useToast } from "@/shared/ui";
@@ -28,6 +37,7 @@ export function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
   const { toast } = useToast();
+
   const hasLoadedFromUrlRef = useRef(false);
 
   const isPlaying = useTransportStore((state) => state.isPlaying);
@@ -39,10 +49,11 @@ export function usePresetLoading({
     (state) => state.setAllInstruments,
   );
 
-  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
+  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
   const setVariation = usePatternStore((state) => state.setVariation);
   const setPattern = usePatternStore((state) => state.setPattern);
-  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
+  const setChain = usePatternStore((state) => state.setChain);
+  const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
 
   const setAllMasterChain = useMasterChainStore(
     (state) => state.setAllMasterChain,
@@ -89,17 +100,31 @@ export function usePresetLoading({
       loadPresetMeta(preset);
 
       // Update sequencer
-      setVoiceIndex(0);
-      setVariation(0);
-      setPattern(preset.sequencer.pattern);
-      setVariationCycle(preset.sequencer.variationCycle);
+      setVoiceMode(0);
+      const migratedPattern = migratePattern(preset.sequencer.pattern);
+      const legacyCycle = legacyCycleToChain(
+        preset.sequencer.variationCycle,
+        0,
+      );
+      const chain = sanitizeChain(
+        preset.sequencer.chain ?? legacyCycle.chain ?? DEFAULT_CHAIN,
+      );
+      const initialVariation =
+        chain.steps[0]?.variation ?? legacyCycle.variation ?? 0;
+
+      setVariation(initialVariation);
+      setPattern(migratedPattern);
+      setChain(chain);
+      setChainEnabled(
+        preset.sequencer.chainEnabled ?? legacyCycle.chainEnabled ?? false,
+      );
 
       // Update transport
       setBpm(preset.transport.bpm);
       setSwing(preset.transport.swing);
 
-      // Update master chain
-      setAllMasterChain(preset.masterChain);
+      // Update master chain (with migration for legacy formats)
+      setAllMasterChain(migrateMasterChainParams(preset.masterChain));
 
       // Update instruments (triggers audio engine reload)
       setAllInstruments(preset.kit.instruments);
@@ -114,9 +139,10 @@ export function usePresetLoading({
       setBpm,
       setPattern,
       setSwing,
+      setChain,
+      setChainEnabled,
       setVariation,
-      setVariationCycle,
-      setVoiceIndex,
+      setVoiceMode,
       togglePlay,
     ],
   );

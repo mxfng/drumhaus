@@ -1,8 +1,5 @@
-import { ChevronsUpDown } from "lucide-react";
-
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import {
-  Label,
   Select,
   SelectContent,
   SelectItem,
@@ -25,33 +22,32 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   onSelect,
 }) => {
   return (
-    <div>
-      <Label>PRESET</Label>
-      <div className="group w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
-        <Select value={selectedPresetId} onValueChange={onSelect}>
-          <SelectTrigger className="h-10 cursor-pointer rounded-lg bg-transparent pl-4 focus:ring-0 focus:ring-offset-0">
-            <SelectValue />
-            <ChevronsUpDown className="group-hover:text-primary-muted h-4 w-4 transition-all duration-200" />
-          </SelectTrigger>
-          <SelectContent>
-            {defaultPresets.map((preset) => (
-              <SelectItem key={preset.meta.id} value={preset.meta.id}>
-                {preset.meta.name}
-              </SelectItem>
-            ))}
-            {customPresets.length > 0 && (
-              <>
-                <SelectSeparator />
-                {customPresets.map((preset) => (
-                  <SelectItem key={preset.meta.id} value={preset.meta.id}>
-                    {preset.meta.name}
-                  </SelectItem>
-                ))}
-              </>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="group w-full">
+      <Select value={selectedPresetId} onValueChange={onSelect}>
+        <SelectTrigger
+          size="screen"
+          className="text-screen-foreground w-full cursor-pointer border-transparent bg-transparent px-0 focus-visible:ring-offset-0"
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {defaultPresets.map((preset) => (
+            <SelectItem key={preset.meta.id} value={preset.meta.id}>
+              {preset.meta.name}
+            </SelectItem>
+          ))}
+          {customPresets.length > 0 && (
+            <>
+              <SelectSeparator />
+              {customPresets.map((preset) => (
+                <SelectItem key={preset.meta.id} value={preset.meta.id}>
+                  {preset.meta.name}
+                </SelectItem>
+              ))}
+            </>
+          )}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

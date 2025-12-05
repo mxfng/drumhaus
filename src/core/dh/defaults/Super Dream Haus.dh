@@ -32,12 +32,11 @@
           "path": "8/indie_kick.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 13,
           "volume": 94,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -56,12 +55,11 @@
           "path": "8/indie_kick2.wav"
         },
         "params": {
-          "attack": 20,
-          "release": 100,
+          "decay": 100,
           "filter": 54,
           "volume": 85,
           "pan": 50,
-          "pitch": 45.833333333333336,
+          "tune": 45.833333333333336,
           "solo": false,
           "mute": false
         }
@@ -80,12 +78,11 @@
           "path": "8/indie_snare.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 53,
           "volume": 89,
           "pan": 50,
-          "pitch": 52.083333333333336,
+          "tune": 52.083333333333336,
           "solo": false,
           "mute": false
         }
@@ -104,12 +101,11 @@
           "path": "8/indie_snare2.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 37,
           "volume": 98,
           "pan": 37,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -128,12 +124,11 @@
           "path": "8/indie_hat.wav"
         },
         "params": {
-          "attack": 14,
-          "release": 38,
+          "decay": 38,
           "filter": 58,
           "volume": 86,
           "pan": 50,
-          "pitch": 45.833333333333336,
+          "tune": 45.833333333333336,
           "solo": false,
           "mute": false
         }
@@ -152,12 +147,11 @@
           "path": "8/indie_ohat.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 52,
+          "decay": 52,
           "filter": 39,
           "volume": 90,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -176,12 +170,11 @@
           "path": "8/indie_cymbal.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 65,
           "volume": 91,
           "pan": 33,
-          "pitch": 47.91666666666667,
+          "tune": 47.91666666666667,
           "solo": false,
           "mute": false
         }
@@ -200,12 +193,11 @@
           "path": "8/indie_crash.wav"
         },
         "params": {
-          "attack": 15,
-          "release": 100,
+          "decay": 100,
           "filter": 26,
           "volume": 80,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }

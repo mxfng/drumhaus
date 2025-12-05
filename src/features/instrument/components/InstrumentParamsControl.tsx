@@ -1,45 +1,39 @@
 import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
-import { now } from "tone/build/esm/index";
 
-import { INSTRUMENT_PAN_RANGE } from "@/core/audio/engine/constants";
-import { stopRuntimeAtTime } from "@/core/audio/engine/runtimeStops";
+import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
+import { useInstrumentControls } from "@/core/audio/hooks/useInstrumentControls";
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareSlider } from "@/shared/components/HardwareSlider";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
-  instrumentAttackMapping,
-  instrumentReleaseMapping,
+  instrumentDecayMapping,
+  instrumentPanMapping,
   instrumentVolumeMapping,
-  pitchMapping,
   splitFilterMapping,
+  tuneMapping,
 } from "@/shared/knob/lib/mapping";
+import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/store/useDialogStore";
-import { Button, Tooltip } from "@/shared/ui";
-import { useInstrumentsStore } from "../store/useInstrumentsStore";
-import { InstrumentRuntime } from "../types/instrument";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
+import { GainMeter } from "./GainMeter";
 
 interface InstrumentParamsProps {
   index: number;
-  instrumentIndex: number;
-  mobile?: boolean;
   runtime?: InstrumentRuntime;
 }
 
 export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   index,
-  instrumentIndex,
-  mobile = false,
   runtime,
 }) => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Read params from store
-  const attack = useInstrumentsStore(
-    (state) => state.instruments[index].params.attack,
-  );
-  const release = useInstrumentsStore(
-    (state) => state.instruments[index].params.release,
+  const decay = useInstrumentsStore(
+    (state) => state.instruments[index].params.decay,
   );
   const filter = useInstrumentsStore(
     (state) => state.instruments[index].params.filter,
@@ -50,8 +44,8 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const volume = useInstrumentsStore(
     (state) => state.instruments[index].params.volume,
   );
-  const pitch = useInstrumentsStore(
-    (state) => state.instruments[index].params.pitch,
+  const tune = useInstrumentsStore(
+    (state) => state.instruments[index].params.tune,
   );
   const mute = useInstrumentsStore(
     (state) => state.instruments[index].params.mute,
@@ -64,16 +58,16 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
   const setInstrumentProperty = useInstrumentsStore(
     (state) => state.setInstrumentProperty,
   );
-  const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
-  const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
+
+  // Get instrument control actions with proper audio cleanup
+  const { toggleMute, toggleSolo } = useInstrumentControls(index, runtime);
+
+  const mode = usePatternStore((state) => state.mode);
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
   // Wrap store setters with instrument index
-  const setAttack = useCallback(
-    (value: number) => setInstrumentProperty(index, "attack", value),
-    [index, setInstrumentProperty],
-  );
-  const setRelease = useCallback(
-    (value: number) => setInstrumentProperty(index, "release", value),
+  const setDecay = useCallback(
+    (value: number) => setInstrumentProperty(index, "decay", value),
     [index, setInstrumentProperty],
   );
   const setFilter = useCallback(
@@ -88,33 +82,18 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     (value: number) => setInstrumentProperty(index, "volume", value),
     [index, setInstrumentProperty],
   );
-  const setPitch = useCallback(
-    (value: number) => setInstrumentProperty(index, "pitch", value),
+  const setTune = useCallback(
+    (value: number) => setInstrumentProperty(index, "tune", value),
     [index, setInstrumentProperty],
   );
-  const toggleMute = useCallback(
-    () => toggleMuteStore(index),
-    [index, toggleMuteStore],
-  );
-  const toggleSolo = useCallback(
-    () => toggleSoloStore(index),
-    [index, toggleSoloStore],
-  );
-
-  const handleToggleMute = useCallback(() => {
-    if (!mute && runtime?.samplerNode) {
-      stopRuntimeAtTime(runtime, now());
-    }
-    toggleMute();
-  }, [toggleMute, mute, runtime]);
 
   const isRuntimeLoaded = !!runtime;
 
   // Keyboard shortcuts
   useEffect(() => {
     const muteOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "m" && !isAnyDialogOpen() && instrumentIndex == index) {
-        handleToggleMute();
+      if (event.key === "m" && !isAnyDialogOpen() && index == voiceIndex) {
+        toggleMute();
       }
     };
 
@@ -122,11 +101,11 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     return () => {
       window.removeEventListener("keydown", muteOnKeyInput);
     };
-  }, [instrumentIndex, index, handleToggleMute, isAnyDialogOpen]);
+  }, [index, voiceIndex, toggleMute, isAnyDialogOpen]);
 
   useEffect(() => {
     const soloOnKeyInput = (event: KeyboardEvent) => {
-      if (event.key === "s" && !isAnyDialogOpen() && instrumentIndex == index) {
+      if (event.key === "s" && !isAnyDialogOpen() && index == voiceIndex) {
         toggleSolo();
       }
     };
@@ -135,102 +114,94 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
     return () => {
       window.removeEventListener("keydown", soloOnKeyInput);
     };
-  }, [instrumentIndex, index, toggleSolo, isAnyDialogOpen]);
+  }, [index, voiceIndex, toggleSolo, isAnyDialogOpen]);
 
   return (
     <div
       className={cn(
-        "grid w-full grid-cols-2 place-items-center",
+        "grid min-h-0 w-full flex-1 grid-cols-2 place-items-center gap-2",
         isRuntimeLoaded ? "opacity-100" : "opacity-50",
-        {
-          "min-h-0 flex-1": mobile,
-          "h-full": !mobile,
-        },
       )}
     >
       {/* Top knobs - 2x2 grid */}
       <ParamKnob
-        value={attack}
-        onValueChange={setAttack}
-        label="ATTACK"
-        mapping={instrumentAttackMapping}
+        value={decay}
+        onValueChange={setDecay}
+        label="decay"
+        mapping={instrumentDecayMapping}
+      />
+      <ParamKnob
+        value={tune}
+        onValueChange={setTune}
+        label="tune"
+        mapping={tuneMapping}
+        outerTickCount={15}
       />
       <ParamKnob
         value={filter}
         onValueChange={setFilter}
-        label="FILTER"
+        label="filter"
         mapping={splitFilterMapping}
         outerTickCount={3}
       />
       <ParamKnob
-        value={release}
-        onValueChange={setRelease}
-        label="RELEASE"
-        mapping={instrumentReleaseMapping}
+        value={pan}
+        onValueChange={setPan}
+        label="pan"
+        mapping={instrumentPanMapping}
+        outerTickCount={3}
       />
-      <ParamKnob
-        value={pitch}
-        onValueChange={setPitch}
-        label="PITCH"
-        mapping={pitchMapping}
-        outerTickCount={25}
-      />
-      <div className="grid w-full grid-cols-2 place-items-center gap-6 sm:gap-4">
-        <div className="col-span-2 w-full px-3">
-          <HardwareSlider
-            sliderValue={pan}
-            setSliderValue={setPan}
-            defaultValue={50}
-            leftLabel="L"
-            centerLabel="|"
-            rightLabel="R"
-            transformRange={INSTRUMENT_PAN_RANGE}
-            displayRange={[-100, 100]}
-            isDisabled={!isRuntimeLoaded}
-          />
-        </div>
-        <div className="col-span-2 flex w-full items-center justify-center px-3">
-          <div className="hardware-button-group grid w-full grid-cols-2 rounded-lg">
-            <Tooltip content="Mute [M]" delayDuration={500}>
+
+      {/* Spacer */}
+      <div />
+
+      {/* Level/volume slider */}
+      <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
+        <GainMeter runtime={runtime} />
+        <HardwareSlider
+          mapping={instrumentVolumeMapping}
+          value={volume}
+          onValueChange={setVolume}
+          orientation="vertical"
+        />
+        <div className="flex h-full flex-col items-center justify-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
               <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-lg rounded-r-none p-2", {
-                  "text-primary": mute,
-                })}
-                onClick={handleToggleMute}
+                variant="hardware-icon"
+                size="icon-sm"
+                onClick={toggleMute}
                 disabled={!isRuntimeLoaded}
+                className={buttonActive(mute)}
               >
-                {mute ? <VolumeX /> : <Volume />}
+                {mute ? <VolumeX size={14} /> : <Volume size={14} />}
               </Button>
-            </Tooltip>
-            <Tooltip content="Solo [S]" delayDuration={500}>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {mute ? "Unmute" : "Mute"}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
               <Button
-                variant="hardware"
-                size="sm"
-                className={cn("rounded-l-none rounded-r-lg p-2", {
-                  "text-primary": solo,
-                })}
+                variant="hardware-icon"
+                size="icon-sm"
                 onClick={toggleSolo}
                 disabled={!isRuntimeLoaded}
+                className={buttonActive(solo)}
               >
                 <Headphones
                   className={cn({ "text-primary": solo })}
-                  size={18}
+                  size={14}
                 />
               </Button>
-            </Tooltip>
-          </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {solo ? "Unsolo" : "Solo"}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
-      {/* Right: Volume */}
-      <ParamKnob
-        value={volume}
-        onValueChange={setVolume}
-        label="LEVEL"
-        mapping={instrumentVolumeMapping}
-        outerTickCount={13}
-      />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { getContext } from "tone/build/esm/index";
 
-import { ensureAudioContextRunning } from "../engine/audioContextManager";
+import { ensureAudioContextIsRunning } from "../engine/context/manager";
 
 /**
  * Centralized audio context guard:
@@ -44,7 +44,7 @@ export function useAudioContextGuards() {
           // First check: try to resume
           if (index === 0) {
             recoveryAttemptsRef.current += 1;
-            await ensureAudioContextRunning(`guards:${reason}`);
+            await ensureAudioContextIsRunning(`guards:${reason}`);
             return;
           }
 
@@ -70,7 +70,7 @@ export function useAudioContextGuards() {
         return;
       }
       ensureThrottleRef.current = now;
-      void ensureAudioContextRunning(reason).then((running) => {
+      void ensureAudioContextIsRunning(reason).then((running) => {
         if (running) {
           hasStartedOnce = true;
           recoveryAttemptsRef.current = 0;

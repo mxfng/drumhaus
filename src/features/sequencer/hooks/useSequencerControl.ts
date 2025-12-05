@@ -3,20 +3,23 @@ import { useState } from "react";
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 
+/**
+ * @deprecated Will be building out an enhanced control system for new copy paste clear features.
+ */
 export const useSequencerControl = () => {
   // Get state from Pattern Store
   const variation = usePatternStore((state) => state.variation);
-  const variationCycle = usePatternStore((state) => state.variationCycle);
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
+  const mode = usePatternStore((state) => state.mode);
   const pattern = usePatternStore((state) => state.pattern);
-  const currentTriggers = usePatternStore(
-    (state) =>
-      state.pattern[state.voiceIndex].variations[state.variation].triggers,
-  );
+
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
+  const currentTriggers = usePatternStore((state) => {
+    const vi = state.mode.type === "voice" ? state.mode.voiceIndex : 0;
+    return state.pattern.voices[vi].variations[state.variation].triggers;
+  });
 
   // Get actions from store
   const setVariation = usePatternStore((state) => state.setVariation);
-  const setVariationCycle = usePatternStore((state) => state.setVariationCycle);
   const updateSequence = usePatternStore((state) => state.updatePattern);
   const clearSequence = usePatternStore((state) => state.clearPattern);
 
@@ -28,7 +31,9 @@ export const useSequencerControl = () => {
 
   const copySequence = () => {
     setCopiedTriggers(currentTriggers);
-    setCopiedVelocities(pattern[voiceIndex].variations[variation].velocities);
+    setCopiedVelocities(
+      pattern.voices[voiceIndex].variations[variation].velocities,
+    );
   };
 
   const pasteSequence = () => {
@@ -55,13 +60,11 @@ export const useSequencerControl = () => {
   return {
     // State
     variation,
-    variationCycle,
     voiceIndex,
     hasCopiedSequence: !!(copiedTriggers && copiedVelocities),
 
     // Actions
     setVariation,
-    setVariationCycle,
     copySequence,
     pasteSequence,
     clearSequence: handleClearSequence,
