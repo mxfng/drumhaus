@@ -1,15 +1,5 @@
 /* ==================== Keyframes ==================== */
 
-@keyframes outline-pulse {
-  0%,
-  100% {
-    outline-color: rgb(255 123 0 / 0.4);
-  }
-  50% {
-    outline-color: rgb(255 123 0 / 0.7);
-  }
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -50,6 +40,16 @@
         var(--tw-exit-scale, 1)
       )
       rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+@keyframes brightness-pulse {
+  0%,
+  100% {
+    filter: brightness(1.05);
+  }
+  50% {
+    filter: brightness(1.15);
   }
 }
 
