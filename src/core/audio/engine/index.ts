@@ -30,7 +30,6 @@ export {
   subscribeRuntimeToInstrumentParams,
   applyInstrumentParams,
   // Triggering
-  triggerInstrumentAtTime,
   triggerInstrument,
   stopInstrumentRuntimeAtTime,
   releaseAllInstrumentRuntimes,

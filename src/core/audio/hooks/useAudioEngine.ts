@@ -52,6 +52,13 @@ export function useAudioEngine(): UseAudioEngineResult {
     state.instruments.map((inst) => inst.sample.path).join(","),
   );
 
+  // Dispose instrument runtimes only on unmount
+  useEffect(() => {
+    return () => {
+      disposeInstrumentRuntimes(instrumentRuntimes.current);
+    };
+  }, []);
+
   // Create/update audio sequencer when playing or instruments change
   useEffect(() => {
     if (isPlaying) {
@@ -102,21 +109,35 @@ export function useAudioEngine(): UseAudioEngineResult {
     let cancelled = false;
 
     const instruments = useInstrumentsStore.getState().instruments;
+    // Capture old runtimes to dispose after new ones are ready
+    const oldRuntimes = instrumentRuntimes.current;
 
     const loadBuffers = async () => {
+      let newRuntimes: InstrumentRuntime[] = [];
       try {
         const samplePaths = instruments.map((inst) => inst.sample.path);
         const resolveSampleSource =
           await prepareSampleSourceResolver(samplePaths);
-        instrumentRuntimes.current = await createInstrumentRuntimes(
+        newRuntimes = await createInstrumentRuntimes(
           instruments,
           resolveSampleSource,
         );
         await waitForBuffersToLoad();
-        if (cancelled) return;
+        if (cancelled) {
+          disposeInstrumentRuntimes(newRuntimes);
+          return;
+        }
+        // Swap in new runtimes atomically
+        instrumentRuntimes.current = newRuntimes;
         setInstrumentRuntimesVersion((v) => v + 1);
+
+        // Now dispose old runtimes - sequencer has switched to new ones
+        disposeInstrumentRuntimes(oldRuntimes);
       } catch (error) {
-        if (cancelled) return;
+        if (cancelled) {
+          disposeInstrumentRuntimes(newRuntimes);
+          return;
+        }
         console.error("Error loading audio buffers:", error);
       }
     };
@@ -125,7 +146,8 @@ export function useAudioEngine(): UseAudioEngineResult {
 
     return () => {
       cancelled = true;
-      disposeInstrumentRuntimes(instrumentRuntimes.current);
+      // Only dispose current runtimes on unmount, not on kit switch
+      // Kit switches are handled by disposing oldRuntimes after swap
     };
   }, [instrumentSamplePaths]);
 
