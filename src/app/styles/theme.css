@@ -38,6 +38,7 @@
   --color-destructive-foreground: var(--color-primary-foreground);
 
   --color-muted: var(--color-shadow-10);
+  --color-muted-foreground: var(--color-foreground);
 
   /* Surface colors */
   --color-surface: rgb(244, 235, 236);
