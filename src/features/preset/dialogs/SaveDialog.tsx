@@ -8,7 +8,6 @@ import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -70,7 +69,6 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Save Preset</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
         <form
           onSubmit={handleSubmit(({ presetName }) => {

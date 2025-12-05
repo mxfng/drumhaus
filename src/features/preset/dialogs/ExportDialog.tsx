@@ -4,7 +4,6 @@ import { LinkExportForm } from "@/features/preset/dialogs/LinkExportForm";
 import { WavExportForm } from "@/features/preset/dialogs/WavExportForm";
 import {
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -30,22 +29,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
   onShare,
 }) => {
   const [activeTab, setActiveTab] = useState<"link" | "wav">("link");
-  const [showTabs, setShowTabs] = useState(false);
-
-  const handleShare = (name: string) => {
-    // As a side effect, hide the tabs when share is clicked
-    setShowTabs(false);
-    return onShare(name);
-  };
-
-  const handleClose = () => {
-    setShowTabs(true);
-    setActiveTab("link");
-    onClose();
-  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Export</DialogTitle>
@@ -53,22 +39,19 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
         <DialogDescription className="sr-only">
           Export your preset as a link or WAV audio file.
         </DialogDescription>
-        <DialogCloseButton />
 
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as ExportTab)}
         >
-          {!showTabs && (
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="link">Link</TabsTrigger>
-              <TabsTrigger value="wav">WAV</TabsTrigger>
-              {/* Future: <TabsTrigger value="midi">MIDI</TabsTrigger> */}
-            </TabsList>
-          )}
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="link">Link</TabsTrigger>
+            <TabsTrigger value="wav">WAV</TabsTrigger>
+            {/* Future: <TabsTrigger value="midi">MIDI</TabsTrigger> */}
+          </TabsList>
 
           <TabsContent value="link">
-            <LinkExportForm onShare={handleShare} onClose={onClose} />
+            <LinkExportForm onShare={onShare} onClose={onClose} />
           </TabsContent>
 
           <TabsContent value="wav">

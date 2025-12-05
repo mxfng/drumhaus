@@ -4,7 +4,6 @@ import { getContext } from "tone";
 
 import {
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -51,7 +50,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="hidden">About</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
         <div className="mb-8 flex flex-col items-start gap-2">
           <div className="flex items-baseline gap-2">

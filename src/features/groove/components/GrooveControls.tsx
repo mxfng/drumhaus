@@ -119,7 +119,9 @@ export const GrooveControls = () => {
             </TooltipContent>
           </Tooltip>
           <div className="flex flex-col items-center justify-center gap-1.5">
-            <Label className="flex items-center justify-center">nudge</Label>
+            <Label className="flex items-center justify-center text-xs">
+              nudge
+            </Label>
             <TimingNudgeMeter timingNudge={currentNudge} />
           </div>
           <Tooltip>

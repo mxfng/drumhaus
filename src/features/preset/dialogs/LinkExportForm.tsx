@@ -95,25 +95,25 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
     }
   }, [currentPresetName, reset, step]);
 
+  // Auto-copy when result is ready
+  useEffect(() => {
+    if (step === "result" && shareableLink) {
+      onCopy(shareableLink);
+      toast({
+        title: "Link copied to clipboard",
+        duration: 3000,
+      });
+    }
+  }, [step, shareableLink, onCopy, toast]);
+
   if (step === "result") {
     return (
       <div className="flex flex-col gap-6">
         <div className="space-y-6">
           <DialogDescription>
-            Your link is ready! Share it with anyone to let them load your
-            preset.
+            Your link has been copied to the clipboard! Paste it anywhere to
+            share your preset.
           </DialogDescription>
-
-          <div className="bg-secondary h-10 w-full rounded-lg border">
-            <div className="flex h-full items-center justify-center">
-              <button
-                onClick={handleCopy}
-                className="font-pixel w-full truncate px-3 text-sm select-all"
-              >
-                {shareableLink}
-              </button>
-            </div>
-          </div>
 
           <div>
             <p className="text-foreground-emphasis mb-2 font-semibold">
@@ -154,7 +154,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
               aria-invalid={Boolean(errors.presetName)}
               {...register("presetName")}
             />
-            <FieldError errors={errors.presetName} />
+            <FieldError errors={[errors.presetName]} />
           </Field>
         </FieldGroup>
       </div>

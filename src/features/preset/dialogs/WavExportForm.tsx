@@ -250,9 +250,10 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
             </FieldGroup>
           </FieldSet>
         </FieldGroup>
+        <FieldSeparator />
       </div>
 
-      <DialogFooter>
+      <DialogFooter className="pt-6">
         <Field className="gap-0">
           <FieldLabel>Duration</FieldLabel>
           <FieldDescription>{duration.toFixed(1)}s</FieldDescription>

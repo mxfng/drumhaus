@@ -283,7 +283,7 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
           onChange={handleInputChange}
           onBlur={handleSubmit}
           onKeyDown={handleInputKeyDown}
-          className="m-0 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-center leading-none shadow-none ring-0 ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="text-primary-foreground m-0 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-center font-sans leading-none shadow-none ring-0 ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
           style={{ height: "auto", minHeight: "0", lineHeight: "inherit" }}
         />
       ) : (

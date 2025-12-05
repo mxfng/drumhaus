@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
@@ -26,7 +24,7 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-muted text-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg border p-[3px]",
+        "bg-muted text-foreground mb-3 inline-flex h-9 w-fit items-center justify-center rounded-lg border p-[3px]",
         className,
       )}
       {...props}

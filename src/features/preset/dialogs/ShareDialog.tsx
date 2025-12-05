@@ -7,7 +7,6 @@ import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -115,7 +114,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <DialogHeader>
               <DialogTitle>Share Preset</DialogTitle>
             </DialogHeader>
-            <DialogCloseButton />
 
             <form onSubmit={handleSubmit}>
               <div className="pb-6">
@@ -164,7 +162,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <DialogHeader>
               <DialogTitle>Shareable Link</DialogTitle>
             </DialogHeader>
-            <DialogCloseButton />
 
             <div className="space-y-6">
               <DialogDescription>
