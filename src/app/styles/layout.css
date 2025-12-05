@@ -6,20 +6,22 @@
   height: 100%;
   /* Scale-aware constraints: multiply by scale ratio to account for transform */
   min-width: calc(
-    (var(--app-width) + var(--app-padding)) * var(--layout-scale, 1)
+    (var(--app-width) + var(--app-padding) * 2) * var(--layout-scale, 1)
   );
   min-height: calc(
-    (var(--app-height) + var(--app-footer-height) + var(--app-header-height)) *
+    (
+        var(--app-height) + var(--app-footer-height) +
+          var(--app-header-height) + var(--app-padding) * 2
+      ) *
       var(--layout-scale, 1)
   );
 }
 
 .drumhaus-scale-wrapper {
   position: absolute;
-  width: calc(var(--app-width) + var(--app-padding) * var(--layout-scale, 1));
+  width: var(--app-width);
   height: calc(
-    var(--app-height) + var(--app-footer-height) + var(--app-header-height) *
-      var(--layout-scale, 1)
+    var(--app-height) + var(--app-footer-height) + var(--app-header-height)
   );
   top: 50%;
   left: 50%;
