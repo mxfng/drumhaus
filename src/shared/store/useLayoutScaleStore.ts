@@ -58,29 +58,21 @@ export const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
 
     const DESIGN_WIDTH_REM = 90; // w-360 in Tailwind, 1440px
     const DESIGN_HEIGHT_REM = 56.25; // h-225 in Tailwind, 900px
-    const HEADER_HEIGHT_REM = 2.5; // h-10, 40px
-    const FOOTER_HEIGHT_REM = 2.5; // h-10, 40px
-    const SCALE_PADDING_REM = 2.5; // Padding per side (matches --app-padding / 2)
+    const SCALE_PADDING_REM = 3; // 3rem
 
-    // Use visualViewport for more accurate measurements in Safari
-    // Falls back to window.innerWidth/Height if visualViewport is unavailable
-    const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
     // Convert rem to pixels based on root font size
     const rootFontSize = parseFloat(
       getComputedStyle(document.documentElement).fontSize,
     );
     const designWidthPx = DESIGN_WIDTH_REM * rootFontSize;
-    // Include header and footer in total height calculation
-    const designHeightPx =
-      (DESIGN_HEIGHT_REM + HEADER_HEIGHT_REM + FOOTER_HEIGHT_REM) *
-      rootFontSize;
+    const designHeightPx = DESIGN_HEIGHT_REM * rootFontSize;
     const scalePaddingPx = SCALE_PADDING_REM * rootFontSize;
 
-    // Subtract padding from BOTH sides (left+right, top+bottom)
-    const availableWidth = viewportWidth - scalePaddingPx * 2;
-    const availableHeight = viewportHeight - scalePaddingPx * 2;
+    const availableWidth = viewportWidth - scalePaddingPx;
+    const availableHeight = viewportHeight - scalePaddingPx;
 
     // Calculate the ideal scale as a percentage
     let idealScaleRatio = Math.min(
