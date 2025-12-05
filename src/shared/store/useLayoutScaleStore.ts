@@ -56,9 +56,10 @@ export const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
   fitToScreen: () => {
     if (typeof window === "undefined") return;
 
-    const DESIGN_WIDTH_REM = 90; // w-360 in Tailwind, 1440px
-    const DESIGN_HEIGHT_REM = 56.25; // h-225 in Tailwind, 900px
-    const SCALE_PADDING_REM = 3; // 3rem
+    // Match actual layout dimensions from layout.css and Drumhaus.tsx
+    const DESIGN_WIDTH_REM = 90; // var(--app-width): w-360 in Tailwind, 1440px
+    const DESIGN_HEIGHT_REM = 61.25; // 56.25 (main) + 2.5 (header) + 2.5 (footer)
+    const SCALE_PADDING_REM = 5; // var(--app-padding): minimum padding around layout
 
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -71,6 +72,7 @@ export const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
     const designHeightPx = DESIGN_HEIGHT_REM * rootFontSize;
     const scalePaddingPx = SCALE_PADDING_REM * rootFontSize;
 
+    // Subtract padding from available space
     const availableWidth = viewportWidth - scalePaddingPx;
     const availableHeight = viewportHeight - scalePaddingPx;
 
