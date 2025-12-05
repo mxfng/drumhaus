@@ -1,11 +1,13 @@
 import { useCallback, useRef } from "react";
 
-import { useKnobCoachmark } from "./useKnobCoachmark";
+import { useCoachmark } from "@/shared/hooks/useCoachmark";
 
 const HORIZONTAL_RATIO_THRESHOLD = 1.5;
 const HORIZONTAL_MIN_DELTA = 10;
 const VERTICAL_MIN_DELTA = 8;
 const TAP_DISTANCE_THRESHOLD = 6;
+
+const KNOB_COACHMARK_STORAGE_KEY = "coachmark-shown-knob-guidance";
 
 interface Point {
   x: number;
@@ -18,8 +20,9 @@ interface Point {
  * the main knob interaction logic.
  */
 export function useKnobGuidance() {
-  const { showCoachmark, triggerCoachmark, dismissCoachmark } =
-    useKnobCoachmark();
+  const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
+    storageKey: KNOB_COACHMARK_STORAGE_KEY,
+  });
 
   const startRef = useRef<Point | null>(null);
   const hasVerticalDragRef = useRef(false);

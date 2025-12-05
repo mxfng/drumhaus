@@ -60,7 +60,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       ? "bg-primary shadow-neu hover:primary-muted"
       : isGuideOnly
         ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
-        : "bg-instrument shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
+        : "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-primary-muted/40";
   };
 
   const triggerStyles = {

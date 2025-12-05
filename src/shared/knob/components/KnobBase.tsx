@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+import { Coachmark } from "@/shared/components/Coachmark";
 import { cn } from "@/shared/lib/utils";
 import { Label, Tooltip } from "@/shared/ui";
 import { useKnobControls } from "../hooks/useKnobControls";
@@ -11,7 +12,6 @@ import {
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
 } from "../lib/constants";
-import { KnobCoachmark } from "./KnobCoachmark";
 import { KnobTicks } from "./KnobTicks";
 
 export type KnobSize = "default" | "lg";
@@ -101,7 +101,7 @@ export const Knob: React.FC<KnobProps> = ({
           className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
           style={{ touchAction: "none" }}
         >
-          <KnobCoachmark
+          <Coachmark
             visible={showCoachmark}
             message="Drag up/down to adjust"
             anchorRef={knobContainerRef}

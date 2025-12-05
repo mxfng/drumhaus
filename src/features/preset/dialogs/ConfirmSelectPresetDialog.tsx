@@ -37,7 +37,7 @@ export const ConfirmSelectPresetDialog: React.FC<
         </div>
 
         <DialogFooter>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button onClick={onSelect}>Switch Anyway</Button>

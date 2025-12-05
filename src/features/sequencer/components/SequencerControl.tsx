@@ -1,5 +1,13 @@
+import { useRef } from "react";
+
+import {
+  Coachmark,
+  CoachmarkContent,
+  CoachmarkDismissTitle,
+} from "@/shared/components/Coachmark";
 import { ComingSoonTooltipContent } from "@/shared/components/ComingSoonTooltipContent";
 import { HardwareModule } from "@/shared/components/HardwareModule";
+import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
 import { Button, Tooltip } from "@/shared/ui";
@@ -31,87 +39,10 @@ const TOOLTIPS = {
   UNDO: "Undo the last change",
 } as const;
 
+const VARIATION_CHAIN_COACHMARK_DURATION_MS = 20000;
+
 /*
-TODO: Add the remaining features
-
-Multi-Step Copy / Paste / Clear — “Command first, then choose the target.”
-
-Copy, Paste, and Clear work on two levels: single instrument or entire variation, using a simple, hardware-like “verb then target” interaction.
-
-Workflow:
-
-Press COPY, PASTE, or CLEAR — the button waits for a target.
-
-Tap a voice (instrument) to apply to that one instrument, or tap a variation button (A/B/C/D) to apply to the entire variation.
-
-Operation completes and the button resets.
-
-This keeps a minimal UI while enabling powerful pattern editing.
-
-Copy:
-
-Stores either:
-
-A single instrument’s 16-step pattern (hits, velocities, flam, ratchet, nudge), or
-
-A full variation (all voices + accent + groove data).
-
-Paste:
-
-Applies the copied data back onto:
-
-A single instrument, or
-
-A full variation.
-
-Clear:
-
-Removes:
-
-All sequencing data from a single instrument, or
-
-All sequencing data from an entire variation.
-
-Purpose: Fast pattern shaping, duplicate variations, build fills, wipe mistakes.
-
-Undo — “Revert the last edit on the current variation.”
-
-Undo is a lightweight history system designed for hardware-like simplicity. It affects only sequencing edits within the currently selected variation, not global parameters.
-
-Undoable actions:
-
-Step on/off changes
-
-Velocity edits
-
-Flam toggles
-
-Ratchet toggles
-
-Accent toggles
-
-Randomization
-
-Nudge left/right
-
-Copy/paste/clear operations on that variation
-
-Non-undoable:
-
-Tempo/swing changes
-
-FX/parameter knob adjustments
-
-Variation selection
-
-Chain editing (optional depending on decision)
-
-Behavior:
-
-Press UNDO to restore the variation’s most recent pre-edit snapshot. Multiple undo levels can be supported, but even a single-level undo beautifully captures “oops, go back.”
-
-Purpose: Prevent destructive mistakes without introducing DAW-like complexity.
-Scope: Local to the current variation, never global.
+TODO: Add the remaining control features
  */
 export const SequencerControl: React.FC = () => {
   const variation = usePatternStore((state) => state.variation);
@@ -124,14 +55,11 @@ export const SequencerControl: React.FC = () => {
   const setChain = usePatternStore((state) => state.setChain);
   const chainDraft = usePatternStore((state) => state.chainDraft);
 
-  // const {
-  //   variationCycle,
-  //   setVariationCycle,
-  //   copySequence,
-  //   pasteSequence,
-  //   clearSequence,
-  //   randomSequence,
-  // } = useSequencerControl();
+  const variChainButtonRef = useRef<HTMLButtonElement>(null);
+  const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
+    storageKey: "coachmark-shown-variation-chain-mode",
+    duration: VARIATION_CHAIN_COACHMARK_DURATION_MS,
+  });
 
   const isChainEdit = mode.type === "variationChain";
 
@@ -144,6 +72,8 @@ export const SequencerControl: React.FC = () => {
       setMode({ type: "voice", voiceIndex });
       return;
     }
+    // Trigger coachmark on first use
+    triggerCoachmark();
     startChainEdit();
   };
 
@@ -163,6 +93,7 @@ export const SequencerControl: React.FC = () => {
           }
         >
           <Button
+            ref={variChainButtonRef}
             variant="hardware"
             size="sm"
             className={cn(buttonActive(isChainEdit))}
@@ -249,6 +180,28 @@ export const SequencerControl: React.FC = () => {
           </Button>
         </Tooltip>
       </div>
+      <Coachmark
+        visible={showCoachmark}
+        message={
+          <>
+            <CoachmarkDismissTitle className="text-base font-semibold">
+              Variation Chain Mode
+            </CoachmarkDismissTitle>
+            <CoachmarkContent>
+              <p>Create a custom play order (e.g., A → B → A → D).</p>
+              <p>
+                Tap A/B/C/D in the order you want, then tap <b>Vari Chain</b>{" "}
+                again to save.
+              </p>
+              <p>
+                Enable <b>Chain On</b> to hear the sequence during playback.
+              </p>
+            </CoachmarkContent>
+          </>
+        }
+        anchorRef={variChainButtonRef}
+        onDismiss={dismissCoachmark}
+      />
     </HardwareModule>
   );
 };

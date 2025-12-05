@@ -93,7 +93,7 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
           </div>
 
           <DialogFooter>
-            <Button variant="secondary" onClick={handleClose} type="button">
+            <Button variant="ghost" onClick={handleClose} type="button">
               Cancel
             </Button>
             <Button type="submit" disabled={!isValid}>

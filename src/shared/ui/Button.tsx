@@ -10,7 +10,9 @@ const buttonVariants = cva(
       variant: {
         primary:
           "bg-primary hover:bg-primary-muted rounded-tl-lg rounded-br-lg text-primary-foreground px-6",
-        secondary: "hover:text-foreground-muted px-6",
+        secondary:
+          "bg-secondary hover:bg-secondary/80 rounded-tl-lg rounded-br-lg text-secondary-foreground px-6",
+        ghost: "hover:text-foreground-muted px-6",
         hardware:
           "neu-raised text-foreground group hover:text-primary-muted font-light border rounded-lg w-full",
         hardwareIcon:

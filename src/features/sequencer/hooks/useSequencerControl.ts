@@ -3,6 +3,9 @@ import { useState } from "react";
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 
+/**
+ * @deprecated Will be building out an enhanced control system for new copy paste clear features.
+ */
 export const useSequencerControl = () => {
   // Get state from Pattern Store
   const variation = usePatternStore((state) => state.variation);

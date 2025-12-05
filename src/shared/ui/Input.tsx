@@ -11,7 +11,7 @@ export const Input = forwardRef<
       type={type}
       data-allow-selection
       className={cn(
-        "font-pixel placeholder:text-foreground-muted selection:bg-primary/50 bg-screen text-screen-foreground h-10 w-full rounded-lg border px-4",
+        "font-pixel placeholder:text-foreground-muted selection:bg-primary/50 bg-secondary text-secondary-foreground h-10 w-full rounded-lg border px-4",
         className,
       )}
       ref={ref}

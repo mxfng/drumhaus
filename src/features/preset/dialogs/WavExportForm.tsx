@@ -202,7 +202,7 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
 
       <div className="flex flex-row justify-end space-x-2">
         <Button
-          variant="secondary"
+          variant="ghost"
           onClick={onClose}
           disabled={isExporting}
           type="button"

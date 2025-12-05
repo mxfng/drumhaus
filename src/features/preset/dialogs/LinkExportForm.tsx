@@ -114,7 +114,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
         </div>
 
         <div className="flex flex-row justify-end space-x-2">
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose}>
             Close
           </Button>
           <Button onClick={handleCopy}>
@@ -145,7 +145,7 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
       </div>
 
       <div className="flex flex-row justify-end space-x-2">
-        <Button variant="secondary" onClick={onClose} type="button">
+        <Button variant="ghost" onClick={onClose} type="button">
           Cancel
         </Button>
         <Button

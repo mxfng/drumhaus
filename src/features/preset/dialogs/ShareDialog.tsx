@@ -138,7 +138,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               </div>
 
               <DialogFooter>
-                <Button variant="secondary" onClick={onClose} type="button">
+                <Button variant="ghost" onClick={onClose} type="button">
                   Cancel
                 </Button>
                 <Button
@@ -195,7 +195,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </div>
 
             <DialogFooter>
-              <Button variant="secondary" onClick={onClose}>
+              <Button variant="ghost" onClick={onClose}>
                 Close
               </Button>
               <Button onClick={handleCopy}>

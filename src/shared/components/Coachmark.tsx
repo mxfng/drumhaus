@@ -1,25 +1,33 @@
 import React, { useEffect, useState } from "react";
+import { Check } from "lucide-react";
 import { createPortal } from "react-dom";
 
 import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
+import { cn } from "../lib/utils";
+import { Button } from "../ui";
 
-interface KnobCoachmarkProps {
+interface CoachmarkProps {
   visible: boolean;
-  message: string;
+  message: React.ReactNode;
   anchorRef: React.RefObject<HTMLElement | null>;
+  dismissable?: boolean;
+  onDismiss?: () => void;
 }
 
 const FADE_DURATION_MS = 200;
 const VERTICAL_OFFSET_PCT = 110;
 
-export function KnobCoachmark({
+export function Coachmark({
   visible,
   message,
   anchorRef,
-}: KnobCoachmarkProps) {
+  onDismiss,
+}: CoachmarkProps) {
   const [position, setPosition] = useState<{ top: number; left: number }>();
   const [render, setRender] = useState(visible);
   const [isShown, setIsShown] = useState(false);
+
+  const dismissable = !!onDismiss;
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
@@ -76,7 +84,7 @@ export function KnobCoachmark({
 
   return createPortal(
     <div
-      className="bg-primary text-primary-foreground pointer-events-none flex flex-row items-center gap-2 rounded-md px-3 py-1.5 text-sm whitespace-nowrap shadow-(--shadow-neu-tall) transition-opacity"
+      className="bg-primary text-primary-foreground rounded-md shadow-(--shadow-neu-tall) transition-opacity"
       style={{
         position: "fixed",
         top: position.top,
@@ -86,10 +94,71 @@ export function KnobCoachmark({
         zIndex: 60,
         opacity: isShown ? 1 : 0,
         transitionDuration: `${FADE_DURATION_MS}ms`,
+        whiteSpace: dismissable ? "normal" : "nowrap",
       }}
     >
-      {message}
+      <div
+        className={cn(
+          "relative flex flex-col items-end gap-2 text-sm",
+          dismissable ? "p-3" : "px-3 py-1.5",
+        )}
+      >
+        <div className={cn(dismissable && "flex max-w-sm flex-col gap-2 pb-3")}>
+          {message}
+        </div>
+        {dismissable && <CoachmarkDismissButton onDismiss={onDismiss} />}
+      </div>
     </div>,
     document.body,
+  );
+}
+
+// Visually-hidden heading for coachmark accessibility
+export function CoachmarkDismissTitle({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <h2
+      className={cn("sr-only text-base font-semibold", className)}
+      tabIndex={-1}
+      {...props}
+    >
+      {children}
+    </h2>
+  );
+}
+
+export function CoachmarkContent({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn("flex flex-col gap-2", className)}
+      role="group"
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface CoachmarkDismissButtonProps {
+  onDismiss: () => void;
+}
+
+function CoachmarkDismissButton({ onDismiss }: CoachmarkDismissButtonProps) {
+  return (
+    <Button
+      variant="secondary"
+      size="xs"
+      onClick={onDismiss}
+      aria-label="Dismiss"
+    >
+      <Check />
+    </Button>
   );
 }
