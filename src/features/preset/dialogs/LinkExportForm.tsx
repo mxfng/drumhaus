@@ -110,6 +110,9 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
     return (
       <div className="flex flex-col gap-6">
         <div className="space-y-6">
+          <h1 className="text-foreground-emphasis mb-2 font-semibold">
+            Success!
+          </h1>
           <DialogDescription>
             Your link has been copied to the clipboard! Paste it anywhere to
             share your preset.
@@ -119,9 +122,17 @@ export const LinkExportForm: React.FC<LinkExportFormProps> = ({
             <p className="text-foreground-emphasis mb-2 font-semibold">
               How it works
             </p>
-            <p>
+            <p className="text-muted-foreground text-sm">
               Your entire preset is packed into this tiny URL using some custom
-              compression magic, and is entirely self-contained.
+              compression magic, and is entirely self-contained. For more info,
+              check out the{" "}
+              <a
+                href="https://github.com/mxfng/drumhaus"
+                className="text-primary underline"
+              >
+                Drumhaus GitHub repository
+              </a>
+              .
             </p>
           </div>
         </div>
