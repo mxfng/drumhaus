@@ -59,7 +59,7 @@ const Drumhaus = () => {
           {/* Header buffer */}
           <div className="h-10" />
 
-          <div className="neu-medium-raised surface relative h-225 w-360 overflow-clip rounded-xl border">
+          <div className="neu-medium-raised surface relative h-(--app-height) w-(--app-width) overflow-clip rounded-xl border">
             {/* Header */}
             <Header />
 
