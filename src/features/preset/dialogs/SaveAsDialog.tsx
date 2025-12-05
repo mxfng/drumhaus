@@ -20,19 +20,19 @@ import {
   Input,
 } from "@/shared/ui";
 
-interface SaveDialogProps {
+interface SaveAsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string) => void;
 }
 
-const saveSchema = z.object({
+const saveAsSchema = z.object({
   presetName: presetNameSchema.trim(),
 });
 
-type SaveFormValues = z.infer<typeof saveSchema>;
+type SaveAsFormValues = z.infer<typeof saveAsSchema>;
 
-export const SaveDialog: React.FC<SaveDialogProps> = ({
+export const SaveAsDialog: React.FC<SaveAsDialogProps> = ({
   isOpen,
   onClose,
   onSave,
@@ -41,8 +41,8 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
     (state) => state.currentPresetMeta.name,
   );
 
-  const form = useForm<SaveFormValues>({
-    resolver: zodResolver(saveSchema),
+  const form = useForm<SaveAsFormValues>({
+    resolver: zodResolver(saveAsSchema),
     defaultValues: { presetName: currentPresetName },
     mode: "onChange",
   });
