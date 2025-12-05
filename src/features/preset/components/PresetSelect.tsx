@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/shared/ui";
 
-type PresetSelectorProps = {
+interface PresetSelectProps {
   selectedPresetId: string;
   defaultPresets: PresetFileV1[];
   customPresets: PresetFileV1[];
@@ -26,9 +26,9 @@ type PresetSelectorProps = {
   onRenamePreset?: (presetId: string, presetName: string) => void;
   onDuplicatePreset?: (presetId: string, presetName: string) => void;
   onDeletePreset?: (presetId: string, presetName: string) => void;
-};
+}
 
-export const PresetSelector: React.FC<PresetSelectorProps> = ({
+export const PresetSelect: React.FC<PresetSelectProps> = ({
   selectedPresetId,
   defaultPresets,
   customPresets,
@@ -70,7 +70,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                   >
                     <SelectItem
                       value={preset.meta.id}
-                      className="group-hover/preset:bg-accent group-hover/preset:text-accent-foreground flex-1 pr-6"
+                      className="group-hover/preset:bg-accent group-hover/preset:text-accent-foreground flex-1 pr-8"
                     >
                       {preset.meta.name}
                     </SelectItem>
@@ -81,7 +81,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="hover:text-accent-foreground/80 absolute right-1 h-6 w-6 shrink-0"
+                            className="hover:text-accent-foreground/80 absolute right-0 h-6 w-6 shrink-0"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();

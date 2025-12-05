@@ -7,13 +7,13 @@ import {
 } from "@/shared/ui";
 import { KitFileV1 } from "../types/kit";
 
-type KitSelectorProps = {
+interface KitSelectProps {
   selectedKitId: string;
   kits: KitFileV1[];
   onSelect: (value: string) => void;
-};
+}
 
-export const KitSelector: React.FC<KitSelectorProps> = ({
+export const KitSelect: React.FC<KitSelectProps> = ({
   selectedKitId,
   kits,
   onSelect,

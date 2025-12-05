@@ -2,9 +2,9 @@ import { lazy, Suspense } from "react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { KitNavigator } from "@/features/kit/components/KitNavigator";
-import { KitSelector } from "@/features/kit/components/KitSelector";
+import { KitSelect } from "@/features/kit/components/KitSelect";
 import { PresetActions } from "@/features/preset/components/PresetActions";
-import { PresetSelector } from "@/features/preset/components/PresetSelector";
+import { PresetSelect } from "@/features/preset/components/PresetSelect";
 import { usePresetManager } from "@/features/preset/hooks/usePresetManager";
 import { generateDuplicateName } from "@/features/preset/lib/helpers";
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
@@ -148,7 +148,7 @@ export const PresetControl: React.FC = () => {
           </mark>
         </div>
         <div className="flex-1">
-          <PresetSelector
+          <PresetSelect
             selectedPresetId={currentPresetMeta.id}
             defaultPresets={defaultPresets}
             customPresets={customPresets}
@@ -171,7 +171,7 @@ export const PresetControl: React.FC = () => {
           </mark>
         </div>
         <div className="flex-1">
-          <KitSelector
+          <KitSelect
             selectedKitId={currentKitMeta.id}
             kits={kits}
             onSelect={handleKitChange}
