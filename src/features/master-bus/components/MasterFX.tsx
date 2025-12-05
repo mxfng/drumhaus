@@ -1,51 +1,53 @@
 import { useMasterChainStore } from "@/features/master-bus/store/useMasterChainStore";
 import { ParamKnob } from "@/shared/knob/Knob";
 import {
-  highPassFilterMapping,
-  lowPassFilterMapping,
   phaserWetMapping,
   reverbWetMapping,
+  saturationWetMapping,
+  splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
 
 export const MasterFX: React.FC = () => {
-  const lowPass = useMasterChainStore((state) => state.lowPass);
-  const highPass = useMasterChainStore((state) => state.highPass);
+  const filter = useMasterChainStore((state) => state.filter);
+  const saturation = useMasterChainStore((state) => state.saturation);
   const phaser = useMasterChainStore((state) => state.phaser);
   const reverb = useMasterChainStore((state) => state.reverb);
 
-  const setLowPass = useMasterChainStore((state) => state.setLowPass);
-  const setHighPass = useMasterChainStore((state) => state.setHighPass);
+  const setFilter = useMasterChainStore((state) => state.setFilter);
+  const setSaturation = useMasterChainStore((state) => state.setSaturation);
   const setPhaser = useMasterChainStore((state) => state.setPhaser);
   const setReverb = useMasterChainStore((state) => state.setReverb);
 
   return (
-    <div className="grid aspect-square w-full grid-cols-2 place-items-center">
+    <>
       <ParamKnob
-        label="LPF"
-        mapping={lowPassFilterMapping}
-        value={lowPass}
-        onValueChange={setLowPass}
+        label="filter" // TODO: fix routing to use 2 nodes so we dont reload nodes mid playback
+        mapping={splitFilterMapping}
+        value={filter}
+        onValueChange={setFilter}
+        outerTickCount={3}
       />
       <ParamKnob
-        label="REVERB"
+        label="saturation"
+        mapping={saturationWetMapping}
+        value={saturation}
+        onValueChange={setSaturation}
+      />
+      <ParamKnob
+        label="reverb"
         mapping={reverbWetMapping}
         value={reverb}
         onValueChange={setReverb}
         outerTickCount={5}
       />
+
       <ParamKnob
-        label="HPF"
-        mapping={highPassFilterMapping}
-        value={highPass}
-        onValueChange={setHighPass}
-      />
-      <ParamKnob
-        label="PHASER"
+        label="phaser"
         mapping={phaserWetMapping}
         value={phaser}
         onValueChange={setPhaser}
         outerTickCount={5}
       />
-    </div>
+    </>
   );
 };

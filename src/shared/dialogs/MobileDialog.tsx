@@ -1,7 +1,6 @@
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -24,7 +23,6 @@ export const MobileDialog: React.FC<MobileDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Desktop Recommended</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
         <div className="space-y-2 pb-4">
           <DialogDescription>

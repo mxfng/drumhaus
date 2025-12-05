@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
   Input,
-  Label,
 } from "@/shared/ui";
 
 interface SaveDialogProps {
@@ -20,6 +25,12 @@ interface SaveDialogProps {
   onClose: () => void;
   onSave: (name: string) => void;
 }
+
+const saveSchema = z.object({
+  presetName: presetNameSchema.trim(),
+});
+
+type SaveFormValues = z.infer<typeof saveSchema>;
 
 export const SaveDialog: React.FC<SaveDialogProps> = ({
   isOpen,
@@ -29,42 +40,28 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
-  const [editedName, setEditedName] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
-  const presetName = editedName ?? currentPresetName;
+  const form = useForm<SaveFormValues>({
+    resolver: zodResolver(saveSchema),
+    defaultValues: { presetName: currentPresetName },
+    mode: "onChange",
+  });
 
-  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid, isSubmitting },
+  } = form;
 
   const handleClose = () => {
-    setEditedName(null);
-    setError(null);
+    reset({ presetName: currentPresetName });
     onClose();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEditedName(value);
-
-    // Validate on change
-    const result = presetNameSchema.safeParse(value);
-    if (!result.success) {
-      setError(result.error.issues[0].message);
-    } else {
-      setError(null);
-    }
-  };
-
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    const result = presetNameSchema.safeParse(presetName.trim());
-    if (!result.success) {
-      setError(result.error.issues[0].message);
-      return;
-    }
-    onSave(presetName.trim());
-    handleClose();
-  };
+  useEffect(() => {
+    reset({ presetName: currentPresetName });
+  }, [currentPresetName, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
@@ -72,31 +69,42 @@ export const SaveDialog: React.FC<SaveDialogProps> = ({
         <DialogHeader>
           <DialogTitle>Save Preset</DialogTitle>
         </DialogHeader>
-        <DialogCloseButton />
 
-        <form onSubmit={handleSubmit}>
-          <div className="pb-6">
-            <DialogDescription className="pb-6">
+        <form
+          onSubmit={handleSubmit(({ presetName }) => {
+            onSave(presetName.trim());
+            handleClose();
+          })}
+        >
+          <div className="space-y-6 pb-6">
+            <DialogDescription>
               Give your preset a name so you can find it later.
             </DialogDescription>
 
-            <Label htmlFor="presetName" className="mb-2 block">
-              Preset name
-            </Label>
-            <Input
-              id="presetName"
-              value={presetName}
-              onChange={handleChange}
-              autoFocus
-            />
-            {error && <p className="text-track-red mt-1 text-sm">{error}</p>}
+            <FieldGroup>
+              <Field data-invalid={Boolean(errors.presetName)}>
+                <FieldLabel htmlFor="presetName">Preset name</FieldLabel>
+                <Input
+                  id="presetName"
+                  autoFocus
+                  aria-invalid={Boolean(errors.presetName)}
+                  {...register("presetName")}
+                />
+                <FieldError errors={[errors.presetName]} />
+              </Field>
+            </FieldGroup>
           </div>
 
           <DialogFooter>
-            <Button variant="secondary" onClick={handleClose} type="button">
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              type="button"
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isValid}>
+            <Button type="submit" disabled={!isValid || isSubmitting}>
               Save
             </Button>
           </DialogFooter>

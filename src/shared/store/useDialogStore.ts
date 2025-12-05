@@ -5,7 +5,6 @@ import { immer } from "zustand/middleware/immer";
 // Add new dialog names here as needed
 export type DialogName =
   | "save"
-  | "share"
   | "export"
   | "presetChange"
   | "mobile"

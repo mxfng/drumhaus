@@ -32,12 +32,11 @@
           "path": "9/kick_puffy.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 50,
           "volume": 96,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -56,12 +55,11 @@
           "path": "9/tom_clonk.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 50,
           "volume": 88,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -80,12 +78,11 @@
           "path": "9/snare_together.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 50,
           "volume": 98,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -104,12 +101,11 @@
           "path": "9/clap_hectic.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 43,
+          "decay": 43,
           "filter": 50,
           "volume": 76,
           "pan": 37,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -128,12 +124,11 @@
           "path": "9/hat_crisp.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 29,
+          "decay": 29,
           "filter": 50,
           "volume": 84,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -152,12 +147,11 @@
           "path": "9/ohat_thick.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 50,
           "volume": 80,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -176,12 +170,11 @@
           "path": "9/perc_jungle.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 54,
+          "decay": 54,
           "filter": 50,
           "volume": 92,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }
@@ -200,12 +193,11 @@
           "path": "9/crash_legend.wav"
         },
         "params": {
-          "attack": 0,
-          "release": 100,
+          "decay": 100,
           "filter": 50,
           "volume": 78,
           "pan": 50,
-          "pitch": 50,
+          "tune": 50,
           "solo": false,
           "mute": false
         }

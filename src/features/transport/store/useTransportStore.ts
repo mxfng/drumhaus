@@ -3,14 +3,14 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import {
-  releaseAllRuntimes,
+  releaseAllInstrumentRuntimes,
   setTransportBpm,
   setTransportSwing,
   startAudioContext,
   startTransport,
   stopTransport,
 } from "@/core/audio/engine";
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 
 interface TransportState {
   // Playback state
@@ -54,7 +54,7 @@ export const useTransportStore = create<TransportState>()(
             } else {
               stopTransport(undefined, () => {
                 // Release all samples
-                releaseAllRuntimes(instrumentRuntimes);
+                releaseAllInstrumentRuntimes(instrumentRuntimes);
 
                 // Call optional stop callback
                 if (onStop) onStop();

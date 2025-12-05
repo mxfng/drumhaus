@@ -2,11 +2,11 @@ import { clamp } from "@/shared/lib/utils";
 import { KNOB_EXPONENTIAL_CURVE_POWER } from "./constants";
 
 /**
- * Convert normalized value [0, 1] to knob value [0, 100], rounded and clamped.
- * Used in inverse transform functions to convert domain values back to knob positions.
+ * Convert normalized value [0, 1] to knob value [0, 100], preserving precision.
+ * Keep fractional values so callers can decide how to quantize.
  */
 export function toKnobValue(normalized: number): number {
-  return clamp(Math.round(normalized * 100), 0, 100);
+  return clamp(normalized * 100, 0, 100);
 }
 
 /**

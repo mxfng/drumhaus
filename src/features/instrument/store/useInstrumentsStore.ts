@@ -2,8 +2,11 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import {
+  InstrumentData,
+  InstrumentParams,
+} from "@/core/audio/engine/instrument/types";
 import { drumhaus } from "@/core/dhkit";
-import { InstrumentData, InstrumentParams } from "../types/instrument";
 
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters
@@ -71,11 +74,34 @@ export const useInstrumentsStore = create<InstrumentsState>()(
       })),
       {
         name: "drumhaus-instruments-storage",
-        version: 1,
+        version: 2,
         // Persist instruments but not durations (computed from samples)
         partialize: (state) => ({
           instruments: state.instruments,
         }),
+        migrate: (persistedState: unknown, version: number) => {
+          // Migrate from v1 to v2: rename release → decay, pitch → tune, remove attack
+          if (version === 1) {
+            const state = persistedState as { instruments: InstrumentData[] };
+            state.instruments = state.instruments.map((inst) => {
+              const oldParams = inst.params as unknown as Record<
+                string,
+                unknown
+              >;
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { attack: _attack, release, pitch, ...rest } = oldParams;
+              return {
+                ...inst,
+                params: {
+                  ...rest,
+                  decay: release ?? oldParams.decay,
+                  tune: pitch ?? oldParams.tune,
+                } as InstrumentParams,
+              };
+            });
+          }
+          return persistedState;
+        },
       },
     ),
     {

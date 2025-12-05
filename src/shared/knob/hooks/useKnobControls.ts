@@ -114,7 +114,7 @@ export function useKnobControls({
         try {
           ev.target.releasePointerCapture(ev.pointerId);
         } catch {
-          // noop
+          // Do nothing
         }
       }
     },

@@ -1,6 +1,9 @@
-import { InstrumentParams } from "@/features/instrument/types/instrument";
-import { MasterChainParams } from "@/features/master-bus/types/master";
-import { VariationCycle } from "@/features/sequencer/types/sequencer";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
+import { InstrumentParams } from "@/core/audio/engine/instrument/types";
+import {
+  PatternChain,
+  VariationCycle,
+} from "@/features/sequencer/types/sequencer";
 import { TransportParams } from "@/features/transport/types/transport";
 import { Meta } from "../../types/meta";
 
@@ -24,7 +27,9 @@ export interface ShareablePreset {
   transport: TransportParams; // bpm, swing
   sequencer: {
     pattern: OptimizedPattern;
-    variationCycle: VariationCycle;
+    variationCycle?: VariationCycle;
+    chain: PatternChain;
+    chainEnabled: boolean;
   };
   masterChain: MasterChainParams; // All 7 effect params
 }
@@ -46,11 +51,22 @@ export interface ShareableKit {
  */
 export interface OptimizedPattern {
   voices: OptimizedVoice[]; // 8 voices
+  variationMetadata: [
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+    OptimizedVariationMetadata,
+  ]; // [A, B, C, D]
 }
 
 export interface OptimizedVoice {
   instrumentIndex: number; // 0-7
-  variations: [OptimizedStepSequence, OptimizedStepSequence]; // [A, B]
+  variations: [
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+    OptimizedStepSequence,
+  ]; // [A, B, C, D]
 }
 
 export interface OptimizedStepSequence {
@@ -60,4 +76,21 @@ export interface OptimizedStepSequence {
   // Example: { "2": 0.56, "7": 0.82 } means steps 2 and 7 have custom velocities
   // All other steps default to 1.0
   velocities: { [stepIndex: string]: number };
+
+  // Timing nudge: only store if non-zero (for backward compatibility)
+  // -2 to +2 range, defaults to 0 if missing
+  timingNudge?: number;
+
+  // Ratchets/flams: only store if any steps have them enabled
+  ratchets?: boolean[];
+  flams?: boolean[];
+}
+
+/**
+ * Variation-level metadata (applies to all instruments in a variation)
+ */
+export interface OptimizedVariationMetadata {
+  // Accent pattern: 16 booleans (will compress to 2 bytes with bit packing)
+  // Only store if any accents are enabled (for optimization)
+  accent?: boolean[];
 }

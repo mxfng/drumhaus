@@ -33,7 +33,7 @@ Program 2 variations (A/B) of 16th note loops per instrument. Chain variations i
 
 Per-instrument controls:
 
-- ADSR envelope (attack/release)
+- Envelope (decay)
 - High-pass and low-pass filters
 - Pan and volume
 - Pitch transposition (semitones)

@@ -7,7 +7,6 @@ import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
-  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -115,7 +114,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <DialogHeader>
               <DialogTitle>Share Preset</DialogTitle>
             </DialogHeader>
-            <DialogCloseButton />
 
             <form onSubmit={handleSubmit}>
               <div className="pb-6">
@@ -123,7 +121,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                   Create a shareable link to send your preset to others.
                 </DialogDescription>
 
-                <Label htmlFor="presetName" className="mb-2 block">
+                <Label htmlFor="presetName" className="mb-2">
                   Preset name
                 </Label>
                 <Input
@@ -133,12 +131,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
                   autoFocus
                 />
                 {error && (
-                  <p className="text-track-red mt-1 text-sm">{error}</p>
+                  <p className="text-destructive mt-1 text-sm">{error}</p>
                 )}
               </div>
 
               <DialogFooter>
-                <Button variant="secondary" onClick={onClose} type="button">
+                <Button variant="ghost" onClick={onClose} type="button">
                   Cancel
                 </Button>
                 <Button
@@ -164,7 +162,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             <DialogHeader>
               <DialogTitle>Shareable Link</DialogTitle>
             </DialogHeader>
-            <DialogCloseButton />
 
             <div className="space-y-6">
               <DialogDescription>
@@ -195,7 +192,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </div>
 
             <DialogFooter>
-              <Button variant="secondary" onClick={onClose}>
+              <Button variant="ghost" onClick={onClose}>
                 Close
               </Button>
               <Button onClick={handleCopy}>

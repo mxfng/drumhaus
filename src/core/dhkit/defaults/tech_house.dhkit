@@ -23,12 +23,11 @@
         "path": "2/paris_kick.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 49,
+        "decay": 49,
         "filter": 50,
         "volume": 83,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -47,12 +46,11 @@
         "path": "2/paris_bass.wav"
       },
       "params": {
-        "attack": 20,
-        "release": 63,
+        "decay": 63,
         "filter": 50,
         "volume": 83,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -71,12 +69,11 @@
         "path": "2/paris_snare.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 42,
+        "decay": 42,
         "filter": 54,
         "volume": 85,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -95,12 +92,11 @@
         "path": "2/paris_clap.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 40,
+        "decay": 40,
         "filter": 50,
         "volume": 87,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -119,12 +115,11 @@
         "path": "2/paris_hat.wav"
       },
       "params": {
-        "attack": 4,
-        "release": 43,
+        "decay": 43,
         "filter": 50,
         "volume": 70,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -143,12 +138,11 @@
         "path": "2/paris_ohat.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 100,
+        "decay": 100,
         "filter": 50,
         "volume": 82,
         "pan": 50,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -167,12 +161,11 @@
         "path": "2/paris_p_E.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 79,
+        "decay": 79,
         "filter": 55,
         "volume": 80,
         "pan": 35,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -191,12 +184,11 @@
         "path": "2/paris_p_Abm.wav"
       },
       "params": {
-        "attack": 0,
-        "release": 100,
+        "decay": 100,
         "filter": 50,
         "volume": 79,
         "pan": 66,
-        "pitch": 50,
+        "tune": 50,
         "solo": false,
         "mute": false
       }

@@ -1,6 +1,6 @@
 import { createContext, type RefObject } from "react";
 
-import { InstrumentRuntime } from "@/features/instrument/types/instrument";
+import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 
 export interface DrumhausContextValue {

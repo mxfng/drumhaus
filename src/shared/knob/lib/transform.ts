@@ -1,6 +1,6 @@
 import {
-  INSTRUMENT_PITCH_BASE_FREQUENCY,
-  INSTRUMENT_PITCH_SEMITONE_RANGE,
+  INSTRUMENT_TUNE_BASE_FREQUENCY,
+  INSTRUMENT_TUNE_SEMITONE_RANGE,
   MASTER_FILTER_RANGE,
 } from "@/core/audio/engine/constants";
 import { clamp, lerp, normalize, normalizeCentered } from "@/shared/lib/utils";
@@ -46,13 +46,13 @@ export const transformKnobValueExponential = (
 };
 
 /**
- * Transform knob value (0-100) to pitch frequency with semitone quantization.
+ * Transform knob value (0-100) to tune frequency with semitone quantization.
  * Center (50) = base frequency, ±24 semitones range.
  */
-export const transformKnobValuePitch = (
+export const transformKnobValueTune = (
   knobValue: number,
-  baseFrequency: number = INSTRUMENT_PITCH_BASE_FREQUENCY,
-  semitoneRange: number = INSTRUMENT_PITCH_SEMITONE_RANGE,
+  baseFrequency: number = INSTRUMENT_TUNE_BASE_FREQUENCY,
+  semitoneRange: number = INSTRUMENT_TUNE_SEMITONE_RANGE,
 ): number => {
   const clampedValue = clamp(knobValue, 0, 100);
   const normalized = normalizeCentered(clampedValue, 50, 50); // -1..1 relative to center
@@ -117,12 +117,12 @@ export const inverseTransformKnobValueExponential = (
 };
 
 /**
- * Inverse of transformKnobValuePitch: converts frequency back to knob value (0-100)
+ * Inverse of transformKnobValueTune: converts frequency back to knob value (0-100)
  */
-export const inverseTransformKnobValuePitch = (
+export const inverseTransformKnobValueTune = (
   frequency: number,
-  baseFrequency: number = INSTRUMENT_PITCH_BASE_FREQUENCY,
-  semitoneRange: number = INSTRUMENT_PITCH_SEMITONE_RANGE,
+  baseFrequency: number = INSTRUMENT_TUNE_BASE_FREQUENCY,
+  semitoneRange: number = INSTRUMENT_TUNE_SEMITONE_RANGE,
 ): number => {
   const ratio = frequency / baseFrequency;
   const semitoneOffset = ratioToSemitones(ratio);

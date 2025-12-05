@@ -1,0 +1,64 @@
+/* ==================== Neumorphic Utilities ==================== */
+
+.neu {
+  box-shadow: var(--shadow-neu);
+}
+
+.neu-tall {
+  box-shadow: var(--shadow-neu-tall);
+}
+
+.neu-extra-tall {
+  box-shadow: var(--shadow-neu-xl);
+}
+
+.neu-raised {
+  box-shadow: var(--shadow-neu-raised);
+  background: linear-gradient(
+    160deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+}
+
+.neu-medium-raised {
+  box-shadow: var(--shadow-neu-md);
+  background: linear-gradient(
+    160deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+}
+
+.neu-tall-raised {
+  box-shadow: var(--shadow-neu-tall-raised);
+  background: linear-gradient(
+    160deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+}
+
+/* ==================== Surface Utilities ==================== */
+
+.surface {
+  background: var(--color-surface);
+  color: var(--color-foreground);
+}
+
+.surface-raised {
+  background: linear-gradient(
+    160deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+}
+
+/* ==================== Focus Utilities ==================== */
+
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}

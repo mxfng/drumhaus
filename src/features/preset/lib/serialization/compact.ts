@@ -1,16 +1,27 @@
 import { DEFAULT_VELOCITY, STEP_COUNT } from "@/core/audio/engine/constants";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 import {
   InstrumentData,
   InstrumentParams,
-} from "@/features/instrument/types/instrument";
+} from "@/core/audio/engine/instrument/types";
 import { KitFileV1 } from "@/features/kit/types/kit";
-import { MasterChainParams } from "@/features/master-bus/types/master";
+import {
+  clampVariationId,
+  DEFAULT_CHAIN,
+  legacyCycleToChain,
+  sanitizeChain,
+} from "@/features/sequencer/lib/chain";
 import type {
   Pattern,
   StepSequence,
   Voice,
 } from "@/features/sequencer/types/pattern";
-import { VariationCycle } from "@/features/sequencer/types/sequencer";
+import {
+  PatternChain,
+  VARIATION_LABELS,
+  VariationCycle,
+  VariationId,
+} from "@/features/sequencer/types/sequencer";
 import { init } from "../../../../core/dh";
 import { PresetFileV1 } from "../../types/preset";
 import { compactCodeToKitId, kitIdToCompactCode } from "./defaultKits";
@@ -26,9 +37,14 @@ import { compactCodeToKitId, kitIdToCompactCode } from "./defaultKits";
 
 const PACKED_TRIGGER_HEX_LENGTH = Math.ceil(STEP_COUNT / 4);
 
-const DEFAULT_SWING = init().transport.swing;
-const DEFAULT_VARIATION_CYCLE = init().sequencer.variationCycle;
-const DEFAULT_BPM = init().transport.bpm;
+const INIT_PRESET = init();
+const DEFAULT_SWING = INIT_PRESET.transport.swing;
+const DEFAULT_VARIATION_CYCLE = INIT_PRESET.sequencer.variationCycle;
+const DEFAULT_PATTERN_CHAIN = sanitizeChain(
+  INIT_PRESET.sequencer.chain ?? DEFAULT_CHAIN,
+);
+const DEFAULT_CHAIN_ENABLED = INIT_PRESET.sequencer.chainEnabled ?? false;
+const DEFAULT_BPM = INIT_PRESET.transport.bpm;
 
 const DEFAULT_PARAMS: InstrumentParams = init().kit.instruments[0].params;
 
@@ -71,6 +87,53 @@ function unpackTriggers(hex: string): boolean[] {
   return triggers;
 }
 
+const EMPTY_TRIGGERS = Array(STEP_COUNT).fill(false);
+const EMPTY_COMPACT_STEP: CompactStepSequence = {
+  t: packTriggers(EMPTY_TRIGGERS),
+};
+
+function stringifyChain(chain: PatternChain): string {
+  return sanitizeChain(chain)
+    .steps.map(
+      ({ variation, repeats }) => `${VARIATION_LABELS[variation]}${repeats}`,
+    )
+    .join("");
+}
+
+const DEFAULT_CHAIN_STRING = stringifyChain(DEFAULT_PATTERN_CHAIN);
+
+function encodeChain(chain: PatternChain): string | undefined {
+  const encoded = stringifyChain(chain);
+  return encoded === DEFAULT_CHAIN_STRING ? undefined : encoded;
+}
+
+function decodeChainString(chainString?: string): PatternChain {
+  if (!chainString) return DEFAULT_PATTERN_CHAIN;
+
+  const steps: PatternChain["steps"] = [];
+
+  for (let i = 0; i < chainString.length; i += 2) {
+    const label = chainString[i];
+    if (!label) continue;
+
+    const repeatChar = chainString[i + 1] ?? "1";
+    const variationIndex = VARIATION_LABELS.indexOf(
+      label as (typeof VARIATION_LABELS)[number],
+    );
+
+    if (variationIndex < 0) continue;
+
+    const repeats = Number.parseInt(repeatChar, 10);
+
+    steps.push({
+      variation: clampVariationId(variationIndex as VariationId),
+      repeats: Number.isFinite(repeats) ? repeats : 1,
+    });
+  }
+
+  return sanitizeChain({ steps });
+}
+
 // --- VELOCITY QUANTIZATION ---
 
 /**
@@ -95,10 +158,16 @@ function dequantizeVelocity(quantized: number): number {
  * Compact step sequence format
  * - t: 4-char hex (bit-packed triggers)
  * - v: sparse velocities as ints 0-100
+ * - n: timing nudge (omit if 0)
+ * - r: ratchets (bit-packed, omit if none)
+ * - f: flams (bit-packed, omit if none)
  */
 type CompactStepSequence = {
   t: string; // hex-encoded bit-packed triggers
   v?: Record<string, number>; // sparse velocities (quantized to 0-100)
+  n?: number; // timing nudge (-2 to +2, omit if 0)
+  r?: string; // ratchets (bit-packed)
+  f?: string; // flams (bit-packed)
 };
 
 /**
@@ -108,18 +177,19 @@ type CompactVoice = {
   i: number; // instrument index
   a: CompactStepSequence; // variation A
   b: CompactStepSequence; // variation B
+  c?: CompactStepSequence; // variation C
+  d?: CompactStepSequence; // variation D
 };
 
 /**
  * Compact instrument params (only non-default values)
  */
 type CompactParams = {
-  a?: number; // attack
-  r?: number; // release
+  d?: number; // decay
   f?: number; // filter
   v?: number; // volume
   p?: number; // pan
-  t?: number; // pitch (using 't' to avoid conflict with 'p')
+  t?: number; // tune
   s?: number; // solo (1/0)
   m?: number; // mute (1/0)
 };
@@ -133,21 +203,30 @@ export type CompactPreset = {
   n?: string; // preset name
   ip: CompactParams[]; // instrument params (8 items, only non-defaults)
   pt: CompactVoice[]; // pattern voices (8 items)
-  vc?: string; // variation cycle (omit if "AB")
+  ac?: [string?, string?, string?, string?]; // accent patterns (hex-encoded, omit if no accents) [A, B, C, D]
+  vc?: string; // legacy variation cycle (omit if undefined)
+  ch?: string; // chain string (variation + repeat pairs)
+  ce?: number; // chain enabled flag
   bpm?: number; // bpm (omit if 120)
   sw?: number; // swing (omit if 0)
   mc?: CompactMasterChain;
 };
 
 type CompactMasterChain = Partial<{
-  lp: number; // lowPass
-  hp: number; // highPass
+  // New format
+  f: number; // filter (unified split filter)
+  s: number; // saturation
   ph: number; // phaser
   rv: number; // reverb
   ct: number; // compThreshold
   cr: number; // compRatio
+  ca: number; // compAttack
   cm: number; // compMix
   mv: number; // masterVolume
+
+  // Legacy format (for backward compatibility during decode)
+  lp?: number; // lowPass (legacy)
+  hp?: number; // highPass (legacy)
 }>;
 
 // --- ENCODE FUNCTIONS ---
@@ -169,18 +248,48 @@ function encodeStepSequence(seq: StepSequence): CompactStepSequence {
     compact.v = velocities;
   }
 
+  // Timing nudge (only if non-zero)
+  if (seq.timingNudge !== 0) {
+    compact.n = seq.timingNudge;
+  }
+
+  // Ratchets/flams (only if any are enabled)
+  if (seq.ratchets?.some((r) => r)) {
+    compact.r = packTriggers(seq.ratchets);
+  }
+
+  if (seq.flams?.some((f) => f)) {
+    compact.f = packTriggers(seq.flams);
+  }
+
   return compact;
+}
+
+function isSequenceEmpty(seq: StepSequence): boolean {
+  const hasTriggers = seq.triggers.some(Boolean);
+  const hasVelocityChanges = seq.velocities.some(
+    (vel) => vel !== DEFAULT_VELOCITY,
+  );
+  const hasRatchets = seq.ratchets?.some(Boolean);
+  const hasFlams = seq.flams?.some(Boolean);
+
+  return (
+    !hasTriggers &&
+    !hasVelocityChanges &&
+    !hasRatchets &&
+    !hasFlams &&
+    (seq.timingNudge ?? 0) === 0
+  );
 }
 
 function encodeParams(params: InstrumentParams): CompactParams {
   const compact: CompactParams = {};
 
-  if (params.attack !== DEFAULT_PARAMS.attack) compact.a = params.attack;
-  if (params.release !== DEFAULT_PARAMS.release) compact.r = params.release;
+  if (params.decay !== DEFAULT_PARAMS.decay) compact.d = params.decay;
   if (params.filter !== DEFAULT_PARAMS.filter) compact.f = params.filter;
   if (params.volume !== DEFAULT_PARAMS.volume) compact.v = params.volume;
   if (params.pan !== DEFAULT_PARAMS.pan) compact.p = params.pan;
-  if (params.pitch !== DEFAULT_PARAMS.pitch) compact.t = params.pitch;
+  if (params.tune !== DEFAULT_PARAMS.tune) compact.t = params.tune;
   if (params.solo !== DEFAULT_PARAMS.solo) compact.s = params.solo ? 1 : 0;
   if (params.mute !== DEFAULT_PARAMS.mute) compact.m = params.mute ? 1 : 0;
 
@@ -191,14 +300,17 @@ function encodeMasterChain(
   chain: MasterChainParams,
 ): CompactMasterChain | undefined {
   const mc: CompactMasterChain = {};
-  if (chain.lowPass !== DEFAULT_MASTER_CHAIN.lowPass) mc.lp = chain.lowPass;
-  if (chain.highPass !== DEFAULT_MASTER_CHAIN.highPass) mc.hp = chain.highPass;
+  if (chain.filter !== DEFAULT_MASTER_CHAIN.filter) mc.f = chain.filter;
+  if (chain.saturation !== DEFAULT_MASTER_CHAIN.saturation)
+    mc.s = chain.saturation;
   if (chain.phaser !== DEFAULT_MASTER_CHAIN.phaser) mc.ph = chain.phaser;
   if (chain.reverb !== DEFAULT_MASTER_CHAIN.reverb) mc.rv = chain.reverb;
   if (chain.compThreshold !== DEFAULT_MASTER_CHAIN.compThreshold)
     mc.ct = chain.compThreshold;
   if (chain.compRatio !== DEFAULT_MASTER_CHAIN.compRatio)
     mc.cr = chain.compRatio;
+  if (chain.compAttack !== DEFAULT_MASTER_CHAIN.compAttack)
+    mc.ca = chain.compAttack;
   if (chain.compMix !== DEFAULT_MASTER_CHAIN.compMix) mc.cm = chain.compMix;
   if (chain.masterVolume !== DEFAULT_MASTER_CHAIN.masterVolume)
     mc.mv = chain.masterVolume;
@@ -220,18 +332,64 @@ export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
     ip: preset.kit.instruments.map((inst: InstrumentData) =>
       encodeParams(inst.params),
     ),
-    pt: preset.sequencer.pattern.map((voice: Voice) => ({
-      i: voice.instrumentIndex,
-      a: encodeStepSequence(voice.variations[0]),
-      b: encodeStepSequence(voice.variations[1]),
-    })),
+    pt: preset.sequencer.pattern.voices.map((voice: Voice) => {
+      const voicePayload: CompactVoice = {
+        i: voice.instrumentIndex,
+        a: encodeStepSequence(voice.variations[0]),
+        b: encodeStepSequence(voice.variations[1]),
+      };
+
+      if (!isSequenceEmpty(voice.variations[2])) {
+        voicePayload.c = encodeStepSequence(voice.variations[2]);
+      }
+
+      if (!isSequenceEmpty(voice.variations[3])) {
+        voicePayload.d = encodeStepSequence(voice.variations[3]);
+      }
+
+      return voicePayload;
+    }),
   };
+
+  // Encode accent patterns (only if any accents exist)
+  const accentA = preset.sequencer.pattern.variationMetadata[0].accent;
+  const accentB = preset.sequencer.pattern.variationMetadata[1].accent;
+  const accentC = preset.sequencer.pattern.variationMetadata[2].accent;
+  const accentD = preset.sequencer.pattern.variationMetadata[3].accent;
+  const hasAccentsA = accentA.some((a) => a);
+  const hasAccentsB = accentB.some((a) => a);
+  const hasAccentsC = accentC.some((a) => a);
+  const hasAccentsD = accentD.some((a) => a);
+
+  if (hasAccentsA || hasAccentsB || hasAccentsC || hasAccentsD) {
+    compact.ac = [
+      hasAccentsA ? packTriggers(accentA) : undefined,
+      hasAccentsB ? packTriggers(accentB) : undefined,
+      hasAccentsC ? packTriggers(accentC) : undefined,
+      hasAccentsD ? packTriggers(accentD) : undefined,
+    ];
+  }
 
   // Always include preset name
   compact.n = preset.meta.name;
 
-  if (preset.sequencer.variationCycle !== DEFAULT_VARIATION_CYCLE) {
+  if (
+    preset.sequencer.variationCycle &&
+    preset.sequencer.variationCycle !== DEFAULT_VARIATION_CYCLE
+  ) {
     compact.vc = preset.sequencer.variationCycle;
+  }
+
+  const encodedChain = encodeChain(
+    preset.sequencer.chain ?? DEFAULT_PATTERN_CHAIN,
+  );
+
+  if (encodedChain) {
+    compact.ch = encodedChain;
+  }
+
+  if (preset.sequencer.chainEnabled !== DEFAULT_CHAIN_ENABLED) {
+    compact.ce = preset.sequencer.chainEnabled ? 1 : 0;
   }
 
   if (preset.transport.bpm !== DEFAULT_BPM) {
@@ -263,32 +421,66 @@ function decodeStepSequence(compact: CompactStepSequence): StepSequence {
     });
   }
 
-  return { triggers, velocities };
+  const ratchets = compact.r
+    ? unpackTriggers(compact.r)
+    : Array(STEP_COUNT).fill(false);
+  const flams = compact.f
+    ? unpackTriggers(compact.f)
+    : Array(STEP_COUNT).fill(false);
+
+  return {
+    triggers,
+    velocities,
+    timingNudge: (compact.n ?? 0) as -2 | -1 | 0 | 1 | 2,
+    ratchets,
+    flams,
+  };
 }
 
 function decodeParams(compact: CompactParams): InstrumentParams {
   return {
-    attack: compact.a ?? DEFAULT_PARAMS.attack,
-    release: compact.r ?? DEFAULT_PARAMS.release,
+    decay: compact.d ?? DEFAULT_PARAMS.decay,
     filter: compact.f ?? DEFAULT_PARAMS.filter,
     volume: compact.v ?? DEFAULT_PARAMS.volume,
     pan: compact.p ?? DEFAULT_PARAMS.pan,
-    pitch: compact.t ?? DEFAULT_PARAMS.pitch,
+    tune: compact.t ?? DEFAULT_PARAMS.tune,
     solo: compact.s === 1,
     mute: compact.m === 1,
   };
 }
 
 function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
+  // Handle legacy format (lp/hp) or new format (f/s/ca)
+  if (compact?.f !== undefined) {
+    // New format
+    return {
+      filter: compact.f,
+      saturation: compact.s ?? DEFAULT_MASTER_CHAIN.saturation,
+      phaser: compact.ph ?? DEFAULT_MASTER_CHAIN.phaser,
+      reverb: compact.rv ?? DEFAULT_MASTER_CHAIN.reverb,
+      compThreshold: compact.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
+      compRatio: compact.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
+      compAttack: compact.ca ?? DEFAULT_MASTER_CHAIN.compAttack,
+      compMix: compact.cm ?? DEFAULT_MASTER_CHAIN.compMix,
+      masterVolume: compact.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
+    };
+  }
+
+  // Legacy format: convert lp/hp to unified filter
+  // This will be further processed by migrateMasterChainParams
   return {
-    lowPass: compact?.lp ?? DEFAULT_MASTER_CHAIN.lowPass,
-    highPass: compact?.hp ?? DEFAULT_MASTER_CHAIN.highPass,
+    filter: DEFAULT_MASTER_CHAIN.filter,
+    saturation: DEFAULT_MASTER_CHAIN.saturation,
     phaser: compact?.ph ?? DEFAULT_MASTER_CHAIN.phaser,
     reverb: compact?.rv ?? DEFAULT_MASTER_CHAIN.reverb,
     compThreshold: compact?.ct ?? DEFAULT_MASTER_CHAIN.compThreshold,
     compRatio: compact?.cr ?? DEFAULT_MASTER_CHAIN.compRatio,
+    compAttack: compact?.ca ?? DEFAULT_MASTER_CHAIN.compAttack,
     compMix: compact?.cm ?? DEFAULT_MASTER_CHAIN.compMix,
     masterVolume: compact?.mv ?? DEFAULT_MASTER_CHAIN.masterVolume,
+    // Include legacy values for migration
+    lowPass: compact?.lp,
+    highPass: compact?.hp,
   };
 }
 
@@ -303,15 +495,61 @@ export function decodeCompactPreset(
 
   const defaultKit = kitLoader(kitId);
 
-  const pattern: Pattern = compact.pt.map((voice) => ({
-    instrumentIndex: voice.i,
-    variations: [decodeStepSequence(voice.a), decodeStepSequence(voice.b)],
-  }));
+  const emptySequence = decodeStepSequence(EMPTY_COMPACT_STEP);
+
+  const pattern: Pattern = {
+    voices: compact.pt.map((voice) => ({
+      instrumentIndex: voice.i,
+      variations: [
+        decodeStepSequence(voice.a),
+        decodeStepSequence(voice.b),
+        voice.c ? decodeStepSequence(voice.c) : emptySequence,
+        voice.d ? decodeStepSequence(voice.d) : emptySequence,
+      ],
+    })),
+    // Decode accent patterns (default to no accents if not present)
+    variationMetadata: [
+      {
+        accent: compact.ac?.[0]
+          ? unpackTriggers(compact.ac[0])
+          : Array(STEP_COUNT).fill(false),
+      },
+      {
+        accent: compact.ac?.[1]
+          ? unpackTriggers(compact.ac[1])
+          : Array(STEP_COUNT).fill(false),
+      },
+      {
+        accent: compact.ac?.[2]
+          ? unpackTriggers(compact.ac[2])
+          : Array(STEP_COUNT).fill(false),
+      },
+      {
+        accent: compact.ac?.[3]
+          ? unpackTriggers(compact.ac[3])
+          : Array(STEP_COUNT).fill(false),
+      },
+    ],
+  };
 
   const instruments = defaultKit.instruments.map((inst, idx: number) => ({
     ...inst,
     params: decodeParams(compact.ip[idx]),
   }));
+
+  const legacyChain = legacyCycleToChain(
+    (compact.vc ?? DEFAULT_VARIATION_CYCLE) as VariationCycle | undefined,
+    0,
+  );
+
+  const chain = compact.ch
+    ? decodeChainString(compact.ch)
+    : (legacyChain.chain ?? DEFAULT_PATTERN_CHAIN);
+
+  const chainEnabled =
+    compact.ce !== undefined
+      ? compact.ce === 1
+      : (legacyChain.chainEnabled ?? DEFAULT_CHAIN_ENABLED);
 
   return {
     kind: "drumhaus.preset",
@@ -334,7 +572,11 @@ export function decodeCompactPreset(
     },
     sequencer: {
       pattern,
-      variationCycle: (compact.vc ?? DEFAULT_VARIATION_CYCLE) as VariationCycle,
+      variationCycle: (compact.vc ?? DEFAULT_VARIATION_CYCLE) as
+        | VariationCycle
+        | undefined,
+      chain,
+      chainEnabled,
     },
     masterChain: decodeMasterChain(compact.mc),
   };

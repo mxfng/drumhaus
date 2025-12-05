@@ -1,23 +1,22 @@
+import { lazy, Suspense } from "react";
+
 import { useAudioEngine } from "@/core/audio/hooks/useAudioEngine";
 import { DebugOverlay } from "@/features/debug/components/DebugOverlay";
 import { usePresetLoading } from "@/features/preset/hooks/usePresetLoading";
-import { AboutDialog } from "@/shared/dialogs/AboutDialog";
-import { useRemoveInitialLoader } from "@/shared/hooks/useRemoveInitialLoader";
-import { useServiceWorker } from "@/shared/hooks/useServiceWorker";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { DrumhausContext, type DrumhausContextValue } from "./DrumhausContext";
+
+const AboutDialog = lazy(() =>
+  import("@/shared/dialogs/AboutDialog").then((module) => ({
+    default: module.AboutDialog,
+  })),
+);
 
 interface DrumhausProviderProps {
   children: React.ReactNode;
 }
 
 export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
-  // --- App-wide UI Hooks ---
-  useRemoveInitialLoader();
-
-  // --- Service Worker Registration ---
-  useServiceWorker();
-
   // --- Audio Engine and Preset Loading ---
   const { instrumentRuntimes, instrumentRuntimesVersion } = useAudioEngine();
   const { loadPreset } = usePresetLoading({ instrumentRuntimes });
@@ -35,7 +34,9 @@ export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
   return (
     <DrumhausContext.Provider value={value}>
       {children}
-      <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      <Suspense fallback={null}>
+        <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      </Suspense>
       <DebugOverlay />
     </DrumhausContext.Provider>
   );

@@ -1,109 +1,133 @@
 import { useRef, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
+import { cva } from "class-variance-authority";
 
-import { transformKnobValueLinear } from "@/shared/knob/lib/transform";
-import { quantize } from "@/shared/lib/utils";
-import { Label, Tooltip } from "@/shared/ui";
+import { ParamMapping } from "@/shared/knob/types/types";
+import { cn } from "@/shared/lib/utils";
+import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
-type HardwareSliderProps = {
-  title?: string;
-  sliderValue: number;
-  setSliderValue: (value: number) => void;
-  defaultValue: number;
-  leftLabel?: string;
-  rightLabel?: string;
-  centerLabel?: string;
-  transformRange?: [number, number];
-  displayRange?: [number, number];
+const sliderContainerVariants = cva("flex gap-2 flex-col", {
+  variants: {
+    orientation: {
+      horizontal: "w-full",
+      vertical: "h-full w-fit",
+    },
+  },
+  defaultVariants: {
+    orientation: "horizontal",
+  },
+});
+
+const sliderTrackVariants = cva(
+  "flex items-center rounded-lg bg-(--slider-track-bg) shadow-(--slider-track-shadow)",
+  {
+    variants: {
+      orientation: {
+        horizontal: "h-6",
+        vertical: "w-3 flex-1",
+      },
+    },
+    defaultVariants: {
+      orientation: "horizontal",
+    },
+  },
+);
+
+type HardwareSliderProps<TValue = number> = {
+  /** Mapping to convert between slider value (0-100) and domain value */
+  mapping: ParamMapping<TValue>;
+  value: number;
+  onValueChange: (value: number) => void;
+  label?: string;
   isDisabled?: boolean;
-  valueStep?: number;
-  valueDecimals?: number;
+  orientation?: "horizontal" | "vertical";
 };
 
-export const HardwareSlider: React.FC<HardwareSliderProps> = ({
-  title,
-  sliderValue,
-  setSliderValue,
-  defaultValue,
-  leftLabel = "",
-  rightLabel = "",
-  centerLabel = "",
-  transformRange = [0, 100],
-  displayRange,
+export const HardwareSlider = <TValue = number,>({
+  mapping,
+  value,
+  onValueChange,
+  label,
   isDisabled = false,
-  valueStep = 1,
-  valueDecimals = 0,
-}) => {
-  const immutableDefaultValue = useRef(defaultValue);
-  const step = valueStep > 0 ? valueStep : 1;
+  orientation = "horizontal",
+}: HardwareSliderProps<TValue>) => {
   const [isDragging, setIsDragging] = useState(false);
 
+  const step = 100 / mapping.knobValueCount;
+  const immutableDefaultValue = useRef(mapping.defaultKnobValue);
+
   const handleDoubleClick = () => {
-    setSliderValue(immutableDefaultValue.current);
+    onValueChange(immutableDefaultValue.current);
   };
 
   const handleChange = (value: number[]) => {
-    const quantizedValue = quantize(value[0], step);
-    setSliderValue(quantizedValue);
+    const domainValue = mapping.knobToDomain(value[0]);
+    const canonicalKnobValue = mapping.domainToKnob(domainValue, value[0]);
+    onValueChange(canonicalKnobValue);
   };
 
-  const formattedTransformedValue = transformKnobValueLinear(
-    sliderValue,
-    displayRange ?? transformRange,
-  ).toFixed(valueDecimals);
+  const domainValue = mapping.knobToDomain(value);
+  const formatted = mapping.format(domainValue, value);
+  const formattedTransformedValue = `${formatted.value}${formatted.append ? ` ${formatted.append}` : ""}`;
+
+  const isVertical = orientation === "vertical";
+  const tooltipSide = isVertical ? "right" : "top";
 
   return (
     <div
-      className="flex w-full flex-col gap-0.5"
+      className={cn(sliderContainerVariants({ orientation }))}
       onDoubleClick={handleDoubleClick}
     >
-      {/* Labels */}
-      <div className="relative flex items-end justify-between px-0.5">
-        <Label className="sm:text-[10px]">{leftLabel}</Label>
-        <Label className="absolute inset-x-0 text-center opacity-60 sm:text-[8px]">
-          {centerLabel}
-        </Label>
-        <Label className="sm:text-[10px]">{rightLabel}</Label>
-      </div>
-
       {/* Slider track */}
-      <div
-        className="flex h-[10px] items-center rounded-lg shadow-(--slider-track-shadow)"
-        style={{ background: "var(--slider-track-bg)" }}
+      <SliderPrimitive.Root
+        className={cn(
+          "relative flex touch-none select-none",
+          isVertical
+            ? "h-full w-full flex-col items-center"
+            : "w-full items-center",
+        )}
+        value={[value]}
+        min={0}
+        max={100}
+        step={step}
+        orientation={orientation}
+        onValueChange={handleChange}
+        onPointerDown={() => setIsDragging(true)}
+        onPointerUp={() => setIsDragging(false)}
+        disabled={isDisabled}
       >
-        <SliderPrimitive.Root
-          className="relative flex w-full touch-none items-center select-none"
-          value={[sliderValue]}
-          min={0}
-          max={100}
-          step={step}
-          onValueChange={handleChange}
-          onPointerDown={() => setIsDragging(true)}
-          onPointerUp={() => setIsDragging(false)}
-          disabled={isDisabled}
+        <SliderPrimitive.Track
+          className={cn(sliderTrackVariants({ orientation }))}
         >
-          <SliderPrimitive.Track className="relative h-4 w-full grow rounded-full bg-transparent sm:h-1">
-            <SliderPrimitive.Range className="absolute h-full bg-transparent" />
-          </SliderPrimitive.Track>
-          <Tooltip
-            content={formattedTransformedValue}
-            delayDuration={0}
-            side="top"
-            open={isDragging}
-          >
+          <SliderPrimitive.Range
+            className={cn(
+              "absolute bg-transparent",
+              isVertical ? "w-full" : "h-full",
+            )}
+          />
+        </SliderPrimitive.Track>
+        <Tooltip open={isDragging}>
+          <TooltipTrigger asChild>
             <SliderPrimitive.Thumb
-              className="font-pixel neu-raised block h-6 w-8 cursor-pointer rounded-lg shadow-[inset_0_2px_4px_var(--color-shadow-60)] focus:outline-none sm:h-4 sm:w-6"
-              aria-label={title || "Slider thumb"}
+              className="font-pixel bg-surface block h-4 w-4 rounded-full border"
+              aria-label={label || "Slider thumb"}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={sliderValue}
+              aria-valuenow={value}
             />
-          </Tooltip>
-        </SliderPrimitive.Root>
-      </div>
+          </TooltipTrigger>
+          <TooltipContent side={tooltipSide}>
+            {formattedTransformedValue}
+          </TooltipContent>
+        </Tooltip>
+      </SliderPrimitive.Root>
 
       {/* Title */}
-      {title && <Label className="mt-2 text-center">{title}</Label>}
+      {label && (
+        <Label className={cn(isVertical ? "text-center" : "mt-2 text-center")}>
+          {label}
+        </Label>
+      )}
     </div>
   );
 };

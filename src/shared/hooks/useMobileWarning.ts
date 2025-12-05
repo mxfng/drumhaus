@@ -2,14 +2,9 @@ import { useEffect, useState } from "react";
 
 import { useDialogStore } from "@/shared/store/useDialogStore";
 
-// Breakpoint for rendering mobile component (phones only)
-const MOBILE_COMPONENT_BREAKPOINT = 640; // pixels tailwind sm breakpoint
-// Breakpoint for showing warning dialog (matches CSS media query)
+const MOBILE_COMPONENT_BREAKPOINT = 640;
 const MOBILE_WARNING_BREAKPOINT = 1024; // pixels
 
-/**
- * Detect if the device is a mobile or tablet (not desktop)
- */
 function isMobileOrTabletDevice(): boolean {
   if (typeof window === "undefined") return false;
 

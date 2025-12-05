@@ -1,0 +1,22 @@
+.toast-root[data-swipe="move"] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+
+.toast-root[data-swipe="cancel"] {
+  transform: translateX(0);
+  transition: transform 200ms ease-out;
+}
+
+.toast-root[data-swipe="end"] {
+  animation: toast-swipe-out 100ms ease-out forwards;
+}
+
+/* Animations */
+@keyframes toast-swipe-out {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

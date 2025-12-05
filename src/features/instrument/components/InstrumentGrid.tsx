@@ -16,14 +16,16 @@ export const InstrumentGrid: React.FC = () => {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Get state from Sequencer Store
-  const voiceIndex = usePatternStore((state) => state.voiceIndex);
-  const setVoiceIndex = usePatternStore((state) => state.setVoiceIndex);
+  const mode = usePatternStore((state) => state.mode);
+  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
+
+  const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
 
   const toggleCurrentVoice = useCallback(
     (voice: number) => {
-      setVoiceIndex(voice);
+      setVoiceMode(voice);
     },
-    [setVoiceIndex],
+    [setVoiceMode],
   );
 
   const handleArrowKeyPress = useCallback(
@@ -47,27 +49,24 @@ export const InstrumentGrid: React.FC = () => {
   }, [handleArrowKeyPress]);
 
   return (
-    <div ref={instrumentsRef} className="grid w-full grid-cols-8">
+    <div
+      ref={instrumentsRef}
+      className="divide-border grid w-full grid-cols-8 divide-x px-6 py-3"
+    >
       {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
         const runtime = instrumentRuntimes.current[index];
 
         return (
           <div
             key={`gridItem-${index}`}
-            className="col-span-1 w-[193px] transition-all duration-500"
             onPointerDown={() => toggleCurrentVoice(index)}
+            className="px-2"
           >
             <InstrumentControl
               color={INSTRUMENT_COLORS[index]}
               key={`Instrument-${index}`}
               runtime={runtime}
               index={index}
-              instrumentIndex={voiceIndex}
-              bg={
-                voiceIndex == index
-                  ? "var(--color-track-emphasis)"
-                  : "var(--color-track)"
-              }
             />
           </div>
         );

@@ -1,17 +1,17 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+import { Coachmark } from "@/shared/components/Coachmark";
 import { cn } from "@/shared/lib/utils";
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
-import { Label, Tooltip } from "@/shared/ui";
+import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { useKnobControls } from "../hooks/useKnobControls";
+import { createKnobKeyboardHandler } from "../lib/accessibility";
 import {
   KNOB_OUTER_TICK_COUNT_DEFAULT,
   KNOB_VALUE_DEFAULT,
   KNOB_VALUE_MAX,
   KNOB_VALUE_MIN,
 } from "../lib/constants";
-import { KnobCoachmark } from "./KnobCoachmark";
 import { KnobTicks } from "./KnobTicks";
 
 export type KnobSize = "default" | "lg";
@@ -34,6 +34,8 @@ export interface KnobProps {
   step?: number; // if you want 8 options for a knob, step = 100 / 7
   /** Default value for the knob */
   defaultValue?: number;
+  /** Hide the rotating tick indicator at the top of the knob */
+  showTickIndicator?: boolean;
 }
 
 export const Knob: React.FC<KnobProps> = ({
@@ -46,13 +48,12 @@ export const Knob: React.FC<KnobProps> = ({
   outerTickCount = KNOB_OUTER_TICK_COUNT_DEFAULT,
   step: stepSize = KNOB_VALUE_DEFAULT,
   defaultValue = KNOB_VALUE_DEFAULT,
+  showTickIndicator = true,
 }) => {
   const containerClass = {
-    default: "h-[160px] sm:h-[90px]",
-    lg: "h-[300px] sm:h-[180px]",
+    default: "h-20",
+    lg: "h-44",
   }[size];
-
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
   const {
     rotation,
@@ -73,6 +74,14 @@ export const Knob: React.FC<KnobProps> = ({
     activeLabel,
   });
 
+  const handleKeyDown = createKnobKeyboardHandler({
+    value,
+    stepSize,
+    onValueChange,
+    onReset: () => onValueChange(defaultValue),
+    disabled,
+  });
+
   return (
     <div
       className={cn(
@@ -81,108 +90,88 @@ export const Knob: React.FC<KnobProps> = ({
       )}
     >
       {/* Knob Container */}
-      <Tooltip
-        content={tooltipContent}
-        delayDuration={0}
-        side={tooltipSide}
-        open={isMoving}
-      >
-        <div
-          ref={knobContainerRef}
-          className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
-          style={{ touchAction: "none" }}
-        >
-          {!potatoMode && (
-            <KnobCoachmark
+      <Tooltip open={isMoving}>
+        <TooltipTrigger asChild>
+          <div
+            ref={knobContainerRef}
+            className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
+            style={{ touchAction: "none" }}
+          >
+            <Coachmark
               visible={showCoachmark}
               message="Drag up/down to adjust"
               anchorRef={knobContainerRef}
             />
-          )}
-          {/* Hitbox (Rotates) */}
-          <motion.div
-            className={cn(
-              "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
-              disabled
-                ? "pointer-events-none cursor-not-allowed"
-                : "cursor-grab",
-            )}
-            onPointerDown={handlePointerDown}
-            onDoubleClick={handleDoubleClick}
-            aria-label={label}
-            aria-valuemin={KNOB_VALUE_MIN}
-            aria-valuemax={KNOB_VALUE_MAX}
-            aria-valuenow={value}
-            style={{
-              rotate: rotation,
-            }}
-          >
-            {/* Tick Mark */}
-            <svg
-              className="absolute top-[2%] left-1/2 -translate-x-1/2"
-              width="calc(1/24*100%)"
-              height="19%"
-              viewBox="0 0 2 20"
-              preserveAspectRatio="none"
-            >
-              <line
-                x1="1"
-                y1="0"
-                x2="1"
-                y2="20"
-                className="stroke-shadow-60"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </motion.div>
-
-          {/* Knob Base (Fixed and motionless for shadow effect) */}
-          <div
-            className={cn(
-              "flex aspect-square h-4/5 items-center justify-center rounded-full",
-              potatoMode
-                ? "bg-surface border-border border"
-                : "shadow-(--shadow-neu-tall)",
-            )}
-            style={{
-              background: potatoMode ? undefined : "var(--knob-gradient)",
-            }}
-          >
-            {/* Raised Knob Edge */}
-            <div
+            {/* Hitbox (Rotates) */}
+            <motion.div
               className={cn(
-                "border-shadow-60 relative flex h-3/5 w-3/5 items-center justify-center rounded-full",
-                potatoMode ? "" : "shadow-(--shadow-neu-tall-raised)",
+                "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full select-none",
               )}
+              onPointerDown={handlePointerDown}
+              onDoubleClick={handleDoubleClick}
+              onKeyDown={handleKeyDown}
+              tabIndex={disabled ? -1 : 0}
+              role="slider"
+              aria-label={label}
+              aria-valuemin={KNOB_VALUE_MIN}
+              aria-valuemax={KNOB_VALUE_MAX}
+              aria-valuenow={value}
               style={{
-                background: potatoMode ? undefined : "var(--knob-gradient)",
+                rotate: rotation,
+              }}
+              aria-disabled={disabled}
+            >
+              {showTickIndicator && (
+                <svg
+                  className="absolute top-[2%] left-1/2 w-[4.17%] -translate-x-1/2"
+                  height="19%"
+                  viewBox="0 0 2 20"
+                  preserveAspectRatio="none"
+                >
+                  <line
+                    x1="1"
+                    y1="0"
+                    x2="1"
+                    y2="20"
+                    className="stroke-foreground-muted"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </motion.div>
+
+            {/* Knob Base (Fixed and motionless for shadow effect) */}
+            <div
+              className="border-shadow-30 flex aspect-square h-4/5 items-center justify-center rounded-full border shadow-(--shadow-neu-tall)"
+              style={{
+                background: "var(--knob-gradient)",
               }}
             >
-              {/* Raised Knob Inner Circle */}
+              {/* Raised Knob Edge */}
               <div
-                className={cn(
-                  "absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full",
-                  potatoMode
-                    ? "bg-surface"
-                    : "bg-surface-groove raised shadow-(--knob-shadow-center)",
-                )}
-              />
+                className="border-shadow-30 relative flex h-3/5 w-3/5 items-center justify-center rounded-full border shadow-(--shadow-neu-tall-raised)"
+                style={{
+                  background: "var(--knob-gradient)",
+                }}
+              >
+                {/* Raised Knob Inner Circle */}
+                <div className="border-shadow-10 bg-knob raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-(--knob-shadow-center)" />
+              </div>
             </div>
-          </div>
 
-          {/* Outer ticks */}
-          <KnobTicks
-            outerTickCount={
-              potatoMode ? Math.min(outerTickCount, 16) : outerTickCount
-            }
-          />
-        </div>
+            {/* Outer ticks */}
+            {outerTickCount > 0 && (
+              <KnobTicks outerTickCount={outerTickCount} />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side={tooltipSide}>{tooltipContent}</TooltipContent>
       </Tooltip>
 
       {/* Label */}
       <div className="flex items-center justify-center">
-        <Label>{label}</Label>
+        <Label className="text-xs">{label}</Label>
       </div>
     </div>
   );

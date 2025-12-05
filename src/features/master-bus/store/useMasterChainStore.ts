@@ -3,16 +3,17 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import {
+  MASTER_COMP_DEFAULT_ATTACK,
   MASTER_COMP_DEFAULT_MIX,
   MASTER_COMP_DEFAULT_RATIO,
   MASTER_COMP_DEFAULT_THRESHOLD,
-  MASTER_HIGH_PASS_DEFAULT,
-  MASTER_LOW_PASS_DEFAULT,
+  MASTER_FILTER_DEFAULT,
   MASTER_PHASER_DEFAULT,
   MASTER_REVERB_DEFAULT,
+  MASTER_SATURATION_DEFAULT,
   MASTER_VOLUME_DEFAULT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "../types/master";
+import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 
 /**
  * Selector to get MasterChainParams from the store state
@@ -20,12 +21,13 @@ import { MasterChainParams } from "../types/master";
 export function getMasterChainParams(): MasterChainParams {
   const state = useMasterChainStore.getState();
   return {
-    lowPass: state.lowPass,
-    highPass: state.highPass,
+    filter: state.filter,
+    saturation: state.saturation,
     phaser: state.phaser,
     reverb: state.reverb,
     compThreshold: state.compThreshold,
     compRatio: state.compRatio,
+    compAttack: state.compAttack,
     compMix: state.compMix,
     masterVolume: state.masterVolume,
   };
@@ -33,14 +35,15 @@ export function getMasterChainParams(): MasterChainParams {
 
 interface MasterChainState {
   // Filter effects
-  lowPass: number;
-  highPass: number;
+  filter: number;
+  saturation: number;
   phaser: number;
   reverb: number;
 
   // Compressor
   compThreshold: number;
   compRatio: number;
+  compAttack: number;
   compMix: number;
 
   // Master output
@@ -50,12 +53,13 @@ interface MasterChainState {
   reduction: number; // Current gain reduction in dB (negative value)
 
   // Actions
-  setLowPass: (lowPass: number) => void;
-  setHighPass: (highPass: number) => void;
+  setFilter: (filter: number) => void;
+  setSaturation: (saturation: number) => void;
   setPhaser: (phaser: number) => void;
   setReverb: (reverb: number) => void;
   setCompThreshold: (compThreshold: number) => void;
   setCompRatio: (compRatio: number) => void;
+  setCompAttack: (compAttack: number) => void;
   setCompMix: (compMix: number) => void;
   setMasterVolume: (masterVolume: number) => void;
   setReduction: (reduction: number) => void;
@@ -69,23 +73,24 @@ export const useMasterChainStore = create<MasterChainState>()(
     persist(
       immer((set) => ({
         // Initial state (default/init preset values)
-        lowPass: MASTER_LOW_PASS_DEFAULT,
-        highPass: MASTER_HIGH_PASS_DEFAULT,
+        filter: MASTER_FILTER_DEFAULT,
+        saturation: MASTER_SATURATION_DEFAULT,
         phaser: MASTER_PHASER_DEFAULT,
         reverb: MASTER_REVERB_DEFAULT,
         compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
         compRatio: MASTER_COMP_DEFAULT_RATIO,
+        compAttack: MASTER_COMP_DEFAULT_ATTACK,
         compMix: MASTER_COMP_DEFAULT_MIX,
         masterVolume: MASTER_VOLUME_DEFAULT,
         reduction: 0,
 
         // Individual setters
-        setLowPass: (lowPass) => {
-          set({ lowPass });
+        setFilter: (filter) => {
+          set({ filter });
         },
 
-        setHighPass: (highPass) => {
-          set({ highPass });
+        setSaturation: (saturation) => {
+          set({ saturation });
         },
 
         setPhaser: (phaser) => {
@@ -104,6 +109,10 @@ export const useMasterChainStore = create<MasterChainState>()(
           set({ compRatio });
         },
 
+        setCompAttack: (compAttack) => {
+          set({ compAttack });
+        },
+
         setCompMix: (compMix) => {
           set({ compMix });
         },
@@ -119,12 +128,13 @@ export const useMasterChainStore = create<MasterChainState>()(
         // Batch setter for preset loading
         setAllMasterChain: (params) => {
           set({
-            lowPass: params.lowPass,
-            highPass: params.highPass,
+            filter: params.filter,
+            saturation: params.saturation,
             phaser: params.phaser,
             reverb: params.reverb,
             compThreshold: params.compThreshold,
             compRatio: params.compRatio,
+            compAttack: params.compAttack,
             compMix: params.compMix ?? MASTER_COMP_DEFAULT_MIX,
             masterVolume: params.masterVolume,
           });
@@ -134,12 +144,13 @@ export const useMasterChainStore = create<MasterChainState>()(
         name: "drumhaus-master-chain-storage",
         // Persist all master FX settings
         partialize: (state) => ({
-          lowPass: state.lowPass,
-          highPass: state.highPass,
+          filter: state.filter,
+          saturation: state.saturation,
           phaser: state.phaser,
           reverb: state.reverb,
           compThreshold: state.compThreshold,
           compRatio: state.compRatio,
+          compAttack: state.compAttack,
           compMix: state.compMix,
           masterVolume: state.masterVolume,
         }),

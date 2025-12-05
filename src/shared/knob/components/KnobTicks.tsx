@@ -31,7 +31,7 @@ export function KnobTicks({ outerTickCount }: KnobTicksProps) {
               transform: `rotate(${rotation}deg)`,
             }}
           >
-            <div className="bg-shadow-60 absolute top-[2%] left-1/2 h-0.5 w-0.5 -translate-x-1/2 rounded-full" />
+            <div className="bg-shadow absolute top-[2%] left-1/2 h-0.5 w-0.5 -translate-x-1/2 rounded-full" />
           </div>
         );
       })}

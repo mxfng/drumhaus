@@ -1,0 +1,25 @@
+/* eslint-disable css/no-important */
+
+html.potato-mode,
+body.potato-mode,
+#root.potato-mode {
+  --shadow-neu: none;
+  --shadow-neu-md: none;
+  --shadow-neu-tall: none;
+  --shadow-neu-xl: none;
+  --shadow-neu-raised: none;
+  --shadow-neu-tall-raised: none;
+  --knob-shadow: none;
+  --knob-shadow-center: none;
+  --knob-shadow-ring: none;
+  --knob-shadow-inset: none;
+  --slider-track-shadow: none;
+}
+
+html.potato-mode *,
+html.potato-mode *::before,
+html.potato-mode *::after {
+  box-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
+}
