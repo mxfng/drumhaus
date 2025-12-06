@@ -8,6 +8,11 @@ interface UseSequencerDragPaintProps {
   onToggleStep: (stepIndex: number) => void;
 }
 
+type StepInteractionContext = {
+  index: number;
+  isActive: boolean;
+};
+
 export const useSequencerDragPaint = ({
   triggers,
   onToggleStep,
@@ -54,27 +59,27 @@ export const useSequencerDragPaint = ({
 
   const handleStepPointerStart = (
     event: React.PointerEvent<HTMLButtonElement>,
-    stepIndex: number,
-    isCurrentlyOn: boolean,
+    context: StepInteractionContext,
   ) => {
+    const { index: stepIndex, isActive } = context;
     activeInputRef.current = "pointer";
     activePointerIdRef.current = event.pointerId ?? null;
     setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
+    setDragWriteTargetOn(!isActive);
     onToggleStep(stepIndex);
   };
 
   const handleStepTouchStart = (
     _event: React.TouchEvent<HTMLButtonElement>,
-    stepIndex: number,
-    isCurrentlyOn: boolean,
+    context: StepInteractionContext,
   ) => {
+    const { index: stepIndex, isActive } = context;
     // Ignore the synthetic touch event if we've already started handling a pointer sequence.
     if (activeInputRef.current === "pointer") return;
     activeInputRef.current = "touch";
     activePointerIdRef.current = null;
     setIsDragging(true);
-    setDragWriteTargetOn(!isCurrentlyOn);
+    setDragWriteTargetOn(!isActive);
     onToggleStep(stepIndex);
   };
 
@@ -91,11 +96,11 @@ export const useSequencerDragPaint = ({
 
   const handleStepPointerEnter = (
     _event: React.PointerEvent<HTMLButtonElement>,
-    stepIndex: number,
-    isCurrentlyOn: boolean,
+    context: StepInteractionContext,
   ) => {
+    const { index: stepIndex, isActive } = context;
     if (activeInputRef.current === "touch") return;
-    const isStateChanging = isCurrentlyOn !== dragWriteTargetOn;
+    const isStateChanging = isActive !== dragWriteTargetOn;
     if (isDragging && isStateChanging) {
       onToggleStep(stepIndex);
     }
