@@ -49,9 +49,6 @@ interface MasterChainState {
   // Master output
   masterVolume: number;
 
-  // Runtime state (not persisted)
-  reduction: number; // Current gain reduction in dB (negative value)
-
   // Actions
   setFilter: (filter: number) => void;
   setSaturation: (saturation: number) => void;
@@ -62,7 +59,6 @@ interface MasterChainState {
   setCompAttack: (compAttack: number) => void;
   setCompMix: (compMix: number) => void;
   setMasterVolume: (masterVolume: number) => void;
-  setReduction: (reduction: number) => void;
 
   // Batch setters for preset loading
   setAllMasterChain: (params: MasterChainParams) => void;
@@ -82,7 +78,6 @@ export const useMasterChainStore = create<MasterChainState>()(
         compAttack: MASTER_COMP_DEFAULT_ATTACK,
         compMix: MASTER_COMP_DEFAULT_MIX,
         masterVolume: MASTER_VOLUME_DEFAULT,
-        reduction: 0,
 
         // Individual setters
         setFilter: (filter) => {
@@ -119,10 +114,6 @@ export const useMasterChainStore = create<MasterChainState>()(
 
         setMasterVolume: (masterVolume) => {
           set({ masterVolume });
-        },
-
-        setReduction: (reduction) => {
-          set({ reduction });
         },
 
         // Batch setter for preset loading

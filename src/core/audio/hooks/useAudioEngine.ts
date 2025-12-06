@@ -165,8 +165,6 @@ export function useAudioEngine(): UseAudioEngineResult {
   const masterChainRuntimes = useRef<MasterChainRuntimes | null>(null);
   const isInitialized = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const setReduction = useMasterChainStore((state) => state.setReduction);
 
   // Initialize master chain runtimes once and set up subscription
   useEffect(() => {
@@ -183,20 +181,6 @@ export function useAudioEngine(): UseAudioEngineResult {
       );
 
       isInitialized.current = true;
-
-      // Start gain reduction metering loop
-      const updateGainReduction = () => {
-        if (masterChainRuntimes.current) {
-          const isPlaying = useTransportStore.getState().isPlaying;
-          // Show 0 when not playing, otherwise show actual reduction
-          const reduction = isPlaying
-            ? masterChainRuntimes.current.compressor.reduction
-            : 0;
-          setReduction(reduction);
-        }
-        animationFrameRef.current = requestAnimationFrame(updateGainReduction);
-      };
-      animationFrameRef.current = requestAnimationFrame(updateGainReduction);
 
       // Set up subscription after initialization
       let prevParams: MasterChainParams | null = null;
@@ -239,11 +223,6 @@ export function useAudioEngine(): UseAudioEngineResult {
     initializeMasterChain();
 
     return () => {
-      // Clean up animation frame
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
       // Clean up subscription
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
@@ -256,7 +235,7 @@ export function useAudioEngine(): UseAudioEngineResult {
         isInitialized.current = false;
       }
     };
-  }, [setReduction]);
+  }, []);
 
   // Connect instruments to master chain when they change
   useEffect(() => {
