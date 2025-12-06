@@ -60,12 +60,16 @@ export const TempoControlsScreen: React.FC = () => {
 
         <span className="flex w-full items-center justify-start">
           <span className="pr-2 pl-1 text-xs">play</span>
-          <div className="bg-accent-foreground h-3 w-4 rounded-tr rounded-bl">
+          <div
+            className={cn(
+              "bg-accent-foreground h-3 w-4 overflow-hidden rounded-tr rounded-bl",
+              playbackVariationColors.border,
+            )}
+          >
             <span
               className={cn(
                 "font-pixel flex -translate-y-0.5 items-center justify-center px-1 text-xs",
                 playbackVariationColors.bg,
-                playbackVariationColors.border,
                 playbackVariationColors.text,
               )}
             >
