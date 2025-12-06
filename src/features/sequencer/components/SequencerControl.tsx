@@ -11,7 +11,6 @@ import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
@@ -83,41 +82,6 @@ export const SequencerControl: React.FC = () => {
     setChainEnabled(!chainEnabled);
   };
 
-  const chainOnButtonRef = useRef<HTMLButtonElement>(null);
-  const copyButtonRef = useRef<HTMLButtonElement>(null);
-  const pasteButtonRef = useRef<HTMLButtonElement>(null);
-  const clearButtonRef = useRef<HTMLButtonElement>(null);
-  const undoButtonRef = useRef<HTMLButtonElement>(null);
-
-  useLightNode(variChainButtonRef, {
-    id: "variation-chain-button",
-    group: "button",
-  });
-
-  useLightNode(chainOnButtonRef, {
-    id: "chain-on-button",
-    group: "button",
-  });
-
-  useLightNode(copyButtonRef, {
-    id: "copy-button",
-    group: "button",
-  });
-
-  useLightNode(pasteButtonRef, {
-    id: "paste-button",
-    group: "button",
-  });
-
-  useLightNode(clearButtonRef, {
-    id: "clear-button",
-    group: "button",
-  });
-
-  useLightNode(undoButtonRef, {
-    id: "undo-button",
-    group: "button",
-  });
   return (
     <HardwareModule>
       <div className="grid w-full grid-cols-4 gap-x-2 gap-y-4">
@@ -146,7 +110,6 @@ export const SequencerControl: React.FC = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              ref={chainOnButtonRef}
               variant="hardware"
               size="sm"
               className={cn(buttonActive(chainEnabled))}
