@@ -53,7 +53,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>In Haus</SelectLabel>
+            <SelectLabel>in haus</SelectLabel>
             {defaultPresets.map((preset) => (
               <SelectItem key={preset.meta.id} value={preset.meta.id}>
                 {preset.meta.name}
@@ -64,7 +64,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
             <>
               <SelectSeparator />
               <SelectGroup>
-                <SelectLabel>Custom</SelectLabel>
+                <SelectLabel>custom</SelectLabel>
                 {customPresets.map((preset) => (
                   <div
                     key={preset.meta.id}

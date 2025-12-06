@@ -13,7 +13,7 @@ const dialogVariants = cva(
         default:
           "bg-[linear-gradient(160deg,var(--color-gradient-light),var(--color-gradient-dark))]",
         primary:
-          "bg-popover text-popover-foreground rounded-none rounded-tr-4xl rounded-bl-4xl",
+          "bg-popover text-popover-foreground rounded-none rounded-tr-4xl rounded-bl-4xl border-none",
       },
     },
     defaultVariants: {
