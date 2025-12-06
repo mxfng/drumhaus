@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { PresetFileExportForm } from "@/features/preset/dialogs/PresetFileExportForm";
-import { WavExportForm } from "@/features/preset/dialogs/WavExportForm";
+import { PresetFileExportForm } from "@/features/preset/forms/PresetFileExportForm";
+import { WavExportForm } from "@/features/preset/forms/WavExportForm";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           <DialogTitle>Export</DialogTitle>
         </DialogHeader>
         <DialogDescription className="sr-only">
-          Export your preset as a file or WAV audio file.
+          Export your preset as a file.
         </DialogDescription>
 
         <Tabs
