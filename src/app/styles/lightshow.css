@@ -2,9 +2,10 @@
 
 [data-light-node] {
   --lightshow-color: oklch(0.7245 0.189 50.94);
-  --lightshow-color-overlay: oklch(0.7245 0.189 50.94 / 0.68);
+  --lightshow-color-overlay: oklch(0.7245 0.189 50.94 / 68%);
   --lightshow-brightness: 1.08;
   --lightshow-saturation: 1.04;
+  --lightshow-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Sequencer step */
@@ -18,8 +19,8 @@
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity var(--lightshow-transition),
+    filter var(--lightshow-transition);
 }
 
 [data-light-group="sequencer-step"][data-light-state="on"]::after {
@@ -42,7 +43,7 @@
   box-shadow: 0 0 4px var(--color-primary-shadow);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--lightshow-transition);
 }
 
 [data-light-group="sequencer-indicator"][data-light-state="on"]::after {
@@ -60,8 +61,8 @@
   opacity: 0;
   filter: saturate(0);
   transition:
-    filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter var(--lightshow-transition),
+    opacity var(--lightshow-transition);
 }
 
 [data-light-group="logo"][data-light-state="on"] {
