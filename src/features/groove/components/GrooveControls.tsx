@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter";
@@ -7,7 +6,6 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
 import {
   Button,
   Label,
