@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 
@@ -92,7 +92,10 @@ function SelectLabel({
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn("text-foreground-muted px-2 py-1.5 text-xs", className)}
+      className={cn(
+        "text-popover-foreground/80 px-2 py-1.5 text-xs",
+        className,
+      )}
       {...props}
     />
   );
@@ -107,16 +110,11 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "focus:bg-accent font-pixel focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-foreground-muted relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "focus:bg-accent font-pixel focus:text-accent-foreground data-[state=checked]:bg-accent/60 data-[state=checked]:text-accent-foreground [&_svg:not([class*='text-'])]:text-foreground-muted relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-2 text-sm outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className,
       )}
       {...props}
     >
-      <span className="absolute right-2 flex size-3.5 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="text-popover-foreground size-4" />
-        </SelectPrimitive.ItemIndicator>
-      </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   );
@@ -129,7 +127,10 @@ function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn("bg-accent pointer-events-none -mx-1 my-1 h-px", className)}
+      className={cn(
+        "bg-popover-foreground/20 pointer-events-none -mx-1 my-1 h-px",
+        className,
+      )}
       {...props}
     />
   );

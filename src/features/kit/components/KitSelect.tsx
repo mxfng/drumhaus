@@ -7,23 +7,23 @@ import {
 } from "@/shared/ui";
 import { KitFileV1 } from "../types/kit";
 
-type KitSelectorProps = {
+interface KitSelectProps {
   selectedKitId: string;
   kits: KitFileV1[];
   onSelect: (value: string) => void;
-};
+}
 
-export const KitSelector: React.FC<KitSelectorProps> = ({
+export const KitSelect: React.FC<KitSelectProps> = ({
   selectedKitId,
   kits,
   onSelect,
 }) => {
   return (
-    <div className="group w-full">
+    <div className="group w-full px-1">
       <Select value={selectedKitId} onValueChange={onSelect}>
         <SelectTrigger
           size="screen"
-          className="text-screen-foreground w-full cursor-pointer border-transparent bg-transparent px-0 focus-visible:ring-offset-0"
+          className="text-screen-foreground w-full cursor-pointer rounded-none border-transparent bg-transparent px-1 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <SelectValue />
         </SelectTrigger>

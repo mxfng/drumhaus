@@ -6,30 +6,11 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { ScreenBar } from "@/layout/ScreenBar";
 import { cn } from "@/shared/lib/utils";
+import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 
 export const ChainEditScreen: React.FC = () => {
   const chain = usePatternStore((state) => state.chainDraft);
   const totalBars = chain.steps.reduce((sum, step) => sum + step.repeats, 0);
-
-  // Variation colors matching sequencer visualization
-  const variationStyles = [
-    {
-      bg: "bg-blue-500/20",
-      border: "border-blue-500/60",
-      text: "text-blue-400",
-    }, // A
-    {
-      bg: "bg-green-500/20",
-      border: "border-green-500/60",
-      text: "text-green-400",
-    }, // B
-    {
-      bg: "bg-yellow-500/20",
-      border: "border-yellow-500/60",
-      text: "text-yellow-400",
-    }, // C
-    { bg: "bg-red-500/20", border: "border-red-500/60", text: "text-red-400" }, // D
-  ];
 
   return (
     <div className="bg-screen flex h-full flex-col gap-1 pt-1">
@@ -38,12 +19,12 @@ export const ChainEditScreen: React.FC = () => {
           const isActive = idx === chain.steps.length;
           const label = VARIATION_LABELS[step.variation];
           const isLast = idx === chain.steps.length - 1;
-          const colors = variationStyles[step.variation];
+          const colors = VARIATION_CHAIN_COLORS[step.variation];
           return (
             <React.Fragment key={`${step.variation}-${idx}`}>
               <div
                 className={cn(
-                  "flex items-center justify-center gap-1 rounded-tr rounded-bl border px-1 text-xs",
+                  "font-pixel flex items-center justify-center gap-1 rounded-tr rounded-bl border px-1 text-xs",
                   isActive
                     ? "border-primary bg-primary/10 text-primary"
                     : cn(colors.bg, colors.border, colors.text),

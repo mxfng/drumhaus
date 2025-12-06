@@ -95,10 +95,10 @@ export const Sequencer: React.FC = () => {
 
   // --- Chain Mode Helpers ---
   const variationColors = [
-    "bg-blue-500/30 border-blue-500/50", // A
-    "bg-green-500/30 border-green-500/50", // B
-    "bg-yellow-500/30 border-yellow-500/50", // C
-    "bg-red-500/30 border-red-500/50", // D
+    "bg-variation-a/30 border-variation-a/50", // A
+    "bg-variation-b/30 border-variation-b/50", // B
+    "bg-variation-c/30 border-variation-c/50", // C
+    "bg-variation-d/30 border-variation-d/50", // D
   ];
 
   const getChainStepVariation = (stepIndex: number): number | null => {
