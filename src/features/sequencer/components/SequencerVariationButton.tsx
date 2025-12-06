@@ -1,8 +1,9 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
@@ -33,6 +34,14 @@ export const SequencerVariationButton = forwardRef<
   const isActive = currentVariation === variation;
   const isChainEdit = mode.type === "variationChain";
 
+  const internalRef = useRef<HTMLButtonElement>(null);
+  useLightNode(internalRef, {
+    group: "variation",
+    weight: 0.6,
+  });
+
+  useImperativeHandle(ref, () => internalRef.current as HTMLButtonElement);
+
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isChainEdit) {
       writeChainStep(variation);
@@ -46,7 +55,7 @@ export const SequencerVariationButton = forwardRef<
 
   return (
     <Button
-      ref={ref}
+      ref={internalRef}
       variant="hardware"
       size="lg"
       onClick={handleClick}

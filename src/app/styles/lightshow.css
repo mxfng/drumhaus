@@ -1,0 +1,27 @@
+/* Lightshow: generic "LED" glow state shared by the rig */
+
+[data-light-node] {
+  --lightshow-color: var(--lightshow-color, var(--color-primary));
+  --lightshow-brightness: 1.2;
+  --lightshow-saturation: 1.1;
+  transition:
+    filter 220ms ease,
+    box-shadow 220ms ease,
+    transform 260ms ease;
+}
+
+[data-light-node][data-light-state="on"] {
+  box-shadow:
+    0 0 0.35rem color-mix(in oklab, var(--lightshow-color) 70%, transparent),
+    0 0.6rem 1.4rem color-mix(in oklab, var(--lightshow-color) 45%, transparent),
+    inset 0 0 0.55rem
+      color-mix(in oklab, var(--lightshow-color) 65%, transparent);
+  filter: brightness(var(--lightshow-brightness))
+    saturate(var(--lightshow-saturation));
+  transform: translateY(-1px);
+}
+
+.drumhaus-root[data-lightshow-lock="on"] {
+  pointer-events: none;
+  user-select: none;
+}

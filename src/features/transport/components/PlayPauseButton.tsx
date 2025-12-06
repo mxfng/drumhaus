@@ -1,19 +1,25 @@
+import { useRef } from "react";
 import { Pause, Play } from "lucide-react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { useLightNode } from "@/shared/lightshow";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 export const PlayPauseButton = () => {
   const { instrumentRuntimes } = useDrumhaus();
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useLightNode(buttonRef, { group: "transport", weight: 1 });
 
   return (
     <div className="flex items-center justify-center p-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
+            ref={buttonRef}
             variant="hardware"
             className="h-(--app-play-button) w-(--app-play-button) rounded-xl p-1 [&_svg]:size-[50px]!"
             onClick={() => togglePlay(instrumentRuntimes.current)}

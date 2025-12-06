@@ -6,6 +6,11 @@ import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
 import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
+import {
+  LightRigProvider,
+  useLightRig,
+  useLightShowIntro,
+} from "@/shared/lightshow";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Separator } from "@/shared/ui";
 import { ControlsPanel } from "./ControlsPanel";
@@ -19,7 +24,7 @@ const MobileDialog = lazy(() =>
   })),
 );
 
-const Drumhaus = () => {
+const DrumhausContent = () => {
   // --- Context ---
   const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
 
@@ -31,6 +36,9 @@ const Drumhaus = () => {
 
   // --- Desktop-specific Hooks ---
   const { scale } = useLayoutScale();
+  const { isPointerLocked } = useLightRig();
+
+  useLightShowIntro(true, 320);
 
   useMobileWarning();
 
@@ -47,6 +55,7 @@ const Drumhaus = () => {
           // @ts-expect-error - CSS custom property
           "--layout-scale": scale / 100,
         }}
+        data-lightshow-lock={isPointerLocked ? "on" : "off"}
       >
         <FloatingMenu />
         <div
@@ -88,6 +97,14 @@ const Drumhaus = () => {
         <MobileDialog isOpen={isMobileDialogOpen} onClose={closeDialog} />
       </Suspense>
     </>
+  );
+};
+
+const Drumhaus = () => {
+  return (
+    <LightRigProvider>
+      <DrumhausContent />
+    </LightRigProvider>
   );
 };
 

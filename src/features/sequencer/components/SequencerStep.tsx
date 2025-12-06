@@ -1,6 +1,7 @@
 import React from "react";
 
 import { cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -71,9 +72,16 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const borderRadius = "rounded-[0_16px_0_16px]";
 
   const sizeClasses = "aspect-square w-full";
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  useLightNode(buttonRef, {
+    group: "sequencer-step",
+    weight: 0.8,
+  });
 
   return (
     <button
+      ref={buttonRef}
       data-step-index={stepIndex}
       onClick={(event) => {
         if (disabled) return;

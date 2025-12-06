@@ -22,6 +22,7 @@
 
 /* ==================== Animations ==================== */
 @import "./styles/animations.css";
+@import "./styles/lightshow.css";
 
 /* ==================== Performance Modes ==================== */
 @import "./styles/potato.css";
