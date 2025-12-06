@@ -5,6 +5,8 @@
   --app-footer-height: 2.5rem; /* h-18 in Tailwind, 72px */
   --app-header-height: 2.5rem; /* h-18 in Tailwind, 72px */
   --app-padding: 5rem; /* p-12 in Tailwind, 48px */
+  --app-play-button: 9rem;
+  --app-play-button-inner: 7.5rem;
 
   /* ==================== Colors ==================== */
   /* Base colors */
