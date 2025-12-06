@@ -23,7 +23,7 @@ interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLB
 export const SequencerVariationButton = forwardRef<
   HTMLButtonElement,
   SequencerVariationButtonProps
->(({ variation, onClick, className, ...props }) => {
+>(({ variation, onClick, className, ...props }, ref) => {
   const currentVariation = usePatternStore((state) => state.variation);
   const setVariation = usePatternStore((state) => state.setVariation);
   const mode = usePatternStore((state) => state.mode);
@@ -49,6 +49,7 @@ export const SequencerVariationButton = forwardRef<
       variant="hardware"
       size="lg"
       onClick={handleClick}
+      ref={ref}
       className={cn(
         "font-pixel flex items-start justify-start p-1 transition-colors duration-400",
         buttonActive(isActive && !isChainEdit),
