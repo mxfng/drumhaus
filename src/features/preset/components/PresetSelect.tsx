@@ -68,7 +68,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
                 {customPresets.map((preset) => (
                   <div
                     key={preset.meta.id}
-                    className="group/preset relative flex items-center"
+                    className="group/preset [&>div[data-state=checked]~button]:text-screen relative flex items-center"
                   >
                     <SelectItem
                       value={preset.meta.id}
