@@ -10,6 +10,16 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useLightRig } from "@/shared/lightshow";
 
+// --- Chain Mode Helpers ---
+// Note: doubled opacity from other implementations to account for
+// the 50% opacity applied due to buttons being disabled in chain mode
+const CHAIN_MODE_VARIATION_STEP_COLORS = [
+  "bg-variation-a/60 border-variation-a", // A
+  "bg-variation-b/60 border-variation-b", // B
+  "bg-variation-c/60 border-variation-c", // C
+  "bg-variation-d/60 border-variation-d", // D
+];
+
 interface StepRenderState {
   velocity: number;
   isActive: boolean;
@@ -84,16 +94,6 @@ export const Sequencer: React.FC = () => {
   // --- Velocities ---
   const velocities = currentVariation.velocities;
 
-  // --- Chain Mode Helpers ---
-  // Note: doubled opacity from other implementations to account for
-  // the 50% opacity applied due to buttons being disabled in chain mode
-  const variationColors = [
-    "bg-variation-a/60 border-variation-a", // A
-    "bg-variation-b/60 border-variation-b", // B
-    "bg-variation-c/60 border-variation-c", // C
-    "bg-variation-d/60 border-variation-d", // D
-  ];
-
   const stepIndices: number[] = Array.from({ length: STEP_COUNT }, (_, i) => i);
 
   // --- Step toggle logic ---
@@ -157,7 +157,7 @@ export const Sequencer: React.FC = () => {
         intensity: 1,
         isGuideHighlighted: false,
         activeColorClassName: !isEmptyStep
-          ? variationColors[chainVariation]
+          ? CHAIN_MODE_VARIATION_STEP_COLORS[chainVariation]
           : undefined,
       };
     }
