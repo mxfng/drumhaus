@@ -133,7 +133,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     >
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
+          "pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
           borderRadius,
         )}
         style={{

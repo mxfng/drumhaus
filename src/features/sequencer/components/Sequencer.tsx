@@ -98,10 +98,10 @@ export const Sequencer: React.FC = () => {
 
   // --- Chain Mode Helpers ---
   const variationColors = [
-    "bg-variation-a/30 border-variation-a/50", // A
-    "bg-variation-b/30 border-variation-b/50", // B
-    "bg-variation-c/30 border-variation-c/50", // C
-    "bg-variation-d/30 border-variation-d/50", // D
+    "bg-variation-a/30 border-variation-a", // A
+    "bg-variation-b/30 border-variation-b", // B
+    "bg-variation-c/30 border-variation-c", // C
+    "bg-variation-d/30 border-variation-d", // D
   ];
 
   const getChainStepVariation = (stepIndex: number): number | null => {
@@ -140,7 +140,6 @@ export const Sequencer: React.FC = () => {
         activeColorClassName: !isEmpty
           ? variationColors[chainVariation]
           : undefined,
-        disabled: true,
       };
     }
 
@@ -180,15 +179,11 @@ export const Sequencer: React.FC = () => {
               intensity={state.intensity}
               isGuideHighlighted={state.isGuideHighlighted}
               activeColorClassName={state.activeColorClassName}
-              disabled={state.disabled}
-              onKeyboardToggle={state.disabled ? undefined : handleToggleStep}
-              onPointerToggleStart={
-                state.disabled ? undefined : handleStepPointerStart
-              }
-              onPointerToggleEnter={
-                state.disabled ? undefined : handleStepPointerEnter
-              }
-              onPointerMove={state.disabled ? undefined : handleStepPointerMove}
+              onKeyboardToggle={handleToggleStep}
+              onPointerToggleStart={handleStepPointerStart}
+              onPointerToggleEnter={handleStepPointerEnter}
+              onPointerMove={handleStepPointerMove}
+              disabled={isChainEdit}
             />
             {/* Hide velocity controls in accent/ratchet/flam/chain mode or when showVelocity is off */}
             <div className="h-3.5 w-full">
