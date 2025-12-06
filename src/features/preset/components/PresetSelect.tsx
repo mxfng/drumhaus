@@ -72,7 +72,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
                   >
                     <SelectItem
                       value={preset.meta.id}
-                      className="group-hover/preset:bg-accent group-hover/preset:text-accent-foreground flex-1 pr-8"
+                      className="group-hover/preset:bg-screen-foreground group-hover/preset:text-screen flex-1 pr-8"
                     >
                       {preset.meta.name}
                     </SelectItem>
@@ -81,7 +81,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="hover:text-accent-foreground/80 absolute right-0 h-6 w-6 shrink-0"
+                        className="group-hover/preset:text-screen hover:text-screen absolute right-0 h-6 w-6 shrink-0"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
