@@ -46,7 +46,7 @@ const Drumhaus = () => {
   return (
     <>
       <div
-        className="drumhaus-root animate-fade-in"
+        className="drumhaus-root"
         style={{
           // @ts-expect-error - CSS custom property
           "--layout-scale": scale / 100,

@@ -11,13 +11,14 @@ import { type PositionedLightNode, type RegisteredLightNode } from "./types";
 
 const TARGET_WAVE_DURATION = 800; // total sweep duration
 const WAVE_ORDER_Y_WEIGHT = 0.35;
-const WAVE_COMPLETION_BUFFER = 160;
-const TAIL_GAP = 10; // wait before the tail starts turning lights off
+const WAVE_COMPLETION_BUFFER = 200;
+const TAIL_GAP = 260; // wait before the tail starts turning lights off
 
 export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
   const idCounter = useRef(0);
   const isPlayingRef = useRef(false);
+  const rafIdRef = useRef<number | null>(null);
 
   const [isIntroPlaying, setIsIntroPlaying] = useState(true);
 
@@ -99,6 +100,11 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const playIntroWave = useCallback<
     LightRigContextValue["playIntroWave"]
   >(() => {
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
+
     if (isPlayingRef.current) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -119,39 +125,56 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const baseDelay =
       sorted.length > 1 ? availableDuration / (sorted.length - 1) : 0;
 
-    const timers: number[] = [];
-    const schedule = (cb: () => void, delay: number) => {
-      const timer = window.setTimeout(cb, delay);
-      timers.push(timer);
-      return timer;
-    };
-
     isPlayingRef.current = true;
     setIsIntroPlaying(true);
 
     const tailStart = sorted.length * baseDelay + TAIL_GAP;
+    const totalDuration =
+      tailStart + (sorted.length - 1) * baseDelay + WAVE_COMPLETION_BUFFER;
 
-    sorted.forEach((node, index) => {
-      const headDelay = index * baseDelay;
-      schedule(() => {
-        setLightState(node.id, true);
-      }, headDelay);
+    const onSchedule = sorted.map((node, index) => ({
+      id: node.id,
+      time: index * baseDelay,
+    }));
+    const offSchedule = sorted.map((node, index) => ({
+      id: node.id,
+      time: tailStart + index * baseDelay,
+    }));
 
-      const tailDelay = tailStart + index * baseDelay;
-      schedule(() => {
-        setLightState(node.id, false);
-      }, tailDelay);
-    });
+    let nextOnIndex = 0;
+    let nextOffIndex = 0;
+    const start = performance.now();
 
-    schedule(
-      () => {
+    const step = (now: number) => {
+      const elapsed = now - start;
+
+      while (
+        nextOnIndex < onSchedule.length &&
+        elapsed >= onSchedule[nextOnIndex].time
+      ) {
+        setLightState(onSchedule[nextOnIndex].id, true);
+        nextOnIndex += 1;
+      }
+
+      while (
+        nextOffIndex < offSchedule.length &&
+        elapsed >= offSchedule[nextOffIndex].time
+      ) {
+        setLightState(offSchedule[nextOffIndex].id, false);
+        nextOffIndex += 1;
+      }
+
+      if (elapsed >= totalDuration) {
         setIsIntroPlaying(false);
         isPlayingRef.current = false;
-      },
-      tailStart + sorted.length * baseDelay + WAVE_COMPLETION_BUFFER,
-    );
+        rafIdRef.current = null;
+        return;
+      }
 
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
+      rafIdRef.current = requestAnimationFrame(step);
+    };
+
+    rafIdRef.current = requestAnimationFrame(step);
   }, [getNodesWithPosition, setLightState]);
 
   const value = useMemo<LightRigContextValue>(
