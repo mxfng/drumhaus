@@ -29,8 +29,8 @@ export const ConfirmSelectPresetDialog: React.FC<
             Any unsaved changes to your current preset will be lost.
           </DialogDescription>
           <DialogDescription>
-            You can save your work first by downloading it as a file or sharing
-            it as a link.
+            You can save your work to your preset library, or use Export/Share
+            to download a file or generate a link.
           </DialogDescription>
         </div>
 

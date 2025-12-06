@@ -94,8 +94,7 @@ export const PresetFileExportForm: React.FC<PresetFileExportFormProps> = ({
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <div className="space-y-6">
         <DialogDescription>
-          Download your preset as a .dh file to save it locally or share it with
-          others.
+          Download your preset as a .dh file to save it locally.
         </DialogDescription>
 
         <FieldGroup>
