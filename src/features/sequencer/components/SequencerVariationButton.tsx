@@ -1,8 +1,9 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef } from "react";
 
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
@@ -44,8 +45,16 @@ export const SequencerVariationButton = forwardRef<
 
   const chainEditColors = VARIATION_CHAIN_COLORS[variation];
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useLightNode(buttonRef, {
+    id: `sequencer-variation-button-${variation}`,
+    group: "sequencer-variation-button",
+  });
+
   return (
     <Button
+      ref={buttonRef}
       variant="hardware"
       size="lg"
       onClick={handleClick}

@@ -1,36 +1,68 @@
 /* Lightshow: generic "LED" glow state shared by the rig */
 
 [data-light-node] {
-  --lightshow-color: oklch(0.7245 0.189 50.94 / 40%);
+  --lightshow-color: oklch(0.7245 0.189 50.94 / 60%);
+  --lightshow-color-backlit: oklch(0.7245 0.189 50.94 / 80%);
   --lightshow-brightness: 1.08; /* slightly toned down */
+  --lightshow-brightness-backlit: 1.02;
   --lightshow-saturation: 1.04;
   position: relative;
 }
 
 [data-light-node][data-light-state="on"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sequencer step */
+[data-light-group="sequencer-step"][data-light-state="on"] {
   background-color: var(--lightshow-color);
   filter: brightness(var(--lightshow-brightness))
     saturate(var(--lightshow-saturation));
-  transition: all 0.3s ease-in-out;
-}
-
-/* Sequencer indicator: stronger color fill + glow */
-[data-light-group="sequencer-indicator"][data-light-state="on"] {
   opacity: 1; /* ensure visible even if base styles mess with opacity */
 }
 
-/* Logo group: no heavy glow, just a clean fade-in */
+/* Sequencer indicator */
+[data-light-group="sequencer-indicator"][data-light-state="on"] {
+  background-color: var(--lightshow-color);
+  filter: brightness(var(--lightshow-brightness))
+    saturate(var(--lightshow-saturation));
+  opacity: 1; /* ensure visible even if base styles mess with opacity */
+}
+
+/* Logo group: clean fade-in */
 [data-light-group="logo"] {
-  background-color: transparent;
   opacity: 0;
+  filter: saturate(0);
 }
 
 [data-light-group="logo"][data-light-state="on"] {
-  background-color: transparent;
   opacity: 1;
+  filter: saturate(var(--lightshow-saturation));
 }
 
-/* Optional: still used to lock interaction during intro, if you want */
+/* Button group */
+[data-light-group="button"][data-light-state="on"] {
+  color: var(--lightshow-color); /* Set text color */
+  --svg-fill-color: var(
+    --lightshow-color-backlit
+  ); /* For direct SVG variable usage */
+  /* For most svg icons inside the button, inherit parent text color: */
+  &,
+  & svg {
+    color: var(--lightshow-color-backlit);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+[data-light-group="sequencer-variation-button"][data-light-state="on"] {
+  /* Also apply background color to direct div children inside the button */
+  & > span {
+    background-color: var(--lightshow-color-backlit);
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* used to lock interaction during intro */
 .sequence-grid[data-lightshow-lock="on"] {
   pointer-events: none;
   user-select: none;

@@ -79,7 +79,9 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   useLightNode(buttonRef, {
+    id: `sequencer-step-${stepIndex}`,
     weight: 0.8,
+    group: "sequencer-step",
   });
 
   return (

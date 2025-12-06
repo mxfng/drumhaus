@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { TimingNudgeMeter } from "@/features/groove/components/TimingNudgeMeter";
@@ -6,6 +7,7 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 import {
   Button,
   Label,
@@ -61,6 +63,43 @@ export const GrooveControls = () => {
   const canNudgeLeft = currentNudge > -2 && mode.type === "voice";
   const canNudgeRight = currentNudge < 2 && mode.type === "voice";
 
+  const accentButtonRef = useRef<HTMLButtonElement>(null);
+  const velocityButtonRef = useRef<HTMLButtonElement>(null);
+  const timingNudgeLeftButtonRef = useRef<HTMLButtonElement>(null);
+  const timingNudgeRightButtonRef = useRef<HTMLButtonElement>(null);
+  const ratchetButtonRef = useRef<HTMLButtonElement>(null);
+  const flamButtonRef = useRef<HTMLButtonElement>(null);
+
+  useLightNode(accentButtonRef, {
+    id: "accent-button",
+    group: "button",
+  });
+
+  useLightNode(velocityButtonRef, {
+    id: "velocity-button",
+    group: "button",
+  });
+
+  useLightNode(timingNudgeLeftButtonRef, {
+    id: "timing-nudge-left-button",
+    group: "button",
+  });
+
+  useLightNode(timingNudgeRightButtonRef, {
+    id: "timing-nudge-right-button",
+    group: "button",
+  });
+
+  useLightNode(ratchetButtonRef, {
+    id: "ratchet-button",
+    group: "button",
+  });
+
+  useLightNode(flamButtonRef, {
+    id: "flam-button",
+    group: "button",
+  });
+
   return (
     <HardwareModule>
       <div className="grid w-full grid-cols-2 place-items-center gap-x-2 gap-y-4">
@@ -68,6 +107,7 @@ export const GrooveControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={accentButtonRef}
               variant="hardware"
               className={buttonActive(accentMode)}
               onClick={toggleAccentMode}
@@ -82,6 +122,7 @@ export const GrooveControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={velocityButtonRef}
               variant="hardware"
               size="sm"
               className={cn(
@@ -105,6 +146,7 @@ export const GrooveControls = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                ref={timingNudgeLeftButtonRef}
                 variant="hardware-icon"
                 size="icon-sm"
                 className="relative overflow-hidden"
@@ -127,6 +169,7 @@ export const GrooveControls = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
+                ref={timingNudgeRightButtonRef}
                 variant="hardware-icon"
                 size="icon-sm"
                 className="relative overflow-hidden"
@@ -145,6 +188,7 @@ export const GrooveControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={ratchetButtonRef}
               variant="hardware"
               size="sm"
               onClick={toggleRatchetMode}
@@ -158,6 +202,7 @@ export const GrooveControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={flamButtonRef}
               variant="hardware"
               size="sm"
               onClick={toggleFlamMode}

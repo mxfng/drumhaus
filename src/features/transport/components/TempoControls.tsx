@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ArrowDownToDot, Music3, Timer } from "lucide-react";
 
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { clamp, cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 import {
   Button,
   Label,
@@ -117,6 +118,25 @@ export const TempoControls = () => {
     }
   };
 
+  const bpmButtonRef = useRef<HTMLButtonElement>(null);
+  const swingButtonRef = useRef<HTMLButtonElement>(null);
+  const tapTempoButtonRef = useRef<HTMLButtonElement>(null);
+
+  useLightNode(bpmButtonRef, {
+    id: "bpm-button",
+    group: "button",
+  });
+
+  useLightNode(swingButtonRef, {
+    id: "swing-button",
+    group: "button",
+  });
+
+  useLightNode(tapTempoButtonRef, {
+    id: "tap-tempo-button",
+    group: "button",
+  });
+
   return (
     <div className="mx-auto flex w-5/6 flex-col items-center justify-center gap-4 px-4">
       <ParamKnob
@@ -131,6 +151,7 @@ export const TempoControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={bpmButtonRef}
               variant="hardware-icon"
               size="icon-sm"
               className={cn(
@@ -148,6 +169,7 @@ export const TempoControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={swingButtonRef}
               variant="hardware-icon"
               size="icon-sm"
               className={cn(
@@ -165,6 +187,7 @@ export const TempoControls = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
+              ref={tapTempoButtonRef}
               variant="hardware-icon"
               size="icon-sm"
               className="font-pixel text-foreground-muted text-[10px] tracking-wide uppercase"
