@@ -12,7 +12,7 @@ import { type PositionedLightNode, type RegisteredLightNode } from "./types";
 const TARGET_WAVE_DURATION = 800; // total sweep duration
 const WAVE_ORDER_Y_WEIGHT = 0.35;
 const WAVE_COMPLETION_BUFFER = 200;
-const TAIL_GAP = 260; // wait before the tail starts turning lights off
+const TAIL_GAP = 0; // wait before the tail starts turning lights off
 
 export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
@@ -132,39 +132,35 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const totalDuration =
       tailStart + (sorted.length - 1) * baseDelay + WAVE_COMPLETION_BUFFER;
 
-    const onSchedule = sorted.map((node, index) => ({
-      id: node.id,
-      time: index * baseDelay,
-    }));
-    const offSchedule = sorted.map((node, index) => ({
-      id: node.id,
-      time: tailStart + index * baseDelay,
-    }));
+    const events = [
+      ...sorted.map((node, index) => ({
+        id: node.id,
+        time: index * baseDelay,
+        state: true,
+      })),
+      ...sorted.map((node, index) => ({
+        id: node.id,
+        time: tailStart + index * baseDelay,
+        state: false,
+      })),
+    ].sort((a, b) => a.time - b.time);
 
-    let nextOnIndex = 0;
-    let nextOffIndex = 0;
+    let nextEventIndex = 0;
     const start = performance.now();
 
     const step = (now: number) => {
       const elapsed = now - start;
 
       while (
-        nextOnIndex < onSchedule.length &&
-        elapsed >= onSchedule[nextOnIndex].time
+        nextEventIndex < events.length &&
+        elapsed >= events[nextEventIndex].time
       ) {
-        setLightState(onSchedule[nextOnIndex].id, true);
-        nextOnIndex += 1;
+        const evt = events[nextEventIndex];
+        setLightState(evt.id, evt.state);
+        nextEventIndex += 1;
       }
 
-      while (
-        nextOffIndex < offSchedule.length &&
-        elapsed >= offSchedule[nextOffIndex].time
-      ) {
-        setLightState(offSchedule[nextOffIndex].id, false);
-        nextOffIndex += 1;
-      }
-
-      if (elapsed >= totalDuration) {
+      if (elapsed >= totalDuration || nextEventIndex >= events.length) {
         setIsIntroPlaying(false);
         isPlayingRef.current = false;
         rafIdRef.current = null;
