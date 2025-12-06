@@ -6,20 +6,20 @@ import {
   type PropsWithChildren,
 } from "react";
 
-import { LightRigContext } from "./LightRigContext";
-import {
-  type LightRigContextValue,
-  type PositionedLightNode,
-  type RegisteredLightNode,
-} from "./types";
+import { LightRigContext, type LightRigContextValue } from "./LightRigContext";
+import { type PositionedLightNode, type RegisteredLightNode } from "./types";
+
+const TARGET_WAVE_DURATION = 1500; // 1.5 seconds
+const PULSE_DURATION = 240;
+const WAVE_ORDER_Y_WEIGHT = 0.35;
+const WAVE_COMPLETION_BUFFER = 100;
 
 export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
   const idCounter = useRef(0);
   const isPlayingRef = useRef(false);
 
-  const [isIntroPlaying, setIsIntroPlaying] = useState(false);
-  const [isPointerLocked, setIsPointerLocked] = useState(false);
+  const [isIntroPlaying, setIsIntroPlaying] = useState(true);
 
   const setLightState = useCallback<LightRigContextValue["setLightState"]>(
     (ids, isOn) => {
@@ -111,9 +111,14 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const sorted = nodes
       .map((node) => ({
         ...node,
-        waveOrder: node.center.x + node.center.y * 0.35,
+        waveOrder: node.center.x + node.center.y * WAVE_ORDER_Y_WEIGHT,
       }))
       .sort((a, b) => a.waveOrder - b.waveOrder);
+
+    const availableDuration =
+      TARGET_WAVE_DURATION - PULSE_DURATION - WAVE_COMPLETION_BUFFER;
+    const baseDelay =
+      sorted.length > 1 ? availableDuration / (sorted.length - 1) : 0;
 
     const timers: number[] = [];
     const schedule = (cb: () => void, delay: number) => {
@@ -122,29 +127,21 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
       return timer;
     };
 
-    const pulseDuration = 280;
-    const baseDelay = 55;
-
     isPlayingRef.current = true;
     setIsIntroPlaying(true);
-    setIsPointerLocked(true);
 
     sorted.forEach((node, index) => {
       const delay = index * baseDelay;
       schedule(() => {
         setLightState(node.id, true);
-        schedule(() => setLightState(node.id, false), pulseDuration);
+        schedule(() => setLightState(node.id, false), PULSE_DURATION);
       }, delay);
     });
 
-    schedule(
-      () => {
-        setIsPointerLocked(false);
-        setIsIntroPlaying(false);
-        isPlayingRef.current = false;
-      },
-      sorted.length * baseDelay + pulseDuration + 100,
-    );
+    schedule(() => {
+      setIsIntroPlaying(false);
+      isPlayingRef.current = false;
+    }, TARGET_WAVE_DURATION);
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [getNodesWithPosition, setLightState]);
@@ -155,15 +152,8 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
       setLightState,
       playIntroWave,
       isIntroPlaying,
-      isPointerLocked,
     }),
-    [
-      registerNode,
-      setLightState,
-      playIntroWave,
-      isIntroPlaying,
-      isPointerLocked,
-    ],
+    [registerNode, setLightState, playIntroWave, isIntroPlaying],
   );
 
   return (

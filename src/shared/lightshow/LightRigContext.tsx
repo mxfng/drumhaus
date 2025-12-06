@@ -1,6 +1,13 @@
 import { createContext, useContext } from "react";
 
-import { LightRigContextValue } from "./types";
+import { LightNodeRegistration } from "./types";
+
+export type LightRigContextValue = {
+  registerNode: (node: LightNodeRegistration) => () => void;
+  setLightState: (ids: string | string[], isOn: boolean) => void;
+  playIntroWave: () => void;
+  isIntroPlaying: boolean;
+};
 
 export const LightRigContext = createContext<LightRigContextValue | null>(null);
 

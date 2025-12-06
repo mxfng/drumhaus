@@ -1,7 +1,7 @@
 import React from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
+import { useLightNode, useLightRig } from "@/shared/lightshow";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -51,13 +51,15 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const isAccentBeat = stepIndex % 4 === 0;
   const isGuideOnly = isGuideActive && !isTriggerOn;
 
+  const { isIntroPlaying } = useLightRig();
+
   const getTriggerClassName = () => {
     // Use custom color if provided
     if (color && isTriggerOn) {
       return color;
     }
 
-    return isTriggerOn
+    return isTriggerOn && !isIntroPlaying
       ? "bg-primary shadow-neu hover:accent"
       : isGuideOnly
         ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"

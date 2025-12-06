@@ -4,6 +4,7 @@
   --lightshow-color: var(--lightshow-color, var(--color-primary));
   --lightshow-brightness: 1.2;
   --lightshow-saturation: 1.1;
+  position: relative;
 }
 
 [data-light-node][data-light-state="on"] {
@@ -14,7 +15,38 @@
       color-mix(in oklab, var(--lightshow-color) 65%, transparent);
   filter: brightness(var(--lightshow-brightness))
     saturate(var(--lightshow-saturation));
-  transform: translateY(-1px);
+}
+
+[data-light-group="sequencer-indicator"][data-light-state="on"] {
+  box-shadow:
+    0 0 6px 1px color-mix(in oklab, var(--lightshow-color) 70%, transparent),
+    0 0 10px 3px color-mix(in oklab, var(--lightshow-color) 45%, transparent);
+  transform: scaleY(1.6);
+  background-color: var(--lightshow-color);
+}
+
+[data-light-group="sequencer-indicator"][data-light-state="on"]::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px 3px color-mix(in oklab, var(--lightshow-color) 65%, transparent),
+    0 0 14px 5px color-mix(in oklab, var(--lightshow-color) 35%, transparent);
+  opacity: 0.8;
+}
+
+[data-light-node][data-light-state="on"]::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    0 0 10px 2px color-mix(in oklab, var(--lightshow-color) 65%, transparent),
+    0 0 16px 4px color-mix(in oklab, var(--lightshow-color) 35%, transparent);
+  opacity: 0.9;
 }
 
 .drumhaus-root[data-lightshow-lock="on"] {

@@ -33,6 +33,12 @@ const ToastProvider = lazy(() =>
   })),
 );
 
+const LightRigProvider = lazy(() =>
+  import("@/shared/lightshow/LightRigProvider").then((module) => ({
+    default: module.LightRigProvider,
+  })),
+);
+
 const DrumhausProvider = lazy(() =>
   import("../core/providers/DrumhausProvider").then((module) => ({
     default: module.DrumhausProvider,
@@ -122,9 +128,11 @@ export function App() {
           <AppErrorBoundary>
             <GlobalErrorHandler />
             <TooltipProvider>
-              <DrumhausProvider>
-                <Drumhaus />
-              </DrumhausProvider>
+              <LightRigProvider>
+                <DrumhausProvider>
+                  <Drumhaus />
+                </DrumhausProvider>
+              </LightRigProvider>
             </TooltipProvider>
           </AppErrorBoundary>
         </ToastProvider>
