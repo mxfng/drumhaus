@@ -5,15 +5,13 @@ import { cn } from "@/shared/lib/utils";
 import { useLightNode, useLightRig } from "@/shared/lightshow";
 
 interface SequencerStepIndicatorProps {
-  stepIndex: number;
-  variation?: number;
-  playbackVariation?: number;
+  index: number;
+  isInCurrentVariation?: boolean;
 }
 
 export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
-  stepIndex,
-  variation = undefined,
-  playbackVariation = undefined,
+  index,
+  isInCurrentVariation = false,
 }) => {
   // --- Lightshow ---
   const indicatorRef = useRef<HTMLDivElement>(null);
@@ -27,7 +25,7 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
 
   // --- Computed styles ---
 
-  const isAccentBeat = stepIndex % 4 === 0;
+  const isAccentBeat = index % 4 === 0;
   const idleColorClass = isAccentBeat
     ? "bg-sequencer-indicator-accent"
     : "bg-sequencer-indicator-regular";
@@ -55,13 +53,12 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
     };
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
-      const isCurrentStep = currentStep === stepIndex;
-      const inSameVariation = playbackVariation === variation;
+      const isCurrentStep = currentStep === index;
 
       const indicatorIsOn =
         isPlaying &&
         isCurrentStep &&
-        (inSameVariation || (isAccentBeat && !inSameVariation));
+        (isInCurrentVariation || (isAccentBeat && !isInCurrentVariation));
 
       setState(indicatorIsOn);
     });
@@ -70,9 +67,8 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
 
     return unsubscribe;
   }, [
-    stepIndex,
-    variation,
-    playbackVariation,
+    index,
+    isInCurrentVariation,
     isAccentBeat,
     isIntroPlaying,
     idleColorClass,
