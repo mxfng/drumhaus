@@ -6,6 +6,7 @@ import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
 import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
+import { useLightShowIntro } from "@/shared/lightshow";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Separator } from "@/shared/ui";
 import { ControlsPanel } from "./ControlsPanel";
@@ -39,10 +40,13 @@ const Drumhaus = () => {
     instrumentRuntimesVersion,
   });
 
+  // --- Lightshow ---
+  useLightShowIntro(instrumentRuntimesVersion > 0, 320);
+
   return (
     <>
       <div
-        className="drumhaus-root animate-fade-in"
+        className="drumhaus-root"
         style={{
           // @ts-expect-error - CSS custom property
           "--layout-scale": scale / 100,

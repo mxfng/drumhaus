@@ -8,6 +8,7 @@ import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelo
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { useLightRig } from "@/shared/lightshow";
 
 interface StepMusicalState {
   velocityValue: number;
@@ -44,6 +45,9 @@ export const Sequencer: React.FC = () => {
   const voiceMode = mode.type === "voice";
   const voiceIndex = voiceMode || ratchetMode || flamMode ? mode.voiceIndex : 0;
   const showInstrumentGuide = ratchetMode || flamMode;
+
+  // --- Lightshow ---
+  const { isIntroPlaying } = useLightRig();
 
   // Get appropriate triggers based on mode
   let triggers: boolean[];
@@ -155,8 +159,9 @@ export const Sequencer: React.FC = () => {
   return (
     <div
       key="sequence-grid"
-      className="grid h-40 w-full grid-cols-16 gap-4 p-6"
+      className="sequence-grid grid h-40 w-full grid-cols-16 gap-4 p-6"
       onPointerMove={handleStepPointerMove}
+      data-lightshow-lock={isIntroPlaying ? "on" : "off"}
     >
       {steps.map((step) => {
         const state = getStepMusicalState(step);
