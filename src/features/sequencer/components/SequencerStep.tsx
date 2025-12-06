@@ -47,36 +47,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onTouchMove,
   disabled = false,
 }) => {
-  // Accent beats (every 4th step) for visual emphasis
-  const isAccentBeat = stepIndex % 4 === 0;
-  const isGuideOnly = isGuideActive && !isTriggerOn;
-
-  const { isIntroPlaying } = useLightRig();
-
-  const getTriggerClassName = () => {
-    if (color && isTriggerOn) return color;
-
-    if (isTriggerOn && !isIntroPlaying) {
-      return "bg-primary shadow-neu hover:accent";
-    }
-
-    if (isGuideOnly) {
-      return "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90";
-    }
-
-    return "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
-  };
-
-  const triggerStyles = {
-    className: getTriggerClassName(),
-    opacity: isTriggerOn || isGuideOnly ? 1 : isAccentBeat ? 1 : 0.75,
-  };
-
-  const borderRadius = "rounded-[0_16px_0_16px]";
-
-  const sizeClasses = "aspect-square w-full";
-
   const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const { isIntroPlaying } = useLightRig();
 
   useLightNode(buttonRef, {
     id: `sequencer-step-${stepIndex}`,
@@ -84,37 +56,65 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     group: "sequencer-step",
   });
 
+  const isGuideOnly = isGuideActive && !isTriggerOn;
+  const isTriggerVisible = isTriggerOn && !isIntroPlaying;
+  const borderRadius = "rounded-[0_16px_0_16px]";
+  const sizeClasses = "aspect-square w-full";
+
+  const triggerClassName =
+    (color && isTriggerOn && color) ||
+    (isTriggerVisible && "bg-primary shadow-neu hover:accent") ||
+    (isGuideOnly &&
+      "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90") ||
+    "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
+
+  const triggerStyles = {
+    className: triggerClassName,
+    opacity: isTriggerOn || isGuideOnly ? 1 : 0.75,
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    if (event.detail === 0) {
+      onClick?.(stepIndex);
+    }
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    onPointerStart?.(event, stepIndex, isTriggerOn);
+  };
+
+  const handlePointerEnter = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    onPointerEnter?.(event, stepIndex, isTriggerOn);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    onPointerMove?.(event);
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    onTouchStart?.(event, stepIndex, isTriggerOn);
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    onTouchMove?.(event);
+  };
+
   return (
     <button
       ref={buttonRef}
       data-step-index={stepIndex}
-      onClick={(event) => {
-        if (disabled) return;
-        // Only trigger on keyboard clicks (Enter key), not pointer/mouse events
-        if (event.detail === 0) {
-          onClick?.(stepIndex);
-        }
-      }}
-      onPointerDown={(event) => {
-        if (disabled) return;
-        onPointerStart?.(event, stepIndex, isTriggerOn);
-      }}
-      onPointerEnter={(event) => {
-        if (disabled) return;
-        onPointerEnter?.(event, stepIndex, isTriggerOn);
-      }}
-      onPointerMove={(event) => {
-        if (disabled) return;
-        onPointerMove?.(event);
-      }}
-      onTouchStart={(event) => {
-        if (disabled) return;
-        onTouchStart?.(event, stepIndex, isTriggerOn);
-      }}
-      onTouchMove={(event) => {
-        if (disabled) return;
-        onTouchMove?.(event);
-      }}
+      onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onContextMenu={(e) => e.preventDefault()}
       disabled={disabled}
       type="button"

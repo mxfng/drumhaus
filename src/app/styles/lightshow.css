@@ -2,31 +2,57 @@
 
 [data-light-node] {
   --lightshow-color: oklch(0.7245 0.189 50.94 / 60%);
-  --lightshow-color-backlit: oklch(0.7245 0.189 50.94 / 80%);
+  --lightshow-color-backlit: oklch(0.7245 0.189 50.94);
   --lightshow-brightness: 1.08; /* slightly toned down */
-  --lightshow-brightness-backlit: 1.02;
   --lightshow-saturation: 1.04;
   position: relative;
-}
-
-[data-light-node][data-light-state="on"] {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Sequencer step */
-[data-light-group="sequencer-step"][data-light-state="on"] {
-  background-color: var(--lightshow-color);
-  filter: brightness(var(--lightshow-brightness))
-    saturate(var(--lightshow-saturation));
-  opacity: 1; /* ensure visible even if base styles mess with opacity */
+/* Sequencer step: overlay-only so it doesn't fight base styles */
+[data-light-group="sequencer-step"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--lightshow-color-backlit);
+  /* filter: brightness(var(--lightshow-brightness))
+    saturate(var(--lightshow-saturation)); */
+  opacity: 0;
+  pointer-events: none;
+  /* mix-blend-mode: lighten; */
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Sequencer indicator */
-[data-light-group="sequencer-indicator"][data-light-state="on"] {
-  background-color: var(--lightshow-color);
-  filter: brightness(var(--lightshow-brightness))
-    saturate(var(--lightshow-saturation));
-  opacity: 1; /* ensure visible even if base styles mess with opacity */
+[data-light-group="sequencer-step"][data-light-state="on"]::after {
+  opacity: 1;
+}
+
+/* Sequencer indicator: overlay-only so playback styling can stay untouched */
+[data-light-group="sequencer-indicator"] {
+  position: relative;
+}
+
+[data-light-group="sequencer-indicator"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--lightshow-color-backlit);
+  /* filter: brightness(var(--lightshow-brightness))
+    saturate(var(--lightshow-saturation)); */
+  opacity: 0;
+  pointer-events: none;
+  /* mix-blend-mode: lighten; */
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-light-group="sequencer-indicator"][data-light-state="on"]::after {
+  opacity: 1;
 }
 
 [data-light-group="variation-preview"][data-light-state="on"] .preview-led {
@@ -44,28 +70,6 @@
 [data-light-group="logo"][data-light-state="on"] {
   opacity: 1;
   filter: saturate(var(--lightshow-saturation));
-}
-
-/* Button group */
-[data-light-group="button"][data-light-state="on"] {
-  color: var(--lightshow-color); /* Set text color */
-  --svg-fill-color: var(
-    --lightshow-color-backlit
-  ); /* For direct SVG variable usage */
-  /* For most svg icons inside the button, inherit parent text color: */
-  &,
-  & svg {
-    color: var(--lightshow-color-backlit);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
-
-[data-light-group="sequencer-variation-button"][data-light-state="on"] {
-  /* Also apply background color to direct div children inside the button */
-  & > span {
-    background-color: var(--lightshow-color-backlit);
-    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
 }
 
 /* used to lock interaction during intro */

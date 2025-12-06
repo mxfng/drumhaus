@@ -16,7 +16,7 @@ const LogoAspectBoundingBox: React.FC<LogoAspectBoundingBoxProps> = ({
   ref,
 }) => {
   return (
-    <div className={cn("scale-x-[1.2]", className)} ref={ref}>
+    <div ref={ref} className={cn("scale-x-[1.2] opacity-0", className)}>
       <DrumhausLogo size={size} square />
     </div>
   );

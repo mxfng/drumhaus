@@ -64,6 +64,10 @@
   --color-border: var(--color-shadow-60);
   --color-ring: oklch(0.7607 0.0398 67.17);
 
+  /* Sequencer indicator colors */
+  --color-sequencer-indicator-accent: oklch(0.6585 0.0213 60);
+  --color-sequencer-indicator-regular: oklch(0.8547 0.0109 39.43);
+
   /* ==================== Neumorphic Colors ==================== */
   --color-shadow: oklch(0.6818 0.0555 68.55);
   --color-shadow-10: oklch(0.6818 0.0555 68.55 / 10%);

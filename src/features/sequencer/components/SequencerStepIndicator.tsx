@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
+import { useLightNode, useLightRig } from "@/shared/lightshow";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
@@ -15,75 +15,65 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   variation = undefined,
   playbackVariation = undefined,
 }) => {
+  // --- Lightshow ---
   const indicatorRef = useRef<HTMLDivElement>(null);
 
-  const baseClassName = "mb-4 h-1 w-full rounded-full";
-
-  useEffect(() => {
-    let lastIndicatorOn: boolean | null = null;
-    let lastOpacityClass: string | null = null;
-
-    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
-      if (indicatorRef.current?.dataset.lightState === "on") return;
-
-      const isAccentBeat = stepIndex % 4 === 0;
-      const isStepPlaying =
-        isPlaying &&
-        playbackVariation === variation &&
-        currentStep === stepIndex;
-      const isAccentPlayingOtherVariation =
-        isPlaying &&
-        playbackVariation !== variation &&
-        isAccentBeat &&
-        currentStep === stepIndex;
-
-      const indicatorIsOn = isStepPlaying || isAccentPlayingOtherVariation;
-
-      if (!indicatorRef.current) return;
-
-      const opacityClass = indicatorIsOn
-        ? "opacity-100"
-        : isAccentBeat
-          ? "opacity-60"
-          : "opacity-20";
-
-      if (opacityClass !== lastOpacityClass) {
-        indicatorRef.current.classList.remove(
-          "opacity-100",
-          "opacity-60",
-          "opacity-20",
-        );
-        indicatorRef.current.classList.add(opacityClass);
-        lastOpacityClass = opacityClass;
-      }
-
-      if (indicatorIsOn !== lastIndicatorOn) {
-        indicatorRef.current.classList.toggle("bg-primary", indicatorIsOn);
-        indicatorRef.current.classList.toggle(
-          "bg-foreground-emphasis",
-          !indicatorIsOn,
-        );
-
-        indicatorRef.current.style.boxShadow = indicatorIsOn
-          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-          : "none";
-
-        lastIndicatorOn = indicatorIsOn;
-      }
-    });
-
-    return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, baseClassName]);
+  const { isIntroPlaying } = useLightRig();
 
   useLightNode(indicatorRef, {
     group: "sequencer-indicator",
     weight: 0.4,
   });
 
+  // --- Computed CSS Classes ---
+
+  const baseClassName = "mb-4 h-1 w-full rounded-full";
+
+  const isAccentBeat = stepIndex % 4 === 0;
+
+  // rAF loop to update the indicator
+  useEffect(() => {
+    if (isIntroPlaying) {
+      return;
+    }
+
+    const el = indicatorRef.current;
+    if (!el) {
+      return;
+    }
+
+    let lastIndicatorOn: boolean | null = null;
+
+    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
+      const isCurrentStep = currentStep === stepIndex;
+      const inSameVariation = playbackVariation === variation;
+
+      const indicatorIsOn =
+        isPlaying &&
+        isCurrentStep &&
+        (inSameVariation || (isAccentBeat && !inSameVariation));
+
+      if (indicatorIsOn !== lastIndicatorOn) {
+        el.classList.toggle("bg-primary", indicatorIsOn);
+        el.classList.toggle("bg-foreground-emphasis", !indicatorIsOn);
+        el.style.boxShadow = indicatorIsOn
+          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
+          : "none";
+        lastIndicatorOn = indicatorIsOn;
+      }
+    });
+
+    return unsubscribe;
+  }, [stepIndex, variation, playbackVariation, isAccentBeat, isIntroPlaying]);
+
   return (
     <div
       ref={indicatorRef}
-      className={cn(baseClassName, "bg-foreground-emphasis opacity-20")}
+      className={cn(
+        baseClassName,
+        "bg-sequencer-indicator-regular",
+        isAccentBeat && "bg-sequencer-indicator-accent",
+      )}
     />
   );
 };
