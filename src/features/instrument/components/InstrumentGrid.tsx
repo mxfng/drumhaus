@@ -28,14 +28,43 @@ export const InstrumentGrid: React.FC = () => {
     [setVoiceMode],
   );
 
+  // Useful keyboard shortcuts for navigating the instrument grid
   const handleArrowKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" && !isAnyDialogOpen()) {
-        const newVoice = (voiceIndex + 1) % 8;
-        toggleCurrentVoice(newVoice);
-      } else if (event.key === "ArrowLeft" && !isAnyDialogOpen()) {
-        const newVoice = (voiceIndex - 1 + 8) % 8;
-        toggleCurrentVoice(newVoice);
+      const newVoiceRight = (voiceIndex: number) => (voiceIndex + 1) % 8;
+      const newVoiceLeft = (voiceIndex: number) => (voiceIndex - 1 + 8) % 8;
+      const newVoiceUp = (voiceIndex: number) => (voiceIndex - 2 + 8) % 8;
+      const newVoiceDown = (voiceIndex: number) => (voiceIndex + 2) % 8;
+
+      if (isAnyDialogOpen()) return;
+      if (event.key === "ArrowRight") {
+        toggleCurrentVoice(newVoiceRight(voiceIndex));
+      } else if (event.key === "ArrowLeft") {
+        toggleCurrentVoice(newVoiceLeft(voiceIndex));
+      } else if (event.key === "h") {
+        toggleCurrentVoice(newVoiceLeft(voiceIndex));
+      } else if (event.key === "l") {
+        toggleCurrentVoice(newVoiceRight(voiceIndex));
+      } else if (event.key === "j") {
+        toggleCurrentVoice(newVoiceDown(voiceIndex));
+      } else if (event.key === "k") {
+        toggleCurrentVoice(newVoiceUp(voiceIndex));
+      } else if (event.key === "1") {
+        toggleCurrentVoice(0);
+      } else if (event.key === "2") {
+        toggleCurrentVoice(1);
+      } else if (event.key === "3") {
+        toggleCurrentVoice(2);
+      } else if (event.key === "4") {
+        toggleCurrentVoice(3);
+      } else if (event.key === "5") {
+        toggleCurrentVoice(4);
+      } else if (event.key === "6") {
+        toggleCurrentVoice(5);
+      } else if (event.key === "7") {
+        toggleCurrentVoice(6);
+      } else if (event.key === "8") {
+        toggleCurrentVoice(7);
       }
     },
     [voiceIndex, toggleCurrentVoice, isAnyDialogOpen],
