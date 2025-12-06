@@ -42,7 +42,7 @@ const VariationPreviewColumn: React.FC<{
           className={cn(
             "preview-led h-1 w-1 rounded-full",
             showPattern && isTriggerOn
-              ? "bg-primary shadow-[0_0_4px_rgba(255,123,0,0.6)]"
+              ? "bg-primary shadow-[0_0_4px_var(--color-primary-shadow)]"
               : "bg-border",
           )}
         />

@@ -2,88 +2,85 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
+import { useLightNode, useLightRig } from "@/shared/lightshow";
 
 interface SequencerStepIndicatorProps {
-  stepIndex: number;
-  variation?: number;
-  playbackVariation?: number;
+  index: number;
+  isInCurrentVariation?: boolean;
 }
 
 export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
-  stepIndex,
-  variation = undefined,
-  playbackVariation = undefined,
+  index,
+  isInCurrentVariation = false,
 }) => {
+  // --- Lightshow ---
   const indicatorRef = useRef<HTMLDivElement>(null);
-
-  const baseClassName = "mb-4 h-1 w-full rounded-full";
-
-  useEffect(() => {
-    let lastIndicatorOn: boolean | null = null;
-    let lastOpacityClass: string | null = null;
-
-    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
-      if (indicatorRef.current?.dataset.lightState === "on") return;
-
-      const isAccentBeat = stepIndex % 4 === 0;
-      const isStepPlaying =
-        isPlaying &&
-        playbackVariation === variation &&
-        currentStep === stepIndex;
-      const isAccentPlayingOtherVariation =
-        isPlaying &&
-        playbackVariation !== variation &&
-        isAccentBeat &&
-        currentStep === stepIndex;
-
-      const indicatorIsOn = isStepPlaying || isAccentPlayingOtherVariation;
-
-      if (!indicatorRef.current) return;
-
-      const opacityClass = indicatorIsOn
-        ? "opacity-100"
-        : isAccentBeat
-          ? "opacity-60"
-          : "opacity-20";
-
-      if (opacityClass !== lastOpacityClass) {
-        indicatorRef.current.classList.remove(
-          "opacity-100",
-          "opacity-60",
-          "opacity-20",
-        );
-        indicatorRef.current.classList.add(opacityClass);
-        lastOpacityClass = opacityClass;
-      }
-
-      if (indicatorIsOn !== lastIndicatorOn) {
-        indicatorRef.current.classList.toggle("bg-primary", indicatorIsOn);
-        indicatorRef.current.classList.toggle(
-          "bg-foreground-emphasis",
-          !indicatorIsOn,
-        );
-
-        indicatorRef.current.style.boxShadow = indicatorIsOn
-          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-          : "none";
-
-        lastIndicatorOn = indicatorIsOn;
-      }
-    });
-
-    return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, baseClassName]);
 
   useLightNode(indicatorRef, {
     group: "sequencer-indicator",
     weight: 0.4,
   });
 
+  const { isIntroPlaying } = useLightRig();
+
+  // --- Computed styles ---
+
+  const isAccentBeat = index % 4 === 0;
+  const idleColorClass = isAccentBeat
+    ? "bg-sequencer-indicator-accent"
+    : "bg-sequencer-indicator-regular";
+
+  // rAF loop to update the indicator
+  useEffect(() => {
+    if (isIntroPlaying) {
+      return;
+    }
+
+    const el = indicatorRef.current;
+    if (!el) {
+      return;
+    }
+
+    let lastIndicatorOn: boolean | null = null;
+    const setState = (indicatorIsOn: boolean) => {
+      if (indicatorIsOn === lastIndicatorOn) return;
+      el.classList.toggle("bg-primary", indicatorIsOn);
+      el.classList.toggle(idleColorClass, !indicatorIsOn);
+      el.style.boxShadow = indicatorIsOn
+        ? `0 0 4px var(--color-primary-shadow)`
+        : "none";
+      lastIndicatorOn = indicatorIsOn;
+    };
+
+    const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
+      const isCurrentStep = currentStep === index;
+
+      const indicatorIsOn =
+        isPlaying &&
+        isCurrentStep &&
+        (isInCurrentVariation || (isAccentBeat && !isInCurrentVariation));
+
+      setState(indicatorIsOn);
+    });
+
+    setState(false);
+
+    return unsubscribe;
+  }, [
+    index,
+    isInCurrentVariation,
+    isAccentBeat,
+    isIntroPlaying,
+    idleColorClass,
+  ]);
+
   return (
     <div
       ref={indicatorRef}
-      className={cn(baseClassName, "bg-foreground-emphasis opacity-20")}
+      className={cn(
+        "mb-4 h-1 w-full rounded-full transition-none",
+        idleColorClass,
+      )}
     />
   );
 };

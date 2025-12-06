@@ -5,17 +5,17 @@ import { cn } from "@/shared/lib/utils";
 import { useLightRig } from "@/shared/lightshow";
 
 interface SequencerVelocityProps {
-  stepIndex: number;
-  velocityValue: number;
-  isTriggerOn: boolean;
-  onSetVelocity: (stepIndex: number, velocity: number) => void;
+  index: number;
+  value: number;
+  isActive: boolean;
+  onVelocityChange: (index: number, velocity: number) => void;
 }
 
 export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
-  stepIndex,
-  velocityValue,
-  isTriggerOn,
-  onSetVelocity,
+  index,
+  value,
+  isActive,
+  onVelocityChange,
 }) => {
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
 
@@ -32,7 +32,7 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
     const adjustedX = pointerX - inset;
     const adjustedWidth = divWidth - inset * 2;
     const velocity = clampVelocity(adjustedX / adjustedWidth);
-    onSetVelocity(stepIndex, velocity);
+    onVelocityChange(index, velocity);
   };
 
   const handleVelocityPointerDown = (
@@ -71,15 +71,15 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
     };
   }, [isAdjusting]);
 
-  const velocityWidth = Math.max(velocityValue * 100, 12);
+  const velocityWidth = Math.max(value * 100, 12);
 
   return (
     <div
       className={cn(
         "group outline-primary relative mt-1 h-3.5 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
-        isTriggerOn ? "cursor-grab" : "pointer-events-none cursor-default",
+        isActive ? "cursor-grab" : "pointer-events-none cursor-default",
       )}
-      style={{ opacity: isTriggerOn && !isIntroPlaying ? 0.6 : 0 }}
+      style={{ opacity: isActive && !isIntroPlaying ? 0.6 : 0 }}
       onPointerDown={handleVelocityPointerDown}
       onPointerMove={handleVelocityPointerMove}
     >
@@ -89,7 +89,7 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
       />
       <div className="absolute flex h-full w-full items-center justify-center">
         <span className="font-pixel text-foreground-emphasis opacity-0 blur-xs transition-all duration-500 ease-in-out group-hover:opacity-100 group-hover:blur-none">
-          {(velocityValue * 100).toFixed(0)}
+          {(value * 100).toFixed(0)}
         </span>
       </div>
     </div>

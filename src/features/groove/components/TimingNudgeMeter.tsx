@@ -30,7 +30,7 @@ export const TimingNudgeMeter: React.FC<TimingNudgeMeterProps> = ({
             className={cn(
               "h-1 w-1 rounded-full transition-all duration-150",
               isActive
-                ? "bg-primary shadow-[0_0_4px_rgba(255,123,0,0.6)]"
+                ? "bg-primary shadow-[0_0_4px_var(--color-primary-shadow)]"
                 : "bg-border",
             )}
             aria-label={`Timing nudge level ${level}`}
