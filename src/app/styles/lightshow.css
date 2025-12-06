@@ -18,6 +18,13 @@
 }
 
 [data-light-group="sequencer-indicator"][data-light-state="on"] {
+  box-shadow:
+    0 0 0.35rem color-mix(in oklab, var(--lightshow-color) 40%, transparent),
+    0 0.6rem 1.4rem color-mix(in oklab, var(--lightshow-color) 25%, transparent),
+    inset 0 0 0.55rem
+      color-mix(in oklab, var(--lightshow-color) 35%, transparent);
+  filter: brightness(var(--lightshow-brightness))
+    saturate(var(--lightshow-saturation));
   @apply bg-(--lightshow-color) opacity-100;
 }
 
