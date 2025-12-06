@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { clampVelocity } from "@/features/sequencer/lib/helpers";
 import { cn } from "@/shared/lib/utils";
+import { useLightRig } from "@/shared/lightshow";
 
 interface SequencerVelocityProps {
   stepIndex: number;
@@ -17,6 +18,8 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
   onSetVelocity,
 }) => {
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
+
+  const { isIntroPlaying } = useLightRig();
 
   const updateVelocityFromPointer = (
     event: React.PointerEvent<HTMLDivElement>,
@@ -76,7 +79,7 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
         "group outline-primary relative mt-1 h-3.5 w-full overflow-hidden rounded-[200px_0_200px_0] bg-transparent outline-1 transition-all duration-200 ease-in-out",
         isTriggerOn ? "cursor-grab" : "pointer-events-none cursor-default",
       )}
-      style={{ opacity: isTriggerOn ? 0.6 : 0 }}
+      style={{ opacity: isTriggerOn && !isIntroPlaying ? 0.6 : 0 }}
       onPointerDown={handleVelocityPointerDown}
       onPointerMove={handleVelocityPointerMove}
     >
