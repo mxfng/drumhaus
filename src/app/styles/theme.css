@@ -21,7 +21,9 @@
   --color-primary: oklch(0.7245 0.189 50.94);
   --color-primary-muted: var(--color-accent);
   --color-primary-foreground: oklch(1 0 0);
+  --color-primary-shadow: oklch(0.7245 0.189 50.94 / 60%);
 
+  /* Accent colors */
   --color-accent: oklch(0.7687 0.1641 58.66);
   --color-accent-foreground: var(--color-primary-foreground);
 
@@ -33,12 +35,15 @@
   --color-screen: var(--color-secondary);
   --color-screen-foreground: oklch(0.4479 0.0397 62.14 / 80%);
 
+  /* Popover colors */
   --color-popover: var(--color-primary);
   --color-popover-foreground: var(--color-primary-foreground);
 
+  /* Destructive colors */
   --color-destructive: var(--color-track-red);
   --color-destructive-foreground: var(--color-primary-foreground);
 
+  /* Muted colors */
   --color-muted: var(--color-shadow-10);
   --color-muted-foreground: var(--color-foreground);
 

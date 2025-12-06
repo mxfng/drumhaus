@@ -47,7 +47,9 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onTouchMove,
   disabled = false,
 }) => {
+  // --- Lightshow ---
   const buttonRef = React.useRef<HTMLButtonElement>(null);
+
   const { isIntroPlaying } = useLightRig();
 
   useLightNode(buttonRef, {
@@ -55,6 +57,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     weight: 0.8,
     group: "sequencer-step",
   });
+
+  // --- Computed styles ---
 
   const isGuideOnly = isGuideActive && !isTriggerOn;
   const isTriggerVisible = isTriggerOn && !isIntroPlaying;
@@ -72,6 +76,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     className: triggerClassName,
     opacity: isTriggerOn || isGuideOnly ? 1 : 0.75,
   };
+
+  // --- Event handlers ---
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (disabled) return;
@@ -127,7 +133,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     >
       <div
         className={cn(
-          "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
+          "pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
           borderRadius,
         )}
         style={{

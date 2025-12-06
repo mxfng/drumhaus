@@ -18,18 +18,19 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
   // --- Lightshow ---
   const indicatorRef = useRef<HTMLDivElement>(null);
 
-  const { isIntroPlaying } = useLightRig();
-
   useLightNode(indicatorRef, {
     group: "sequencer-indicator",
     weight: 0.4,
   });
 
-  // --- Computed CSS Classes ---
+  const { isIntroPlaying } = useLightRig();
 
-  const baseClassName = "mb-4 h-1 w-full rounded-full";
+  // --- Computed styles ---
 
   const isAccentBeat = stepIndex % 4 === 0;
+  const idleColorClass = isAccentBeat
+    ? "bg-sequencer-indicator-accent"
+    : "bg-sequencer-indicator-regular";
 
   // rAF loop to update the indicator
   useEffect(() => {
@@ -43,6 +44,15 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
     }
 
     let lastIndicatorOn: boolean | null = null;
+    const setState = (indicatorIsOn: boolean) => {
+      if (indicatorIsOn === lastIndicatorOn) return;
+      el.classList.toggle("bg-primary", indicatorIsOn);
+      el.classList.toggle(idleColorClass, !indicatorIsOn);
+      el.style.boxShadow = indicatorIsOn
+        ? `0 0 4px var(--color-primary-shadow)`
+        : "none";
+      lastIndicatorOn = indicatorIsOn;
+    };
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
       const isCurrentStep = currentStep === stepIndex;
@@ -53,26 +63,27 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
         isCurrentStep &&
         (inSameVariation || (isAccentBeat && !inSameVariation));
 
-      if (indicatorIsOn !== lastIndicatorOn) {
-        el.classList.toggle("bg-primary", indicatorIsOn);
-        el.classList.toggle("bg-foreground-emphasis", !indicatorIsOn);
-        el.style.boxShadow = indicatorIsOn
-          ? "0 0 8px 2px hsl(var(--primary)), 0 0 4px 1px hsl(var(--primary))"
-          : "none";
-        lastIndicatorOn = indicatorIsOn;
-      }
+      setState(indicatorIsOn);
     });
 
+    setState(false);
+
     return unsubscribe;
-  }, [stepIndex, variation, playbackVariation, isAccentBeat, isIntroPlaying]);
+  }, [
+    stepIndex,
+    variation,
+    playbackVariation,
+    isAccentBeat,
+    isIntroPlaying,
+    idleColorClass,
+  ]);
 
   return (
     <div
       ref={indicatorRef}
       className={cn(
-        baseClassName,
-        "bg-sequencer-indicator-regular",
-        isAccentBeat && "bg-sequencer-indicator-accent",
+        "mb-4 h-1 w-full rounded-full transition-none",
+        idleColorClass,
       )}
     />
   );
