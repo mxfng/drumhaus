@@ -1,10 +1,10 @@
 /* Lightshow: generic "LED" glow state shared by the rig */
 
 [data-light-node] {
-  --lightshow-color: var(--lightshow-color, var(--color-primary));
-  --lightshow-brightness: 1.2;
-  --lightshow-saturation: 1.1;
-  position: relative;
+  --lightshow-color: oklch(0.7245 0.189 50.94 / 40%);
+  --lightshow-brightness: 1.05;
+  --lightshow-saturation: 1.05;
+  @apply relative;
 }
 
 [data-light-node][data-light-state="on"] {
@@ -18,38 +18,9 @@
 }
 
 [data-light-group="sequencer-indicator"][data-light-state="on"] {
-  box-shadow:
-    0 0 6px 1px color-mix(in oklab, var(--lightshow-color) 70%, transparent),
-    0 0 10px 3px color-mix(in oklab, var(--lightshow-color) 45%, transparent);
-  transform: scaleY(1.6);
-  background-color: var(--lightshow-color);
+  @apply bg-(--lightshow-color) opacity-100;
 }
 
-[data-light-group="sequencer-indicator"][data-light-state="on"]::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow:
-    0 0 10px 3px color-mix(in oklab, var(--lightshow-color) 65%, transparent),
-    0 0 14px 5px color-mix(in oklab, var(--lightshow-color) 35%, transparent);
-  opacity: 0.8;
-}
-
-[data-light-node][data-light-state="on"]::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  pointer-events: none;
-  box-shadow:
-    0 0 10px 2px color-mix(in oklab, var(--lightshow-color) 65%, transparent),
-    0 0 16px 4px color-mix(in oklab, var(--lightshow-color) 35%, transparent);
-  opacity: 0.9;
-}
-
-.drumhaus-root[data-lightshow-lock="on"] {
-  pointer-events: none;
-  user-select: none;
+.sequence-grid[data-lightshow-lock="on"] {
+  @apply pointer-events-none select-none;
 }

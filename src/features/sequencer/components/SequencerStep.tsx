@@ -54,16 +54,17 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const { isIntroPlaying } = useLightRig();
 
   const getTriggerClassName = () => {
-    // Use custom color if provided
-    if (color && isTriggerOn) {
-      return color;
+    if (color && isTriggerOn) return color;
+
+    if (isTriggerOn && !isIntroPlaying) {
+      return "bg-primary shadow-neu hover:accent";
     }
 
-    return isTriggerOn && !isIntroPlaying
-      ? "bg-primary shadow-neu hover:accent"
-      : isGuideOnly
-        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
-        : "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
+    if (isGuideOnly) {
+      return "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90";
+    }
+
+    return "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
   };
 
   const triggerStyles = {

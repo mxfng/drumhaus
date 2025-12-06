@@ -9,10 +9,10 @@ import {
 import { LightRigContext, type LightRigContextValue } from "./LightRigContext";
 import { type PositionedLightNode, type RegisteredLightNode } from "./types";
 
-const TARGET_WAVE_DURATION = 1500; // 1.5 seconds
-const PULSE_DURATION = 240;
+const TARGET_WAVE_DURATION = 800; // total sweep duration
 const WAVE_ORDER_Y_WEIGHT = 0.35;
-const WAVE_COMPLETION_BUFFER = 100;
+const WAVE_COMPLETION_BUFFER = 160;
+const TAIL_GAP = 10; // wait before the tail starts turning lights off
 
 export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
@@ -115,8 +115,7 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
       }))
       .sort((a, b) => a.waveOrder - b.waveOrder);
 
-    const availableDuration =
-      TARGET_WAVE_DURATION - PULSE_DURATION - WAVE_COMPLETION_BUFFER;
+    const availableDuration = TARGET_WAVE_DURATION - WAVE_COMPLETION_BUFFER;
     const baseDelay =
       sorted.length > 1 ? availableDuration / (sorted.length - 1) : 0;
 
@@ -130,18 +129,27 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
     isPlayingRef.current = true;
     setIsIntroPlaying(true);
 
+    const tailStart = sorted.length * baseDelay + TAIL_GAP;
+
     sorted.forEach((node, index) => {
-      const delay = index * baseDelay;
+      const headDelay = index * baseDelay;
       schedule(() => {
         setLightState(node.id, true);
-        schedule(() => setLightState(node.id, false), PULSE_DURATION);
-      }, delay);
+      }, headDelay);
+
+      const tailDelay = tailStart + index * baseDelay;
+      schedule(() => {
+        setLightState(node.id, false);
+      }, tailDelay);
     });
 
-    schedule(() => {
-      setIsIntroPlaying(false);
-      isPlayingRef.current = false;
-    }, TARGET_WAVE_DURATION);
+    schedule(
+      () => {
+        setIsIntroPlaying(false);
+        isPlayingRef.current = false;
+      },
+      tailStart + sorted.length * baseDelay + WAVE_COMPLETION_BUFFER,
+    );
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [getNodesWithPosition, setLightState]);

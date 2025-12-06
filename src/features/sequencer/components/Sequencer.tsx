@@ -159,7 +159,7 @@ export const Sequencer: React.FC = () => {
   return (
     <div
       key="sequence-grid"
-      className="grid h-40 w-full grid-cols-16 gap-4 p-6"
+      className="sequence-grid grid h-40 w-full grid-cols-16 gap-4 p-6"
       onPointerMove={handleStepPointerMove}
       data-lightshow-lock={isIntroPlaying ? "on" : "off"}
     >
