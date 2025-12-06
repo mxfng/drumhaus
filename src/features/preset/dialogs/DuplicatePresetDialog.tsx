@@ -58,6 +58,7 @@ export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
     register,
     handleSubmit,
     reset,
+    trigger,
     formState: { errors, isValid, isSubmitting },
   } = form;
 
@@ -68,7 +69,9 @@ export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
 
   useEffect(() => {
     reset({ presetName: suggestedName });
-  }, [suggestedName, reset]);
+    // Trigger validation to show error immediately if name is invalid
+    trigger("presetName");
+  }, [suggestedName, reset, trigger]);
 
   const onSubmit = handleSubmit(({ presetName }) => {
     const trimmedName = presetName.trim();
