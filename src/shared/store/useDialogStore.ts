@@ -8,10 +8,17 @@ export type DialogName =
   | "export"
   | "presetChange"
   | "mobile"
-  | "about";
+  | "about"
+  | "share"
+  | "renamePreset"
+  | "deletePresetConfirm"
+  | "duplicatePreset";
 
 interface DialogData {
-  presetToChange: string;
+  preset?: {
+    id: string;
+    name?: string;
+  };
 }
 
 type DialogStoreType = {
@@ -27,7 +34,7 @@ export const useDialogStore = create<DialogStoreType>()(
     immer((set, get) => ({
       activeDialog: null,
       dialogData: {
-        presetToChange: "",
+        preset: undefined,
       },
       openDialog: (name, data) => {
         set((state) => {
@@ -43,7 +50,7 @@ export const useDialogStore = create<DialogStoreType>()(
           state.activeDialog = null;
           // Clear associated data when closing specific dialogs
           if (current === "presetChange") {
-            state.dialogData.presetToChange = "";
+            state.dialogData.preset = undefined;
           }
         });
       },

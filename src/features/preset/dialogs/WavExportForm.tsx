@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -64,14 +64,19 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
   const { toast } = useToast();
   const recommendedBars = getSuggestedBars(chain, chainEnabled);
 
-  const form = useForm<WavExportFormValues>({
-    resolver: zodResolver(wavExportSchema),
-    defaultValues: {
+  const defaultValues = useMemo(
+    () => ({
       filename: presetName,
       bars: recommendedBars,
-      sampleRate: "system",
+      sampleRate: "system" as const,
       includeTail: false,
-    },
+    }),
+    [presetName, recommendedBars],
+  );
+
+  const form = useForm<WavExportFormValues>({
+    resolver: zodResolver(wavExportSchema),
+    defaultValues,
     mode: "onChange",
   });
 

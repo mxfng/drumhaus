@@ -3,9 +3,15 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { init } from "@/core/dh";
+import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { getCurrentPreset } from "@/features/preset/lib/helpers";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
+
+/**
+ * Maximum number of custom presets allowed in storage
+ */
+const MAX_CUSTOM_PRESETS = 100;
 
 interface PresetMetaState {
   // Current preset and kit metadata
@@ -14,9 +20,6 @@ interface PresetMetaState {
 
   // Snapshot of last loaded/saved preset for change detection
   cleanPreset: PresetFileV1 | null;
-
-  // Recent preset history (last 10 presets)
-  recentPresets: Meta[];
 
   // Custom presets (loaded from files or URLs)
   customPresets: PresetFileV1[];
@@ -43,15 +46,55 @@ interface PresetMetaState {
   hasUnsavedChanges: () => boolean;
 
   /**
-   * Add a preset to recent history
-   */
-  addToHistory: (meta: Meta) => void;
-
-  /**
    * Add a custom preset if not already in default or custom presets
    * Prevents duplicates when loading from URLs or files
    */
   addCustomPreset: (preset: PresetFileV1) => void;
+
+  /**
+   * Save current state as a new custom preset
+   * Returns the created preset or null if limit reached
+   */
+  saveCurrentAsNewPreset: (name: string) => PresetFileV1 | null;
+
+  /**
+   * Update an existing custom preset with current state
+   * Does nothing if preset is not found or is a factory preset
+   */
+  updateCustomPreset: (id: string) => void;
+
+  /**
+   * Rename a custom preset
+   * Does nothing if preset is not found or is a factory preset
+   */
+  renameCustomPreset: (id: string, newName: string) => void;
+
+  /**
+   * Duplicate a custom preset
+   * Returns the duplicated preset
+   */
+  duplicateCustomPreset: (id: string) => PresetFileV1;
+
+  /**
+   * Delete a custom preset
+   * Does nothing if preset is not found
+   */
+  deleteCustomPreset: (id: string) => void;
+
+  /**
+   * Get a custom preset by ID
+   */
+  getCustomPresetById: (id: string) => PresetFileV1 | undefined;
+
+  /**
+   * Check if a preset ID is a custom preset (not factory)
+   */
+  isCustomPreset: (id: string) => boolean;
+
+  /**
+   * Check if more custom presets can be added (under MAX_CUSTOM_PRESETS limit)
+   */
+  canAddCustomPreset: () => boolean;
 }
 
 export const usePresetMetaStore = create<PresetMetaState>()(
@@ -62,7 +105,6 @@ export const usePresetMetaStore = create<PresetMetaState>()(
         currentPresetMeta: init().meta,
         currentKitMeta: init().kit.meta,
         cleanPreset: init(),
-        recentPresets: [init().meta],
         customPresets: [],
 
         // Actions
@@ -84,9 +126,6 @@ export const usePresetMetaStore = create<PresetMetaState>()(
             state.currentKitMeta = preset.kit.meta;
             state.cleanPreset = preset;
           });
-
-          // Add to history
-          get().addToHistory(preset.meta);
         },
 
         markPresetClean: (preset) => {
@@ -124,17 +163,6 @@ export const usePresetMetaStore = create<PresetMetaState>()(
           return JSON.stringify(cleanCopy) !== JSON.stringify(currentCopy);
         },
 
-        addToHistory: (meta) => {
-          set((state) => {
-            // Remove if already exists
-            const filtered = state.recentPresets.filter(
-              (p: Meta) => p.id !== meta.id,
-            );
-            // Add to front, keep max 10
-            state.recentPresets = [meta, ...filtered].slice(0, 10);
-          });
-        },
-
         addCustomPreset: (preset) => {
           set((state) => {
             // Check if already in custom presets
@@ -147,6 +175,131 @@ export const usePresetMetaStore = create<PresetMetaState>()(
             }
           });
         },
+
+        saveCurrentAsNewPreset: (name) => {
+          const { customPresets, currentPresetMeta, currentKitMeta } = get();
+
+          // Check limit
+          if (customPresets.length >= MAX_CUSTOM_PRESETS) {
+            return null;
+          }
+
+          // Get current state from all stores
+          const currentState = getCurrentPreset(
+            currentPresetMeta,
+            currentKitMeta,
+          );
+
+          // Create new preset with new ID and metadata
+          const newPreset: PresetFileV1 = {
+            ...currentState,
+            meta: {
+              id: crypto.randomUUID(),
+              name,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          };
+
+          // Add to custom presets
+          set((state) => {
+            state.customPresets.unshift(newPreset);
+          });
+
+          return newPreset;
+        },
+
+        updateCustomPreset: (id) => {
+          set((state) => {
+            const index = state.customPresets.findIndex(
+              (p) => p.meta.id === id,
+            );
+            if (index === -1) return;
+
+            // Get current state
+            const currentState = getCurrentPreset(
+              state.currentPresetMeta,
+              state.currentKitMeta,
+            );
+
+            // Update preset in place, preserving original ID and metadata
+            state.customPresets[index] = {
+              ...currentState,
+              meta: {
+                ...state.customPresets[index].meta,
+                updatedAt: new Date().toISOString(),
+              },
+            };
+
+            // Update cleanPreset to mark as saved
+            state.cleanPreset = state.customPresets[index];
+          });
+        },
+
+        renameCustomPreset: (id, newName) => {
+          set((state) => {
+            const preset = state.customPresets.find((p) => p.meta.id === id);
+            if (!preset) return;
+
+            preset.meta.name = newName;
+            preset.meta.updatedAt = new Date().toISOString();
+
+            // If this is the current preset, update current meta too
+            if (state.currentPresetMeta.id === id) {
+              state.currentPresetMeta.name = newName;
+              state.currentPresetMeta.updatedAt = new Date().toISOString();
+            }
+          });
+        },
+
+        duplicateCustomPreset: (id) => {
+          const { customPresets } = get();
+          const sourcePreset = customPresets.find((p) => p.meta.id === id);
+
+          if (!sourcePreset) {
+            throw new Error(`Preset with id ${id} not found`);
+          }
+
+          // Create duplicate with new ID and timestamps
+          const duplicatedPreset: PresetFileV1 = {
+            ...sourcePreset,
+            meta: {
+              ...sourcePreset.meta,
+              id: crypto.randomUUID(),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          };
+
+          // Add to custom presets
+          set((state) => {
+            state.customPresets.unshift(duplicatedPreset);
+          });
+
+          return duplicatedPreset;
+        },
+
+        deleteCustomPreset: (id) => {
+          set((state) => {
+            state.customPresets = state.customPresets.filter(
+              (p) => p.meta.id !== id,
+            );
+          });
+        },
+
+        getCustomPresetById: (id) => {
+          return get().customPresets.find((p) => p.meta.id === id);
+        },
+
+        isCustomPreset: (id) => {
+          const defaultPresets = getDefaultPresets();
+          const isFactory = defaultPresets.some((p) => p.meta.id === id);
+          return !isFactory;
+        },
+
+        canAddCustomPreset: () => {
+          return get().customPresets.length < MAX_CUSTOM_PRESETS;
+        },
       })),
       {
         name: "drumhaus-preset-meta-storage",
@@ -155,7 +308,6 @@ export const usePresetMetaStore = create<PresetMetaState>()(
         partialize: (state) => ({
           currentPresetMeta: state.currentPresetMeta,
           currentKitMeta: state.currentKitMeta,
-          recentPresets: state.recentPresets,
           customPresets: state.customPresets,
         }),
       },

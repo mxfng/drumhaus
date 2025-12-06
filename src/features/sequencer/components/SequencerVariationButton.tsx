@@ -4,6 +4,7 @@ import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
+import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
 import { VARIATION_LABELS, VariationId } from "../types/sequencer";
 
@@ -41,6 +42,8 @@ export const SequencerVariationButton = forwardRef<
     onClick?.(e);
   };
 
+  const chainEditColors = VARIATION_CHAIN_COLORS[variation];
+
   return (
     <Button
       ref={ref}
@@ -61,6 +64,12 @@ export const SequencerVariationButton = forwardRef<
           {
             "bg-primary": isActive && !isChainEdit,
           },
+          isChainEdit && [
+            "border",
+            chainEditColors.bg,
+            chainEditColors.border,
+            chainEditColors.text,
+          ],
         )}
       >
         {displayVariation}

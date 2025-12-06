@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { LinkExportForm } from "@/features/preset/dialogs/LinkExportForm";
+import { PresetFileExportForm } from "@/features/preset/dialogs/PresetFileExportForm";
 import { WavExportForm } from "@/features/preset/dialogs/WavExportForm";
 import {
   Dialog,
@@ -17,18 +17,16 @@ import {
 interface ExportDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onShare: (name: string) => Promise<string>;
 }
 
-type ExportTab = "link" | "wav";
+type ExportTab = "file" | "wav";
 // Future: "midi" | etc.
 
 export const ExportDialog: React.FC<ExportDialogProps> = ({
   isOpen,
   onClose,
-  onShare,
 }) => {
-  const [activeTab, setActiveTab] = useState<"link" | "wav">("link");
+  const [activeTab, setActiveTab] = useState<"file" | "wav">("file");
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -37,7 +35,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           <DialogTitle>Export</DialogTitle>
         </DialogHeader>
         <DialogDescription className="sr-only">
-          Export your preset as a link or WAV audio file.
+          Export your preset as a file or WAV audio file.
         </DialogDescription>
 
         <Tabs
@@ -45,13 +43,13 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           onValueChange={(value) => setActiveTab(value as ExportTab)}
         >
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="link">Link</TabsTrigger>
+            <TabsTrigger value="file">Preset File</TabsTrigger>
             <TabsTrigger value="wav">WAV</TabsTrigger>
             {/* Future: <TabsTrigger value="midi">MIDI</TabsTrigger> */}
           </TabsList>
 
-          <TabsContent value="link">
-            <LinkExportForm onShare={onShare} onClose={onClose} />
+          <TabsContent value="file">
+            <PresetFileExportForm onClose={onClose} />
           </TabsContent>
 
           <TabsContent value="wav">

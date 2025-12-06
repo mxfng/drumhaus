@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
 
+import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { getAllKits } from "@/features/kit/lib/constants";
 import { KitFileV1 } from "@/features/kit/types/kit";
@@ -39,6 +40,14 @@ export interface UsePresetManagerResult {
   importPreset: () => void;
   exportPreset: (name: string) => void;
   sharePreset: (name: string) => Promise<string>;
+
+  // Preset management
+  saveCurrentPreset: (name?: string) => void;
+  renamePreset: (id: string, newName: string) => void;
+  duplicatePreset: (id: string, newName?: string) => PresetFileV1;
+  deletePreset: (id: string) => void;
+  isCurrentPresetCustom: boolean;
+  canAddMorePresets: boolean;
 }
 
 /**
@@ -68,6 +77,27 @@ export function usePresetManager({
     (state) => state.hasUnsavedChanges,
   );
   const customPresets = usePresetMetaStore((state) => state.customPresets);
+
+  // Store actions for preset management
+  const saveCurrentAsNewPreset = usePresetMetaStore(
+    (state) => state.saveCurrentAsNewPreset,
+  );
+  const updateCustomPreset = usePresetMetaStore(
+    (state) => state.updateCustomPreset,
+  );
+  const renameCustomPreset = usePresetMetaStore(
+    (state) => state.renameCustomPreset,
+  );
+  const duplicateCustomPreset = usePresetMetaStore(
+    (state) => state.duplicateCustomPreset,
+  );
+  const deleteCustomPreset = usePresetMetaStore(
+    (state) => state.deleteCustomPreset,
+  );
+  const isCustomPreset = usePresetMetaStore((state) => state.isCustomPreset);
+  const canAddCustomPreset = usePresetMetaStore(
+    (state) => state.canAddCustomPreset,
+  );
 
   // Dialog state
   const openDialog = useDialogStore((state) => state.openDialog);
@@ -105,7 +135,7 @@ export function usePresetManager({
   const switchPreset = useCallback(
     (presetId: string) => {
       if (hasUnsavedChanges()) {
-        openDialog("presetChange", { presetToChange: presetId });
+        openDialog("presetChange", { preset: { id: presetId } });
         return;
       }
 
@@ -219,6 +249,130 @@ export function usePresetManager({
     input.click();
   }, [loadPreset, toast]);
 
+  // --- PRESET MANAGEMENT ---
+
+  /**
+   * Save current state as a new preset or update existing custom preset
+   */
+  const saveCurrentPreset = useCallback(
+    (name?: string) => {
+      const isCustom = isCustomPreset(currentPresetMeta.id);
+
+      if (isCustom) {
+        // Update existing custom preset
+        updateCustomPreset(currentPresetMeta.id);
+        toast({
+          title: "Preset updated",
+          description: currentPresetMeta.name,
+          duration: 3000,
+        });
+      } else if (name) {
+        // Save factory preset as new custom preset
+        const newPreset = saveCurrentAsNewPreset(name);
+        if (newPreset) {
+          markPresetClean(newPreset);
+          loadPreset(newPreset);
+          toast({
+            title: "Preset saved",
+            description: name,
+            duration: 3000,
+          });
+        } else {
+          toast({
+            title: "Preset limit reached",
+            description: "Delete some presets to continue (max 100)",
+            status: "error",
+            duration: 5000,
+          });
+        }
+      }
+    },
+    [
+      isCustomPreset,
+      currentPresetMeta,
+      updateCustomPreset,
+      saveCurrentAsNewPreset,
+      markPresetClean,
+      loadPreset,
+      toast,
+    ],
+  );
+
+  /**
+   * Rename a custom preset
+   */
+  const renamePreset = useCallback(
+    (id: string, newName: string) => {
+      renameCustomPreset(id, newName);
+      toast({
+        title: "Preset renamed",
+        description: `Renamed to "${newName}"`,
+        duration: 3000,
+      });
+    },
+    [renameCustomPreset, toast],
+  );
+
+  /**
+   * Duplicate a custom preset
+   */
+  const duplicatePreset = useCallback(
+    (id: string, newName?: string): PresetFileV1 => {
+      const duplicated = duplicateCustomPreset(id);
+
+      if (newName && newName !== duplicated.meta.name) {
+        renameCustomPreset(duplicated.meta.id, newName);
+        duplicated.meta.name = newName;
+      }
+
+      toast({
+        title: "Preset duplicated",
+        description: `Created "${duplicated.meta.name}"`,
+        duration: 3000,
+      });
+
+      return duplicated;
+    },
+    [duplicateCustomPreset, renameCustomPreset, toast],
+  );
+
+  /**
+   * Delete a custom preset
+   */
+  const deletePreset = useCallback(
+    (id: string) => {
+      const isDeletingCurrent = id === currentPresetMeta.id;
+
+      deleteCustomPreset(id);
+
+      if (isDeletingCurrent) {
+        loadPreset(init());
+        toast({
+          title: "Preset deleted",
+          description: "Loaded default preset",
+          duration: 3000,
+        });
+      } else {
+        toast({
+          title: "Preset deleted",
+          duration: 3000,
+        });
+      }
+    },
+    [deleteCustomPreset, currentPresetMeta.id, loadPreset, toast],
+  );
+
+  // Computed values
+  const isCurrentPresetCustom = useMemo(
+    () => isCustomPreset(currentPresetMeta.id),
+    [isCustomPreset, currentPresetMeta.id],
+  );
+
+  const canAddMorePresets = useMemo(
+    () => canAddCustomPreset(),
+    [canAddCustomPreset],
+  );
+
   // --- SHARING ---
 
   /**
@@ -248,5 +402,13 @@ export function usePresetManager({
     importPreset,
     exportPreset,
     sharePreset,
+
+    // Preset management
+    saveCurrentPreset,
+    renamePreset,
+    duplicatePreset,
+    deletePreset,
+    isCurrentPresetCustom,
+    canAddMorePresets,
   };
 }

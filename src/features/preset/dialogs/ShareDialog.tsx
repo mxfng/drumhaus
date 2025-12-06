@@ -136,7 +136,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
               </div>
 
               <DialogFooter>
-                <Button variant="ghost" onClick={onClose} type="button">
+                <Button variant="ghost" onClick={handleClose} type="button">
                   Cancel
                 </Button>
                 <Button
@@ -164,35 +164,39 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
             </DialogHeader>
 
             <div className="space-y-6">
-              <DialogDescription>
-                Your link is ready! Share it with anyone to let them load your
-                preset.
-              </DialogDescription>
-
-              <div className="h-10 w-full rounded-lg shadow-[inset_0_2px_8px_var(--color-shadow-60)]">
+              <div className="bg-screen h-10 w-full rounded-lg border">
                 <div className="flex h-full items-center justify-center">
-                  <button
+                  <div
                     onClick={handleCopy}
-                    className="font-pixel w-full truncate px-3 text-sm select-all"
+                    className="font-pixel w-70 truncate px-3 text-sm select-all"
                   >
                     {shareableLink}
-                  </button>
+                  </div>
                 </div>
               </div>
 
+              <h1 className="mb-3">Your link is ready!</h1>
+
+              <DialogDescription>
+                Share it with anyone to let them load your preset.
+              </DialogDescription>
+
               <div>
-                <p className="text-foreground-muted mb-2 text-xs font-semibold">
-                  How it works
-                </p>
-                <p className="text-foreground-muted text-xs">
+                <h1 className="mb-3">How it works</h1>
+                <p className="text-xs">
                   Your entire preset is packed into this tiny URL using some
-                  custom compression magic, and is entirely self-contained.
+                  custom compression magic, and is entirely self-contained. For
+                  more info, check out the{" "}
+                  <a href="https://github.com/mxfng/drumhaus/blob/main/src/features/preset/lib/serialization/compact.ts">
+                    source code
+                  </a>
+                  .
                 </p>
               </div>
             </div>
 
             <DialogFooter>
-              <Button variant="ghost" onClick={onClose}>
+              <Button variant="ghost" onClick={handleClose}>
                 Close
               </Button>
               <Button onClick={handleCopy}>

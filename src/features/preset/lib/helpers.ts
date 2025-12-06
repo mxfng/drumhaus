@@ -1,5 +1,6 @@
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { getMasterChainParams } from "@/features/master-bus/store/useMasterChainStore";
+import { getDefaultPresets } from "@/features/preset/lib/constants";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
@@ -79,4 +80,33 @@ export function validatePresetFile(data: unknown): PresetFileV1 {
   }
 
   return preset as unknown as PresetFileV1;
+}
+
+/**
+ * Check if a preset ID corresponds to a factory preset
+ */
+export function isFactoryPreset(presetId: string): boolean {
+  const defaultPresets = getDefaultPresets();
+  return defaultPresets.some((p) => p.meta.id === presetId);
+}
+
+/**
+ * Generate a unique duplicate name for a preset
+ * Appends " Copy" or " Copy N" to avoid conflicts
+ */
+export function generateDuplicateName(
+  baseName: string,
+  existingPresets: PresetFileV1[],
+): string {
+  const nameSet = new Set(existingPresets.map((p) => p.meta.name));
+
+  let newName = `${baseName} Copy`;
+  let counter = 2;
+
+  while (nameSet.has(newName)) {
+    newName = `${baseName} Copy ${counter}`;
+    counter++;
+  }
+
+  return newName;
 }

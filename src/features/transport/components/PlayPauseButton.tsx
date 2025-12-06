@@ -10,12 +10,12 @@ export const PlayPauseButton = () => {
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
   return (
-    <div className="flex aspect-square w-full items-center justify-center p-2">
+    <div className="flex items-center justify-center p-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant="hardware"
-            className="aspect-square h-full w-auto rounded-xl p-3 [&_svg]:size-[50px]!"
+            className="h-(--app-play-button) w-(--app-play-button) rounded-xl p-1 [&_svg]:size-[50px]!"
             onClick={() => togglePlay(instrumentRuntimes.current)}
             onKeyDown={(ev) => {
               if (ev.key === " " || ev.key === "Enter") {
@@ -23,7 +23,7 @@ export const PlayPauseButton = () => {
               }
             }}
           >
-            <div className="neu-medium-raised flex h-full w-full items-center justify-center rounded-full shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]">
+            <div className="neu-medium-raised flex aspect-square h-(--app-play-button-inner) w-(--app-play-button-inner) items-center justify-center rounded-full shadow-[var(--shadow-neu-md),0_0_2px_3px_var(--color-shadow-30)]">
               {isPlaying ? (
                 <Pause fill="currentColor" size={50} strokeWidth={1} />
               ) : (

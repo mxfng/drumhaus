@@ -5,31 +5,33 @@
   --app-footer-height: 2.5rem; /* h-18 in Tailwind, 72px */
   --app-header-height: 2.5rem; /* h-18 in Tailwind, 72px */
   --app-padding: 5rem; /* p-12 in Tailwind, 48px */
+  --app-play-button: 9rem;
+  --app-play-button-inner: 7.5rem;
 
   /* ==================== Colors ==================== */
   /* Base colors */
-  --color-background: #d5cdc3;
-  --color-background-night: #0a0a0f;
-  --color-foreground: #a6866c;
-  --color-foreground-muted: #c3ad97;
-  --color-foreground-emphasis: #65503e;
-  --color-accent: #c3ad97;
+  --color-background: oklch(0.852 0.0163 73.66);
+  --color-background-night: oklch(0.1473 0.0107 285.01);
+  --color-foreground: oklch(0.6434 0.054 60.72);
+  --color-foreground-muted: oklch(0.7607 0.0398 67.17);
+  --color-foreground-emphasis: oklch(0.4479 0.0397 62.14);
+  --color-accent: oklch(0.7607 0.0398 67.17);
 
   /* Primary colors */
-  --color-primary: #ff7b00;
+  --color-primary: oklch(0.7245 0.189 50.94);
   --color-primary-muted: var(--color-accent);
-  --color-primary-foreground: #ffffff;
+  --color-primary-foreground: oklch(1 0 0);
 
-  --color-accent: #ff9633;
+  --color-accent: oklch(0.7687 0.1641 58.66);
   --color-accent-foreground: var(--color-primary-foreground);
 
   /* Secondary colors */
-  --color-secondary: rgb(237, 231, 225);
+  --color-secondary: oklch(0.931 0.0104 67.7);
   --color-secondary-foreground: var(--color-foreground);
 
   /* Screen colors */
   --color-screen: var(--color-secondary);
-  --color-screen-foreground: rgba(101, 80, 62, 0.8);
+  --color-screen-foreground: oklch(0.4479 0.0397 62.14 / 80%);
 
   --color-popover: var(--color-primary);
   --color-popover-foreground: var(--color-primary-foreground);
@@ -41,34 +43,40 @@
   --color-muted-foreground: var(--color-foreground);
 
   /* Surface colors */
-  --color-surface: rgb(244, 235, 236);
+  --color-surface: oklch(0.9474 0.0098 9.54);
   --color-knob: #efe6de;
 
   /* Track colors */
-  --color-track: #e8e3dd;
-  --color-track-emphasis: #f7f1ea;
-  --color-track-blue: #213062;
-  --color-track-orange: #e9902f;
-  --color-track-red: #d72529;
-  --color-track-green: #27991a;
+  --color-track: oklch(0.9181 0.0098 72.66);
+  --color-track-emphasis: oklch(0.9609 0.0113 71.9);
+  --color-track-blue: oklch(0.3256 0.0904 268.47);
+  --color-track-orange: oklch(0.7308 0.15 62.84);
+  --color-track-red: oklch(0.5677 0.211 26.44);
+  --color-track-green: oklch(0.5976 0.1872 141.75);
+
+  /* Variation colors */
+  --color-variation-a: oklch(62.3% 0.214 259.815);
+  --color-variation-b: oklch(72.3% 0.219 149.579);
+  --color-variation-c: oklch(79.5% 0.184 86.047);
+  --color-variation-d: oklch(63.7% 0.237 25.331);
 
   /* Border and focus colors */
   --color-border: var(--color-shadow-60);
-  --color-ring: #c3ad97;
+  --color-ring: oklch(0.7607 0.0398 67.17);
 
   /* ==================== Neumorphic Colors ==================== */
-  --color-shadow: rgb(176 147 116);
-  --color-shadow-10: rgb(176 147 116 / 0.1);
-  --color-shadow-30: rgb(176 147 116 / 0.3);
-  --color-shadow-50: rgb(176 147 116 / 0.5);
-  --color-shadow-60: rgb(176 147 116 / 0.6);
-  --color-highlight: rgb(251 245 255);
-  --color-highlight-17: rgb(251 245 255 / 0.17);
-  --color-highlight-20: rgb(251 245 255 / 0.2);
-  --color-highlight-30: rgb(251 245 255 / 0.3);
-  --color-highlight-40: rgb(251 245 255 / 0.4);
-  --color-gradient-light: rgb(251 245 255);
-  --color-gradient-dark: rgb(239 228 217);
+  --color-shadow: oklch(0.6818 0.0555 68.55);
+  --color-shadow-10: oklch(0.6818 0.0555 68.55 / 10%);
+  --color-shadow-30: oklch(0.6818 0.0555 68.55 / 30%);
+  --color-shadow-50: oklch(0.6818 0.0555 68.55 / 50%);
+  --color-shadow-60: oklch(0.6818 0.0555 68.55 / 60%);
+  --color-highlight: oklch(0.9776 0.0146 312.25);
+  --color-highlight-17: oklch(0.9776 0.0146 312.25 / 17%);
+  --color-highlight-20: oklch(0.9776 0.0146 312.25 / 20%);
+  --color-highlight-30: oklch(0.9776 0.0146 312.25 / 30%);
+  --color-highlight-40: oklch(0.9776 0.0146 312.25 / 40%);
+  --color-gradient-light: var(--color-highlight);
+  --color-gradient-dark: oklch(0.9246 0.019 67.59);
 
   /* ==================== Shadows ==================== */
   --shadow-neu:
