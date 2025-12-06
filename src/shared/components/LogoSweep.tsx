@@ -80,7 +80,7 @@ export const LogoSweep: React.FC = () => {
   useLightNode(logo16Ref, { id: "logo16", group: "logo" });
 
   return (
-    <div className="text-primary grid h-full grid-cols-8 place-items-center p-1">
+    <div className="text-primary grid h-full grid-cols-16 place-items-center p-1">
       {/* A */}
       <LogoAspectBoundingBox size={16} ref={logo1Ref} />
       <LogoAspectBoundingBox size={16} className={rotate270} ref={logo2Ref} />
@@ -92,6 +92,18 @@ export const LogoSweep: React.FC = () => {
       <LogoAspectBoundingBox size={16} className={rotate270} ref={logo6Ref} />
       <LogoAspectBoundingBox size={16} className={rotate180} ref={logo7Ref} />
       <LogoAspectBoundingBox size={16} className={rotate270} ref={logo8Ref} />
+
+      {/* A */}
+      <LogoAspectBoundingBox size={16} ref={logo9Ref} />
+      <LogoAspectBoundingBox size={16} className={rotate270} ref={logo10Ref} />
+      <LogoAspectBoundingBox size={16} ref={logo11Ref} />
+      <LogoAspectBoundingBox size={16} className={rotate270} ref={logo12Ref} />
+
+      {/* B */}
+      <LogoAspectBoundingBox size={16} className={rotate180} ref={logo13Ref} />
+      <LogoAspectBoundingBox size={16} className={rotate270} ref={logo14Ref} />
+      <LogoAspectBoundingBox size={16} className={rotate180} ref={logo15Ref} />
+      <LogoAspectBoundingBox size={16} className={rotate270} ref={logo16Ref} />
     </div>
   );
 };
