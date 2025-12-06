@@ -37,8 +37,7 @@ const DrumhausContent = () => {
   // --- Desktop-specific Hooks ---
   const { scale } = useLayoutScale();
   const { isPointerLocked } = useLightRig();
-
-  useLightShowIntro(true, 320);
+  useLightShowIntro(instrumentRuntimesVersion > 0, 320);
 
   useMobileWarning();
 

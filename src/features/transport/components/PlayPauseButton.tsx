@@ -3,7 +3,6 @@ import { Pause, Play } from "lucide-react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
-import { useLightNode } from "@/shared/lightshow";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 export const PlayPauseButton = () => {
@@ -11,8 +10,6 @@ export const PlayPauseButton = () => {
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useLightNode(buttonRef, { group: "transport", weight: 1 });
 
   return (
     <div className="flex items-center justify-center p-2">

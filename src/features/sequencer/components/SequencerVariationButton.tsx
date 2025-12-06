@@ -1,9 +1,8 @@
-import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import React, { forwardRef } from "react";
 
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
@@ -24,7 +23,7 @@ interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLB
 export const SequencerVariationButton = forwardRef<
   HTMLButtonElement,
   SequencerVariationButtonProps
->(({ variation, onClick, className, ...props }, ref) => {
+>(({ variation, onClick, className, ...props }) => {
   const currentVariation = usePatternStore((state) => state.variation);
   const setVariation = usePatternStore((state) => state.setVariation);
   const mode = usePatternStore((state) => state.mode);
@@ -33,14 +32,6 @@ export const SequencerVariationButton = forwardRef<
   const displayVariation = VARIATION_LABELS[variation] ?? "?";
   const isActive = currentVariation === variation;
   const isChainEdit = mode.type === "variationChain";
-
-  const internalRef = useRef<HTMLButtonElement>(null);
-  useLightNode(internalRef, {
-    group: "variation",
-    weight: 0.6,
-  });
-
-  useImperativeHandle(ref, () => internalRef.current as HTMLButtonElement);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isChainEdit) {
@@ -55,7 +46,6 @@ export const SequencerVariationButton = forwardRef<
 
   return (
     <Button
-      ref={internalRef}
       variant="hardware"
       size="lg"
       onClick={handleClick}

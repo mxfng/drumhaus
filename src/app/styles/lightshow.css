@@ -4,10 +4,6 @@
   --lightshow-color: var(--lightshow-color, var(--color-primary));
   --lightshow-brightness: 1.2;
   --lightshow-saturation: 1.1;
-  transition:
-    filter 220ms ease,
-    box-shadow 220ms ease,
-    transform 260ms ease;
 }
 
 [data-light-node][data-light-state="on"] {

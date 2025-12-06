@@ -11,7 +11,6 @@ import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
-import { useLightNode } from "@/shared/lightshow";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
 import { SequencerVariationButton } from "./SequencerVariationButton";
@@ -65,18 +64,6 @@ export const SequencerControl: React.FC = () => {
 
   const isChainEdit = mode.type === "variationChain";
 
-  useLightNode(variChainButtonRef, {
-    group: "pattern",
-    weight: 0.7,
-  });
-
-  const chainEnabledRef = useRef<HTMLButtonElement>(null);
-
-  useLightNode(chainEnabledRef, {
-    group: "pattern",
-    weight: 0.7,
-  });
-
   const handleToggleChainEdit = () => {
     if (isChainEdit) {
       // On exit, commit the drafted chain only if something was punched in
@@ -123,7 +110,6 @@ export const SequencerControl: React.FC = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              ref={chainEnabledRef}
               variant="hardware"
               size="sm"
               className={cn(buttonActive(chainEnabled))}
