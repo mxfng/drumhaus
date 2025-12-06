@@ -29,11 +29,6 @@ export const MobileDialog: React.FC<MobileDialogProps> = ({
             Drumhaus works best on desktop browsers. Some features may be
             limited or unavailable on mobile devices.
           </DialogDescription>
-          <DialogDescription>
-            For the optimal experience, please use Drumhaus on a computer. If
-            you're using a mobile device, try a larger tablet or switch to
-            portrait mode for improved usability.
-          </DialogDescription>
         </div>
 
         <DialogFooter>
