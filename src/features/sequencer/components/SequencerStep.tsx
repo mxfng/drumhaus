@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
+import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { cn } from "@/shared/lib/utils";
 import { useLightNode, useLightRig } from "@/shared/lightshow";
 
@@ -67,7 +68,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   // Use data attributes so Tailwind variants resolve without rapidly swapping class lists
   const triggerClassName = cn(
-    "relative overflow-hidden border transition-[background-color,box-shadow] duration-150 ease-out",
+    "relative overflow-hidden border will-change-[background-color,box-shadow] transition-[background-color,box-shadow] duration-150 ease-out",
     sizeClasses,
     borderRadius,
     // Base
@@ -81,22 +82,37 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     isActiveAndVisible && activeColorClassName,
   );
 
-  const displayOpacity = isActive || isGuideOnly ? 1 : 0.7;
-
-  // Defer data-attribute writes to rAF to avoid React swapping attributes mid-paint
-  React.useEffect(() => {
+  // Defer data-attribute writes to the shared animation clock to keep visuals on the same frame budget
+  useEffect(() => {
     const el = buttonRef.current;
     if (!el) return;
 
-    const frameId = requestAnimationFrame(() => {
-      el.dataset.active = isActiveAndVisible ? "true" : "false";
-      el.dataset.guideOnly = isGuideOnly ? "true" : "false";
-      el.dataset.currentVariation = isViewingCurrentVariation
-        ? "true"
-        : "false";
+    let lastActive = "";
+    let lastGuideOnly = "";
+    let lastVariation = "";
+
+    const unsubscribe = subscribeToPlaybackAnimation(() => {
+      if (!el.isConnected) return;
+
+      const nextActive = isActiveAndVisible ? "true" : "false";
+      const nextGuideOnly = isGuideOnly ? "true" : "false";
+      const nextVariation = isViewingCurrentVariation ? "true" : "false";
+
+      if (nextActive !== lastActive) {
+        el.dataset.active = nextActive;
+        lastActive = nextActive;
+      }
+      if (nextGuideOnly !== lastGuideOnly) {
+        el.dataset.guideOnly = nextGuideOnly;
+        lastGuideOnly = nextGuideOnly;
+      }
+      if (nextVariation !== lastVariation) {
+        el.dataset.currentVariation = nextVariation;
+        lastVariation = nextVariation;
+      }
     });
 
-    return () => cancelAnimationFrame(frameId);
+    return unsubscribe;
   }, [isActiveAndVisible, isGuideOnly, isViewingCurrentVariation]);
 
   // --- Event handlers ---
@@ -153,9 +169,6 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
           "pointer-events-none absolute inset-0 z-20 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)]",
           borderRadius,
         )}
-        style={{
-          opacity: displayOpacity,
-        }}
       />
     </button>
   );
