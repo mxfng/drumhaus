@@ -1,3 +1,4 @@
+import { VARIATION_CHAIN_COLORS } from "@/features/sequencer/lib/colors";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
@@ -35,6 +36,8 @@ export const TempoControlsScreen: React.FC = () => {
     .map((step) => VARIATION_LABELS[step.variation].repeat(step.repeats))
     .join("");
 
+  const playbackVariationColors = VARIATION_CHAIN_COLORS[playbackVariation];
+
   return (
     <ScreenBar>
       <div className="grid w-full grid-cols-5 place-items-stretch gap-0">
@@ -57,9 +60,18 @@ export const TempoControlsScreen: React.FC = () => {
 
         <span className="flex w-full items-center justify-start">
           <span className="pr-2 pl-1 text-xs">play</span>
-          <span className="bg-screen text-screen-foreground flex h-3.5 w-4 items-center justify-center rounded-tr rounded-bl px-1 text-xs">
-            {VARIATION_LABELS[playbackVariation]}
-          </span>
+          <div className="bg-accent-foreground h-4 w-4 rounded-tr rounded-bl">
+            <span
+              className={cn(
+                "font-pixel flex items-center justify-center px-1 text-xs",
+                playbackVariationColors.bg,
+                playbackVariationColors.border,
+                playbackVariationColors.text,
+              )}
+            >
+              {VARIATION_LABELS[playbackVariation]}
+            </span>
+          </div>
         </span>
         <span className="col-span-2 flex w-full items-center justify-start">
           <span className="text-xs">chain</span>

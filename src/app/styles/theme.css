@@ -52,6 +52,12 @@
   --color-track-red: #d72529;
   --color-track-green: #27991a;
 
+  /* Variation colors */
+  --color-variation-a: oklch(62.3% 0.214 259.815);
+  --color-variation-b: oklch(72.3% 0.219 149.579);
+  --color-variation-c: oklch(79.5% 0.184 86.047);
+  --color-variation-d: oklch(63.7% 0.237 25.331);
+
   /* Border and focus colors */
   --color-border: var(--color-shadow-60);
   --color-ring: #c3ad97;
