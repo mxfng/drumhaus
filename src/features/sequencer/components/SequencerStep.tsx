@@ -75,6 +75,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const borderRadius = "rounded-[0_16px_0_16px]";
 
   const sizeClasses = "aspect-square w-full";
+
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   useLightNode(buttonRef, {
@@ -122,17 +123,15 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         triggerStyles.className,
       )}
     >
-      {(isTriggerOn || isGuideOnly) && (
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
-            borderRadius,
-          )}
-          style={{
-            opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
-          }}
-        />
-      )}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
+          borderRadius,
+        )}
+        style={{
+          opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
+        }}
+      />
     </button>
   );
 };
