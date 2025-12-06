@@ -41,11 +41,11 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
     onRenamePreset || onDuplicatePreset || onDeletePreset;
 
   return (
-    <div className="group w-full">
+    <div className="group w-full px-1">
       <Select value={selectedPresetId} onValueChange={onSelect}>
         <SelectTrigger
           size="screen"
-          className="text-screen-foreground w-full cursor-pointer border-transparent bg-transparent px-1 focus-visible:ring-offset-0"
+          className="text-screen-foreground w-full cursor-pointer border-transparent bg-transparent px-1 shadow-none focus-visible:ring-offset-0"
         >
           <SelectValue />
         </SelectTrigger>

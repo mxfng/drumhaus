@@ -43,8 +43,8 @@ export const Screen: React.FC = () => {
   return (
     <>
       {/* Screen Display */}
-      <div className="bg-screen text-foreground col-span-4 h-12 overflow-clip rounded-2xl border">
-        <div className="grid h-12 w-full grid-cols-2 rounded-2xl opacity-80">
+      <div className="bg-screen text-foreground outline-border col-span-4 h-12 overflow-hidden rounded-2xl outline">
+        <div className="grid h-full w-full grid-cols-2 rounded-2xl">
           {/* Left Column - Equal heights */}
           <div className="flex h-full flex-col">
             <PresetControl />

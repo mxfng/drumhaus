@@ -141,13 +141,13 @@ export const PresetControl: React.FC = () => {
   return (
     <>
       {/* Preset Row: 1/6 label + fill selector + 1/6 actions */}
-      <div className="border-screen-foreground flex w-full flex-1 items-center border-b text-sm">
-        <div className="h-full w-1/6">
-          <div className="bg-screen-foreground text-screen mr-1 flex h-full items-center pr-1 pl-2">
+      <div className="flex w-full flex-1 items-center text-sm">
+        <div className="border-screen h-full w-1/6 border-b">
+          <div className="bg-screen-foreground text-screen flex h-full items-center pl-2">
             preset
           </div>
         </div>
-        <div className="flex-1">
+        <div className="border-screen-foreground h-full flex-1 border-b">
           <PresetSelect
             selectedPresetId={currentPresetMeta.id}
             defaultPresets={defaultPresets}
@@ -158,15 +158,15 @@ export const PresetControl: React.FC = () => {
             onDeletePreset={handleDeletePreset}
           />
         </div>
-        <div className="bg-screen-foreground h-full w-1/4">
+        <div className="bg-screen-foreground border-screen h-full w-1/4 border-b">
           <PresetActions onOpenFromFile={importPreset} />
         </div>
       </div>
 
       {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
-      <div className="border-screen-foreground flex w-full flex-1 items-center text-sm">
+      <div className="flex w-full flex-1 items-center text-sm">
         <div className="h-full w-1/6">
-          <div className="bg-screen-foreground text-screen mr-1 flex h-full items-center pr-1 pl-2">
+          <div className="bg-screen-foreground text-screen flex h-full items-center pl-2">
             kit
           </div>
         </div>

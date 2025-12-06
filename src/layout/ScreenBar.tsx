@@ -15,12 +15,7 @@ export const ScreenBar: React.FC<ScreenBarProps> = ({
 }) => {
   return (
     <div className="bg-screen-foreground text-screen rounded-tl-full rounded-br-md">
-      <div
-        className={cn(
-          "flex -translate-y-px items-center px-4 text-sm",
-          className,
-        )}
-      >
+      <div className={cn("flex items-center px-4 text-sm", className)}>
         {children}
       </div>
     </div>
