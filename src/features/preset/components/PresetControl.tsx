@@ -141,11 +141,11 @@ export const PresetControl: React.FC = () => {
   return (
     <>
       {/* Preset Row: 1/6 label + fill selector + 1/6 actions */}
-      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 border-b pl-2 text-sm">
-        <div className="w-1/6">
-          <mark className="bg-screen-foreground text-screen rounded px-1">
+      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 border-b text-sm">
+        <div className="h-full w-1/6">
+          <div className="bg-screen-foreground text-screen mr-1 flex h-full items-center px-1">
             preset
-          </mark>
+          </div>
         </div>
         <div className="flex-1">
           <PresetSelect
@@ -164,11 +164,11 @@ export const PresetControl: React.FC = () => {
       </div>
 
       {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
-      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 pl-2 text-sm">
-        <div className="w-1/6">
-          <mark className="bg-screen-foreground text-screen rounded px-1">
+      <div className="border-screen-foreground flex w-full flex-1 items-center gap-2 text-sm">
+        <div className="h-full w-1/6">
+          <div className="bg-screen-foreground text-screen mr-1 flex h-full items-center px-1">
             kit
-          </mark>
+          </div>
         </div>
         <div className="flex-1">
           <KitSelect
