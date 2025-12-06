@@ -9,6 +9,7 @@ import { ComingSoonTooltipContent } from "@/shared/components/ComingSoonTooltipC
 import { HardwareModule } from "@/shared/components/HardwareModule";
 import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
+import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { usePatternStore } from "../store/usePatternStore";
@@ -91,7 +92,10 @@ export const SequencerControl: React.FC = () => {
               ref={variChainButtonRef}
               variant="hardware"
               size="sm"
-              className={cn(buttonActive(isChainEdit))}
+              className={cn(
+                buttonActive(isChainEdit),
+                interactableHighlight(isChainEdit),
+              )}
               onClick={handleToggleChainEdit}
             >
               <span className="leading-3">vari chain</span>
