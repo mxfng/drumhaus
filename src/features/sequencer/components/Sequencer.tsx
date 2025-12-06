@@ -7,7 +7,6 @@ import { SequencerStepIndicator } from "@/features/sequencer/components/Sequence
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useLightRig } from "@/shared/lightshow";
 
 // --- Chain Mode Helpers ---
@@ -23,7 +22,6 @@ const CHAIN_MODE_VARIATION_STEP_COLORS = [
 interface StepRenderState {
   velocity: number;
   isActive: boolean;
-  intensity: number;
   isGuideHighlighted: boolean;
   activeColorClassName?: string;
 }
@@ -41,15 +39,11 @@ export const Sequencer: React.FC = () => {
   const toggleFlam = usePatternStore((state) => state.toggleFlam);
   const setVelocity = usePatternStore((state) => state.setVelocity);
 
-  // --- Transport Store ---
-  const isPlaying = useTransportStore((state) => state.isPlaying);
-
   // --- Groove Store ---
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
   // --- Mode flags ---
   const isChainEditMode = mode.type === "variationChain";
-  const isAccentMode = mode.type === "accent";
   const isRatchetMode = mode.type === "ratchet";
   const isFlamMode = mode.type === "flam";
   const isVoiceMode = mode.type === "voice";
@@ -84,10 +78,6 @@ export const Sequencer: React.FC = () => {
 
   // Instrument/voice trigger value used for guide state (ratchet, flam)
   const instrumentTriggers = currentVariation.triggers;
-
-  // Calculate ghosting: ghost notes when not in accent mode, during playback of a different variation
-  const isGhosted =
-    isPlaying && playbackVariation !== variation && !isAccentMode;
 
   const isViewingCurrentVariation = playbackVariation === variation;
 
@@ -154,7 +144,6 @@ export const Sequencer: React.FC = () => {
       return {
         velocity: 0,
         isActive: !isEmptyStep,
-        intensity: 1,
         isGuideHighlighted: false,
         activeColorClassName: !isEmptyStep
           ? CHAIN_MODE_VARIATION_STEP_COLORS[chainVariation]
@@ -167,12 +156,10 @@ export const Sequencer: React.FC = () => {
 
     // Groove + voice modes: flam,
     const isGuideHighlighted = showInstrumentGuide && instrumentTriggers[step];
-    const intensity = isGhosted && (isActive || isGuideHighlighted) ? 0.7 : 1;
 
     return {
       velocity: velocities[step],
       isActive,
-      intensity,
       isGuideHighlighted,
     };
   };
@@ -196,7 +183,7 @@ export const Sequencer: React.FC = () => {
             <SequencerStep
               index={stepIndex}
               isActive={state.isActive}
-              intensity={state.intensity}
+              isInCurrentVariation={isViewingCurrentVariation}
               isGuideHighlighted={state.isGuideHighlighted}
               activeColorClassName={state.activeColorClassName}
               onKeyboardToggle={handleToggleStep}

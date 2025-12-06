@@ -6,8 +6,8 @@ import { useLightNode, useLightRig } from "@/shared/lightshow";
 interface SequencerStepProps {
   index: number; // zero-based position in the grid
   isActive: boolean; // whether the step is currently on/latched
-  intensity: number; // visual intensity (0-1) for ghosted variations
   isGuideHighlighted: boolean; // guide mode: desaturated and slightly darker
+  isInCurrentVariation?: boolean; // whether the variation being viewed is the one currently playing
   activeColorClassName?: string; // optional className override when active
   disabled?: boolean;
   onKeyboardToggle?: (index: number) => void;
@@ -30,8 +30,8 @@ interface SequencerStepProps {
 export const SequencerStep: React.FC<SequencerStepProps> = ({
   index,
   isActive,
-  intensity = 1,
   isGuideHighlighted,
+  isInCurrentVariation = true,
   activeColorClassName,
   disabled = false,
   onKeyboardToggle,
@@ -61,21 +61,43 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   const isGuideOnly = isGuideHighlighted && !isActive;
   const isActiveAndVisible = isActive && !isIntroPlaying;
+  const isViewingCurrentVariation = isInCurrentVariation;
   const borderRadius = "rounded-[0_16px_0_16px]";
   const sizeClasses = "aspect-square w-full";
 
-  const triggerClassName =
-    (activeColorClassName && isActive && activeColorClassName) ||
-    (isActiveAndVisible && "bg-primary shadow-neu hover:accent") ||
-    (isGuideOnly &&
-      "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90") ||
-    "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
+  // Use data attributes so Tailwind variants resolve without rapidly swapping class lists
+  const triggerClassName = cn(
+    "relative overflow-hidden border transition-[background-color,box-shadow] duration-150 ease-out",
+    sizeClasses,
+    borderRadius,
+    // Base
+    "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40",
+    // Guide-only state
+    "data-[guide-only=true]:bg-background data-[guide-only=true]:shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] data-[guide-only=true]:hover:bg-foreground-muted/90",
+    // Active states
+    "data-[active=true]:bg-primary data-[active=true]:shadow-neu data-[active=true]:hover:accent",
+    "data-[active=true]:data-[current-variation=false]:bg-accent",
+    // Custom override (chain mode)
+    isActiveAndVisible && activeColorClassName,
+  );
 
-  const triggerStyles = {
-    className: triggerClassName,
-    opacity: isActive || isGuideOnly ? 1 : 0.75,
-  };
-  const displayOpacity = intensity !== 1 ? intensity : triggerStyles.opacity;
+  const displayOpacity = isActive || isGuideOnly ? 1 : 0.7;
+
+  // Defer data-attribute writes to rAF to avoid React swapping attributes mid-paint
+  React.useEffect(() => {
+    const el = buttonRef.current;
+    if (!el) return;
+
+    const frameId = requestAnimationFrame(() => {
+      el.dataset.active = isActiveAndVisible ? "true" : "false";
+      el.dataset.guideOnly = isGuideOnly ? "true" : "false";
+      el.dataset.currentVariation = isViewingCurrentVariation
+        ? "true"
+        : "false";
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [isActiveAndVisible, isGuideOnly, isViewingCurrentVariation]);
 
   // --- Event handlers ---
 
@@ -124,12 +146,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       onContextMenu={(e) => e.preventDefault()}
       disabled={disabled}
       type="button"
-      className={cn(
-        "relative overflow-hidden border transition-[background-color,box-shadow,opacity] duration-300 ease-in-out",
-        sizeClasses,
-        borderRadius,
-        triggerStyles.className,
-      )}
+      className={triggerClassName}
     >
       <div
         className={cn(
