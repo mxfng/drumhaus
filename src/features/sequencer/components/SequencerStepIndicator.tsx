@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { subscribeToStepUpdates } from "@/features/sequencer/lib/stepTicker";
 import { cn } from "@/shared/lib/utils";
+import { useLightNode } from "@/shared/lightshow";
 
 interface SequencerStepIndicatorProps {
   stepIndex: number;
@@ -23,6 +24,8 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
     let lastOpacityClass: string | null = null;
 
     const unsubscribe = subscribeToStepUpdates(({ currentStep, isPlaying }) => {
+      if (indicatorRef.current?.dataset.lightState === "on") return;
+
       const isAccentBeat = stepIndex % 4 === 0;
       const isStepPlaying =
         isPlaying &&
@@ -72,10 +75,15 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
     return unsubscribe;
   }, [stepIndex, variation, playbackVariation, baseClassName]);
 
+  useLightNode(indicatorRef, {
+    group: "sequencer-indicator",
+    weight: 0.4,
+  });
+
   return (
     <div
       ref={indicatorRef}
-      className={cn(baseClassName, "bg-foreground-emphasis", "opacity-20")}
+      className={cn(baseClassName, "bg-foreground-emphasis opacity-20")}
     />
   );
 };

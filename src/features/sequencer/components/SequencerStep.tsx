@@ -1,6 +1,7 @@
 import React from "react";
 
 import { cn } from "@/shared/lib/utils";
+import { useLightNode, useLightRig } from "@/shared/lightshow";
 
 interface SequencerStepProps {
   stepIndex: number;
@@ -50,17 +51,20 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const isAccentBeat = stepIndex % 4 === 0;
   const isGuideOnly = isGuideActive && !isTriggerOn;
 
+  const { isIntroPlaying } = useLightRig();
+
   const getTriggerClassName = () => {
-    // Use custom color if provided
-    if (color && isTriggerOn) {
-      return color;
+    if (color && isTriggerOn) return color;
+
+    if (isTriggerOn && !isIntroPlaying) {
+      return "bg-primary shadow-neu hover:accent";
     }
 
-    return isTriggerOn
-      ? "bg-primary shadow-neu hover:accent"
-      : isGuideOnly
-        ? "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90"
-        : "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
+    if (isGuideOnly) {
+      return "bg-background shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] hover:bg-foreground-muted/90";
+    }
+
+    return "bg-secondary shadow-[0_4px_8px_rgba(176,147,116,0.3)_inset] hover:bg-accent/40";
   };
 
   const triggerStyles = {
@@ -72,8 +76,17 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   const sizeClasses = "aspect-square w-full";
 
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+
+  useLightNode(buttonRef, {
+    id: `sequencer-step-${stepIndex}`,
+    weight: 0.8,
+    group: "sequencer-step",
+  });
+
   return (
     <button
+      ref={buttonRef}
       data-step-index={stepIndex}
       onClick={(event) => {
         if (disabled) return;
@@ -112,17 +125,15 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
         triggerStyles.className,
       )}
     >
-      {(isTriggerOn || isGuideOnly) && (
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
-            borderRadius,
-          )}
-          style={{
-            opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
-          }}
-        />
-      )}
+      <div
+        className={cn(
+          "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0)_55%)] disabled:opacity-50",
+          borderRadius,
+        )}
+        style={{
+          opacity: brightness !== 1 ? brightness : triggerStyles.opacity,
+        }}
+      />
     </button>
   );
 };

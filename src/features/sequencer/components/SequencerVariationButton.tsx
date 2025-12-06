@@ -46,10 +46,10 @@ export const SequencerVariationButton = forwardRef<
 
   return (
     <Button
-      ref={ref}
       variant="hardware"
       size="lg"
       onClick={handleClick}
+      ref={ref}
       className={cn(
         "font-pixel flex items-start justify-start p-1 transition-colors duration-400",
         buttonActive(isActive && !isChainEdit),

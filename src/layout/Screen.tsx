@@ -6,6 +6,7 @@ import { ChainEditScreen } from "@/features/sequencer/components/ChainEditScreen
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
+import { LogoSweep } from "@/shared/components/LogoSweep";
 
 /*
 TODO: Add remaining features
@@ -33,6 +34,9 @@ export const Screen: React.FC = () => {
         <div className="border-foreground relative min-h-0 flex-1">
           <div className="absolute inset-0 pl-4">
             <FrequencyAnalyzer />
+          </div>
+          <div className="absolute inset-0">
+            <LogoSweep />
           </div>
         </div>
         <TempoControlsScreen />

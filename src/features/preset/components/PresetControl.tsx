@@ -143,7 +143,7 @@ export const PresetControl: React.FC = () => {
       {/* Preset Row: 1/6 label + fill selector + 1/6 actions */}
       <div className="flex w-full flex-1 items-center text-sm">
         <div className="border-screen h-full w-1/6 border-b">
-          <div className="bg-screen-foreground text-screen flex h-full items-center pl-2">
+          <div className="bg-screen-foreground text-screen flex h-full items-center rounded-br pl-2">
             preset
           </div>
         </div>
@@ -158,7 +158,7 @@ export const PresetControl: React.FC = () => {
             onDeletePreset={handleDeletePreset}
           />
         </div>
-        <div className="bg-screen-foreground border-screen h-full w-1/4 border-b">
+        <div className="bg-screen-foreground border-screen h-full w-1/4 rounded-bl border-b">
           <PresetActions onOpenFromFile={importPreset} />
         </div>
       </div>
@@ -166,7 +166,7 @@ export const PresetControl: React.FC = () => {
       {/* Kit Row: 1/6 label + fill selector + 1/4 navigator */}
       <div className="flex w-full flex-1 items-center text-sm">
         <div className="h-full w-1/6">
-          <div className="bg-screen-foreground text-screen flex h-full items-center pl-2">
+          <div className="bg-screen-foreground text-screen flex h-full items-center rounded-tr pl-2">
             kit
           </div>
         </div>
@@ -177,7 +177,7 @@ export const PresetControl: React.FC = () => {
             onSelect={handleKitChange}
           />
         </div>
-        <div className="bg-screen-foreground h-full w-1/4">
+        <div className="bg-screen-foreground h-full w-1/4 rounded-tl">
           <KitNavigator onPrevious={handlePreviousKit} onNext={handleNextKit} />
         </div>
       </div>
