@@ -1,13 +1,10 @@
+import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 
+import { PresetActionsDialog } from "@/features/preset/dialogs/PresetActionsDialog";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import {
   Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
   Select,
   SelectContent,
   SelectGroup,
@@ -39,6 +36,11 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
 }) => {
   const hasManagementCallbacks =
     onRenamePreset || onDuplicatePreset || onDeletePreset;
+
+  const [actionsDialogPreset, setActionsDialogPreset] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   return (
     <div className="group w-full px-1">
@@ -76,63 +78,21 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
                     </SelectItem>
 
                     {hasManagementCallbacks && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hover:text-accent-foreground/80 absolute right-0 h-6 w-6 shrink-0"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          >
-                            <MoreVertical className="h-3 w-3" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="start"
-                          side="right"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {onRenamePreset && (
-                            <DropdownMenuItem
-                              onSelect={() =>
-                                onRenamePreset(preset.meta.id, preset.meta.name)
-                              }
-                            >
-                              Rename
-                            </DropdownMenuItem>
-                          )}
-                          {onDuplicatePreset && (
-                            <DropdownMenuItem
-                              onSelect={() =>
-                                onDuplicatePreset(
-                                  preset.meta.id,
-                                  preset.meta.name,
-                                )
-                              }
-                            >
-                              Duplicate
-                            </DropdownMenuItem>
-                          )}
-                          {onDeletePreset && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onSelect={() =>
-                                  onDeletePreset(
-                                    preset.meta.id,
-                                    preset.meta.name,
-                                  )
-                                }
-                              >
-                                Delete
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="hover:text-accent-foreground/80 absolute right-0 h-6 w-6 shrink-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setActionsDialogPreset({
+                            id: preset.meta.id,
+                            name: preset.meta.name,
+                          });
+                        }}
+                      >
+                        <MoreVertical className="h-3 w-3" />
+                      </Button>
                     )}
                   </div>
                 ))}
@@ -141,6 +101,26 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
           )}
         </SelectContent>
       </Select>
+
+      {actionsDialogPreset && (
+        <PresetActionsDialog
+          isOpen={true}
+          onClose={() => setActionsDialogPreset(null)}
+          presetName={actionsDialogPreset.name}
+          onRename={() =>
+            onRenamePreset?.(actionsDialogPreset.id, actionsDialogPreset.name)
+          }
+          onDuplicate={() =>
+            onDuplicatePreset?.(
+              actionsDialogPreset.id,
+              actionsDialogPreset.name,
+            )
+          }
+          onDelete={() =>
+            onDeletePreset?.(actionsDialogPreset.id, actionsDialogPreset.name)
+          }
+        />
+      )}
     </div>
   );
 };

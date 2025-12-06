@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,9 +40,14 @@ export const PresetFileExportForm: React.FC<PresetFileExportFormProps> = ({
 
   const { toast } = useToast();
 
+  const defaultValues = useMemo(
+    () => ({ presetName: currentPresetName }),
+    [currentPresetName],
+  );
+
   const form = useForm<ExportFormValues>({
     resolver: zodResolver(exportSchema),
-    defaultValues: { presetName: currentPresetName },
+    defaultValues,
     mode: "onChange",
   });
 

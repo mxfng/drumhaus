@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -48,9 +48,14 @@ export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
   );
   const { toast } = useToast();
 
+  const defaultValues = useMemo(
+    () => ({ presetName: suggestedName }),
+    [suggestedName],
+  );
+
   const form = useForm<DuplicateFormValues>({
     resolver: zodResolver(duplicateSchema),
-    defaultValues: { presetName: suggestedName },
+    defaultValues,
     mode: "onChange",
   });
 
@@ -68,10 +73,10 @@ export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
   };
 
   useEffect(() => {
-    reset({ presetName: suggestedName });
+    reset(defaultValues);
     // Trigger validation to show error immediately if name is invalid
     trigger("presetName");
-  }, [suggestedName, reset, trigger]);
+  }, [defaultValues, reset, trigger]);
 
   const onSubmit = handleSubmit(({ presetName }) => {
     const trimmedName = presetName.trim();
