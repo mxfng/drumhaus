@@ -10,13 +10,12 @@ import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useTransportStore } from "@/features/transport/store/useTransportStore";
 import { useLightRig } from "@/shared/lightshow";
 
-interface StepMusicalState {
+interface StepRenderState {
   velocityValue: number;
-  isTriggerOn: boolean;
-  brightness: number;
-  isGuideActive: boolean;
-  color?: string;
-  disabled?: boolean;
+  isActive: boolean;
+  intensity: number;
+  isGuideHighlighted: boolean;
+  activeColorClassName?: string;
 }
 
 export const Sequencer: React.FC = () => {
@@ -127,7 +126,7 @@ export const Sequencer: React.FC = () => {
     return null;
   };
 
-  const getStepMusicalState = (step: number): StepMusicalState => {
+  const getStepRenderState = (step: number): StepRenderState => {
     // Chain edit mode: show variation chain visualization
     if (isChainEdit) {
       const chainVariation = getChainStepVariation(step);
@@ -135,24 +134,26 @@ export const Sequencer: React.FC = () => {
 
       return {
         velocityValue: 0,
-        isTriggerOn: !isEmpty,
-        brightness: 1,
-        isGuideActive: false,
-        color: !isEmpty ? variationColors[chainVariation] : undefined,
+        isActive: !isEmpty,
+        intensity: 1,
+        isGuideHighlighted: false,
+        activeColorClassName: !isEmpty
+          ? variationColors[chainVariation]
+          : undefined,
         disabled: true,
       };
     }
 
     // Normal sequencer mode
-    const isTriggerOn = triggers[step];
-    const isGuideActive = showInstrumentGuide && instrumentTriggers[step];
-    const brightness = isGhosted && (isTriggerOn || isGuideActive) ? 0.7 : 1;
+    const isActive = triggers[step];
+    const isGuideHighlighted = showInstrumentGuide && instrumentTriggers[step];
+    const intensity = isGhosted && (isActive || isGuideHighlighted) ? 0.7 : 1;
 
     return {
       velocityValue: velocities[step],
-      isTriggerOn,
-      brightness,
-      isGuideActive,
+      isActive,
+      intensity,
+      isGuideHighlighted,
     };
   };
 
@@ -164,7 +165,7 @@ export const Sequencer: React.FC = () => {
       data-lightshow-lock={isIntroPlaying ? "on" : "off"}
     >
       {steps.map((step) => {
-        const state = getStepMusicalState(step);
+        const state = getStepRenderState(step);
 
         return (
           <div key={`sequence-step-item-${step}`} className="col-span-1">
@@ -174,17 +175,17 @@ export const Sequencer: React.FC = () => {
               playbackVariation={playbackVariation}
             />
             <SequencerStep
-              stepIndex={step}
-              isTriggerOn={state.isTriggerOn}
-              brightness={state.brightness}
-              isGuideActive={state.isGuideActive}
-              color={state.color}
+              index={step}
+              isActive={state.isActive}
+              intensity={state.intensity}
+              isGuideHighlighted={state.isGuideHighlighted}
+              activeColorClassName={state.activeColorClassName}
               disabled={state.disabled}
-              onClick={state.disabled ? undefined : handleToggleStep}
-              onPointerStart={
+              onKeyboardToggle={state.disabled ? undefined : handleToggleStep}
+              onPointerToggleStart={
                 state.disabled ? undefined : handleStepPointerStart
               }
-              onPointerEnter={
+              onPointerToggleEnter={
                 state.disabled ? undefined : handleStepPointerEnter
               }
               onPointerMove={state.disabled ? undefined : handleStepPointerMove}
@@ -195,7 +196,7 @@ export const Sequencer: React.FC = () => {
                 <SequencerVelocity
                   stepIndex={step}
                   velocityValue={state.velocityValue}
-                  isTriggerOn={state.isTriggerOn}
+                  isTriggerOn={state.isActive}
                   onSetVelocity={(stepIndex, velocity) =>
                     setVelocity(voiceIndex, variation, stepIndex, velocity)
                   }
