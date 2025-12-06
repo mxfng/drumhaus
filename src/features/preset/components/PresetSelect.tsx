@@ -120,7 +120,6 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-destructive"
                                 onSelect={() =>
                                   onDeletePreset(
                                     preset.meta.id,
