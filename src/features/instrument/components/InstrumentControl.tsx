@@ -62,8 +62,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           "cursor-default": !runtime,
         },
         showSelectedState && "border-primary/60 bg-primary/5",
-        isSource && "opacity-50",
         interactableHighlight(shouldHighlight),
+        shouldHighlight && "bg-surface", // needed to show bg animation
       )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
