@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { useDebugStore } from "@/features/debug/store/useDebugStore";
 import { useNightModeStore } from "@/features/night/store/useNightModeStore";

@@ -7,6 +7,16 @@ import { cn } from "./utils";
  */
 export function interactableHighlight(isInteractable: boolean): string {
   return cn({
-    "animate-brightness-pulse": isInteractable,
+    "animate-brightness-pulse interactable-highlight-border": isInteractable,
+  });
+}
+
+/**
+ * Returns className for the "copied" indicator highlight
+ * Used to show the current copy source when in paste mode
+ */
+export function copiedItemHighlight(isCopied: boolean): string {
+  return cn({
+    "animate-brightness-blink *:pointer-events-none **:select-none": isCopied,
   });
 }

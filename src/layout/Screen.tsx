@@ -3,10 +3,12 @@ import { FlamEditScreen } from "@/features/groove/components/FlamEditScreen";
 import { RatchetEditScreen } from "@/features/groove/components/RatchetEditScreen";
 import { PresetControl } from "@/features/preset/components/PresetControl";
 import { ChainEditScreen } from "@/features/sequencer/components/ChainEditScreen";
+import { ClipboardScreen } from "@/features/sequencer/components/ClipboardScreen";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
 import FrequencyAnalyzer from "@/shared/components/FrequencyAnalyzer";
 import { LogoSweep } from "@/shared/components/LogoSweep";
+import { ScreenFlashOverlay } from "@/shared/components/ScreenFlashOverlay";
 
 /*
 TODO: Add remaining features
@@ -21,6 +23,8 @@ export const Screen: React.FC = () => {
 
   if (mode.type === "variationChain") {
     rightColumn = <ChainEditScreen />;
+  } else if (mode.type === "copy" || mode.type === "paste") {
+    rightColumn = <ClipboardScreen />;
   } else if (mode.type === "accent") {
     rightColumn = <AccentEditScreen />;
   } else if (mode.type === "flam") {
@@ -47,7 +51,7 @@ export const Screen: React.FC = () => {
   return (
     <>
       {/* Screen Display */}
-      <div className="bg-screen text-foreground outline-border col-span-4 h-12 overflow-hidden rounded-2xl outline">
+      <div className="bg-screen text-foreground outline-border relative col-span-4 h-12 overflow-hidden rounded-2xl outline">
         <div className="grid h-full w-full grid-cols-2 rounded-2xl">
           {/* Left Column - Equal heights */}
           <div className="flex h-full flex-col">
@@ -55,7 +59,7 @@ export const Screen: React.FC = () => {
           </div>
 
           {/* Right Column - Dynamic based on mode */}
-          {rightColumn}
+          <ScreenFlashOverlay>{rightColumn}</ScreenFlashOverlay>
         </div>
       </div>
     </>

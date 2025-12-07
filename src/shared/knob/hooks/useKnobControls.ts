@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMotionValue, useTransform } from "framer-motion";
 
 import { clamp, quantize } from "@/shared/lib/utils";

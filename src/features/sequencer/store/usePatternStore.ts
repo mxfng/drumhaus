@@ -2,21 +2,49 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { STEP_COUNT } from "@/core/audio/engine/constants";
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
+  appendChainDraftStep,
   clampVariationId,
   DEFAULT_CHAIN,
   legacyCycleToChain,
-  MAX_CHAIN_REPEAT,
-  MAX_CHAIN_STEPS,
-  MIN_CHAIN_REPEAT,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
+import {
+  applyInstrumentClipboard,
+  applyVariationClipboard,
+  createVariationClipboard,
+} from "@/features/sequencer/lib/clipboard";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
-import { clampNudge } from "@/features/sequencer/lib/timing";
+import {
+  adjustTimingNudge,
+  clearStepSequence,
+  setStepSequence,
+  setTimingNudge,
+  setVelocity,
+  toggleAccent,
+  toggleFlam,
+  toggleRatchet,
+  toggleStep,
+} from "@/features/sequencer/lib/patternMutations";
+import {
+  ClipboardContent,
+  CopySource,
+} from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
-import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
+import { triggerScreenFlash } from "@/shared/store/useScreenFlashStore";
+import {
+  buildInstrumentClipboardState,
+  buildInstrumentPasteFlashFromContext,
+  buildVariationPasteFlashFromContext,
+} from "../lib/paste";
+import {
+  PatternChain,
+  VARIATION_LABELS,
+  VariationCycle,
+  VariationId,
+} from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -27,10 +55,9 @@ export type SequencerMode =
   | { type: "accent" } // Editing accent pattern (variation-level)
   | { type: "ratchet"; voiceIndex: number } // Editing ratchet pattern for voice
   | { type: "flam"; voiceIndex: number } // Editing flam pattern for voice
-  | { type: "copy" } // Copy mode (future)
-  | { type: "paste" } // Paste mode (future)
+  | { type: "copy" } // Selecting copy source (instrument or variation)
+  | { type: "paste" } // Selecting paste destination
   | { type: "clear" } // Clear mode (future)
-  | { type: "random" } // Random mode (future)
   | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
@@ -54,6 +81,10 @@ interface PatternState {
   // Playback context (which variation is actually being played by the engine)
   playbackVariation: VariationId; // Mirrors the engine's active variation (A = 0, B = 1)
 
+  // Clipboard (not persisted - session only)
+  clipboard: ClipboardContent | null;
+  copySource: CopySource | null;
+
   // Actions
   setVariation: (variation: number) => void;
   setChain: (chain: PatternChain) => void;
@@ -71,37 +102,58 @@ interface PatternState {
   toggleRatchetMode: () => void;
   toggleFlamMode: () => void;
 
+  // Copy/paste actions
+  enterCopyMode: () => void;
+  togglePasteMode: () => void;
+  exitCopyPasteMode: () => void;
+  copyInstrument: (voiceIndex: number) => void;
+  copyVariation: (variationId: VariationId) => void;
+  pasteToInstrument: (voiceIndex: number) => void;
+  pasteToVariation: (variationId: VariationId) => void;
+
   // Pattern manipulation
-  toggleStep: (voiceIndex: number, variation: number, step: number) => void;
+  toggleStep: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
   setVelocity: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     step: number,
     velocity: number,
   ) => void;
   updatePattern: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     triggers: boolean[],
     velocities: number[],
   ) => void;
-  clearPattern: (voiceIndex: number, variation: number) => void;
+  clearPattern: (voiceIndex: number, variation: VariationId) => void;
 
   // Accent manipulation
-  toggleAccent: (variation: number, step: number) => void;
+  toggleAccent: (variation: VariationId, step: number) => void;
 
   // Ratchet manipulation
-  toggleRatchet: (voiceIndex: number, variation: number, step: number) => void;
+  toggleRatchet: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
 
   // Flam manipulation
-  toggleFlam: (voiceIndex: number, variation: number, step: number) => void;
+  toggleFlam: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
 
   // Timing nudge
   nudgeTimingLeft: () => void;
   nudgeTimingRight: () => void;
   setTimingNudge: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     nudge: TimingNudge,
   ) => void;
 }
@@ -122,6 +174,10 @@ export const usePatternStore = create<PatternState>()(
         playbackVariation: 0,
         voiceIndex: 0,
 
+        // Clipboard (not persisted)
+        clipboard: null,
+        copySource: null,
+
         // Actions
         setVariation: (variation) => {
           set({ variation: clampVariationId(variation) });
@@ -131,6 +187,13 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             state.chain = sanitizeChain(chain);
             state.chainVersion += 1;
+
+            triggerScreenFlash({
+              message: "Chain updated",
+              subtext: `${chain.steps.map((step) => `${VARIATION_LABELS[step.variation]}` + (step.repeats > 1 ? `x${step.repeats}` : "")).join("┄")}`,
+              tone: "success",
+              icon: "check",
+            });
           });
         },
 
@@ -161,39 +224,9 @@ export const usePatternStore = create<PatternState>()(
               return;
             }
 
-            const chain = sanitizeChain(state.chainDraft, { allowEmpty: true });
-            const steps = [...chain.steps];
-            const lastStep = steps[steps.length - 1];
-            const variationId = clampVariationId(variation);
-
-            // Calculate total bars in current chain
-            const totalBars = steps.reduce(
-              (sum, step) => sum + step.repeats,
-              0,
-            );
-
-            if (
-              lastStep &&
-              lastStep.variation === variationId &&
-              lastStep.repeats < MAX_CHAIN_REPEAT &&
-              totalBars < MAX_CHAIN_STEPS
-            ) {
-              // Increment repeat of last step if it won't exceed 8 total bars
-              lastStep.repeats += 1;
-              steps[steps.length - 1] = lastStep;
-            } else if (
-              steps.length < MAX_CHAIN_STEPS &&
-              totalBars < MAX_CHAIN_STEPS
-            ) {
-              // Add new step if it won't exceed 8 total bars
-              steps.push({ variation: variationId, repeats: MIN_CHAIN_REPEAT });
-            }
-
-            state.chainDraft = sanitizeChain(
-              {
-                steps,
-              },
-              { allowEmpty: true },
+            state.chainDraft = appendChainDraftStep(
+              state.chainDraft,
+              variation,
             );
           });
         },
@@ -254,6 +287,145 @@ export const usePatternStore = create<PatternState>()(
           });
         },
 
+        enterCopyMode: () => {
+          set({ mode: { type: "copy" } });
+        },
+
+        togglePasteMode: () => {
+          set((state) => {
+            // Only allow paste mode if we have something on clipboard
+            if (!state.clipboard) return;
+
+            if (state.mode.type === "paste") {
+              // Exit paste mode
+              return { mode: { type: "voice", voiceIndex: state.voiceIndex } };
+            } else {
+              // Enter paste mode
+              return { mode: { type: "paste" } };
+            }
+          });
+        },
+
+        exitCopyPasteMode: () => {
+          set((state) => ({
+            mode: { type: "voice", voiceIndex: state.voiceIndex },
+          }));
+        },
+
+        copyInstrument: (voiceIndex) => {
+          set((state) => {
+            const instruments = useInstrumentsStore.getState().instruments;
+            const { clipboard, source } = buildInstrumentClipboardState(
+              state.pattern,
+              voiceIndex,
+              state.variation,
+              instruments,
+            );
+            return {
+              clipboard,
+              copySource: source,
+              mode: { type: "paste" },
+            };
+          });
+        },
+
+        copyVariation: (variationId) => {
+          set((state) => {
+            const { clipboard, source } = createVariationClipboard(
+              state.pattern,
+              variationId,
+            );
+            return {
+              clipboard,
+              copySource: source,
+              mode: { type: "paste" },
+            };
+          });
+        },
+
+        pasteToInstrument: (voiceIndex) => {
+          set((state) => {
+            if (
+              applyInstrumentClipboard(
+                state.pattern,
+                state.clipboard,
+                voiceIndex,
+                state.variation,
+              )
+            ) {
+              state.patternVersion += 1;
+              const instruments = useInstrumentsStore.getState().instruments;
+              const flashPayload = buildInstrumentPasteFlashFromContext({
+                clipboard: state.clipboard,
+                copySource: state.copySource,
+                targetVoiceIndex: voiceIndex,
+                targetVariation: state.variation,
+                instruments,
+              });
+
+              if (flashPayload) {
+                triggerScreenFlash(flashPayload);
+              }
+            }
+            state.mode = { type: "voice", voiceIndex };
+          });
+        },
+
+        pasteToVariation: (variationId) => {
+          set((state) => {
+            if (state.clipboard?.type === "variation") {
+              if (
+                applyVariationClipboard(
+                  state.pattern,
+                  state.clipboard,
+                  variationId,
+                )
+              ) {
+                state.patternVersion += 1;
+                triggerScreenFlash(
+                  buildVariationPasteFlashFromContext(
+                    state.copySource?.variationId,
+                    variationId,
+                  ),
+                );
+              }
+            } else if (
+              state.clipboard?.type === "instrument" &&
+              state.copySource
+            ) {
+              if (
+                applyInstrumentClipboard(
+                  state.pattern,
+                  state.clipboard,
+                  state.copySource.type === "instrument"
+                    ? state.copySource.voiceIndex
+                    : 0,
+                  variationId,
+                )
+              ) {
+                state.patternVersion += 1;
+                const targetVoiceIndex =
+                  state.copySource.type === "instrument"
+                    ? state.copySource.voiceIndex
+                    : 0;
+                const instruments = useInstrumentsStore.getState().instruments;
+                const flashPayload = buildInstrumentPasteFlashFromContext({
+                  clipboard: state.clipboard,
+                  copySource: state.copySource,
+                  targetVoiceIndex,
+                  targetVariation: variationId,
+                  instruments,
+                });
+
+                if (flashPayload) {
+                  triggerScreenFlash(flashPayload);
+                }
+              }
+            }
+            state.mode = { type: "voice", voiceIndex: state.voiceIndex };
+          });
+        },
+
         setPattern: (pattern) => {
           set((state) => {
             state.pattern = pattern;
@@ -267,83 +439,55 @@ export const usePatternStore = create<PatternState>()(
 
         toggleStep: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].triggers[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].triggers[
-              step
-            ] = !currentValue;
-            // Set default velocity to 1 when enabling a step
-            if (!currentValue) {
-              state.pattern.voices[voiceIndex].variations[variation].velocities[
-                step
-              ] = 1;
-            }
+            toggleStep(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
 
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].velocities[
-              step
-            ] = velocity;
+            setVelocity(state.pattern, voiceIndex, variation, step, velocity);
             state.patternVersion += 1;
           });
         },
 
         updatePattern: (voiceIndex, variation, triggers, velocities) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].triggers =
-              triggers;
-            state.pattern.voices[voiceIndex].variations[variation].velocities =
-              velocities;
+            setStepSequence(
+              state.pattern,
+              voiceIndex,
+              variation,
+              triggers,
+              velocities,
+            );
             state.patternVersion += 1;
           });
         },
 
         clearPattern: (voiceIndex, variation) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].triggers =
-              Array(STEP_COUNT).fill(false);
-            state.pattern.voices[voiceIndex].variations[variation].velocities =
-              Array(STEP_COUNT).fill(1);
+            clearStepSequence(state.pattern, voiceIndex, variation);
             state.patternVersion += 1;
           });
         },
 
         toggleAccent: (variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.variationMetadata[variation].accent[step];
-            state.pattern.variationMetadata[variation].accent[step] =
-              !currentValue;
+            toggleAccent(state.pattern, variation, step);
             state.patternVersion += 1;
           });
         },
 
         toggleRatchet: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].ratchets[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].ratchets[
-              step
-            ] = !currentValue;
+            toggleRatchet(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
 
         toggleFlam: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].flams[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].flams[step] =
-              !currentValue;
+            toggleFlam(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
@@ -355,11 +499,7 @@ export const usePatternStore = create<PatternState>()(
 
             const { voiceIndex } = state.mode;
             const { variation } = state;
-            const currentNudge =
-              state.pattern.voices[voiceIndex].variations[variation]
-                .timingNudge;
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              clampNudge(currentNudge - 1);
+            adjustTimingNudge(state.pattern, voiceIndex, variation, -1);
             state.patternVersion += 1;
           });
         },
@@ -371,19 +511,14 @@ export const usePatternStore = create<PatternState>()(
 
             const { voiceIndex } = state.mode;
             const { variation } = state;
-            const currentNudge =
-              state.pattern.voices[voiceIndex].variations[variation]
-                .timingNudge;
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              clampNudge(currentNudge + 1);
+            adjustTimingNudge(state.pattern, voiceIndex, variation, 1);
             state.patternVersion += 1;
           });
         },
 
         setTimingNudge: (voiceIndex, variation, nudge) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              nudge;
+            setTimingNudge(state.pattern, voiceIndex, variation, nudge);
             state.patternVersion += 1;
           });
         },

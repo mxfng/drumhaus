@@ -23,3 +23,9 @@ html.potato-mode *::after {
   transition: none !important;
   animation: none !important;
 }
+
+/* Make interactable highlight obvious without animations */
+html.potato-mode .interactable-highlight-border {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

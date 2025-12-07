@@ -7,6 +7,37 @@ export const DEFAULT_CHAIN: PatternChain = {
   steps: [{ variation: 0, repeats: 1 }],
 };
 
+export function appendChainDraftStep(
+  chainDraft: PatternChain,
+  variation: VariationId,
+): PatternChain {
+  const chain = sanitizeChain(chainDraft, { allowEmpty: true });
+  const steps = [...chain.steps];
+  const lastStep = steps[steps.length - 1];
+  const variationId = clampVariationId(variation);
+
+  const totalBars = steps.reduce((sum, step) => sum + step.repeats, 0);
+
+  if (
+    lastStep &&
+    lastStep.variation === variationId &&
+    lastStep.repeats < MAX_CHAIN_REPEAT &&
+    totalBars < MAX_CHAIN_STEPS
+  ) {
+    lastStep.repeats += 1;
+    steps[steps.length - 1] = lastStep;
+  } else if (steps.length < MAX_CHAIN_STEPS && totalBars < MAX_CHAIN_STEPS) {
+    steps.push({ variation: variationId, repeats: MIN_CHAIN_REPEAT });
+  }
+
+  return sanitizeChain(
+    {
+      steps,
+    },
+    { allowEmpty: true },
+  );
+}
+
 export function clampVariationId(variation: number): VariationId {
   if (variation < 0) return 0;
   if (variation > 3) return 3;
