@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { clampVelocity } from "@/features/sequencer/lib/helpers";
 import { cn } from "@/shared/lib/utils";
@@ -56,7 +56,7 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
     setIsAdjusting(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAdjusting) {
       window.addEventListener("pointerup", handlePointerUp);
       window.addEventListener("pointercancel", handlePointerUp);

@@ -1,4 +1,9 @@
+import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import {
+  copiedItemHighlight,
+  interactableHighlight,
+} from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { InstrumentRuntime } from "../../../core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
@@ -22,13 +27,37 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
     (state) => state.instruments[index].meta,
   );
 
-  const isSelectedAndActive = usePatternStore(
-    (state) =>
-      (state.mode.type === "voice" ||
-        state.mode.type === "ratchet" ||
-        state.mode.type === "flam") &&
-      state.mode.voiceIndex === index,
-  );
+  const mode = usePatternStore((state) => state.mode);
+  const variation = usePatternStore((state) => state.variation);
+  const clipboard = usePatternStore((state) => state.clipboard);
+  const copySource = usePatternStore((state) => state.copySource);
+
+  const isSelectedAndActive =
+    (mode.type === "voice" ||
+      mode.type === "ratchet" ||
+      mode.type === "flam") &&
+    mode.voiceIndex === index;
+
+  const isCopyMode = mode.type === "copy";
+  const isPasteMode = mode.type === "paste";
+
+  // Check if this instrument is the copy source (for dimming in paste mode)
+  const isSource =
+    isPasteMode &&
+    copySource !== null &&
+    clipboard?.type === "instrument" &&
+    isSameAsSource(copySource, "instrument", index, variation);
+
+  // Highlight instruments in copy mode, or in paste mode with instrument clipboard
+  const shouldHighlight =
+    isCopyMode ||
+    (isPasteMode && clipboard?.type === "instrument" && !isSource);
+
+  const shouldShowCopiedHighlight = isSource;
+  const disableChildInteractions = shouldHighlight || shouldShowCopiedHighlight;
+
+  // Don't show selected state during copy/paste modes
+  const showSelectedState = isSelectedAndActive && !isCopyMode && !isPasteMode;
 
   return (
     <div
@@ -38,7 +67,10 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
           "cursor-pointer": runtime,
           "cursor-default": !runtime,
         },
-        isSelectedAndActive && "border-primary/60 bg-primary/5",
+        showSelectedState && "border-primary/60 bg-primary/5",
+        interactableHighlight(shouldHighlight),
+        copiedItemHighlight(shouldShowCopiedHighlight),
+        disableChildInteractions && "bg-surface",
       )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >

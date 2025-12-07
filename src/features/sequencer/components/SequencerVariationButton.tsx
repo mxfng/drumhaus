@@ -1,14 +1,18 @@
-import React, { forwardRef } from "react";
+import { ButtonHTMLAttributes, forwardRef } from "react";
 
+import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { buttonActive } from "@/shared/lib/buttonActive";
-import { interactableHighlight } from "@/shared/lib/interactableHighlight";
+import {
+  copiedItemHighlight,
+  interactableHighlight,
+} from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
 import { VARIATION_LABELS, VariationId } from "../types/sequencer";
 
-interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SequencerVariationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variation: VariationId;
 }
 
@@ -29,13 +33,43 @@ export const SequencerVariationButton = forwardRef<
   const mode = usePatternStore((state) => state.mode);
   const writeChainStep = usePatternStore((state) => state.writeChainStep);
 
+  // Copy/paste state
+  const clipboard = usePatternStore((state) => state.clipboard);
+  const copySource = usePatternStore((state) => state.copySource);
+  const copyVariation = usePatternStore((state) => state.copyVariation);
+  const pasteToVariation = usePatternStore((state) => state.pasteToVariation);
+
   const displayVariation = VARIATION_LABELS[variation] ?? "?";
   const isActive = currentVariation === variation;
   const isChainEdit = mode.type === "variationChain";
+  const isCopyMode = mode.type === "copy";
+  const isPasteMode = mode.type === "paste";
+
+  // Check if this variation is the copy source (for dimming in paste mode)
+  const isSource =
+    isPasteMode &&
+    copySource &&
+    isSameAsSource(copySource, "variation", null, variation);
+
+  // Determine if button should be highlighted for interactability
+  const shouldHighlight =
+    isChainEdit || isCopyMode || (isPasteMode && !isSource);
+  const shouldShowCopiedHighlight = isSource;
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isChainEdit) {
       writeChainStep(variation);
+    } else if (isCopyMode) {
+      // Copy this variation
+      copyVariation(variation);
+    } else if (isPasteMode) {
+      if (clipboard?.type === "variation" && !isSource) {
+        // Paste variation clipboard to this variation
+        pasteToVariation(variation);
+      } else if (clipboard?.type === "instrument" && !isSource) {
+        // Paste instrument clipboard into this variation for the copied voice
+        pasteToVariation(variation);
+      }
     } else {
       setVariation(variation);
     }
@@ -43,6 +77,10 @@ export const SequencerVariationButton = forwardRef<
   };
 
   const chainEditColors = VARIATION_CHAIN_COLORS[variation];
+
+  // In copy/paste mode, don't show active state (focus is on copy/paste, not selection)
+  const showActiveState =
+    isActive && !isChainEdit && !isCopyMode && !isPasteMode;
 
   return (
     <Button
@@ -52,8 +90,9 @@ export const SequencerVariationButton = forwardRef<
       ref={ref}
       className={cn(
         "font-pixel flex items-start justify-start p-1 transition-colors duration-400",
-        buttonActive(isActive && !isChainEdit),
-        interactableHighlight(isChainEdit),
+        buttonActive(showActiveState),
+        interactableHighlight(shouldHighlight),
+        copiedItemHighlight(Boolean(shouldShowCopiedHighlight)),
         className,
       )}
       {...props}
@@ -62,7 +101,7 @@ export const SequencerVariationButton = forwardRef<
         className={cn(
           "bg-foreground text-surface flex aspect-square h-5 w-5 items-center justify-center rounded-tr rounded-bl transition-colors duration-400",
           {
-            "bg-primary": isActive && !isChainEdit,
+            "bg-primary": showActiveState,
           },
           isChainEdit && [
             "border",

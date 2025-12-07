@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { Check } from "lucide-react";
 import { createPortal } from "react-dom";
 
@@ -31,6 +31,15 @@ export function Coachmark({
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
+  const show = useEffectEvent(() => {
+    setRender(true);
+    setIsShown(true);
+  });
+
+  const hide = useEffectEvent(() => {
+    setRender(false);
+  });
+
   useEffect(() => {
     if (potatoMode) return;
 
@@ -40,13 +49,12 @@ export function Coachmark({
 
     if (visible) {
       showTimeout = window.setTimeout(() => {
-        setRender(true);
-        raf = requestAnimationFrame(() => setIsShown(true));
+        show();
       }, 0);
     } else {
       requestAnimationFrame(() => setIsShown(false));
       hideTimeout = window.setTimeout(() => {
-        setRender(false);
+        hide();
       }, 200);
     }
 

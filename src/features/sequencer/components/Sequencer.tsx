@@ -1,5 +1,3 @@
-import React from "react";
-
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";
@@ -43,10 +41,13 @@ export const Sequencer: React.FC = () => {
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
   // --- Mode flags ---
+  const isCopyOrPasteMode = mode.type === "copy" || mode.type === "paste";
   const isChainEditMode = mode.type === "variationChain";
   const isRatchetMode = mode.type === "ratchet";
   const isFlamMode = mode.type === "flam";
   const isVoiceMode = mode.type === "voice";
+
+  const isDisabled = isChainEditMode || isCopyOrPasteMode;
 
   // --- Voice index ---
   const voiceIndex =
@@ -136,6 +137,16 @@ export const Sequencer: React.FC = () => {
   };
 
   const getStepRenderState = (step: number): StepRenderState => {
+    // Copy/paste mode: disable all steps
+    if (isCopyOrPasteMode) {
+      return {
+        velocity: 0,
+        isActive: false,
+        isGuideHighlighted: false,
+        activeColorClassName: undefined,
+      };
+    }
+
     // Chain mode
     if (isChainEditMode) {
       const chainVariation = getChainStepVariation(step);
@@ -190,7 +201,7 @@ export const Sequencer: React.FC = () => {
               onPointerToggleStart={handleStepPointerStart}
               onPointerToggleEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
-              disabled={isChainEditMode}
+              disabled={isDisabled}
             />
             {/* Hide velocity controls in accent/ratchet/flam/chain mode or when showVelocity is off */}
             <div className="h-3.5 w-full">
