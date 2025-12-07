@@ -1,13 +1,5 @@
-import { useRef } from "react";
-
-import {
-  Coachmark,
-  CoachmarkContent,
-  CoachmarkDismissTitle,
-} from "@/shared/components/Coachmark";
 import { ComingSoonTooltipContent } from "@/shared/components/ComingSoonTooltipContent";
 import { HardwareModule } from "@/shared/components/HardwareModule";
-import { useCoachmark } from "@/shared/hooks/useCoachmark";
 import { buttonActive } from "@/shared/lib/buttonActive";
 import { interactableHighlight } from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
@@ -40,8 +32,6 @@ const TOOLTIPS = {
   UNDO: "Undo the last change",
 } as const;
 
-const VARIATION_CHAIN_COACHMARK_DURATION_MS = 20000;
-
 /*
 TODO: Add the remaining control features
  */
@@ -62,12 +52,6 @@ export const SequencerControl: React.FC = () => {
   const togglePasteMode = usePatternStore((state) => state.togglePasteMode);
   const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
 
-  const variChainButtonRef = useRef<HTMLButtonElement>(null);
-  const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
-    storageKey: "coachmark-shown-variation-chain-mode",
-    duration: VARIATION_CHAIN_COACHMARK_DURATION_MS,
-  });
-
   const isChainEdit = mode.type === "variationChain";
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
@@ -82,8 +66,6 @@ export const SequencerControl: React.FC = () => {
       setMode({ type: "voice", voiceIndex });
       return;
     }
-    // Trigger coachmark on first use
-    triggerCoachmark();
     startChainEdit();
   };
 
@@ -114,7 +96,6 @@ export const SequencerControl: React.FC = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              ref={variChainButtonRef}
               variant="hardware"
               size="sm"
               className={cn(
@@ -238,28 +219,6 @@ export const SequencerControl: React.FC = () => {
           </TooltipContent>
         </Tooltip>
       </div>
-      <Coachmark
-        visible={showCoachmark}
-        message={
-          <>
-            <CoachmarkDismissTitle className="text-base font-semibold">
-              Variation Chain Mode
-            </CoachmarkDismissTitle>
-            <CoachmarkContent>
-              <p>Create a custom play order (e.g., A → B → A → D).</p>
-              <p>
-                Tap A/B/C/D in the order you want, then tap <b>Vari Chain</b>{" "}
-                again to save.
-              </p>
-              <p>
-                Enable <b>Chain On</b> to hear the sequence during playback.
-              </p>
-            </CoachmarkContent>
-          </>
-        }
-        anchorRef={variChainButtonRef}
-        onDismiss={dismissCoachmark}
-      />
     </HardwareModule>
   );
 };

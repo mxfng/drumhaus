@@ -11,6 +11,8 @@ import {
   useScreenFlashStore,
 } from "@/shared/store/useScreenFlashStore";
 
+const DEFAULT_DURATION_MS = 1500;
+
 const iconMap = {
   check: CheckCircle2,
   info: Info,
@@ -42,7 +44,7 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
     if (!flash) return;
     updateActive(flash);
 
-    const duration = flash.payload.durationMs ?? 900;
+    const duration = flash.payload.durationMs ?? DEFAULT_DURATION_MS;
     const removeTimer = window.setTimeout(() => updateActive(null), duration);
 
     return () => {

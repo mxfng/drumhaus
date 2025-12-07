@@ -27,9 +27,9 @@ export const AccentEditScreen: React.FC = () => {
 
       <ScreenBar className="flex flex-row justify-between">
         <p>accent mode</p>
-        <p className="inline-flex items-center gap-2">
+        <div className="inline-flex items-center gap-2">
           <VariationBadge variation={variation} /> {accentCount} / 16{" "}
-        </p>
+        </div>
       </ScreenBar>
     </div>
   );

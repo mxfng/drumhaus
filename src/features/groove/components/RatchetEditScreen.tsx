@@ -38,10 +38,10 @@ export const RatchetEditScreen: React.FC = () => {
 
       <ScreenBar className="flex flex-row justify-between">
         <p className="truncate">ratchet mode</p>
-        <p className="inline-flex items-center gap-2">
+        <div className="inline-flex items-center gap-2">
           {instrumentName} <VariationBadge variation={variation} />{" "}
           {ratchetCount} / 16{" "}
-        </p>
+        </div>
       </ScreenBar>
     </div>
   );
