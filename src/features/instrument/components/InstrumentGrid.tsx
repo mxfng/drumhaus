@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
-import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { INSTRUMENT_COLORS } from "../lib/colors";
@@ -18,12 +17,10 @@ export const InstrumentGrid: React.FC = () => {
 
   // Get state from Sequencer Store
   const mode = usePatternStore((state) => state.mode);
-  const variation = usePatternStore((state) => state.variation);
   const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
 
   // Copy/paste state
   const clipboard = usePatternStore((state) => state.clipboard);
-  const copySource = usePatternStore((state) => state.copySource);
   const copyInstrument = usePatternStore((state) => state.copyInstrument);
   const pasteToInstrument = usePatternStore((state) => state.pasteToInstrument);
   const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
@@ -45,13 +42,7 @@ export const InstrumentGrid: React.FC = () => {
         // Copy this instrument's pattern
         copyInstrument(index);
       } else if (isPasteMode && clipboard?.type === "instrument") {
-        // Check if this is not the source (for same variation)
-        const isSource =
-          copySource &&
-          isSameAsSource(copySource, "instrument", index, variation);
-        if (!isSource) {
-          pasteToInstrument(index);
-        }
+        pasteToInstrument(index);
       } else {
         // Normal mode: select this voice
         setVoiceMode(index);
@@ -62,8 +53,6 @@ export const InstrumentGrid: React.FC = () => {
       isPasteMode,
       isClearMode,
       clipboard,
-      copySource,
-      variation,
       copyInstrument,
       pasteToInstrument,
       clearInstrument,

@@ -72,10 +72,10 @@ export const SequencerVariationButton = forwardRef<
       // Copy this variation
       copyVariation(variation);
     } else if (isPasteMode) {
-      if (clipboard?.type === "variation" && !isSource) {
+      if (clipboard?.type === "variation") {
         // Paste variation clipboard to this variation
         pasteToVariation(variation);
-      } else if (clipboard?.type === "instrument" && !isSource) {
+      } else if (clipboard?.type === "instrument") {
         // Paste instrument clipboard into this variation for the copied voice
         pasteToVariation(variation);
       }
