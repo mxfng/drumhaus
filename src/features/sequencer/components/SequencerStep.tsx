@@ -65,6 +65,13 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   const isViewingCurrentVariation = isInCurrentVariation;
   const borderRadius = "rounded-[0_16px_0_16px]";
   const sizeClasses = "aspect-square w-full";
+  // Preserve chain color overrides by skipping the default active backgrounds when provided
+  const activeBackgroundClasses = activeColorClassName
+    ? isActiveAndVisible && activeColorClassName
+    : [
+        "data-[active=true]:bg-primary",
+        "data-[active=true]:data-[current-variation=false]:bg-accent",
+      ];
 
   // Use data attributes so Tailwind variants resolve without rapidly swapping class lists
   const triggerClassName = cn(
@@ -76,10 +83,8 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
     // Guide-only state
     "data-[guide-only=true]:bg-background data-[guide-only=true]:shadow-[0_4px_8px_rgba(176,147,116,0.35)_inset] data-[guide-only=true]:hover:bg-foreground-muted/90",
     // Active states
-    "data-[active=true]:bg-primary data-[active=true]:shadow-neu data-[active=true]:hover:accent",
-    "data-[active=true]:data-[current-variation=false]:bg-accent",
-    // Custom override (chain mode)
-    isActiveAndVisible && activeColorClassName,
+    "data-[active=true]:shadow-neu data-[active=true]:hover:accent",
+    activeBackgroundClasses,
   );
 
   // Defer data-attribute writes to the shared animation clock to keep visuals on the same frame budget
