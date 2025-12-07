@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -32,12 +32,18 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
     payload: ScreenFlashPayload;
   } | null>(null);
 
+  const updateActive = useEffectEvent(
+    (nextActive: { id: number; payload: ScreenFlashPayload } | null) => {
+      setActive(nextActive);
+    },
+  );
+
   useEffect(() => {
     if (!flash) return;
-    setActive(flash);
+    updateActive(flash);
 
     const duration = flash.payload.durationMs ?? 900;
-    const removeTimer = window.setTimeout(() => setActive(null), duration);
+    const removeTimer = window.setTimeout(() => updateActive(null), duration);
 
     return () => {
       window.clearTimeout(removeTimer);
