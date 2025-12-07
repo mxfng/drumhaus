@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import { VariationBadge } from "@/features/sequencer/components/VariationBadge";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";

@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react/jsx-runtime";
 import { Plus } from "lucide-react";
 
 import { MAX_CHAIN_STEPS } from "@/features/sequencer/lib/chain";
@@ -16,7 +16,7 @@ export const ChainEditScreen: React.FC = () => {
         {chain.steps.map((step, idx) => {
           const isLast = idx === chain.steps.length - 1;
           return (
-            <React.Fragment key={`${step.variation}-${idx}`}>
+            <Fragment key={`${step.variation}-${idx}`}>
               <VariationBadge
                 variation={step.variation}
                 size="md"
@@ -26,7 +26,7 @@ export const ChainEditScreen: React.FC = () => {
               {!isLast && (
                 <div className="border-foreground-muted h-px w-3 border-t border-dashed" />
               )}
-            </React.Fragment>
+            </Fragment>
           );
         })}
 

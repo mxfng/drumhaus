@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 import { StepSequence } from "@/features/sequencer/types/pattern";
 import { cn } from "@/shared/lib/utils";

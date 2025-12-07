@@ -1,5 +1,3 @@
-import React from "react";
-
 import { VARIATION_CHAIN_COLORS } from "@/features/sequencer/lib/colors";
 import {
   VARIATION_LABELS,

@@ -1,5 +1,3 @@
-import React from "react";
-
 import { VariationBadge } from "@/features/sequencer/components/VariationBadge";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { ScreenBar } from "@/layout/ScreenBar";

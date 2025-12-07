@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -27,12 +27,12 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
   children,
 }) => {
   const flash = useScreenFlashStore((state) => state.flash);
-  const [active, setActive] = React.useState<{
+  const [active, setActive] = useState<{
     id: number;
     payload: ScreenFlashPayload;
   } | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!flash) return;
     setActive(flash);
 

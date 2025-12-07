@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { cn } from "@/shared/lib/utils";
@@ -43,7 +43,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onTouchMove,
 }) => {
   // --- Lightshow ---
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const { isIntroPlaying } = useLightRig();
 
@@ -55,10 +55,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
 
   // --- Computed styles ---
 
-  const stepContext = React.useMemo(
-    () => ({ index, isActive }),
-    [index, isActive],
-  );
+  const stepContext = useMemo(() => ({ index, isActive }), [index, isActive]);
 
   const isGuideOnly = isGuideHighlighted && !isActive;
   const isActiveAndVisible = isActive && !isIntroPlaying;

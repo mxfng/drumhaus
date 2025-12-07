@@ -1,4 +1,3 @@
-import React from "react";
 import { Clipboard } from "lucide-react";
 
 import { MiniStepGrid } from "@/features/groove/components/MiniStepGrid";

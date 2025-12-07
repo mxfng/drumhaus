@@ -1,5 +1,3 @@
-import React from "react";
-
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import { useGrooveStore } from "@/features/groove/store/useGrooveStore";
 import { SequencerStep } from "@/features/sequencer/components/SequencerStep";

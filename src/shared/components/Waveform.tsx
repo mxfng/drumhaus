@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";

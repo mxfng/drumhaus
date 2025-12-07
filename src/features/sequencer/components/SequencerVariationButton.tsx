@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { ButtonHTMLAttributes, forwardRef } from "react";
 
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { buttonActive } from "@/shared/lib/buttonActive";
@@ -12,7 +12,7 @@ import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/usePatternStore";
 import { VARIATION_LABELS, VariationId } from "../types/sequencer";
 
-interface SequencerVariationButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SequencerVariationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variation: VariationId;
 }
 

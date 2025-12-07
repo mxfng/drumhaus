@@ -1,5 +1,3 @@
-import React from "react";
-
 import { AccentEditScreen } from "@/features/groove/components/AccentEditScreen";
 import { FlamEditScreen } from "@/features/groove/components/FlamEditScreen";
 import { RatchetEditScreen } from "@/features/groove/components/RatchetEditScreen";
