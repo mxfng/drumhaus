@@ -66,9 +66,9 @@ export const SequencerVariationButton = forwardRef<
       if (clipboard?.type === "variation" && !isSource) {
         // Paste variation clipboard to this variation
         pasteToVariation(variation);
-      } else if (clipboard?.type === "instrument") {
-        // Switch to this variation (for instrument paste target)
-        setVariation(variation);
+      } else if (clipboard?.type === "instrument" && !isSource) {
+        // Paste instrument clipboard into this variation for the copied voice
+        pasteToVariation(variation);
       }
     } else {
       setVariation(variation);
@@ -92,7 +92,7 @@ export const SequencerVariationButton = forwardRef<
         "font-pixel flex items-start justify-start p-1 transition-colors duration-400",
         buttonActive(showActiveState),
         interactableHighlight(shouldHighlight),
-        copiedItemHighlight(shouldShowCopiedHighlight),
+        copiedItemHighlight(Boolean(shouldShowCopiedHighlight)),
         className,
       )}
       {...props}

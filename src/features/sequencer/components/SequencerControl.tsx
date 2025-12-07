@@ -71,7 +71,6 @@ export const SequencerControl: React.FC = () => {
   const isChainEdit = mode.type === "variationChain";
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
-  const isCopyPasteMode = isCopyMode || isPasteMode;
   const hasClipboard = clipboard !== null;
 
   const handleToggleChainEdit = () => {
@@ -93,13 +92,15 @@ export const SequencerControl: React.FC = () => {
   };
 
   const handleCopyClick = () => {
-    if (isCopyPasteMode) {
-      // Cancel copy/paste mode
-      exitCopyPasteMode();
-    } else {
-      // Enter copy mode
+    if (isPasteMode) {
       enterCopyMode();
+      return;
     }
+    if (isCopyMode) {
+      exitCopyPasteMode();
+      return;
+    }
+    enterCopyMode();
   };
 
   const handlePasteClick = () => {
@@ -194,9 +195,7 @@ export const SequencerControl: React.FC = () => {
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            {isCopyPasteMode
-              ? TOOLTIPS.COPY_TOGGLE_OFF
-              : TOOLTIPS.COPY_TOGGLE_ON}
+            {isCopyMode ? TOOLTIPS.COPY_TOGGLE_OFF : TOOLTIPS.COPY_TOGGLE_ON}
           </TooltipContent>
         </Tooltip>
         <Tooltip>

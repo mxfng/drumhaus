@@ -1,10 +1,10 @@
 import React from "react";
 
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { VariationBadge } from "@/features/sequencer/components/VariationBadge";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { ScreenBar } from "@/layout/ScreenBar";
-import { cn } from "@/shared/lib/utils";
+import { MiniStepGrid } from "./MiniStepGrid";
 
 export const RatchetEditScreen: React.FC = () => {
   const mode = usePatternStore((state) => state.mode);
@@ -23,30 +23,15 @@ export const RatchetEditScreen: React.FC = () => {
   }
 
   const ratchetCount = ratchets.filter(Boolean).length;
-  const variationLabel = VARIATION_LABELS[variation];
 
   return (
     <div className="bg-screen flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 items-center gap-1 px-5">
-        {/* Show 16 step indicators */}
-        {ratchetCount > 0 &&
-          ratchets.map((hasRatchet, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                "flex h-3 flex-1 items-center justify-center rounded-tr-sm rounded-bl-sm border text-[8px]",
-                hasRatchet
-                  ? "border-primary bg-primary/20 text-primary"
-                  : "border-foreground-muted/30 bg-foreground-muted/5 text-foreground-muted",
-              )}
-            >
-              {hasRatchet && (idx + 1).toString().padStart(2, "0")}
-            </div>
-          ))}
-
-        {ratchetCount === 0 && (
+        {ratchetCount > 0 ? (
+          <MiniStepGrid steps={ratchets} />
+        ) : (
           <span className="-my-1 text-[10px] leading-3 normal-case">
-            No ratchets set for {instrumentName} ({variationLabel}).
+            No ratchets set.
             <br />
             Click steps in the sequencer to add ratchets.
           </span>
@@ -54,9 +39,12 @@ export const RatchetEditScreen: React.FC = () => {
       </div>
 
       <ScreenBar className="flex flex-row justify-between">
-        <p className="truncate">
-          ratchet mode - {instrumentName} ({variationLabel})
-        </p>
+        <div className="flex items-center gap-2 truncate">
+          <p className="inline-flex items-center gap-2 truncate">
+            ratchet mode - {instrumentName}{" "}
+            <VariationBadge variation={variation} />
+          </p>
+        </div>
         <p className="text-xs">{ratchetCount} / 16</p>
       </ScreenBar>
     </div>

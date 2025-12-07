@@ -1,5 +1,4 @@
 import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -36,9 +35,13 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
   React.useEffect(() => {
     if (!flash) return;
     setActive(flash);
+
     const duration = flash.payload.durationMs ?? 900;
-    const timeout = window.setTimeout(() => setActive(null), duration);
-    return () => window.clearTimeout(timeout);
+    const removeTimer = window.setTimeout(() => setActive(null), duration);
+
+    return () => {
+      window.clearTimeout(removeTimer);
+    };
   }, [flash]);
 
   const Icon = active?.payload.icon
@@ -47,39 +50,26 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
 
   return (
     <div className="relative h-full w-full">
-      <AnimatePresence>
-        {active && (
-          <motion.div
-            key={active.id}
-            className="bg-screen text-screen-foreground pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-          >
-            <motion.div
-              className="flex flex-col items-center px-6 text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{
-                opacity: 1,
-                y: 0,
-                transition: { duration: 0.18, ease: [0.3, 0.8, 0.4, 1] },
-              }}
-              exit={{
-                opacity: 0,
-                y: -6,
-                transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
-              }}
-            >
-              <div className="flex items-center gap-2 text-base tracking-wide lowercase">
-                {Icon ? <Icon size={18} /> : <CheckCircle2 size={18} />}
-                <span>{active.payload.message}</span>
-              </div>
+      {active && (
+        <div
+          key={active.id}
+          className="bg-screen text-screen-foreground pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+        >
+          <div className="animate-in slide-in-from-bottom flex flex-row items-center gap-3">
+            {Icon ? <Icon size={28} /> : <CheckCircle2 size={28} />}
+            <div className="flex h-full flex-col">
+              <span className="text-base lowercase">
+                {active.payload.message}
+              </span>
               {active.payload.subtext && (
-                <span className="text-foreground-muted -mt-1 text-sm lowercase">
+                <span className="text-foreground-muted -mt-1.5 text-sm">
                   {active.payload.subtext}
                 </span>
               )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
       {children}
     </div>
   );

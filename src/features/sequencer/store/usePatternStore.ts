@@ -343,7 +343,7 @@ export const usePatternStore = create<PatternState>()(
               const variationLabel = VARIATION_LABELS[state.variation] ?? "";
               triggerScreenFlash({
                 message: "Pasted",
-                subtext: `Slot ${voiceIndex + 1} • Var ${variationLabel}`,
+                subtext: `Instrument ${voiceIndex + 1} - Var ${variationLabel}`,
                 tone: "success",
                 icon: "paste",
               });
@@ -354,21 +354,46 @@ export const usePatternStore = create<PatternState>()(
 
         pasteToVariation: (variationId) => {
           set((state) => {
-            if (
-              applyVariationClipboard(
-                state.pattern,
-                state.clipboard,
-                variationId,
-              )
+            if (state.clipboard?.type === "variation") {
+              if (
+                applyVariationClipboard(
+                  state.pattern,
+                  state.clipboard,
+                  variationId,
+                )
+              ) {
+                state.patternVersion += 1;
+                const variationLabel = VARIATION_LABELS[variationId] ?? "";
+                triggerScreenFlash({
+                  message: "Pasted",
+                  subtext: `Variation ${variationLabel}`,
+                  tone: "success",
+                  icon: "paste",
+                });
+              }
+            } else if (
+              state.clipboard?.type === "instrument" &&
+              state.copySource
             ) {
-              state.patternVersion += 1;
-              const variationLabel = VARIATION_LABELS[variationId] ?? "";
-              triggerScreenFlash({
-                message: "Pasted",
-                subtext: `Variation ${variationLabel}`,
-                tone: "success",
-                icon: "paste",
-              });
+              if (
+                applyInstrumentClipboard(
+                  state.pattern,
+                  state.clipboard,
+                  state.copySource.type === "instrument"
+                    ? state.copySource.voiceIndex
+                    : 0,
+                  variationId,
+                )
+              ) {
+                state.patternVersion += 1;
+                const variationLabel = VARIATION_LABELS[variationId] ?? "";
+                triggerScreenFlash({
+                  message: "Pasted",
+                  subtext: `Instrument ${state.copySource?.type === "instrument" ? state.copySource.voiceIndex + 1 : "N/A"} - Var ${variationLabel}`,
+                  tone: "success",
+                  icon: "paste",
+                });
+              }
             }
             state.mode = { type: "voice", voiceIndex: state.voiceIndex };
           });

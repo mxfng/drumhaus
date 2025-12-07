@@ -1,9 +1,10 @@
 import React from "react";
-import { ArrowRight, Clipboard } from "lucide-react";
+import { Clipboard } from "lucide-react";
 
+import { MiniStepGrid } from "@/features/groove/components/MiniStepGrid";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { VariationBadge } from "@/features/sequencer/components/VariationBadge";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { ScreenBar } from "@/layout/ScreenBar";
 
 /**
@@ -28,9 +29,11 @@ export const ClipboardScreen: React.FC = () => {
     return (
       <div className="bg-screen flex h-full flex-col gap-1 pt-1">
         <div className="flex flex-1 items-center justify-start gap-2 px-5">
-          <Clipboard size={14} className="text-foreground-muted" />
-          <span className="text-[10px] leading-3 normal-case">
-            Select an <b>instrument</b> or <b>variation</b> to copy.
+          <Clipboard size={20} className="text-foreground-muted" />
+          <span className="-my-1 text-[10px] leading-3 normal-case">
+            Copy mode is enabled
+            <br />
+            Select an instrument or variation to copy
           </span>
         </div>
         <ScreenBar>
@@ -43,38 +46,51 @@ export const ClipboardScreen: React.FC = () => {
   // Paste mode: show clipboard contents
   if (!clipboard || !copySource) return null;
 
-  const sourceLabel =
-    copySource.type === "variation"
-      ? `Variation ${VARIATION_LABELS[copySource.variationId]}`
-      : `${instruments[copySource.voiceIndex].meta.name} (${VARIATION_LABELS[copySource.variationId]})`;
-
-  const clipboardTypeLabel =
-    clipboard.type === "variation"
-      ? "all instruments + accents"
-      : "full groove";
+  const instrumentPattern =
+    clipboard.type === "instrument" ? clipboard.data.triggers : null;
+  const accentPattern =
+    clipboard.type === "variation" ? clipboard.data.accent : null;
+  const footerDetail =
+    copySource.type === "variation" ? (
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 text-xs">
+          Variation <VariationBadge variation={copySource.variationId} />
+        </span>
+      </div>
+    ) : (
+      <div className="flex items-center gap-2">
+        <span className="text-xs">
+          {instruments[copySource.voiceIndex].meta.name}
+        </span>
+        <VariationBadge variation={copySource.variationId} />
+      </div>
+    );
 
   return (
     <div className="bg-screen flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 items-center justify-between gap-2 px-5">
-        <div className="-my-2 flex items-center gap-2">
-          <Clipboard size={14} className="text-primary" />
-          <div className="flex flex-col">
-            <span className="text-xs font-medium">{sourceLabel}</span>
-            <span className="text-foreground-muted text-[9px]">
-              {clipboardTypeLabel}
-            </span>
-          </div>
-        </div>
-        <div className="text-foreground-muted flex items-center gap-1">
-          <ArrowRight size={12} />
-          <span className="text-[10px]">select target</span>
+        <div className="-my-2 flex w-full items-center gap-3">
+          {instrumentPattern && (
+            <div className="flex-1">
+              <MiniStepGrid steps={instrumentPattern} />
+            </div>
+          )}
+          {accentPattern && (
+            <div className="flex-1">
+              <MiniStepGrid steps={accentPattern} />
+            </div>
+          )}
+          {!instrumentPattern && !accentPattern && (
+            <div className="text-foreground-muted flex items-center gap-2">
+              <Clipboard size={14} />
+              <span className="text-[10px]">Clipboard ready</span>
+            </div>
+          )}
         </div>
       </div>
       <ScreenBar className="flex flex-row justify-between">
         <p>paste mode</p>
-        <p className="text-xs">
-          {clipboard.type === "variation" ? "variation" : "instrument"}
-        </p>
+        <div className="text-xs">{footerDetail}</div>
       </ScreenBar>
     </div>
   );
