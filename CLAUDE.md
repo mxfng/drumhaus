@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Drumhaus is a browser-based drum machine and sampler built with React, TypeScript, Tone.js, and Vite. It features a step sequencer with 8 voices, 16 steps, A/B pattern variations, per-instrument parameters, master FX chain, and a custom preset system. Everything runs client-side with offline support.
+Drumhaus is a browser-based drum machine and sampler built with React, TypeScript, Tone.js, and Vite. It features a step sequencer with 8 voices, 16 steps, four A/B/C/D pattern variations, per-instrument parameters, master FX chain, a preset/share system, and offline/PWA support. Chains can combine any mix of A–D up to 8 bars. Everything runs fully client-side.
 
 ## Development Commands
 
@@ -24,8 +24,11 @@ npm run format
 # Create a new drum kit
 npm run kit:new
 
-# Generate waveform data for samples
+# Generate waveform data for samples (used by visualizers)
 npm run waveforms:build
+
+# Scaffold a new kit
+npm run kit:new
 ```
 
 ## Architecture
@@ -34,29 +37,31 @@ npm run waveforms:build
 
 **Audio Engine**: The audio engine is built on Tone.js and managed through `src/core/audio/hooks/useAudioEngine.ts`. This hook creates and manages:
 
-- **InstrumentRuntimes**: Array of Tone.js nodes (Player, filters, envelope, etc.) for each of 8 instruments
-- **MasterChainRuntimes**: Master output chain (filters, phaser, reverb, compressor)
-- **DrumSequence**: Tone.Sequence that triggers instruments on 16th notes
+- **InstrumentRuntimes**: Array of Tone.js nodes (Player, envelope, split HP/LP filters, panner, volume, etc.) for each of 8 instruments
+- **MasterChainRuntimes**: Master output chain (filters, saturation, phaser, reverb, compressor)
+- **DrumSequence**: Tone.Sequence that triggers instruments on 16th notes with swing and variation chaining
 
-The audio engine rebuilds when samples change and subscribes to parameter stores for real-time updates.
+The audio engine rebuilds when samples change, subscribes to parameter stores for real-time updates, and shares builders with the offline export path to keep playback and renders identical.
 
-**State Management**: Uses Zustand with immer middleware for all state. Each feature has its own store:
+**State Management**: Uses Zustand with immer middleware for all state. Each feature has its own store with persistence/migrations:
 
-- `useInstrumentsStore`: 8 instruments with per-instrument params (volume, pan, pitch, filters, envelope)
-- `usePatternStore`: Sequencer patterns (A/B variations), variation cycle mode (A, B, AB, AAAB)
+- `useInstrumentsStore`: 8 instruments with per-instrument params (volume, pan, pitch, filters, envelope, mute/solo)
+- `usePatternStore`: Sequencer patterns (A/B/C/D variations), chain steps (any mix up to 8 bars), legacy cycle mode (A, B, AB, AAAB)
 - `useTransportStore`: BPM, swing, play/pause state
-- `useMasterChainStore`: Master FX parameters (filters, phaser, reverb, compressor)
+- `useMasterChainStore`: Master FX parameters (filters, saturation, phaser, reverb, compressor)
 - `usePresetMetaStore`: Current preset metadata (name, description, kit)
 
 All instrument and master chain stores use `persist` middleware for localStorage persistence.
 
-**Preset System**: Presets store complete snapshots of patterns, kit selection, effects, and BPM. They can be:
+**Preset System**: Presets store complete snapshots of patterns, kit selection, effects, and BPM/swing. They can be:
 
 - Downloaded as `.dh` files (JSON format)
 - Loaded from local files
 - Shared via URLs using custom compression, bit-packing, and base64url encoding (see `src/features/preset/lib/serialization/`)
 
 The compression pipeline: PresetFileV1 → serialize → compact → compress (pako) → base64url
+
+**Export**: WAV export uses Tone.js Offline rendering to render bars of the current pattern (with optional FX tail) and encodes to WAV for download.
 
 ### Directory Structure
 
@@ -81,9 +86,7 @@ src/
 │   ├── preset/       # Preset save/load/share system
 │   ├── sequencer/    # Step sequencer grid and patterns
 │   └── transport/    # Play/pause, BPM, transport controls
-├── layout/           # Layout components
-│   ├── desktop/      # Desktop layout (main UI)
-│   └── mobile/       # Mobile-responsive layout
+├── layout/           # Layout components (desktop + shared)
 └── shared/           # Shared utilities and components
     ├── components/   # Reusable UI components
     ├── dialogs/      # Dialog components (Radix UI)
@@ -113,7 +116,7 @@ src/
 
 **Path Aliases**: Use `@/` to import from `src/`. Example: `import { useInstrumentsStore } from '@/features/instrument/store/useInstrumentsStore'`
 
-**Service Worker**: Offline support via custom service worker in `public/service-worker.js` for caching samples and assets.
+**Service Worker**: Offline/PWA support via custom service worker in `public/service-worker.js` that pre-caches the app shell plus default kit samples/waveforms; installable and works after first load.
 
 **TypeScript**: Strict mode enabled. The codebase uses TypeScript throughout with granular type definitions per feature.
 
@@ -132,6 +135,8 @@ When modifying audio-related code:
 3. **Sample Loading**: Samples are loaded via `prepareSampleSourceResolver` which checks cache first, then fetches from public/samples/. All samples are WAV format.
 
 4. **Timing**: The sequencer runs at 16th note resolution. Swing and per-step timing nudges are applied in `src/features/sequencer/lib/timing.ts`.
+
+5. **Export**: Offline export flows share builders with live playback; see `src/core/audio/export/wavExporter.ts`.
 
 ## Working with Presets
 
