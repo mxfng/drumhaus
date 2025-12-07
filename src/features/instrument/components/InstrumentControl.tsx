@@ -40,6 +40,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
 
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
+  const isClearMode = mode.type === "clear";
 
   // Check if this instrument is the copy source (for dimming in paste mode)
   const isSource =
@@ -51,13 +52,15 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // Highlight instruments in copy mode, or in paste mode with instrument clipboard
   const shouldHighlight =
     isCopyMode ||
+    isClearMode ||
     (isPasteMode && clipboard?.type === "instrument" && !isSource);
 
   const shouldShowCopiedHighlight = isSource;
   const disableChildInteractions = shouldHighlight || shouldShowCopiedHighlight;
 
   // Don't show selected state during copy/paste modes
-  const showSelectedState = isSelectedAndActive && !isCopyMode && !isPasteMode;
+  const showSelectedState =
+    isSelectedAndActive && !isCopyMode && !isPasteMode && !isClearMode;
 
   return (
     <div

@@ -19,8 +19,6 @@ import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import {
   adjustTimingNudge,
-  clearStepSequence,
-  setStepSequence,
   setTimingNudge,
   setVelocity,
   toggleAccent,
@@ -34,17 +32,20 @@ import {
 } from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { triggerScreenFlash } from "@/shared/store/useScreenFlashStore";
+import { clearInstrumentVariation, clearVariationPatterns } from "../lib/clear";
 import {
   buildInstrumentClipboardState,
   buildInstrumentPasteFlashFromContext,
   buildVariationPasteFlashFromContext,
+  resolveInstrumentMeta,
 } from "../lib/paste";
 import {
-  PatternChain,
-  VARIATION_LABELS,
-  VariationCycle,
-  VariationId,
-} from "../types/sequencer";
+  buildInstrumentClearFlash,
+  buildInstrumentCopyFlash,
+  buildVariationClearFlash,
+  buildVariationCopyFlash,
+} from "../lib/screenFlash";
+import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -57,7 +58,7 @@ export type SequencerMode =
   | { type: "flam"; voiceIndex: number } // Editing flam pattern for voice
   | { type: "copy" } // Selecting copy source (instrument or variation)
   | { type: "paste" } // Selecting paste destination
-  | { type: "clear" } // Clear mode (future)
+  | { type: "clear" } // Clearing instrument/variation patterns
   | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
@@ -102,14 +103,17 @@ interface PatternState {
   toggleRatchetMode: () => void;
   toggleFlamMode: () => void;
 
-  // Copy/paste actions
+  // Copy/paste/clear actions
   enterCopyMode: () => void;
   togglePasteMode: () => void;
   exitCopyPasteMode: () => void;
+  toggleClearMode: () => void;
   copyInstrument: (voiceIndex: number) => void;
   copyVariation: (variationId: VariationId) => void;
   pasteToInstrument: (voiceIndex: number) => void;
   pasteToVariation: (variationId: VariationId) => void;
+  clearInstrument: (voiceIndex: number) => void;
+  clearVariation: (variationId: VariationId) => void;
 
   // Pattern manipulation
   toggleStep: (
@@ -123,13 +127,6 @@ interface PatternState {
     step: number,
     velocity: number,
   ) => void;
-  updatePattern: (
-    voiceIndex: number,
-    variation: VariationId,
-    triggers: boolean[],
-    velocities: number[],
-  ) => void;
-  clearPattern: (voiceIndex: number, variation: VariationId) => void;
 
   // Accent manipulation
   toggleAccent: (variation: VariationId, step: number) => void;
@@ -187,13 +184,6 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             state.chain = sanitizeChain(chain);
             state.chainVersion += 1;
-
-            triggerScreenFlash({
-              message: "Chain updated",
-              subtext: `${chain.steps.map((step) => `${VARIATION_LABELS[step.variation]}` + (step.repeats > 1 ? `x${step.repeats}` : "")).join("┄")}`,
-              tone: "success",
-              icon: "check",
-            });
           });
         },
 
@@ -312,6 +302,17 @@ export const usePatternStore = create<PatternState>()(
           }));
         },
 
+        toggleClearMode: () => {
+          set((state) => {
+            const isClearMode = state.mode.type === "clear";
+            return {
+              mode: isClearMode
+                ? { type: "voice", voiceIndex: state.voiceIndex }
+                : { type: "clear" },
+            };
+          });
+        },
+
         copyInstrument: (voiceIndex) => {
           set((state) => {
             const instruments = useInstrumentsStore.getState().instruments;
@@ -321,6 +322,14 @@ export const usePatternStore = create<PatternState>()(
               state.variation,
               instruments,
             );
+
+            triggerScreenFlash(
+              buildInstrumentCopyFlash(
+                instruments[voiceIndex]?.meta,
+                state.variation,
+              ),
+            );
+
             return {
               clipboard,
               copySource: source,
@@ -335,6 +344,9 @@ export const usePatternStore = create<PatternState>()(
               state.pattern,
               variationId,
             );
+
+            triggerScreenFlash(buildVariationCopyFlash(variationId));
+
             return {
               clipboard,
               copySource: source,
@@ -426,6 +438,40 @@ export const usePatternStore = create<PatternState>()(
           });
         },
 
+        clearInstrument: (voiceIndex) => {
+          set((state) => {
+            clearInstrumentVariation(
+              state.pattern,
+              voiceIndex,
+              state.variation as VariationId,
+            );
+            state.patternVersion += 1;
+
+            const instruments = useInstrumentsStore.getState().instruments;
+            const meta = resolveInstrumentMeta(instruments, voiceIndex);
+
+            triggerScreenFlash(
+              buildInstrumentClearFlash({
+                meta,
+                variation: state.variation as VariationId,
+              }),
+            );
+
+            state.mode = { type: "voice", voiceIndex };
+          });
+        },
+
+        clearVariation: (variationId) => {
+          set((state) => {
+            clearVariationPatterns(state.pattern, variationId);
+            state.patternVersion += 1;
+
+            triggerScreenFlash(buildVariationClearFlash(variationId));
+
+            state.mode = { type: "voice", voiceIndex: state.voiceIndex };
+          });
+        },
+
         setPattern: (pattern) => {
           set((state) => {
             state.pattern = pattern;
@@ -447,26 +493,6 @@ export const usePatternStore = create<PatternState>()(
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
             setVelocity(state.pattern, voiceIndex, variation, step, velocity);
-            state.patternVersion += 1;
-          });
-        },
-
-        updatePattern: (voiceIndex, variation, triggers, velocities) => {
-          set((state) => {
-            setStepSequence(
-              state.pattern,
-              voiceIndex,
-              variation,
-              triggers,
-              velocities,
-            );
-            state.patternVersion += 1;
-          });
-        },
-
-        clearPattern: (voiceIndex, variation) => {
-          set((state) => {
-            clearStepSequence(state.pattern, voiceIndex, variation);
             state.patternVersion += 1;
           });
         },

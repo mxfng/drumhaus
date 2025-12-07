@@ -7,7 +7,13 @@ export type ScreenFlashTone =
   | "warning"
   | "danger"
   | "neutral";
-export type ScreenFlashIcon = "check" | "info" | "warning" | "alert" | "paste";
+export type ScreenFlashIcon =
+  | "check"
+  | "info"
+  | "warning"
+  | "alert"
+  | "paste"
+  | "eraser";
 
 export type ScreenFlashPayload = {
   message: React.ReactNode;

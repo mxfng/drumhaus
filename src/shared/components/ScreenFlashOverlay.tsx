@@ -3,22 +3,26 @@ import {
   AlertTriangle,
   CheckCircle2,
   ClipboardCheck,
+  Eraser,
   Info,
+  LucideIcon,
 } from "lucide-react";
 
 import {
+  ScreenFlashIcon,
   ScreenFlashPayload,
   useScreenFlashStore,
 } from "@/shared/store/useScreenFlashStore";
 
 const DEFAULT_DURATION_MS = 1500;
 
-const iconMap = {
+const iconMap: Record<ScreenFlashIcon, LucideIcon> = {
   check: CheckCircle2,
   info: Info,
   warning: AlertTriangle,
   alert: AlertTriangle,
   paste: ClipboardCheck,
+  eraser: Eraser,
 } as const;
 
 type ScreenFlashOverlayProps = {

@@ -51,10 +51,12 @@ export const SequencerControl: React.FC = () => {
   const enterCopyMode = usePatternStore((state) => state.enterCopyMode);
   const togglePasteMode = usePatternStore((state) => state.togglePasteMode);
   const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
+  const toggleClearMode = usePatternStore((state) => state.toggleClearMode);
 
   const isChainEdit = mode.type === "variationChain";
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
+  const isClearMode = mode.type === "clear";
   const hasClipboard = clipboard !== null;
 
   const handleToggleChainEdit = () => {
@@ -87,6 +89,10 @@ export const SequencerControl: React.FC = () => {
 
   const handlePasteClick = () => {
     togglePasteMode();
+  };
+
+  const handleClearClick = () => {
+    toggleClearMode();
   };
 
   return (
@@ -200,17 +206,25 @@ export const SequencerControl: React.FC = () => {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="hardware" size="sm" className="opacity-50">
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(
+                buttonActive(isClearMode),
+                interactableHighlight(isClearMode),
+              )}
+              onClick={handleClearClick}
+            >
               <span>clear</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <ComingSoonTooltipContent tooltip={TOOLTIPS.CLEAR_TOGGLE_ON} />
+            {isClearMode ? TOOLTIPS.CLEAR_TOGGLE_OFF : TOOLTIPS.CLEAR_TOGGLE_ON}
           </TooltipContent>
         </Tooltip>
-        <Tooltip>
+        <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
-            <Button variant="hardware" size="sm" className="opacity-50">
+            <Button variant="hardware" size="sm" className="*:opacity-50">
               <span>undo</span>
             </Button>
           </TooltipTrigger>
