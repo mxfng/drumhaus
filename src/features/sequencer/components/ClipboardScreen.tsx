@@ -27,7 +27,7 @@ export const ClipboardScreen: React.FC = () => {
   if (isCopyMode) {
     return (
       <div className="bg-screen flex h-full flex-col gap-1 pt-1">
-        <div className="flex flex-1 items-center justify-center gap-2 px-5">
+        <div className="flex flex-1 items-center justify-start gap-2 px-5">
           <Clipboard size={14} className="text-foreground-muted" />
           <span className="text-[10px] leading-3 normal-case">
             Select an <b>instrument</b> or <b>variation</b> to copy.
@@ -56,7 +56,7 @@ export const ClipboardScreen: React.FC = () => {
   return (
     <div className="bg-screen flex h-full flex-col gap-1 pt-1">
       <div className="flex flex-1 items-center justify-between gap-2 px-5">
-        <div className="flex items-center gap-2">
+        <div className="-my-2 flex items-center gap-2">
           <Clipboard size={14} className="text-primary" />
           <div className="flex flex-col">
             <span className="text-xs font-medium">{sourceLabel}</span>
