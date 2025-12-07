@@ -3,6 +3,7 @@ import { FlamEditScreen } from "@/features/groove/components/FlamEditScreen";
 import { RatchetEditScreen } from "@/features/groove/components/RatchetEditScreen";
 import { PresetControl } from "@/features/preset/components/PresetControl";
 import { ChainEditScreen } from "@/features/sequencer/components/ChainEditScreen";
+import { ClearScreen } from "@/features/sequencer/components/ClearScreen";
 import { ClipboardScreen } from "@/features/sequencer/components/ClipboardScreen";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { TempoControlsScreen } from "@/features/transport/components/TempoControlsScreen";
@@ -25,6 +26,8 @@ export const Screen: React.FC = () => {
     rightColumn = <ChainEditScreen />;
   } else if (mode.type === "copy" || mode.type === "paste") {
     rightColumn = <ClipboardScreen />;
+  } else if (mode.type === "clear") {
+    rightColumn = <ClearScreen />;
   } else if (mode.type === "accent") {
     rightColumn = <AccentEditScreen />;
   } else if (mode.type === "flam") {

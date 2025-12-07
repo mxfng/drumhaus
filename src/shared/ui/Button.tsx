@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost: "hover:text-foreground-emphasis",
         link: "text-primary underline-offset-4 hover:underline",
         hardware:
-          "neu-raised text-foreground group hover:text-accent font-light border rounded-lg w-full",
+          "neu-raised text-foreground group hover:text-accent font-light border rounded-lg w-full disabled:opacity-100! disabled:*:opacity-50",
         "hardware-icon":
           "surface-raised text-foreground group hover:text-accent font-light border rounded-full aspect-square",
         screen: "rounded-none bg-transparent p-0.5 hover:bg-screen/20",

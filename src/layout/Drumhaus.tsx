@@ -5,6 +5,7 @@ import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid"
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
 import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
+import { useSequencerEscToVoice } from "@/shared/hooks/useSequencerEscToVoice";
 import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { useDialogStore } from "@/shared/store/useDialogStore";
@@ -39,6 +40,8 @@ const Drumhaus = () => {
     instrumentRuntimes,
     instrumentRuntimesVersion,
   });
+
+  useSequencerEscToVoice();
 
   // --- Lightshow ---
   useLightShowIntro(instrumentRuntimesVersion > 0, 320);

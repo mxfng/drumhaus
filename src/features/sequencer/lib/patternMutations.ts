@@ -28,17 +28,6 @@ export function setVelocity(
   pattern.voices[voiceIndex].variations[variation].velocities[step] = velocity;
 }
 
-export function setStepSequence(
-  pattern: Pattern,
-  voiceIndex: number,
-  variation: VariationId,
-  triggers: boolean[],
-  velocities: number[],
-): void {
-  pattern.voices[voiceIndex].variations[variation].triggers = triggers;
-  pattern.voices[voiceIndex].variations[variation].velocities = velocities;
-}
-
 export function clearStepSequence(
   pattern: Pattern,
   voiceIndex: number,
