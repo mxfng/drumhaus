@@ -31,9 +31,9 @@ export const RatchetEditScreen: React.FC = () => {
           <MiniStepGrid steps={ratchets} />
         ) : (
           <span className="-my-1 text-[10px] leading-3 normal-case">
-            No ratchets set.
+            No ratchets set
             <br />
-            Click steps in the sequencer to add ratchets.
+            Click steps in the sequencer to add ratchets
           </span>
         )}
       </div>

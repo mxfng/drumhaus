@@ -31,9 +31,9 @@ export const FlamEditScreen: React.FC = () => {
           <MiniStepGrid steps={flams} />
         ) : (
           <span className="-my-1 text-[10px] leading-3 normal-case">
-            No flams set.
+            No flams set
             <br />
-            Click steps in the sequencer to add flams.
+            Click steps in the sequencer to add flams
           </span>
         )}
       </div>

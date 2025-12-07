@@ -343,7 +343,7 @@ export const usePatternStore = create<PatternState>()(
               const variationLabel = VARIATION_LABELS[state.variation] ?? "";
               triggerScreenFlash({
                 message: "Pasted",
-                subtext: `Instrument ${voiceIndex + 1} - Var ${variationLabel}`,
+                subtext: `Instrument ${voiceIndex + 1} - Variation ${variationLabel}`,
                 tone: "success",
                 icon: "paste",
               });
