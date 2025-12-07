@@ -51,7 +51,7 @@ export const ChainEditScreen: React.FC = () => {
       </div>
 
       <ScreenBar className="flex flex-row justify-between">
-        <p>new variation chain</p>
+        <p>variation chain mode</p>
         <p className="text-center text-xs">
           bars {totalBars} / {MAX_CHAIN_STEPS}
         </p>
