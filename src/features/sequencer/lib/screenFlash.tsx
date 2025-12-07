@@ -58,3 +58,40 @@ export function buildVariationPasteFlash(
     icon: "paste",
   };
 }
+
+type InstrumentClearOptions = {
+  meta: InlineMeta;
+  variation?: VariationId;
+};
+
+export function buildInstrumentClearFlash({
+  meta,
+  variation,
+}: InstrumentClearOptions): ScreenFlashPayload {
+  return {
+    message: "cleared",
+    subtext: (
+      <span className="inline-flex items-center gap-1">
+        {meta?.name ?? "instrument"}{" "}
+        <VariationBadge variation={variation ?? 0} />
+      </span>
+    ),
+    tone: "warning",
+    icon: "eraser",
+  };
+}
+
+export function buildVariationClearFlash(
+  variation: VariationId,
+): ScreenFlashPayload {
+  return {
+    message: "cleared",
+    subtext: (
+      <span className="inline-flex items-center gap-1">
+        Variation <VariationBadge variation={variation} />
+      </span>
+    ),
+    tone: "warning",
+    icon: "eraser",
+  };
+}

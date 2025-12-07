@@ -40,6 +40,10 @@ import {
   buildVariationPasteFlashFromContext,
 } from "../lib/paste";
 import {
+  buildInstrumentClearFlash,
+  buildVariationClearFlash,
+} from "../lib/screenFlash";
+import {
   PatternChain,
   VARIATION_LABELS,
   VariationCycle,
@@ -57,7 +61,7 @@ export type SequencerMode =
   | { type: "flam"; voiceIndex: number } // Editing flam pattern for voice
   | { type: "copy" } // Selecting copy source (instrument or variation)
   | { type: "paste" } // Selecting paste destination
-  | { type: "clear" } // Clear mode (future)
+  | { type: "clear" } // Clearing instrument/variation patterns
   | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
@@ -106,10 +110,13 @@ interface PatternState {
   enterCopyMode: () => void;
   togglePasteMode: () => void;
   exitCopyPasteMode: () => void;
+  toggleClearMode: () => void;
   copyInstrument: (voiceIndex: number) => void;
   copyVariation: (variationId: VariationId) => void;
   pasteToInstrument: (voiceIndex: number) => void;
   pasteToVariation: (variationId: VariationId) => void;
+  clearInstrument: (voiceIndex: number) => void;
+  clearVariation: (variationId: VariationId) => void;
 
   // Pattern manipulation
   toggleStep: (
@@ -312,6 +319,17 @@ export const usePatternStore = create<PatternState>()(
           }));
         },
 
+        toggleClearMode: () => {
+          set((state) => {
+            const isClearMode = state.mode.type === "clear";
+            return {
+              mode: isClearMode
+                ? { type: "voice", voiceIndex: state.voiceIndex }
+                : { type: "clear" },
+            };
+          });
+        },
+
         copyInstrument: (voiceIndex) => {
           set((state) => {
             const instruments = useInstrumentsStore.getState().instruments;
@@ -422,6 +440,49 @@ export const usePatternStore = create<PatternState>()(
                 }
               }
             }
+            state.mode = { type: "voice", voiceIndex: state.voiceIndex };
+          });
+        },
+
+        clearInstrument: (voiceIndex) => {
+          set((state) => {
+            clearStepSequence(
+              state.pattern,
+              voiceIndex,
+              state.variation as VariationId,
+            );
+            state.patternVersion += 1;
+
+            const instruments = useInstrumentsStore.getState().instruments;
+            const meta = instruments[voiceIndex]?.meta ?? {
+              id: `instrument-${voiceIndex}`,
+              name: `Instrument ${voiceIndex + 1}`,
+            };
+
+            triggerScreenFlash(
+              buildInstrumentClearFlash({
+                meta,
+                variation: state.variation as VariationId,
+              }),
+            );
+
+            state.mode = { type: "voice", voiceIndex };
+          });
+        },
+
+        clearVariation: (variationId) => {
+          set((state) => {
+            state.pattern.voices.forEach((_, voiceIndex) => {
+              clearStepSequence(state.pattern, voiceIndex, variationId);
+            });
+            state.pattern.variationMetadata[variationId].accent =
+              state.pattern.variationMetadata[variationId].accent.map(
+                () => false,
+              );
+            state.patternVersion += 1;
+
+            triggerScreenFlash(buildVariationClearFlash(variationId));
+
             state.mode = { type: "voice", voiceIndex: state.voiceIndex };
           });
         },

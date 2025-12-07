@@ -27,13 +27,20 @@ export const InstrumentGrid: React.FC = () => {
   const copyInstrument = usePatternStore((state) => state.copyInstrument);
   const pasteToInstrument = usePatternStore((state) => state.pasteToInstrument);
   const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
+  const clearInstrument = usePatternStore((state) => state.clearInstrument);
 
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
+  const isClearMode = mode.type === "clear";
 
   const handleInstrumentClick = useCallback(
     (index: number) => {
+      if (isClearMode) {
+        clearInstrument(index);
+        return;
+      }
+
       if (isCopyMode) {
         // Copy this instrument's pattern
         copyInstrument(index);
@@ -53,11 +60,13 @@ export const InstrumentGrid: React.FC = () => {
     [
       isCopyMode,
       isPasteMode,
+      isClearMode,
       clipboard,
       copySource,
       variation,
       copyInstrument,
       pasteToInstrument,
+      clearInstrument,
       setVoiceMode,
     ],
   );
@@ -79,8 +88,11 @@ export const InstrumentGrid: React.FC = () => {
 
       if (isAnyDialogOpen()) return;
 
-      // ESC cancels copy/paste mode
-      if (event.key === "Escape" && (isCopyMode || isPasteMode)) {
+      // ESC cancels copy/paste/clear modes
+      if (
+        event.key === "Escape" &&
+        (isCopyMode || isPasteMode || isClearMode)
+      ) {
         exitCopyPasteMode();
         return;
       }
@@ -121,6 +133,7 @@ export const InstrumentGrid: React.FC = () => {
       isAnyDialogOpen,
       isCopyMode,
       isPasteMode,
+      isClearMode,
       exitCopyPasteMode,
     ],
   );

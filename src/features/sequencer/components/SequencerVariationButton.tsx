@@ -32,6 +32,7 @@ export const SequencerVariationButton = forwardRef<
   const setVariation = usePatternStore((state) => state.setVariation);
   const mode = usePatternStore((state) => state.mode);
   const writeChainStep = usePatternStore((state) => state.writeChainStep);
+  const clearVariation = usePatternStore((state) => state.clearVariation);
 
   // Copy/paste state
   const clipboard = usePatternStore((state) => state.clipboard);
@@ -44,6 +45,7 @@ export const SequencerVariationButton = forwardRef<
   const isChainEdit = mode.type === "variationChain";
   const isCopyMode = mode.type === "copy";
   const isPasteMode = mode.type === "paste";
+  const isClearMode = mode.type === "clear";
 
   // Check if this variation is the copy source (for dimming in paste mode)
   const isSource =
@@ -51,10 +53,17 @@ export const SequencerVariationButton = forwardRef<
     copySource &&
     isSameAsSource(copySource, "variation", null, variation);
 
-  // Determine if button should be highlighted for interactability
+  // Interactive modes
   const shouldHighlight =
-    isChainEdit || isCopyMode || (isPasteMode && !isSource);
+    isChainEdit || isCopyMode || isClearMode || (isPasteMode && !isSource);
+
+  // If sequence is copied and in paste mode
   const shouldShowCopiedHighlight = isSource;
+
+  // Show active state if the variation is active and not in a chain edit mode
+  const showActiveState = isActive && !isChainEdit;
+
+  const chainEditColors = VARIATION_CHAIN_COLORS[variation];
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isChainEdit) {
@@ -70,17 +79,13 @@ export const SequencerVariationButton = forwardRef<
         // Paste instrument clipboard into this variation for the copied voice
         pasteToVariation(variation);
       }
+    } else if (isClearMode) {
+      clearVariation(variation);
     } else {
       setVariation(variation);
     }
     onClick?.(e);
   };
-
-  const chainEditColors = VARIATION_CHAIN_COLORS[variation];
-
-  // In copy/paste mode, don't show active state (focus is on copy/paste, not selection)
-  const showActiveState =
-    isActive && !isChainEdit && !isCopyMode && !isPasteMode;
 
   return (
     <Button
