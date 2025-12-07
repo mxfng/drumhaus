@@ -19,7 +19,6 @@ import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import {
   adjustTimingNudge,
-  setStepSequence,
   setTimingNudge,
   setVelocity,
   toggleAccent,
@@ -104,7 +103,7 @@ interface PatternState {
   toggleRatchetMode: () => void;
   toggleFlamMode: () => void;
 
-  // Copy/paste actions
+  // Copy/paste/clear actions
   enterCopyMode: () => void;
   togglePasteMode: () => void;
   exitCopyPasteMode: () => void;
@@ -128,13 +127,6 @@ interface PatternState {
     step: number,
     velocity: number,
   ) => void;
-  updatePattern: (
-    voiceIndex: number,
-    variation: VariationId,
-    triggers: boolean[],
-    velocities: number[],
-  ) => void;
-  clearPattern: (voiceIndex: number, variation: VariationId) => void;
 
   // Accent manipulation
   toggleAccent: (variation: VariationId, step: number) => void;
@@ -501,26 +493,6 @@ export const usePatternStore = create<PatternState>()(
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
             setVelocity(state.pattern, voiceIndex, variation, step, velocity);
-            state.patternVersion += 1;
-          });
-        },
-
-        updatePattern: (voiceIndex, variation, triggers, velocities) => {
-          set((state) => {
-            setStepSequence(
-              state.pattern,
-              voiceIndex,
-              variation,
-              triggers,
-              velocities,
-            );
-            state.patternVersion += 1;
-          });
-        },
-
-        clearPattern: (voiceIndex, variation) => {
-          set((state) => {
-            clearStepSequence(state.pattern, voiceIndex, variation);
             state.patternVersion += 1;
           });
         },

@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
+import { useInstrumentGridShortcuts } from "@/features/instrument/hooks/useInstrumentGridShortcuts";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
 import { INSTRUMENT_COLORS } from "../lib/colors";
@@ -23,7 +24,6 @@ export const InstrumentGrid: React.FC = () => {
   const clipboard = usePatternStore((state) => state.clipboard);
   const copyInstrument = usePatternStore((state) => state.copyInstrument);
   const pasteToInstrument = usePatternStore((state) => state.pasteToInstrument);
-  const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
   const clearInstrument = usePatternStore((state) => state.clearInstrument);
 
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
@@ -67,72 +67,11 @@ export const InstrumentGrid: React.FC = () => {
     [setVoiceMode],
   );
 
-  // Useful keyboard shortcuts for navigating the instrument grid
-  const handleArrowKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      const newVoiceRight = (voiceIndex: number) => (voiceIndex + 1) % 8;
-      const newVoiceLeft = (voiceIndex: number) => (voiceIndex - 1 + 8) % 8;
-      const newVoiceUp = (voiceIndex: number) => (voiceIndex - 2 + 8) % 8;
-      const newVoiceDown = (voiceIndex: number) => (voiceIndex + 2) % 8;
-
-      if (isAnyDialogOpen()) return;
-
-      // ESC cancels copy/paste/clear modes
-      if (
-        event.key === "Escape" &&
-        (isCopyMode || isPasteMode || isClearMode)
-      ) {
-        exitCopyPasteMode();
-        return;
-      }
-
-      if (event.key === "ArrowRight") {
-        toggleCurrentVoice(newVoiceRight(voiceIndex));
-      } else if (event.key === "ArrowLeft") {
-        toggleCurrentVoice(newVoiceLeft(voiceIndex));
-      } else if (event.key === "h") {
-        toggleCurrentVoice(newVoiceLeft(voiceIndex));
-      } else if (event.key === "l") {
-        toggleCurrentVoice(newVoiceRight(voiceIndex));
-      } else if (event.key === "j") {
-        toggleCurrentVoice(newVoiceDown(voiceIndex));
-      } else if (event.key === "k") {
-        toggleCurrentVoice(newVoiceUp(voiceIndex));
-      } else if (event.key === "1") {
-        toggleCurrentVoice(0);
-      } else if (event.key === "2") {
-        toggleCurrentVoice(1);
-      } else if (event.key === "3") {
-        toggleCurrentVoice(2);
-      } else if (event.key === "4") {
-        toggleCurrentVoice(3);
-      } else if (event.key === "5") {
-        toggleCurrentVoice(4);
-      } else if (event.key === "6") {
-        toggleCurrentVoice(5);
-      } else if (event.key === "7") {
-        toggleCurrentVoice(6);
-      } else if (event.key === "8") {
-        toggleCurrentVoice(7);
-      }
-    },
-    [
-      voiceIndex,
-      toggleCurrentVoice,
-      isAnyDialogOpen,
-      isCopyMode,
-      isPasteMode,
-      isClearMode,
-      exitCopyPasteMode,
-    ],
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleArrowKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleArrowKeyPress);
-    };
-  }, [handleArrowKeyPress]);
+  useInstrumentGridShortcuts({
+    voiceIndex,
+    onSelectVoice: toggleCurrentVoice,
+    isAnyDialogOpen,
+  });
 
   return (
     <div
