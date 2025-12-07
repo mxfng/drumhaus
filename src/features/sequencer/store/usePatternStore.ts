@@ -12,9 +12,18 @@ import {
   MIN_CHAIN_REPEAT,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
+import {
+  cloneStepSequence,
+  createInstrumentClipboard,
+  createVariationClipboard,
+} from "@/features/sequencer/lib/clipboard";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import { clampNudge } from "@/features/sequencer/lib/timing";
+import {
+  ClipboardContent,
+  CopySource,
+} from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
@@ -27,10 +36,9 @@ export type SequencerMode =
   | { type: "accent" } // Editing accent pattern (variation-level)
   | { type: "ratchet"; voiceIndex: number } // Editing ratchet pattern for voice
   | { type: "flam"; voiceIndex: number } // Editing flam pattern for voice
-  | { type: "copy" } // Copy mode (future)
-  | { type: "paste" } // Paste mode (future)
+  | { type: "copy" } // Selecting copy source (instrument or variation)
+  | { type: "paste" } // Selecting paste destination
   | { type: "clear" } // Clear mode (future)
-  | { type: "random" } // Random mode (future)
   | { type: "variationChain" }; // Variation chain mode
 
 interface PatternState {
@@ -54,6 +62,10 @@ interface PatternState {
   // Playback context (which variation is actually being played by the engine)
   playbackVariation: VariationId; // Mirrors the engine's active variation (A = 0, B = 1)
 
+  // Clipboard (not persisted - session only)
+  clipboard: ClipboardContent | null;
+  copySource: CopySource | null;
+
   // Actions
   setVariation: (variation: number) => void;
   setChain: (chain: PatternChain) => void;
@@ -70,6 +82,15 @@ interface PatternState {
   toggleAccentMode: () => void;
   toggleRatchetMode: () => void;
   toggleFlamMode: () => void;
+
+  // Copy/paste actions
+  enterCopyMode: () => void;
+  togglePasteMode: () => void;
+  exitCopyPasteMode: () => void;
+  copyInstrument: (voiceIndex: number) => void;
+  copyVariation: (variationId: VariationId) => void;
+  pasteToInstrument: (voiceIndex: number) => void;
+  pasteToVariation: (variationId: VariationId) => void;
 
   // Pattern manipulation
   toggleStep: (voiceIndex: number, variation: number, step: number) => void;
@@ -121,6 +142,10 @@ export const usePatternStore = create<PatternState>()(
         mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
         voiceIndex: 0,
+
+        // Clipboard (not persisted)
+        clipboard: null,
+        copySource: null,
 
         // Actions
         setVariation: (variation) => {
@@ -251,6 +276,90 @@ export const usePatternStore = create<PatternState>()(
             } else {
               return { mode: { type: "flam", voiceIndex: state.voiceIndex } };
             }
+          });
+        },
+
+        enterCopyMode: () => {
+          set({ mode: { type: "copy" } });
+        },
+
+        togglePasteMode: () => {
+          set((state) => {
+            // Only allow paste mode if we have something on clipboard
+            if (!state.clipboard) return;
+
+            if (state.mode.type === "paste") {
+              // Exit paste mode
+              return { mode: { type: "voice", voiceIndex: state.voiceIndex } };
+            } else {
+              // Enter paste mode
+              return { mode: { type: "paste" } };
+            }
+          });
+        },
+
+        exitCopyPasteMode: () => {
+          set((state) => ({
+            mode: { type: "voice", voiceIndex: state.voiceIndex },
+          }));
+        },
+
+        copyInstrument: (voiceIndex) => {
+          set((state) => {
+            const { clipboard, source } = createInstrumentClipboard(
+              state.pattern,
+              voiceIndex,
+              state.variation,
+            );
+            return {
+              clipboard,
+              copySource: source,
+              mode: { type: "paste" },
+            };
+          });
+        },
+
+        copyVariation: (variationId) => {
+          set((state) => {
+            const { clipboard, source } = createVariationClipboard(
+              state.pattern,
+              variationId,
+            );
+            return {
+              clipboard,
+              copySource: source,
+              mode: { type: "paste" },
+            };
+          });
+        },
+
+        pasteToInstrument: (voiceIndex) => {
+          set((state) => {
+            if (state.clipboard?.type !== "instrument") return;
+
+            state.pattern.voices[voiceIndex].variations[state.variation] =
+              cloneStepSequence(state.clipboard.data);
+            state.patternVersion += 1;
+            // Stay in paste mode for multi-paste
+          });
+        },
+
+        pasteToVariation: (variationId) => {
+          set((state) => {
+            if (state.clipboard?.type !== "variation") return;
+
+            // Paste all 8 voices
+            state.clipboard.data.voices.forEach((seq, idx) => {
+              state.pattern.voices[idx].variations[variationId] =
+                cloneStepSequence(seq);
+            });
+            // Paste accent pattern
+            state.pattern.variationMetadata[variationId].accent = [
+              ...state.clipboard.data.accent,
+            ];
+
+            state.patternVersion += 1;
+            // Stay in paste mode for multi-paste
           });
         },
 

@@ -56,6 +56,12 @@ export const SequencerControl: React.FC = () => {
   const setChain = usePatternStore((state) => state.setChain);
   const chainDraft = usePatternStore((state) => state.chainDraft);
 
+  // Copy/paste state
+  const clipboard = usePatternStore((state) => state.clipboard);
+  const enterCopyMode = usePatternStore((state) => state.enterCopyMode);
+  const togglePasteMode = usePatternStore((state) => state.togglePasteMode);
+  const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
+
   const variChainButtonRef = useRef<HTMLButtonElement>(null);
   const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
     storageKey: "coachmark-shown-variation-chain-mode",
@@ -63,6 +69,10 @@ export const SequencerControl: React.FC = () => {
   });
 
   const isChainEdit = mode.type === "variationChain";
+  const isCopyMode = mode.type === "copy";
+  const isPasteMode = mode.type === "paste";
+  const isCopyPasteMode = isCopyMode || isPasteMode;
+  const hasClipboard = clipboard !== null;
 
   const handleToggleChainEdit = () => {
     if (isChainEdit) {
@@ -80,6 +90,20 @@ export const SequencerControl: React.FC = () => {
 
   const handleToggleChainEnabled = () => {
     setChainEnabled(!chainEnabled);
+  };
+
+  const handleCopyClick = () => {
+    if (isCopyPasteMode) {
+      // Cancel copy/paste mode
+      exitCopyPasteMode();
+    } else {
+      // Enter copy mode
+      enterCopyMode();
+    }
+  };
+
+  const handlePasteClick = () => {
+    togglePasteMode();
   };
 
   return (
@@ -157,22 +181,42 @@ export const SequencerControl: React.FC = () => {
         {/* Pattern actions row */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="hardware" size="sm" className="opacity-50">
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(
+                buttonActive(isCopyMode),
+                interactableHighlight(isCopyMode),
+              )}
+              onClick={handleCopyClick}
+            >
               <span>copy</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <ComingSoonTooltipContent tooltip={TOOLTIPS.COPY_TOGGLE_ON} />
+            {isCopyPasteMode
+              ? TOOLTIPS.COPY_TOGGLE_OFF
+              : TOOLTIPS.COPY_TOGGLE_ON}
           </TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="hardware" size="sm" className="opacity-50">
+            <Button
+              variant="hardware"
+              size="sm"
+              className={cn(
+                buttonActive(isPasteMode),
+                interactableHighlight(isPasteMode),
+                !hasClipboard && "opacity-50",
+              )}
+              onClick={handlePasteClick}
+              disabled={!hasClipboard}
+            >
               <span>paste</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <ComingSoonTooltipContent tooltip={TOOLTIPS.PASTE_TOGGLE_ON} />
+            {isPasteMode ? TOOLTIPS.PASTE_TOGGLE_OFF : TOOLTIPS.PASTE_TOGGLE_ON}
           </TooltipContent>
         </Tooltip>
         <Tooltip>
