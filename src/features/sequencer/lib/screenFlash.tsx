@@ -10,6 +10,37 @@ type InstrumentPasteFlashOptions = {
   targetVariation: VariationId;
 };
 
+export function buildInstrumentCopyFlash(
+  meta: InlineMeta,
+  variation: VariationId,
+): ScreenFlashPayload {
+  return {
+    message: "copied",
+    subtext: (
+      <span className="inline-flex items-center gap-1">
+        {meta.name} <VariationBadge variation={variation} />
+      </span>
+    ),
+    tone: "success",
+    icon: "paste",
+  };
+}
+
+export function buildVariationCopyFlash(
+  variation: VariationId,
+): ScreenFlashPayload {
+  return {
+    message: "copied",
+    subtext: (
+      <span className="inline-flex items-center gap-1">
+        Variation <VariationBadge variation={variation} />
+      </span>
+    ),
+    tone: "success",
+    icon: "paste",
+  };
+}
+
 export function buildInstrumentPasteFlash({
   sourceMeta,
   targetMeta,

@@ -41,14 +41,11 @@ import {
 } from "../lib/paste";
 import {
   buildInstrumentClearFlash,
+  buildInstrumentCopyFlash,
   buildVariationClearFlash,
+  buildVariationCopyFlash,
 } from "../lib/screenFlash";
-import {
-  PatternChain,
-  VARIATION_LABELS,
-  VariationCycle,
-  VariationId,
-} from "../types/sequencer";
+import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -194,13 +191,6 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             state.chain = sanitizeChain(chain);
             state.chainVersion += 1;
-
-            triggerScreenFlash({
-              message: "Chain updated",
-              subtext: `${chain.steps.map((step) => `${VARIATION_LABELS[step.variation]}` + (step.repeats > 1 ? `x${step.repeats}` : "")).join("┄")}`,
-              tone: "success",
-              icon: "check",
-            });
           });
         },
 
@@ -339,6 +329,14 @@ export const usePatternStore = create<PatternState>()(
               state.variation,
               instruments,
             );
+
+            triggerScreenFlash(
+              buildInstrumentCopyFlash(
+                instruments[voiceIndex]?.meta,
+                state.variation,
+              ),
+            );
+
             return {
               clipboard,
               copySource: source,
@@ -353,6 +351,9 @@ export const usePatternStore = create<PatternState>()(
               state.pattern,
               variationId,
             );
+
+            triggerScreenFlash(buildVariationCopyFlash(variationId));
+
             return {
               clipboard,
               copySource: source,
