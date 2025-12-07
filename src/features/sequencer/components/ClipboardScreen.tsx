@@ -3,6 +3,7 @@ import { Clipboard } from "lucide-react";
 
 import { MiniStepGrid } from "@/features/groove/components/MiniStepGrid";
 import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { ClipboardVariationPreview } from "@/features/sequencer/components/ClipboardVariationPreview";
 import { VariationBadge } from "@/features/sequencer/components/VariationBadge";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
 import { ScreenBar } from "@/layout/ScreenBar";
@@ -48,8 +49,11 @@ export const ClipboardScreen: React.FC = () => {
 
   const instrumentPattern =
     clipboard.type === "instrument" ? clipboard.data.triggers : null;
-  const accentPattern =
-    clipboard.type === "variation" ? clipboard.data.accent : null;
+  const variationPreview =
+    clipboard.type === "variation"
+      ? { voices: clipboard.data.voices, accent: clipboard.data.accent }
+      : null;
+
   const footerDetail =
     copySource.type === "variation" ? (
       <div className="flex items-center gap-2">
@@ -75,15 +79,10 @@ export const ClipboardScreen: React.FC = () => {
               <MiniStepGrid steps={instrumentPattern} />
             </div>
           )}
-          {accentPattern && (
-            <div className="flex-1">
-              <MiniStepGrid steps={accentPattern} />
-            </div>
-          )}
-          {!instrumentPattern && !accentPattern && (
-            <div className="text-foreground-muted flex items-center gap-2">
-              <Clipboard size={14} />
-              <span className="text-[10px]">Clipboard ready</span>
+
+          {variationPreview && (
+            <div className="min-w-0 flex-1">
+              <ClipboardVariationPreview voices={variationPreview.voices} />
             </div>
           )}
         </div>

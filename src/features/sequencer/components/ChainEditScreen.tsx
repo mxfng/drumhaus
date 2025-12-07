@@ -33,7 +33,7 @@ export const ChainEditScreen: React.FC = () => {
         {totalBars < MAX_CHAIN_STEPS && (
           <>
             {chain.steps.length > 0 && (
-              <div className="border-foreground-muted h-px w-4 border-t border-dashed" />
+              <div className="border-foreground-muted h-px w-3 border-t border-dashed" />
             )}
             <div className="border-foreground-muted text-foreground flex items-center justify-center rounded-tr rounded-bl border border-dashed text-xs">
               <Plus size={16} />

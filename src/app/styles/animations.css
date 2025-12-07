@@ -46,10 +46,10 @@
 @keyframes brightness-pulse {
   0%,
   100% {
-    filter: brightness(1.05);
+    filter: brightness(1.03);
   }
   50% {
-    filter: brightness(1.08);
+    filter: brightness(1.09);
   }
 }
 

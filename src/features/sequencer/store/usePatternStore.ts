@@ -182,6 +182,13 @@ export const usePatternStore = create<PatternState>()(
           set((state) => {
             state.chain = sanitizeChain(chain);
             state.chainVersion += 1;
+
+            triggerScreenFlash({
+              message: "Chain updated",
+              subtext: `${chain.steps.map((step) => `${VARIATION_LABELS[step.variation]}` + (step.repeats > 1 ? `x${step.repeats}` : "")).join("┄")}`,
+              tone: "success",
+              icon: "check",
+            });
           });
         },
 
