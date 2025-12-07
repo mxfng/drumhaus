@@ -78,3 +78,31 @@ export function isSameAsSource(
   }
   return false;
 }
+
+export function applyInstrumentClipboard(
+  pattern: Pattern,
+  clipboard: ClipboardContent | null,
+  voiceIndex: number,
+  variationId: VariationId,
+): boolean {
+  if (clipboard?.type !== "instrument") return false;
+
+  pattern.voices[voiceIndex].variations[variationId] = cloneStepSequence(
+    clipboard.data,
+  );
+  return true;
+}
+
+export function applyVariationClipboard(
+  pattern: Pattern,
+  clipboard: ClipboardContent | null,
+  variationId: VariationId,
+): boolean {
+  if (clipboard?.type !== "variation") return false;
+
+  clipboard.data.voices.forEach((seq, idx) => {
+    pattern.voices[idx].variations[variationId] = cloneStepSequence(seq);
+  });
+  pattern.variationMetadata[variationId].accent = [...clipboard.data.accent];
+  return true;
+}

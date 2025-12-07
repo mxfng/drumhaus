@@ -2,24 +2,32 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { STEP_COUNT } from "@/core/audio/engine/constants";
 import {
+  appendChainDraftStep,
   clampVariationId,
   DEFAULT_CHAIN,
   legacyCycleToChain,
-  MAX_CHAIN_REPEAT,
-  MAX_CHAIN_STEPS,
-  MIN_CHAIN_REPEAT,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
 import {
-  cloneStepSequence,
+  applyInstrumentClipboard,
+  applyVariationClipboard,
   createInstrumentClipboard,
   createVariationClipboard,
 } from "@/features/sequencer/lib/clipboard";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
-import { clampNudge } from "@/features/sequencer/lib/timing";
+import {
+  adjustTimingNudge,
+  clearStepSequence,
+  setStepSequence,
+  setTimingNudge,
+  setVelocity,
+  toggleAccent,
+  toggleFlam,
+  toggleRatchet,
+  toggleStep,
+} from "@/features/sequencer/lib/patternMutations";
 import {
   ClipboardContent,
   CopySource,
@@ -93,36 +101,48 @@ interface PatternState {
   pasteToVariation: (variationId: VariationId) => void;
 
   // Pattern manipulation
-  toggleStep: (voiceIndex: number, variation: number, step: number) => void;
+  toggleStep: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
   setVelocity: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     step: number,
     velocity: number,
   ) => void;
   updatePattern: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     triggers: boolean[],
     velocities: number[],
   ) => void;
-  clearPattern: (voiceIndex: number, variation: number) => void;
+  clearPattern: (voiceIndex: number, variation: VariationId) => void;
 
   // Accent manipulation
-  toggleAccent: (variation: number, step: number) => void;
+  toggleAccent: (variation: VariationId, step: number) => void;
 
   // Ratchet manipulation
-  toggleRatchet: (voiceIndex: number, variation: number, step: number) => void;
+  toggleRatchet: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
 
   // Flam manipulation
-  toggleFlam: (voiceIndex: number, variation: number, step: number) => void;
+  toggleFlam: (
+    voiceIndex: number,
+    variation: VariationId,
+    step: number,
+  ) => void;
 
   // Timing nudge
   nudgeTimingLeft: () => void;
   nudgeTimingRight: () => void;
   setTimingNudge: (
     voiceIndex: number,
-    variation: number,
+    variation: VariationId,
     nudge: TimingNudge,
   ) => void;
 }
@@ -186,39 +206,9 @@ export const usePatternStore = create<PatternState>()(
               return;
             }
 
-            const chain = sanitizeChain(state.chainDraft, { allowEmpty: true });
-            const steps = [...chain.steps];
-            const lastStep = steps[steps.length - 1];
-            const variationId = clampVariationId(variation);
-
-            // Calculate total bars in current chain
-            const totalBars = steps.reduce(
-              (sum, step) => sum + step.repeats,
-              0,
-            );
-
-            if (
-              lastStep &&
-              lastStep.variation === variationId &&
-              lastStep.repeats < MAX_CHAIN_REPEAT &&
-              totalBars < MAX_CHAIN_STEPS
-            ) {
-              // Increment repeat of last step if it won't exceed 8 total bars
-              lastStep.repeats += 1;
-              steps[steps.length - 1] = lastStep;
-            } else if (
-              steps.length < MAX_CHAIN_STEPS &&
-              totalBars < MAX_CHAIN_STEPS
-            ) {
-              // Add new step if it won't exceed 8 total bars
-              steps.push({ variation: variationId, repeats: MIN_CHAIN_REPEAT });
-            }
-
-            state.chainDraft = sanitizeChain(
-              {
-                steps,
-              },
-              { allowEmpty: true },
+            state.chainDraft = appendChainDraftStep(
+              state.chainDraft,
+              variation,
             );
           });
         },
@@ -335,31 +325,38 @@ export const usePatternStore = create<PatternState>()(
 
         pasteToInstrument: (voiceIndex) => {
           set((state) => {
-            if (state.clipboard?.type !== "instrument") return;
+            if (
+              applyInstrumentClipboard(
+                state.pattern,
+                state.clipboard,
+                voiceIndex,
+                state.variation,
+              )
+            ) {
+              state.patternVersion += 1;
+            }
 
-            state.pattern.voices[voiceIndex].variations[state.variation] =
-              cloneStepSequence(state.clipboard.data);
-            state.patternVersion += 1;
-            // Stay in paste mode for multi-paste
+            return {
+              mode: { type: "voice", voiceIndex },
+            };
           });
         },
 
         pasteToVariation: (variationId) => {
           set((state) => {
-            if (state.clipboard?.type !== "variation") return;
+            if (
+              applyVariationClipboard(
+                state.pattern,
+                state.clipboard,
+                variationId,
+              )
+            ) {
+              state.patternVersion += 1;
+            }
 
-            // Paste all 8 voices
-            state.clipboard.data.voices.forEach((seq, idx) => {
-              state.pattern.voices[idx].variations[variationId] =
-                cloneStepSequence(seq);
-            });
-            // Paste accent pattern
-            state.pattern.variationMetadata[variationId].accent = [
-              ...state.clipboard.data.accent,
-            ];
-
-            state.patternVersion += 1;
-            // Stay in paste mode for multi-paste
+            return {
+              mode: { type: "voice", voiceIndex: state.voiceIndex },
+            };
           });
         },
 
@@ -376,83 +373,55 @@ export const usePatternStore = create<PatternState>()(
 
         toggleStep: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].triggers[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].triggers[
-              step
-            ] = !currentValue;
-            // Set default velocity to 1 when enabling a step
-            if (!currentValue) {
-              state.pattern.voices[voiceIndex].variations[variation].velocities[
-                step
-              ] = 1;
-            }
+            toggleStep(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
 
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].velocities[
-              step
-            ] = velocity;
+            setVelocity(state.pattern, voiceIndex, variation, step, velocity);
             state.patternVersion += 1;
           });
         },
 
         updatePattern: (voiceIndex, variation, triggers, velocities) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].triggers =
-              triggers;
-            state.pattern.voices[voiceIndex].variations[variation].velocities =
-              velocities;
+            setStepSequence(
+              state.pattern,
+              voiceIndex,
+              variation,
+              triggers,
+              velocities,
+            );
             state.patternVersion += 1;
           });
         },
 
         clearPattern: (voiceIndex, variation) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].triggers =
-              Array(STEP_COUNT).fill(false);
-            state.pattern.voices[voiceIndex].variations[variation].velocities =
-              Array(STEP_COUNT).fill(1);
+            clearStepSequence(state.pattern, voiceIndex, variation);
             state.patternVersion += 1;
           });
         },
 
         toggleAccent: (variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.variationMetadata[variation].accent[step];
-            state.pattern.variationMetadata[variation].accent[step] =
-              !currentValue;
+            toggleAccent(state.pattern, variation, step);
             state.patternVersion += 1;
           });
         },
 
         toggleRatchet: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].ratchets[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].ratchets[
-              step
-            ] = !currentValue;
+            toggleRatchet(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
 
         toggleFlam: (voiceIndex, variation, step) => {
           set((state) => {
-            const currentValue =
-              state.pattern.voices[voiceIndex].variations[variation].flams[
-                step
-              ];
-            state.pattern.voices[voiceIndex].variations[variation].flams[step] =
-              !currentValue;
+            toggleFlam(state.pattern, voiceIndex, variation, step);
             state.patternVersion += 1;
           });
         },
@@ -464,11 +433,7 @@ export const usePatternStore = create<PatternState>()(
 
             const { voiceIndex } = state.mode;
             const { variation } = state;
-            const currentNudge =
-              state.pattern.voices[voiceIndex].variations[variation]
-                .timingNudge;
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              clampNudge(currentNudge - 1);
+            adjustTimingNudge(state.pattern, voiceIndex, variation, -1);
             state.patternVersion += 1;
           });
         },
@@ -480,19 +445,14 @@ export const usePatternStore = create<PatternState>()(
 
             const { voiceIndex } = state.mode;
             const { variation } = state;
-            const currentNudge =
-              state.pattern.voices[voiceIndex].variations[variation]
-                .timingNudge;
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              clampNudge(currentNudge + 1);
+            adjustTimingNudge(state.pattern, voiceIndex, variation, 1);
             state.patternVersion += 1;
           });
         },
 
         setTimingNudge: (voiceIndex, variation, nudge) => {
           set((state) => {
-            state.pattern.voices[voiceIndex].variations[variation].timingNudge =
-              nudge;
+            setTimingNudge(state.pattern, voiceIndex, variation, nudge);
             state.patternVersion += 1;
           });
         },
