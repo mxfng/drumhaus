@@ -1,3 +1,4 @@
+import { InlineMeta } from "@/features/preset/types/meta";
 import { StepSequence } from "./pattern";
 import { VariationId } from "./sequencer";
 
@@ -13,6 +14,8 @@ export type ClipboardContent =
       type: "instrument";
       /** Full groove for one voice */
       data: StepSequence;
+      /** Copy-time metadata so UI can render names without re-querying stores */
+      meta: InlineMeta;
     }
   | {
       type: "variation";

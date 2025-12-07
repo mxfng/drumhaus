@@ -1,3 +1,4 @@
+import type React from "react";
 import { create } from "zustand";
 
 export type ScreenFlashTone =
@@ -9,8 +10,8 @@ export type ScreenFlashTone =
 export type ScreenFlashIcon = "check" | "info" | "warning" | "alert" | "paste";
 
 export type ScreenFlashPayload = {
-  message: string;
-  subtext?: string;
+  message: React.ReactNode;
+  subtext?: React.ReactNode;
   tone?: ScreenFlashTone;
   icon?: ScreenFlashIcon;
   durationMs?: number;

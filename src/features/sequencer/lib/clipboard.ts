@@ -1,3 +1,4 @@
+import { InlineMeta } from "@/features/preset/types/meta";
 import { ClipboardContent, CopySource } from "../types/clipboard";
 import { Pattern, StepSequence } from "../types/pattern";
 import { VariationId } from "../types/sequencer";
@@ -23,6 +24,7 @@ export function createInstrumentClipboard(
   pattern: Pattern,
   voiceIndex: number,
   variationId: VariationId,
+  meta: InlineMeta,
 ): { clipboard: ClipboardContent; source: CopySource } {
   return {
     clipboard: {
@@ -30,6 +32,7 @@ export function createInstrumentClipboard(
       data: cloneStepSequence(
         pattern.voices[voiceIndex].variations[variationId],
       ),
+      meta,
     },
     source: { type: "instrument", voiceIndex, variationId },
   };

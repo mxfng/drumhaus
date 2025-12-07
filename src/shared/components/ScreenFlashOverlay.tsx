@@ -58,13 +58,13 @@ export const ScreenFlashOverlay: React.FC<ScreenFlashOverlayProps> = ({
           <div className="animate-in slide-in-from-bottom flex flex-row items-center gap-3">
             {Icon ? <Icon size={28} /> : <CheckCircle2 size={28} />}
             <div className="flex h-full flex-col">
-              <span className="text-base lowercase">
+              <div className="text-base lowercase">
                 {active.payload.message}
-              </span>
+              </div>
               {active.payload.subtext && (
-                <span className="text-foreground-muted -mt-1.5 text-sm">
+                <div className="text-foreground-muted -mt-1.5 text-sm">
                   {active.payload.subtext}
-                </span>
+                </div>
               )}
             </div>
           </div>

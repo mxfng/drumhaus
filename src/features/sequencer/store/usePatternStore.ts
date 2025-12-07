@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
 import {
   appendChainDraftStep,
   clampVariationId,
@@ -12,7 +13,6 @@ import {
 import {
   applyInstrumentClipboard,
   applyVariationClipboard,
-  createInstrumentClipboard,
   createVariationClipboard,
 } from "@/features/sequencer/lib/clipboard";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
@@ -34,6 +34,11 @@ import {
 } from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { triggerScreenFlash } from "@/shared/store/useScreenFlashStore";
+import {
+  buildInstrumentClipboardState,
+  buildInstrumentPasteFlashFromContext,
+  buildVariationPasteFlashFromContext,
+} from "../lib/paste";
 import {
   PatternChain,
   VARIATION_LABELS,
@@ -309,10 +314,12 @@ export const usePatternStore = create<PatternState>()(
 
         copyInstrument: (voiceIndex) => {
           set((state) => {
-            const { clipboard, source } = createInstrumentClipboard(
+            const instruments = useInstrumentsStore.getState().instruments;
+            const { clipboard, source } = buildInstrumentClipboardState(
               state.pattern,
               voiceIndex,
               state.variation,
+              instruments,
             );
             return {
               clipboard,
@@ -347,13 +354,18 @@ export const usePatternStore = create<PatternState>()(
               )
             ) {
               state.patternVersion += 1;
-              const variationLabel = VARIATION_LABELS[state.variation] ?? "";
-              triggerScreenFlash({
-                message: "Pasted",
-                subtext: `Instrument ${voiceIndex + 1} - Variation ${variationLabel}`,
-                tone: "success",
-                icon: "paste",
+              const instruments = useInstrumentsStore.getState().instruments;
+              const flashPayload = buildInstrumentPasteFlashFromContext({
+                clipboard: state.clipboard,
+                copySource: state.copySource,
+                targetVoiceIndex: voiceIndex,
+                targetVariation: state.variation,
+                instruments,
               });
+
+              if (flashPayload) {
+                triggerScreenFlash(flashPayload);
+              }
             }
             state.mode = { type: "voice", voiceIndex };
           });
@@ -370,13 +382,12 @@ export const usePatternStore = create<PatternState>()(
                 )
               ) {
                 state.patternVersion += 1;
-                const variationLabel = VARIATION_LABELS[variationId] ?? "";
-                triggerScreenFlash({
-                  message: "Pasted",
-                  subtext: `Variation ${variationLabel}`,
-                  tone: "success",
-                  icon: "paste",
-                });
+                triggerScreenFlash(
+                  buildVariationPasteFlashFromContext(
+                    state.copySource?.variationId,
+                    variationId,
+                  ),
+                );
               }
             } else if (
               state.clipboard?.type === "instrument" &&
@@ -393,13 +404,22 @@ export const usePatternStore = create<PatternState>()(
                 )
               ) {
                 state.patternVersion += 1;
-                const variationLabel = VARIATION_LABELS[variationId] ?? "";
-                triggerScreenFlash({
-                  message: "Pasted",
-                  subtext: `Instrument ${state.copySource?.type === "instrument" ? state.copySource.voiceIndex + 1 : "N/A"} - Var ${variationLabel}`,
-                  tone: "success",
-                  icon: "paste",
+                const targetVoiceIndex =
+                  state.copySource.type === "instrument"
+                    ? state.copySource.voiceIndex
+                    : 0;
+                const instruments = useInstrumentsStore.getState().instruments;
+                const flashPayload = buildInstrumentPasteFlashFromContext({
+                  clipboard: state.clipboard,
+                  copySource: state.copySource,
+                  targetVoiceIndex,
+                  targetVariation: variationId,
+                  instruments,
                 });
+
+                if (flashPayload) {
+                  triggerScreenFlash(flashPayload);
+                }
               }
             }
             state.mode = { type: "voice", voiceIndex: state.voiceIndex };
