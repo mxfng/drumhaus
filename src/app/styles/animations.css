@@ -64,6 +64,18 @@
   }
 }
 
+@property --interactable-border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes interactable-border-spin {
+  to {
+    --interactable-border-angle: 360deg;
+  }
+}
+
 /* ==================== Animation Utilities ==================== */
 
 .animate-fade-in {
@@ -158,4 +170,36 @@
 
 @utility slide-in-from-right-2 {
   --tw-enter-translate-x: 0.5rem;
+}
+
+/* ==================== Interactable Highlight ==================== */
+
+.interactable-highlight-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.interactable-highlight-border::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  user-select: none;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--interactable-border-angle),
+    var(--color-gradient-light),
+    var(--color-shadow-30),
+    var(--color-gradient-dark),
+    var(--color-shadow-30),
+    var(--color-gradient-light)
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  animation: interactable-border-spin 2.75s linear infinite;
+  opacity: 0.9;
 }

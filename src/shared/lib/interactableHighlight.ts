@@ -7,7 +7,7 @@ import { cn } from "./utils";
  */
 export function interactableHighlight(isInteractable: boolean): string {
   return cn({
-    "animate-brightness-pulse": isInteractable,
+    "animate-brightness-pulse interactable-highlight-border": isInteractable,
   });
 }
 
