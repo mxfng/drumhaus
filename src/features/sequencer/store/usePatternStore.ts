@@ -19,7 +19,6 @@ import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import {
   adjustTimingNudge,
-  clearStepSequence,
   setStepSequence,
   setTimingNudge,
   setVelocity,
@@ -34,10 +33,12 @@ import {
 } from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { triggerScreenFlash } from "@/shared/store/useScreenFlashStore";
+import { clearInstrumentVariation, clearVariationPatterns } from "../lib/clear";
 import {
   buildInstrumentClipboardState,
   buildInstrumentPasteFlashFromContext,
   buildVariationPasteFlashFromContext,
+  resolveInstrumentMeta,
 } from "../lib/paste";
 import {
   buildInstrumentClearFlash,
@@ -447,7 +448,7 @@ export const usePatternStore = create<PatternState>()(
 
         clearInstrument: (voiceIndex) => {
           set((state) => {
-            clearStepSequence(
+            clearInstrumentVariation(
               state.pattern,
               voiceIndex,
               state.variation as VariationId,
@@ -455,10 +456,7 @@ export const usePatternStore = create<PatternState>()(
             state.patternVersion += 1;
 
             const instruments = useInstrumentsStore.getState().instruments;
-            const meta = instruments[voiceIndex]?.meta ?? {
-              id: `instrument-${voiceIndex}`,
-              name: `Instrument ${voiceIndex + 1}`,
-            };
+            const meta = resolveInstrumentMeta(instruments, voiceIndex);
 
             triggerScreenFlash(
               buildInstrumentClearFlash({
@@ -473,13 +471,7 @@ export const usePatternStore = create<PatternState>()(
 
         clearVariation: (variationId) => {
           set((state) => {
-            state.pattern.voices.forEach((_, voiceIndex) => {
-              clearStepSequence(state.pattern, voiceIndex, variationId);
-            });
-            state.pattern.variationMetadata[variationId].accent =
-              state.pattern.variationMetadata[variationId].accent.map(
-                () => false,
-              );
+            clearVariationPatterns(state.pattern, variationId);
             state.patternVersion += 1;
 
             triggerScreenFlash(buildVariationClearFlash(variationId));
