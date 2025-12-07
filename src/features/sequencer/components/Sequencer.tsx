@@ -49,6 +49,8 @@ export const Sequencer: React.FC = () => {
   const isFlamMode = mode.type === "flam";
   const isVoiceMode = mode.type === "voice";
 
+  const isDisabled = isChainEditMode || isCopyOrPasteMode;
+
   // --- Voice index ---
   const voiceIndex =
     isVoiceMode || isRatchetMode || isFlamMode ? mode.voiceIndex : 0;
@@ -201,7 +203,7 @@ export const Sequencer: React.FC = () => {
               onPointerToggleStart={handleStepPointerStart}
               onPointerToggleEnter={handleStepPointerEnter}
               onPointerMove={handleStepPointerMove}
-              disabled={isChainEditMode}
+              disabled={isDisabled}
             />
             {/* Hide velocity controls in accent/ratchet/flam/chain mode or when showVelocity is off */}
             <div className="h-3.5 w-full">
