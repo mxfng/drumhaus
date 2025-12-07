@@ -2,7 +2,10 @@ import React, { forwardRef } from "react";
 
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { buttonActive } from "@/shared/lib/buttonActive";
-import { interactableHighlight } from "@/shared/lib/interactableHighlight";
+import {
+  copiedItemHighlight,
+  interactableHighlight,
+} from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
@@ -51,6 +54,7 @@ export const SequencerVariationButton = forwardRef<
   // Determine if button should be highlighted for interactability
   const shouldHighlight =
     isChainEdit || isCopyMode || (isPasteMode && !isSource);
+  const shouldShowCopiedHighlight = isSource;
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (isChainEdit) {
@@ -88,7 +92,7 @@ export const SequencerVariationButton = forwardRef<
         "font-pixel flex items-start justify-start p-1 transition-colors duration-400",
         buttonActive(showActiveState),
         interactableHighlight(shouldHighlight),
-        isSource && "opacity-50",
+        copiedItemHighlight(shouldShowCopiedHighlight),
         className,
       )}
       {...props}

@@ -33,7 +33,13 @@ import {
   CopySource,
 } from "@/features/sequencer/types/clipboard";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
-import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
+import { triggerScreenFlash } from "@/shared/store/useScreenFlashStore";
+import {
+  PatternChain,
+  VARIATION_LABELS,
+  VariationCycle,
+  VariationId,
+} from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -334,11 +340,15 @@ export const usePatternStore = create<PatternState>()(
               )
             ) {
               state.patternVersion += 1;
+              const variationLabel = VARIATION_LABELS[state.variation] ?? "";
+              triggerScreenFlash({
+                message: "Pasted",
+                subtext: `Slot ${voiceIndex + 1} • Var ${variationLabel}`,
+                tone: "success",
+                icon: "paste",
+              });
             }
-
-            return {
-              mode: { type: "voice", voiceIndex },
-            };
+            state.mode = { type: "voice", voiceIndex };
           });
         },
 
@@ -352,11 +362,15 @@ export const usePatternStore = create<PatternState>()(
               )
             ) {
               state.patternVersion += 1;
+              const variationLabel = VARIATION_LABELS[variationId] ?? "";
+              triggerScreenFlash({
+                message: "Pasted",
+                subtext: `Variation ${variationLabel}`,
+                tone: "success",
+                icon: "paste",
+              });
             }
-
-            return {
-              mode: { type: "voice", voiceIndex: state.voiceIndex },
-            };
+            state.mode = { type: "voice", voiceIndex: state.voiceIndex };
           });
         },
 

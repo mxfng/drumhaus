@@ -1,6 +1,9 @@
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { interactableHighlight } from "@/shared/lib/interactableHighlight";
+import {
+  copiedItemHighlight,
+  interactableHighlight,
+} from "@/shared/lib/interactableHighlight";
 import { cn } from "@/shared/lib/utils";
 import { InstrumentRuntime } from "../../../core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
@@ -41,7 +44,7 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   // Check if this instrument is the copy source (for dimming in paste mode)
   const isSource =
     isPasteMode &&
-    copySource &&
+    copySource !== null &&
     clipboard?.type === "instrument" &&
     isSameAsSource(copySource, "instrument", index, variation);
 
@@ -49,6 +52,9 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
   const shouldHighlight =
     isCopyMode ||
     (isPasteMode && clipboard?.type === "instrument" && !isSource);
+
+  const shouldShowCopiedHighlight = isSource;
+  const disableChildInteractions = shouldHighlight || shouldShowCopiedHighlight;
 
   // Don't show selected state during copy/paste modes
   const showSelectedState = isSelectedAndActive && !isCopyMode && !isPasteMode;
@@ -63,7 +69,8 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
         },
         showSelectedState && "border-primary/60 bg-primary/5",
         interactableHighlight(shouldHighlight),
-        shouldHighlight && "bg-surface", // needed to show bg animation
+        copiedItemHighlight(shouldShowCopiedHighlight),
+        disableChildInteractions && "bg-surface",
       )}
       key={`Instrument-${instrumentMeta.id}-${index}`}
     >
