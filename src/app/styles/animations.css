@@ -191,7 +191,7 @@
     from var(--interactable-border-angle),
     var(--color-gradient-light),
     var(--color-shadow-30),
-    var(--color-gradient-dark),
+    var(--color-highlight-30),
     var(--color-shadow-30),
     var(--color-gradient-light)
   );

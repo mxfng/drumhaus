@@ -43,6 +43,7 @@ export const Sequencer: React.FC = () => {
   const showVelocity = useGrooveStore((state) => state.showVelocity);
 
   // --- Mode flags ---
+  const isCopyOrPasteMode = mode.type === "copy" || mode.type === "paste";
   const isChainEditMode = mode.type === "variationChain";
   const isRatchetMode = mode.type === "ratchet";
   const isFlamMode = mode.type === "flam";
@@ -136,6 +137,16 @@ export const Sequencer: React.FC = () => {
   };
 
   const getStepRenderState = (step: number): StepRenderState => {
+    // Copy/paste mode: disable all steps
+    if (isCopyOrPasteMode) {
+      return {
+        velocity: 0,
+        isActive: false,
+        isGuideHighlighted: false,
+        activeColorClassName: undefined,
+      };
+    }
+
     // Chain mode
     if (isChainEditMode) {
       const chainVariation = getChainStepVariation(step);
