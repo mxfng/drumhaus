@@ -206,7 +206,6 @@ export const SequencerControl: React.FC = () => {
               className={cn(
                 buttonActive(isPasteMode),
                 interactableHighlight(isPasteMode),
-                !hasClipboard && "opacity-50",
               )}
               onClick={handlePasteClick}
               disabled={!hasClipboard}
