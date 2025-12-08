@@ -1,4 +1,4 @@
-@theme {
+:root {
   /* ==================== Layout ==================== */
   --app-width: 90rem; /* w-360 in Tailwind, 1440px */
   --app-height: 56.25rem; /* h-225 in Tailwind, 900px */
@@ -140,4 +140,123 @@
   --slider-track-shadow:
     inset 0 2px 4px var(--color-shadow),
     inset 0 -1px 2px var(--color-highlight-20), 0 0 0 2px var(--color-shadow-30);
+}
+
+@theme {
+  /* ==================== Layout ==================== */
+  --app-width: var(--app-width);
+  --app-height: var(--app-height);
+  --app-footer-height: var(--app-footer-height);
+  --app-header-height: var(--app-header-height);
+  --app-padding: var(--app-padding);
+  --app-play-button: var(--app-play-button);
+  --app-play-button-inner: var(--app-play-button-inner);
+
+  /* ==================== Colors ==================== */
+  /* Base colors */
+  --color-background: var(--color-background);
+  --color-background-night: var(--color-background-night);
+  --color-foreground: var(--color-foreground);
+  --color-foreground-muted: var(--color-foreground-muted);
+  --color-foreground-emphasis: var(--color-foreground-emphasis);
+  --color-accent: var(--color-accent);
+
+  /* Primary colors */
+  --color-primary: var(--color-primary);
+  --color-primary-muted: var(--color-primary-muted);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-primary-shadow: var(--color-primary-shadow);
+
+  /* Accent colors */
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  /* Secondary colors */
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+
+  /* Screen colors */
+  --color-screen: var(--color-screen);
+  --color-screen-foreground: var(--color-screen-foreground);
+
+  /* Popover colors */
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+
+  /* Destructive colors */
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+
+  /* Muted colors */
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  /* Surface colors */
+  --color-surface: var(--color-surface);
+  --color-knob: var(--color-knob);
+
+  /* Track colors */
+  --color-track: var(--color-track);
+  --color-track-emphasis: var(--color-track-emphasis);
+  --color-track-blue: var(--color-track-blue);
+  --color-track-orange: var(--color-track-orange);
+  --color-track-red: var(--color-track-red);
+  --color-track-green: var(--color-track-green);
+
+  /* Variation colors */
+  --color-variation-a: var(--color-variation-a);
+  --color-variation-b: var(--color-variation-b);
+  --color-variation-c: var(--color-variation-c);
+  --color-variation-d: var(--color-variation-d);
+
+  /* Border and focus colors */
+  --color-border: var(--color-border);
+  --color-ring: var(--color-ring);
+
+  /* Sequencer indicator colors */
+  --color-sequencer-indicator-accent: var(--color-sequencer-indicator-accent);
+  --color-sequencer-indicator-regular: var(--color-sequencer-indicator-regular);
+
+  /* ==================== Neumorphic Colors ==================== */
+  --color-shadow: var(--color-shadow);
+  --color-shadow-10: var(--color-shadow-10);
+  --color-shadow-30: var(--color-shadow-30);
+  --color-shadow-50: var(--color-shadow-50);
+  --color-shadow-60: var(--color-shadow-60);
+  --color-highlight: var(--color-highlight);
+  --color-highlight-17: var(--color-highlight-17);
+  --color-highlight-20: var(--color-highlight-20);
+  --color-highlight-30: var(--color-highlight-30);
+  --color-highlight-40: var(--color-highlight-40);
+  --color-gradient-light: var(--color-gradient-light);
+  --color-gradient-dark: var(--color-gradient-dark);
+
+  /* ==================== Shadows ==================== */
+  --shadow-neu: var(--shadow-neu);
+  --shadow-neu-md: var(--shadow-neu-md);
+  --shadow-neu-tall: var(--shadow-neu-tall);
+  --shadow-neu-xl: var(--shadow-neu-xl);
+  --shadow-neu-raised: var(--shadow-neu-raised);
+  --shadow-neu-tall-raised: var(--shadow-neu-tall-raised);
+  --shadow-inset: var(--shadow-inset);
+
+  /* ==================== Typography ==================== */
+  --font-sans: var(--font-sans);
+  --font-pixel: var(--font-pixel);
+  --font-family-pixel: var(--font-family-pixel);
+
+  /* ==================== Animation ==================== */
+  --animate-duration: var(--animate-duration);
+  --animate-brightness-pulse: var(--animate-brightness-pulse);
+  --animate-brightness-blink: var(--animate-brightness-blink);
+
+  /* ==================== Components: Knob ==================== */
+  --knob-gradient: var(--knob-gradient);
+  --knob-shadow-ring: var(--knob-shadow-ring);
+  --knob-shadow-inset: var(--knob-shadow-inset);
+  --knob-shadow: var(--knob-shadow);
+  --knob-shadow-center: var(--knob-shadow-center);
+
+  /* ==================== Components: Slider ==================== */
+  --slider-track-bg: var(--slider-track-bg);
+  --slider-track-shadow: var(--slider-track-shadow);
 }
