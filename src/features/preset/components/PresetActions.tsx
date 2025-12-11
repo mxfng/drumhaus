@@ -1,4 +1,4 @@
-import { AudioLines, Import, Save, Share2 } from "lucide-react";
+import { AudioLines, FolderOpen, Save, Share2 } from "lucide-react";
 
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
@@ -63,7 +63,7 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <Button onClick={onOpenFromFile} variant="screen" size="screen">
-            <Import
+            <FolderOpen
               className="group-hover:text-accent transition-all duration-200"
               size={20}
             />

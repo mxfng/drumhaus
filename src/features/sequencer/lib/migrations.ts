@@ -5,6 +5,7 @@ import {
   STEP_COUNT,
 } from "@/core/audio/engine/constants";
 import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
+import { InstrumentData } from "@/core/audio/engine/instrument/types";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 import {
   Pattern,
@@ -302,6 +303,72 @@ function migrateVariationMetadataUnsafe(metadata: unknown): VariationMetadata {
       : Array.from({ length: STEP_COUNT }, () => false);
 
   return { accent };
+}
+
+/**
+ * Migrates instrument params from legacy format to current format.
+ */
+function migrateInstrumentParams(params: unknown): {
+  decay: number;
+  filter: number;
+  volume: number;
+  pan: number;
+  tune: number;
+  solo: boolean;
+  mute: boolean;
+} {
+  if (!params || typeof params !== "object") {
+    throw new Error("Invalid instrument params: expected object");
+  }
+
+  const rawParams = params as Record<string, unknown>;
+
+  // Check if this is legacy format (has "release" or "pitch")
+  const isLegacyFormat = "release" in rawParams || "pitch" in rawParams;
+
+  if (isLegacyFormat) {
+    // Legacy format: migrate parameter names
+    return {
+      decay: typeof rawParams.release === "number" ? rawParams.release : 50,
+      filter: typeof rawParams.filter === "number" ? rawParams.filter : 50,
+      volume: typeof rawParams.volume === "number" ? rawParams.volume : 92,
+      pan: typeof rawParams.pan === "number" ? rawParams.pan : 50,
+      tune: typeof rawParams.pitch === "number" ? rawParams.pitch : 50,
+      solo: typeof rawParams.solo === "boolean" ? rawParams.solo : false,
+      mute: typeof rawParams.mute === "boolean" ? rawParams.mute : false,
+    };
+  }
+
+  // Modern format: return as-is (with type safety)
+  return {
+    decay: typeof rawParams.decay === "number" ? rawParams.decay : 50,
+    filter: typeof rawParams.filter === "number" ? rawParams.filter : 50,
+    volume: typeof rawParams.volume === "number" ? rawParams.volume : 92,
+    pan: typeof rawParams.pan === "number" ? rawParams.pan : 50,
+    tune: typeof rawParams.tune === "number" ? rawParams.tune : 50,
+    solo: typeof rawParams.solo === "boolean" ? rawParams.solo : false,
+    mute: typeof rawParams.mute === "boolean" ? rawParams.mute : false,
+  };
+}
+
+/**
+ * Migrates instrument params from legacy format to current format.
+ *
+ * Handles renaming of parameters:
+ * - "release" → "decay"
+ * - "pitch" → "tune"
+ * - Removes obsolete "attack" parameter
+ *
+ * Legacy format: { attack, release, pitch, ... }
+ * Current format: { decay, tune, ... }
+ */
+export function migrateInstruments(
+  instruments: InstrumentData[],
+): InstrumentData[] {
+  return instruments.map((instrument) => ({
+    ...instrument,
+    params: migrateInstrumentParams(instrument.params),
+  }));
 }
 
 /**
