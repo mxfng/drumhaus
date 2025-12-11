@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-import { normalizeSamplePath } from "./normalizeSamplePath";
 import { useWaveform } from "./useWaveform";
+import { normalizeSamplePath } from "./utils";
 import type { WaveformState } from "./WaveformContext";
 
 /**
