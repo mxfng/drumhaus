@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
 import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
+import { WaveformReadinessContext } from "@/shared/hooks/useWaveformReadiness";
 import { cn } from "@/shared/lib/utils";
 
 interface WaveformProps {
@@ -12,6 +13,7 @@ interface WaveformProps {
   height?: number;
   color?: string;
   onError?: (error: Error) => void;
+  onSuccess?: () => void;
   className?: string;
   /** Keep spinner visible even if waveform data is already loaded (e.g. external runtime pending). */
   isLoadingExternal?: boolean;
@@ -23,6 +25,7 @@ const Waveform: React.FC<WaveformProps> = ({
   height,
   color = "#ff7b00", // must be hardcoded due to canvas
   onError,
+  onSuccess,
   className,
   isLoadingExternal = false,
 }) => {
@@ -31,6 +34,8 @@ const Waveform: React.FC<WaveformProps> = ({
     .replace(/^\/+/, "")
     .replace(/^samples\//, "");
   const sampleFilename = normalizedPath.replace(/\.[^.]+$/, "");
+
+  const waveformReadinessContext = useContext(WaveformReadinessContext);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -129,6 +134,8 @@ const Waveform: React.FC<WaveformProps> = ({
         const data = await getCachedWaveform(sampleFilename);
         if (!isMounted) return;
         setWaveformData(data);
+        onSuccess?.();
+        waveformReadinessContext?.registerWaveformLoaded();
       } catch (error) {
         if (!isMounted) return;
         const normalizedError =
@@ -150,7 +157,7 @@ const Waveform: React.FC<WaveformProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [sampleFilename, onError]);
+  }, [sampleFilename, onError, onSuccess]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
