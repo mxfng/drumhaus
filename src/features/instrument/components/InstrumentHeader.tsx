@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 
 import { triggerInstrument } from "@/core/audio/engine";
 import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
-import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
+import { useWaveformData, Waveform } from "@/shared/waveform";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 
 interface InstrumentHeaderProps {
@@ -27,7 +27,6 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   onInteract,
 }) => {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
-  const [waveformError, setWaveformError] = useState<Error | null>(null);
 
   const samplePath = useInstrumentsStore(
     (state) => state.instruments[index].sample.path,
@@ -41,6 +40,9 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   const decay = useInstrumentsStore(
     (state) => state.instruments[index].params.decay,
   );
+
+  // Get waveform error state from provider
+  const { error: waveformError } = useWaveformData(samplePath);
 
   const isRuntimeLoaded = !!runtime;
 
@@ -57,17 +59,6 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
 
     await triggerInstrument(runtime, tune, decay);
   }, [onInteract, runtime, tune, decay]);
-
-  const handleWaveformError = useCallback((error: Error) => {
-    setWaveformError(error);
-  }, []);
-
-  // Reset waveform loaded state when sample changes
-  useEffect(() => {
-    queueMicrotask(() => {
-      setWaveformError(null);
-    });
-  }, [samplePath]);
 
   return (
     <button
@@ -102,8 +93,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
           width={waveformWidth}
           height={waveformHeight}
           color={color}
-          onError={handleWaveformError}
-          isLoadingExternal={!isRuntimeLoaded}
+          isLoading={!isRuntimeLoaded}
           className="h-6"
         />
       </div>

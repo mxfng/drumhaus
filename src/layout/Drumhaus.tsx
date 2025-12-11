@@ -1,100 +1,63 @@
-import { lazy, Suspense } from "react";
-
 import { useDrumhaus } from "@/core/providers/DrumhausProvider";
 import { InstrumentGrid } from "@/features/instrument/components/InstrumentGrid";
 import { Sequencer } from "@/features/sequencer/components/Sequencer";
 import { useLayoutScale } from "@/shared/hooks/useLayoutScale";
-import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
-import { useSequencerEscToVoice } from "@/shared/hooks/useSequencerEscToVoice";
-import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
-import { useLightShowIntro } from "@/shared/lightshow";
-import { useDialogStore } from "@/shared/store/useDialogStore";
 import { Separator } from "@/shared/ui";
 import { ControlsPanel } from "./ControlsPanel";
 import { FloatingMenu } from "./FloatingMenu";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
 
-const MobileDialog = lazy(() =>
-  import("@/shared/dialogs/MobileDialog").then((module) => ({
-    default: module.MobileDialog,
-  })),
-);
-
 const Drumhaus = () => {
   // --- Context ---
-  const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
+  const { instrumentRuntimesVersion } = useDrumhaus(); // Force re-rendering instrument grid to display waveform when loaded
 
-  // --- Store State ---
-  const isMobileDialogOpen = useDialogStore(
-    (state) => state.activeDialog === "mobile",
-  );
-  const closeDialog = useDialogStore((state) => state.closeDialog);
-
-  // --- Desktop-specific Hooks ---
+  // --- Layout ---
   const { scale } = useLayoutScale();
 
-  useMobileWarning();
-
-  useSpacebarTogglePlay({
-    instrumentRuntimes,
-    instrumentRuntimesVersion,
-  });
-
-  useSequencerEscToVoice();
-
-  // --- Lightshow ---
-  useLightShowIntro(instrumentRuntimesVersion > 0, 320);
-
   return (
-    <>
+    <div
+      className="drumhaus-root"
+      style={{
+        // @ts-expect-error - CSS custom property
+        "--layout-scale": scale / 100,
+      }}
+    >
+      <FloatingMenu />
       <div
-        className="drumhaus-root"
+        className="drumhaus-scale-wrapper"
         style={{
-          // @ts-expect-error - CSS custom property
-          "--layout-scale": scale / 100,
+          transform: `translate(-50%, -50%) scale(${scale / 100})`,
+          transformOrigin: "center center",
         }}
       >
-        <FloatingMenu />
-        <div
-          className="drumhaus-scale-wrapper"
-          style={{
-            transform: `translate(-50%, -50%) scale(${scale / 100})`,
-            transformOrigin: "center center",
-          }}
-        >
-          {/* Header buffer */}
-          <div className="h-10" />
+        {/* Header buffer */}
+        <div className="h-10" />
 
-          <div className="neu-medium-raised surface relative h-225 w-360 overflow-clip rounded-xl border">
-            {/* Header */}
-            <Header />
+        <div className="neu-medium-raised surface relative h-225 w-360 overflow-clip rounded-xl border">
+          {/* Header */}
+          <Header />
 
-            <Separator variant="neumorphic" />
+          <Separator variant="neumorphic" />
 
-            {/* Instrument Grid */}
-            <InstrumentGrid key={instrumentRuntimesVersion} />
+          {/* Instrument Grid */}
+          <InstrumentGrid key={instrumentRuntimesVersion} />
 
-            <Separator variant="neumorphic" />
+          <Separator variant="neumorphic" />
 
-            {/* Main Controls */}
-            <ControlsPanel />
+          {/* Main Controls */}
+          <ControlsPanel />
 
-            <Separator variant="neumorphic" />
+          <Separator variant="neumorphic" />
 
-            {/* Sequencer */}
-            <Sequencer />
-          </div>
-
-          {/* Footer */}
-          <Footer />
+          {/* Sequencer */}
+          <Sequencer />
         </div>
-      </div>
 
-      <Suspense fallback={null}>
-        <MobileDialog isOpen={isMobileDialogOpen} onClose={closeDialog} />
-      </Suspense>
-    </>
+        {/* Footer */}
+        <Footer />
+      </div>
+    </div>
   );
 };
 

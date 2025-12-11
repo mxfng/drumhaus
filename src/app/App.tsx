@@ -3,11 +3,19 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
+import { useDrumhaus } from "@/core/providers/DrumhausProvider";
+import { DebugOverlay } from "@/features/debug/components/DebugOverlay";
 import { useNightModeStore } from "@/features/night/store/useNightModeStore";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
+import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
+import { useSequencerEscToVoice } from "@/shared/hooks/useSequencerEscToVoice";
 import { useServiceWorker } from "@/shared/hooks/useServiceWorker";
+import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
+import { useLightShowIntro } from "@/shared/lightshow";
+import { useDialogStore } from "@/shared/store/useDialogStore";
+import { useWaveform } from "@/shared/waveform";
 
-// Lazily import providers
+// Providers
 
 const AppErrorBoundary = lazy(() =>
   import("@/core/providers/AppErrorBoundary").then((module) => ({
@@ -45,9 +53,32 @@ const DrumhausProvider = lazy(() =>
   })),
 );
 
-// Lazily import app
+const WaveformProvider = lazy(() =>
+  import("@/shared/waveform/WaveformProvider").then((module) => ({
+    default: module.WaveformProvider,
+  })),
+);
+
+// App layout
 
 const Drumhaus = lazy(() => import("../layout/Drumhaus"));
+
+// Dialogs
+
+const MobileDialog = lazy(() =>
+  import("@/shared/dialogs/MobileDialog").then((module) => ({
+    default: module.MobileDialog,
+  })),
+);
+
+const AboutDialog = lazy(() =>
+  import("@/shared/dialogs/AboutDialog").then((module) => ({
+    default: module.AboutDialog,
+  })),
+);
+
+// Easter eggs
+
 const NightSky = lazy(() =>
   import("@/features/night/components/NightSky").then((module) => ({
     default: module.NightSky,
@@ -80,17 +111,58 @@ function getPresetTitleFromSlug(slug: string | null): string {
   }
 }
 
+function AppOrchestrator() {
+  // --- Context (requires providers) ---
+  const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
+  const { areWaveformsReady } = useWaveform();
+
+  // --- Dialog State ---
+  const activeDialog = useDialogStore((state) => state.activeDialog);
+  const closeDialog = useDialogStore((state) => state.closeDialog);
+
+  // --- Global Behavior Hooks ---
+  useMobileWarning();
+
+  useSpacebarTogglePlay({
+    instrumentRuntimes,
+    instrumentRuntimesVersion,
+  });
+
+  useSequencerEscToVoice();
+
+  // --- Lightshow ---
+  useLightShowIntro(instrumentRuntimesVersion > 0 && areWaveformsReady, 320);
+
+  return (
+    <>
+      <Drumhaus />
+      <Suspense fallback={null}>
+        <MobileDialog
+          isOpen={activeDialog === "mobile"}
+          onClose={closeDialog}
+        />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
+      </Suspense>
+      <DebugOverlay />
+    </>
+  );
+}
+
 export function App() {
+  // --- App-level setup (outside providers) ---
+
   // Get preset name from URL search params
   const title = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return getPresetTitleFromSlug(params.get("n"));
   }, []);
 
-  // --- Service Worker Registration ---
+  // Service Worker Registration
   useServiceWorker();
 
-  // --- Night Mode ---
+  // Night Mode
   const nightMode = useNightModeStore((state) => state.nightMode);
 
   // Add night mode class to document elements
@@ -130,7 +202,9 @@ export function App() {
             <TooltipProvider>
               <LightRigProvider>
                 <DrumhausProvider>
-                  <Drumhaus />
+                  <WaveformProvider>
+                    <AppOrchestrator />
+                  </WaveformProvider>
                 </DrumhausProvider>
               </LightRigProvider>
             </TooltipProvider>
