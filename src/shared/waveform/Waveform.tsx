@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
+import { TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
 import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
 import { cn } from "@/shared/lib/utils";
+import { useWaveformData } from "./useWaveformData";
 
 interface WaveformProps {
   audioFile: string;
   width?: number;
   height?: number;
   color?: string;
-  onError?: (error: Error) => void;
   className?: string;
-  /** Keep spinner visible even if waveform data is already loaded (e.g. external runtime pending). */
-  isLoadingExternal?: boolean;
+  /** Manual override to loading state - keep spinner visible even if waveform data is already loaded (e.g. external runtime pending). */
+  isLoading?: boolean;
 }
 
 const Waveform: React.FC<WaveformProps> = ({
@@ -22,22 +22,18 @@ const Waveform: React.FC<WaveformProps> = ({
   width,
   height,
   color = "#ff7b00", // must be hardcoded due to canvas
-  onError,
   className,
-  isLoadingExternal = false,
+  isLoading: isLoadingExternal = false,
 }) => {
-  // Derive waveform key by stripping /samples/ prefix and extension, but keep subfolders
-  const normalizedPath = audioFile
-    .replace(/^\/+/, "")
-    .replace(/^samples\//, "");
-  const sampleFilename = normalizedPath.replace(/\.[^.]+$/, "");
+  // Get waveform data from provider (automatically normalized and cached)
+  const {
+    data: waveformData,
+    isLoading,
+    error: loadError,
+  } = useWaveformData(audioFile);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [waveformData, setWaveformData] =
-    useState<TransientWaveformData | null>(null);
-  const [loadError, setLoadError] = useState<Error | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Auto-sizing: observe container dimensions if width/height not provided
   const [autoWidth, setAutoWidth] = useState<number>(170);
@@ -116,41 +112,6 @@ const Waveform: React.FC<WaveformProps> = ({
       resizeObserver.disconnect();
     };
   }, [width, height]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadWaveform = async () => {
-      setIsLoading(true);
-      setLoadError(null);
-      setWaveformData(null);
-
-      try {
-        const data = await getCachedWaveform(sampleFilename);
-        if (!isMounted) return;
-        setWaveformData(data);
-      } catch (error) {
-        if (!isMounted) return;
-        const normalizedError =
-          error instanceof Error ? error : new Error(String(error));
-        setLoadError(normalizedError);
-        console.error(`Failed to load waveform for ${sampleFilename}`, error);
-        if (onError) {
-          onError(normalizedError);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void loadWaveform();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [sampleFilename, onError]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
