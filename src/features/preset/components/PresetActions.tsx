@@ -1,4 +1,4 @@
-import { AudioLines, FolderOpen, Import, Save, Share2 } from "lucide-react";
+import { AudioLines, FolderOpen, Save, Share2 } from "lucide-react";
 
 import { usePresetMetaStore } from "@/features/preset/store/usePresetMetaStore";
 import { useDialogStore } from "@/shared/store/useDialogStore";
