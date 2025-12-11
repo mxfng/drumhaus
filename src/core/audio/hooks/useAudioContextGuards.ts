@@ -1,14 +1,17 @@
 import { useEffect, useRef } from "react";
 import { getContext } from "tone/build/esm/index";
 
+import { useToast } from "@/shared/ui";
 import { ensureAudioContextIsRunning } from "../engine/context/manager";
 
 /**
  * Centralized audio context guard:
  * - eagerly resumes on visibility/pageshow/focus/user gestures (throttled)
  * - detects stalled clocks and reloads if recovery fails
+ * - notifies user when a reload was triggered due to recovery failure
  */
 export function useAudioContextGuards() {
+  const { toast } = useToast();
   const ensureThrottleRef = useRef<number>(0);
   const recoveryAttemptsRef = useRef(0);
   const reloadTriggeredRef = useRef(false);
@@ -56,7 +59,10 @@ export function useAudioContextGuards() {
             !reloadTriggeredRef.current
           ) {
             reloadTriggeredRef.current = true;
-            window.location.reload();
+            // Add URL parameter to notify user after reload
+            const url = new URL(window.location.href);
+            url.searchParams.set("audio_recovered", "1");
+            window.location.href = url.toString();
           }
         }, delay);
 
@@ -129,4 +135,23 @@ export function useAudioContextGuards() {
       });
     };
   }, []);
+
+  // Notify user if page was reloaded due to audio context recovery failure
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("audio_recovered")) {
+      toast({
+        title: "Audio Engine Restarted",
+        description:
+          "The audio engine encountered an issue and was automatically reloaded.",
+        status: "info",
+        duration: 6000,
+      });
+
+      // Clean up the URL parameter without reloading
+      params.delete("audio_recovered");
+      const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, [toast]);
 }
