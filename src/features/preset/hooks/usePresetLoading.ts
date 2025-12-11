@@ -13,6 +13,7 @@ import {
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
 import {
+  migrateInstruments,
   migrateMasterChainParams,
   migratePattern,
 } from "@/features/sequencer/lib/migrations";
@@ -126,8 +127,8 @@ export function usePresetLoading({
       // Update master chain (with migration for legacy formats)
       setAllMasterChain(migrateMasterChainParams(preset.masterChain));
 
-      // Update instruments (triggers audio engine reload)
-      setAllInstruments(preset.kit.instruments);
+      // Update instruments (triggers audio engine reload) w/ migration for legacy presets
+      setAllInstruments(migrateInstruments(preset.kit.instruments));
     },
     [
       instrumentRuntimes,
