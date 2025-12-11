@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { triggerInstrument } from "@/core/audio/engine";
 import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
-import Waveform from "@/shared/components/Waveform";
 import { cn } from "@/shared/lib/utils";
+import { Waveform } from "@/shared/waveform";
 import { useInstrumentsStore } from "../store/useInstrumentsStore";
 
 interface InstrumentHeaderProps {

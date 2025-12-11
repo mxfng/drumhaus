@@ -11,9 +11,9 @@ import { useMobileWarning } from "@/shared/hooks/useMobileWarning";
 import { useSequencerEscToVoice } from "@/shared/hooks/useSequencerEscToVoice";
 import { useServiceWorker } from "@/shared/hooks/useServiceWorker";
 import { useSpacebarTogglePlay } from "@/shared/hooks/useSpacebarTogglePlay";
-import { useWaveformReadiness } from "@/shared/hooks/useWaveformReadiness";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { useDialogStore } from "@/shared/store/useDialogStore";
+import { useWaveform } from "@/shared/waveform";
 
 // Providers
 
@@ -53,9 +53,9 @@ const DrumhausProvider = lazy(() =>
   })),
 );
 
-const WaveformReadinessProvider = lazy(() =>
-  import("@/shared/hooks/useWaveformReadiness").then((module) => ({
-    default: module.WaveformReadinessProvider,
+const WaveformProvider = lazy(() =>
+  import("@/shared/waveform/WaveformProvider").then((module) => ({
+    default: module.WaveformProvider,
   })),
 );
 
@@ -111,13 +111,10 @@ function getPresetTitleFromSlug(slug: string | null): string {
   }
 }
 
-/**
- * Orchestrates global app behavior - must be inside all providers.
- */
 function AppOrchestrator() {
   // --- Context (requires providers) ---
   const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
-  const { areWaveformsReady } = useWaveformReadiness();
+  const { areWaveformsReady } = useWaveform();
 
   // --- Dialog State ---
   const activeDialog = useDialogStore((state) => state.activeDialog);
@@ -205,9 +202,9 @@ export function App() {
             <TooltipProvider>
               <LightRigProvider>
                 <DrumhausProvider>
-                  <WaveformReadinessProvider>
+                  <WaveformProvider>
                     <AppOrchestrator />
-                  </WaveformReadinessProvider>
+                  </WaveformProvider>
                 </DrumhausProvider>
               </LightRigProvider>
             </TooltipProvider>

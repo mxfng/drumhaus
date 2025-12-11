@@ -1,11 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getCachedWaveform, TransientWaveformData } from "@/core/audio/cache";
+import { TransientWaveformData } from "@/core/audio/cache";
 import { WAVEFORM_VALUE_SCALE } from "@/core/audio/cache/constants";
 import { PixelatedFrowny } from "@/shared/components/PixelatedFrowny";
 import { PixelatedSpinner } from "@/shared/components/PixelatedSpinner";
-import { WaveformReadinessContext } from "@/shared/hooks/useWaveformReadiness";
 import { cn } from "@/shared/lib/utils";
+import { useWaveform } from "./useWaveform";
 
 interface WaveformProps {
   audioFile: string;
@@ -35,7 +35,7 @@ const Waveform: React.FC<WaveformProps> = ({
     .replace(/^samples\//, "");
   const sampleFilename = normalizedPath.replace(/\.[^.]+$/, "");
 
-  const waveformReadinessContext = useContext(WaveformReadinessContext);
+  const { getWaveform, registerWaveformLoaded } = useWaveform();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -131,11 +131,20 @@ const Waveform: React.FC<WaveformProps> = ({
       setWaveformData(null);
 
       try {
-        const data = await getCachedWaveform(sampleFilename);
+        const data = await getWaveform(sampleFilename);
         if (!isMounted) return;
-        setWaveformData(data);
-        onSuccess?.();
-        waveformReadinessContext?.registerWaveformLoaded();
+
+        if (data) {
+          setWaveformData(data);
+          onSuccess?.();
+          registerWaveformLoaded();
+        } else {
+          const error = new Error(`No waveform data for ${sampleFilename}`);
+          setLoadError(error);
+          if (onError) {
+            onError(error);
+          }
+        }
       } catch (error) {
         if (!isMounted) return;
         const normalizedError =
@@ -157,7 +166,7 @@ const Waveform: React.FC<WaveformProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [sampleFilename, onError, onSuccess]);
+  }, [sampleFilename, getWaveform, registerWaveformLoaded, onError, onSuccess]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
