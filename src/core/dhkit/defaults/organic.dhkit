@@ -5,7 +5,7 @@
     "id": "kit-organic",
     "name": "Organic",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-12T05:59:30.655Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -30,7 +30,7 @@
       "params": {
         "decay": 21,
         "filter": 50,
-        "volume": 92,
+        "volume": 97,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -58,7 +58,7 @@
       "params": {
         "decay": 30,
         "filter": 50,
-        "volume": 92,
+        "volume": 96,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -86,7 +86,7 @@
       "params": {
         "decay": 28,
         "filter": 50,
-        "volume": 90,
+        "volume": 97,
         "pan": 61,
         "tune": 50,
         "solo": false,
@@ -114,7 +114,7 @@
       "params": {
         "decay": 23,
         "filter": 50,
-        "volume": 92,
+        "volume": 95,
         "pan": 36,
         "tune": 50,
         "solo": false,
@@ -142,7 +142,7 @@
       "params": {
         "decay": 29,
         "filter": 50,
-        "volume": 83,
+        "volume": 89,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -170,7 +170,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 87,
+        "volume": 91,
         "pan": 27,
         "tune": 50,
         "solo": false,
@@ -226,9 +226,9 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 78,
+        "volume": 75,
         "pan": 50,
-        "tune": 50,
+        "tune": 44,
         "solo": false,
         "mute": false
       }
