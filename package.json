@@ -44,7 +44,7 @@
     "react-hook-form": "^7.68.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
-    "tone": "^15.1.22",
+    "tone": "^15.3.10",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"
   },
