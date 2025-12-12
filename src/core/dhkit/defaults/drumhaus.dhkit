@@ -5,7 +5,7 @@
     "id": "kit-drumhaus",
     "name": "Drumhaus",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-12T05:59:26.188Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -56,11 +56,11 @@
         }
       },
       "params": {
-        "decay": 100,
+        "decay": 36,
         "filter": 50,
-        "volume": 92,
+        "volume": 88,
         "pan": 50,
-        "tune": 50,
+        "tune": 36,
         "solo": false,
         "mute": false
       }
@@ -85,8 +85,8 @@
       },
       "params": {
         "decay": 100,
-        "filter": 50,
-        "volume": 92,
+        "filter": 55,
+        "volume": 87,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -142,7 +142,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
+        "volume": 89,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -170,7 +170,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
+        "volume": 80,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -198,7 +198,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
+        "volume": 84,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -226,7 +226,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
+        "volume": 85,
         "pan": 50,
         "tune": 50,
         "solo": false,
