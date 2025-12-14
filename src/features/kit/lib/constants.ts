@@ -6,7 +6,7 @@ import { KitFileV1 } from "../types/kit";
  * Lazy-loaded to avoid loading all samples upfront
  */
 export const getAllKits = (): KitFileV1[] => [
-  kits.drumhaus(),
+  kits.eightOhEight(),
   kits.organic(),
   kits.funk(),
   kits.rnb(),

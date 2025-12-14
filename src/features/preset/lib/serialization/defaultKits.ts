@@ -11,7 +11,7 @@ type DefaultKitDefinition = {
  * Array index is the compact code (0-9), keeping encoding/decoding in sync.
  */
 const DEFAULT_KITS: DefaultKitDefinition[] = [
-  { id: "kit-drumhaus", loader: kitLoaders.drumhaus },
+  { id: "kit-808", loader: kitLoaders.eightOhEight },
   { id: "kit-organic", loader: kitLoaders.organic },
   { id: "kit-funk", loader: kitLoaders.funk },
   { id: "kit-rnb", loader: kitLoaders.rnb },

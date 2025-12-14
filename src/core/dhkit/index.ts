@@ -1,6 +1,6 @@
 import { validateKitFile } from "@/features/kit/lib/helpers";
 import { KitFileV1 } from "@/features/kit/types/kit";
-import drumhausKitJson from "./defaults/drumhaus.dhkit";
+import eightOhEightKitJson from "./defaults/808.dhkit";
 import eightiesKitJson from "./defaults/eighties.dhkit";
 import funkKitJson from "./defaults/funk.dhkit";
 import indieKitJson from "./defaults/indie.dhkit";
@@ -16,7 +16,8 @@ import trapKitJson from "./defaults/trap.dhkit";
  * Each function returns a KitFileV1 object
  */
 
-export const drumhaus = (): KitFileV1 => validateKitFile(drumhausKitJson);
+export const eightOhEight = (): KitFileV1 =>
+  validateKitFile(eightOhEightKitJson);
 export const organic = (): KitFileV1 => validateKitFile(organicKitJson);
 export const funk = (): KitFileV1 => validateKitFile(funkKitJson);
 export const rnb = (): KitFileV1 => validateKitFile(rnbKitJson);
