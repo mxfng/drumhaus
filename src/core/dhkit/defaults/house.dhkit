@@ -2,30 +2,30 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-rnb",
-    "name": "R&B",
+    "id": "kit-8",
+    "name": "House",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-19T06:49:08.346Z",
     "author": "Max Fung"
   },
   "instruments": [
     {
       "meta": {
-        "id": "kit-rnb-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
-        "path": "6/superich_kick.wav"
+        "path": "2/paris_kick.wav"
       },
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 100,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -34,22 +34,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-1",
-        "name": "Kick2"
+        "id": "inst-1",
+        "name": "Bass"
       },
-      "role": "kick",
+      "role": "bass",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-1",
-          "name": "Kick2"
+          "id": "sample-1",
+          "name": "Bass"
         },
-        "path": "6/superich_kick2.wav"
+        "path": "2/paris_bass.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 63,
         "filter": 50,
-        "volume": 97,
-        "pan": 70,
+        "volume": 92,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -57,21 +57,21 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
-        "path": "6/superich_snare.wav"
+        "path": "2/paris_snare.wav"
       },
       "params": {
         "decay": 42,
-        "filter": 56,
-        "volume": 99,
+        "filter": 54,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -80,21 +80,21 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-3",
-        "name": "Snare2"
+        "id": "inst-3",
+        "name": "Clap"
       },
-      "role": "snare",
+      "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-3",
-          "name": "Snare2"
+          "id": "sample-3",
+          "name": "Clap"
         },
-        "path": "6/superich_tap.wav"
+        "path": "2/paris_clap.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 40,
         "filter": 50,
-        "volume": 100,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -103,22 +103,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
-        "path": "6/superich_hat.wav"
+        "path": "2/paris_hat.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 43,
         "filter": 50,
-        "volume": 97,
-        "pan": 36,
+        "volume": 86,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -126,21 +126,21 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
-        "path": "6/superich_ohat.wav"
+        "path": "2/paris_ohat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 97,
+        "volume": 90,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -149,22 +149,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-6",
-        "name": "Perc"
+        "id": "inst-6",
+        "name": "Piano"
       },
-      "role": "perc",
+      "role": "synth",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-6",
-          "name": "Perc"
+          "id": "sample-6",
+          "name": "Piano"
         },
-        "path": "6/superich_clav.wav"
+        "path": "2/paris_p_E.wav"
       },
       "params": {
-        "decay": 40,
-        "filter": 56,
-        "volume": 85,
-        "pan": 62,
+        "decay": 79,
+        "filter": 55,
+        "volume": 87,
+        "pan": 35,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -172,22 +172,22 @@
     },
     {
       "meta": {
-        "id": "kit-rnb-inst-7",
-        "name": "Crash"
+        "id": "inst-7",
+        "name": "Piano2"
       },
-      "role": "crash",
+      "role": "synth",
       "sample": {
         "meta": {
-          "id": "kit-rnb-sample-7",
-          "name": "Crash"
+          "id": "sample-7",
+          "name": "Piano2"
         },
-        "path": "6/superich_ride.wav"
+        "path": "2/paris_p_Abm.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 100,
-        "pan": 50,
+        "volume": 87,
+        "pan": 66,
         "tune": 50,
         "solo": false,
         "mute": false

@@ -2,30 +2,30 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-tech-house",
-    "name": "Tech House",
+    "id": "kit-5",
+    "name": "Hybrid",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-19T06:37:40.425Z",
     "author": "Max Fung"
   },
   "instruments": [
     {
       "meta": {
-        "id": "kit-tech-house-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
-        "path": "2/paris_kick.wav"
+        "path": "6/superich_kick.wav"
       },
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 83,
+        "volume": 90,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -34,22 +34,22 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-1",
-        "name": "Bass"
+        "id": "inst-1",
+        "name": "Kick2"
       },
-      "role": "bass",
+      "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-1",
-          "name": "Bass"
+          "id": "sample-1",
+          "name": "Kick2"
         },
-        "path": "2/paris_bass.wav"
+        "path": "6/superich_kick2.wav"
       },
       "params": {
-        "decay": 63,
+        "decay": 10,
         "filter": 50,
-        "volume": 83,
-        "pan": 50,
+        "volume": 94,
+        "pan": 70,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -57,21 +57,21 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
-        "path": "2/paris_snare.wav"
+        "path": "6/superich_snare.wav"
       },
       "params": {
         "decay": 42,
-        "filter": 54,
-        "volume": 85,
+        "filter": 56,
+        "volume": 94,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -80,21 +80,21 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-3",
-        "name": "Clap"
+        "id": "inst-3",
+        "name": "Snare2"
       },
-      "role": "clap",
+      "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-3",
-          "name": "Clap"
+          "id": "sample-3",
+          "name": "Snare2"
         },
-        "path": "2/paris_clap.wav"
+        "path": "6/superich_tap.wav"
       },
       "params": {
-        "decay": 40,
+        "decay": 10,
         "filter": 50,
-        "volume": 87,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -103,22 +103,22 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
-        "path": "2/paris_hat.wav"
+        "path": "6/superich_hat.wav"
       },
       "params": {
-        "decay": 43,
+        "decay": 10,
         "filter": 50,
-        "volume": 70,
-        "pan": 50,
+        "volume": 92,
+        "pan": 36,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -126,21 +126,21 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
-        "path": "2/paris_ohat.wav"
+        "path": "6/superich_ohat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 82,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -149,22 +149,22 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-6",
-        "name": "Piano"
+        "id": "inst-6",
+        "name": "Perc"
       },
-      "role": "synth",
+      "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-6",
-          "name": "Piano"
+          "id": "sample-6",
+          "name": "Perc"
         },
-        "path": "2/paris_p_E.wav"
+        "path": "6/superich_clav.wav"
       },
       "params": {
-        "decay": 79,
-        "filter": 55,
-        "volume": 80,
-        "pan": 35,
+        "decay": 40,
+        "filter": 56,
+        "volume": 92,
+        "pan": 62,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -172,22 +172,22 @@
     },
     {
       "meta": {
-        "id": "kit-tech-house-inst-7",
-        "name": "Piano2"
+        "id": "inst-7",
+        "name": "Crash"
       },
-      "role": "synth",
+      "role": "crash",
       "sample": {
         "meta": {
-          "id": "kit-tech-house-sample-7",
-          "name": "Piano2"
+          "id": "sample-7",
+          "name": "Crash"
         },
-        "path": "2/paris_p_Abm.wav"
+        "path": "6/superich_ride.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 79,
-        "pan": 66,
+        "volume": 92,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false

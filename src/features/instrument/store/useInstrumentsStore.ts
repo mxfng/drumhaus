@@ -6,7 +6,7 @@ import {
   InstrumentData,
   InstrumentParams,
 } from "@/core/audio/engine/instrument/types";
-import { drumhaus } from "@/core/dhkit";
+import { loadKit } from "@/core/dhkit";
 
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters
@@ -33,9 +33,9 @@ export const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
-        // Initial state - "drumhaus.dhkit"
-        instruments: drumhaus().instruments,
-        durations: drumhaus().instruments.map(() => 0), // update at runtime
+        // Initial state - default kit (kit-0)
+        instruments: loadKit("kit-0")!.instruments,
+        durations: loadKit("kit-0")!.instruments.map(() => 0), // update at runtime
 
         setInstrumentProperty: (index, key, value) => {
           set((state) => {
