@@ -163,7 +163,7 @@
       "params": {
         "decay": 43,
         "filter": 55,
-        "volume": 92,
+        "volume": 84,
         "pan": 62,
         "tune": 50,
         "solo": false,
