@@ -172,7 +172,7 @@
         "params": {
           "decay": 43,
           "filter": 55,
-          "volume": 92,
+          "volume": 84,
           "pan": 62,
           "tune": 50,
           "solo": false,
@@ -2754,7 +2754,7 @@
     "saturation": 0,
     "phaser": 16,
     "reverb": 56,
-    "compThreshold": 47,
+    "compThreshold": 70,
     "compRatio": 40,
     "compAttack": 50,
     "compMix": 70,
