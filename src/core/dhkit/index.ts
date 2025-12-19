@@ -1,25 +1,27 @@
 import { validateKitFile } from "@/features/kit/lib/helpers";
 import { KitFileV1 } from "@/features/kit/types/kit";
-// Import all kit files
+// Import all kit files (ordered by kit ID)
 import kit0Json from "./defaults/808.dhkit";
-import kit5Json from "./defaults/eighties.dhkit";
-import kit7Json from "./defaults/fabriken.dhkit";
-import kit2Json from "./defaults/funk.dhkit";
-import kit8Json from "./defaults/indie.dhkit";
-import kit9Json from "./defaults/jungle.dhkit";
-import kit1Json from "./defaults/organic.dhkit";
-import kit3Json from "./defaults/rnb.dhkit";
-import kit6Json from "./defaults/tech_house.dhkit";
-import kit4Json from "./defaults/trap.dhkit";
+import kit6Json from "./defaults/bounce.dhkit";
+import kit7Json from "./defaults/eighties.dhkit";
+import kit8Json from "./defaults/house.dhkit";
+import kit5Json from "./defaults/hybrid.dhkit";
+import kit11Json from "./defaults/jungle.dhkit";
+// kit-1: reserved for 909
+// kit-2: reserved for LinnDrum
+import kit3Json from "./defaults/organic.dhkit";
+import kit4Json from "./defaults/studio.dhkit";
+import kit9Json from "./defaults/techno.dhkit";
+import kit10Json from "./defaults/trap.dhkit";
 
 /**
- * Kit loaders indexed by stable ID (kit-0 through kit-9).
+ * Kit loaders indexed by stable ID (kit-0 through kit-11).
  * Display names can change freely; these indices are permanent.
  */
 const KIT_LOADERS: Record<string, () => KitFileV1> = {
   "kit-0": () => validateKitFile(kit0Json),
-  "kit-1": () => validateKitFile(kit1Json),
-  "kit-2": () => validateKitFile(kit2Json),
+  // "kit-1": reserved for 909
+  // "kit-2": reserved for LinnDrum
   "kit-3": () => validateKitFile(kit3Json),
   "kit-4": () => validateKitFile(kit4Json),
   "kit-5": () => validateKitFile(kit5Json),
@@ -27,15 +29,18 @@ const KIT_LOADERS: Record<string, () => KitFileV1> = {
   "kit-7": () => validateKitFile(kit7Json),
   "kit-8": () => validateKitFile(kit8Json),
   "kit-9": () => validateKitFile(kit9Json),
+  "kit-10": () => validateKitFile(kit10Json),
+  "kit-11": () => validateKitFile(kit11Json),
 };
 
 /**
- * Ordered list of kit IDs (determines UI order)
+ * Ordered list of kit IDs (determines UI order).
+ * Add kit-1 and kit-2 here when 909 and LinnDrum are ready.
  */
 const KIT_ORDER: string[] = [
   "kit-0",
-  "kit-1",
-  "kit-2",
+  // "kit-1", // 909
+  // "kit-2", // LinnDrum
   "kit-3",
   "kit-4",
   "kit-5",
@@ -43,6 +48,8 @@ const KIT_ORDER: string[] = [
   "kit-7",
   "kit-8",
   "kit-9",
+  "kit-10",
+  "kit-11",
 ];
 
 /**

@@ -3,9 +3,9 @@
   "version": 1,
   "meta": {
     "id": "kit-6",
-    "name": "Tech House",
+    "name": "Bounce",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-19T06:24:59.399Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -20,12 +20,12 @@
           "id": "sample-0",
           "name": "Kick"
         },
-        "path": "2/paris_kick.wav"
+        "path": "1/rw_kick.wav"
       },
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 83,
+        "volume": 95,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -35,20 +35,20 @@
     {
       "meta": {
         "id": "inst-1",
-        "name": "Bass"
+        "name": "Kick2"
       },
-      "role": "bass",
+      "role": "kick",
       "sample": {
         "meta": {
           "id": "sample-1",
-          "name": "Bass"
+          "name": "Kick2"
         },
-        "path": "2/paris_bass.wav"
+        "path": "1/rw_kick2.wav"
       },
       "params": {
-        "decay": 63,
+        "decay": 10,
         "filter": 50,
-        "volume": 83,
+        "volume": 88,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -66,12 +66,12 @@
           "id": "sample-2",
           "name": "Snare"
         },
-        "path": "2/paris_snare.wav"
+        "path": "1/rw_snare.wav"
       },
       "params": {
         "decay": 42,
-        "filter": 54,
-        "volume": 85,
+        "filter": 50,
+        "volume": 88,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -89,12 +89,12 @@
           "id": "sample-3",
           "name": "Clap"
         },
-        "path": "2/paris_clap.wav"
+        "path": "1/rw_clap.wav"
       },
       "params": {
-        "decay": 40,
+        "decay": 10,
         "filter": 50,
-        "volume": 87,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -112,12 +112,12 @@
           "id": "sample-4",
           "name": "Hat"
         },
-        "path": "2/paris_hat.wav"
+        "path": "1/rw_hat.wav"
       },
       "params": {
-        "decay": 43,
+        "decay": 10,
         "filter": 50,
-        "volume": 70,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -135,12 +135,12 @@
           "id": "sample-5",
           "name": "OHat"
         },
-        "path": "2/paris_ohat.wav"
+        "path": "1/rw_ohat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 82,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -150,21 +150,21 @@
     {
       "meta": {
         "id": "inst-6",
-        "name": "Piano"
+        "name": "Tom"
       },
-      "role": "synth",
+      "role": "tom",
       "sample": {
         "meta": {
           "id": "sample-6",
-          "name": "Piano"
+          "name": "Tom"
         },
-        "path": "2/paris_p_E.wav"
+        "path": "1/rw_perc_flam.wav"
       },
       "params": {
-        "decay": 79,
-        "filter": 55,
-        "volume": 80,
-        "pan": 35,
+        "decay": 40,
+        "filter": 56,
+        "volume": 92,
+        "pan": 62,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -173,21 +173,21 @@
     {
       "meta": {
         "id": "inst-7",
-        "name": "Piano2"
+        "name": "Crash"
       },
-      "role": "synth",
+      "role": "crash",
       "sample": {
         "meta": {
           "id": "sample-7",
-          "name": "Piano2"
+          "name": "Crash"
         },
-        "path": "2/paris_p_Abm.wav"
+        "path": "1/rw_cymbal.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 79,
-        "pan": 66,
+        "volume": 92,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false

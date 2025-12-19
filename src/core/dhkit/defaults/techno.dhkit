@@ -2,10 +2,10 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-3",
-    "name": "Songwriter",
+    "id": "kit-9",
+    "name": "Techno",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-12-19T06:37:40.425Z",
+    "updatedAt": "2025-12-18T16:00:00.000Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -20,10 +20,10 @@
           "id": "sample-0",
           "name": "Kick"
         },
-        "path": "6/superich_kick.wav"
+        "path": "7/14_SOT_kick_C.wav"
       },
       "params": {
-        "decay": 49,
+        "decay": 100,
         "filter": 50,
         "volume": 90,
         "pan": 50,
@@ -35,21 +35,21 @@
     {
       "meta": {
         "id": "inst-1",
-        "name": "Kick2"
+        "name": "Bass"
       },
-      "role": "kick",
+      "role": "bass",
       "sample": {
         "meta": {
           "id": "sample-1",
-          "name": "Kick2"
+          "name": "Bass"
         },
-        "path": "6/superich_kick2.wav"
+        "path": "7/08_SOT_kick_F.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 100,
         "filter": 50,
-        "volume": 94,
-        "pan": 70,
+        "volume": 92,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -66,14 +66,14 @@
           "id": "sample-2",
           "name": "Snare"
         },
-        "path": "6/superich_snare.wav"
+        "path": "7/09_SOT_Snare.wav"
       },
       "params": {
-        "decay": 42,
-        "filter": 56,
-        "volume": 94,
+        "decay": 11,
+        "filter": 50,
+        "volume": 86,
         "pan": 50,
-        "tune": 50,
+        "tune": 43,
         "solo": false,
         "mute": false
       }
@@ -81,20 +81,20 @@
     {
       "meta": {
         "id": "inst-3",
-        "name": "Snare2"
+        "name": "Clap"
       },
-      "role": "snare",
+      "role": "clap",
       "sample": {
         "meta": {
           "id": "sample-3",
-          "name": "Snare2"
+          "name": "Clap"
         },
-        "path": "6/superich_tap.wav"
+        "path": "7/16_SOT_Clap.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 49,
         "filter": 50,
-        "volume": 92,
+        "volume": 85,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -112,13 +112,13 @@
           "id": "sample-4",
           "name": "Hat"
         },
-        "path": "6/superich_hat.wav"
+        "path": "7/02_SOT_Hat.wav"
       },
       "params": {
-        "decay": 10,
+        "decay": 51,
         "filter": 50,
-        "volume": 92,
-        "pan": 36,
+        "volume": 82,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -135,12 +135,12 @@
           "id": "sample-5",
           "name": "OHat"
         },
-        "path": "6/superich_ohat.wav"
+        "path": "7/20_SOT_Hat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
+        "volume": 87,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -158,14 +158,14 @@
           "id": "sample-6",
           "name": "Perc"
         },
-        "path": "6/superich_clav.wav"
+        "path": "7/13_SOT_Perc.wav"
       },
       "params": {
-        "decay": 40,
-        "filter": 56,
-        "volume": 92,
-        "pan": 62,
-        "tune": 50,
+        "decay": 79,
+        "filter": 55,
+        "volume": 70,
+        "pan": 35,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -173,21 +173,21 @@
     {
       "meta": {
         "id": "inst-7",
-        "name": "Crash"
+        "name": "Perc2"
       },
-      "role": "crash",
+      "role": "perc",
       "sample": {
         "meta": {
           "id": "sample-7",
-          "name": "Crash"
+          "name": "Perc2"
         },
-        "path": "6/superich_ride.wav"
+        "path": "7/09_SOT_Perc.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
         "volume": 92,
-        "pan": 50,
+        "pan": 54,
         "tune": 50,
         "solo": false,
         "mute": false

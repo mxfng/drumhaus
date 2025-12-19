@@ -2,10 +2,10 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-2",
-    "name": "Bounce",
+    "id": "kit-5",
+    "name": "Hybrid",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-12-19T06:24:59.399Z",
+    "updatedAt": "2025-12-19T06:37:40.425Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -20,12 +20,12 @@
           "id": "sample-0",
           "name": "Kick"
         },
-        "path": "1/rw_kick.wav"
+        "path": "6/superich_kick.wav"
       },
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 95,
+        "volume": 90,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -43,13 +43,13 @@
           "id": "sample-1",
           "name": "Kick2"
         },
-        "path": "1/rw_kick2.wav"
+        "path": "6/superich_kick2.wav"
       },
       "params": {
         "decay": 10,
         "filter": 50,
-        "volume": 88,
-        "pan": 50,
+        "volume": 94,
+        "pan": 70,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -66,12 +66,12 @@
           "id": "sample-2",
           "name": "Snare"
         },
-        "path": "1/rw_snare.wav"
+        "path": "6/superich_snare.wav"
       },
       "params": {
         "decay": 42,
-        "filter": 50,
-        "volume": 88,
+        "filter": 56,
+        "volume": 94,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -81,15 +81,15 @@
     {
       "meta": {
         "id": "inst-3",
-        "name": "Clap"
+        "name": "Snare2"
       },
-      "role": "clap",
+      "role": "snare",
       "sample": {
         "meta": {
           "id": "sample-3",
-          "name": "Clap"
+          "name": "Snare2"
         },
-        "path": "1/rw_clap.wav"
+        "path": "6/superich_tap.wav"
       },
       "params": {
         "decay": 10,
@@ -112,13 +112,13 @@
           "id": "sample-4",
           "name": "Hat"
         },
-        "path": "1/rw_hat.wav"
+        "path": "6/superich_hat.wav"
       },
       "params": {
         "decay": 10,
         "filter": 50,
         "volume": 92,
-        "pan": 50,
+        "pan": 36,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -135,7 +135,7 @@
           "id": "sample-5",
           "name": "OHat"
         },
-        "path": "1/rw_ohat.wav"
+        "path": "6/superich_ohat.wav"
       },
       "params": {
         "decay": 100,
@@ -150,15 +150,15 @@
     {
       "meta": {
         "id": "inst-6",
-        "name": "Tom"
+        "name": "Perc"
       },
-      "role": "tom",
+      "role": "perc",
       "sample": {
         "meta": {
           "id": "sample-6",
-          "name": "Tom"
+          "name": "Perc"
         },
-        "path": "1/rw_perc_flam.wav"
+        "path": "6/superich_clav.wav"
       },
       "params": {
         "decay": 40,
@@ -181,7 +181,7 @@
           "id": "sample-7",
           "name": "Crash"
         },
-        "path": "1/rw_cymbal.wav"
+        "path": "6/superich_ride.wav"
       },
       "params": {
         "decay": 100,

@@ -2,10 +2,10 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-7",
-    "name": "Tech",
+    "id": "kit-8",
+    "name": "House",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-12-18T16:00:00.000Z",
+    "updatedAt": "2025-12-19T06:49:08.346Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -20,12 +20,12 @@
           "id": "sample-0",
           "name": "Kick"
         },
-        "path": "7/14_SOT_kick_C.wav"
+        "path": "2/paris_kick.wav"
       },
       "params": {
-        "decay": 100,
+        "decay": 49,
         "filter": 50,
-        "volume": 90,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -43,10 +43,10 @@
           "id": "sample-1",
           "name": "Bass"
         },
-        "path": "7/08_SOT_kick_F.wav"
+        "path": "2/paris_bass.wav"
       },
       "params": {
-        "decay": 100,
+        "decay": 63,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -66,14 +66,14 @@
           "id": "sample-2",
           "name": "Snare"
         },
-        "path": "7/09_SOT_Snare.wav"
+        "path": "2/paris_snare.wav"
       },
       "params": {
-        "decay": 11,
-        "filter": 50,
-        "volume": 86,
+        "decay": 42,
+        "filter": 54,
+        "volume": 92,
         "pan": 50,
-        "tune": 43,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -89,12 +89,12 @@
           "id": "sample-3",
           "name": "Clap"
         },
-        "path": "7/16_SOT_Clap.wav"
+        "path": "2/paris_clap.wav"
       },
       "params": {
-        "decay": 49,
+        "decay": 40,
         "filter": 50,
-        "volume": 85,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -112,12 +112,12 @@
           "id": "sample-4",
           "name": "Hat"
         },
-        "path": "7/02_SOT_Hat.wav"
+        "path": "2/paris_hat.wav"
       },
       "params": {
-        "decay": 51,
+        "decay": 43,
         "filter": 50,
-        "volume": 82,
+        "volume": 86,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -135,12 +135,12 @@
           "id": "sample-5",
           "name": "OHat"
         },
-        "path": "7/20_SOT_Hat.wav"
+        "path": "2/paris_ohat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 87,
+        "volume": 90,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -150,22 +150,22 @@
     {
       "meta": {
         "id": "inst-6",
-        "name": "Perc"
+        "name": "Piano"
       },
-      "role": "perc",
+      "role": "synth",
       "sample": {
         "meta": {
           "id": "sample-6",
-          "name": "Perc"
+          "name": "Piano"
         },
-        "path": "7/13_SOT_Perc.wav"
+        "path": "2/paris_p_E.wav"
       },
       "params": {
         "decay": 79,
         "filter": 55,
-        "volume": 70,
+        "volume": 87,
         "pan": 35,
-        "tune": 0,
+        "tune": 50,
         "solo": false,
         "mute": false
       }
@@ -173,21 +173,21 @@
     {
       "meta": {
         "id": "inst-7",
-        "name": "Perc2"
+        "name": "Piano2"
       },
-      "role": "perc",
+      "role": "synth",
       "sample": {
         "meta": {
           "id": "sample-7",
-          "name": "Perc2"
+          "name": "Piano2"
         },
-        "path": "7/09_SOT_Perc.wav"
+        "path": "2/paris_p_Abm.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 92,
-        "pan": 54,
+        "volume": 87,
+        "pan": 66,
         "tune": 50,
         "solo": false,
         "mute": false
