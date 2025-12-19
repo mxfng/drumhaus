@@ -18,7 +18,7 @@ const DEFAULT_KITS: DefaultKitDefinition[] = [
   { id: "kit-trap", loader: kitLoaders.trap },
   { id: "kit-eighties", loader: kitLoaders.eighties },
   { id: "kit-tech-house", loader: kitLoaders.tech_house },
-  { id: "kit-techno", loader: kitLoaders.techno },
+  { id: "kit-fabriken", loader: kitLoaders.fabriken },
   { id: "kit-indie", loader: kitLoaders.indie },
   { id: "kit-jungle", loader: kitLoaders.jungle },
 ];

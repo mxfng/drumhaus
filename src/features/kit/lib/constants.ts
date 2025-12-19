@@ -13,7 +13,7 @@ export const getAllKits = (): KitFileV1[] => [
   kits.trap(),
   kits.eighties(),
   kits.tech_house(),
-  kits.techno(),
+  kits.fabriken(),
   kits.indie(),
   kits.jungle(),
 ];
