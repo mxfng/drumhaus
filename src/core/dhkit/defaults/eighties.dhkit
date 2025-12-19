@@ -2,22 +2,22 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-eighties",
+    "id": "kit-7",
     "name": "Eighties",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2023-11-20T16:00:00.000Z",
+    "updatedAt": "2025-12-19T06:30:44.913Z",
     "author": "Max Fung"
   },
   "instruments": [
     {
       "meta": {
-        "id": "kit-eighties-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
         "path": "5/hs_kick.wav"
@@ -25,7 +25,7 @@
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 91,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -34,13 +34,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-1",
+        "id": "inst-1",
         "name": "Kick2"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-1",
+          "id": "sample-1",
           "name": "Kick2"
         },
         "path": "5/hs_kick2.wav"
@@ -48,7 +48,7 @@
       "params": {
         "decay": 63,
         "filter": 50,
-        "volume": 77,
+        "volume": 92,
         "pan": 70,
         "tune": 50,
         "solo": false,
@@ -57,13 +57,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
         "path": "5/hs_snare.wav"
@@ -71,7 +71,7 @@
       "params": {
         "decay": 42,
         "filter": 54,
-        "volume": 85,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -80,13 +80,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
         "path": "5/hs_clap.wav"
@@ -94,7 +94,7 @@
       "params": {
         "decay": 36,
         "filter": 50,
-        "volume": 79,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -103,13 +103,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
         "path": "5/hs_hat.wav"
@@ -117,7 +117,7 @@
       "params": {
         "decay": 26,
         "filter": 50,
-        "volume": 86,
+        "volume": 92,
         "pan": 36,
         "tune": 50,
         "solo": false,
@@ -126,13 +126,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
         "path": "5/hs_ohat.wav"
@@ -140,7 +140,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 90,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -149,13 +149,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-6",
+        "id": "inst-6",
         "name": "Perc"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-6",
+          "id": "sample-6",
           "name": "Perc"
         },
         "path": "5/hs_perc.wav"
@@ -163,7 +163,7 @@
       "params": {
         "decay": 43,
         "filter": 55,
-        "volume": 74,
+        "volume": 92,
         "pan": 62,
         "tune": 50,
         "solo": false,
@@ -172,13 +172,13 @@
     },
     {
       "meta": {
-        "id": "kit-eighties-inst-7",
+        "id": "inst-7",
         "name": "Crash"
       },
       "role": "crash",
       "sample": {
         "meta": {
-          "id": "kit-eighties-sample-7",
+          "id": "sample-7",
           "name": "Crash"
         },
         "path": "5/hs_crash.wav"
@@ -186,7 +186,7 @@
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 88,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,

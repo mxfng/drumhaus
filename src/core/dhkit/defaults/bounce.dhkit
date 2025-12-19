@@ -2,30 +2,30 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-indie",
-    "name": "Indie",
+    "id": "kit-6",
+    "name": "Bounce",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-12-12T05:59:34.922Z",
+    "updatedAt": "2025-12-19T06:24:59.399Z",
     "author": "Max Fung"
   },
   "instruments": [
     {
       "meta": {
-        "id": "kit-indie-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-indie-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
-        "path": "9/kick_puffy.wav"
+        "path": "1/rw_kick.wav"
       },
       "params": {
-        "decay": 100,
+        "decay": 49,
         "filter": 50,
-        "volume": 96,
+        "volume": 95,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -34,19 +34,19 @@
     },
     {
       "meta": {
-        "id": "kit-indie-inst-1",
-        "name": "Tom"
+        "id": "inst-1",
+        "name": "Kick2"
       },
-      "role": "tom",
+      "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-indie-sample-1",
-          "name": "Tom"
+          "id": "sample-1",
+          "name": "Kick2"
         },
-        "path": "9/tom_clonk.wav"
+        "path": "1/rw_kick2.wav"
       },
       "params": {
-        "decay": 100,
+        "decay": 10,
         "filter": 50,
         "volume": 88,
         "pan": 50,
@@ -57,21 +57,21 @@
     },
     {
       "meta": {
-        "id": "kit-indie-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-indie-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
-        "path": "9/snare_together.wav"
+        "path": "1/rw_snare.wav"
       },
       "params": {
-        "decay": 100,
+        "decay": 42,
         "filter": 50,
-        "volume": 98,
+        "volume": 88,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -80,88 +80,19 @@
     },
     {
       "meta": {
-        "id": "kit-indie-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-indie-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
-        "path": "9/clap_hectic.wav"
+        "path": "1/rw_clap.wav"
       },
       "params": {
-        "decay": 43,
-        "filter": 50,
-        "volume": 76,
-        "pan": 37,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-indie-inst-4",
-        "name": "Hat"
-      },
-      "role": "hat",
-      "sample": {
-        "meta": {
-          "id": "kit-indie-sample-4",
-          "name": "Hat"
-        },
-        "path": "9/hat_crisp.wav"
-      },
-      "params": {
-        "decay": 29,
-        "filter": 50,
-        "volume": 84,
-        "pan": 50,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-indie-inst-5",
-        "name": "OHat"
-      },
-      "role": "ohat",
-      "sample": {
-        "meta": {
-          "id": "kit-indie-sample-5",
-          "name": "OHat"
-        },
-        "path": "9/ohat_thick.wav"
-      },
-      "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 80,
-        "pan": 50,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-indie-inst-6",
-        "name": "Perc"
-      },
-      "role": "perc",
-      "sample": {
-        "meta": {
-          "id": "kit-indie-sample-6",
-          "name": "Perc"
-        },
-        "path": "9/perc_jungle.wav"
-      },
-      "params": {
-        "decay": 54,
+        "decay": 10,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -172,21 +103,90 @@
     },
     {
       "meta": {
-        "id": "kit-indie-inst-7",
+        "id": "inst-4",
+        "name": "Hat"
+      },
+      "role": "hat",
+      "sample": {
+        "meta": {
+          "id": "sample-4",
+          "name": "Hat"
+        },
+        "path": "1/rw_hat.wav"
+      },
+      "params": {
+        "decay": 10,
+        "filter": 50,
+        "volume": 92,
+        "pan": 50,
+        "tune": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-5",
+        "name": "OHat"
+      },
+      "role": "ohat",
+      "sample": {
+        "meta": {
+          "id": "sample-5",
+          "name": "OHat"
+        },
+        "path": "1/rw_ohat.wav"
+      },
+      "params": {
+        "decay": 100,
+        "filter": 50,
+        "volume": 92,
+        "pan": 50,
+        "tune": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-6",
+        "name": "Tom"
+      },
+      "role": "tom",
+      "sample": {
+        "meta": {
+          "id": "sample-6",
+          "name": "Tom"
+        },
+        "path": "1/rw_perc_flam.wav"
+      },
+      "params": {
+        "decay": 40,
+        "filter": 56,
+        "volume": 92,
+        "pan": 62,
+        "tune": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-7",
         "name": "Crash"
       },
       "role": "crash",
       "sample": {
         "meta": {
-          "id": "kit-indie-sample-7",
+          "id": "sample-7",
           "name": "Crash"
         },
-        "path": "9/crash_legend.wav"
+        "path": "1/rw_cymbal.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 78,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,

@@ -193,8 +193,18 @@ async function writeWaveform(
   await fsp.writeFile(targetPath, payload, "utf8");
 }
 
+async function cleanDir(dir: string) {
+  try {
+    await fsp.rm(dir, { recursive: true, force: true });
+  } catch {
+    // Directory may not exist, that's fine
+  }
+}
+
 async function main() {
   console.log("Generating transient waveforms (TypeScript)...");
+  console.log("Cleaning existing waveforms...");
+  await cleanDir(waveformsDir);
   await ensureDir(waveformsDir);
 
   const wavFiles = await findWavFiles(samplesDir);

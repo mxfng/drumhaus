@@ -2,28 +2,51 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-techno",
+    "id": "kit-9",
     "name": "Techno",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-11-21T02:20:58.962Z",
+    "updatedAt": "2025-12-18T16:00:00.000Z",
     "author": "Max Fung"
   },
   "instruments": [
     {
       "meta": {
-        "id": "kit-techno-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-techno-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
-        "path": "7/berlin_kick.wav"
+        "path": "7/14_SOT_kick_C.wav"
       },
       "params": {
-        "decay": 60,
+        "decay": 100,
+        "filter": 50,
+        "volume": 90,
+        "pan": 50,
+        "tune": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-1",
+        "name": "Bass"
+      },
+      "role": "bass",
+      "sample": {
+        "meta": {
+          "id": "sample-1",
+          "name": "Bass"
+        },
+        "path": "7/08_SOT_kick_F.wav"
+      },
+      "params": {
+        "decay": 100,
         "filter": 50,
         "volume": 92,
         "pan": 50,
@@ -34,67 +57,44 @@
     },
     {
       "meta": {
-        "id": "kit-techno-inst-1",
-        "name": "Bass"
-      },
-      "role": "bass",
-      "sample": {
-        "meta": {
-          "id": "kit-techno-sample-1",
-          "name": "Bass"
-        },
-        "path": "7/berlin_bass.wav"
-      },
-      "params": {
-        "decay": 56,
-        "filter": 4,
-        "volume": 90,
-        "pan": 50,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-techno-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-techno-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
-        "path": "7/berlin_snare.wav"
+        "path": "7/09_SOT_Snare.wav"
       },
       "params": {
-        "decay": 65,
-        "filter": 54,
-        "volume": 85,
+        "decay": 11,
+        "filter": 50,
+        "volume": 86,
         "pan": 50,
-        "tune": 50,
+        "tune": 43,
         "solo": false,
         "mute": false
       }
     },
     {
       "meta": {
-        "id": "kit-techno-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-techno-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
-        "path": "7/berlin_clap.wav"
+        "path": "7/16_SOT_Clap.wav"
       },
       "params": {
         "decay": 49,
         "filter": 50,
-        "volume": 76,
+        "volume": 85,
         "pan": 50,
         "tune": 50,
         "solo": false,
@@ -103,22 +103,22 @@
     },
     {
       "meta": {
-        "id": "kit-techno-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-techno-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
-        "path": "7/berlin_hat.wav"
+        "path": "7/02_SOT_Hat.wav"
       },
       "params": {
         "decay": 51,
         "filter": 50,
-        "volume": 75,
-        "pan": 36,
+        "volume": 82,
+        "pan": 50,
         "tune": 50,
         "solo": false,
         "mute": false
@@ -126,67 +126,67 @@
     },
     {
       "meta": {
-        "id": "kit-techno-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-techno-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
-        "path": "7/berlin_ohat.wav"
-      },
-      "params": {
-        "decay": 83,
-        "filter": 50,
-        "volume": 69,
-        "pan": 62,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-techno-inst-6",
-        "name": "Synth"
-      },
-      "role": "synth",
-      "sample": {
-        "meta": {
-          "id": "kit-techno-sample-6",
-          "name": "Synth"
-        },
-        "path": "7/berlin_stab.wav"
-      },
-      "params": {
-        "decay": 79,
-        "filter": 55,
-        "volume": 85,
-        "pan": 35,
-        "tune": 50,
-        "solo": false,
-        "mute": false
-      }
-    },
-    {
-      "meta": {
-        "id": "kit-techno-inst-7",
-        "name": "Synth2"
-      },
-      "role": "synth",
-      "sample": {
-        "meta": {
-          "id": "kit-techno-sample-7",
-          "name": "Synth2"
-        },
-        "path": "7/berlin_loop.wav"
+        "path": "7/20_SOT_Hat.wav"
       },
       "params": {
         "decay": 100,
         "filter": 50,
-        "volume": 88,
+        "volume": 87,
+        "pan": 50,
+        "tune": 50,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-6",
+        "name": "Perc"
+      },
+      "role": "perc",
+      "sample": {
+        "meta": {
+          "id": "sample-6",
+          "name": "Perc"
+        },
+        "path": "7/13_SOT_Perc.wav"
+      },
+      "params": {
+        "decay": 79,
+        "filter": 55,
+        "volume": 70,
+        "pan": 35,
+        "tune": 0,
+        "solo": false,
+        "mute": false
+      }
+    },
+    {
+      "meta": {
+        "id": "inst-7",
+        "name": "Perc2"
+      },
+      "role": "perc",
+      "sample": {
+        "meta": {
+          "id": "sample-7",
+          "name": "Perc2"
+        },
+        "path": "7/09_SOT_Perc.wav"
+      },
+      "params": {
+        "decay": 100,
+        "filter": 50,
+        "volume": 92,
         "pan": 54,
         "tune": 50,
         "solo": false,

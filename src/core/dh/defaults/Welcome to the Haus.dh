@@ -11,8 +11,8 @@
     "kind": "drumhaus.kit",
     "version": 1,
     "meta": {
-      "id": "kit-drumhaus",
-      "name": "Drumhaus",
+      "id": "kit-0",
+      "name": "808",
       "createdAt": "2023-11-20T16:00:00.000Z",
       "updatedAt": "2025-12-12T05:59:26.188Z",
       "author": "Max Fung"
@@ -20,13 +20,13 @@
     "instruments": [
       {
         "meta": {
-          "id": "kit-drumhaus-inst-0",
+          "id": "inst-0",
           "name": "Kick"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-0",
+            "id": "sample-0",
             "name": "Kick"
           },
           "path": "0/kick.wav",
@@ -48,13 +48,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-1",
+          "id": "inst-1",
           "name": "Kick2"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-1",
+            "id": "sample-1",
             "name": "Kick2"
           },
           "path": "0/kick2.wav",
@@ -76,13 +76,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-2",
+          "id": "inst-2",
           "name": "Snare"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-2",
+            "id": "sample-2",
             "name": "Snare"
           },
           "path": "0/snare.wav",
@@ -104,13 +104,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-3",
+          "id": "inst-3",
           "name": "Clap"
         },
         "role": "clap",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-3",
+            "id": "sample-3",
             "name": "Clap"
           },
           "path": "0/clap.wav",
@@ -132,13 +132,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-4",
+          "id": "inst-4",
           "name": "Hat"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-4",
+            "id": "sample-4",
             "name": "Hat"
           },
           "path": "0/hat.wav",
@@ -160,13 +160,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-5",
+          "id": "inst-5",
           "name": "OHat"
         },
         "role": "ohat",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-5",
+            "id": "sample-5",
             "name": "OHat"
           },
           "path": "0/ohat.wav",
@@ -188,13 +188,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-6",
+          "id": "inst-6",
           "name": "Tom"
         },
         "role": "tom",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-6",
+            "id": "sample-6",
             "name": "Tom"
           },
           "path": "0/tom.wav",
@@ -216,13 +216,13 @@
       },
       {
         "meta": {
-          "id": "kit-drumhaus-inst-7",
+          "id": "inst-7",
           "name": "Tom2"
         },
         "role": "tom",
         "sample": {
           "meta": {
-            "id": "kit-drumhaus-sample-7",
+            "id": "sample-7",
             "name": "Tom2"
           },
           "path": "0/tom2.wav",

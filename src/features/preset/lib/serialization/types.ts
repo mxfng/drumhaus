@@ -42,7 +42,7 @@ export interface ShareablePreset {
  */
 export interface ShareableKit {
   meta: Meta; // Kit metadata (lossless)
-  defaultKitId: string; // "kit-drumhaus", "kit-techno", etc.
+  defaultKitId: string; // "kit-drumhaus", "kit-fabriken", etc.
   instrumentParams: InstrumentParams[]; // 8 params objects (only mutable data)
 }
 
