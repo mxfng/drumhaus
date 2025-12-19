@@ -5,7 +5,7 @@
     "id": "kit-9",
     "name": "Jungle",
     "createdAt": "2023-11-20T16:00:00.000Z",
-    "updatedAt": "2025-11-21T00:46:59.612Z",
+    "updatedAt": "2025-12-19T06:47:07.979Z",
     "author": "Max Fung"
   },
   "instruments": [
@@ -48,7 +48,7 @@
       "params": {
         "decay": 100,
         "filter": 54,
-        "volume": 85,
+        "volume": 92,
         "pan": 50,
         "tune": 45.833333333333336,
         "solo": false,
@@ -71,7 +71,7 @@
       "params": {
         "decay": 100,
         "filter": 53,
-        "volume": 89,
+        "volume": 92,
         "pan": 50,
         "tune": 52.083333333333336,
         "solo": false,
@@ -186,7 +186,7 @@
       "params": {
         "decay": 100,
         "filter": 26,
-        "volume": 80,
+        "volume": 92,
         "pan": 50,
         "tune": 50,
         "solo": false,
