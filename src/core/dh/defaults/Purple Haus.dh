@@ -217,7 +217,7 @@
             {
               "triggers": [
                 true,
-                false,
+                true,
                 false,
                 false,
                 false,
@@ -229,7 +229,7 @@
                 true,
                 false,
                 false,
-                false,
+                true,
                 false,
                 false
               ],
@@ -292,7 +292,6 @@
             {
               "triggers": [
                 true,
-                true,
                 false,
                 false,
                 false,
@@ -300,11 +299,12 @@
                 false,
                 false,
                 false,
-                false,
-                true,
                 false,
                 false,
                 true,
+                false,
+                false,
+                false,
                 false,
                 false
               ],
@@ -521,7 +521,7 @@
           "variations": [
             {
               "triggers": [
-                true,
+                false,
                 false,
                 false,
                 false,
@@ -596,7 +596,7 @@
             },
             {
               "triggers": [
-                false,
+                true,
                 false,
                 false,
                 false,
@@ -2058,10 +2058,10 @@
                 false,
                 false,
                 false,
-                false,
-                false,
                 true,
-                false
+                false,
+                false,
+                true
               ],
               "velocities": [
                 1,
@@ -2076,10 +2076,10 @@
                 1,
                 1,
                 1,
+                0.6367851622874807,
                 1,
                 1,
-                0.5162287480680062,
-                1
+                0.5054095826893354
               ],
               "timingNudge": 0,
               "ratchets": [
@@ -2133,10 +2133,10 @@
                 false,
                 false,
                 false,
+                false,
+                false,
                 true,
-                false,
-                false,
-                true
+                false
               ],
               "velocities": [
                 1,
@@ -2151,10 +2151,10 @@
                 1,
                 1,
                 1,
-                0.6367851622874807,
                 1,
                 1,
-                0.5054095826893354
+                0.5162287480680062,
+                1
               ],
               "timingNudge": 0,
               "ratchets": [
@@ -2351,7 +2351,7 @@
           "variations": [
             {
               "triggers": [
-                false,
+                true,
                 false,
                 false,
                 false,
@@ -2369,7 +2369,7 @@
                 false
               ],
               "velocities": [
-                1,
+                0.38330757341576505,
                 1,
                 1,
                 1,
@@ -2426,7 +2426,7 @@
             },
             {
               "triggers": [
-                true,
+                false,
                 false,
                 false,
                 false,
@@ -2444,7 +2444,7 @@
                 false
               ],
               "velocities": [
-                0.38330757341576505,
+                1,
                 1,
                 1,
                 1,
