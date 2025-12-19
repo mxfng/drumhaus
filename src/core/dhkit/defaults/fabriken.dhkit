@@ -2,7 +2,7 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-fabriken",
+    "id": "kit-7",
     "name": "Fabriken",
     "createdAt": "2023-11-20T16:00:00.000Z",
     "updatedAt": "2025-12-18T16:00:00.000Z",
@@ -11,13 +11,13 @@
   "instruments": [
     {
       "meta": {
-        "id": "kit-fabriken-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
         "path": "7/14_SOT_kick_C.wav"
@@ -34,13 +34,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-1",
+        "id": "inst-1",
         "name": "Bass"
       },
       "role": "bass",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-1",
+          "id": "sample-1",
           "name": "Bass"
         },
         "path": "7/08_SOT_kick_F.wav"
@@ -57,13 +57,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
         "path": "7/09_SOT_Snare.wav"
@@ -80,13 +80,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
         "path": "7/16_SOT_Clap.wav"
@@ -103,13 +103,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
         "path": "7/02_SOT_Hat.wav"
@@ -126,13 +126,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
         "path": "7/20_SOT_Hat.wav"
@@ -149,13 +149,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-6",
+        "id": "inst-6",
         "name": "Perc"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-6",
+          "id": "sample-6",
           "name": "Perc"
         },
         "path": "7/13_SOT_Perc.wav"
@@ -172,13 +172,13 @@
     },
     {
       "meta": {
-        "id": "kit-fabriken-inst-7",
+        "id": "inst-7",
         "name": "Perc2"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-fabriken-sample-7",
+          "id": "sample-7",
           "name": "Perc2"
         },
         "path": "7/09_SOT_Perc.wav"

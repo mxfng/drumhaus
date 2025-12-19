@@ -11,7 +11,7 @@
     "kind": "drumhaus.kit",
     "version": 1,
     "meta": {
-      "id": "kit-trap",
+      "id": "kit-4",
       "name": "Trap",
       "createdAt": "2023-11-20T16:00:00.000Z",
       "updatedAt": "2023-11-20T16:00:00.000Z",
@@ -20,13 +20,13 @@
     "instruments": [
       {
         "meta": {
-          "id": "kit-trap-inst-0",
+          "id": "inst-0",
           "name": "Kick"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-0",
+            "id": "sample-0",
             "name": "Kick"
           },
           "path": "4/ts_kick.wav"
@@ -43,13 +43,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-1",
+          "id": "inst-1",
           "name": "Kick2"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-1",
+            "id": "sample-1",
             "name": "Kick2"
           },
           "path": "4/ts_kick2.wav"
@@ -66,13 +66,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-2",
+          "id": "inst-2",
           "name": "Snare"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-2",
+            "id": "sample-2",
             "name": "Snare"
           },
           "path": "4/ts_snare.wav"
@@ -89,13 +89,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-3",
+          "id": "inst-3",
           "name": "Clap"
         },
         "role": "clap",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-3",
+            "id": "sample-3",
             "name": "Clap"
           },
           "path": "4/ts_clap.wav"
@@ -112,13 +112,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-4",
+          "id": "inst-4",
           "name": "Hat"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-4",
+            "id": "sample-4",
             "name": "Hat"
           },
           "path": "4/ts_hat.wav"
@@ -135,13 +135,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-5",
+          "id": "inst-5",
           "name": "OHat"
         },
         "role": "ohat",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-5",
+            "id": "sample-5",
             "name": "OHat"
           },
           "path": "4/ts_ohat.wav"
@@ -158,13 +158,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-6",
+          "id": "inst-6",
           "name": "Hat2"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-6",
+            "id": "sample-6",
             "name": "Hat2"
           },
           "path": "4/ts_hat2.wav"
@@ -181,13 +181,13 @@
       },
       {
         "meta": {
-          "id": "kit-trap-inst-7",
+          "id": "inst-7",
           "name": "Hat3"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-trap-sample-7",
+            "id": "sample-7",
             "name": "Hat3"
           },
           "path": "4/ts_hat3.wav"

@@ -2,7 +2,7 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-organic",
+    "id": "kit-1",
     "name": "Organic",
     "createdAt": "2023-11-20T16:00:00.000Z",
     "updatedAt": "2025-12-12T05:59:30.655Z",
@@ -11,13 +11,13 @@
   "instruments": [
     {
       "meta": {
-        "id": "kit-organic-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
         "path": "3/dk_kick.wav",
@@ -39,13 +39,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-1",
+        "id": "inst-1",
         "name": "Kick2"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-1",
+          "id": "sample-1",
           "name": "Kick2"
         },
         "path": "3/dk_kick2.wav",
@@ -67,13 +67,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
         "path": "3/dk_snare.wav",
@@ -95,13 +95,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
         "path": "3/dk_clap.wav",
@@ -123,13 +123,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
         "path": "3/dk_shaker.wav",
@@ -151,13 +151,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-5",
+        "id": "inst-5",
         "name": "Stick"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-5",
+          "id": "sample-5",
           "name": "Stick"
         },
         "path": "3/dk_stick_click.wav",
@@ -179,13 +179,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-6",
+        "id": "inst-6",
         "name": "Perc"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-6",
+          "id": "sample-6",
           "name": "Perc"
         },
         "path": "3/dk_sidestick.wav",
@@ -207,13 +207,13 @@
     },
     {
       "meta": {
-        "id": "kit-organic-inst-7",
+        "id": "inst-7",
         "name": "Chime"
       },
       "role": "perc",
       "sample": {
         "meta": {
-          "id": "kit-organic-sample-7",
+          "id": "sample-7",
           "name": "Chime"
         },
         "path": "3/dk_chime.wav",

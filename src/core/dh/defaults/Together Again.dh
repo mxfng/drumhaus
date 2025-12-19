@@ -11,7 +11,7 @@
     "kind": "drumhaus.kit",
     "version": 1,
     "meta": {
-      "id": "kit-tech-house",
+      "id": "kit-6",
       "name": "Tech House",
       "createdAt": "2023-11-20T16:00:00.000Z",
       "updatedAt": "2023-11-20T16:00:00.000Z",
@@ -20,13 +20,13 @@
     "instruments": [
       {
         "meta": {
-          "id": "kit-tech-house-inst-0",
+          "id": "inst-0",
           "name": "Kick"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-0",
+            "id": "sample-0",
             "name": "Kick"
           },
           "path": "2/paris_kick.wav"
@@ -43,13 +43,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-1",
+          "id": "inst-1",
           "name": "Bass"
         },
         "role": "bass",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-1",
+            "id": "sample-1",
             "name": "Bass"
           },
           "path": "2/paris_bass.wav"
@@ -66,13 +66,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-2",
+          "id": "inst-2",
           "name": "Snare"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-2",
+            "id": "sample-2",
             "name": "Snare"
           },
           "path": "2/paris_snare.wav"
@@ -89,13 +89,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-3",
+          "id": "inst-3",
           "name": "Clap"
         },
         "role": "clap",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-3",
+            "id": "sample-3",
             "name": "Clap"
           },
           "path": "2/paris_clap.wav"
@@ -112,13 +112,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-4",
+          "id": "inst-4",
           "name": "Hat"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-4",
+            "id": "sample-4",
             "name": "Hat"
           },
           "path": "2/paris_hat.wav"
@@ -135,13 +135,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-5",
+          "id": "inst-5",
           "name": "OHat"
         },
         "role": "ohat",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-5",
+            "id": "sample-5",
             "name": "OHat"
           },
           "path": "2/paris_ohat.wav"
@@ -158,13 +158,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-6",
+          "id": "inst-6",
           "name": "Piano"
         },
         "role": "synth",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-6",
+            "id": "sample-6",
             "name": "Piano"
           },
           "path": "2/paris_p_E.wav"
@@ -181,13 +181,13 @@
       },
       {
         "meta": {
-          "id": "kit-tech-house-inst-7",
+          "id": "inst-7",
           "name": "Piano2"
         },
         "role": "synth",
         "sample": {
           "meta": {
-            "id": "kit-tech-house-sample-7",
+            "id": "sample-7",
             "name": "Piano2"
           },
           "path": "2/paris_p_Abm.wav"

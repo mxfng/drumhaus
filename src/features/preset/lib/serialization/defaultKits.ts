@@ -11,16 +11,16 @@ type DefaultKitDefinition = {
  * Array index is the compact code (0-9), keeping encoding/decoding in sync.
  */
 const DEFAULT_KITS: DefaultKitDefinition[] = [
-  { id: "kit-808", loader: kitLoaders.eightOhEight },
-  { id: "kit-organic", loader: kitLoaders.organic },
-  { id: "kit-funk", loader: kitLoaders.funk },
-  { id: "kit-rnb", loader: kitLoaders.rnb },
-  { id: "kit-trap", loader: kitLoaders.trap },
-  { id: "kit-eighties", loader: kitLoaders.eighties },
-  { id: "kit-tech-house", loader: kitLoaders.tech_house },
-  { id: "kit-fabriken", loader: kitLoaders.fabriken },
-  { id: "kit-indie", loader: kitLoaders.indie },
-  { id: "kit-jungle", loader: kitLoaders.jungle },
+  { id: "kit-0", loader: kitLoaders.eightOhEight },
+  { id: "kit-1", loader: kitLoaders.organic },
+  { id: "kit-2", loader: kitLoaders.funk },
+  { id: "kit-3", loader: kitLoaders.rnb },
+  { id: "kit-4", loader: kitLoaders.trap },
+  { id: "kit-5", loader: kitLoaders.eighties },
+  { id: "kit-6", loader: kitLoaders.tech_house },
+  { id: "kit-7", loader: kitLoaders.fabriken },
+  { id: "kit-8", loader: kitLoaders.indie },
+  { id: "kit-9", loader: kitLoaders.jungle },
 ];
 
 const KIT_ID_TO_DEF = new Map<string, DefaultKitDefinition>();

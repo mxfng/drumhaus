@@ -2,7 +2,7 @@
   "kind": "drumhaus.kit",
   "version": 1,
   "meta": {
-    "id": "kit-funk",
+    "id": "kit-2",
     "name": "Funk",
     "createdAt": "2023-11-20T16:00:00.000Z",
     "updatedAt": "2023-11-20T16:00:00.000Z",
@@ -11,13 +11,13 @@
   "instruments": [
     {
       "meta": {
-        "id": "kit-funk-inst-0",
+        "id": "inst-0",
         "name": "Kick"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-0",
+          "id": "sample-0",
           "name": "Kick"
         },
         "path": "1/rw_kick.wav"
@@ -34,13 +34,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-1",
+        "id": "inst-1",
         "name": "Kick2"
       },
       "role": "kick",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-1",
+          "id": "sample-1",
           "name": "Kick2"
         },
         "path": "1/rw_kick2.wav"
@@ -57,13 +57,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-2",
+        "id": "inst-2",
         "name": "Snare"
       },
       "role": "snare",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-2",
+          "id": "sample-2",
           "name": "Snare"
         },
         "path": "1/rw_snare.wav"
@@ -80,13 +80,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-3",
+        "id": "inst-3",
         "name": "Clap"
       },
       "role": "clap",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-3",
+          "id": "sample-3",
           "name": "Clap"
         },
         "path": "1/rw_clap.wav"
@@ -103,13 +103,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-4",
+        "id": "inst-4",
         "name": "Hat"
       },
       "role": "hat",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-4",
+          "id": "sample-4",
           "name": "Hat"
         },
         "path": "1/rw_hat.wav"
@@ -126,13 +126,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-5",
+        "id": "inst-5",
         "name": "OHat"
       },
       "role": "ohat",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-5",
+          "id": "sample-5",
           "name": "OHat"
         },
         "path": "1/rw_ohat.wav"
@@ -149,13 +149,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-6",
+        "id": "inst-6",
         "name": "Tom"
       },
       "role": "tom",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-6",
+          "id": "sample-6",
           "name": "Tom"
         },
         "path": "1/rw_perc_flam.wav"
@@ -172,13 +172,13 @@
     },
     {
       "meta": {
-        "id": "kit-funk-inst-7",
+        "id": "inst-7",
         "name": "Crash"
       },
       "role": "crash",
       "sample": {
         "meta": {
-          "id": "kit-funk-sample-7",
+          "id": "sample-7",
           "name": "Crash"
         },
         "path": "1/rw_cymbal.wav"

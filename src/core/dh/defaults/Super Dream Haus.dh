@@ -11,7 +11,7 @@
     "kind": "drumhaus.kit",
     "version": 1,
     "meta": {
-      "id": "kit-jungle",
+      "id": "kit-9",
       "name": "Jungle",
       "createdAt": "2023-11-20T16:00:00.000Z",
       "updatedAt": "2025-11-21T00:46:59.612Z",
@@ -20,13 +20,13 @@
     "instruments": [
       {
         "meta": {
-          "id": "kit-jungle-inst-0",
+          "id": "inst-0",
           "name": "Kick"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-0",
+            "id": "sample-0",
             "name": "Kick"
           },
           "path": "8/indie_kick.wav"
@@ -43,13 +43,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-1",
+          "id": "inst-1",
           "name": "Kick2"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-1",
+            "id": "sample-1",
             "name": "Kick2"
           },
           "path": "8/indie_kick2.wav"
@@ -66,13 +66,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-2",
+          "id": "inst-2",
           "name": "Snare"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-2",
+            "id": "sample-2",
             "name": "Snare"
           },
           "path": "8/indie_snare.wav"
@@ -89,13 +89,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-3",
+          "id": "inst-3",
           "name": "Snare2"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-3",
+            "id": "sample-3",
             "name": "Snare2"
           },
           "path": "8/indie_snare2.wav"
@@ -112,13 +112,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-4",
+          "id": "inst-4",
           "name": "Hat"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-4",
+            "id": "sample-4",
             "name": "Hat"
           },
           "path": "8/indie_hat.wav"
@@ -135,13 +135,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-5",
+          "id": "inst-5",
           "name": "OHat"
         },
         "role": "ohat",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-5",
+            "id": "sample-5",
             "name": "OHat"
           },
           "path": "8/indie_ohat.wav"
@@ -158,13 +158,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-6",
+          "id": "inst-6",
           "name": "Cymbal"
         },
         "role": "crash",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-6",
+            "id": "sample-6",
             "name": "Cymbal"
           },
           "path": "8/indie_cymbal.wav"
@@ -181,13 +181,13 @@
       },
       {
         "meta": {
-          "id": "kit-jungle-inst-7",
+          "id": "inst-7",
           "name": "Crash"
         },
         "role": "crash",
         "sample": {
           "meta": {
-            "id": "kit-jungle-sample-7",
+            "id": "sample-7",
             "name": "Crash"
           },
           "path": "8/indie_crash.wav"

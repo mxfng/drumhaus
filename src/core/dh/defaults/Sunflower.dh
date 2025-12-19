@@ -11,7 +11,7 @@
     "kind": "drumhaus.kit",
     "version": 1,
     "meta": {
-      "id": "kit-indie",
+      "id": "kit-8",
       "name": "Indie",
       "createdAt": "2023-11-20T16:00:00.000Z",
       "updatedAt": "2025-12-12T05:59:34.922Z",
@@ -20,13 +20,13 @@
     "instruments": [
       {
         "meta": {
-          "id": "kit-indie-inst-0",
+          "id": "inst-0",
           "name": "Kick"
         },
         "role": "kick",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-0",
+            "id": "sample-0",
             "name": "Kick"
           },
           "path": "9/kick_puffy.wav"
@@ -43,13 +43,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-1",
+          "id": "inst-1",
           "name": "Tom"
         },
         "role": "tom",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-1",
+            "id": "sample-1",
             "name": "Tom"
           },
           "path": "9/tom_clonk.wav"
@@ -66,13 +66,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-2",
+          "id": "inst-2",
           "name": "Snare"
         },
         "role": "snare",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-2",
+            "id": "sample-2",
             "name": "Snare"
           },
           "path": "9/snare_together.wav"
@@ -89,13 +89,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-3",
+          "id": "inst-3",
           "name": "Clap"
         },
         "role": "clap",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-3",
+            "id": "sample-3",
             "name": "Clap"
           },
           "path": "9/clap_hectic.wav"
@@ -112,13 +112,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-4",
+          "id": "inst-4",
           "name": "Hat"
         },
         "role": "hat",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-4",
+            "id": "sample-4",
             "name": "Hat"
           },
           "path": "9/hat_crisp.wav"
@@ -135,13 +135,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-5",
+          "id": "inst-5",
           "name": "OHat"
         },
         "role": "ohat",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-5",
+            "id": "sample-5",
             "name": "OHat"
           },
           "path": "9/ohat_thick.wav"
@@ -158,13 +158,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-6",
+          "id": "inst-6",
           "name": "Perc"
         },
         "role": "perc",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-6",
+            "id": "sample-6",
             "name": "Perc"
           },
           "path": "9/perc_jungle.wav"
@@ -181,13 +181,13 @@
       },
       {
         "meta": {
-          "id": "kit-indie-inst-7",
+          "id": "inst-7",
           "name": "Crash"
         },
         "role": "crash",
         "sample": {
           "meta": {
-            "id": "kit-indie-sample-7",
+            "id": "sample-7",
             "name": "Crash"
           },
           "path": "9/crash_legend.wav"
