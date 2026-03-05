@@ -57,6 +57,6 @@ See the [LICENSE](./LICENSE.md) file for details.
 
 ## Author
 
-Designed with love by [Max Fung](https://fung.studio)
+Designed with love by [Max Fung](https://maxfu.ng)
 
 If you find this useful, consider [buying me a coffee](https://ko-fi.com/maxfung).
