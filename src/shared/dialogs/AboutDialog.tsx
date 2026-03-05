@@ -85,12 +85,12 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
         <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
           <div className="flex flex-col gap-1">
             <a
-              href="https://fung.studio/"
+              href="https://maxfu.ng/"
               target="_blank"
               rel="noreferrer"
               className="hover:text-primary-foreground flex items-center gap-0.5 transition-colors"
             >
-              fung.studio <ArrowUpRight className="inline-block h-4 w-4" />
+              maxfu.ng <ArrowUpRight className="inline-block h-4 w-4" />
             </a>
             <a
               href="https://ko-fi.com/maxfung"

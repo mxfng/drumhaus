@@ -11,7 +11,7 @@ export const Footer: React.FC = () => (
       by
     </p>
     <a
-      href="https://fung.studio/"
+      href="https://maxfu.ng/"
       target="_blank"
       rel="noreferrer"
       className="ml-1 text-sm"
