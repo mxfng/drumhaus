@@ -15,7 +15,7 @@ const APP_SHELL_ASSETS = [
   "/",
   "/favicon.ico",
   "/manifest.webmanifest",
-  "/opengraph-image.png",
+  "/opengraph-image.jpg",
   "/drumhaus.svg",
 ];
 
