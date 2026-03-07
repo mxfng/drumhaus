@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/pwa-icon.png" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -15,14 +16,10 @@
     />
 
     <!-- Primary Meta Tags -->
-    <title>Drumhaus - Free Online Drum Machine | Beat Maker & Sequencer</title>
+    <title>Drumhaus | A Drum Machine for the Browser</title>
     <meta
       name="description"
-      content="Free online drum machine with pro-quality samples. Create beats instantly in your browser - no download required. Features 8 instruments, step sequencer, and preset sharing."
-    />
-    <meta
-      name="keywords"
-      content="free online drum machine, drum machine online, beat maker, drum sequencer, online beat maker, free beat maker, browser drum machine, web drum machine, drum pad online, rhythm machine, drum sampler, make beats online"
+      content="Drumhaus is a browser-native drum machine and step sequencer inspired by the TR-808, TR-909, and Bauhaus design. 8 voices, 16 steps, chainable patterns, per-step velocity, flam, ratchet, accent, master FX, and WAV export. No download, no account — just an instrument."
     />
     <meta name="author" content="Max Fung" />
     <link rel="canonical" href="https://drumha.us/" />
@@ -31,25 +28,42 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://drumha.us/" />
-    <meta property="og:title" content="Drumhaus - Free Online Drum Machine" />
+    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:title"
+      content="Drumhaus | A Drum Machine for the Browser"
+    />
     <meta
       property="og:description"
-      content="Free online drum machine with pro-quality samples. Create beats instantly in your browser - no download required."
+      content="A drum machine and step sequencer built for the browser. 8 voices, chainable patterns, per-step velocity, flam, ratchet, master FX, and WAV export."
     />
     <meta property="og:image" content="https://drumha.us/opengraph-image.jpg" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta
+      property="og:image:alt"
+      content="Drumhaus drum machine interface with step sequencer, mixer controls, and waveform visualizers"
+    />
     <meta property="og:site_name" content="Drumhaus" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://drumha.us/" />
-    <meta name="twitter:title" content="Drumhaus - Free Online Drum Machine" />
+    <meta
+      name="twitter:title"
+      content="Drumhaus | A Drum Machine for the Browser"
+    />
     <meta
       name="twitter:description"
-      content="Free online drum machine with pro-quality samples. Create beats instantly in your browser - no download required."
+      content="A drum machine and step sequencer built for the browser. 8 voices, chainable patterns, per-step velocity, flam, ratchet, master FX, and WAV export."
     />
     <meta
       name="twitter:image"
       content="https://drumha.us/opengraph-image.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Drumhaus drum machine interface with step sequencer, mixer controls, and waveform visualizers"
     />
 
     <!-- Structured Data for Google -->
@@ -58,10 +72,16 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "Drumhaus",
+        "alternateName": "Drumhaus Drum Machine",
         "url": "https://drumha.us",
-        "description": "Free online drum machine with pro-quality samples. Create beats instantly in your browser.",
+        "description": "A drum machine and step sequencer built for the browser. 8 voices, 16 steps, chainable pattern variations, per-step velocity, flam, ratchet, accent, master FX chain, and WAV export.",
         "applicationCategory": "MultimediaApplication",
+        "applicationSubCategory": "Drum Machine",
         "operatingSystem": "Any",
+        "softwareVersion": "1.0",
+        "image": "https://drumha.us/screenshot-wide.png",
+        "screenshot": "https://drumha.us/screenshot-wide.png",
+        "featureList": "8 voices, 16-step sequencer, 4 chainable A/B/C/D pattern variations, per-step velocity, flam, ratchet, accent, per-voice decay envelope, split HP/LP filters, pan, pitch, mute/solo, master FX chain with reverb, phaser, compressor, saturation, WAV export with offline rendering, preset sharing via compressed URL, night mode, offline PWA support",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -72,12 +92,80 @@
           "name": "Max Fung",
           "url": "https://maxfu.ng"
         },
-        "browserRequirements": "Requires JavaScript and Web Audio API"
+        "browserRequirements": "Requires JavaScript and Web Audio API",
+        "inLanguage": "en"
       }
     </script>
   </head>
   <body style="background: #d5cdc3">
-    <div id="root"></div>
+    <div id="root">
+      <div
+        style="
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+        "
+      >
+        <h1>Drumhaus</h1>
+        <p>A drum machine for the browser.</p>
+        <p>
+          Drumhaus is a drum machine and step sequencer built for the browser.
+          Inspired by the TR-808, TR-909, and Bauhaus design, it brings
+          hardware-style beat-making to the web with tight timing, dense
+          controls, and an interface that feels more like an instrument than an
+          app.
+        </p>
+        <h2>Sequencer</h2>
+        <p>
+          Program beats across 8 voices and 16 steps with four chainable A/B/C/D
+          pattern variations, combinable up to 8 bars. Per-step velocity, flam,
+          ratchet, and accent controls add micro-rhythm and expression.
+          Per-voice timing nudges push hits off the grid for a more human feel.
+        </p>
+        <h2>Sound</h2>
+        <p>
+          Each voice has a decay envelope, split high-pass and low-pass filters,
+          panning, volume, semitone pitch adjustment, and mute/solo. The master
+          bus adds saturation, phaser, reverb, and a compressor. Rotary controls
+          respond on logarithmic curves tuned to how we actually hear.
+        </p>
+        <h2>Presets and Export</h2>
+        <p>
+          Save presets to local memory, export them as .dh files, or share
+          entire rig snapshots as compressed URLs. Export patterns to WAV via
+          offline rendering with configurable bar length and FX tail.
+        </p>
+        <h2>More</h2>
+        <ul>
+          <li>
+            Curated sample kits with instant hot-swapping and waveform
+            visualization
+          </li>
+          <li>Click-drag step entry, copy/paste/clear, keyboard shortcuts</li>
+          <li>Night mode with animated sky</li>
+          <li>Responsive layout scaling for different screen sizes</li>
+          <li>Installable offline-capable PWA</li>
+        </ul>
+        <img
+          src="/screenshot-wide.png"
+          alt="Drumhaus drum machine interface showing the step sequencer, per-voice mixer controls, and waveform sample visualizers"
+          width="1280"
+          height="828"
+          loading="lazy"
+        />
+        <p>
+          No server, no database, no account. Drumhaus is fully static and runs
+          anywhere.
+        </p>
+        <p>
+          Built by <a href="https://maxfu.ng">Max Fung</a>.
+          <a href="https://github.com/mxfng/drumhaus">Source on GitHub</a>.
+        </p>
+      </div>
+    </div>
     <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>

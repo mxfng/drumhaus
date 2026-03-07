@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://drumha.us/sitemap.xml
