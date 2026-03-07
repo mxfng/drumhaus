@@ -1,6 +1,6 @@
 {
   "name": "Drumhaus",
-  "description": "The ultimate computer controlled rhythmic groove machine.",
+  "description": "A browser-native drum machine and step sequencer inspired by classic hardware and Bauhaus design.",
   "short_name": "Drumhaus",
   "id": "/",
   "start_url": "/",
