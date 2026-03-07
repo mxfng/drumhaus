@@ -181,15 +181,6 @@ export function App() {
   return (
     <>
       <title>{title}</title>
-      <meta
-        name="description"
-        content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
-      />
-      <meta property="og:title" content={title} />
-      <meta
-        property="og:description"
-        content="Drumhaus is a fast, browser-based drum machine inspired by classic hardware. Load instantly, work offline, and build beats with an intuitive 8-voice step-sequencer and curated drum kits."
-      />
       {nightMode && (
         <Suspense fallback={null}>
           <NightSky />
