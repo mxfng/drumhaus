@@ -5,7 +5,6 @@ import { SequencerStepIndicator } from "@/features/sequencer/components/Sequence
 import { SequencerVelocity } from "@/features/sequencer/components/SequencerVelocity";
 import { useSequencerDragPaint } from "@/features/sequencer/hooks/useSequencerDragPaint";
 import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { useLightRig } from "@/shared/lightshow";
 
 // --- Chain Mode Helpers ---
 // Note: doubled opacity from other implementations to account for
@@ -55,9 +54,6 @@ export const Sequencer: React.FC = () => {
 
   // --- Instrument guide ---
   const showInstrumentGuide = isRatchetMode || isFlamMode;
-
-  // --- Lightshow ---
-  const { isIntroPlaying } = useLightRig();
 
   const currentVariation = pattern.voices[voiceIndex].variations[variation];
 
@@ -180,7 +176,6 @@ export const Sequencer: React.FC = () => {
       key="sequence-grid"
       className="sequence-grid grid h-40 w-full grid-cols-16 gap-4 p-6"
       onPointerMove={handleStepPointerMove}
-      data-lightshow-lock={isIntroPlaying ? "on" : "off"}
     >
       {stepIndices.map((stepIndex) => {
         const state = getStepRenderState(stepIndex);
