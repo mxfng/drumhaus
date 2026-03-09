@@ -69,9 +69,3 @@
   opacity: 1;
   filter: saturate(var(--lightshow-saturation));
 }
-
-/* used to lock interaction during intro */
-.sequence-grid[data-lightshow-lock="on"] {
-  pointer-events: none;
-  user-select: none;
-}

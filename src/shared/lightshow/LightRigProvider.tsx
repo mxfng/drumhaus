@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -10,6 +11,7 @@ import { LightRigContext, type LightRigContextValue } from "./LightRigContext";
 import { type PositionedLightNode, type RegisteredLightNode } from "./types";
 
 const TARGET_WAVE_DURATION = 800; // total sweep duration
+const REVEAL_SAFETY_TIMEOUT = 3000; // auto-reveal if intro never completes
 const WAVE_ORDER_Y_WEIGHT = 0.35;
 const WAVE_COMPLETION_BUFFER = 200;
 const TAIL_GAP = 0; // wait before the tail starts turning lights off
@@ -21,6 +23,17 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const rafIdRef = useRef<number | null>(null);
 
   const [isIntroPlaying, setIsIntroPlaying] = useState(true);
+
+  // Safety net: auto-reveal if the intro never completes (e.g. audio context
+  // blocked, instruments fail to load, or playIntroWave is never called).
+  useEffect(() => {
+    if (!isIntroPlaying) return;
+    const id = window.setTimeout(
+      () => setIsIntroPlaying(false),
+      REVEAL_SAFETY_TIMEOUT,
+    );
+    return () => window.clearTimeout(id);
+  }, [isIntroPlaying]);
 
   const setLightState = useCallback<LightRigContextValue["setLightState"]>(
     (ids, isOn) => {
@@ -108,11 +121,15 @@ export const LightRigProvider: React.FC<PropsWithChildren> = ({ children }) => {
     if (isPlayingRef.current) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setIsIntroPlaying(false);
       return;
     }
 
     const nodes = getNodesWithPosition();
-    if (!nodes.length) return;
+    if (!nodes.length) {
+      setIsIntroPlaying(false);
+      return;
+    }
 
     const sorted = nodes
       .map((node) => ({
