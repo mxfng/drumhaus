@@ -30,7 +30,7 @@ import {
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_SATURATION_OVERSAMPLE,
 } from "../../constants";
-import { applySplitFilterWithRamp } from "../splitFilter";
+import { applySplitFilterWithRamp } from "../split-filter";
 import { MasterChainRuntimes, MasterChainSettings } from "./types";
 
 // -----------------------------------------------------------------------------

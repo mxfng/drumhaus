@@ -24,7 +24,7 @@ import {
 } from "@/features/sequencer/types/sequencer";
 import { init } from "../../../../core/dh";
 import { PresetFileV1 } from "../../types/preset";
-import { compactCodeToKitId, kitIdToCompactCode } from "./defaultKits";
+import { compactCodeToKitId, kitIdToCompactCode } from "./default-kits";
 
 /**
  * Ultra-compact preset format with aggressive optimizations:

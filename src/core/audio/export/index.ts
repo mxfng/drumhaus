@@ -4,5 +4,5 @@ export {
   getSuggestedBars,
   type ExportOptions,
   type ExportProgress,
-} from "./wavExporter";
-export { downloadWav, encodeWav, generateExportFilename } from "./wavEncoder";
+} from "./wav-exporter";
+export { downloadWav, encodeWav, generateExportFilename } from "./wav-encoder";

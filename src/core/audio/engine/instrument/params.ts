@@ -1,5 +1,5 @@
-import { applySplitFilterWithRamp } from "@/core/audio/engine/fx/splitFilter";
-import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { applySplitFilterWithRamp } from "@/core/audio/engine/fx/split-filter";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import {
   instrumentPanMapping,
   instrumentVolumeMapping,

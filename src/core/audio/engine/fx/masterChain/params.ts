@@ -13,7 +13,7 @@ import {
   saturationWetMapping,
 } from "@/shared/knob/lib/mapping";
 import { MASTER_FILTER_RANGE } from "../../constants";
-import { applySplitFilterWithRamp } from "../splitFilter";
+import { applySplitFilterWithRamp } from "../split-filter";
 import {
   MasterChainParams,
   MasterChainRuntimes,
