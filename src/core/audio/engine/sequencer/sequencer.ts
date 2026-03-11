@@ -1,12 +1,12 @@
 import { getTransport, Sequence, Time } from "tone/build/esm/index";
 
-import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import {
   clampVariationId,
   sanitizeChain,
 } from "@/features/sequencer/lib/chain";
 import { nudgeToBeatOffset } from "@/features/sequencer/lib/timing";
-import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import {
   PatternChain,

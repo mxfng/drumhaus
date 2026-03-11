@@ -1,10 +1,10 @@
-import { useInstrumentsStore } from "@/features/instrument/store/useInstrumentsStore";
-import { getMasterChainParams } from "@/features/master-bus/store/useMasterChainStore";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
+import { getMasterChainParams } from "@/features/master-bus/store/use-master-chain-store";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
-import { useTransportStore } from "@/features/transport/store/useTransportStore";
+import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
+import { useTransportStore } from "@/features/transport/store/use-transport-store";
 
 /**
  * Generate a Preset object from current store state

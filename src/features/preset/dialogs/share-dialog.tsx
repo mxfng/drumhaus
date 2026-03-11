@@ -1,0 +1,211 @@
+import { useState } from "react";
+
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
+import { useClipboard } from "@/shared/hooks/use-clipboard";
+import { presetNameSchema } from "@/shared/lib/schemas";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Label,
+  useToast,
+} from "@/shared/ui";
+
+type ShareStep = "input" | "result";
+
+interface ShareDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onShare: (name: string) => Promise<string>;
+}
+
+export const ShareDialog: React.FC<ShareDialogProps> = ({
+  isOpen,
+  onClose,
+  onShare,
+}) => {
+  const currentPresetName = usePresetMetaStore(
+    (state) => state.currentPresetMeta.name,
+  );
+
+  const [step, setStep] = useState<ShareStep>("input");
+  const [editedName, setEditedName] = useState<string | null>(null);
+  const [shareableLink, setShareableLink] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { toast } = useToast();
+  const { onCopy, hasCopied } = useClipboard();
+
+  const presetName = editedName ?? currentPresetName;
+
+  const isValid = presetNameSchema.safeParse(presetName.trim()).success;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEditedName(value);
+
+    // Validate on change
+    const result = presetNameSchema.safeParse(value);
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+    } else {
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    const result = presetNameSchema.safeParse(presetName.trim());
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const link = await onShare(presetName.trim());
+      setShareableLink(link);
+      setStep("result");
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Couldn't create link. Please try again.",
+        status: "error",
+        duration: 3000,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    onCopy(shareableLink);
+    toast({
+      title: "Copied to clipboard",
+      duration: 3000,
+    });
+  };
+
+  const handleClose = () => {
+    setStep("input");
+    setEditedName(null);
+    setShareableLink("");
+    setIsLoading(false);
+    setError(null);
+    onClose();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent>
+        {step === "input" ? (
+          <>
+            <DialogHeader>
+              <DialogTitle>Share Preset</DialogTitle>
+            </DialogHeader>
+
+            <form onSubmit={handleSubmit}>
+              <div className="pb-6">
+                <DialogDescription className="pb-6">
+                  Create a shareable link to send your preset to others.
+                </DialogDescription>
+
+                <Label htmlFor="presetName" className="mb-2">
+                  Preset name
+                </Label>
+                <Input
+                  id="presetName"
+                  value={presetName}
+                  onChange={handleChange}
+                  autoFocus
+                />
+                {error && (
+                  <p className="text-destructive mt-1 text-sm">{error}</p>
+                )}
+              </div>
+
+              <DialogFooter>
+                <Button variant="ghost" onClick={handleClose} type="button">
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isValid || isLoading}
+                  className="text-primary-foreground flex items-center"
+                >
+                  <span className="mr-2">Get Link</span>
+                  {isLoading && (
+                    <PixelatedSpinner
+                      color="currentColor"
+                      size={20}
+                      pixelSize={2}
+                      gap={2}
+                    />
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>Shareable Link</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <div className="bg-screen h-10 w-full rounded-lg border">
+                <div className="flex h-full items-center justify-center">
+                  <div
+                    onClick={handleCopy}
+                    className="font-pixel w-70 truncate px-3 text-sm select-all"
+                  >
+                    {shareableLink}
+                  </div>
+                </div>
+              </div>
+
+              <h1 className="mb-3">Your link is ready!</h1>
+
+              <DialogDescription>
+                Share it with anyone to let them load your preset.
+              </DialogDescription>
+
+              <div>
+                <h1 className="mb-3">How it works</h1>
+                <p className="text-xs">
+                  Your entire preset is packed into this tiny URL using some
+                  custom compression magic, and is entirely self-contained. For
+                  more info, check out the{" "}
+                  <a href="https://github.com/mxfng/drumhaus/blob/main/src/features/preset/lib/serialization/compact.ts">
+                    source code
+                  </a>
+                  .
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="ghost" onClick={handleClose}>
+                Close
+              </Button>
+              <Button onClick={handleCopy}>
+                {hasCopied ? "Copied!" : "Copy Link"}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};

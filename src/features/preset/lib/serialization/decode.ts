@@ -1,7 +1,7 @@
 import { KitFileV1 } from "@/features/kit/types/kit";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { decodeCompactPreset, type CompactPreset } from "./compact";
-import { getDefaultKitLoader } from "./defaultKits";
+import { getDefaultKitLoader } from "./default-kits";
 
 /**
  * Error thrown when a kit ID is not found in the default kit registry

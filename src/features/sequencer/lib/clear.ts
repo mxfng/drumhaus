@@ -1,4 +1,4 @@
-import { clearStepSequence } from "@/features/sequencer/lib/patternMutations";
+import { clearStepSequence } from "@/features/sequencer/lib/pattern-mutations";
 import { Pattern } from "@/features/sequencer/types/pattern";
 import { VariationId } from "@/features/sequencer/types/sequencer";
 
