@@ -1,5 +1,5 @@
 import { clampVariationId } from "@/features/sequencer/lib/chain";
-import { usePatternStore } from "@/features/sequencer/store/usePatternStore";
+import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import {
   PatternChain,
   VariationId,

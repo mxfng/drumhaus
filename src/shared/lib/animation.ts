@@ -1,4 +1,4 @@
-import { usePerformanceStore } from "@/shared/store/usePerformanceStore";
+import { usePerformanceStore } from "@/shared/store/use-performance-store";
 
 /**
  * Callback invoked on each animation frame

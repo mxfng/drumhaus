@@ -4,14 +4,14 @@ import { createInstrumentClipboard } from "@/features/sequencer/lib/clipboard";
 import {
   buildInstrumentPasteFlash,
   buildVariationPasteFlash,
-} from "@/features/sequencer/lib/screenFlash";
+} from "@/features/sequencer/lib/screen-flash";
 import {
   ClipboardContent,
   CopySource,
 } from "@/features/sequencer/types/clipboard";
 import { Pattern } from "@/features/sequencer/types/pattern";
 import { VariationId } from "@/features/sequencer/types/sequencer";
-import { ScreenFlashPayload } from "@/shared/store/useScreenFlashStore";
+import { ScreenFlashPayload } from "@/shared/store/use-screen-flash-store";
 
 export function resolveInstrumentMeta(
   instruments: InstrumentData[],
