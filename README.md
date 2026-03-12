@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-blue" alt="License" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-blue" alt="License" /></a>
 </p>
 
 Drumhaus is a drum machine for the browser. It's sample-based, performant, and built with a powerful sequencer for sketching ideas quickly and performing full patterns live. Inspired by classic Roland hardware and the Bauhaus school, it was designed to feel more like a physical product than software. Share beats as compressed URLs, export to WAV, or install it as an offline PWA.
@@ -48,6 +48,6 @@ The audio engine is built on [Tone.js](https://tonejs.github.io/) with a custom 
 
 ## License
 
-© 2023-present [Max Fung](https://maxfu.ng). Licensed under [CC BY-NC-SA 4.0](./LICENSE.md).
+© 2023-present [Max Fung](https://maxfu.ng). Licensed under [CC BY-NC-SA 4.0](./LICENSE).
 
 If this project brings you joy, consider [buying me a coffee](https://ko-fi.com/maxfung).
