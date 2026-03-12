@@ -1,62 +1,53 @@
-# Drumhaus
+<p align="center">
+  <img src="./Drumhaus.png" alt="Drumhaus" width="800" />
+</p>
 
-Drumhaus, the computer controlled rhythmic groove machine, is a performant, offline-capable drum machine and sampler inspired by classic hardware.
+<h3 align="center">
+  A drum machine for the browser.
+</h3>
 
-It brings web-based beat-making into a tactile, expressive format, with quick loading, tight timing, and an interface that feels more like an instrument than an app. Sketch ideas in seconds or perform full patterns live, then share them with your friends on the web.
+<p align="center">
+  <a href="https://drumha.us"><strong>Play at drumha.us</strong></a>
+</p>
 
-**[Play now at drumha.us](https://drumha.us)**
+<p align="center">
+  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-blue" alt="License" /></a>
+</p>
 
-![Drumhaus Screenshot](./Drumhaus.png)
+Drumhaus is a drum machine for the browser. It's sample-based, performant, and built with a powerful sequencer for sketching ideas quickly and performing full patterns live. Inspired by classic Roland hardware and the Bauhaus school, it was designed to feel more like a physical product than software. Share beats as compressed URLs, export to WAV, or install it as an offline PWA.
 
-## Overview
+## Features
 
-Drumhaus includes a curated set of sample kits and presets to help you shape your sound. Its sequencer lets you program four chainable 16-step variations across eight instruments, with fine-grained controls for per-voice shaping, velocity, accent, master FX, and more. True to the Bauhaus ethos that inspired its name, it strives to be both beautiful and functional; an accessible and free instrument for the web.
+**Sequencer**
 
-As both a software engineer and a musician, I’ve always been obsessed with the tools behind my creative process. I started this project to create a brand new instrument using modern web technologies, an opinionated hardware-style workflow, and a bit of boutique, skeuomorphic character.
+- 8 voices, 16 steps, four chainable A/B/C/D variations up to 8 bars
+- Per-step velocity, flam, ratchet, and accent controls
+- Per-voice timing nudge for humanized grooves
+- Click-drag step entry, copy/paste/clear per voice or variation
 
-Built on Tone.js atop the Web Audio API, it uses animation frames and careful rendering pipelines to deliver high-performance playback, responsive sequencing, and rich visuals such as real-time metering, frequency analysis, and timing indication across a dense, control-heavy interface. With enough care and engineering, the browser becomes a genuinely capable platform for real music-making.
+**Sound**
 
-## Quick start
+- Per-voice decay envelope, HP/LP filters, pan, volume, semitone pitch, mute/solo
+- Master bus: HP/LP filters, saturation, phaser, reverb, compressor
+- 10 curated sample kits with instant hot-swap
 
-- Install: `npm install`
-- Dev server: `npm run dev` (Vite on port 4444)
-- Production build: `npm run build`
-- Generate waveform JSON for visualizers: `npm run waveforms:build`
-- Lint / format: `npm run lint` / `npm run format`
-- Scaffold a new kit: `npm run kit:new`
+**Workflow**
 
-## Features and highlights
+- Presets: save locally, export as `.dh` files, or share as compressed URLs
+- WAV export via offline rendering with configurable bar length and FX tail
+- Keyboard shortcuts, responsive layout scaling, night mode
 
-- 8 voices, 16 steps, and four A/B/C/D variations per voice. Chain any mix of A–D up to 8 bars with a live step indicator for confident timing.
-- Micro-rhythm tools: per-step velocity, flam, ratchet, accent, and per-voice timing nudges.
-- Curated kits (8 instruments each) that hot-swap instantly; samples and matching waveforms are cached for near-zero load time.
-- Per-voice shaping: decay envelope, split HP/LP filters, pan, volume, semitone pitch, mute/solo, and color-coded grid feedback.
-- Master bus processing: HP/LP filters, saturation, phaser, reverb, compressor, and level controls to finish beats in-app.
-- Presets snapshot the entire rig (patterns, kits, FX, BPM/swing) and can be saved in persistent local memory, as `.dh` files, reloaded from disk, or shared as compressed URLs.
-- Export patterns to WAV via Tone.js offline rendering with bar-length suggestions and optional tail for FX decay.
-- UX niceties: click-drag step entry, copy/paste/clear for voices or variations, responsive layout scaling, night mode with animated sky, keyboard shortcuts, potato mode for low-power devices, and installable/offline PWA support.
+## Technical highlights
 
-## Technical notes
+The audio engine is built on [Tone.js](https://tonejs.github.io/) with a custom sequencing layer that precomputes patterns on every update, keeping playback tight and timing-consistent between live and offline rendering. Preset sharing uses a custom serialization pipeline with bit-packing, [pako](https://github.com/nodeca/pako) compression, and base64url encoding to compress full rig snapshots into ~200 character URL parameters. A centralized animation clock synchronizes all visual feedback (step indicators, gain meters, frequency analysis, intro lightshow) to a shared frame timeline, bypassing React renders in favor of direct DOM writes via data attributes.
 
-- React + TypeScript + Vite + Tailwind v4, using the experimental React Compiler.
-- State via Zustand (immer + devtools) with per-feature persistence and migrations across kits, sequencer, transport, master FX, and presets.
-- Audio engine built fully on Tone.js with a custom sequencing layer that precomputes patterns on every update. Shared builders keep live playback and offline exports aligned and timing-consistent.
-- Custom rotary controls with logarithmic curves and split ranges for musical parameter response, with rich and explicitly declared mapping system.
-- Preset sharing: custom serialization (bit-packing + pako compression + base64url) with metadata validation compresses thousand-line JSON files into ~200 character URL parameters.
-- Centralized animation clock synchronizes all app animations to a shared frame timeline, pauses when playback stops, and supports low-power throttling.
-- Sample visualizers consume pre-bucketized waveform JSON generated by `scripts/generate-waveforms.ts`; eight live gain meters display voice levels, and a live frequency analyzer powers the spectrum view.
-- Service worker pre-caches the app shell plus default kit samples and waveforms for offline-first behavior; custom caching system manages static payloads.
-- Layout-aware lightshow using context-managed refs and Tailwind data attributes to animate hundreds of elements in sync on app load.
+## Writing
+
+- [A Drum Machine for the Browser](https://maxfu.ng/writing/a-drum-machine-for-the-browser) — the original build
+- [Announcing Drumhaus v1](https://maxfu.ng/writing/announcing-drumhaus-v1) — the rewrite
 
 ## License
 
-© 2023-present Max Fung. All rights reserved.
+© 2023-present [Max Fung](https://maxfu.ng). Licensed under [CC BY-NC-SA 4.0](./LICENSE.md).
 
-This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-See the [LICENSE](./LICENSE.md) file for details.
-
-## Author
-
-Designed with love by [Max Fung](https://maxfu.ng)
-
-If you find this useful, consider [buying me a coffee](https://ko-fi.com/maxfung).
+If this project brings you joy, consider [buying me a coffee](https://ko-fi.com/maxfung).
