@@ -1,8 +1,9 @@
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import path from "path";
+import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig, Plugin } from "vite";
 
 // Build-time metadata helpers
@@ -27,6 +28,7 @@ function dhFilesPlugin(): Plugin {
         return {
           code: `export default ${content}`,
           map: null,
+          moduleType: "js",
         };
       }
     },
@@ -36,10 +38,9 @@ function dhFilesPlugin(): Plugin {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react({
-      babel: {
-        plugins: ["babel-plugin-react-compiler"],
-      },
+    react(),
+    babel({
+      presets: [reactCompilerPreset()],
     }),
     dhFilesPlugin(),
     tailwindcss(),
