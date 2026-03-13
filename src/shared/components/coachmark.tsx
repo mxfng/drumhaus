@@ -52,7 +52,7 @@ export function Coachmark({
         show();
       }, 0);
     } else {
-      requestAnimationFrame(() => setIsShown(false));
+      raf = requestAnimationFrame(() => setIsShown(false));
       hideTimeout = window.setTimeout(() => {
         hide();
       }, 200);

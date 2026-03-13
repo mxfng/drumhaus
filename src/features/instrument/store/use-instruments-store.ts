@@ -88,7 +88,6 @@ export const useInstrumentsStore = create<InstrumentsState>()(
                 string,
                 unknown
               >;
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { attack: _attack, release, pitch, ...rest } = oldParams;
               return {
                 ...inst,
