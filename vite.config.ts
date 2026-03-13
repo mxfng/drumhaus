@@ -1,6 +1,5 @@
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
-import path from "path";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
@@ -51,12 +50,11 @@ export default defineConfig({
     __NODE_VERSION__: JSON.stringify(nodeVersion),
   },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    tsconfigPaths: true,
   },
   server: {
     port: 4444,
+    forwardConsole: true,
   },
   build: {
     outDir: "dist",
