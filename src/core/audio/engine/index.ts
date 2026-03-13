@@ -62,7 +62,7 @@ export { awaitBufferLoaded as waitForBuffersToLoad } from "./buffer/buffer";
 
 // Audio Context
 export {
-  ensureAudioContextIsRunning as ensureAudioContextIsRunning,
+  ensureAudioContextIsRunning,
   getAudioContextHealth,
 } from "./context/manager";
 

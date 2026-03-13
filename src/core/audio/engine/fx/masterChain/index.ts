@@ -16,10 +16,7 @@ export type { MasterChainRuntimes, MasterChainSettings } from "./types";
 
 // Re-export individual functions for granular control
 export { buildMasterChainNodes, disposeMasterChainNodes } from "./nodes";
-export {
-  mapParamsToSettings as mapParamsToSettings,
-  applySettingsToRuntimes,
-} from "./params";
+export { mapParamsToSettings, applySettingsToRuntimes } from "./params";
 export { connectMasterChainNodes as chainMasterChainNodes } from "./routing";
 
 // -----------------------------------------------------------------------------

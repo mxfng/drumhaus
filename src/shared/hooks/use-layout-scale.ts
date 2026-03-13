@@ -20,7 +20,7 @@ export const useLayoutScale = (): LayoutScaleResult => {
   // Fit to screen on initial mount only
   useEffect(() => {
     fitToScreen();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { scale, fitToScreen, zoomIn, zoomOut, setScale };
