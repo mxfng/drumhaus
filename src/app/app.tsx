@@ -3,7 +3,10 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
-import { useDrumhaus } from "@/core/providers/drumhaus-provider";
+import {
+  DrumhausProvider,
+  useDrumhaus,
+} from "@/core/providers/drumhaus-provider";
 import { DebugOverlay } from "@/features/debug/components/debug-overlay";
 import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
 import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
@@ -12,6 +15,7 @@ import { useSequencerEscToVoice } from "@/shared/hooks/use-sequencer-esc-to-voic
 import { useServiceWorker } from "@/shared/hooks/use-service-worker";
 import { useSpacebarTogglePlay } from "@/shared/hooks/use-spacebar-toggle-play";
 import { useLightShowIntro } from "@/shared/lightshow";
+import { LightRigProvider } from "@/shared/lightshow/light-rig-provider";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 import { useWaveform } from "@/shared/waveform";
 
@@ -38,18 +42,6 @@ const TooltipProvider = lazy(() =>
 const ToastProvider = lazy(() =>
   import("@/shared/ui/toast").then((module) => ({
     default: module.ToastProvider,
-  })),
-);
-
-const LightRigProvider = lazy(() =>
-  import("@/shared/lightshow/light-rig-provider").then((module) => ({
-    default: module.LightRigProvider,
-  })),
-);
-
-const DrumhausProvider = lazy(() =>
-  import("../core/providers/drumhaus-provider").then((module) => ({
-    default: module.DrumhausProvider,
   })),
 );
 
