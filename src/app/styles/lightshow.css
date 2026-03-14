@@ -6,9 +6,20 @@
   --lightshow-brightness: 1.08;
   --lightshow-saturation: 1.04;
   --lightshow-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, filter;
 }
 
-/* Sequencer step */
+/* Drop compositing layer hints after intro completes to free GPU memory */
+[data-light-node="done"] {
+  will-change: auto;
+}
+
+/* Kill all transitions during GPU warm-up so on/off flips are instant */
+.lightshow-warmup [data-light-node],
+.lightshow-warmup [data-light-node]::after {
+  transition: none !important;
+}
+
 /* Sequencer step: overlay-only so it doesn't fight base styles */
 [data-light-group="sequencer-step"]::after {
   content: "";
