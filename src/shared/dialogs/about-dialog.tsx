@@ -11,7 +11,6 @@ import {
 } from "@/shared/ui";
 import { DrumhausLogo } from "../../shared/icon/drumhaus-logo";
 import { DrumhausTypographyLogo } from "../../shared/icon/drumhaus-typography-logo";
-import { FungPeaceLogo } from "../icon/fung-peace-logo";
 
 interface AboutDialogProps {
   isOpen: boolean;
@@ -110,7 +109,6 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </a>
           </div>
           <div className="flex flex-col justify-end gap-2">
-            <FungPeaceLogo size={48} />
             <p className="text-xs">© 2023-{currentYear} Max Fung</p>
           </div>
         </div>
