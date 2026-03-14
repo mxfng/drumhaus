@@ -33,7 +33,7 @@ interface UseAudioEngineResult {
   instrumentRuntimesVersion: number;
 }
 
-export function useAudioEngine(): UseAudioEngineResult {
+function useAudioEngine(): UseAudioEngineResult {
   // Guard and recover audio context automatically (visibility/gestures/stall)
   useAudioContextGuards();
 
@@ -252,3 +252,5 @@ export function useAudioEngine(): UseAudioEngineResult {
     instrumentRuntimesVersion,
   };
 }
+
+export { useAudioEngine };

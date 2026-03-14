@@ -14,7 +14,7 @@ interface DebugStats {
   resumedAgoSeconds: number | null;
 }
 
-export const DebugOverlay = () => {
+const DebugOverlay = () => {
   const debugMode = useDebugStore((state) => state.debugMode);
   const [stats, setStats] = useState<DebugStats>({
     fps: 0,
@@ -137,3 +137,5 @@ export const DebugOverlay = () => {
     </div>
   );
 };
+
+export { DebugOverlay };

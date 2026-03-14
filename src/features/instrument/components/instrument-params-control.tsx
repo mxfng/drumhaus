@@ -25,10 +25,7 @@ interface InstrumentParamsProps {
   runtime?: InstrumentRuntime;
 }
 
-export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
-  index,
-  runtime,
-}) => {
+function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Read params from store
@@ -204,4 +201,6 @@ export const InstrumentParamsControl: React.FC<InstrumentParamsProps> = ({
       </div>
     </div>
   );
-};
+}
+
+export { InstrumentParamsControl };

@@ -7,7 +7,7 @@ import { getCurrentPreset, validatePresetFile } from "./helpers";
  * Parse and validate a preset from a JSON string
  * Throws an error if the preset is invalid
  */
-export function parsePresetFile(jsonString: string): PresetFileV1 {
+function parsePresetFile(jsonString: string): PresetFileV1 {
   const parsed = JSON.parse(jsonString);
   return validatePresetFile(parsed);
 }
@@ -16,7 +16,7 @@ export function parsePresetFile(jsonString: string): PresetFileV1 {
  * Generate a shareable URL for a preset
  * Creates a new preset with generated metadata and encodes it
  */
-export async function generateShareUrl(
+async function generateShareUrl(
   presetMeta: Meta,
   kitMeta: Meta,
   baseUrl: string = window.location.origin,
@@ -37,10 +37,7 @@ export async function generateShareUrl(
 /**
  * Create a preset export with metadata for saving
  */
-export function createPresetForExport(
-  name: string,
-  kitMeta: Meta,
-): PresetFileV1 {
+function createPresetForExport(name: string, kitMeta: Meta): PresetFileV1 {
   const normalizedName = normalizePresetName(name);
 
   const now = new Date().toISOString();
@@ -57,7 +54,7 @@ export function createPresetForExport(
 /**
  * Download a preset as a .dh file
  */
-export function downloadPreset(preset: PresetFileV1, name: string): void {
+function downloadPreset(preset: PresetFileV1, name: string): void {
   const blob = createPresetExportBlob(preset);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -105,3 +102,10 @@ function toPresetSlug(name: string): string {
 
   return base || "preset";
 }
+
+export {
+  parsePresetFile,
+  generateShareUrl,
+  createPresetForExport,
+  downloadPreset,
+};

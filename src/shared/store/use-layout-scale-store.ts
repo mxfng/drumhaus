@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const SCALE_OPTIONS = [50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200];
+const SCALE_OPTIONS = [50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200];
 
 interface LayoutScaleStore {
   scale: number;
@@ -10,7 +10,7 @@ interface LayoutScaleStore {
   fitToScreen: () => void;
 }
 
-export const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
+const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
   scale: 100,
 
   setScale: (newScale: number) => {
@@ -101,3 +101,5 @@ export const useLayoutScaleStore = create<LayoutScaleStore>((set) => ({
     set({ scale: bestScale });
   },
 }));
+
+export { SCALE_OPTIONS, useLayoutScaleStore };

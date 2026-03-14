@@ -3,7 +3,7 @@ import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
 import { DrumhausTypographyLogo } from "@/shared/icon/drumhaus-typography-logo";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 
-export const Header: React.FC = () => {
+function Header() {
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
@@ -29,4 +29,6 @@ export const Header: React.FC = () => {
       <Screen />
     </div>
   );
-};
+}
+
+export { Header };

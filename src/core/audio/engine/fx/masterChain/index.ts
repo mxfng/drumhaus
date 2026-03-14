@@ -31,7 +31,7 @@ export { connectMasterChainNodes as chainMasterChainNodes } from "./routing";
  * @param destination The destination node (getDestination() for online, offline destination for export)
  * @returns The initialized master chain runtimes
  */
-export async function initializeMasterChain(
+async function initializeMasterChain(
   params: MasterChainParams,
   destination: ToneAudioNode,
 ): Promise<MasterChainRuntimes> {
@@ -46,7 +46,7 @@ export async function initializeMasterChain(
  * Creates and initializes all master chain audio runtimes.
  * Returns the new runtimes - caller is responsible for disposing old runtimes first.
  */
-export async function createMasterChainRuntimes(
+async function createMasterChainRuntimes(
   params: MasterChainParams,
 ): Promise<MasterChainRuntimes> {
   return await initializeMasterChain(params, getDestination());
@@ -55,7 +55,7 @@ export async function createMasterChainRuntimes(
 /**
  * Updates master chain parameter values on existing runtimes.
  */
-export function updateMasterChainParams(
+function updateMasterChainParams(
   runtimes: MasterChainRuntimes,
   params: MasterChainParams,
 ): void {
@@ -67,8 +67,15 @@ export function updateMasterChainParams(
  * Disposes all master chain runtimes.
  * Handles errors gracefully to prevent crashes during cleanup.
  */
-export function disposeMasterChainRuntimes(
+function disposeMasterChainRuntimes(
   runtimes: MasterChainRuntimes | null,
 ): void {
   disposeMasterChainNodes(runtimes);
 }
+
+export {
+  initializeMasterChain,
+  createMasterChainRuntimes,
+  updateMasterChainParams,
+  disposeMasterChainRuntimes,
+};

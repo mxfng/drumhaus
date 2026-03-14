@@ -10,7 +10,7 @@ import { MasterChainRuntimes } from "./types";
  * @param destination The destination node to chain to
  *        (e.g., getDestination() for online, or offline destination for export).
  */
-export function connectMasterChainNodes(
+function connectMasterChainNodes(
   masterChain: MasterChainRuntimes,
   destination: ToneAudioNode,
 ): void {
@@ -54,3 +54,5 @@ export function connectMasterChainNodes(
     destination,
   );
 }
+
+export { connectMasterChainNodes };

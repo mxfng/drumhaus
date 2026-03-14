@@ -10,7 +10,7 @@ type InstrumentPasteFlashOptions = {
   targetVariation: VariationId;
 };
 
-export function buildInstrumentCopyFlash(
+function buildInstrumentCopyFlash(
   meta: InlineMeta,
   variation: VariationId,
 ): ScreenFlashPayload {
@@ -26,9 +26,7 @@ export function buildInstrumentCopyFlash(
   };
 }
 
-export function buildVariationCopyFlash(
-  variation: VariationId,
-): ScreenFlashPayload {
+function buildVariationCopyFlash(variation: VariationId): ScreenFlashPayload {
   return {
     message: "copied",
     subtext: (
@@ -41,7 +39,7 @@ export function buildVariationCopyFlash(
   };
 }
 
-export function buildInstrumentPasteFlash({
+function buildInstrumentPasteFlash({
   sourceMeta,
   targetMeta,
   sourceVariation,
@@ -70,7 +68,7 @@ export function buildInstrumentPasteFlash({
   };
 }
 
-export function buildVariationPasteFlash(
+function buildVariationPasteFlash(
   source: VariationId,
   target: VariationId,
 ): ScreenFlashPayload {
@@ -95,7 +93,7 @@ type InstrumentClearOptions = {
   variation?: VariationId;
 };
 
-export function buildInstrumentClearFlash({
+function buildInstrumentClearFlash({
   meta,
   variation,
 }: InstrumentClearOptions): ScreenFlashPayload {
@@ -112,9 +110,7 @@ export function buildInstrumentClearFlash({
   };
 }
 
-export function buildVariationClearFlash(
-  variation: VariationId,
-): ScreenFlashPayload {
+function buildVariationClearFlash(variation: VariationId): ScreenFlashPayload {
   return {
     message: "cleared",
     subtext: (
@@ -126,3 +122,12 @@ export function buildVariationClearFlash(
     icon: "eraser",
   };
 }
+
+export {
+  buildInstrumentCopyFlash,
+  buildVariationCopyFlash,
+  buildInstrumentPasteFlash,
+  buildVariationPasteFlash,
+  buildInstrumentClearFlash,
+  buildVariationClearFlash,
+};

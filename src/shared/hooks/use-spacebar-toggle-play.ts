@@ -9,7 +9,7 @@ interface UseSpacebarTogglePlayProps {
   instrumentRuntimesVersion: number;
 }
 
-export function useSpacebarTogglePlay({
+function useSpacebarTogglePlay({
   instrumentRuntimes,
   instrumentRuntimesVersion,
 }: UseSpacebarTogglePlayProps) {
@@ -46,3 +46,5 @@ export function useSpacebarTogglePlay({
     togglePlay,
   ]);
 }
+
+export { useSpacebarTogglePlay };

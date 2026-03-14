@@ -22,21 +22,21 @@ const NUDGE_UNIT_FRACTION = 1 / 96; // of a beat
  * nudgeToBeatOffset(1)  // +1/96 beat ≈ +20.83ms (late)
  * nudgeToBeatOffset(2)  // +1/48 beat ≈ +41.67ms (very late)
  */
-export function nudgeToBeatOffset(nudge: TimingNudge): number {
+function nudgeToBeatOffset(nudge: TimingNudge): number {
   return nudge * NUDGE_UNIT_FRACTION;
 }
 
 /**
  * Clamps a nudge value to the valid range [-2, 2].
  */
-export function clampNudge(value: number): TimingNudge {
+function clampNudge(value: number): TimingNudge {
   return Math.max(-2, Math.min(2, value)) as TimingNudge;
 }
 
 /**
  * Returns a human-readable label for a timing nudge level.
  */
-export function nudgeLabel(nudge: TimingNudge): string {
+function nudgeLabel(nudge: TimingNudge): string {
   switch (nudge) {
     case -2:
       return "Very Early";
@@ -54,4 +54,6 @@ export function nudgeLabel(nudge: TimingNudge): string {
 /**
  * All possible timing nudge levels for UI iteration.
  */
-export const TIMING_NUDGE_LEVELS: TimingNudge[] = [-2, -1, 0, 1, 2];
+const TIMING_NUDGE_LEVELS: TimingNudge[] = [-2, -1, 0, 1, 2];
+
+export { nudgeToBeatOffset, clampNudge, nudgeLabel, TIMING_NUDGE_LEVELS };

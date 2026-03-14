@@ -6,7 +6,7 @@ import { useEffect } from "react";
  * - No framework-specific APIs; safe to reuse in a future Vite setup.
  * - Only runs in the browser and in secure contexts (HTTPS or localhost).
  */
-export function useServiceWorker() {
+function useServiceWorker() {
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -35,3 +35,5 @@ export function useServiceWorker() {
       );
   }, []);
 }
+
+export { useServiceWorker };

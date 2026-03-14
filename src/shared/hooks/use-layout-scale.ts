@@ -10,7 +10,7 @@ type LayoutScaleResult = {
   setScale: (scale: number) => void;
 };
 
-export const useLayoutScale = (): LayoutScaleResult => {
+const useLayoutScale = (): LayoutScaleResult => {
   const scale = useLayoutScaleStore((state) => state.scale);
   const fitToScreen = useLayoutScaleStore((state) => state.fitToScreen);
   const zoomIn = useLayoutScaleStore((state) => state.zoomIn);
@@ -25,3 +25,5 @@ export const useLayoutScale = (): LayoutScaleResult => {
 
   return { scale, fitToScreen, zoomIn, zoomOut, setScale };
 };
+
+export { useLayoutScale };

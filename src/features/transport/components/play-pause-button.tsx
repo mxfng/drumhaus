@@ -4,7 +4,7 @@ import { useDrumhaus } from "@/core/providers/drumhaus-provider";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
-export const PlayPauseButton = () => {
+const PlayPauseButton = () => {
   const { instrumentRuntimes } = useDrumhaus();
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
@@ -39,3 +39,5 @@ export const PlayPauseButton = () => {
     </div>
   );
 };
+
+export { PlayPauseButton };

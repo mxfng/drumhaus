@@ -24,7 +24,7 @@ interface SequencerVariationButtonProps extends ButtonHTMLAttributes<HTMLButtonE
  * - Clicking switches the current variation to this variation.
  * - Shows a primary outline when this is the currently selected variation.
  */
-export const SequencerVariationButton = forwardRef<
+const SequencerVariationButton = forwardRef<
   HTMLButtonElement,
   SequencerVariationButtonProps
 >(({ variation, onClick, className, ...props }, ref) => {
@@ -122,3 +122,5 @@ export const SequencerVariationButton = forwardRef<
   );
 });
 SequencerVariationButton.displayName = "SequencerVariationButton";
+
+export { SequencerVariationButton };

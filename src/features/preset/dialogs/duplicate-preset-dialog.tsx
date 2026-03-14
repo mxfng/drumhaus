@@ -34,12 +34,12 @@ const duplicateSchema = z.object({
 
 type DuplicateFormValues = z.infer<typeof duplicateSchema>;
 
-export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
+function DuplicatePresetDialog({
   isOpen,
   onClose,
   presetId,
   suggestedName,
-}) => {
+}: DuplicatePresetDialogProps) {
   const duplicateCustomPreset = usePresetMetaStore(
     (state) => state.duplicateCustomPreset,
   );
@@ -155,4 +155,6 @@ export const DuplicatePresetDialog: React.FC<DuplicatePresetDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { DuplicatePresetDialog };

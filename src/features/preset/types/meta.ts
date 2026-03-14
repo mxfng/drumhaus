@@ -1,10 +1,12 @@
-export interface InlineMeta {
+interface InlineMeta {
   id: string;
   name: string;
 }
 
-export interface Meta extends InlineMeta {
+interface Meta extends InlineMeta {
   createdAt: string;
   updatedAt: string;
   author?: string;
 }
+
+export type { InlineMeta, Meta };

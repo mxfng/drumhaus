@@ -8,22 +8,28 @@ import {
 import { KitFileV1 } from "@/features/kit/types/kit";
 
 // Re-export from central kit registry
-export function kitIdToCompactCode(kitId: string): string | undefined {
+function kitIdToCompactCode(kitId: string): string | undefined {
   return kitIdToCode(kitId);
 }
 
-export function compactCodeToKitId(code: string): string | undefined {
+function compactCodeToKitId(code: string): string | undefined {
   return codeToKitId(code);
 }
 
-export function getDefaultKitLoader(
-  kitId: string,
-): (() => KitFileV1) | undefined {
+function getDefaultKitLoader(kitId: string): (() => KitFileV1) | undefined {
   return getKitLoader(kitId);
 }
 
-export function loadDefaultKit(kitId: string): KitFileV1 | undefined {
+function loadDefaultKit(kitId: string): KitFileV1 | undefined {
   return loadKit(kitId);
 }
 
-export const defaultKitCount = kitCount;
+const defaultKitCount = kitCount;
+
+export {
+  kitIdToCompactCode,
+  compactCodeToKitId,
+  getDefaultKitLoader,
+  loadDefaultKit,
+  defaultKitCount,
+};

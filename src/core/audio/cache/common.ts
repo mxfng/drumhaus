@@ -2,13 +2,13 @@ const CACHE_NAME = "drumhaus-audio-cache-v1";
 
 const inFlightResponses = new Map<string, Promise<Response>>(); // url -> response promise
 
-export const hasCacheAPI = (): boolean =>
+const hasCacheAPI = (): boolean =>
   typeof window !== "undefined" && "caches" in window;
 
 /**
  * Open the named Cache API store (null when unavailable or disallowed).
  */
-export async function getCacheStore(): Promise<Cache | null> {
+async function getCacheStore(): Promise<Cache | null> {
   if (!hasCacheAPI()) {
     return null;
   }
@@ -27,7 +27,7 @@ export async function getCacheStore(): Promise<Cache | null> {
  * - On MISS: fetches from network, stores in cache, then parses.
  * - On HIT: returns parsed cached response.
  */
-export async function cacheFetch<T>(
+async function cacheFetch<T>(
   url: string,
   parse: (response: Response) => Promise<T>,
 ): Promise<T> {
@@ -72,3 +72,5 @@ export async function cacheFetch<T>(
 }
 
 export { CACHE_NAME };
+
+export { hasCacheAPI, getCacheStore, cacheFetch };

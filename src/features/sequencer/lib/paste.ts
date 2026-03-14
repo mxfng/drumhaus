@@ -13,7 +13,7 @@ import { Pattern } from "@/features/sequencer/types/pattern";
 import { VariationId } from "@/features/sequencer/types/sequencer";
 import { ScreenFlashPayload } from "@/shared/store/use-screen-flash-store";
 
-export function resolveInstrumentMeta(
+function resolveInstrumentMeta(
   instruments: InstrumentData[],
   voiceIndex: number,
 ): InlineMeta {
@@ -25,7 +25,7 @@ export function resolveInstrumentMeta(
   );
 }
 
-export function buildInstrumentClipboardState(
+function buildInstrumentClipboardState(
   pattern: Pattern,
   voiceIndex: number,
   variationId: VariationId,
@@ -43,7 +43,7 @@ type InstrumentPasteFlashContext = {
   instruments: InstrumentData[];
 };
 
-export function buildInstrumentPasteFlashFromContext({
+function buildInstrumentPasteFlashFromContext({
   clipboard,
   copySource,
   targetVoiceIndex,
@@ -64,9 +64,16 @@ export function buildInstrumentPasteFlashFromContext({
   });
 }
 
-export function buildVariationPasteFlashFromContext(
+function buildVariationPasteFlashFromContext(
   source: VariationId | undefined,
   target: VariationId,
 ): ScreenFlashPayload {
   return buildVariationPasteFlash(source ?? 0, target);
 }
+
+export {
+  resolveInstrumentMeta,
+  buildInstrumentClipboardState,
+  buildInstrumentPasteFlashFromContext,
+  buildVariationPasteFlashFromContext,
+};

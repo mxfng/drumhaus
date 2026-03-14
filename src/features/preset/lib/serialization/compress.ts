@@ -5,7 +5,7 @@ import * as pako from "pako";
  * @param input - The string to compress
  * @returns URL-safe base64 encoded compressed string
  */
-export function compressPako(input: string): string {
+function compressPako(input: string): string {
   try {
     // Convert string to Uint8Array
     const inputBytes = new TextEncoder().encode(input);
@@ -39,7 +39,7 @@ export function compressPako(input: string): string {
  * @param input - URL-safe base64 encoded compressed string
  * @returns Decompressed string
  */
-export function decompressPako(input: string): string {
+function decompressPako(input: string): string {
   try {
     // Convert from URL-safe base64 to standard base64
     let base64 = input.replace(/-/g, "+").replace(/_/g, "/");
@@ -77,7 +77,7 @@ export function decompressPako(input: string): string {
  * @param input - The string to compress
  * @returns URL-safe compressed string
  */
-export function compress(input: string): string {
+function compress(input: string): string {
   return compressPako(input);
 }
 
@@ -86,6 +86,8 @@ export function compress(input: string): string {
  * @param input - URL-safe compressed string
  * @returns Decompressed string
  */
-export function decompress(input: string): string {
+function decompress(input: string): string {
   return decompressPako(input);
 }
+
+export { compressPako, decompressPako, compress, decompress };

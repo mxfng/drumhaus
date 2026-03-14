@@ -13,7 +13,7 @@ interface KnobTicksProps {
   outerTickCount: number;
 }
 
-export function KnobTicks({ outerTickCount }: KnobTicksProps) {
+function KnobTicks({ outerTickCount }: KnobTicksProps) {
   return (
     <>
       {Array.from({ length: outerTickCount }).map((_, idx) => {
@@ -38,3 +38,5 @@ export function KnobTicks({ outerTickCount }: KnobTicksProps) {
     </>
   );
 }
+
+export { KnobTicks };

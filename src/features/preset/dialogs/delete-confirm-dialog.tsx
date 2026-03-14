@@ -19,12 +19,12 @@ interface DeleteConfirmDialogProps {
   presetName: string;
 }
 
-export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
+function DeleteConfirmDialog({
   isOpen,
   onClose,
   presetId,
   presetName,
-}) => {
+}: DeleteConfirmDialogProps) {
   const { loadPreset } = useDrumhaus();
   const deleteCustomPreset = usePresetMetaStore(
     (state) => state.deleteCustomPreset,
@@ -83,4 +83,6 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { DeleteConfirmDialog };

@@ -55,21 +55,21 @@ const KIT_ORDER: string[] = [
 /**
  * Get all available kits in display order
  */
-export function getAllKits(): KitFileV1[] {
+function getAllKits(): KitFileV1[] {
   return KIT_ORDER.map((id) => KIT_LOADERS[id]());
 }
 
 /**
  * Get a kit loader by its stable ID
  */
-export function getKitLoader(id: string): (() => KitFileV1) | undefined {
+function getKitLoader(id: string): (() => KitFileV1) | undefined {
   return KIT_LOADERS[id];
 }
 
 /**
  * Load a kit by its stable ID
  */
-export function loadKit(id: string): KitFileV1 | undefined {
+function loadKit(id: string): KitFileV1 | undefined {
   const loader = KIT_LOADERS[id];
   return loader?.();
 }
@@ -77,12 +77,12 @@ export function loadKit(id: string): KitFileV1 | undefined {
 /**
  * Get the total number of default kits
  */
-export const kitCount = KIT_ORDER.length;
+const kitCount = KIT_ORDER.length;
 
 /**
  * Convert kit ID to compact code for URL sharing (index in KIT_ORDER)
  */
-export function kitIdToCode(kitId: string): string | undefined {
+function kitIdToCode(kitId: string): string | undefined {
   const index = KIT_ORDER.indexOf(kitId);
   return index >= 0 ? String(index) : undefined;
 }
@@ -90,7 +90,16 @@ export function kitIdToCode(kitId: string): string | undefined {
 /**
  * Convert compact code back to kit ID
  */
-export function codeToKitId(code: string): string | undefined {
+function codeToKitId(code: string): string | undefined {
   const index = parseInt(code, 10);
   return index >= 0 && index < KIT_ORDER.length ? KIT_ORDER[index] : undefined;
 }
+
+export {
+  getAllKits,
+  getKitLoader,
+  loadKit,
+  kitCount,
+  kitIdToCode,
+  codeToKitId,
+};

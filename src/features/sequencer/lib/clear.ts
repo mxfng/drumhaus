@@ -3,7 +3,7 @@ import { Pattern } from "@/features/sequencer/types/pattern";
 import { VariationId } from "@/features/sequencer/types/sequencer";
 
 /** Clear a single instrument's pattern for a specific variation. Mutates the pattern in place. */
-export function clearInstrumentVariation(
+function clearInstrumentVariation(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -12,7 +12,7 @@ export function clearInstrumentVariation(
 }
 
 /** Clear all instruments plus accent metadata for a variation. Mutates the pattern in place. */
-export function clearVariationPatterns(
+function clearVariationPatterns(
   pattern: Pattern,
   variation: VariationId,
 ): void {
@@ -23,3 +23,5 @@ export function clearVariationPatterns(
     variation
   ].accent.map(() => false);
 }
+
+export { clearInstrumentVariation, clearVariationPatterns };

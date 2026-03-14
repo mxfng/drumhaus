@@ -32,7 +32,7 @@ export { CustomKitError, UnknownKitError, InvalidPresetError };
  * }
  * ```
  */
-export function shareablePresetToUrl(preset: PresetFileV1): string {
+function shareablePresetToUrl(preset: PresetFileV1): string {
   // Chain: PresetFileV1 -> ShareablePreset -> JSON -> Compressed -> URL-safe base64
   const shareablePreset = encodePreset(preset);
   const jsonString = serializePreset(shareablePreset);
@@ -67,10 +67,12 @@ export function shareablePresetToUrl(preset: PresetFileV1): string {
  * }
  * ```
  */
-export function urlToPreset(urlParam: string): PresetFileV1 {
+function urlToPreset(urlParam: string): PresetFileV1 {
   // Chain: URL-safe base64 -> Decompressed -> JSON -> ShareablePreset -> PresetFileV1
   const jsonString = decompress(urlParam);
   const shareablePreset = deserializePreset(jsonString);
   const preset = decodePreset(shareablePreset);
   return preset;
 }
+
+export { shareablePresetToUrl, urlToPreset };

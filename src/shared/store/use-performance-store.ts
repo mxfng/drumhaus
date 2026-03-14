@@ -22,7 +22,7 @@ const syncPotatoModeClass = (enabled: boolean) => {
   });
 };
 
-export const usePerformanceStore = create<PerformanceState>()(
+const usePerformanceStore = create<PerformanceState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -52,3 +52,5 @@ export const usePerformanceStore = create<PerformanceState>()(
     { name: "PerformanceStore" },
   ),
 );
+
+export { usePerformanceStore };

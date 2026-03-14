@@ -4,46 +4,46 @@ import {
 } from "@/core/audio/engine/constants";
 import { KNOB_ROTATION_THRESHOLD_L } from "./transform";
 
-export const formatDisplayVolumeMaster = (value: number) => {
+const formatDisplayVolumeMaster = (value: number) => {
   return formatDisplayVolume(value, MASTER_VOLUME_RANGE[0]);
 };
 
-export const formatDisplayVolumeInstrument = (value: number) => {
+const formatDisplayVolumeInstrument = (value: number) => {
   return formatDisplayVolume(value, INSTRUMENT_VOLUME_RANGE[0]);
 };
 
-export const formatDisplayTuneSemitone = (semitoneOffset: number) => ({
+const formatDisplayTuneSemitone = (semitoneOffset: number) => ({
   value: (semitoneOffset > 0 ? "+" : "") + semitoneOffset.toFixed(1),
   append: "st",
 });
 
-export const formatDisplayDecayDuration = (value: number) => {
+const formatDisplayDecayDuration = (value: number) => {
   return formatDisplayDuration(value);
 };
 
-export const formatDisplayFilter = (value: number) => {
+const formatDisplayFilter = (value: number) => {
   return { value: value.toFixed(0), append: "Hz" };
 };
 
-export const formatDisplayBpm = (value: number) => {
+const formatDisplayBpm = (value: number) => {
   return { value: value.toFixed(0), append: "bpm" };
 };
 
-export const formatDisplaySplitFilter = (value: number) => {
+const formatDisplaySplitFilter = (value: number) => {
   const modeLabel = value <= KNOB_ROTATION_THRESHOLD_L ? "LP" : "HP";
 
   return { value: value.toFixed(), append: `Hz ${modeLabel}F` };
 };
 
-export const formatDisplayPercentage = (value: number) => {
+const formatDisplayPercentage = (value: number) => {
   return { value: `${(value * 100).toFixed(0)}`, append: "%" };
 };
 
-export const formatDisplayPercentageValue = (value: number) => {
+const formatDisplayPercentageValue = (value: number) => {
   return { value: value.toFixed(0), append: "%" };
 };
 
-export const formatDisplayCompRatio = (value: number) => {
+const formatDisplayCompRatio = (value: number) => {
   return { value: value.toFixed(0), append: ": 1" };
 };
 
@@ -64,4 +64,17 @@ const formatDisplayDuration = (seconds: number) => {
     return { value: `${Math.round(seconds * 1000)}`, append: "ms" };
   if (seconds < 10) return { value: `${seconds.toFixed(2)}`, append: "s" };
   return { value: `${seconds.toFixed(1)}`, append: "s" };
+};
+
+export {
+  formatDisplayVolumeMaster,
+  formatDisplayVolumeInstrument,
+  formatDisplayTuneSemitone,
+  formatDisplayDecayDuration,
+  formatDisplayFilter,
+  formatDisplayBpm,
+  formatDisplaySplitFilter,
+  formatDisplayPercentage,
+  formatDisplayPercentageValue,
+  formatDisplayCompRatio,
 };

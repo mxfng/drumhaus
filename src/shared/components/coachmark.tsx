@@ -17,12 +17,7 @@ interface CoachmarkProps {
 const FADE_DURATION_MS = 200;
 const VERTICAL_OFFSET_PCT = 110;
 
-export function Coachmark({
-  visible,
-  message,
-  anchorRef,
-  onDismiss,
-}: CoachmarkProps) {
+function Coachmark({ visible, message, anchorRef, onDismiss }: CoachmarkProps) {
   const [position, setPosition] = useState<{ top: number; left: number }>();
   const [render, setRender] = useState(visible);
   const [isShown, setIsShown] = useState(false);
@@ -122,7 +117,7 @@ export function Coachmark({
 }
 
 // Visually-hidden heading for coachmark accessibility
-export function CoachmarkDismissTitle({
+function CoachmarkDismissTitle({
   children,
   className,
   ...props
@@ -138,7 +133,7 @@ export function CoachmarkDismissTitle({
   );
 }
 
-export function CoachmarkContent({
+function CoachmarkContent({
   children,
   className,
   ...props
@@ -170,3 +165,5 @@ function CoachmarkDismissButton({ onDismiss }: CoachmarkDismissButtonProps) {
     </Button>
   );
 }
+
+export { Coachmark, CoachmarkDismissTitle, CoachmarkContent };

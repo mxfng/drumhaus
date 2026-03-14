@@ -95,9 +95,7 @@ function cleanupIfIdle(): void {
  * unsubscribe();
  * ```
  */
-export function subscribeToPlaybackAnimation(
-  callback: AnimationCallback,
-): () => void {
+function subscribeToPlaybackAnimation(callback: AnimationCallback): () => void {
   listeners.add(callback);
 
   // Start ticker if this is the first listener
@@ -115,9 +113,11 @@ export function subscribeToPlaybackAnimation(
 /**
  * Get current animation state (useful for debugging)
  */
-export function getPlaybackAnimationState() {
+function getPlaybackAnimationState() {
   return {
     isRunning: animationFrameId !== null,
     listenerCount: listeners.size,
   };
 }
+
+export { subscribeToPlaybackAnimation, getPlaybackAnimationState };

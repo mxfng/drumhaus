@@ -9,10 +9,7 @@ import type { InstrumentRuntime } from "../engine/instrument/types";
  * Hook that provides instrument control actions with proper audio cleanup.
  * Encapsulates the coordination between store actions and audio engine operations.
  */
-export function useInstrumentControls(
-  index: number,
-  runtime?: InstrumentRuntime,
-) {
+function useInstrumentControls(index: number, runtime?: InstrumentRuntime) {
   const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
   const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
   const mute = useInstrumentsStore(
@@ -36,3 +33,5 @@ export function useInstrumentControls(
     toggleSolo,
   };
 }
+
+export { useInstrumentControls };

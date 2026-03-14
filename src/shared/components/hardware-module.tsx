@@ -4,7 +4,7 @@ import { cva, VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
 
 /* HardwareModule Root */
-export function HardwareModule({
+function HardwareModule({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -29,7 +29,7 @@ const hardwareModuleLabelVariants = cva(
 );
 
 /* HardwareModule Label */
-export const HardwareModuleLabel = forwardRef<
+const HardwareModuleLabel = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> &
     VariantProps<typeof hardwareModuleLabelVariants>
@@ -45,9 +45,11 @@ export const HardwareModuleLabel = forwardRef<
 HardwareModuleLabel.displayName = "HardwareModuleLabel";
 
 /* HardwareModule Spacer */
-export function HardwareModuleSpacer({
+function HardwareModuleSpacer({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("h-4", className)} {...props} />;
 }
+
+export { HardwareModule, HardwareModuleLabel, HardwareModuleSpacer };

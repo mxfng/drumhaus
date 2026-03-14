@@ -7,7 +7,7 @@ import {
   splitFilterMapping,
 } from "@/shared/knob/lib/mapping";
 
-export const MasterFX: React.FC = () => {
+function MasterFX() {
   const filter = useMasterChainStore((state) => state.filter);
   const saturation = useMasterChainStore((state) => state.saturation);
   const phaser = useMasterChainStore((state) => state.phaser);
@@ -50,4 +50,6 @@ export const MasterFX: React.FC = () => {
       />
     </>
   );
-};
+}
+
+export { MasterFX };

@@ -18,7 +18,7 @@ import type { InstrumentData, InstrumentRuntime } from "./types";
  * Note that the inputs to this function are the domain values, not the knob values.
  * Be sure to convert knob values from state with mapping functions before calling this function.
  */
-export function triggerInstrumentAtTime(
+function triggerInstrumentAtTime(
   runtime: InstrumentRuntime,
   tune: number,
   decay: number,
@@ -38,7 +38,7 @@ export function triggerInstrumentAtTime(
 /**
  * Triggers an instrument runtime for preview/manual playback.
  */
-export async function triggerInstrument(
+async function triggerInstrument(
   runtime: InstrumentRuntime,
   tune: number,
   decay: number,
@@ -67,7 +67,7 @@ export async function triggerInstrument(
  * stop ongoing envelopes and buffer sources, so we need to access internals for
  * reliable stopping behavior.
  */
-export function triggerInstrumentReleaseAtTime(
+function triggerInstrumentReleaseAtTime(
   runtime: InstrumentRuntime,
   time: number,
 ): void {
@@ -104,7 +104,7 @@ export function triggerInstrumentReleaseAtTime(
 /**
  * Releases all samples on all instrument runtimes. Used when stopping playback to prevent audio from continuing
  */
-export function triggerAllInstrumentsReleaseAtTime(
+function triggerAllInstrumentsReleaseAtTime(
   runtimes: InstrumentRuntime[],
   time: number = getCurrentTime(),
 ): void {
@@ -121,7 +121,7 @@ export function triggerAllInstrumentsReleaseAtTime(
  * Finds the open hat instrument in the current kit.
  * Used to determine if closed hat should mute the open hat (TR-909 style).
  */
-export function getOHatVoiceIndex(
+function getOHatVoiceIndex(
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
 ): { hasOhat: boolean; ohatIndex: number } {
@@ -138,7 +138,7 @@ export function getOHatVoiceIndex(
  * A convenience function to release the open hat at a specific time.
  * Called when closed hat is triggered (TR-909 style hat choking).
  */
-export function triggerOHatReleaseAtTime(
+function triggerOHatReleaseAtTime(
   time: number,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
@@ -199,3 +199,12 @@ function getSamplerActiveSources(
   const internal = sampler as unknown as ToneSamplerInternal;
   return internal._activeSources;
 }
+
+export {
+  triggerInstrumentAtTime,
+  triggerInstrument,
+  triggerInstrumentReleaseAtTime,
+  triggerAllInstrumentsReleaseAtTime,
+  getOHatVoiceIndex,
+  triggerOHatReleaseAtTime,
+};

@@ -6,7 +6,7 @@ import { InstrumentData, InstrumentRuntime } from "./types";
 /**
  * Release all active voices on non-solo instruments so soloing immediately silences them.
  */
-export function releaseNonSoloRuntimes(
+function releaseNonSoloRuntimes(
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
   time: number = now(),
@@ -26,21 +26,21 @@ export function releaseNonSoloRuntimes(
 /**
  * Checks if any instrument has solo enabled.
  */
-export function hasAnySolo(instruments: InstrumentData[]): boolean {
+function hasAnySolo(instruments: InstrumentData[]): boolean {
   return instruments.some((inst) => inst.params.solo);
 }
 
 /**
  * Extracts solo states from instruments for comparison.
  */
-export function getSoloStates(instruments: InstrumentData[]): boolean[] {
+function getSoloStates(instruments: InstrumentData[]): boolean[] {
   return instruments.map((inst) => inst.params.solo);
 }
 
 /**
  * Checks if solo states have changed between two snapshots.
  */
-export function soloStatesChanged(
+function soloStatesChanged(
   prevStates: boolean[],
   currentStates: boolean[],
 ): boolean {
@@ -53,7 +53,7 @@ export function soloStatesChanged(
  * Returns a function that processes instrument state and calls the callback
  * when solo state changes to enabled.
  */
-export function createSoloChangeHandler(
+function createSoloChangeHandler(
   getRuntimes: () => InstrumentRuntime[],
   onSoloEnabled: (
     instruments: InstrumentData[],
@@ -83,3 +83,11 @@ export function createSoloChangeHandler(
     },
   };
 }
+
+export {
+  releaseNonSoloRuntimes,
+  hasAnySolo,
+  getSoloStates,
+  soloStatesChanged,
+  createSoloChangeHandler,
+};

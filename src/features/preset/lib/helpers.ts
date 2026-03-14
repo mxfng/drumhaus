@@ -13,10 +13,7 @@ import { useTransportStore } from "@/features/transport/store/use-transport-stor
  * @param presetMeta - The metadata for this preset (id, name, timestamps)
  * @param kitMeta - The metadata for the kit (id, name, timestamps)
  */
-export function getCurrentPreset(
-  presetMeta: Meta,
-  kitMeta: Meta,
-): PresetFileV1 {
+function getCurrentPreset(presetMeta: Meta, kitMeta: Meta): PresetFileV1 {
   const instruments = useInstrumentsStore.getState().instruments;
   const { pattern, chain, chainEnabled } = usePatternStore.getState();
   const { bpm, swing } = useTransportStore.getState();
@@ -58,14 +55,14 @@ export function getCurrentPreset(
  * - Consistent property ordering from object literals
  * - Arrays maintain order
  */
-export function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
+function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
 /**
  * Validates a parsed preset file object
  */
-export function validatePresetFile(data: unknown): PresetFileV1 {
+function validatePresetFile(data: unknown): PresetFileV1 {
   if (typeof data !== "object" || data === null) {
     throw new Error("Invalid preset file: expected an object");
   }
@@ -85,7 +82,7 @@ export function validatePresetFile(data: unknown): PresetFileV1 {
 /**
  * Check if a preset ID corresponds to a factory preset
  */
-export function isFactoryPreset(presetId: string): boolean {
+function isFactoryPreset(presetId: string): boolean {
   const defaultPresets = getDefaultPresets();
   return defaultPresets.some((p) => p.meta.id === presetId);
 }
@@ -94,7 +91,7 @@ export function isFactoryPreset(presetId: string): boolean {
  * Generate a unique duplicate name for a preset
  * Appends " Copy" or " Copy N" to avoid conflicts
  */
-export function generateDuplicateName(
+function generateDuplicateName(
   baseName: string,
   existingPresets: PresetFileV1[],
 ): string {
@@ -110,3 +107,11 @@ export function generateDuplicateName(
 
   return newName;
 }
+
+export {
+  getCurrentPreset,
+  arePresetsEqual,
+  validatePresetFile,
+  isFactoryPreset,
+  generateDuplicateName,
+};

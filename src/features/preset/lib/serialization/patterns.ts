@@ -21,7 +21,7 @@ const EMPTY_OPTIMIZED_SEQUENCE: OptimizedStepSequence = {
  * Optimizes a pattern for URL sharing by using sparse velocity encoding
  * Only stores velocities that differ from the default value of 1.0
  */
-export function optimizePattern(pattern: Pattern): OptimizedPattern {
+function optimizePattern(pattern: Pattern): OptimizedPattern {
   return {
     voices: pattern.voices.map(optimizeVoice),
     variationMetadata: [
@@ -95,7 +95,7 @@ function optimizeVariationMetadata(
  * Hydrates an optimized pattern back to full Pattern format
  * Fills missing velocities with default value of 1.0
  */
-export function hydratePattern(optimizedPattern: OptimizedPattern): Pattern {
+function hydratePattern(optimizedPattern: OptimizedPattern): Pattern {
   return {
     voices: optimizedPattern.voices.map(hydrateVoice),
     variationMetadata: [
@@ -161,3 +161,5 @@ function hydrateVariationMetadata(
     accent: optimizedMetadata?.accent ?? Array(STEP_COUNT).fill(false),
   };
 }
+
+export { optimizePattern, hydratePattern };

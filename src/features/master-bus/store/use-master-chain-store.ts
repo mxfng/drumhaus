@@ -18,7 +18,7 @@ import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 /**
  * Selector to get MasterChainParams from the store state
  */
-export function getMasterChainParams(): MasterChainParams {
+function getMasterChainParams(): MasterChainParams {
   const state = useMasterChainStore.getState();
   return {
     filter: state.filter,
@@ -64,7 +64,7 @@ interface MasterChainState {
   setAllMasterChain: (params: MasterChainParams) => void;
 }
 
-export const useMasterChainStore = create<MasterChainState>()(
+const useMasterChainStore = create<MasterChainState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -152,3 +152,5 @@ export const useMasterChainStore = create<MasterChainState>()(
     },
   ),
 );
+
+export { getMasterChainParams, useMasterChainStore };

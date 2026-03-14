@@ -9,7 +9,7 @@ import { InstrumentControl } from "./instrument-control";
 
 const NO_OF_INSTRUMENTS = 8;
 
-export const InstrumentGrid: React.FC = () => {
+function InstrumentGrid() {
   const { instrumentRuntimes } = useDrumhaus();
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
@@ -98,4 +98,6 @@ export const InstrumentGrid: React.FC = () => {
       })}
     </div>
   );
-};
+}
+
+export { InstrumentGrid };

@@ -142,7 +142,7 @@ function AppOrchestrator() {
   );
 }
 
-export function App() {
+function App() {
   // --- App-level setup (outside providers) ---
 
   // Get preset name from URL search params
@@ -197,3 +197,5 @@ export function App() {
     </>
   );
 }
+
+export { App };

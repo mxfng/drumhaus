@@ -6,7 +6,7 @@ interface NightModeStore {
   toggleNightMode: () => void;
 }
 
-export const useNightModeStore = create<NightModeStore>()(
+const useNightModeStore = create<NightModeStore>()(
   persist(
     (set) => ({
       nightMode: false,
@@ -17,3 +17,5 @@ export const useNightModeStore = create<NightModeStore>()(
     },
   ),
 );
+
+export { useNightModeStore };

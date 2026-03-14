@@ -11,7 +11,7 @@ import { ensureAudioContextIsRunning } from "../context/manager";
 /**
  * Start or resume the audio context
  */
-export async function startAudioContext(): Promise<void> {
+async function startAudioContext(): Promise<void> {
   await ensureAudioContextIsRunning("transport");
 }
 
@@ -20,7 +20,7 @@ export async function startAudioContext(): Promise<void> {
  * @param time The time when the transport should start.
  * @param offset The timeline offset to start the transport.
  */
-export function startTransport(time?: number, offset?: number): void {
+function startTransport(time?: number, offset?: number): void {
   getTransport().start(time, offset);
 }
 
@@ -29,7 +29,7 @@ export function startTransport(time?: number, offset?: number): void {
  * @param time The time when the transport should stop.
  * @param onStop Optional callback to execute after stopping the transport.
  */
-export function stopTransport(time?: number, onStop?: () => void): void {
+function stopTransport(time?: number, onStop?: () => void): void {
   getTransport().stop(time);
   if (onStop) {
     onStop();
@@ -39,14 +39,14 @@ export function stopTransport(time?: number, onStop?: () => void): void {
 /**
  * Set the transport BPM
  */
-export function setTransportBpm(bpm: number): void {
+function setTransportBpm(bpm: number): void {
   getTransport().bpm.value = bpm;
 }
 
 /**
  * Set the transport swing
  */
-export function setTransportSwing(swing: number): void {
+function setTransportSwing(swing: number): void {
   const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
   getTransport().swingSubdivision = SEQUENCE_SUBDIVISION;
   getTransport().swing = newSwing;
@@ -56,7 +56,7 @@ export function setTransportSwing(swing: number): void {
  * Configures transport timing settings.
  * Works with both online (getTransport) and offline transport objects.
  */
-export function configureTransportTiming(
+function configureTransportTiming(
   transport: {
     bpm: { value: number };
     swing: number;
@@ -73,7 +73,7 @@ export function configureTransportTiming(
 /**
  * The current audio context time of the global context.
  */
-export function getCurrentTime(): number {
+function getCurrentTime(): number {
   return now();
 }
 
@@ -81,10 +81,21 @@ export function getCurrentTime(): number {
  * Calculate current step index (0-15) from transport ticks
  * Use this directly in requestAnimationFrame loops to avoid React re-renders
  */
-export function getCurrentStepFromTransport(): number {
+function getCurrentStepFromTransport(): number {
   const transport = getTransport();
   const ticks = transport.ticks;
   const ticksPerStep = Ticks(SEQUENCE_SUBDIVISION).valueOf();
   const currentStep = Math.floor(ticks / ticksPerStep) % STEP_COUNT;
   return currentStep;
 }
+
+export {
+  startAudioContext,
+  startTransport,
+  stopTransport,
+  setTransportBpm,
+  setTransportSwing,
+  configureTransportTiming,
+  getCurrentTime,
+  getCurrentStepFromTransport,
+};

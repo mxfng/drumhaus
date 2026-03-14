@@ -14,9 +14,7 @@ type PresetActionsProps = {
   onOpenFromFile: () => void;
 };
 
-export const PresetActions: React.FC<PresetActionsProps> = ({
-  onOpenFromFile,
-}) => {
+function PresetActions({ onOpenFromFile }: PresetActionsProps) {
   const openDialog = useDialogStore((state) => state.openDialog);
   const currentPresetMeta = usePresetMetaStore(
     (state) => state.currentPresetMeta,
@@ -105,4 +103,6 @@ export const PresetActions: React.FC<PresetActionsProps> = ({
       </Tooltip>
     </div>
   );
-};
+}
+
+export { PresetActions };

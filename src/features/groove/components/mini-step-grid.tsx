@@ -10,12 +10,12 @@ type MiniStepGridProps = {
 /**
  * Minimal 16-step grid for groove edit screens (accent/ratchet/flam) and previews.
  */
-export const MiniStepGrid: React.FC<MiniStepGridProps> = ({
+function MiniStepGrid({
   steps,
   activeClassName = "border-primary bg-primary/20 text-primary",
   inactiveClassName = "border-foreground-muted/30 bg-foreground-muted/5 text-foreground-muted",
   className,
-}) => {
+}: MiniStepGridProps) {
   if (!steps.length) return null;
 
   return (
@@ -33,4 +33,6 @@ export const MiniStepGrid: React.FC<MiniStepGridProps> = ({
       ))}
     </div>
   );
-};
+}
+
+export { MiniStepGrid };

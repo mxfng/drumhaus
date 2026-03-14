@@ -197,7 +197,7 @@ type CompactParams = {
 /**
  * Compact preset format
  */
-export type CompactPreset = {
+type CompactPreset = {
   id: string; // preset UUID (new UUID generated when sharing)
   k: string; // kit ID (single digit 0-9)
   n?: string; // preset name
@@ -318,7 +318,7 @@ function encodeMasterChain(
   return Object.keys(mc).length > 0 ? mc : undefined;
 }
 
-export function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
+function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
   const kitId = kitIdToCompactCode(preset.kit.meta.id);
   if (!kitId) {
     throw new Error(
@@ -484,7 +484,7 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
   };
 }
 
-export function decodeCompactPreset(
+function decodeCompactPreset(
   compact: CompactPreset,
   kitLoader: (kitId: string) => KitFileV1,
 ): PresetFileV1 {
@@ -581,3 +581,6 @@ export function decodeCompactPreset(
     masterChain: decodeMasterChain(compact.mc),
   };
 }
+
+export { encodeCompactPreset, decodeCompactPreset };
+export type { CompactPreset };

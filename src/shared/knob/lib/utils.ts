@@ -5,7 +5,7 @@ import { KNOB_EXPONENTIAL_CURVE_POWER } from "./constants";
  * Convert normalized value [0, 1] to knob value [0, 100], preserving precision.
  * Keep fractional values so callers can decide how to quantize.
  */
-export function toKnobValue(normalized: number): number {
+function toKnobValue(normalized: number): number {
   return clamp(normalized * 100, 0, 100);
 }
 
@@ -13,7 +13,7 @@ export function toKnobValue(normalized: number): number {
  * Apply exponential curve transformation for perceptually uniform knob response.
  * Used in forward transforms to map linear knob movement to exponential parameter change.
  */
-export function applyExpCurve(t: number): number {
+function applyExpCurve(t: number): number {
   return Math.pow(t, KNOB_EXPONENTIAL_CURVE_POWER);
 }
 
@@ -21,7 +21,7 @@ export function applyExpCurve(t: number): number {
  * Apply inverse exponential curve transformation.
  * Used in inverse transforms to convert exponential parameter values back to linear knob positions.
  */
-export function inverseExpCurve(t: number): number {
+function inverseExpCurve(t: number): number {
   return Math.pow(t, 1 / KNOB_EXPONENTIAL_CURVE_POWER);
 }
 
@@ -34,7 +34,7 @@ export function inverseExpCurve(t: number): number {
  * semitonesToRatio(-12) // 0.5 (one octave down)
  * semitonesToRatio(7)   // 1.498 (perfect fifth)
  */
-export function semitonesToRatio(semitones: number): number {
+function semitonesToRatio(semitones: number): number {
   return Math.pow(2, semitones / 12);
 }
 
@@ -47,6 +47,14 @@ export function semitonesToRatio(semitones: number): number {
  * ratioToSemitones(0.5)  // -12 (one octave down)
  * ratioToSemitones(1.5)  // ~7 (perfect fifth)
  */
-export function ratioToSemitones(ratio: number): number {
+function ratioToSemitones(ratio: number): number {
   return Math.log2(ratio) * 12;
 }
+
+export {
+  toKnobValue,
+  applyExpCurve,
+  inverseExpCurve,
+  semitonesToRatio,
+  ratioToSemitones,
+};

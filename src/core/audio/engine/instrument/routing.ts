@@ -5,7 +5,7 @@ import { InstrumentRuntime } from "./types";
  * Chains instrument nodes in signal flow order:
  * Sampler → Envelope → Filters → Panner
  */
-export function chainInstrumentNodes(runtime: InstrumentRuntime): void {
+function chainInstrumentNodes(runtime: InstrumentRuntime): void {
   runtime.samplerNode.chain(
     runtime.envelopeNode,
     runtime.lowPassFilterNode,
@@ -22,7 +22,7 @@ export function chainInstrumentNodes(runtime: InstrumentRuntime): void {
  * - Wet path: through compressor
  * - Dry path: through latency-compensated delay
  */
-export function connectInstrumentToMasterChain(
+function connectInstrumentToMasterChain(
   instrumentRuntime: InstrumentRuntime,
   masterChainRuntimes: MasterChainRuntimes,
 ): void {
@@ -37,7 +37,7 @@ export function connectInstrumentToMasterChain(
 /**
  * Connects multiple instrument runtimes to the master chain.
  */
-export function connectInstrumentsToMasterChain(
+function connectInstrumentsToMasterChain(
   instrumentRuntimes: InstrumentRuntime[],
   masterChainRuntimes: MasterChainRuntimes,
 ): void {
@@ -45,3 +45,9 @@ export function connectInstrumentsToMasterChain(
     connectInstrumentToMasterChain(inst, masterChainRuntimes),
   );
 }
+
+export {
+  chainInstrumentNodes,
+  connectInstrumentToMasterChain,
+  connectInstrumentsToMasterChain,
+};

@@ -5,7 +5,7 @@ import { clamp } from "@/shared/lib/utils";
 /**
  * Encodes an AudioBuffer to WAV format (PCM 16-bit)
  */
-export function encodeWav(audioBuffer: AudioBuffer): ArrayBuffer {
+function encodeWav(audioBuffer: AudioBuffer): ArrayBuffer {
   const numChannels = audioBuffer.numberOfChannels;
   const sampleRate = audioBuffer.sampleRate;
   const numSamples = audioBuffer.length;
@@ -67,7 +67,7 @@ function writeString(view: DataView, offset: number, str: string): void {
 /**
  * Triggers a browser download of the WAV file
  */
-export function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
+function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
   const blob = new Blob([wavBuffer], { type: "audio/wav" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -82,7 +82,7 @@ export function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
 /**
  * Generates a timestamped filename for export
  */
-export function generateExportFilename(): string {
+function generateExportFilename(): string {
   const now = new Date();
   const timestamp = now
     .toISOString()
@@ -91,3 +91,5 @@ export function generateExportFilename(): string {
     .slice(0, 15);
   return `drumhaus-export-${timestamp}.wav`;
 }
+
+export { encodeWav, downloadWav, generateExportFilename };

@@ -7,7 +7,7 @@ import { PlayPauseButton } from "@/features/transport/components/play-pause-butt
 import { TempoControls } from "@/features/transport/components/tempo-controls";
 import { HardwareModuleLabel } from "@/shared/components/hardware-module";
 
-export const ControlsPanel = () => {
+const ControlsPanel = () => {
   return (
     <div className="grid w-full grid-cols-8 flex-row items-center gap-y-1 px-6 py-4">
       {/* Module Labels */}
@@ -46,3 +46,5 @@ export const ControlsPanel = () => {
     </div>
   );
 };
+
+export { ControlsPanel };

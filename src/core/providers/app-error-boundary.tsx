@@ -44,7 +44,7 @@ class AppErrorBoundaryInner extends Component<
   }
 }
 
-export function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
+function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
   const { toast } = useToast();
 
   return (
@@ -62,3 +62,5 @@ export function AppErrorBoundary({ children }: AppErrorBoundaryProps) {
     </AppErrorBoundaryInner>
   );
 }
+
+export { AppErrorBoundary };

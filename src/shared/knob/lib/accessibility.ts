@@ -12,7 +12,7 @@ interface UseKnobKeyboardOptions {
  * Creates a keyboard event handler for knob controls
  * Supports: Arrow keys, PageUp/Down, Home/End, Enter/Space
  */
-export const createKnobKeyboardHandler = ({
+const createKnobKeyboardHandler = ({
   value,
   stepSize,
   onValueChange,
@@ -64,3 +64,5 @@ export const createKnobKeyboardHandler = ({
     }
   };
 };
+
+export { createKnobKeyboardHandler };

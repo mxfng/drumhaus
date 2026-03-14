@@ -13,9 +13,9 @@ import {
 } from "../lib/constants";
 import { KnobTicks } from "./knob-ticks";
 
-export type KnobSize = "default" | "lg";
+type KnobSize = "default" | "lg";
 
-export interface KnobProps {
+interface KnobProps {
   /** Current knob position 0..100 */
   value: number;
   onValueChange: (newState: number) => void;
@@ -37,7 +37,7 @@ export interface KnobProps {
   showTickIndicator?: boolean;
 }
 
-export const Knob: React.FC<KnobProps> = ({
+function Knob({
   value,
   onValueChange,
   label,
@@ -48,7 +48,7 @@ export const Knob: React.FC<KnobProps> = ({
   step: stepSize = KNOB_VALUE_DEFAULT,
   defaultValue = KNOB_VALUE_DEFAULT,
   showTickIndicator = true,
-}) => {
+}: KnobProps) {
   const containerClass = {
     default: "h-20",
     lg: "h-44",
@@ -174,4 +174,7 @@ export const Knob: React.FC<KnobProps> = ({
       </div>
     </div>
   );
-};
+}
+
+export { Knob };
+export type { KnobSize, KnobProps };

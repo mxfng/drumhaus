@@ -27,7 +27,7 @@ interface TransportState {
   setSwing: (swing: number) => void;
 }
 
-export const useTransportStore = create<TransportState>()(
+const useTransportStore = create<TransportState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -96,3 +96,5 @@ export const useTransportStore = create<TransportState>()(
     },
   ),
 );
+
+export { useTransportStore };

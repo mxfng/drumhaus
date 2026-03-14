@@ -6,7 +6,7 @@ import { useDialogStore } from "@/shared/store/use-dialog-store";
 /**
  * Global ESC handler to reset the sequencer to voice mode from any other mode.
  */
-export function useSequencerEscToVoice(): void {
+function useSequencerEscToVoice(): void {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
   const setMode = usePatternStore((state) => state.setMode);
 
@@ -40,3 +40,5 @@ export function useSequencerEscToVoice(): void {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isAnyDialogOpen]);
 }
+
+export { useSequencerEscToVoice };

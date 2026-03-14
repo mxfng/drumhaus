@@ -14,7 +14,7 @@ import {
  * Master chain runtime nodes.
  * Represents the complete audio graph for master bus processing.
  */
-export interface MasterChainRuntimes {
+interface MasterChainRuntimes {
   // Compressor section (front of chain with parallel compression)
   compressor: Compressor;
   compMakeupGain: Gain; // Fixed makeup gain after compressor
@@ -43,7 +43,7 @@ export interface MasterChainRuntimes {
  * Master chain settings after parameter mapping.
  * Domain values ready to apply to audio nodes.
  */
-export type MasterChainSettings = {
+type MasterChainSettings = {
   // Split filter settings (single filter that switches type, same as instrument filter)
   filter: number; // Raw knob value 0-100
   saturationWet: number;
@@ -58,7 +58,7 @@ export type MasterChainSettings = {
   masterVolume: number;
 };
 
-export interface MasterChainParams {
+interface MasterChainParams {
   // New unified filter (replaces lowPass/highPass)
   filter: number;
   saturation: number;
@@ -74,3 +74,5 @@ export interface MasterChainParams {
   lowPass?: number;
   highPass?: number;
 }
+
+export type { MasterChainRuntimes, MasterChainSettings, MasterChainParams };

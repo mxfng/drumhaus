@@ -48,7 +48,7 @@ function stopTickerIfIdle(): void {
   }
 }
 
-export function subscribeToStepUpdates(listener: StepListener): () => void {
+function subscribeToStepUpdates(listener: StepListener): () => void {
   listeners.add(listener);
   ensureTickerRunning();
 
@@ -57,3 +57,5 @@ export function subscribeToStepUpdates(listener: StepListener): () => void {
     stopTickerIfIdle();
   };
 }
+
+export { subscribeToStepUpdates };

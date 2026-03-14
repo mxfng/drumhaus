@@ -92,7 +92,7 @@ function normalizeVariationMetadataUnsafe(
  * - Preset loading (stock presets, .dh files, shared URLs)
  * - Any other pattern deserialization
  */
-export function migratePattern(pattern: Pattern | unknown): Pattern {
+function migratePattern(pattern: Pattern | unknown): Pattern {
   // Check if this is the old Pattern = Voice[] format (legacy)
   if (Array.isArray(pattern)) {
     // Legacy format: Pattern was just Voice[]
@@ -161,7 +161,7 @@ function migrateVariationMetadata(
  *
  * Handles both legacy Voice[] format and modern { voices, variationMetadata } format.
  */
-export function migratePatternUnsafe(pattern: unknown): Pattern {
+function migratePatternUnsafe(pattern: unknown): Pattern {
   // Check if this is the old Pattern = Voice[] format
   if (Array.isArray(pattern)) {
     // Legacy format: Pattern was just Voice[]
@@ -362,9 +362,7 @@ function migrateInstrumentParams(params: unknown): {
  * Legacy format: { attack, release, pitch, ... }
  * Current format: { decay, tune, ... }
  */
-export function migrateInstruments(
-  instruments: InstrumentData[],
-): InstrumentData[] {
+function migrateInstruments(instruments: InstrumentData[]): InstrumentData[] {
   return instruments.map((instrument) => ({
     ...instrument,
     params: migrateInstrumentParams(instrument.params),
@@ -378,7 +376,7 @@ export function migrateInstruments(
  * Legacy format: { lowPass, highPass, ... }
  * Current format: { filter, saturation, compAttack, ... }
  */
-export function migrateMasterChainParams(
+function migrateMasterChainParams(
   params: MasterChainParams | unknown,
 ): MasterChainParams {
   const rawParams = params as Partial<MasterChainParams>;
@@ -422,3 +420,10 @@ export function migrateMasterChainParams(
     masterVolume: rawParams.masterVolume ?? 92,
   };
 }
+
+export {
+  migratePattern,
+  migratePatternUnsafe,
+  migrateInstruments,
+  migrateMasterChainParams,
+};

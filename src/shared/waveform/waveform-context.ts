@@ -2,13 +2,13 @@ import { createContext } from "react";
 
 import type { TransientWaveformData } from "@/core/audio/cache";
 
-export interface WaveformState {
+interface WaveformState {
   data: TransientWaveformData | null;
   isLoading: boolean;
   error: Error | null;
 }
 
-export interface WaveformContextValue {
+interface WaveformContextValue {
   /**
    * Get waveform data for a given sample filename.
    * Returns cached data if available, otherwise loads and caches it.
@@ -33,4 +33,7 @@ export interface WaveformContextValue {
   areWaveformsReady: boolean;
 }
 
-export const WaveformContext = createContext<WaveformContextValue | null>(null);
+const WaveformContext = createContext<WaveformContextValue | null>(null);
+
+export { WaveformContext };
+export type { WaveformState, WaveformContextValue };

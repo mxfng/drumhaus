@@ -10,7 +10,7 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { cn } from "@/shared/lib/utils";
 
-export const TempoControlsScreen: React.FC = () => {
+function TempoControlsScreen() {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
@@ -73,4 +73,6 @@ export const TempoControlsScreen: React.FC = () => {
       </div>
     </ScreenBar>
   );
-};
+}
+
+export { TempoControlsScreen };

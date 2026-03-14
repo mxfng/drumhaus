@@ -1,13 +1,13 @@
 import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
 
-export const MIN_CHAIN_REPEAT = 1;
-export const MAX_CHAIN_REPEAT = 8;
-export const MAX_CHAIN_STEPS = 8;
-export const DEFAULT_CHAIN: PatternChain = {
+const MIN_CHAIN_REPEAT = 1;
+const MAX_CHAIN_REPEAT = 8;
+const MAX_CHAIN_STEPS = 8;
+const DEFAULT_CHAIN: PatternChain = {
   steps: [{ variation: 0, repeats: 1 }],
 };
 
-export function appendChainDraftStep(
+function appendChainDraftStep(
   chainDraft: PatternChain,
   variation: VariationId,
 ): PatternChain {
@@ -38,13 +38,13 @@ export function appendChainDraftStep(
   );
 }
 
-export function clampVariationId(variation: number): VariationId {
+function clampVariationId(variation: number): VariationId {
   if (variation < 0) return 0;
   if (variation > 3) return 3;
   return variation as VariationId;
 }
 
-export function sanitizeChain(
+function sanitizeChain(
   chain?: PatternChain,
   options?: { allowEmpty?: boolean },
 ): PatternChain {
@@ -71,7 +71,7 @@ export function sanitizeChain(
   return { steps };
 }
 
-export function legacyCycleToChain(
+function legacyCycleToChain(
   variationCycle: VariationCycle | undefined,
   fallbackVariation: number,
 ): {
@@ -119,3 +119,14 @@ export function legacyCycleToChain(
       };
   }
 }
+
+export {
+  MIN_CHAIN_REPEAT,
+  MAX_CHAIN_REPEAT,
+  MAX_CHAIN_STEPS,
+  DEFAULT_CHAIN,
+  appendChainDraftStep,
+  clampVariationId,
+  sanitizeChain,
+  legacyCycleToChain,
+};

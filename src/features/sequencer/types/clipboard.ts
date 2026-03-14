@@ -9,7 +9,7 @@ import { VariationId } from "./sequencer";
  * - Instrument: Full StepSequence (triggers, velocities, ratchets, flams, nudge)
  * - Variation: All 8 instruments + accent pattern
  */
-export type ClipboardContent =
+type ClipboardContent =
   | {
       type: "instrument";
       /** Full groove for one voice */
@@ -31,6 +31,8 @@ export type ClipboardContent =
  * Reference to where the copy originated.
  * Used for UI feedback and preventing paste to same location.
  */
-export type CopySource =
+type CopySource =
   | { type: "instrument"; voiceIndex: number; variationId: VariationId }
   | { type: "variation"; variationId: VariationId };
+
+export type { ClipboardContent, CopySource };

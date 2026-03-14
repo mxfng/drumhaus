@@ -30,7 +30,7 @@ const DOT_COLORS = {
   inactive: ["bg-border", "bg-border", "bg-border", "bg-border", "bg-border"],
 };
 
-export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
+function GainMeter({ runtime }: GainMeterProps) {
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const meterRef = useRef<Meter | null>(null);
   const peakLevelRef = useRef(0);
@@ -139,4 +139,6 @@ export const GainMeter: React.FC<GainMeterProps> = ({ runtime }) => {
       ))}
     </div>
   );
-};
+}
+
+export { GainMeter };

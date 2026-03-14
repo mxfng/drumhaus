@@ -51,7 +51,7 @@ import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
  * Sequencer mode - represents what the user is currently editing.
  * Modes are mutually exclusive and determine sequencer grid behavior.
  */
-export type SequencerMode =
+type SequencerMode =
   | { type: "voice"; voiceIndex: number } // Editing a specific voice/instrument pattern
   | { type: "accent" } // Editing accent pattern (variation-level)
   | { type: "ratchet"; voiceIndex: number } // Editing ratchet pattern for voice
@@ -155,7 +155,7 @@ interface PatternState {
   ) => void;
 }
 
-export const usePatternStore = create<PatternState>()(
+const usePatternStore = create<PatternState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -600,3 +600,6 @@ export const usePatternStore = create<PatternState>()(
     },
   ),
 );
+
+export { usePatternStore };
+export type { SequencerMode };

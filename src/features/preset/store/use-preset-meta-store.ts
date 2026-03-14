@@ -97,7 +97,7 @@ interface PresetMetaState {
   canAddCustomPreset: () => boolean;
 }
 
-export const usePresetMetaStore = create<PresetMetaState>()(
+const usePresetMetaStore = create<PresetMetaState>()(
   devtools(
     persist(
       immer((set, get) => ({
@@ -317,3 +317,5 @@ export const usePresetMetaStore = create<PresetMetaState>()(
     },
   ),
 );
+
+export { usePresetMetaStore };

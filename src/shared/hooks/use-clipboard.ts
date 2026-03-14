@@ -4,7 +4,7 @@ interface UseClipboardOptions {
   timeout?: number;
 }
 
-export function useClipboard(options: UseClipboardOptions = {}) {
+function useClipboard(options: UseClipboardOptions = {}) {
   const { timeout = 2000 } = options;
   const [hasCopied, setHasCopied] = useState(false);
 
@@ -27,3 +27,5 @@ export function useClipboard(options: UseClipboardOptions = {}) {
 
   return { onCopy, hasCopied };
 }
+
+export { useClipboard };

@@ -25,11 +25,7 @@ interface ShareDialogProps {
   onShare: (name: string) => Promise<string>;
 }
 
-export const ShareDialog: React.FC<ShareDialogProps> = ({
-  isOpen,
-  onClose,
-  onShare,
-}) => {
+function ShareDialog({ isOpen, onClose, onShare }: ShareDialogProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -208,4 +204,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { ShareDialog };

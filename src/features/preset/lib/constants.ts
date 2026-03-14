@@ -4,13 +4,13 @@ import type { PresetFileV1 } from "@/features/preset/types/preset";
 /**
  * Maximum allowed length for preset names
  */
-export const MAX_PRESET_NAME_LENGTH = 20;
+const MAX_PRESET_NAME_LENGTH = 20;
 
 /**
  * All default presets included with the application
  * Lazy-loaded to avoid loading all preset data upfront
  */
-export const getDefaultPresets = (): PresetFileV1[] => [
+const getDefaultPresets = (): PresetFileV1[] => [
   presets.init(),
   presets.welcomeToTheHaus(),
   presets.aDrumCalledHaus(),
@@ -23,3 +23,5 @@ export const getDefaultPresets = (): PresetFileV1[] => [
   presets.superDreamHaus(),
   presets.togetherAgain(),
 ];
+
+export { MAX_PRESET_NAME_LENGTH, getDefaultPresets };

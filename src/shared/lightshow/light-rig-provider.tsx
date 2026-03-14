@@ -86,7 +86,7 @@ function warmUpGpu(nodes: Map<string, RegisteredLightNode>) {
   document.documentElement.classList.remove("lightshow-warmup");
 }
 
-export function LightRigProvider({ children }: PropsWithChildren) {
+function LightRigProvider({ children }: PropsWithChildren) {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
   const idCounter = useRef(0);
   const isPlayingRef = useRef(false);
@@ -265,3 +265,5 @@ export function LightRigProvider({ children }: PropsWithChildren) {
     </LightRigContext.Provider>
   );
 }
+
+export { LightRigProvider };

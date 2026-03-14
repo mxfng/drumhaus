@@ -33,7 +33,7 @@ const TOOLTIPS = {
   SWING: "Adjust the swing",
 } as const;
 
-export const TempoControls = () => {
+const TempoControls = () => {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
@@ -182,3 +182,5 @@ export const TempoControls = () => {
     </div>
   );
 };
+
+export { TempoControls };

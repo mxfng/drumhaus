@@ -6,9 +6,11 @@
  * normalizeSamplePath("/samples/kit-name/kick.wav") => "kit-name/kick"
  * normalizeSamplePath("samples/kit-name/snare.wav") => "kit-name/snare"
  */
-export function normalizeSamplePath(audioFile: string): string {
+function normalizeSamplePath(audioFile: string): string {
   const normalizedPath = audioFile
     .replace(/^\/+/, "")
     .replace(/^samples\//, "");
   return normalizedPath.replace(/\.[^.]+$/, "");
 }
+
+export { normalizeSamplePath };

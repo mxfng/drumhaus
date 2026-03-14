@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useLightRig } from "./light-rig-context";
 import { LightNodeRegistration } from "./types";
 
-export const useLightNode = (
+const useLightNode = (
   ref: React.RefObject<HTMLElement | null>,
   options?: Omit<LightNodeRegistration, "ref">,
 ) => {
@@ -25,3 +25,5 @@ export const useLightNode = (
     return unregister;
   }, [registerNode, ref, id, group, glowColor, weight]);
 };
+
+export { useLightNode };

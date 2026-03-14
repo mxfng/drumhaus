@@ -3,12 +3,12 @@
  * Shifts all triggers for this variation earlier (negative) or later (positive).
  * -2 = very early, -1 = early, 0 = on-grid, +1 = late, +2 = very late
  */
-export type TimingNudge = -2 | -1 | 0 | 1 | 2;
+type TimingNudge = -2 | -1 | 0 | 1 | 2;
 
 /**
  * Represents one instrument's step sequence over a single bar (16 steps).
  */
-export type StepSequence = {
+type StepSequence = {
   /** 16 boolean flags indicating whether this step is active (hit) or inactive (rest).
    *  Each boolean corresponds to one 16th note in a 4/4 bar. */
   triggers: boolean[]; // length: 16
@@ -37,7 +37,7 @@ export type StepSequence = {
  * Represents one voice/lane in the drum sequencer, tied to a specific instrument.
  * Each voice has four variations (A-D), allowing for pattern alternation during playback.
  */
-export type Voice = {
+type Voice = {
   /** Index (0–7) identifying which instrument in the kit this voice plays. */
   instrumentIndex: number; // range: [0..7]
 
@@ -50,7 +50,7 @@ export type Voice = {
  * Contains variation-level data that applies to ALL instruments/voices for that variation.
  * This is separate from per-voice variation data (triggers, velocities, timingNudge).
  */
-export type VariationMetadata = {
+type VariationMetadata = {
   /** 16 boolean flags indicating which steps are accented.
    *  When a step is accented, its velocity is boosted for emphasis (TR-909 style).
    *  Accents apply to ALL instruments on that step - this is variation-level, not per-voice.
@@ -76,7 +76,7 @@ export type VariationMetadata = {
  * - pattern.voices[1].variations[0] for snare drum's A pattern
  * - pattern.variationMetadata[0] for variation A's accent pattern (applies to all)
  */
-export type Pattern = {
+type Pattern = {
   /** 8 voices, one per instrument slot (0-7).
    *  Each voice contains per-instrument pattern data for A, B, C, and D variations. */
   voices: Voice[]; // length: 8
@@ -91,3 +91,5 @@ export type Pattern = {
     VariationMetadata,
   ]; // [A, B, C, D]
 };
+
+export type { TimingNudge, StepSequence, Voice, VariationMetadata, Pattern };

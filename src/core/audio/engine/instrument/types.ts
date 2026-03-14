@@ -10,7 +10,7 @@ import { AmplitudeEnvelope, Filter, Panner, Sampler } from "tone";
 import { SampleData } from "@/features/kit/types/sample";
 import { InlineMeta } from "@/features/preset/types/meta";
 
-export type InstrumentRole =
+type InstrumentRole =
   | "kick"
   | "snare"
   | "clap"
@@ -23,7 +23,7 @@ export type InstrumentRole =
   | "synth"
   | "other";
 
-export interface InstrumentData {
+interface InstrumentData {
   meta: InlineMeta; // id + display name of this pad
   role: InstrumentRole; // where it lives conceptually in the kit
   sample: SampleData;
@@ -34,7 +34,7 @@ export interface InstrumentData {
  * Represents the runtime audio nodes for an instrument
  * Used during playback and rendering
  */
-export interface InstrumentRuntime {
+interface InstrumentRuntime {
   instrumentId: string; // matches InstrumentData.meta.id
   samplerNode: Sampler;
   /** Used for decay envelope and pseudo-monophonic behavior */
@@ -48,7 +48,7 @@ export interface InstrumentRuntime {
  * Continuous parameters that are applied directly to audio nodes.
  * These stay active and are updated via subscription.
  */
-export interface ContinuousRuntimeParams {
+interface ContinuousRuntimeParams {
   filter: number;
   pan: number;
   volume: number;
@@ -58,14 +58,14 @@ export interface ContinuousRuntimeParams {
  * Per-note parameters that are read during playback.
  * These are NOT applied to audio nodes in advance.
  */
-export interface PerNoteParams {
+interface PerNoteParams {
   tune: number;
   decay: number;
   solo: boolean;
   mute: boolean;
 }
 
-export interface InstrumentParams {
+interface InstrumentParams {
   decay: number;
   filter: number;
   volume: number;
@@ -74,3 +74,12 @@ export interface InstrumentParams {
   solo: boolean;
   mute: boolean;
 }
+
+export type {
+  InstrumentRole,
+  InstrumentData,
+  InstrumentRuntime,
+  ContinuousRuntimeParams,
+  PerNoteParams,
+  InstrumentParams,
+};

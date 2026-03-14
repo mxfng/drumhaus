@@ -11,7 +11,7 @@ import type { WaveformState } from "./waveform-context";
  * @param audioFile - The audio file path (e.g., "/samples/kit-name/kick.wav")
  * @returns Waveform state with data, loading, and error
  */
-export function useWaveformData(audioFile: string): WaveformState {
+function useWaveformData(audioFile: string): WaveformState {
   const { getWaveform, getWaveformState } = useWaveform();
   const sampleFilename = normalizeSamplePath(audioFile);
 
@@ -27,3 +27,5 @@ export function useWaveformData(audioFile: string): WaveformState {
 
   return state;
 }
+
+export { useWaveformData };
