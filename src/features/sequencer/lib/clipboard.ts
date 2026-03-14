@@ -7,7 +7,7 @@ import { VariationId } from "../types/sequencer";
  * Deep clone a StepSequence.
  * Copies the entire groove: triggers, velocities, ratchets, flams, and nudge.
  */
-export function cloneStepSequence(seq: StepSequence): StepSequence {
+function cloneStepSequence(seq: StepSequence): StepSequence {
   return {
     triggers: [...seq.triggers],
     velocities: [...seq.velocities],
@@ -20,7 +20,7 @@ export function cloneStepSequence(seq: StepSequence): StepSequence {
 /**
  * Create clipboard content from one instrument's groove.
  */
-export function createInstrumentClipboard(
+function createInstrumentClipboard(
   pattern: Pattern,
   voiceIndex: number,
   variationId: VariationId,
@@ -42,7 +42,7 @@ export function createInstrumentClipboard(
  * Create clipboard content from an entire variation's groove.
  * Includes all 8 instruments + the accent pattern.
  */
-export function createVariationClipboard(
+function createVariationClipboard(
   pattern: Pattern,
   variationId: VariationId,
 ): { clipboard: ClipboardContent; source: CopySource } {
@@ -64,7 +64,7 @@ export function createVariationClipboard(
  * Check if a paste target is the exact same location as the copy source.
  * Used to prevent pasting to the same location (no-op) and for UI dimming.
  */
-export function isSameAsSource(
+function isSameAsSource(
   source: CopySource,
   targetType: "instrument" | "variation",
   targetVoiceIndex: number | null,
@@ -82,7 +82,7 @@ export function isSameAsSource(
   return false;
 }
 
-export function applyInstrumentClipboard(
+function applyInstrumentClipboard(
   pattern: Pattern,
   clipboard: ClipboardContent | null,
   voiceIndex: number,
@@ -96,7 +96,7 @@ export function applyInstrumentClipboard(
   return true;
 }
 
-export function applyVariationClipboard(
+function applyVariationClipboard(
   pattern: Pattern,
   clipboard: ClipboardContent | null,
   variationId: VariationId,
@@ -109,3 +109,12 @@ export function applyVariationClipboard(
   pattern.variationMetadata[variationId].accent = [...clipboard.data.accent];
   return true;
 }
+
+export {
+  cloneStepSequence,
+  createInstrumentClipboard,
+  createVariationClipboard,
+  isSameAsSource,
+  applyInstrumentClipboard,
+  applyVariationClipboard,
+};

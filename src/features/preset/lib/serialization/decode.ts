@@ -6,7 +6,7 @@ import { getDefaultKitLoader } from "./default-kits";
 /**
  * Error thrown when a kit ID is not found in the default kit registry
  */
-export class UnknownKitError extends Error {
+class UnknownKitError extends Error {
   constructor(kitId: string) {
     super(
       `Unknown kit ID: "${kitId}". This kit may not exist or may be from a newer version of Drumhaus.`,
@@ -18,7 +18,7 @@ export class UnknownKitError extends Error {
 /**
  * Error thrown when the shareable preset structure is invalid
  */
-export class InvalidPresetError extends Error {
+class InvalidPresetError extends Error {
   constructor(message: string) {
     super(`Invalid preset data: ${message}`);
     this.name = "InvalidPresetError";
@@ -61,7 +61,7 @@ function validateCompactPreset(data: unknown): asserts data is CompactPreset {
 /**
  * Deserializes a JSON string to a CompactPreset with validation
  */
-export function deserializePreset(jsonString: string): CompactPreset {
+function deserializePreset(jsonString: string): CompactPreset {
   try {
     const data = JSON.parse(jsonString);
     validateCompactPreset(data);
@@ -80,6 +80,8 @@ export function deserializePreset(jsonString: string): CompactPreset {
  * Converts a CompactPreset to a full PresetFileV1
  * Rehydrates kit data from the default kit registry
  */
-export function decodePreset(compactPreset: CompactPreset): PresetFileV1 {
+function decodePreset(compactPreset: CompactPreset): PresetFileV1 {
   return decodeCompactPreset(compactPreset, loadDefaultKit);
 }
+
+export { UnknownKitError, InvalidPresetError, deserializePreset, decodePreset };

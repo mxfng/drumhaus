@@ -1,4 +1,4 @@
-export const INSTRUMENT_COLORS = [
+const INSTRUMENT_COLORS = [
   "var(--color-track-blue)",
   "var(--color-track-orange)",
   "var(--color-track-red)",
@@ -8,3 +8,5 @@ export const INSTRUMENT_COLORS = [
   "var(--color-track-red)",
   "var(--color-track-green)",
 ];
+
+export { INSTRUMENT_COLORS };

@@ -163,7 +163,7 @@ const withInfinityAtZero = (
  * Uses transformKnobValueTune to ensure consistency with audio engine.
  * Center (50) = no tune change, ±7 semitones range.
  */
-export const tuneMapping: ParamMapping<number> = {
+const tuneMapping: ParamMapping<number> = {
   knobValueCount: KNOB_VALUE_MAX,
   defaultKnobValue: 50, // Center = base frequency
 
@@ -185,7 +185,7 @@ export const tuneMapping: ParamMapping<number> = {
  * Uses transformKnobValueSplitFilter to ensure consistency with audio engine.
  * Left half (0-49) = Low-pass filter, Right half (50-100) = High-pass filter
  */
-export const splitFilterMapping: ParamMapping<number> = {
+const splitFilterMapping: ParamMapping<number> = {
   knobValueCount: KNOB_VALUE_MAX,
   defaultKnobValue: KNOB_VALUE_DEFAULT,
 
@@ -217,7 +217,7 @@ export const splitFilterMapping: ParamMapping<number> = {
 /**
  * Decay envelope time (exponential for natural feel)
  */
-export const instrumentDecayMapping = makeExponentialMapping(
+const instrumentDecayMapping = makeExponentialMapping(
   INSTRUMENT_DECAY_RANGE,
   formatDisplayDecayDuration,
   {
@@ -228,7 +228,7 @@ export const instrumentDecayMapping = makeExponentialMapping(
 /**
  * Instrument volume with -∞ at position 0
  */
-export const instrumentVolumeMapping = withInfinityAtZero(
+const instrumentVolumeMapping = withInfinityAtZero(
   makeLinearMapping(INSTRUMENT_VOLUME_RANGE, formatDisplayVolume, {
     defaultKnobValue: INSTRUMENT_VOLUME_DEFAULT,
   }),
@@ -237,7 +237,7 @@ export const instrumentVolumeMapping = withInfinityAtZero(
 /**
  * Stereo panning (0% = left, 50% = center, 100% = right)
  */
-export const instrumentPanMapping = makeLinearMapping(
+const instrumentPanMapping = makeLinearMapping(
   INSTRUMENT_PAN_RANGE,
   formatDisplayPercentage,
   {
@@ -250,7 +250,7 @@ export const instrumentPanMapping = makeLinearMapping(
 /**
  * Master output volume with -∞ at position 0
  */
-export const masterVolumeMapping = withInfinityAtZero(
+const masterVolumeMapping = withInfinityAtZero(
   makeLinearMapping(MASTER_VOLUME_RANGE, formatDisplayVolume, {
     defaultKnobValue: MASTER_VOLUME_DEFAULT,
   }),
@@ -259,7 +259,7 @@ export const masterVolumeMapping = withInfinityAtZero(
 /**
  * Low-pass filter cutoff frequency (exponential)
  */
-export const lowPassFilterMapping = makeExponentialMapping(
+const lowPassFilterMapping = makeExponentialMapping(
   MASTER_FILTER_RANGE,
   formatDisplayFilter,
   {
@@ -270,7 +270,7 @@ export const lowPassFilterMapping = makeExponentialMapping(
 /**
  * High-pass filter cutoff frequency (exponential)
  */
-export const highPassFilterMapping = makeExponentialMapping(
+const highPassFilterMapping = makeExponentialMapping(
   MASTER_FILTER_RANGE,
   formatDisplayFilter,
   {
@@ -281,7 +281,7 @@ export const highPassFilterMapping = makeExponentialMapping(
 /**
  * Phaser effect wet/dry mix (0-100%)
  */
-export const phaserWetMapping = makeLinearMapping(
+const phaserWetMapping = makeLinearMapping(
   MASTER_PHASER_WET_RANGE,
   formatDisplayPercentage,
   {
@@ -292,7 +292,7 @@ export const phaserWetMapping = makeLinearMapping(
 /**
  * Reverb effect wet/dry mix (0-100%)
  */
-export const reverbWetMapping = makeLinearMapping(
+const reverbWetMapping = makeLinearMapping(
   MASTER_REVERB_WET_RANGE,
   formatDisplayPercentage,
   {
@@ -303,7 +303,7 @@ export const reverbWetMapping = makeLinearMapping(
 /**
  * Reverb decay time (0-100%)
  */
-export const reverbDecayMapping = makeLinearMapping(
+const reverbDecayMapping = makeLinearMapping(
   MASTER_REVERB_DECAY_RANGE,
   formatDisplayPercentage,
 );
@@ -311,7 +311,7 @@ export const reverbDecayMapping = makeLinearMapping(
 /**
  * Compressor threshold level (dB)
  */
-export const compThresholdMapping = makeLinearMapping(
+const compThresholdMapping = makeLinearMapping(
   MASTER_COMP_THRESHOLD_RANGE,
   formatDisplayVolumeMaster,
   {
@@ -322,7 +322,7 @@ export const compThresholdMapping = makeLinearMapping(
 /**
  * Compressor ratio with integer quantization (1:1, 2:1, ... 8:1)
  */
-export const compRatioMapping = withIntegerQuantization(
+const compRatioMapping = withIntegerQuantization(
   makeLinearMapping(MASTER_COMP_RATIO_RANGE, formatDisplayCompRatio, {
     knobValueCount: 7,
     defaultKnobValue: MASTER_COMP_DEFAULT_RATIO,
@@ -332,7 +332,7 @@ export const compRatioMapping = withIntegerQuantization(
 /**
  * Compressor parallel mix (0-100%)
  */
-export const compMixMapping = makeLinearMapping(
+const compMixMapping = makeLinearMapping(
   MASTER_COMP_MIX_RANGE,
   formatDisplayPercentage,
   {
@@ -343,7 +343,7 @@ export const compMixMapping = makeLinearMapping(
 /**
  * Compressor attack time (exponential for natural feel)
  */
-export const compAttackMapping = makeExponentialMapping(
+const compAttackMapping = makeExponentialMapping(
   MASTER_COMP_ATTACK_RANGE,
   (value) => {
     if (value < 0.01) {
@@ -359,7 +359,7 @@ export const compAttackMapping = makeExponentialMapping(
 /**
  * Saturation wet/dry mix (0-100%)
  */
-export const saturationWetMapping = makeLinearMapping(
+const saturationWetMapping = makeLinearMapping(
   MASTER_SATURATION_WET_RANGE,
   formatDisplayPercentage,
   {
@@ -370,7 +370,7 @@ export const saturationWetMapping = makeLinearMapping(
 /**
  * Saturation amount (0-100%)
  */
-export const saturationAmountMapping = makeLinearMapping(
+const saturationAmountMapping = makeLinearMapping(
   MASTER_SATURATION_AMOUNT_RANGE,
   formatDisplayPercentage,
   {
@@ -381,7 +381,7 @@ export const saturationAmountMapping = makeLinearMapping(
 /**
  * Transport swing (0-100%)
  */
-export const transportSwingMapping = makeLinearMapping(
+const transportSwingMapping = makeLinearMapping(
   TRANSPORT_SWING_RANGE,
   formatDisplayPercentageValue,
   {
@@ -396,7 +396,7 @@ export const transportSwingMapping = makeLinearMapping(
 /**
  * Transport tempo (BPM)
  */
-export const transportBpmMapping = makeLinearMapping(
+const transportBpmMapping = makeLinearMapping(
   TRANSPORT_BPM_RANGE,
   formatDisplayBpm,
   {
@@ -404,3 +404,25 @@ export const transportBpmMapping = makeLinearMapping(
     defaultKnobValue: inverseTransformKnobValue(100, TRANSPORT_BPM_RANGE),
   },
 );
+
+export {
+  tuneMapping,
+  splitFilterMapping,
+  instrumentDecayMapping,
+  instrumentVolumeMapping,
+  instrumentPanMapping,
+  masterVolumeMapping,
+  lowPassFilterMapping,
+  highPassFilterMapping,
+  phaserWetMapping,
+  reverbWetMapping,
+  reverbDecayMapping,
+  compThresholdMapping,
+  compRatioMapping,
+  compMixMapping,
+  compAttackMapping,
+  saturationWetMapping,
+  saturationAmountMapping,
+  transportSwingMapping,
+  transportBpmMapping,
+};

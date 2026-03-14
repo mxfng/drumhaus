@@ -10,17 +10,17 @@ interface LogoAspectBoundingBoxProps {
   ref?: React.RefObject<HTMLDivElement | null>;
 }
 
-const LogoAspectBoundingBox: React.FC<LogoAspectBoundingBoxProps> = ({
+function LogoAspectBoundingBox({
   size,
   className,
   ref,
-}) => {
+}: LogoAspectBoundingBoxProps) {
   return (
     <div ref={ref} className={cn("scale-x-[1.2] opacity-0", className)}>
       <DrumhausLogo size={size} square />
     </div>
   );
-};
+}
 
 /**
  * The logo is composed of 16 squares, arranged in a grid.
@@ -41,7 +41,7 @@ const LogoAspectBoundingBox: React.FC<LogoAspectBoundingBoxProps> = ({
  * <LogoAspectBoundingBox size={16} className="rotate-180" />
  * <LogoAspectBoundingBox size={16} className="rotate-270" />
  */
-export const LogoSweep: React.FC = () => {
+function LogoSweep() {
   const rotate270 = "rotate-270";
   const rotate180 = "rotate-180";
 
@@ -106,4 +106,6 @@ export const LogoSweep: React.FC = () => {
       <LogoAspectBoundingBox size={16} className={rotate270} ref={logo16Ref} />
     </div>
   );
-};
+}
+
+export { LogoSweep };

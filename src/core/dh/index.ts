@@ -17,20 +17,32 @@ import welcomeToTheHausJson from "./defaults/Welcome to the Haus.dh";
  * Each function returns a PresetFileV1 object
  */
 
-export const aDrumCalledHaus = (): PresetFileV1 =>
+const aDrumCalledHaus = (): PresetFileV1 =>
   validatePresetFile(aDrumCalledHausJson);
-export const amsterdam = (): PresetFileV1 => validatePresetFile(amsterdamJson);
-export const init = (): PresetFileV1 => validatePresetFile(initJson);
-export const polaroidBounce = (): PresetFileV1 =>
+const amsterdam = (): PresetFileV1 => validatePresetFile(amsterdamJson);
+const init = (): PresetFileV1 => validatePresetFile(initJson);
+const polaroidBounce = (): PresetFileV1 =>
   validatePresetFile(polaroidBounceJson);
-export const purpleHaus = (): PresetFileV1 =>
-  validatePresetFile(purpleHausJson);
-export const richKids = (): PresetFileV1 => validatePresetFile(richKidsJson);
-export const slimeTime = (): PresetFileV1 => validatePresetFile(slimeTimeJson);
-export const sunflower = (): PresetFileV1 => validatePresetFile(sunflowerJson);
-export const superDreamHaus = (): PresetFileV1 =>
+const purpleHaus = (): PresetFileV1 => validatePresetFile(purpleHausJson);
+const richKids = (): PresetFileV1 => validatePresetFile(richKidsJson);
+const slimeTime = (): PresetFileV1 => validatePresetFile(slimeTimeJson);
+const sunflower = (): PresetFileV1 => validatePresetFile(sunflowerJson);
+const superDreamHaus = (): PresetFileV1 =>
   validatePresetFile(superDreamHausJson);
-export const togetherAgain = (): PresetFileV1 =>
-  validatePresetFile(togetherAgainJson);
-export const welcomeToTheHaus = (): PresetFileV1 =>
+const togetherAgain = (): PresetFileV1 => validatePresetFile(togetherAgainJson);
+const welcomeToTheHaus = (): PresetFileV1 =>
   validatePresetFile(welcomeToTheHausJson);
+
+export {
+  aDrumCalledHaus,
+  amsterdam,
+  init,
+  polaroidBounce,
+  purpleHaus,
+  richKids,
+  slimeTime,
+  sunflower,
+  superDreamHaus,
+  togetherAgain,
+  welcomeToTheHaus,
+};

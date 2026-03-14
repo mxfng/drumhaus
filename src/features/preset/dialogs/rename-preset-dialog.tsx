@@ -34,12 +34,12 @@ const renameSchema = z.object({
 
 type RenameFormValues = z.infer<typeof renameSchema>;
 
-export const RenamePresetDialog: React.FC<RenamePresetDialogProps> = ({
+function RenamePresetDialog({
   isOpen,
   onClose,
   presetId,
   currentName,
-}) => {
+}: RenamePresetDialogProps) {
   const renameCustomPreset = usePresetMetaStore(
     (state) => state.renameCustomPreset,
   );
@@ -127,4 +127,6 @@ export const RenamePresetDialog: React.FC<RenamePresetDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { RenamePresetDialog };

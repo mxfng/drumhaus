@@ -10,7 +10,7 @@ import { ensureAudioContextIsRunning } from "../engine/context/manager";
  * - detects stalled clocks and reloads if recovery fails
  * - notifies user when a reload was triggered due to recovery failure
  */
-export function useAudioContextGuards() {
+function useAudioContextGuards() {
   const { toast } = useToast();
   const ensureThrottleRef = useRef<number>(0);
   const recoveryAttemptsRef = useRef(0);
@@ -155,3 +155,5 @@ export function useAudioContextGuards() {
     }
   }, [toast]);
 }
+
+export { useAudioContextGuards };

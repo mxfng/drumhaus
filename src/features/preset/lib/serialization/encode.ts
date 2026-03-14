@@ -5,7 +5,7 @@ import { encodeCompactPreset, type CompactPreset } from "./compact";
  * Error thrown when trying to share a preset with a custom kit
  * Custom kits cannot be shared via URL because they require custom sample files
  */
-export class CustomKitError extends Error {
+class CustomKitError extends Error {
   constructor() {
     super(
       "Cannot share presets with custom kits. Only presets using default kits can be shared via URL.",
@@ -18,7 +18,7 @@ export class CustomKitError extends Error {
  * Checks if a kit ID represents a default kit
  * Default kits have IDs starting with "kit-"
  */
-export function isDefaultKit(kitId: string): boolean {
+function isDefaultKit(kitId: string): boolean {
   return kitId.startsWith("kit-");
 }
 
@@ -33,7 +33,7 @@ export function isDefaultKit(kitId: string): boolean {
  * - Kit ID as single digit
  * - Omit default values
  */
-export function encodePreset(preset: PresetFileV1): CompactPreset {
+function encodePreset(preset: PresetFileV1): CompactPreset {
   const kitId = preset.kit.meta.id;
 
   // Validate that this is a default kit
@@ -47,7 +47,9 @@ export function encodePreset(preset: PresetFileV1): CompactPreset {
 /**
  * Serializes a CompactPreset to a minified JSON string
  */
-export function serializePreset(preset: CompactPreset): string {
+function serializePreset(preset: CompactPreset): string {
   // Minify JSON (no whitespace)
   return JSON.stringify(preset);
 }
+
+export { CustomKitError, isDefaultKit, encodePreset, serializePreset };

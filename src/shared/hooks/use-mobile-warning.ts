@@ -26,7 +26,7 @@ function isMobileOrTabletDevice(): boolean {
   return mobileKeywords.some((keyword) => userAgent.includes(keyword));
 }
 
-export function useMobileWarning(): boolean {
+function useMobileWarning(): boolean {
   const openDialog = useDialogStore((state) => state.openDialog);
   const closeDialog = useDialogStore((state) => state.closeDialog);
 
@@ -79,3 +79,5 @@ export function useMobileWarning(): boolean {
 
   return isMobile;
 }
+
+export { useMobileWarning };

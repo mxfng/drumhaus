@@ -35,7 +35,7 @@ function throttleAudioContextCheck(
  * Ensure the shared Tone.js audio context is running.
  * Safe to call on every user gesture; throttles redundant resume attempts.
  */
-export async function ensureAudioContextIsRunning(
+async function ensureAudioContextIsRunning(
   source: string = "unknown",
 ): Promise<boolean> {
   const context = getContext();
@@ -64,7 +64,9 @@ export async function ensureAudioContextIsRunning(
   return health.state === "running";
 }
 
-export function getAudioContextHealth(): AudioContextHealth {
+function getAudioContextHealth(): AudioContextHealth {
   // Return a shallow copy to avoid accidental mutation
   return { ...health };
 }
+
+export { ensureAudioContextIsRunning, getAudioContextHealth };

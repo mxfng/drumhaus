@@ -13,7 +13,7 @@ import { Meta } from "../../types/meta";
  * - Optimized: only stores kit reference + params for default kits
  * - Only supports default kits (custom kits not shareable - no hosted samples)
  */
-export interface ShareablePreset {
+interface ShareablePreset {
   kind: "drumhaus.preset.shareable";
   version: 1;
 
@@ -40,7 +40,7 @@ export interface ShareablePreset {
  * - Stores kit metadata + instrument params only
  * - Sample/role data rehydrated from kit registry
  */
-export interface ShareableKit {
+interface ShareableKit {
   meta: Meta; // Kit metadata (lossless)
   defaultKitId: string; // "kit-drumhaus", "kit-fabriken", etc.
   instrumentParams: InstrumentParams[]; // 8 params objects (only mutable data)
@@ -49,7 +49,7 @@ export interface ShareableKit {
 /**
  * Optimized pattern format with sparse velocity encoding
  */
-export interface OptimizedPattern {
+interface OptimizedPattern {
   voices: OptimizedVoice[]; // 8 voices
   variationMetadata: [
     OptimizedVariationMetadata,
@@ -59,7 +59,7 @@ export interface OptimizedPattern {
   ]; // [A, B, C, D]
 }
 
-export interface OptimizedVoice {
+interface OptimizedVoice {
   instrumentIndex: number; // 0-7
   variations: [
     OptimizedStepSequence,
@@ -69,7 +69,7 @@ export interface OptimizedVoice {
   ]; // [A, B, C, D]
 }
 
-export interface OptimizedStepSequence {
+interface OptimizedStepSequence {
   triggers: boolean[]; // 16 booleans (will compress to 2 bytes with bit packing)
 
   // Sparse velocities: only store non-1.0 values
@@ -89,8 +89,17 @@ export interface OptimizedStepSequence {
 /**
  * Variation-level metadata (applies to all instruments in a variation)
  */
-export interface OptimizedVariationMetadata {
+interface OptimizedVariationMetadata {
   // Accent pattern: 16 booleans (will compress to 2 bytes with bit packing)
   // Only store if any accents are enabled (for optimization)
   accent?: boolean[];
 }
+
+export type {
+  ShareablePreset,
+  ShareableKit,
+  OptimizedPattern,
+  OptimizedVoice,
+  OptimizedStepSequence,
+  OptimizedVariationMetadata,
+};

@@ -28,7 +28,7 @@ interface SequencerStepProps {
   onTouchMove?: (event: React.TouchEvent<HTMLButtonElement>) => void;
 }
 
-export const SequencerStep: React.FC<SequencerStepProps> = ({
+function SequencerStep({
   index,
   isActive,
   isGuideHighlighted,
@@ -41,7 +41,7 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
   onPointerMove,
   onTouchToggleStart,
   onTouchMove,
-}) => {
+}: SequencerStepProps) {
   // --- Lightshow ---
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -174,4 +174,6 @@ export const SequencerStep: React.FC<SequencerStepProps> = ({
       />
     </button>
   );
-};
+}
+
+export { SequencerStep };

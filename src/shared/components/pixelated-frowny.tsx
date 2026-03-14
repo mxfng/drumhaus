@@ -13,13 +13,13 @@ type PixelatedFrownyProps = {
   className?: string;
 };
 
-export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
+function PixelatedFrowny({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
   gap = 1,
   className,
-}) => {
+}: PixelatedFrownyProps) {
   // 8x8 grid for a clearer frowny face
   const grid = 6;
   const total = grid * grid;
@@ -88,4 +88,6 @@ export const PixelatedFrowny: React.FC<PixelatedFrownyProps> = ({
       </div>
     </div>
   );
-};
+}
+
+export { PixelatedFrowny };

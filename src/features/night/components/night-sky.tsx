@@ -10,7 +10,7 @@ interface Star {
   size: number;
 }
 
-export const NightSky: React.FC = () => {
+function NightSky() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const starsRef = useRef<Star[]>([]);
@@ -156,4 +156,6 @@ export const NightSky: React.FC = () => {
       }}
     />
   );
-};
+}
+
+export { NightSky };

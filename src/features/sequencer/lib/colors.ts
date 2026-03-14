@@ -1,5 +1,5 @@
 // Variation colors matching sequencer visualization
-export const VARIATION_CHAIN_COLORS = [
+const VARIATION_CHAIN_COLORS = [
   {
     bg: "bg-variation-a/20",
     border: "border-variation-a/60",
@@ -21,3 +21,5 @@ export const VARIATION_CHAIN_COLORS = [
     text: "text-variation-d",
   }, // D
 ];
+
+export { VARIATION_CHAIN_COLORS };

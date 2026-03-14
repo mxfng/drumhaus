@@ -53,7 +53,7 @@ const wavExportSchema = z.object({
 
 type WavExportFormValues = z.infer<typeof wavExportSchema>;
 
-export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
+function WavExportForm({ onClose }: WavExportFormProps) {
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const bpm = useTransportStore((state) => state.bpm);
@@ -287,4 +287,6 @@ export const WavExportForm: React.FC<WavExportFormProps> = ({ onClose }) => {
       </DialogFooter>
     </form>
   );
-};
+}
+
+export { WavExportForm };

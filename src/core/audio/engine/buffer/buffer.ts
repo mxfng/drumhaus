@@ -6,6 +6,8 @@ import { ToneAudioBuffer } from "tone/build/esm/index";
  * This should be called after creating instrument runtimes to ensure
  * all sampler buffers are ready before playback.
  */
-export async function awaitBufferLoaded(): Promise<void> {
+async function awaitBufferLoaded(): Promise<void> {
   await ToneAudioBuffer.loaded();
 }
+
+export { awaitBufferLoaded };

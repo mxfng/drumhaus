@@ -19,7 +19,7 @@ interface Point {
  * the one-time coachmark. Keeps horizontal-drag/tap detection isolated from
  * the main knob interaction logic.
  */
-export function useKnobGuidance() {
+function useKnobGuidance() {
   const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
     storageKey: KNOB_COACHMARK_STORAGE_KEY,
   });
@@ -81,3 +81,5 @@ export function useKnobGuidance() {
     dismissCoachmark,
   };
 }
+
+export { useKnobGuidance };

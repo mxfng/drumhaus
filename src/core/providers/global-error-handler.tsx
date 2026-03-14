@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useToast } from "@/shared/ui";
 
 // such as event handler errors and unhandled promise rejections.
-export function GlobalErrorHandler() {
+function GlobalErrorHandler() {
   const { toast } = useToast();
 
   useEffect(() => {
@@ -52,3 +52,5 @@ export function GlobalErrorHandler() {
 
   return null;
 }
+
+export { GlobalErrorHandler };

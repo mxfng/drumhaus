@@ -29,7 +29,7 @@ interface InstrumentsState {
   setAllDurations: (durations: number[]) => void;
 }
 
-export const useInstrumentsStore = create<InstrumentsState>()(
+const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -108,3 +108,5 @@ export const useInstrumentsStore = create<InstrumentsState>()(
     },
   ),
 );
+
+export { useInstrumentsStore };

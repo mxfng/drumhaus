@@ -29,7 +29,7 @@ function getLocalAudioUrl(samplePath: string): string {
  * - Returns blob: URLs that persist across page refreshes.
  * - Works offline after first download (as long as the app shell is loaded).
  */
-export async function getCachedAudioUrl(samplePath: string): Promise<string> {
+async function getCachedAudioUrl(samplePath: string): Promise<string> {
   // In-memory fast path
   if (blobUrlBySamplePath.has(samplePath)) {
     return blobUrlBySamplePath.get(samplePath)!;
@@ -53,14 +53,14 @@ export async function getCachedAudioUrl(samplePath: string): Promise<string> {
 /**
  * Pre-cache multiple audio files
  */
-export async function preCacheAudioFiles(samplePaths: string[]): Promise<void> {
+async function preCacheAudioFiles(samplePaths: string[]): Promise<void> {
   await Promise.all(samplePaths.map((path) => getCachedAudioUrl(path)));
 }
 
 /**
  * Clears in-memory blob URLs and Cache API storage.
  */
-export async function clearAudioCache(): Promise<void> {
+async function clearAudioCache(): Promise<void> {
   for (const blobUrl of blobUrlBySamplePath.values()) {
     if (blobUrl.startsWith("blob:")) {
       URL.revokeObjectURL(blobUrl);
@@ -76,3 +76,5 @@ export async function clearAudioCache(): Promise<void> {
     }
   }
 }
+
+export { getCachedAudioUrl, preCacheAudioFiles, clearAudioCache };

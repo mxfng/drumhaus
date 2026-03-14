@@ -14,9 +14,11 @@ interface ConfirmSelectPresetDialogProps {
   onSelect: () => void;
 }
 
-export const ConfirmSelectPresetDialog: React.FC<
-  ConfirmSelectPresetDialogProps
-> = ({ isOpen, onClose, onSelect }) => {
+function ConfirmSelectPresetDialog({
+  isOpen,
+  onClose,
+  onSelect,
+}: ConfirmSelectPresetDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -43,4 +45,6 @@ export const ConfirmSelectPresetDialog: React.FC<
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { ConfirmSelectPresetDialog };

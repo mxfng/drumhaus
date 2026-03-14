@@ -17,14 +17,14 @@ interface PresetActionsDialogProps {
   onDelete: () => void;
 }
 
-export const PresetActionsDialog: React.FC<PresetActionsDialogProps> = ({
+function PresetActionsDialog({
   isOpen,
   onClose,
   presetName,
   onRename,
   onDuplicate,
   onDelete,
-}) => {
+}: PresetActionsDialogProps) {
   const handleAction = (action: () => void) => {
     action();
     onClose();
@@ -69,4 +69,6 @@ export const PresetActionsDialog: React.FC<PresetActionsDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { PresetActionsDialog };

@@ -3,10 +3,13 @@ import { createContext, type RefObject } from "react";
 import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 
-export interface DrumhausContextValue {
+interface DrumhausContextValue {
   instrumentRuntimes: RefObject<InstrumentRuntime[]>;
   instrumentRuntimesVersion: number;
   loadPreset: (preset: PresetFileV1) => void;
 }
 
-export const DrumhausContext = createContext<DrumhausContextValue | null>(null);
+const DrumhausContext = createContext<DrumhausContextValue | null>(null);
+
+export { DrumhausContext };
+export type { DrumhausContextValue };

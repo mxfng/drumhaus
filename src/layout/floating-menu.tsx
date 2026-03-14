@@ -28,7 +28,7 @@ const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
   label: `${value}%`,
 }));
 
-export const FloatingMenu: React.FC = () => {
+function FloatingMenu() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const debugMode = useDebugStore((state) => state.debugMode);
@@ -151,4 +151,6 @@ export const FloatingMenu: React.FC = () => {
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </>
   );
-};
+}
+
+export { FloatingMenu };

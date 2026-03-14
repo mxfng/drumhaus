@@ -24,7 +24,7 @@ const defaultParse = (text: string) => parseFloat(text);
  * - Click once: enter edit mode with text input
  * - Press and drag: change value vertically with knob-like sensitivity
  */
-export const ClickableValue: React.FC<ClickableValueProps> = ({
+function ClickableValue({
   value,
   onValueChange,
   mapping,
@@ -34,7 +34,7 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
   onEditingChange,
   label,
   labelClassName = "",
-}) => {
+}: ClickableValueProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
@@ -299,4 +299,6 @@ export const ClickableValue: React.FC<ClickableValueProps> = ({
       )}
     </div>
   );
-};
+}
+
+export { ClickableValue };

@@ -38,7 +38,7 @@ interface UseCoachmarkOptions {
  * @param options - Configuration options including the storage key
  * @returns Coachmark visibility state and control functions
  */
-export function useCoachmark({
+function useCoachmark({
   storageKey,
   duration = COACHMARK_VISIBLE_MS,
 }: UseCoachmarkOptions) {
@@ -87,3 +87,5 @@ export function useCoachmark({
     dismissCoachmark,
   };
 }
+
+export { useCoachmark };

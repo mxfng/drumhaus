@@ -8,7 +8,7 @@ function getWaveformUrl(waveformName: string): string {
   return `${WAVEFORM_PREFIX}${waveformName}.json`;
 }
 
-export interface TransientWaveformData {
+interface TransientWaveformData {
   version: 1;
   bucketCount: number;
   buckets: number[]; // 0..WAVEFORM_VALUE_SCALE ints
@@ -49,7 +49,7 @@ function normalizeWaveformData(data: WaveformResponse): TransientWaveformData {
 /**
  * Get cached waveform JSON data for a waveform name.
  */
-export async function getCachedWaveform(
+async function getCachedWaveform(
   waveformName: string,
 ): Promise<TransientWaveformData> {
   const url = getWaveformUrl(waveformName);
@@ -67,9 +67,7 @@ export async function getCachedWaveform(
 /**
  * Optionally pre-cache waveforms for offline use.
  */
-export async function preCacheWaveforms(
-  waveformNames: string[],
-): Promise<void> {
+async function preCacheWaveforms(waveformNames: string[]): Promise<void> {
   await Promise.all(waveformNames.map((name) => getCachedWaveform(name)));
 }
 
@@ -115,7 +113,7 @@ function trimTrailingSilence(
  * - Trims trailing silence before bucketing.
  * - Returns 0..WAVEFORM_VALUE_SCALE integers for compact JSON storage.
  */
-export function bucketizeAmplitude(
+function bucketizeAmplitude(
   values: ArrayLike<number>,
   bucketCount: number = WAVEFORM_BUCKET_COUNT,
   silenceThreshold: number = WAVEFORM_SILENCE_THRESHOLD,
@@ -161,3 +159,6 @@ export function bucketizeAmplitude(
 
   return buckets;
 }
+
+export { getCachedWaveform, preCacheWaveforms, bucketizeAmplitude };
+export type { TransientWaveformData };

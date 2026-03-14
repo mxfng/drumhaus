@@ -3,7 +3,7 @@ import { MasterFX } from "@/features/master-bus/components/master-fx";
 import { MasterVolume } from "@/features/master-bus/components/master-volume";
 import { HardwareModule } from "@/shared/components/hardware-module";
 
-export const MasterBusControls: React.FC = () => {
+function MasterBusControls() {
   return (
     <>
       <HardwareModule className="col-span-2 flex h-full items-center justify-center">
@@ -18,4 +18,6 @@ export const MasterBusControls: React.FC = () => {
       </div>
     </>
   );
-};
+}
+
+export { MasterBusControls };

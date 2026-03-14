@@ -9,10 +9,10 @@ interface SequencerStepIndicatorProps {
   isInCurrentVariation?: boolean;
 }
 
-export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
+function SequencerStepIndicator({
   index,
   isInCurrentVariation = false,
-}) => {
+}: SequencerStepIndicatorProps) {
   // --- Lightshow ---
   const indicatorRef = useRef<HTMLDivElement>(null);
 
@@ -83,4 +83,6 @@ export const SequencerStepIndicator: React.FC<SequencerStepIndicatorProps> = ({
       )}
     />
   );
-};
+}
+
+export { SequencerStepIndicator };

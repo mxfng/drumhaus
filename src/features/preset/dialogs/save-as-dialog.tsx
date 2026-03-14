@@ -32,11 +32,7 @@ const saveAsSchema = z.object({
 
 type SaveAsFormValues = z.infer<typeof saveAsSchema>;
 
-export const SaveAsDialog: React.FC<SaveAsDialogProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-}) => {
+function SaveAsDialog({ isOpen, onClose, onSave }: SaveAsDialogProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -112,4 +108,6 @@ export const SaveAsDialog: React.FC<SaveAsDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}
+
+export { SaveAsDialog };

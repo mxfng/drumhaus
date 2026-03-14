@@ -16,9 +16,10 @@ type CloudPoint = {
  * Screen-friendly variation preview used in the clipboard screen.
  * Shows 8 ultra-condensed lanes of 16 steps (triggers only) in a micro-grid.
  */
-export const ClipboardVariationPreview: React.FC<
-  ClipboardVariationPreviewProps
-> = ({ voices, className }) => {
+function ClipboardVariationPreview({
+  voices,
+  className,
+}: ClipboardVariationPreviewProps) {
   const { rows, stepCount } = useMemo(() => {
     const resolvedStepCount = voices[0]?.triggers.length ?? 16;
     const resolvedRowCount = Math.min(voices.length || 0, 8);
@@ -71,4 +72,6 @@ export const ClipboardVariationPreview: React.FC<
       </div>
     </div>
   );
-};
+}
+
+export { ClipboardVariationPreview };

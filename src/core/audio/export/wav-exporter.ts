@@ -30,14 +30,14 @@ import {
 } from "../engine/constants";
 import { downloadWav, encodeWav } from "./wav-encoder";
 
-export interface ExportOptions {
+interface ExportOptions {
   bars: number;
   sampleRate: number;
   includeTail: boolean;
   filename: string;
 }
 
-export interface ExportProgress {
+interface ExportProgress {
   phase: "preparing" | "rendering" | "encoding" | "complete";
   percent: number;
 }
@@ -45,7 +45,7 @@ export interface ExportProgress {
 /**
  * Exports the current pattern to WAV file
  */
-export async function exportToWav(
+async function exportToWav(
   options: ExportOptions,
   onProgress?: (progress: ExportProgress) => void,
 ): Promise<void> {
@@ -126,10 +126,7 @@ export async function exportToWav(
  * Get suggested number of bars based on the active chain.
  * We suggest two full passes of the chain to keep exports loop-friendly.
  */
-export function getSuggestedBars(
-  chain: PatternChain,
-  chainEnabled: boolean,
-): number {
+function getSuggestedBars(chain: PatternChain, chainEnabled: boolean): number {
   if (!chainEnabled) return 2;
 
   const totalRepeats = chain.steps.reduce((sum, step) => sum + step.repeats, 0);
@@ -141,7 +138,7 @@ export function getSuggestedBars(
 /**
  * Calculate export duration in seconds
  */
-export function calculateExportDuration(bars: number, bpm: number): number {
+function calculateExportDuration(bars: number, bpm: number): number {
   const stepDuration = 60 / bpm / 4;
   return bars * STEP_COUNT * stepDuration;
 }
@@ -173,3 +170,6 @@ async function buildOfflineInstrumentRuntimes(
 
   return runtimes;
 }
+
+export { exportToWav, getSuggestedBars, calculateExportDuration };
+export type { ExportOptions, ExportProgress };
