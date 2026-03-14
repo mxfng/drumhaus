@@ -11,12 +11,12 @@ interface SequencerVelocityProps {
   onVelocityChange: (index: number, velocity: number) => void;
 }
 
-export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
+export function SequencerVelocity({
   index,
   value,
   isActive,
   onVelocityChange,
-}) => {
+}: SequencerVelocityProps) {
   const [isAdjusting, setIsAdjusting] = useState<boolean>(false);
 
   const { isIntroPlaying } = useLightRig();
@@ -94,4 +94,4 @@ export const SequencerVelocity: React.FC<SequencerVelocityProps> = ({
       </div>
     </div>
   );
-};
+}

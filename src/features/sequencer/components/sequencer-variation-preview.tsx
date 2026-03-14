@@ -21,10 +21,13 @@ const VOICE_PAIRS: Array<[number, number]> = [
   [0, 1],
 ];
 
-const VariationPreviewColumn: React.FC<{
+function VariationPreviewColumn({
+  rows,
+  isIntroPlaying,
+}: {
   rows: ColumnState;
   isIntroPlaying: boolean;
-}> = ({ rows, isIntroPlaying }) => {
+}) {
   const columnRef = useRef<HTMLDivElement>(null);
 
   useLightNode(columnRef, {
@@ -49,7 +52,7 @@ const VariationPreviewColumn: React.FC<{
       ))}
     </div>
   );
-};
+}
 
 /**
  * Pattern preview for a specific variation.
@@ -57,9 +60,10 @@ const VariationPreviewColumn: React.FC<{
  * During the intro lightshow, each column is treated as a single light node:
  * the pattern LEDs default off and light up together per column.
  */
-export const SequencerVariationPreview: React.FC<
-  SequencerVariationPreviewProps
-> = ({ variation, className }) => {
+export function SequencerVariationPreview({
+  variation,
+  className,
+}: SequencerVariationPreviewProps) {
   const pattern = usePatternStore((state) => state.pattern);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
   const { isIntroPlaying } = useLightRig();
@@ -97,4 +101,4 @@ export const SequencerVariationPreview: React.FC<
       ))}
     </div>
   );
-};
+}

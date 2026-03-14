@@ -25,7 +25,7 @@ interface PresetSelectProps {
   onDeletePreset?: (presetId: string, presetName: string) => void;
 }
 
-export const PresetSelect: React.FC<PresetSelectProps> = ({
+export function PresetSelect({
   selectedPresetId,
   defaultPresets,
   customPresets,
@@ -33,7 +33,7 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
   onRenamePreset,
   onDuplicatePreset,
   onDeletePreset,
-}) => {
+}: PresetSelectProps) {
   const hasManagementCallbacks =
     onRenamePreset || onDuplicatePreset || onDeletePreset;
 
@@ -123,4 +123,4 @@ export const PresetSelect: React.FC<PresetSelectProps> = ({
       )}
     </div>
   );
-};
+}

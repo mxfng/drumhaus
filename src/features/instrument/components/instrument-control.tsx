@@ -17,12 +17,12 @@ type InstrumentControlParams = {
   waveformWidth?: number;
 };
 
-export const InstrumentControl: React.FC<InstrumentControlParams> = ({
+export function InstrumentControl({
   runtime,
   index,
   color = "currentColor",
   waveformWidth,
-}) => {
+}: InstrumentControlParams) {
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
@@ -91,4 +91,4 @@ export const InstrumentControl: React.FC<InstrumentControlParams> = ({
       </div>
     </div>
   );
-};
+}

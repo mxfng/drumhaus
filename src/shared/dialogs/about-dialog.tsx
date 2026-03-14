@@ -35,10 +35,7 @@ const getAudioContextInfo = () => {
   };
 };
 
-export const AboutDialog: React.FC<AboutDialogProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
   const browser = useMemo(() => getBrowserInfo(), []);
   const audioInfo = useMemo(() => getAudioContextInfo(), []);
   const currentYear = new Date().getFullYear();
@@ -115,4 +112,4 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}

@@ -4,7 +4,7 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { MiniStepGrid } from "./mini-step-grid";
 
-export const FlamEditScreen: React.FC = () => {
+export function FlamEditScreen() {
   const mode = usePatternStore((state) => state.mode);
   const variation = usePatternStore((state) => state.variation);
 
@@ -45,4 +45,4 @@ export const FlamEditScreen: React.FC = () => {
       </ScreenBar>
     </div>
   );
-};
+}

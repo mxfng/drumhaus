@@ -35,7 +35,7 @@ const TOOLTIPS = {
 /*
 TODO: Add the remaining control features
  */
-export const SequencerControl: React.FC = () => {
+export function SequencerControl() {
   const variation = usePatternStore((state) => state.variation);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const mode = usePatternStore((state) => state.mode);
@@ -235,4 +235,4 @@ export const SequencerControl: React.FC = () => {
       </div>
     </HardwareModule>
   );
-};
+}

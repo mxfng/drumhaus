@@ -37,7 +37,7 @@ export interface KnobProps {
   showTickIndicator?: boolean;
 }
 
-export const Knob: React.FC<KnobProps> = ({
+export function Knob({
   value,
   onValueChange,
   label,
@@ -48,7 +48,7 @@ export const Knob: React.FC<KnobProps> = ({
   step: stepSize = KNOB_VALUE_DEFAULT,
   defaultValue = KNOB_VALUE_DEFAULT,
   showTickIndicator = true,
-}) => {
+}: KnobProps) {
   const containerClass = {
     default: "h-20",
     lg: "h-44",
@@ -174,4 +174,4 @@ export const Knob: React.FC<KnobProps> = ({
       </div>
     </div>
   );
-};
+}

@@ -13,7 +13,7 @@ import { ScreenBar } from "@/layout/screen-bar";
  * - Copy mode: Prompts user to select an instrument or variation to copy
  * - Paste mode: Shows what's on the clipboard and prompts for destination
  */
-export const ClipboardScreen: React.FC = () => {
+export function ClipboardScreen() {
   const mode = usePatternStore((state) => state.mode);
   const clipboard = usePatternStore((state) => state.clipboard);
   const copySource = usePatternStore((state) => state.copySource);
@@ -92,4 +92,4 @@ export const ClipboardScreen: React.FC = () => {
       </ScreenBar>
     </div>
   );
-};
+}

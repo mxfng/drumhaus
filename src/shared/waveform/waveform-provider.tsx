@@ -16,10 +16,10 @@ interface WaveformProviderProps extends PropsWithChildren {
   expectedCount?: number;
 }
 
-export const WaveformProvider: React.FC<WaveformProviderProps> = ({
+export function WaveformProvider({
   expectedCount = 8,
   children,
-}) => {
+}: WaveformProviderProps) {
   const [loadedCount, setLoadedCount] = useState(0);
 
   // State map tracking data/loading/error for each waveform
@@ -144,4 +144,4 @@ export const WaveformProvider: React.FC<WaveformProviderProps> = ({
       {children}
     </WaveformContext.Provider>
   );
-};
+}

@@ -17,7 +17,7 @@ interface InstrumentHeaderProps {
   onInteract?: () => void;
 }
 
-export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
+export function InstrumentHeader({
   index,
   color,
   waveformWidth,
@@ -25,7 +25,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
   runtime,
   className,
   onInteract,
-}) => {
+}: InstrumentHeaderProps) {
   const waveButtonRef = useRef<HTMLButtonElement>(null);
 
   const samplePath = useInstrumentsStore(
@@ -99,4 +99,4 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       </div>
     </button>
   );
-};
+}

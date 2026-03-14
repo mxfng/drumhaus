@@ -13,12 +13,12 @@ type VariationBadgeProps = {
   children?: React.ReactNode;
 };
 
-export const VariationBadge: React.FC<VariationBadgeProps> = ({
+export function VariationBadge({
   variation,
   className,
   size = "sm",
   repeats,
-}) => {
+}: VariationBadgeProps) {
   const colors = VARIATION_CHAIN_COLORS[variation];
 
   if (size === "md") {
@@ -59,4 +59,4 @@ export const VariationBadge: React.FC<VariationBadgeProps> = ({
       </span>
     </div>
   );
-};
+}

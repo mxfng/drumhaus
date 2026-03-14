@@ -30,9 +30,7 @@ const exportSchema = z.object({
 
 type ExportFormValues = z.infer<typeof exportSchema>;
 
-export const PresetFileExportForm: React.FC<PresetFileExportFormProps> = ({
-  onClose,
-}) => {
+export function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -121,4 +119,4 @@ export const PresetFileExportForm: React.FC<PresetFileExportFormProps> = ({
       </div>
     </form>
   );
-};
+}

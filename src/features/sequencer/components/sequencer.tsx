@@ -23,7 +23,7 @@ interface StepRenderState {
   activeColorClassName?: string;
 }
 
-export const Sequencer: React.FC = () => {
+export function Sequencer() {
   // --- Pattern Store ---
   const pattern = usePatternStore((state) => state.pattern);
   const variation = usePatternStore((state) => state.variation);
@@ -216,4 +216,4 @@ export const Sequencer: React.FC = () => {
       })}
     </div>
   );
-};
+}

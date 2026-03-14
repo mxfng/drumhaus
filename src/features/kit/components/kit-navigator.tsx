@@ -7,10 +7,7 @@ type KitNavigatorProps = {
   onNext: () => void;
 };
 
-export const KitNavigator: React.FC<KitNavigatorProps> = ({
-  onPrevious,
-  onNext,
-}) => {
+export function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
   return (
     <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip delayDuration={0}>
@@ -41,4 +38,4 @@ export const KitNavigator: React.FC<KitNavigatorProps> = ({
       </Tooltip>
     </div>
   );
-};
+}

@@ -17,14 +17,14 @@ interface WaveformProps {
   isLoading?: boolean;
 }
 
-const Waveform: React.FC<WaveformProps> = ({
+function Waveform({
   audioFile,
   width,
   height,
   color = "#ff7b00", // must be hardcoded due to canvas
   className,
   isLoading: isLoadingExternal = false,
-}) => {
+}: WaveformProps) {
   // Get waveform data from provider (automatically normalized and cached)
   const {
     data: waveformData,
@@ -158,6 +158,6 @@ const Waveform: React.FC<WaveformProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default Waveform;

@@ -56,7 +56,7 @@ const ConfirmSelectPresetDialog = lazy(() =>
   ),
 );
 
-export const PresetControl: React.FC = () => {
+export function PresetControl() {
   const { loadPreset } = useDrumhaus();
   const {
     kits,
@@ -243,4 +243,4 @@ export const PresetControl: React.FC = () => {
       </Suspense>
     </>
   );
-};
+}

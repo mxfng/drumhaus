@@ -6,7 +6,7 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { VariationBadge } from "./variation-badge";
 
-export const ChainEditScreen: React.FC = () => {
+export function ChainEditScreen() {
   const chain = usePatternStore((state) => state.chainDraft);
   const totalBars = chain.steps.reduce((sum, step) => sum + step.repeats, 0);
 
@@ -58,4 +58,4 @@ export const ChainEditScreen: React.FC = () => {
       </ScreenBar>
     </div>
   );
-};
+}

@@ -13,10 +13,7 @@ interface MobileDialogProps {
   onClose: () => void;
 }
 
-export const MobileDialog: React.FC<MobileDialogProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export function MobileDialog({ isOpen, onClose }: MobileDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -37,4 +34,4 @@ export const MobileDialog: React.FC<MobileDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+}

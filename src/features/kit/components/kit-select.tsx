@@ -13,11 +13,7 @@ interface KitSelectProps {
   onSelect: (value: string) => void;
 }
 
-export const KitSelect: React.FC<KitSelectProps> = ({
-  selectedKitId,
-  kits,
-  onSelect,
-}) => {
+export function KitSelect({ selectedKitId, kits, onSelect }: KitSelectProps) {
   return (
     <div className="group w-full px-1">
       <Select value={selectedKitId} onValueChange={onSelect}>
@@ -37,4 +33,4 @@ export const KitSelect: React.FC<KitSelectProps> = ({
       </Select>
     </div>
   );
-};
+}
