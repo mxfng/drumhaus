@@ -3,13 +3,18 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
+import { AppErrorBoundary } from "@/core/providers/app-error-boundary";
 import {
   DrumhausProvider,
   useDrumhaus,
 } from "@/core/providers/drumhaus-provider";
+import { GlobalErrorHandler } from "@/core/providers/global-error-handler";
 import { DebugOverlay } from "@/features/debug/components/debug-overlay";
+import { NightSky } from "@/features/night/components/night-sky";
 import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
 import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
+import { AboutDialog } from "@/shared/dialogs/about-dialog";
+import { MobileDialog } from "@/shared/dialogs/mobile-dialog";
 import { useMobileWarning } from "@/shared/hooks/use-mobile-warning";
 import { useSequencerEscToVoice } from "@/shared/hooks/use-sequencer-esc-to-voice";
 import { useServiceWorker } from "@/shared/hooks/use-service-worker";
@@ -17,65 +22,11 @@ import { useSpacebarTogglePlay } from "@/shared/hooks/use-spacebar-toggle-play";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { LightRigProvider } from "@/shared/lightshow/light-rig-provider";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
-import { useWaveform } from "@/shared/waveform";
-
-// Providers
-
-const AppErrorBoundary = lazy(() =>
-  import("@/core/providers/app-error-boundary").then((module) => ({
-    default: module.AppErrorBoundary,
-  })),
-);
-
-const GlobalErrorHandler = lazy(() =>
-  import("@/core/providers/global-error-handler").then((module) => ({
-    default: module.GlobalErrorHandler,
-  })),
-);
-
-const TooltipProvider = lazy(() =>
-  import("@/shared/ui/tooltip").then((module) => ({
-    default: module.TooltipProvider,
-  })),
-);
-
-const ToastProvider = lazy(() =>
-  import("@/shared/ui/toast").then((module) => ({
-    default: module.ToastProvider,
-  })),
-);
-
-const WaveformProvider = lazy(() =>
-  import("@/shared/waveform/waveform-provider").then((module) => ({
-    default: module.WaveformProvider,
-  })),
-);
-
-// App layout
+import { ToastProvider } from "@/shared/ui/toast";
+import { TooltipProvider } from "@/shared/ui/tooltip";
+import { useWaveform, WaveformProvider } from "@/shared/waveform";
 
 const Drumhaus = lazy(() => import("../layout/drumhaus"));
-
-// Dialogs
-
-const MobileDialog = lazy(() =>
-  import("@/shared/dialogs/mobile-dialog").then((module) => ({
-    default: module.MobileDialog,
-  })),
-);
-
-const AboutDialog = lazy(() =>
-  import("@/shared/dialogs/about-dialog").then((module) => ({
-    default: module.AboutDialog,
-  })),
-);
-
-// Easter eggs
-
-const NightSky = lazy(() =>
-  import("@/features/night/components/night-sky").then((module) => ({
-    default: module.NightSky,
-  })),
-);
 
 function DrumhausFallback() {
   return (
@@ -128,15 +79,8 @@ function AppOrchestrator() {
   return (
     <>
       <Drumhaus />
-      <Suspense fallback={null}>
-        <MobileDialog
-          isOpen={activeDialog === "mobile"}
-          onClose={closeDialog}
-        />
-      </Suspense>
-      <Suspense fallback={null}>
-        <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
-      </Suspense>
+      <MobileDialog isOpen={activeDialog === "mobile"} onClose={closeDialog} />
+      <AboutDialog isOpen={activeDialog === "about"} onClose={closeDialog} />
       <DebugOverlay />
     </>
   );
@@ -173,11 +117,7 @@ function App() {
   return (
     <>
       <title>{title}</title>
-      {nightMode && (
-        <Suspense fallback={null}>
-          <NightSky />
-        </Suspense>
-      )}
+      {nightMode && <NightSky />}
       <Suspense fallback={<DrumhausFallback />}>
         <ToastProvider>
           <AppErrorBoundary>
