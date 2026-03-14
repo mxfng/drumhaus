@@ -10,7 +10,7 @@ import { SEQUENCE_EVENTS } from "../constants";
 // Types
 // -----------------------------------------------------------------------------
 
-export type ChainPlaybackState = {
+type ChainPlaybackState = {
   stepIndex: number;
   repeatsRemaining: number;
 };
@@ -22,7 +22,7 @@ export type ChainPlaybackState = {
 /**
  * Checks if step is first or last in the sequence.
  */
-export function getStepBoundaries(step: number): {
+function getStepBoundaries(step: number): {
   isFirstStep: boolean;
   isLastStep: boolean;
 } {
@@ -39,7 +39,7 @@ export function getStepBoundaries(step: number): {
 /**
  * Updates the current playback variation and syncs with store.
  */
-export function updatePlaybackVariation(
+function updatePlaybackVariation(
   currentVariation: { current: number },
   nextVariation: number,
 ): void {
@@ -56,7 +56,7 @@ export function updatePlaybackVariation(
  * Updates variation at the start of a bar.
  * Handles both chain mode and regular variation switching.
  */
-export function updateVariationForBarStart(
+function updateVariationForBarStart(
   chainEnabled: boolean,
   chain: PatternChain,
   chainState: ChainPlaybackState,
@@ -84,7 +84,7 @@ export function updateVariationForBarStart(
  * Advances the chain state at the end of a bar.
  * Decrements repeats and moves to next chain step when needed.
  */
-export function advanceChainAtEndOfBar(
+function advanceChainAtEndOfBar(
   chainEnabled: boolean,
   chain: PatternChain,
   chainState: ChainPlaybackState,
@@ -100,3 +100,11 @@ export function advanceChainAtEndOfBar(
       chain.steps[chainState.stepIndex]?.repeats ?? 1;
   }
 }
+
+export {
+  getStepBoundaries,
+  updatePlaybackVariation,
+  updateVariationForBarStart,
+  advanceChainAtEndOfBar,
+};
+export type { ChainPlaybackState };

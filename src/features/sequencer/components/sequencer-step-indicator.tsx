@@ -9,7 +9,7 @@ interface SequencerStepIndicatorProps {
   isInCurrentVariation?: boolean;
 }
 
-export function SequencerStepIndicator({
+function SequencerStepIndicator({
   index,
   isInCurrentVariation = false,
 }: SequencerStepIndicatorProps) {
@@ -84,3 +84,5 @@ export function SequencerStepIndicator({
     />
   );
 }
+
+export { SequencerStepIndicator };

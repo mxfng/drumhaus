@@ -25,7 +25,7 @@ interface FrequencyAnalyzerProps {
   numBars?: number;
 }
 
-export function FrequencyAnalyzer({
+function FrequencyAnalyzer({
   width,
   height,
   numBars = NUM_BARS,

@@ -2,7 +2,7 @@ import { useMasterChainStore } from "@/features/master-bus/store/use-master-chai
 import { ParamKnob } from "@/shared/knob/knob";
 import { masterVolumeMapping } from "@/shared/knob/lib/mapping";
 
-export function MasterVolume() {
+function MasterVolume() {
   const masterVolume = useMasterChainStore((state) => state.masterVolume);
   const setMasterVolume = useMasterChainStore((state) => state.setMasterVolume);
 
@@ -17,3 +17,5 @@ export function MasterVolume() {
     />
   );
 }
+
+export { MasterVolume };

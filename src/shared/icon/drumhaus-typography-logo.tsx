@@ -1,4 +1,4 @@
-export function DrumhausTypographyLogo({
+function DrumhausTypographyLogo({
   color = "currentColor",
   size = 875.59,
 }: {
@@ -24,3 +24,5 @@ export function DrumhausTypographyLogo({
     </svg>
   );
 }
+
+export { DrumhausTypographyLogo };

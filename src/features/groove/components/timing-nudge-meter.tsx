@@ -13,10 +13,7 @@ interface TimingNudgeMeterProps {
  * Shows which nudge level is active: [-2, -1, 0, +1, +2]
  * Matches existing LED styles (GainMeter, SequencerVariationPreview).
  */
-export function TimingNudgeMeter({
-  timingNudge,
-  className,
-}: TimingNudgeMeterProps) {
+function TimingNudgeMeter({ timingNudge, className }: TimingNudgeMeterProps) {
   const safeNudge = timingNudge ?? 0;
   const voiceMode = usePatternStore((state) => state.mode.type === "voice");
 
@@ -40,3 +37,5 @@ export function TimingNudgeMeter({
     </div>
   );
 }
+
+export { TimingNudgeMeter };

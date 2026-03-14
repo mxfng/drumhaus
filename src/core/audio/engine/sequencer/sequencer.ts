@@ -74,7 +74,7 @@ type InstrumentRuntimePair = {
 /**
  * Don't forget: make good music
  */
-export function createDrumSequence(
+function createDrumSequence(
   sequencerRef: { current: Sequence | null },
   instrumentRuntimes: { current: InstrumentRuntime[] },
   playbackConfig: {
@@ -172,9 +172,7 @@ export function createDrumSequence(
 /**
  * Disposes a drum sequence, stopping it first if it's running.
  */
-export function disposeDrumSequence(sequencerRef: {
-  current: Sequence | null;
-}): void {
+function disposeDrumSequence(sequencerRef: { current: Sequence | null }): void {
   const sequence = sequencerRef.current;
   if (!sequence) return;
 
@@ -297,7 +295,7 @@ function scheduleVoiceCore(
  *
  * NOTE: Public API – signature and behavior preserved.
  */
-export function scheduleVoiceAtTime(
+function scheduleVoiceAtTime(
   voice: Voice,
   step: number,
   time: number,
@@ -377,7 +375,7 @@ function schedulePrecomputedStep(
  * Uses Tone.js Sequence so transport swing is applied identically.
  * Returns the sequence instance (caller must start transport).
  */
-export function createOfflineSequence(
+function createOfflineSequence(
   pattern: Pattern,
   instruments: InstrumentData[],
   runtimes: InstrumentRuntime[],
@@ -468,3 +466,10 @@ export function createOfflineSequence(
   sequence.start(0);
   return sequence;
 }
+
+export {
+  createDrumSequence,
+  disposeDrumSequence,
+  scheduleVoiceAtTime,
+  createOfflineSequence,
+};

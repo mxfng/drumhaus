@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react";
 
 /* Toast Types */
-export type ToastStatus = "success" | "error" | "info";
+type ToastStatus = "success" | "error" | "info";
 
-export interface ToastData {
+interface ToastData {
   id: string;
   title?: string;
   description?: string;
@@ -11,17 +11,20 @@ export interface ToastData {
   duration?: number;
 }
 
-export interface ToastContextValue {
+interface ToastContextValue {
   toast: (options: Omit<ToastData, "id">) => void;
 }
 
-export const ToastContext = createContext<ToastContextValue | null>(null);
+const ToastContext = createContext<ToastContextValue | null>(null);
 
 /* Hook to use toast */
-export function useToast() {
+function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
     throw new Error("useToast must be used within ToastProvider");
   }
   return context;
 }
+
+export { ToastContext, useToast };
+export type { ToastStatus, ToastData, ToastContextValue };

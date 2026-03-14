@@ -17,7 +17,7 @@ interface PresetActionsDialogProps {
   onDelete: () => void;
 }
 
-export function PresetActionsDialog({
+function PresetActionsDialog({
   isOpen,
   onClose,
   presetName,
@@ -70,3 +70,5 @@ export function PresetActionsDialog({
     </Dialog>
   );
 }
+
+export { PresetActionsDialog };

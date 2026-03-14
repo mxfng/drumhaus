@@ -14,7 +14,7 @@ interface ConfirmSelectPresetDialogProps {
   onSelect: () => void;
 }
 
-export function ConfirmSelectPresetDialog({
+function ConfirmSelectPresetDialog({
   isOpen,
   onClose,
   onSelect,
@@ -46,3 +46,5 @@ export function ConfirmSelectPresetDialog({
     </Dialog>
   );
 }
+
+export { ConfirmSelectPresetDialog };

@@ -32,7 +32,7 @@ const saveAsSchema = z.object({
 
 type SaveAsFormValues = z.infer<typeof saveAsSchema>;
 
-export function SaveAsDialog({ isOpen, onClose, onSave }: SaveAsDialogProps) {
+function SaveAsDialog({ isOpen, onClose, onSave }: SaveAsDialogProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -109,3 +109,5 @@ export function SaveAsDialog({ isOpen, onClose, onSave }: SaveAsDialogProps) {
     </Dialog>
   );
 }
+
+export { SaveAsDialog };

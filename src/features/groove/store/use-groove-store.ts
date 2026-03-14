@@ -11,7 +11,7 @@ interface GrooveState {
   setShowVelocity: (show: boolean) => void;
 }
 
-export const useGrooveStore = create<GrooveState>()(
+const useGrooveStore = create<GrooveState>()(
   devtools(
     persist(
       immer((set) => ({
@@ -44,3 +44,5 @@ export const useGrooveStore = create<GrooveState>()(
     },
   ),
 );
+
+export { useGrooveStore };

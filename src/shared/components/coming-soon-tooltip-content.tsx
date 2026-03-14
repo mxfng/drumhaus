@@ -4,7 +4,7 @@
  * Usage:
  *   <ComingSoonTooltipContent tooltip="The tooltip text" />
  */
-export const ComingSoonTooltipContent = ({ tooltip }: { tooltip: string }) => {
+const ComingSoonTooltipContent = ({ tooltip }: { tooltip: string }) => {
   return (
     <div>
       <p>Coming Soon</p>
@@ -12,3 +12,5 @@ export const ComingSoonTooltipContent = ({ tooltip }: { tooltip: string }) => {
     </div>
   );
 };
+
+export { ComingSoonTooltipContent };

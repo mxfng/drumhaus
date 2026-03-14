@@ -10,7 +10,7 @@ type InstrumentGridShortcutsOptions = {
  * Keyboard navigation for the 8-slot instrument grid.
  * Supports arrows, vim keys (h/j/k/l), and number keys 1-8.
  */
-export function useInstrumentGridShortcuts({
+function useInstrumentGridShortcuts({
   voiceIndex,
   onSelectVoice,
   isAnyDialogOpen,
@@ -52,3 +52,5 @@ export function useInstrumentGridShortcuts({
     };
   }, [voiceIndex, isAnyDialogOpen]);
 }
+
+export { useInstrumentGridShortcuts };

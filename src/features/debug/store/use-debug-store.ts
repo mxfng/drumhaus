@@ -8,7 +8,7 @@ type DebugStoreType = {
   setDebugMode: (enabled: boolean) => void;
 };
 
-export const useDebugStore = create<DebugStoreType>()(
+const useDebugStore = create<DebugStoreType>()(
   devtools(
     persist(
       immer((set) => ({
@@ -33,3 +33,5 @@ export const useDebugStore = create<DebugStoreType>()(
     },
   ),
 );
+
+export { useDebugStore };

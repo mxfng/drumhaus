@@ -6,7 +6,7 @@ import { Meta } from "./meta";
 
 // Presets hold all serializable data for a project
 // They are always deconstructed at runtime into their respective stores
-export interface PresetFileV1 {
+interface PresetFileV1 {
   kind: "drumhaus.preset";
   version: 1;
   meta: Meta;
@@ -15,3 +15,5 @@ export interface PresetFileV1 {
   sequencer: SequencerData;
   masterChain: MasterChainParams;
 }
+
+export type { PresetFileV1 };

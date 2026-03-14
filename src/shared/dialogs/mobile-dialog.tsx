@@ -13,7 +13,7 @@ interface MobileDialogProps {
   onClose: () => void;
 }
 
-export function MobileDialog({ isOpen, onClose }: MobileDialogProps) {
+function MobileDialog({ isOpen, onClose }: MobileDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
@@ -35,3 +35,5 @@ export function MobileDialog({ isOpen, onClose }: MobileDialogProps) {
     </Dialog>
   );
 }
+
+export { MobileDialog };

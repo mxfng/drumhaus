@@ -13,7 +13,7 @@ type PixelatedFrownyProps = {
   className?: string;
 };
 
-export function PixelatedFrowny({
+function PixelatedFrowny({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
@@ -89,3 +89,5 @@ export function PixelatedFrowny({
     </div>
   );
 }
+
+export { PixelatedFrowny };

@@ -3,7 +3,7 @@ import { clampNudge } from "@/features/sequencer/lib/timing";
 import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { VariationId } from "@/features/sequencer/types/sequencer";
 
-export function toggleStep(
+function toggleStep(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -18,7 +18,7 @@ export function toggleStep(
   }
 }
 
-export function setVelocity(
+function setVelocity(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -28,7 +28,7 @@ export function setVelocity(
   pattern.voices[voiceIndex].variations[variation].velocities[step] = velocity;
 }
 
-export function clearStepSequence(
+function clearStepSequence(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -39,7 +39,7 @@ export function clearStepSequence(
     Array(STEP_COUNT).fill(1);
 }
 
-export function toggleAccent(
+function toggleAccent(
   pattern: Pattern,
   variation: VariationId,
   step: number,
@@ -48,7 +48,7 @@ export function toggleAccent(
   pattern.variationMetadata[variation].accent[step] = !currentValue;
 }
 
-export function toggleRatchet(
+function toggleRatchet(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -60,7 +60,7 @@ export function toggleRatchet(
     !currentValue;
 }
 
-export function toggleFlam(
+function toggleFlam(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -71,7 +71,7 @@ export function toggleFlam(
   pattern.voices[voiceIndex].variations[variation].flams[step] = !currentValue;
 }
 
-export function setTimingNudge(
+function setTimingNudge(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -80,7 +80,7 @@ export function setTimingNudge(
   pattern.voices[voiceIndex].variations[variation].timingNudge = nudge;
 }
 
-export function adjustTimingNudge(
+function adjustTimingNudge(
   pattern: Pattern,
   voiceIndex: number,
   variation: VariationId,
@@ -92,3 +92,14 @@ export function adjustTimingNudge(
     currentNudge + delta,
   );
 }
+
+export {
+  toggleStep,
+  setVelocity,
+  clearStepSequence,
+  toggleAccent,
+  toggleRatchet,
+  toggleFlam,
+  setTimingNudge,
+  adjustTimingNudge,
+};

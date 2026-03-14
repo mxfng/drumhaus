@@ -11,7 +11,7 @@ interface SequencerVelocityProps {
   onVelocityChange: (index: number, velocity: number) => void;
 }
 
-export function SequencerVelocity({
+function SequencerVelocity({
   index,
   value,
   isActive,
@@ -95,3 +95,5 @@ export function SequencerVelocity({
     </div>
   );
 }
+
+export { SequencerVelocity };

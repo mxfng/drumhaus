@@ -27,7 +27,7 @@ interface UsePresetManagerProps {
   loadPreset: (preset: PresetFileV1) => void;
 }
 
-export interface UsePresetManagerResult {
+interface UsePresetManagerResult {
   // Data
   kits: KitFileV1[];
   defaultPresets: PresetFileV1[];
@@ -58,7 +58,7 @@ export interface UsePresetManagerResult {
  * Depends on loadPreset from usePresetLoading hook, which manages
  * low level runtime updates
  */
-export function usePresetManager({
+function usePresetManager({
   loadPreset,
 }: UsePresetManagerProps): UsePresetManagerResult {
   const { toast } = useToast();
@@ -412,3 +412,6 @@ export function usePresetManager({
     canAddMorePresets,
   };
 }
+
+export { usePresetManager };
+export type { UsePresetManagerResult };

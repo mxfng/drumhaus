@@ -9,7 +9,7 @@ import { InstrumentControl } from "./instrument-control";
 
 const NO_OF_INSTRUMENTS = 8;
 
-export function InstrumentGrid() {
+function InstrumentGrid() {
   const { instrumentRuntimes } = useDrumhaus();
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
@@ -99,3 +99,5 @@ export function InstrumentGrid() {
     </div>
   );
 }
+
+export { InstrumentGrid };

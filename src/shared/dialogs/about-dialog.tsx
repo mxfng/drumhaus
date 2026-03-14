@@ -35,7 +35,7 @@ const getAudioContextInfo = () => {
   };
 };
 
-export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
+function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
   const browser = useMemo(() => getBrowserInfo(), []);
   const audioInfo = useMemo(() => getAudioContextInfo(), []);
   const currentYear = new Date().getFullYear();
@@ -113,3 +113,5 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
     </Dialog>
   );
 }
+
+export { AboutDialog };

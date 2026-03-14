@@ -25,10 +25,7 @@ interface InstrumentParamsProps {
   runtime?: InstrumentRuntime;
 }
 
-export function InstrumentParamsControl({
-  index,
-  runtime,
-}: InstrumentParamsProps) {
+function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Read params from store
@@ -205,3 +202,5 @@ export function InstrumentParamsControl({
     </div>
   );
 }
+
+export { InstrumentParamsControl };

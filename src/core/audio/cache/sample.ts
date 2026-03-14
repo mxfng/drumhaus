@@ -1,9 +1,7 @@
 import { getCachedAudioUrl, preCacheAudioFiles } from ".";
 
-export type SamplerSource = { url: string; baseUrl?: string };
-export type SampleSourceResolver = (
-  samplePath: string,
-) => Promise<SamplerSource>;
+type SamplerSource = { url: string; baseUrl?: string };
+type SampleSourceResolver = (samplePath: string) => Promise<SamplerSource>;
 
 const SAMPLE_BASE_URL = "/samples/";
 
@@ -27,7 +25,7 @@ function toSamplerSource(url: string): SamplerSource {
  * - Pre-caches samples (if available).
  * - Returns blob URLs when cached; otherwise falls back to /samples/.
  */
-export async function prepareSampleSourceResolver(
+async function prepareSampleSourceResolver(
   samplePaths: string[],
 ): Promise<SampleSourceResolver> {
   const uniquePaths = Array.from(new Set(samplePaths));
@@ -66,6 +64,9 @@ export async function prepareSampleSourceResolver(
 /**
  * Default resolver without preloading (direct /samples/ path).
  */
-export const defaultSampleSourceResolver: SampleSourceResolver = async (
+const defaultSampleSourceResolver: SampleSourceResolver = async (
   samplePath: string,
 ) => toSamplerSource(`${SAMPLE_BASE_URL}${samplePath}`);
+
+export { prepareSampleSourceResolver, defaultSampleSourceResolver };
+export type { SamplerSource, SampleSourceResolver };

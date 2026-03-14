@@ -18,7 +18,7 @@ type PixelatedSpinnerProps = {
 const GRID = 3;
 const RING_ORDER = [1, 2, 5, 8, 7, 6, 3, 0]; // clockwise around the center
 
-export function PixelatedSpinner({
+function PixelatedSpinner({
   size = 48,
   color = "#ff7b00",
   pixelSize = 4,
@@ -86,3 +86,5 @@ export function PixelatedSpinner({
     </div>
   );
 }
+
+export { PixelatedSpinner };

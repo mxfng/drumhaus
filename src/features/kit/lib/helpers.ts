@@ -3,7 +3,7 @@ import { KitFileV1 } from "../types/kit";
 /**
  * Validates a parsed kit file object
  */
-export function validateKitFile(data: unknown): KitFileV1 {
+function validateKitFile(data: unknown): KitFileV1 {
   if (typeof data !== "object" || data === null) {
     throw new Error("Invalid kit file: expected an object");
   }
@@ -19,3 +19,5 @@ export function validateKitFile(data: unknown): KitFileV1 {
 
   return kit as unknown as KitFileV1;
 }
+
+export { validateKitFile };

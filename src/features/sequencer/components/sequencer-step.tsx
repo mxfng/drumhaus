@@ -28,7 +28,7 @@ interface SequencerStepProps {
   onTouchMove?: (event: React.TouchEvent<HTMLButtonElement>) => void;
 }
 
-export function SequencerStep({
+function SequencerStep({
   index,
   isActive,
   isGuideHighlighted,
@@ -175,3 +175,5 @@ export function SequencerStep({
     </button>
   );
 }
+
+export { SequencerStep };

@@ -18,7 +18,7 @@ interface SplitFilterConfig {
  * Applies split-filter behavior (LP on left, HP on right) to dedicated filter nodes
  * with a short ramp to avoid clicks when crossing the threshold.
  */
-export function applySplitFilterWithRamp(
+function applySplitFilterWithRamp(
   lowPassFilter: Filter,
   highPassFilter: Filter,
   knobValue: number,
@@ -49,3 +49,5 @@ function rampFilterFrequency(
   filterNode.frequency.setValueAtTime(current, now);
   filterNode.frequency.linearRampToValueAtTime(target, now + rampTime);
 }
+
+export { applySplitFilterWithRamp };

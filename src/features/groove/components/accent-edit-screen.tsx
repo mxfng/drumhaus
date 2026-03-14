@@ -3,7 +3,7 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { MiniStepGrid } from "./mini-step-grid";
 
-export function AccentEditScreen() {
+function AccentEditScreen() {
   const variation = usePatternStore((state) => state.variation);
   const accents = usePatternStore(
     (state) => state.pattern.variationMetadata[variation].accent,
@@ -34,3 +34,5 @@ export function AccentEditScreen() {
     </div>
   );
 }
+
+export { AccentEditScreen };

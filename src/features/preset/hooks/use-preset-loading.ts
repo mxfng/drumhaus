@@ -34,7 +34,7 @@ interface UsePresetLoadingResult {
  *
  * Low-level: handles audio engine, playback stopping, store updates
  */
-export function usePresetLoading({
+function usePresetLoading({
   instrumentRuntimes,
 }: UsePresetLoadingProps): UsePresetLoadingResult {
   const { toast } = useToast();
@@ -206,3 +206,5 @@ export function usePresetLoading({
 
   return { loadPreset };
 }
+
+export { usePresetLoading };

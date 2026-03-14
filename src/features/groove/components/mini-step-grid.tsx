@@ -10,7 +10,7 @@ type MiniStepGridProps = {
 /**
  * Minimal 16-step grid for groove edit screens (accent/ratchet/flam) and previews.
  */
-export function MiniStepGrid({
+function MiniStepGrid({
   steps,
   activeClassName = "border-primary bg-primary/20 text-primary",
   inactiveClassName = "border-foreground-muted/30 bg-foreground-muted/5 text-foreground-muted",
@@ -34,3 +34,5 @@ export function MiniStepGrid({
     </div>
   );
 }
+
+export { MiniStepGrid };

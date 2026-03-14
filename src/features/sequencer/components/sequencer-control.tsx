@@ -35,7 +35,7 @@ const TOOLTIPS = {
 /*
 TODO: Add the remaining control features
  */
-export function SequencerControl() {
+function SequencerControl() {
   const variation = usePatternStore((state) => state.variation);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const mode = usePatternStore((state) => state.mode);
@@ -236,3 +236,5 @@ export function SequencerControl() {
     </HardwareModule>
   );
 }
+
+export { SequencerControl };

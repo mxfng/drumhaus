@@ -43,7 +43,7 @@ type HardwareSliderProps<TValue = number> = {
   orientation?: "horizontal" | "vertical";
 };
 
-export const HardwareSlider = <TValue = number,>({
+const HardwareSlider = <TValue = number,>({
   mapping,
   value,
   onValueChange,
@@ -131,3 +131,5 @@ export const HardwareSlider = <TValue = number,>({
     </div>
   );
 };
+
+export { HardwareSlider };

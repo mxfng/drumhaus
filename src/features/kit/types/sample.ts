@@ -1,6 +1,6 @@
 import { InlineMeta } from "@/features/preset/types/meta";
 
-export enum AttributionStatus {
+enum AttributionStatus {
   Unknown = "unknown",
   Self = "self",
   SamplePack = "samplePack",
@@ -8,7 +8,7 @@ export enum AttributionStatus {
   Other = "other",
 }
 
-export interface SampleAttribution {
+interface SampleAttribution {
   status: AttributionStatus;
   label?: string;
   creditName?: string;
@@ -16,8 +16,11 @@ export interface SampleAttribution {
   notes?: string;
 }
 
-export interface SampleData {
+interface SampleData {
   meta: InlineMeta;
   path: string; // relative to known root in public/samples/
   attribution?: SampleAttribution;
 }
+
+export { AttributionStatus };
+export type { SampleAttribution, SampleData };

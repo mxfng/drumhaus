@@ -4,7 +4,7 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { MiniStepGrid } from "./mini-step-grid";
 
-export function FlamEditScreen() {
+function FlamEditScreen() {
   const mode = usePatternStore((state) => state.mode);
   const variation = usePatternStore((state) => state.variation);
 
@@ -46,3 +46,5 @@ export function FlamEditScreen() {
     </div>
   );
 }
+
+export { FlamEditScreen };

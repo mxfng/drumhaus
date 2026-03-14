@@ -20,7 +20,7 @@ import type { InstrumentRuntime } from "./types";
  *    - Not applied to audio nodes in advance
  *    - Examples: tune, decay, solo, mute
  */
-export interface ContinuousRuntimeParams {
+interface ContinuousRuntimeParams {
   filter: number;
   pan: number;
   volume: number;
@@ -31,7 +31,7 @@ export interface ContinuousRuntimeParams {
  * Does NOT handle per-note params (tune, decay, solo, mute) -
  * those are read during playback in drumSequence.ts
  */
-export function applyInstrumentParams(
+function applyInstrumentParams(
   runtime: InstrumentRuntime,
   params: ContinuousRuntimeParams,
 ): void {
@@ -59,7 +59,7 @@ export function applyInstrumentParams(
  * Per-note params (tune, decay, solo, mute) are NOT synced here - they're read
  * during playback in drumSequence.ts
  */
-export function subscribeRuntimeToInstrumentParams(
+function subscribeRuntimeToInstrumentParams(
   index: number,
   runtime: InstrumentRuntime,
 ): () => void {
@@ -103,3 +103,6 @@ export function subscribeRuntimeToInstrumentParams(
 
   return unsubscribe;
 }
+
+export { applyInstrumentParams, subscribeRuntimeToInstrumentParams };
+export type { ContinuousRuntimeParams };

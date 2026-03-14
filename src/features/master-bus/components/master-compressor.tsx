@@ -7,7 +7,7 @@ import {
   compThresholdMapping,
 } from "@/shared/knob/lib/mapping";
 
-export function MasterCompressor() {
+function MasterCompressor() {
   const attack = useMasterChainStore((state) => state.compAttack);
   const threshold = useMasterChainStore((state) => state.compThreshold);
   const ratio = useMasterChainStore((state) => state.compRatio);
@@ -49,3 +49,5 @@ export function MasterCompressor() {
     </>
   );
 }
+
+export { MasterCompressor };

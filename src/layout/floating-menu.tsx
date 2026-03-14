@@ -28,7 +28,7 @@ const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
   label: `${value}%`,
 }));
 
-export function FloatingMenu() {
+function FloatingMenu() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const debugMode = useDebugStore((state) => state.debugMode);
@@ -152,3 +152,5 @@ export function FloatingMenu() {
     </>
   );
 }
+
+export { FloatingMenu };

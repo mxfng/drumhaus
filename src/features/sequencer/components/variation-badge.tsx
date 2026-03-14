@@ -13,7 +13,7 @@ type VariationBadgeProps = {
   children?: React.ReactNode;
 };
 
-export function VariationBadge({
+function VariationBadge({
   variation,
   className,
   size = "sm",
@@ -60,3 +60,5 @@ export function VariationBadge({
     </div>
   );
 }
+
+export { VariationBadge };

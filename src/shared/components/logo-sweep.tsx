@@ -41,7 +41,7 @@ function LogoAspectBoundingBox({
  * <LogoAspectBoundingBox size={16} className="rotate-180" />
  * <LogoAspectBoundingBox size={16} className="rotate-270" />
  */
-export function LogoSweep() {
+function LogoSweep() {
   const rotate270 = "rotate-270";
   const rotate180 = "rotate-180";
 
@@ -107,3 +107,5 @@ export function LogoSweep() {
     </div>
   );
 }
+
+export { LogoSweep };

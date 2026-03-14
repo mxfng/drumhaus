@@ -9,7 +9,7 @@ interface ScreenBarProps {
  * Rounded bar component for screen displays
  * Used for labels and text displays in the screen area
  */
-export function ScreenBar({ children, className }: ScreenBarProps) {
+function ScreenBar({ children, className }: ScreenBarProps) {
   return (
     <div className="bg-screen-foreground text-screen rounded-tl-full rounded-br-md">
       <div className={cn("flex items-center px-4 text-sm", className)}>
@@ -18,3 +18,5 @@ export function ScreenBar({ children, className }: ScreenBarProps) {
     </div>
   );
 }
+
+export { ScreenBar };

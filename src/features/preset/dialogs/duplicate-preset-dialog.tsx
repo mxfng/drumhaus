@@ -34,7 +34,7 @@ const duplicateSchema = z.object({
 
 type DuplicateFormValues = z.infer<typeof duplicateSchema>;
 
-export function DuplicatePresetDialog({
+function DuplicatePresetDialog({
   isOpen,
   onClose,
   presetId,
@@ -156,3 +156,5 @@ export function DuplicatePresetDialog({
     </Dialog>
   );
 }
+
+export { DuplicatePresetDialog };

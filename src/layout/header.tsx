@@ -3,7 +3,7 @@ import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
 import { DrumhausTypographyLogo } from "@/shared/icon/drumhaus-typography-logo";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 
-export function Header() {
+function Header() {
   const openDialog = useDialogStore((state) => state.openDialog);
 
   return (
@@ -30,3 +30,5 @@ export function Header() {
     </div>
   );
 }
+
+export { Header };

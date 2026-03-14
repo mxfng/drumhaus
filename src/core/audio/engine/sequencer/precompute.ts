@@ -14,12 +14,12 @@ import {
 // Types
 // -----------------------------------------------------------------------------
 
-export type PrecomputedHit = {
+type PrecomputedHit = {
   voice: Voice;
   velocity: number;
 };
 
-export type PrecomputedPattern = {
+type PrecomputedPattern = {
   version: number;
   stepsByVariation: PrecomputedHit[][][]; // [variation][step][hits]
 };
@@ -32,7 +32,7 @@ export type PrecomputedPattern = {
  * Precomputes pattern data for efficient playback.
  * Applies accent dampening and velocity calculations ahead of time.
  */
-export function buildPrecomputedPattern(
+function buildPrecomputedPattern(
   pattern: Pattern,
   version: number,
 ): PrecomputedPattern {
@@ -90,3 +90,6 @@ export function buildPrecomputedPattern(
     stepsByVariation,
   };
 }
+
+export { buildPrecomputedPattern };
+export type { PrecomputedHit, PrecomputedPattern };

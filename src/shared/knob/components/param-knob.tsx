@@ -57,4 +57,4 @@ function ParamKnob<TValue>({
   );
 }
 
-export default ParamKnob;
+export { ParamKnob };

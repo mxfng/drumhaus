@@ -13,9 +13,9 @@ import {
 } from "../lib/constants";
 import { KnobTicks } from "./knob-ticks";
 
-export type KnobSize = "default" | "lg";
+type KnobSize = "default" | "lg";
 
-export interface KnobProps {
+interface KnobProps {
   /** Current knob position 0..100 */
   value: number;
   onValueChange: (newState: number) => void;
@@ -37,7 +37,7 @@ export interface KnobProps {
   showTickIndicator?: boolean;
 }
 
-export function Knob({
+function Knob({
   value,
   onValueChange,
   label,
@@ -175,3 +175,6 @@ export function Knob({
     </div>
   );
 }
+
+export { Knob };
+export type { KnobSize, KnobProps };

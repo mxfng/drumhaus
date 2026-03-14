@@ -42,7 +42,7 @@ import { MasterChainRuntimes, MasterChainSettings } from "./types";
  * Orchestrates all FX section creation.
  * Shared between online and offline contexts.
  */
-export async function buildMasterChainNodes(
+async function buildMasterChainNodes(
   settings: MasterChainSettings,
 ): Promise<MasterChainRuntimes> {
   const compressorNodes = createCompressorSection(settings);
@@ -64,9 +64,7 @@ export async function buildMasterChainNodes(
  * Disposes all master chain runtimes.
  * Handles errors gracefully to prevent crashes during cleanup.
  */
-export function disposeMasterChainNodes(
-  runtimes: MasterChainRuntimes | null,
-): void {
+function disposeMasterChainNodes(runtimes: MasterChainRuntimes | null): void {
   if (!runtimes) return;
 
   const nodesToDispose = [
@@ -241,3 +239,5 @@ function createOutputSection(settings: MasterChainSettings) {
 
   return { saturation, presenceDip, highShelf, limiter };
 }
+
+export { buildMasterChainNodes, disposeMasterChainNodes };

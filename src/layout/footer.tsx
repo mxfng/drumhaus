@@ -1,6 +1,6 @@
 import { Heart } from "lucide-react";
 
-export function Footer() {
+function Footer() {
   return (
     <div className="text-foreground-emphasis flex h-10 w-full items-center justify-center">
       <p className="text-sm">
@@ -23,4 +23,4 @@ export function Footer() {
   );
 }
 
-export default Footer;
+export { Footer };

@@ -7,7 +7,7 @@ type KitNavigatorProps = {
   onNext: () => void;
 };
 
-export function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
+function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
   return (
     <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip delayDuration={0}>
@@ -39,3 +39,5 @@ export function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
     </div>
   );
 }
+
+export { KitNavigator };

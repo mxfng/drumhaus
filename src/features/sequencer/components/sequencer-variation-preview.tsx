@@ -60,7 +60,7 @@ function VariationPreviewColumn({
  * During the intro lightshow, each column is treated as a single light node:
  * the pattern LEDs default off and light up together per column.
  */
-export function SequencerVariationPreview({
+function SequencerVariationPreview({
   variation,
   className,
 }: SequencerVariationPreviewProps) {
@@ -102,3 +102,5 @@ export function SequencerVariationPreview({
     </div>
   );
 }
+
+export { SequencerVariationPreview };

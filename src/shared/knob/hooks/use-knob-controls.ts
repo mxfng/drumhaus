@@ -28,7 +28,7 @@ interface UseKnobControlsParams {
  * - Keeps tooltip side/content in sync
  * - Delegates first-use guidance to `useKnobGuidance`
  */
-export function useKnobControls({
+function useKnobControls({
   value,
   stepSize = KNOB_VALUE_DEFAULT,
   onValueChange,
@@ -182,3 +182,5 @@ export function useKnobControls({
     showCoachmark,
   };
 }
+
+export { useKnobControls };

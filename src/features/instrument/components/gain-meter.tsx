@@ -30,7 +30,7 @@ const DOT_COLORS = {
   inactive: ["bg-border", "bg-border", "bg-border", "bg-border", "bg-border"],
 };
 
-export function GainMeter({ runtime }: GainMeterProps) {
+function GainMeter({ runtime }: GainMeterProps) {
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
   const meterRef = useRef<Meter | null>(null);
   const peakLevelRef = useRef(0);
@@ -140,3 +140,5 @@ export function GainMeter({ runtime }: GainMeterProps) {
     </div>
   );
 }
+
+export { GainMeter };

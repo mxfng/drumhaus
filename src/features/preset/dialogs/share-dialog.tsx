@@ -25,7 +25,7 @@ interface ShareDialogProps {
   onShare: (name: string) => Promise<string>;
 }
 
-export function ShareDialog({ isOpen, onClose, onShare }: ShareDialogProps) {
+function ShareDialog({ isOpen, onClose, onShare }: ShareDialogProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -205,3 +205,5 @@ export function ShareDialog({ isOpen, onClose, onShare }: ShareDialogProps) {
     </Dialog>
   );
 }
+
+export { ShareDialog };

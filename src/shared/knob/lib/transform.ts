@@ -13,8 +13,8 @@ import {
   toKnobValue,
 } from "./utils";
 
-export const KNOB_ROTATION_THRESHOLD_L = 49;
-export const KNOB_ROTATION_THRESHOLD_R = 50;
+const KNOB_ROTATION_THRESHOLD_L = 49;
+const KNOB_ROTATION_THRESHOLD_R = 50;
 
 // ============================================================================
 // FORWARD TRANSFORMS (knobValue 0-100 → domain value)
@@ -23,7 +23,7 @@ export const KNOB_ROTATION_THRESHOLD_R = 50;
 /**
  * Transform knob values (0-100) linearly to any parameter range [min, max]
  */
-export const transformKnobValueLinear = (
+const transformKnobValueLinear = (
   input: number,
   range: [number, number],
 ): number => {
@@ -35,7 +35,7 @@ export const transformKnobValueLinear = (
 /**
  * Transform knob values (0-100) exponentially to any parameter range [min, max]
  */
-export const transformKnobValueExponential = (
+const transformKnobValueExponential = (
   input: number,
   range: [number, number],
 ): number => {
@@ -49,7 +49,7 @@ export const transformKnobValueExponential = (
  * Transform knob value (0-100) to tune frequency with semitone quantization.
  * Center (50) = base frequency, ±24 semitones range.
  */
-export const transformKnobValueTune = (
+const transformKnobValueTune = (
   knobValue: number,
   baseFrequency: number = INSTRUMENT_TUNE_BASE_FREQUENCY,
   semitoneRange: number = INSTRUMENT_TUNE_SEMITONE_RANGE,
@@ -66,7 +66,7 @@ export const transformKnobValueTune = (
  * Used for low pass and high pass filters on a single knob.
  * Left half (0-49) = Low-pass filter, Right half (50-100) = High-pass filter
  */
-export const transformKnobValueSplitFilter = (
+const transformKnobValueSplitFilter = (
   input: number,
   rangeLow: [number, number] = MASTER_FILTER_RANGE,
   rangeHigh: [number, number] = MASTER_FILTER_RANGE,
@@ -89,7 +89,7 @@ export const transformKnobValueSplitFilter = (
 /**
  * Inverse of transformKnobValue: converts domain value back to knob value (0-100)
  */
-export const inverseTransformKnobValue = (
+const inverseTransformKnobValue = (
   value: number,
   range: [number, number],
 ): number => {
@@ -103,7 +103,7 @@ export const inverseTransformKnobValue = (
 /**
  * Inverse of transformKnobValueExponential: converts domain value back to knob value (0-100)
  */
-export const inverseTransformKnobValueExponential = (
+const inverseTransformKnobValueExponential = (
   value: number,
   range: [number, number],
 ): number => {
@@ -119,7 +119,7 @@ export const inverseTransformKnobValueExponential = (
 /**
  * Inverse of transformKnobValueTune: converts frequency back to knob value (0-100)
  */
-export const inverseTransformKnobValueTune = (
+const inverseTransformKnobValueTune = (
   frequency: number,
   baseFrequency: number = INSTRUMENT_TUNE_BASE_FREQUENCY,
   semitoneRange: number = INSTRUMENT_TUNE_SEMITONE_RANGE,
@@ -137,7 +137,7 @@ export const inverseTransformKnobValueTune = (
  * @param freq - The frequency value
  * @param currentKnobValue - Optional hint to preserve LP/HP side (for non-bijective mapping)
  */
-export const inverseTransformKnobValueSplitFilter = (
+const inverseTransformKnobValueSplitFilter = (
   freq: number,
   currentKnobValue?: number,
   range: [number, number] = MASTER_FILTER_RANGE,
@@ -163,4 +163,17 @@ export const inverseTransformKnobValueSplitFilter = (
     : t * KNOB_ROTATION_THRESHOLD_L; // LP: 0-49
 
   return clamp(Math.round(knobValue), 0, 100);
+};
+
+export {
+  KNOB_ROTATION_THRESHOLD_L,
+  KNOB_ROTATION_THRESHOLD_R,
+  transformKnobValueLinear,
+  transformKnobValueExponential,
+  transformKnobValueTune,
+  transformKnobValueSplitFilter,
+  inverseTransformKnobValue,
+  inverseTransformKnobValueExponential,
+  inverseTransformKnobValueTune,
+  inverseTransformKnobValueSplitFilter,
 };

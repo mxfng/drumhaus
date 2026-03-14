@@ -1,13 +1,8 @@
 import type React from "react";
 import { create } from "zustand";
 
-export type ScreenFlashTone =
-  | "success"
-  | "info"
-  | "warning"
-  | "danger"
-  | "neutral";
-export type ScreenFlashIcon =
+type ScreenFlashTone = "success" | "info" | "warning" | "danger" | "neutral";
+type ScreenFlashIcon =
   | "check"
   | "info"
   | "warning"
@@ -15,7 +10,7 @@ export type ScreenFlashIcon =
   | "paste"
   | "eraser";
 
-export type ScreenFlashPayload = {
+type ScreenFlashPayload = {
   message: React.ReactNode;
   subtext?: React.ReactNode;
   tone?: ScreenFlashTone;
@@ -28,7 +23,7 @@ type ScreenFlashState = {
   triggerFlash: (payload: ScreenFlashPayload) => void;
 };
 
-export const useScreenFlashStore = create<ScreenFlashState>((set) => ({
+const useScreenFlashStore = create<ScreenFlashState>((set) => ({
   flash: null,
   triggerFlash: (payload) =>
     set((state) => ({
@@ -39,6 +34,9 @@ export const useScreenFlashStore = create<ScreenFlashState>((set) => ({
     })),
 }));
 
-export function triggerScreenFlash(payload: ScreenFlashPayload): void {
+function triggerScreenFlash(payload: ScreenFlashPayload): void {
   useScreenFlashStore.getState().triggerFlash(payload);
 }
+
+export { useScreenFlashStore, triggerScreenFlash };
+export type { ScreenFlashTone, ScreenFlashIcon, ScreenFlashPayload };

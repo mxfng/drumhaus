@@ -13,7 +13,7 @@ interface KitSelectProps {
   onSelect: (value: string) => void;
 }
 
-export function KitSelect({ selectedKitId, kits, onSelect }: KitSelectProps) {
+function KitSelect({ selectedKitId, kits, onSelect }: KitSelectProps) {
   return (
     <div className="group w-full px-1">
       <Select value={selectedKitId} onValueChange={onSelect}>
@@ -34,3 +34,5 @@ export function KitSelect({ selectedKitId, kits, onSelect }: KitSelectProps) {
     </div>
   );
 }
+
+export { KitSelect };

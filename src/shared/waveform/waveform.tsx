@@ -160,4 +160,4 @@ function Waveform({
   );
 }
 
-export default Waveform;
+export { Waveform };

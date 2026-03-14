@@ -23,9 +23,7 @@ import {
 /**
  * Maps knob params → concrete numeric settings.
  */
-export function mapParamsToSettings(
-  params: MasterChainParams,
-): MasterChainSettings {
+function mapParamsToSettings(params: MasterChainParams): MasterChainSettings {
   return {
     filter: params.filter, // Pass raw knob value for split filter logic
     saturationWet: saturationWetMapping.knobToDomain(params.saturation),
@@ -45,7 +43,7 @@ export function mapParamsToSettings(
  * Applies master chain settings to runtime nodes.
  * Shared between online and offline contexts.
  */
-export function applySettingsToRuntimes(
+function applySettingsToRuntimes(
   runtimes: MasterChainRuntimes,
   settings: MasterChainSettings,
 ): void {
@@ -80,3 +78,5 @@ export function applySettingsToRuntimes(
   // Master volume is applied directly to the global destination.
   getDestination().volume.value = settings.masterVolume;
 }
+
+export { mapParamsToSettings, applySettingsToRuntimes };

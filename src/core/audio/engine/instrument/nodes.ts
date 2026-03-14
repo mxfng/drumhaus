@@ -122,7 +122,7 @@ async function createSamplerSection(
  * Builds all instrument audio nodes.
  * Pure function that creates nodes without connecting them.
  */
-export async function buildInstrumentNodes(
+async function buildInstrumentNodes(
   instrumentId: string,
   samplePath: string,
   resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
@@ -147,10 +147,12 @@ export async function buildInstrumentNodes(
 /**
  * Disposes a single instrument runtime's nodes.
  */
-export function disposeInstrumentNodes(runtime: InstrumentRuntime): void {
+function disposeInstrumentNodes(runtime: InstrumentRuntime): void {
   runtime.samplerNode.dispose();
   runtime.envelopeNode.dispose();
   runtime.lowPassFilterNode.dispose();
   runtime.highPassFilterNode.dispose();
   runtime.pannerNode.dispose();
 }
+
+export { buildInstrumentNodes, disposeInstrumentNodes };

@@ -16,7 +16,7 @@ TODO: Add remaining features
 
 - Dynamic screen right column changes based on current mode (pattern, groove, etc.)
  */
-export function Screen() {
+function Screen() {
   const mode = usePatternStore((state) => state.mode);
 
   // Determine which screen to show based on mode
@@ -68,3 +68,5 @@ export function Screen() {
     </>
   );
 }
+
+export { Screen };

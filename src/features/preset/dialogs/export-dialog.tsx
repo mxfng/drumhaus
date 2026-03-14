@@ -22,7 +22,7 @@ interface ExportDialogProps {
 type ExportTab = "file" | "wav";
 // Future: "midi" | etc.
 
-export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
+function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
   const [activeTab, setActiveTab] = useState<"file" | "wav">("file");
 
   return (
@@ -63,3 +63,5 @@ export function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
     </Dialog>
   );
 }
+
+export { ExportDialog };

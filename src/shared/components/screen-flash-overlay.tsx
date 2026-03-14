@@ -29,7 +29,7 @@ type ScreenFlashOverlayProps = {
   children: React.ReactNode;
 };
 
-export function ScreenFlashOverlay({ children }: ScreenFlashOverlayProps) {
+function ScreenFlashOverlay({ children }: ScreenFlashOverlayProps) {
   const flash = useScreenFlashStore((state) => state.flash);
   const [active, setActive] = useState<{
     id: number;
@@ -84,3 +84,5 @@ export function ScreenFlashOverlay({ children }: ScreenFlashOverlayProps) {
     </div>
   );
 }
+
+export { ScreenFlashOverlay };

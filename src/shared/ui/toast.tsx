@@ -10,7 +10,7 @@ interface ToastState extends ToastData {
 }
 
 /* Toast Provider */
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
   const toast = useCallback((options: Omit<ToastData, "id">) => {
@@ -66,3 +66,5 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     </ToastContext.Provider>
   );
 }
+
+export { ToastProvider };

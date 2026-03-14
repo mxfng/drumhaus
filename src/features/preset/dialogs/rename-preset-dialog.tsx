@@ -34,7 +34,7 @@ const renameSchema = z.object({
 
 type RenameFormValues = z.infer<typeof renameSchema>;
 
-export function RenamePresetDialog({
+function RenamePresetDialog({
   isOpen,
   onClose,
   presetId,
@@ -128,3 +128,5 @@ export function RenamePresetDialog({
     </Dialog>
   );
 }
+
+export { RenamePresetDialog };

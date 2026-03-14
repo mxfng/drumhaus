@@ -17,7 +17,7 @@ type InstrumentControlParams = {
   waveformWidth?: number;
 };
 
-export function InstrumentControl({
+function InstrumentControl({
   runtime,
   index,
   color = "currentColor",
@@ -92,3 +92,5 @@ export function InstrumentControl({
     </div>
   );
 }
+
+export { InstrumentControl };

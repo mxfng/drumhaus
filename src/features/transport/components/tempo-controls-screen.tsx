@@ -10,7 +10,7 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { cn } from "@/shared/lib/utils";
 
-export function TempoControlsScreen() {
+function TempoControlsScreen() {
   const bpm = useTransportStore((state) => state.bpm);
   const setBpm = useTransportStore((state) => state.setBpm);
   const swing = useTransportStore((state) => state.swing);
@@ -74,3 +74,5 @@ export function TempoControlsScreen() {
     </ScreenBar>
   );
 }
+
+export { TempoControlsScreen };

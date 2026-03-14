@@ -1,4 +1,4 @@
-export type LightNodeRegistration = {
+type LightNodeRegistration = {
   id?: string;
   ref: React.RefObject<HTMLElement | null>;
   group?: string;
@@ -6,7 +6,7 @@ export type LightNodeRegistration = {
   weight?: number;
 };
 
-export type RegisteredLightNode = {
+type RegisteredLightNode = {
   id: string;
   ref: React.RefObject<HTMLElement | null>;
   group: string;
@@ -14,7 +14,9 @@ export type RegisteredLightNode = {
   weight: number;
 };
 
-export type PositionedLightNode = RegisteredLightNode & {
+type PositionedLightNode = RegisteredLightNode & {
   rect: DOMRect;
   center: { x: number; y: number };
 };
+
+export type { LightNodeRegistration, RegisteredLightNode, PositionedLightNode };

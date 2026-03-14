@@ -13,7 +13,7 @@ type StepInteractionContext = {
   isActive: boolean;
 };
 
-export const useSequencerDragPaint = ({
+const useSequencerDragPaint = ({
   triggers,
   onToggleStep,
 }: UseSequencerDragPaintProps) => {
@@ -183,3 +183,5 @@ export const useSequencerDragPaint = ({
     handleStepTouchMove,
   };
 };
+
+export { useSequencerDragPaint };

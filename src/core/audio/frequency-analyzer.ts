@@ -4,7 +4,7 @@ import { Analyser, getDestination } from "tone/build/esm/index";
 /**
  * Creates a frequency analyzer and connects it to Tone.Destination
  */
-export function createFrequencyAnalyzer(
+function createFrequencyAnalyzer(
   analyzer: RefObject<Analyser | null>,
   size: number = 512,
   type: "fft" | "waveform" = "fft",
@@ -21,9 +21,7 @@ export function createFrequencyAnalyzer(
  * Disposes the frequency analyzer and disconnects it from Tone.Destination.
  * Handles errors gracefully to prevent crashes during cleanup.
  */
-export function disposeFrequencyAnalyzer(
-  analyzer: RefObject<Analyser | null>,
-): void {
+function disposeFrequencyAnalyzer(analyzer: RefObject<Analyser | null>): void {
   if (analyzer.current) {
     try {
       getDestination().disconnect(analyzer.current);
@@ -41,3 +39,5 @@ export function disposeFrequencyAnalyzer(
     analyzer.current = null;
   }
 }
+
+export { createFrequencyAnalyzer, disposeFrequencyAnalyzer };

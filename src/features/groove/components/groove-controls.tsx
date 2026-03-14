@@ -34,7 +34,7 @@ const TOOLTIPS = {
  * Ratchet adds a rapid second hit after the main step (1/32 subdivision), increasing rhythmic density. Perfect for techno hats, rolling snares, and energetic electronic fills.
  */
 
-export const GrooveControls = () => {
+const GrooveControls = () => {
   const pattern = usePatternStore((state) => state.pattern);
   const mode = usePatternStore((state) => state.mode);
   const variation = usePatternStore((state) => state.variation);
@@ -172,3 +172,5 @@ export const GrooveControls = () => {
     </HardwareModule>
   );
 };
+
+export { GrooveControls };

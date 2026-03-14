@@ -6,7 +6,7 @@ interface DrumhausProviderProps {
   children: React.ReactNode;
 }
 
-export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
+const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
   // --- Audio Engine and Preset Loading ---
   const { instrumentRuntimes, instrumentRuntimesVersion } = useAudioEngine();
   const { loadPreset } = usePresetLoading({ instrumentRuntimes });
@@ -23,3 +23,5 @@ export const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
     </DrumhausContext.Provider>
   );
 };
+
+export { DrumhausProvider };

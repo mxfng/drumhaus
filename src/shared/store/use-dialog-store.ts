@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 // Add new dialog names here as needed
-export type DialogName =
+type DialogName =
   | "save"
   | "export"
   | "presetChange"
@@ -29,7 +29,7 @@ type DialogStoreType = {
   isAnyDialogOpen: () => boolean;
 };
 
-export const useDialogStore = create<DialogStoreType>()(
+const useDialogStore = create<DialogStoreType>()(
   devtools(
     immer((set, get) => ({
       activeDialog: null,
@@ -63,3 +63,6 @@ export const useDialogStore = create<DialogStoreType>()(
     },
   ),
 );
+
+export { useDialogStore };
+export type { DialogName };

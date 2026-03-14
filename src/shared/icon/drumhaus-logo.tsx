@@ -6,7 +6,7 @@ interface DrumhausLogoProps extends React.SVGProps<SVGSVGElement> {
   square?: boolean;
 }
 
-export function DrumhausLogo({
+function DrumhausLogo({
   fill = "currentColor",
   size = 200,
   square = false,
@@ -34,3 +34,5 @@ export function DrumhausLogo({
     </svg>
   );
 }
+
+export { DrumhausLogo };

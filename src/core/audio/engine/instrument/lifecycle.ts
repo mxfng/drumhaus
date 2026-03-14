@@ -9,7 +9,7 @@ import { InstrumentData, InstrumentRuntime } from "./types";
  * Creates a single instrument runtime with loaded sampler.
  * Returns the runtime - caller manages storage.
  */
-export async function createInstrumentRuntime(
+async function createInstrumentRuntime(
   instrument: InstrumentData,
   resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<InstrumentRuntime> {
@@ -24,7 +24,7 @@ export async function createInstrumentRuntime(
  * Creates all instrument runtimes from instrument data.
  * Returns array of runtimes - caller manages storage.
  */
-export async function createInstrumentRuntimes(
+async function createInstrumentRuntimes(
   data: InstrumentData[],
   resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
 ): Promise<InstrumentRuntime[]> {
@@ -38,9 +38,7 @@ export async function createInstrumentRuntimes(
 /**
  * Disposes a single instrument runtime.
  */
-export function disposeInstrumentRuntime(
-  runtime: InstrumentRuntime | null,
-): void {
+function disposeInstrumentRuntime(runtime: InstrumentRuntime | null): void {
   if (!runtime) return;
   disposeInstrumentNodes(runtime);
 }
@@ -48,9 +46,14 @@ export function disposeInstrumentRuntime(
 /**
  * Disposes all instrument runtimes.
  */
-export function disposeInstrumentRuntimes(
-  runtimes: InstrumentRuntime[] | null,
-): void {
+function disposeInstrumentRuntimes(runtimes: InstrumentRuntime[] | null): void {
   if (!runtimes || runtimes.length === 0) return;
   runtimes.forEach(disposeInstrumentRuntime);
 }
+
+export {
+  createInstrumentRuntime,
+  createInstrumentRuntimes,
+  disposeInstrumentRuntime,
+  disposeInstrumentRuntimes,
+};

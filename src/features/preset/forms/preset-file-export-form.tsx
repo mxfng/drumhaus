@@ -30,7 +30,7 @@ const exportSchema = z.object({
 
 type ExportFormValues = z.infer<typeof exportSchema>;
 
-export function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
+function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
   const currentPresetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -120,3 +120,5 @@ export function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
     </form>
   );
 }
+
+export { PresetFileExportForm };

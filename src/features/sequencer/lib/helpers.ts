@@ -6,7 +6,7 @@ import { clamp, quantize } from "@/shared/lib/utils";
  * Creates an empty pattern with all triggers off, velocities at 1.0, and no accents.
  * Returns the complete Pattern structure with 8 voices and variation metadata.
  */
-export function createEmptyPattern(): Pattern {
+function createEmptyPattern(): Pattern {
   const voices: Voice[] = [];
 
   for (let instrumentIndex = 0; instrumentIndex < 8; instrumentIndex++) {
@@ -65,7 +65,9 @@ export function createEmptyPattern(): Pattern {
  * @param velocity - Raw velocity value
  * @returns Clamped and quantized velocity between 0 and 1
  */
-export function clampVelocity(velocity: number): number {
+function clampVelocity(velocity: number): number {
   const quantized = quantize(velocity, 0.01);
   return clamp(quantized, 0, 1);
 }
+
+export { createEmptyPattern, clampVelocity };

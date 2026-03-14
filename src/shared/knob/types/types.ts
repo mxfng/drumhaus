@@ -1,9 +1,9 @@
-export type FormattedValue = { value: string; append?: string };
+type FormattedValue = { value: string; append?: string };
 
 /**
  * Maps between knob values (0-100) and domain values (e.g., 1000 Hz, -12 dB).
  */
-export type ParamMapping<TValue = number> = {
+type ParamMapping<TValue = number> = {
   /** Number of discrete positions the knob can snap to (for UI quantization only) */
   knobValueCount: number;
   /** Convert knob value (0-100) to domain value */
@@ -18,3 +18,5 @@ export type ParamMapping<TValue = number> = {
   /** Default knob value (0-100) */
   defaultKnobValue: number;
 };
+
+export type { FormattedValue, ParamMapping };

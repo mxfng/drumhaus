@@ -10,7 +10,7 @@ interface Star {
   size: number;
 }
 
-export function NightSky() {
+function NightSky() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
   const starsRef = useRef<Star[]>([]);
@@ -157,3 +157,5 @@ export function NightSky() {
     />
   );
 }
+
+export { NightSky };

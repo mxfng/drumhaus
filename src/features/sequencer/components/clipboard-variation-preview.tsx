@@ -16,7 +16,7 @@ type CloudPoint = {
  * Screen-friendly variation preview used in the clipboard screen.
  * Shows 8 ultra-condensed lanes of 16 steps (triggers only) in a micro-grid.
  */
-export function ClipboardVariationPreview({
+function ClipboardVariationPreview({
   voices,
   className,
 }: ClipboardVariationPreviewProps) {
@@ -73,3 +73,5 @@ export function ClipboardVariationPreview({
     </div>
   );
 }
+
+export { ClipboardVariationPreview };

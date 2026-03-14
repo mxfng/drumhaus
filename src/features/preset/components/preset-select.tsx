@@ -25,7 +25,7 @@ interface PresetSelectProps {
   onDeletePreset?: (presetId: string, presetName: string) => void;
 }
 
-export function PresetSelect({
+function PresetSelect({
   selectedPresetId,
   defaultPresets,
   customPresets,
@@ -124,3 +124,5 @@ export function PresetSelect({
     </div>
   );
 }
+
+export { PresetSelect };

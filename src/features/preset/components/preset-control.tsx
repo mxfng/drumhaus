@@ -56,7 +56,7 @@ const ConfirmSelectPresetDialog = lazy(() =>
   ),
 );
 
-export function PresetControl() {
+function PresetControl() {
   const { loadPreset } = useDrumhaus();
   const {
     kits,
@@ -244,3 +244,5 @@ export function PresetControl() {
     </>
   );
 }
+
+export { PresetControl };

@@ -53,7 +53,7 @@ const wavExportSchema = z.object({
 
 type WavExportFormValues = z.infer<typeof wavExportSchema>;
 
-export function WavExportForm({ onClose }: WavExportFormProps) {
+function WavExportForm({ onClose }: WavExportFormProps) {
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const bpm = useTransportStore((state) => state.bpm);
@@ -288,3 +288,5 @@ export function WavExportForm({ onClose }: WavExportFormProps) {
     </form>
   );
 }
+
+export { WavExportForm };

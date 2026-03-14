@@ -17,7 +17,7 @@ interface InstrumentHeaderProps {
   onInteract?: () => void;
 }
 
-export function InstrumentHeader({
+function InstrumentHeader({
   index,
   color,
   waveformWidth,
@@ -100,3 +100,5 @@ export function InstrumentHeader({
     </button>
   );
 }
+
+export { InstrumentHeader };

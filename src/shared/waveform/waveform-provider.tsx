@@ -16,7 +16,7 @@ interface WaveformProviderProps extends PropsWithChildren {
   expectedCount?: number;
 }
 
-export function WaveformProvider({
+function WaveformProvider({
   expectedCount = 8,
   children,
 }: WaveformProviderProps) {
@@ -145,3 +145,5 @@ export function WaveformProvider({
     </WaveformContext.Provider>
   );
 }
+
+export { WaveformProvider };

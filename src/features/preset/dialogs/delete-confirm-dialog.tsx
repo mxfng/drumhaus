@@ -19,7 +19,7 @@ interface DeleteConfirmDialogProps {
   presetName: string;
 }
 
-export function DeleteConfirmDialog({
+function DeleteConfirmDialog({
   isOpen,
   onClose,
   presetId,
@@ -84,3 +84,5 @@ export function DeleteConfirmDialog({
     </Dialog>
   );
 }
+
+export { DeleteConfirmDialog };

@@ -24,7 +24,7 @@ const defaultParse = (text: string) => parseFloat(text);
  * - Click once: enter edit mode with text input
  * - Press and drag: change value vertically with knob-like sensitivity
  */
-export function ClickableValue({
+function ClickableValue({
   value,
   onValueChange,
   mapping,
@@ -300,3 +300,5 @@ export function ClickableValue({
     </div>
   );
 }
+
+export { ClickableValue };

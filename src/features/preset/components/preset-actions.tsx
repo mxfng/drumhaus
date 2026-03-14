@@ -14,7 +14,7 @@ type PresetActionsProps = {
   onOpenFromFile: () => void;
 };
 
-export function PresetActions({ onOpenFromFile }: PresetActionsProps) {
+function PresetActions({ onOpenFromFile }: PresetActionsProps) {
   const openDialog = useDialogStore((state) => state.openDialog);
   const currentPresetMeta = usePresetMetaStore(
     (state) => state.currentPresetMeta,
@@ -104,3 +104,5 @@ export function PresetActions({ onOpenFromFile }: PresetActionsProps) {
     </div>
   );
 }
+
+export { PresetActions };
