@@ -86,8 +86,8 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0
       tone:
-        specifier: 15.3.10
-        version: 15.3.10
+        specifier: 15.5.6
+        version: 15.5.6
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -2796,10 +2796,10 @@ packages:
       }
     engines: { node: ">=8.0" }
 
-  tone@15.3.10:
+  tone@15.5.6:
     resolution:
       {
-        integrity: sha512-CqLAQ2u0JcYPaao/SB9JZvcFyUW1p8yNdIRFenNgF8gdg2T1l3PtaKAKwa2K1EMYaXEQUqy4SeO6Jh6Ww/GCWg==,
+        integrity: sha512-6AfYbEGk2HQCj4BCjMfoBy5kTEW0vHK7NvBImCuW3v08yDxoc8rcm9mf+hRChxXSTlIBOw7mg2Ava+eYCdK0Gw==,
       }
 
   tslib@2.8.1:
@@ -4452,7 +4452,7 @@ snapshots:
     dependencies:
       is-number: 7.0.0
 
-  tone@15.3.10:
+  tone@15.5.6:
     dependencies:
       standardized-audio-context: 25.3.77
       tslib: 2.8.1
