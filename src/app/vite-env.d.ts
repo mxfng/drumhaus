@@ -5,6 +5,10 @@ declare const __APP_VERSION__: string;
 declare const __BUILD_TIME__: string;
 declare const __NODE_VERSION__: string;
 
+// Side-effect imports for non-standard packages
+// e.g. main is a CSS file (no .ts/.js.d.ts entry)
+declare module "@fontsource-variable/*";
+
 // Custom file type declarations
 declare module "*.dhkit" {
   const content: import("@/features/kit/types/kit").KitFileV1;
