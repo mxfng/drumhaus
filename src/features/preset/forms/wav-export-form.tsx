@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   calculateExportDuration,
+  exportStemsToWav,
   exportToWav,
   getSuggestedBars,
 } from "@/core/audio/export/wav-exporter";
@@ -49,6 +50,7 @@ const wavExportSchema = z.object({
   bars: z.number().int().min(1, "At least 1 bar").max(8, "Maximum 8 bars"),
   sampleRate: z.enum(["system", "44100", "48000"]),
   includeTail: z.boolean(),
+  mode: z.enum(["combined", "stems"]),
 });
 
 type WavExportFormValues = z.infer<typeof wavExportSchema>;
@@ -70,6 +72,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       bars: recommendedBars,
       sampleRate: "system" as const,
       includeTail: false,
+      mode: "combined" as const,
     }),
     [presetName, recommendedBars],
   );
@@ -99,6 +102,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
   const bars = useWatch({ control, name: "bars" });
   const includeTail = useWatch({ control, name: "includeTail" });
   const sampleRate = useWatch({ control, name: "sampleRate" });
+  const mode = useWatch({ control, name: "mode" });
 
   const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
   const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
@@ -110,16 +114,25 @@ function WavExportForm({ onClose }: WavExportFormProps) {
           ? new AudioContext().sampleRate
           : parseInt(values.sampleRate, 10);
 
-      await exportToWav({
+      const exportArgs = {
         bars: values.bars,
         sampleRate: actualSampleRate,
         includeTail: values.includeTail,
         filename: values.filename.trim() || "drumhaus-export",
-      });
+      };
+
+      if (values.mode === "stems") {
+        await exportStemsToWav(exportArgs);
+      } else {
+        await exportToWav(exportArgs);
+      }
 
       toast({
         title: "Export successful",
-        description: "Your audio file has been exported.",
+        description:
+          values.mode === "stems"
+            ? "Your stems have been exported as a ZIP."
+            : "Your audio file has been exported.",
         duration: 8000,
       });
       onClose();
@@ -159,6 +172,38 @@ function WavExportForm({ onClose }: WavExportFormProps) {
           <FieldSet>
             <FieldLegend>Export options</FieldLegend>
             <FieldGroup>
+              <Field data-invalid={Boolean(errors.mode)}>
+                <FieldLabel>Format</FieldLabel>
+                <FieldDescription>
+                  Combined renders one mixdown. Stems render each instrument as
+                  a separate WAV, bundled in a ZIP for your DAW.
+                </FieldDescription>
+                <RadioGroup
+                  value={mode}
+                  onValueChange={(value) =>
+                    setValue("mode", value as "combined" | "stems", {
+                      shouldValidate: true,
+                    })
+                  }
+                  disabled={isSubmitting}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="combined" id="mode-combined" />
+                    <FieldLabel htmlFor="mode-combined" className="font-normal">
+                      Combined mix
+                    </FieldLabel>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="stems" id="mode-stems" />
+                    <FieldLabel htmlFor="mode-stems" className="font-normal">
+                      Stems (ZIP)
+                    </FieldLabel>
+                  </div>
+                </RadioGroup>
+
+                <FieldError errors={[errors.mode]} />
+              </Field>
+
               <Field data-invalid={Boolean(errors.bars)}>
                 <FieldLabel htmlFor="bars">Length</FieldLabel>
 

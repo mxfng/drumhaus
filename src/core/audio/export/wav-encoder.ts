@@ -65,10 +65,14 @@ function writeString(view: DataView, offset: number, str: string): void {
 }
 
 /**
- * Triggers a browser download of the WAV file
+ * Triggers a browser download of an ArrayBuffer as a file.
  */
-function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
-  const blob = new Blob([wavBuffer], { type: "audio/wav" });
+function downloadBlob(
+  buffer: ArrayBuffer,
+  filename: string,
+  mimeType: string,
+): void {
+  const blob = new Blob([buffer], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -77,6 +81,20 @@ function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+/**
+ * Triggers a browser download of the WAV file
+ */
+function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
+  downloadBlob(wavBuffer, filename, "audio/wav");
+}
+
+/**
+ * Triggers a browser download of a ZIP archive.
+ */
+function downloadZip(zipBuffer: ArrayBuffer, filename: string): void {
+  downloadBlob(zipBuffer, filename, "application/zip");
 }
 
 /**
@@ -92,4 +110,4 @@ function generateExportFilename(): string {
   return `drumhaus-export-${timestamp}.wav`;
 }
 
-export { encodeWav, downloadWav, generateExportFilename };
+export { encodeWav, downloadWav, downloadZip, generateExportFilename };
