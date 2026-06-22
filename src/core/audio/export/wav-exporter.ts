@@ -1,6 +1,6 @@
 // --- WAV export engine using Tone.js Offline rendering ---
 
-import { Offline } from "tone/build/esm/index";
+import { Offline, type ToneAudioNode } from "tone/build/esm/index";
 
 import {
   InstrumentData,
@@ -16,6 +16,7 @@ import {
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import {
   applyInstrumentParams,
+  chainInstrumentNodes,
   configureTransportTiming,
   connectInstrumentToMasterChain,
   createInstrumentRuntime,
@@ -36,6 +37,12 @@ interface ExportOptions {
   sampleRate: number;
   includeTail: boolean;
   filename: string;
+  /**
+   * When exporting stems, bypass the master bus FX (compressor, limiter,
+   * reverb, saturation, EQ) so each stem carries only its own channel strip.
+   * Ignored by the combined mix export. Defaults to dry (true) at the UI.
+   */
+  dry?: boolean;
 }
 
 interface ExportProgress {
@@ -125,7 +132,10 @@ async function exportStemsToWav(
       percent: 10 + Math.round((index / Math.max(total, 1)) * 70),
     });
 
-    const audioBuffer = await renderPattern(state, options, duration, index);
+    const audioBuffer = await renderPattern(state, options, duration, {
+      audibleInstrumentIndex: index,
+      dry: options.dry ?? false,
+    });
     const nativeBuffer = audioBuffer.get();
     if (!nativeBuffer || isSilent(nativeBuffer)) continue;
 
@@ -203,32 +213,50 @@ function getRenderDuration(
 }
 
 /**
+ * Per-render routing options for {@link renderPattern}.
+ */
+interface RenderRouting {
+  /**
+   * When set, only this instrument is routed to the output (isolated stem).
+   * Every instrument is still built and triggered so cross-instrument behavior
+   * (e.g. hat choking) is preserved. When omitted, every instrument is routed
+   * (full mix).
+   */
+  audibleInstrumentIndex?: number;
+  /**
+   * When true, the audible instrument is routed straight to the destination,
+   * bypassing the master bus FX. When false, the master chain is rendered.
+   */
+  dry?: boolean;
+}
+
+/**
  * Renders the pattern offline.
  *
- * When `audibleInstrumentIndex` is provided, every instrument is still built
- * and triggered (so cross-instrument behavior like hat choking is preserved),
- * but only that instrument is routed to the master chain — producing an
- * isolated stem. When omitted, every instrument is routed (full mix).
+ * See {@link RenderRouting} for how `audibleInstrumentIndex` and `dry` shape
+ * the signal path.
  */
 async function renderPattern(
   state: RenderState,
   options: Pick<ExportOptions, "sampleRate" | "bars">,
   duration: number,
-  audibleInstrumentIndex?: number,
+  routing: RenderRouting = {},
 ) {
   return await Offline(
     async ({ transport, destination }) => {
       configureTransportTiming(transport, state.bpm, state.swing);
 
-      const masterChain = await initializeMasterChain(
-        state.masterChainParams,
-        destination,
-      );
+      // Dry stems skip the master bus entirely and feed the destination
+      // directly. Wet/combined renders build the full master chain.
+      const masterChain = routing.dry
+        ? null
+        : await initializeMasterChain(state.masterChainParams, destination);
 
       const runtimes = await buildOfflineInstrumentRuntimes(
         state.instruments,
         masterChain,
-        audibleInstrumentIndex,
+        destination,
+        routing.audibleInstrumentIndex,
       );
 
       createOfflineSequence(
@@ -251,7 +279,8 @@ async function renderPattern(
 
 async function buildOfflineInstrumentRuntimes(
   instruments: InstrumentData[],
-  masterChain: MasterChainRuntimes,
+  masterChain: MasterChainRuntimes | null,
+  destination: ToneAudioNode,
   audibleInstrumentIndex?: number,
 ): Promise<InstrumentRuntime[]> {
   const runtimes: InstrumentRuntime[] = [];
@@ -269,13 +298,20 @@ async function buildOfflineInstrumentRuntimes(
       volume: instrument.params.volume,
     });
 
-    // For stem rendering, only the target instrument is routed to the master
-    // chain. Other instruments are still built and triggered (preserving hat
-    // choking and any other cross-instrument behavior) but produce no output.
+    // Only the target instrument is routed to the output. Other instruments
+    // are still built and triggered (preserving hat choking and any other
+    // cross-instrument behavior) but produce no output.
     const isAudible =
       audibleInstrumentIndex === undefined || audibleInstrumentIndex === index;
     if (isAudible) {
-      connectInstrumentToMasterChain(runtime, masterChain);
+      if (masterChain) {
+        // Wet/combined: instrument channel strip → master chain.
+        connectInstrumentToMasterChain(runtime, masterChain);
+      } else {
+        // Dry stem: instrument channel strip → destination, bypassing master.
+        chainInstrumentNodes(runtime);
+        runtime.pannerNode.connect(destination);
+      }
     }
 
     runtimes.push(runtime);

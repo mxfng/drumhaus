@@ -51,6 +51,7 @@ const wavExportSchema = z.object({
   sampleRate: z.enum(["system", "44100", "48000"]),
   includeTail: z.boolean(),
   mode: z.enum(["combined", "stems"]),
+  dryStems: z.boolean(),
 });
 
 type WavExportFormValues = z.infer<typeof wavExportSchema>;
@@ -73,6 +74,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       sampleRate: "system" as const,
       includeTail: false,
       mode: "combined" as const,
+      dryStems: true,
     }),
     [presetName, recommendedBars],
   );
@@ -103,6 +105,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
   const includeTail = useWatch({ control, name: "includeTail" });
   const sampleRate = useWatch({ control, name: "sampleRate" });
   const mode = useWatch({ control, name: "mode" });
+  const dryStems = useWatch({ control, name: "dryStems" });
 
   const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
   const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
@@ -122,7 +125,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       };
 
       if (values.mode === "stems") {
-        await exportStemsToWav(exportArgs);
+        await exportStemsToWav({ ...exportArgs, dry: values.dryStems });
       } else {
         await exportToWav(exportArgs);
       }
@@ -203,6 +206,35 @@ function WavExportForm({ onClose }: WavExportFormProps) {
 
                 <FieldError errors={[errors.mode]} />
               </Field>
+
+              {mode === "stems" && (
+                <Field data-invalid={Boolean(errors.dryStems)}>
+                  <FieldLabel>Stem processing</FieldLabel>
+                  <FieldDescription>
+                    Dry stems keep each instrument’s own channel strip but skip
+                    the master bus (compression, EQ, reverb, limiter) so you can
+                    mix them in your DAW. Uncheck to bake in the master FX.
+                  </FieldDescription>
+
+                  <FieldGroup data-slot="checkbox-group">
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="dryStems"
+                        checked={dryStems}
+                        onCheckedChange={(checked) =>
+                          setValue("dryStems", checked === true)
+                        }
+                        disabled={isSubmitting}
+                      />
+                      <FieldLabel htmlFor="dryStems" className="font-normal">
+                        Dry stems (bypass master FX)
+                      </FieldLabel>
+                    </Field>
+                  </FieldGroup>
+
+                  <FieldError errors={[errors.dryStems]} />
+                </Field>
+              )}
 
               <Field data-invalid={Boolean(errors.bars)}>
                 <FieldLabel htmlFor="bars">Length</FieldLabel>
