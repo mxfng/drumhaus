@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   calculateExportDuration,
+  exportStemsToWav,
   exportToWav,
   getSuggestedBars,
 } from "@/core/audio/export/wav-exporter";
@@ -49,6 +50,8 @@ const wavExportSchema = z.object({
   bars: z.number().int().min(1, "At least 1 bar").max(8, "Maximum 8 bars"),
   sampleRate: z.enum(["system", "44100", "48000"]),
   includeTail: z.boolean(),
+  mode: z.enum(["combined", "stems"]),
+  dryStems: z.boolean(),
 });
 
 type WavExportFormValues = z.infer<typeof wavExportSchema>;
@@ -70,6 +73,8 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       bars: recommendedBars,
       sampleRate: "system" as const,
       includeTail: false,
+      mode: "combined" as const,
+      dryStems: true,
     }),
     [presetName, recommendedBars],
   );
@@ -99,6 +104,8 @@ function WavExportForm({ onClose }: WavExportFormProps) {
   const bars = useWatch({ control, name: "bars" });
   const includeTail = useWatch({ control, name: "includeTail" });
   const sampleRate = useWatch({ control, name: "sampleRate" });
+  const mode = useWatch({ control, name: "mode" });
+  const dryStems = useWatch({ control, name: "dryStems" });
 
   const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
   const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
@@ -110,16 +117,25 @@ function WavExportForm({ onClose }: WavExportFormProps) {
           ? new AudioContext().sampleRate
           : parseInt(values.sampleRate, 10);
 
-      await exportToWav({
+      const exportArgs = {
         bars: values.bars,
         sampleRate: actualSampleRate,
         includeTail: values.includeTail,
         filename: values.filename.trim() || "drumhaus-export",
-      });
+      };
+
+      if (values.mode === "stems") {
+        await exportStemsToWav({ ...exportArgs, dry: values.dryStems });
+      } else {
+        await exportToWav(exportArgs);
+      }
 
       toast({
         title: "Export successful",
-        description: "Your audio file has been exported.",
+        description:
+          values.mode === "stems"
+            ? "Your stems have been exported as a ZIP."
+            : "Your audio file has been exported.",
         duration: 8000,
       });
       onClose();
@@ -159,6 +175,67 @@ function WavExportForm({ onClose }: WavExportFormProps) {
           <FieldSet>
             <FieldLegend>Export options</FieldLegend>
             <FieldGroup>
+              <Field data-invalid={Boolean(errors.mode)}>
+                <FieldLabel>Format</FieldLabel>
+                <FieldDescription>
+                  Combined renders one mixdown. Stems render each instrument as
+                  a separate WAV, bundled in a ZIP for your DAW.
+                </FieldDescription>
+                <RadioGroup
+                  value={mode}
+                  onValueChange={(value) =>
+                    setValue("mode", value as "combined" | "stems", {
+                      shouldValidate: true,
+                    })
+                  }
+                  disabled={isSubmitting}
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="combined" id="mode-combined" />
+                    <FieldLabel htmlFor="mode-combined" className="font-normal">
+                      Combined mix
+                    </FieldLabel>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="stems" id="mode-stems" />
+                    <FieldLabel htmlFor="mode-stems" className="font-normal">
+                      Stems (ZIP)
+                    </FieldLabel>
+                  </div>
+                </RadioGroup>
+
+                <FieldError errors={[errors.mode]} />
+              </Field>
+
+              {mode === "stems" && (
+                <Field data-invalid={Boolean(errors.dryStems)}>
+                  <FieldLabel>Stem processing</FieldLabel>
+                  <FieldDescription>
+                    Dry stems keep each instrument’s own channel strip but skip
+                    the master bus (compression, EQ, reverb, limiter) so you can
+                    mix them in your DAW. Uncheck to bake in the master FX.
+                  </FieldDescription>
+
+                  <FieldGroup data-slot="checkbox-group">
+                    <Field orientation="horizontal">
+                      <Checkbox
+                        id="dryStems"
+                        checked={dryStems}
+                        onCheckedChange={(checked) =>
+                          setValue("dryStems", checked === true)
+                        }
+                        disabled={isSubmitting}
+                      />
+                      <FieldLabel htmlFor="dryStems" className="font-normal">
+                        Dry stems (bypass master FX)
+                      </FieldLabel>
+                    </Field>
+                  </FieldGroup>
+
+                  <FieldError errors={[errors.dryStems]} />
+                </Field>
+              )}
+
               <Field data-invalid={Boolean(errors.bars)}>
                 <FieldLabel htmlFor="bars">Length</FieldLabel>
 
