@@ -38,7 +38,7 @@
     "framer-motion": "^12.40.0",
     "immer": "^11.1.8",
     "lucide-react": "^1.21.0",
-    "pako": "^2.1.0",
+    "pako": "^3.0.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.80.0",
