@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
 import { getAudioEngine } from "@/core/audio/engine";
+import {
+  emptyRecoveryCounters,
+  getRecoveryStats,
+  type RecoveryCounters,
+} from "@/core/audio/hooks/recovery-stats";
 import { useDebugStore } from "@/features/debug/store/use-debug-store";
 
 interface DebugStats {
@@ -11,6 +16,7 @@ interface DebugStats {
   audioTime: number;
   audioState: string;
   resumedAgoSeconds: number | null;
+  recovery: RecoveryCounters;
 }
 
 const DebugOverlay = () => {
@@ -23,6 +29,7 @@ const DebugOverlay = () => {
     audioTime: 0,
     audioState: "unknown",
     resumedAgoSeconds: null,
+    recovery: emptyRecoveryCounters(),
   });
 
   const frameTimesRef = useRef<number[]>([]);
@@ -72,6 +79,9 @@ const DebugOverlay = () => {
           ? Math.max((performance.now() - health.lastResume) / 1000, 0)
           : null;
 
+      // Recovery-tier counters persisted by the context guards (issue #319)
+      const recovery = getRecoveryStats().counters;
+
       setStats({
         fps,
         heapMB,
@@ -80,6 +90,7 @@ const DebugOverlay = () => {
         audioTime,
         audioState: health.state,
         resumedAgoSeconds,
+        recovery,
       });
       animationId = requestAnimationFrame(updateStats);
     };
@@ -129,6 +140,31 @@ const DebugOverlay = () => {
             <span>{stats.resumedAgoSeconds.toFixed(1)}s ago</span>
           </div>
         )}
+        {/* Recovery tiers: success/attempt pairs, then escalation counts */}
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Resume</span>
+          <span>
+            {stats.recovery.resumeSuccess}/{stats.recovery.resumeAttempt}
+          </span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Stalls</span>
+          <span>{stats.recovery.stallDetected}</span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Rebuild</span>
+          <span>
+            {stats.recovery.rebuildSuccess}/{stats.recovery.rebuildAttempt}
+          </span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Timeouts</span>
+          <span>{stats.recovery.rebuildTimeout}</span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="opacity-70">Reloads</span>
+          <span>{stats.recovery.reloadFallback}</span>
+        </div>
       </div>
     </div>
   );

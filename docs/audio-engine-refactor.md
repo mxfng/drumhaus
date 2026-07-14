@@ -205,6 +205,15 @@ Three refuted candidates validated the architecture: the scheduler's fresh per-s
 
 Open follow-up: the first-hit attenuation quirk (see above) remains unfixed by design; investigate after the refactor settles.
 
+### Recovery instrumentation (issue #319)
+
+The rebuild recovery path shipped without real-world evidence of which tier actually fires, so the context guards now count every tier: eager resume attempts and successes, stall detections, rebuild attempts, rebuild successes (clock revived), rebuild timeouts, and reload fallbacks.
+The counters live in `src/core/audio/hooks/recovery-stats.ts` (outside `engine/`, preserving engine purity) and the guards hook records events around its existing branches without touching the recovery logic.
+They persist in localStorage under `drumhaus-audio-recovery-stats` as a small versioned JSON object (`{ version, counters, lastEventAt }`); the reload counter is incremented before the navigation so the otherwise-invisible reload tier survives its own reload.
+Storage access is fully guarded: private-browsing or storage-denied modes degrade counting to a no-op while recovery proceeds unchanged.
+To read the counters when reproducing the idle-tab scenario: enable Debug Mode from the floating menu, background the tab for 10+ minutes, return and interact, and check the Resume, Stalls, Rebuild, Timeouts, and Reloads rows in the overlay (Resume and Rebuild show success/attempt pairs).
+The manual Chrome/Safari validation and any threshold tuning remain open on #319 pending the evidence these counters collect.
+
 ## Expected outcome
 
 `core/audio` stays around its current size (~2,600 lines) but becomes strictly one-directional and testable.
