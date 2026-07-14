@@ -25,7 +25,11 @@ const NET = {
 // The wave sweeps on and off over ~1.2s; anything much shorter means it was
 // cut off mid-flight.
 const MIN_WAVE_DURATION_MS = 1000;
-const MAX_MEDIAN_FRAME_MS = 33;
+// A steady 30fps cadence quantizes to 33.33ms frames, so the budget must sit
+// clearly above that or a run pacing perfectly at 30fps under the 4x CPU
+// throttle fails by rounding (seen on CI: median 33.3ms vs a 33ms budget).
+// 40ms still fails once the median cadence degrades past ~25fps.
+const MAX_MEDIAN_FRAME_MS = 40;
 
 async function waitForServer(url, timeoutMs = 30000) {
   const deadline = Date.now() + timeoutMs;
