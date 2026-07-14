@@ -1,9 +1,10 @@
 import { execSync } from "child_process";
-import { readFileSync } from "fs";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import react, { reactCompilerPreset } from "@vitejs/plugin-react";
-import { defineConfig, Plugin } from "vite";
+import { defineConfig } from "vite";
+
+import { dhFilesPlugin } from "./dh-files-plugin";
 
 // Build-time metadata helpers
 const getGitHash = () => {
@@ -16,23 +17,6 @@ const getGitHash = () => {
 
 const appVersion = getGitHash();
 const nodeVersion = process.version;
-
-// Custom plugin to handle .dh and .dhkit files as JSON
-function dhFilesPlugin(): Plugin {
-  return {
-    name: "dh-files-loader",
-    transform(_code, id) {
-      if (id.endsWith(".dhkit") || id.endsWith(".dh")) {
-        const content = readFileSync(id, "utf-8");
-        return {
-          code: `export default ${content}`,
-          map: null,
-          moduleType: "js",
-        };
-      }
-    },
-  };
-}
 
 // https://vitejs.dev/config/
 export default defineConfig({
