@@ -10,7 +10,8 @@ The audio engine is now a framework-free facade that deals in musical data pushe
 This document inventories every producer and consumer of the `.dh`/`.dhkit` formats, assesses the versioning and migration story, analyzes the gaps against a pro-level persistence layer, and proposes a target design sequenced into incremental PRs.
 The core findings: the `version` field is decorative (never bumped, migrations keyed on field presence instead), the share-URL encoding is unversioned with a positional kit index that will silently corrupt existing links when a kit is inserted, load is a half-applied-on-failure sequence of ~11 store writes, and a single failed sample leaves the UI and the engine showing different kits with no user feedback.
 A first-principles format review (see Format assessment) concludes that the JSON-file approach itself is the norm for this class of instrument and needs no rewrite; the flaws are in validation, versioning, and load orchestration, not in the choice of container.
-The ten open questions from the initial draft were resolved in review; they are recorded with rationale in the Decisions section.
+One schema-level change does land with v2: parameter values move from UI knob positions to the engine's domain units, decoupling the file format from the UI (decision 11).
+The open questions from the initial draft were resolved in review; they are recorded with rationale in the Decisions section.
 
 ## Inventory
 
@@ -182,12 +183,13 @@ A zip-style container becomes the right call only if user-imported samples ship 
 Embedding the full kit in every `.dh` makes files self-describing and immune to kit-registry reordering or retuning, at a cost of a few kilobytes, and it matches how instrument patches conventionally store their full parameter state.
 Reference-style kit storage is what the compact URL format is for; keeping both gives each surface the right tradeoff.
 
-**Knob-space values stay, with a new policy.**
-The one genuinely debatable schema decision is that `.dh` stores UI knob positions (0-100) while the engine speaks domain units (Hz, dB, seconds).
-Storing domain units would make files sound-faithful under knob-mapping retunes, but it would require an inverse mapping per parameter, add two mapping crossings to every save/load, and break the property that a file is an exact store snapshot.
-Storing knob positions matches hardware convention (patches store device-unit parameter values) and keeps save and load pure snapshots.
-The real hazard is not the choice but the absence of a rule: today, retuning a knob curve silently changes how every existing preset sounds.
-The version ladder makes the rule enforceable, so it becomes policy: a knob-mapping retune is a format change, requiring a version bump and a converting migration.
+**Knob-space values go: v2 stores domain units (decision 11).**
+The initial draft's one genuinely debatable call was keeping UI knob positions (0-100) in the file, with a policy that knob-curve retunes require a version bump.
+Review overruled it: the file format should be UI-agnostic and coupled to the engine, which is the stable semantic core after the engine refactor, while knob curves are a UI concern that should be free to change.
+The v2 schema therefore stores the engine's domain vocabulary (Hz, dB, seconds, playback rate, normalized mix fractions), exactly as `setChannelParams` and `setMasterParams` consume it.
+Pattern data (triggers, normalized velocities, nudge) and bpm already speak musical units; this change brings the instrument and master parameters in line, and any remaining knob-space stragglers (swing, if it proves to be one) get audited in PR 2.
+The costs the draft weighed are real but contained: each mapping needs an inverse (the curves are monotonic, so invertible), save and load each gain one mapping crossing at the serialization boundary, and the stores and bridge stay knob-space so nothing else moves.
+The payoff is structural: the 1-to-2 migration freezes the current curves as the permanent interpretation of v1 files, and from v2 on, retuning a knob curve changes where a knob sits, never how a saved preset sounds.
 
 **The rest holds up.**
 The envelope (`kind`, `version`, `meta`) follows convention.
@@ -203,6 +205,9 @@ Principles: parse, don't validate (one schema source of truth producing typed va
 A new `src/features/preset/schema/` module owns zod schemas for the `.dh` envelope, the kit, the pattern, and the compact format, plus a typed error taxonomy (`InvalidFile`, `UnsupportedVersion`, `CorruptField`, `UnknownKit`, ...).
 Every load surface (file import, share URL, `customPresets`, and bundled defaults via a build-time test) parses through it.
 Deep validation replaces the `as` casts; array arities (8 voices, 4 variations, 16 steps) and value ranges become explicit.
+Parameter values are defined in the engine's domain vocabulary, exactly as `setChannelParams` and `setMasterParams` consume them, with the exact per-field units pinned from `bridge/knob-to-domain.ts` during implementation (decision 11).
+Serialization owns the mapping crossings: save runs store knob values through `knobToDomain`, load runs file values through a new `domainToKnob` inverse beside it, and the stores and bridge stay knob-space so the UI is untouched.
+A knob-to-domain-to-knob round-trip property test pins every mapping as invertible within knob resolution.
 Unknown fields are stripped at load with a console warning rather than preserved or hard-rejected (decision 3).
 Defaults for genuinely optional fields live in the schema or the migration for exactly one version transition, never as scattered `??` at use sites.
 
@@ -212,13 +217,14 @@ Migration becomes a ladder: parse the envelope (`kind` + `version`), apply `MIGR
 The existing heuristics (param renames, `lowPass`/`highPass`, `variationCycle`, array-shaped patterns, missing nudge/ratchet/flam/accent fields) are folded into a single normalization step for version 1 inputs, pinned by fixtures generated from real historical files.
 The `.dh` version bumps to 2 as the formalization point: version 2 is defined as today's canonical shape with none of the legacy spellings, so the 1-to-2 migration is exactly the current heuristic set, run once and then retired from the hot path.
 Old builds reading a v2 file fail with a clean "unsupported version" error rather than silent field loss, which is the correct failure mode the current exact-equality gate accidentally provides; per decision 2 this hard refusal is the permanent forward-compatibility policy, with no best-effort reading of newer files.
-The ladder also enforces the knob-mapping policy from the format assessment: retuning a mapping curve means a version bump with a converting migration.
+The 1-to-2 migration also performs the knob-to-domain conversion (decision 11), permanently freezing the v1 knob curves inside that one migration; after v2, retuning a curve is a pure UI change that cannot alter how any saved preset sounds.
 
 ### Versioned compact format
 
 The compact encoding gains a `v` field, and per decision 4 the legacy versionless decoder is deleted rather than frozen: a payload without `v` fails with the existing invalid-link toast and init fallback.
 Existing shared links break cleanly; this is an accepted deliberate break that removes an entire frozen decoder from the maintenance surface.
 The kit reference switches from a positional index to the stable kit id, removing the `KIT_ORDER` insertion hazard at the cost of a few URL characters.
+Parameter values follow the v2 canonical form (domain units), quantized per field to a precision that round-trips knob resolution, so the share path is UI-agnostic too.
 The decoder validates array lengths and rejects structurally short payloads with a typed error instead of a `TypeError`.
 
 ### Atomic load pipeline
@@ -260,8 +266,9 @@ Risk: an over-strict schema rejecting in-the-wild files that previously loaded v
 
 ### PR 2: version ladder and the v2 bump
 
-Introduce `CURRENT_VERSION = 2`, fold the heuristics into the 1-to-2 migration, dual-read versions 1 and 2, write version 2.
-Risk: old builds (stale tabs, old deployments) hard-reject v2 files with a clean error; this is the intended compatibility break, signed off in decision 1.
+Introduce `CURRENT_VERSION = 2` with the domain-unit schema (decision 11), add the `domainToKnob` inverses, and fold the legacy heuristics plus the knob-to-domain conversion (frozen v1 curves) into the 1-to-2 migration; dual-read versions 1 and 2, write version 2.
+Risk: now the highest-risk PR of the series.
+Old builds (stale tabs, old deployments) hard-reject v2 files with a clean error, which is the intended compatibility break signed off in decision 1; beyond that, a wrong or non-invertible mapping would corrupt the sound of every migrated preset, so the fixture corpus pins exact expected domain values for every historical file and the round-trip property test gates the inverses.
 
 ### PR 3: atomic load pipeline and kit-failure surfacing
 
@@ -290,7 +297,7 @@ Risk: none.
 
 ## Decisions
 
-The ten open questions from the initial draft were resolved in review on 2026-07-14.
+The ten open questions from the initial draft were resolved in review on 2026-07-14, and an eleventh decision was added in the same review.
 They are recorded here with rationale so implementation PRs can cite them by number.
 
 1. **Version bump: yes, v2.**
@@ -319,3 +326,8 @@ They are recorded here with rationale so implementation PRs can cite them by num
    As proposed in PR 6: migrate `customPresets` at rehydrate, quarantine what fails to parse, never delete.
 10. **Dead formats: deleted.**
     `ShareablePreset`/`OptimizedPattern` (`serialization/types.ts`, `patterns.ts`) go, along with the stale `scripts/new-kit.ts`; kit authoring is manual until a new kit lands.
+11. **Parameter values: domain units, not knob positions.**
+    This reverses the initial draft's keep-knob-space stance: the file format should be UI-agnostic and coupled to the audio engine, which thinks in musical values, so the v2 schema stores the engine's domain vocabulary and knob positions are derived at load via inverse mappings.
+    The stores and bridge stay knob-space; only the serialization boundary changes.
+    The 1-to-2 migration bakes the current knob curves in as the permanent interpretation of v1 files, and from v2 on a curve retune is a pure UI concern that can never change how a saved preset sounds, which retires the retune-means-version-bump policy the draft had proposed instead.
+    Alternatives rejected: keeping knob space with that policy (leaves the format UI-coupled), and making the stores themselves domain-native (relocates mapping into every knob component, against the engine refactor's bridge-boundary rule).
