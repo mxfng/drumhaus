@@ -274,6 +274,11 @@ class AudioEngine {
    * per-channel params. If another loadKit (or dispose) supersedes this call
    * while it is in flight, the orphaned new channels are disposed and the
    * active ones are left untouched.
+   *
+   * During playback the live sequence is deliberately left untouched: the
+   * scheduler reads channels fresh on every step, so it picks up the new
+   * kit on its next step, and recreating the sequence here would reset the
+   * variation chain position (issue #241).
    */
   async loadKit(
     kit: KitSampleDescriptor[],
@@ -325,10 +330,6 @@ class AudioEngine {
         this.continuousParams,
         this.meters,
       );
-
-      if (this.isPlaying) {
-        this.createLiveSequence();
-      }
 
       this.kitLoadedListeners.forEach((listener) => listener());
     } catch (error) {

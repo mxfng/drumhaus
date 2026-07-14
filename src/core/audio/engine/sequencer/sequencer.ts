@@ -113,7 +113,8 @@ function createPatternSequence(options: PatternSequenceOptions): Sequence {
 
   // Chain playback state lives for exactly one sequence lifetime; live
   // playback recreates the sequence (restarting from the chain's first
-  // step) whenever a new chain is pushed.
+  // step) whenever a new chain is pushed. Kit swaps deliberately do NOT
+  // recreate the sequence, so the chain position survives them (issue #241).
   const chainState: ChainPlaybackState = {
     stepIndex: 0,
     repeatsRemaining: chain.steps[0]?.repeats ?? 1,
