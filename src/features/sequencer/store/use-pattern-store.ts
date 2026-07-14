@@ -64,13 +64,11 @@ type SequencerMode =
 interface PatternState {
   // Pattern data - 8 voices, each with instrumentIndex and 4 variations
   pattern: Pattern;
-  patternVersion: number;
 
   // Sequencer controls
   variation: VariationId; // A = 0, B = 1, C = 2, D = 3
   chain: PatternChain;
   chainEnabled: boolean;
-  chainVersion: number;
   chainDraft: PatternChain;
 
   // Current voice index (tracked separately for mode memory)
@@ -161,11 +159,9 @@ const usePatternStore = create<PatternState>()(
       immer((set) => ({
         // Initial state
         pattern: createEmptyPattern(),
-        patternVersion: 0,
         variation: 0,
         chain: DEFAULT_CHAIN,
         chainEnabled: false,
-        chainVersion: 0,
         chainDraft: { steps: [] },
         mode: { type: "voice", voiceIndex: 0 },
         playbackVariation: 0,
@@ -183,14 +179,12 @@ const usePatternStore = create<PatternState>()(
         setChain: (chain) => {
           set((state) => {
             state.chain = sanitizeChain(chain);
-            state.chainVersion += 1;
           });
         },
 
         setChainEnabled: (enabled) => {
           set((state) => {
             state.chainEnabled = enabled;
-            state.chainVersion += 1;
           });
         },
 
@@ -365,7 +359,6 @@ const usePatternStore = create<PatternState>()(
                 state.variation,
               )
             ) {
-              state.patternVersion += 1;
               const instruments = useInstrumentsStore.getState().instruments;
               const flashPayload = buildInstrumentPasteFlashFromContext({
                 clipboard: state.clipboard,
@@ -393,7 +386,6 @@ const usePatternStore = create<PatternState>()(
                   variationId,
                 )
               ) {
-                state.patternVersion += 1;
                 triggerScreenFlash(
                   buildVariationPasteFlashFromContext(
                     state.copySource?.variationId,
@@ -415,7 +407,6 @@ const usePatternStore = create<PatternState>()(
                   variationId,
                 )
               ) {
-                state.patternVersion += 1;
                 const targetVoiceIndex =
                   state.copySource.type === "instrument"
                     ? state.copySource.voiceIndex
@@ -445,7 +436,6 @@ const usePatternStore = create<PatternState>()(
               voiceIndex,
               state.variation as VariationId,
             );
-            state.patternVersion += 1;
 
             const instruments = useInstrumentsStore.getState().instruments;
             const meta = resolveInstrumentMeta(instruments, voiceIndex);
@@ -464,7 +454,6 @@ const usePatternStore = create<PatternState>()(
         clearVariation: (variationId) => {
           set((state) => {
             clearVariationPatterns(state.pattern, variationId);
-            state.patternVersion += 1;
 
             triggerScreenFlash(buildVariationClearFlash(variationId));
 
@@ -475,7 +464,6 @@ const usePatternStore = create<PatternState>()(
         setPattern: (pattern) => {
           set((state) => {
             state.pattern = pattern;
-            state.patternVersion += 1;
           });
         },
 
@@ -486,35 +474,30 @@ const usePatternStore = create<PatternState>()(
         toggleStep: (voiceIndex, variation, step) => {
           set((state) => {
             toggleStep(state.pattern, voiceIndex, variation, step);
-            state.patternVersion += 1;
           });
         },
 
         setVelocity: (voiceIndex, variation, step, velocity) => {
           set((state) => {
             setVelocity(state.pattern, voiceIndex, variation, step, velocity);
-            state.patternVersion += 1;
           });
         },
 
         toggleAccent: (variation, step) => {
           set((state) => {
             toggleAccent(state.pattern, variation, step);
-            state.patternVersion += 1;
           });
         },
 
         toggleRatchet: (voiceIndex, variation, step) => {
           set((state) => {
             toggleRatchet(state.pattern, voiceIndex, variation, step);
-            state.patternVersion += 1;
           });
         },
 
         toggleFlam: (voiceIndex, variation, step) => {
           set((state) => {
             toggleFlam(state.pattern, voiceIndex, variation, step);
-            state.patternVersion += 1;
           });
         },
 
@@ -526,7 +509,6 @@ const usePatternStore = create<PatternState>()(
             const { voiceIndex } = state.mode;
             const { variation } = state;
             adjustTimingNudge(state.pattern, voiceIndex, variation, -1);
-            state.patternVersion += 1;
           });
         },
 
@@ -538,14 +520,12 @@ const usePatternStore = create<PatternState>()(
             const { voiceIndex } = state.mode;
             const { variation } = state;
             adjustTimingNudge(state.pattern, voiceIndex, variation, 1);
-            state.patternVersion += 1;
           });
         },
 
         setTimingNudge: (voiceIndex, variation, nudge) => {
           set((state) => {
             setTimingNudge(state.pattern, voiceIndex, variation, nudge);
-            state.patternVersion += 1;
           });
         },
       })),
@@ -556,11 +536,9 @@ const usePatternStore = create<PatternState>()(
         // Persist pattern and settings
         partialize: (state) => ({
           pattern: state.pattern,
-          patternVersion: state.patternVersion,
           variation: state.variation,
           chain: state.chain,
           chainEnabled: state.chainEnabled,
-          chainVersion: state.chainVersion,
         }),
         // Migration: ensure all pattern fields are up-to-date
         migrate: (persistedState: unknown) => {
@@ -588,7 +566,6 @@ const usePatternStore = create<PatternState>()(
           );
           state.chain = sanitizeChain(state.chain ?? legacy.chain);
           state.chainEnabled = state.chainEnabled ?? legacy.chainEnabled;
-          state.chainVersion = state.chainVersion ?? 0;
           state.chainDraft = { steps: [] };
 
           return state as PatternState;

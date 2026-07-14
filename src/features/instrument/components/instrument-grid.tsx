@@ -1,6 +1,5 @@
 import { useCallback, useRef } from "react";
 
-import { useDrumhaus } from "@/core/providers/drumhaus-provider";
 import { useInstrumentGridShortcuts } from "@/features/instrument/hooks/use-instrument-grid-shortcuts";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
@@ -10,7 +9,6 @@ import { InstrumentControl } from "./instrument-control";
 const NO_OF_INSTRUMENTS = 8;
 
 function InstrumentGrid() {
-  const { instrumentRuntimes } = useDrumhaus();
   const instrumentsRef = useRef<HTMLDivElement | null>(null);
 
   // Dialog store
@@ -78,24 +76,19 @@ function InstrumentGrid() {
       ref={instrumentsRef}
       className="divide-border grid w-full grid-cols-8 divide-x px-6 py-3"
     >
-      {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => {
-        const runtime = instrumentRuntimes.current[index];
-
-        return (
-          <div
-            key={`gridItem-${index}`}
-            onPointerDown={() => handleInstrumentClick(index)}
-            className="px-2"
-          >
-            <InstrumentControl
-              color={INSTRUMENT_COLORS[index]}
-              key={`Instrument-${index}`}
-              runtime={runtime}
-              index={index}
-            />
-          </div>
-        );
-      })}
+      {Array.from({ length: NO_OF_INSTRUMENTS }).map((_, index) => (
+        <div
+          key={`gridItem-${index}`}
+          onPointerDown={() => handleInstrumentClick(index)}
+          className="px-2"
+        >
+          <InstrumentControl
+            color={INSTRUMENT_COLORS[index]}
+            key={`Instrument-${index}`}
+            index={index}
+          />
+        </div>
+      ))}
     </div>
   );
 }

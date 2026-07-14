@@ -1,9 +1,9 @@
+import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import { DEFAULT_VELOCITY, STEP_COUNT } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 import {
   InstrumentData,
   InstrumentParams,
-} from "@/core/audio/engine/instrument/types";
+} from "@/features/instrument/types/instrument";
 import { KitFileV1 } from "@/features/kit/types/kit";
 import {
   clampVariationId,

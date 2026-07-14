@@ -1,4 +1,4 @@
-import { InstrumentData } from "@/core/audio/engine/instrument/types";
+import { InstrumentData } from "@/features/instrument/types/instrument";
 import { InlineMeta } from "@/features/preset/types/meta";
 import { createInstrumentClipboard } from "@/features/sequencer/lib/clipboard";
 import {

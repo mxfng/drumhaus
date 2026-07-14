@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 
-import { triggerInstrument } from "@/core/audio/engine";
-import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
+import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
+import { getAudioEngine } from "@/core/audio/engine";
 import { cn } from "@/shared/lib/utils";
 import { useWaveformData, Waveform } from "@/shared/waveform";
 import { useInstrumentsStore } from "../store/use-instruments-store";
@@ -11,7 +11,6 @@ interface InstrumentHeaderProps {
   color: string;
   waveformWidth?: number;
   waveformHeight?: number;
-  runtime?: InstrumentRuntime;
   className?: string;
   /** Optional override */
   onInteract?: () => void;
@@ -22,7 +21,6 @@ function InstrumentHeader({
   color,
   waveformWidth,
   waveformHeight,
-  runtime,
   className,
   onInteract,
 }: InstrumentHeaderProps) {
@@ -34,31 +32,27 @@ function InstrumentHeader({
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
-  const tune = useInstrumentsStore(
-    (state) => state.instruments[index].params.tune,
-  );
-  const decay = useInstrumentsStore(
-    (state) => state.instruments[index].params.decay,
-  );
 
   // Get waveform error state from provider
   const { error: waveformError } = useWaveformData(samplePath);
 
-  const isRuntimeLoaded = !!runtime;
+  // Refreshed on every kit load so readiness reflects the active channels
+  const isChannelReady = useChannelReady(index);
 
   /**
    * Play the sample or trigger custom callback interaction
    */
-  const playSample = useCallback(async () => {
-    if (!runtime) return;
+  const playSample = useCallback(() => {
+    if (!getAudioEngine().isChannelReady(index)) return;
 
     if (onInteract) {
       onInteract();
       return;
     }
 
-    await triggerInstrument(runtime, tune, decay);
-  }, [onInteract, runtime, tune, decay]);
+    // Preview uses the channel's last-pushed play params (domain values)
+    getAudioEngine().previewChannel(index);
+  }, [onInteract, index]);
 
   return (
     <button
@@ -66,15 +60,15 @@ function InstrumentHeader({
       className={cn(
         "focus-ring flex h-full w-full flex-col items-stretch gap-2 rounded-2xl border border-transparent px-4 py-2",
         {
-          "cursor-pointer": isRuntimeLoaded && !waveformError,
-          "cursor-default": !isRuntimeLoaded || waveformError,
+          "cursor-pointer": isChannelReady && !waveformError,
+          "cursor-default": !isChannelReady || waveformError,
         },
         className,
       )}
       onPointerDown={() => {
-        void playSample();
+        playSample();
       }}
-      disabled={!isRuntimeLoaded}
+      disabled={!isChannelReady}
     >
       {/* Header */}
       <div className="flex w-full items-center gap-1.5">
@@ -93,7 +87,7 @@ function InstrumentHeader({
           width={waveformWidth}
           height={waveformHeight}
           color={color}
-          isLoading={!isRuntimeLoaded}
+          isLoading={!isChannelReady}
           className="h-6"
         />
       </div>

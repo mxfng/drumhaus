@@ -1,11 +1,11 @@
+import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import {
   MASTER_COMP_DEFAULT_ATTACK,
   MASTER_FILTER_DEFAULT,
   MASTER_SATURATION_DEFAULT,
   STEP_COUNT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
-import { InstrumentData } from "@/core/audio/engine/instrument/types";
+import { InstrumentData } from "@/features/instrument/types/instrument";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 import {
   Pattern,

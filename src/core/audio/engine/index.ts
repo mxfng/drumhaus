@@ -1,78 +1,30 @@
 /**
  * Audio Engine
  *
- * Centralized audio engine logic for creating and managing Tone.js audio nodes.
- * All Tone.js object creation should happen in this directory.
+ * Framework-free audio engine owning all Tone.js objects. State flows one
+ * way: features -> bridge -> engine, via the AudioEngine facade's command
+ * API in domain units. Nothing under engine/ imports React, Zustand, or
+ * anything from features/ or shared/.
  */
 
-// Drum Sequence
+// Facade (live playback, offline rendering, and recovery all go through it)
 export {
-  createDrumSequence,
-  disposeDrumSequence,
-  createOfflineSequence,
-} from "./sequencer/sequencer";
+  AudioEngine,
+  getAudioEngine,
+  type EngineDiagnostics,
+  type KitSampleDescriptor,
+  type PlaybackConfig,
+  type RenderWavOptions,
+} from "./audio-engine";
 
-// Instrument Processing (unified module)
-export {
-  // Lifecycle
-  createInstrumentRuntime,
-  createInstrumentRuntimes,
-  disposeInstrumentRuntime,
-  disposeInstrumentRuntimes,
-  // Nodes
-  buildInstrumentNodes,
-  disposeInstrumentNodes,
-  // Routing
-  chainInstrumentNodes,
-  connectInstrumentToMasterChain,
-  connectInstrumentsToMasterChain,
-  // Parameters
-  subscribeRuntimeToInstrumentParams,
-  applyInstrumentParams,
-  // Triggering
-  triggerInstrument,
-  stopInstrumentRuntimeAtTime,
-  releaseAllInstrumentRuntimes,
-  // Solo/Mute
-  releaseNonSoloRuntimes,
-  hasAnySolo,
-  getSoloStates,
-  soloStatesChanged,
-  createSoloChangeHandler,
-} from "./instrument";
+// Master Bus settings shape (domain values; mapped at the bridge boundary)
+export type { MasterChainSettings } from "./master-bus";
 
-// Master Chain
-export {
-  createMasterChainRuntimes,
-  initializeMasterChain,
-  updateMasterChainParams,
-  disposeMasterChainRuntimes,
-  type MasterChainRuntimes,
-} from "./fx/masterChain";
-
-// Sample Sources
-export {
-  prepareSampleSourceResolver,
-  type SampleSourceResolver,
-  type SamplerSource,
-} from "../cache/sample";
-
-// Buffer
-export { awaitBufferLoaded as waitForBuffersToLoad } from "./buffer/buffer";
+// Playback data model
+export type { Pattern, PatternChain, VariationId } from "./pattern-types";
 
 // Audio Context
 export {
   ensureAudioContextIsRunning,
   getAudioContextHealth,
 } from "./context/manager";
-
-// Transport
-export {
-  startAudioContext,
-  startTransport,
-  stopTransport,
-  getCurrentTime,
-  setTransportBpm,
-  setTransportSwing,
-  configureTransportTiming,
-} from "./transport/transport";

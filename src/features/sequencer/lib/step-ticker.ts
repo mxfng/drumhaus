@@ -1,4 +1,4 @@
-import { getCurrentStepFromTransport } from "@/core/audio/engine/transport/transport";
+import { getAudioEngine } from "@/core/audio/engine";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 
 type StepListener = (payload: {
@@ -19,7 +19,7 @@ const tick = (now: number) => {
     lastFrameTime = now;
 
     const { isPlaying } = useTransportStore.getState();
-    const currentStep = isPlaying ? getCurrentStepFromTransport() : -1;
+    const currentStep = isPlaying ? getAudioEngine().getCurrentStep() : -1;
 
     // Only notify listeners when something actually changed
     if (currentStep !== lastStep || isPlaying !== lastIsPlaying) {

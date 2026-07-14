@@ -1,5 +1,5 @@
-import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
-import { InstrumentParams } from "@/core/audio/engine/instrument/types";
+import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
+import { InstrumentParams } from "@/features/instrument/types/instrument";
 import {
   PatternChain,
   VariationCycle,

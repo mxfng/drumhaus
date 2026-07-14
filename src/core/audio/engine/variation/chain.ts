@@ -1,10 +1,5 @@
-import { clampVariationId } from "@/features/sequencer/lib/chain";
-import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
-import {
-  PatternChain,
-  VariationId,
-} from "@/features/sequencer/types/sequencer";
 import { SEQUENCE_EVENTS } from "../constants";
+import { clampVariationId, PatternChain, VariationId } from "../pattern-types";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -37,38 +32,20 @@ function getStepBoundaries(step: number): {
 // -----------------------------------------------------------------------------
 
 /**
- * Updates the current playback variation and syncs with store.
+ * Resolves which variation should play for the bar that is starting.
+ *
+ * In chain mode this reads (and wrap-fixes) the chain playback state;
+ * otherwise the latest pushed variation wins. Pure aside from the chainState
+ * wrap repair: the caller owns storing the result and notifying listeners.
  */
-function updatePlaybackVariation(
-  currentVariation: { current: number },
-  nextVariation: number,
-): void {
-  const clamped = clampVariationId(nextVariation);
-  currentVariation.current = clamped;
-
-  const playbackVariation = usePatternStore.getState().playbackVariation;
-  if (playbackVariation !== clamped) {
-    usePatternStore.getState().setPlaybackVariation(clamped);
-  }
-}
-
-/**
- * Updates variation at the start of a bar.
- * Handles both chain mode and regular variation switching.
- */
-function updateVariationForBarStart(
+function variationForBarStart(
   chainEnabled: boolean,
   chain: PatternChain,
   chainState: ChainPlaybackState,
-  currentVariation: { current: number },
-  fallbackVariation: VariationId,
-): void {
+  latestVariation: VariationId,
+): VariationId {
   if (!chainEnabled || chain.steps.length === 0) {
-    const latestVariation = clampVariationId(
-      usePatternStore.getState().variation ?? fallbackVariation,
-    );
-    updatePlaybackVariation(currentVariation, latestVariation);
-    return;
+    return clampVariationId(latestVariation);
   }
 
   if (chainState.stepIndex >= chain.steps.length) {
@@ -76,8 +53,7 @@ function updateVariationForBarStart(
     chainState.repeatsRemaining = chain.steps[0].repeats;
   }
 
-  const currentStep = chain.steps[chainState.stepIndex];
-  updatePlaybackVariation(currentVariation, currentStep.variation);
+  return clampVariationId(chain.steps[chainState.stepIndex].variation);
 }
 
 /**
@@ -101,10 +77,5 @@ function advanceChainAtEndOfBar(
   }
 }
 
-export {
-  getStepBoundaries,
-  updatePlaybackVariation,
-  updateVariationForBarStart,
-  advanceChainAtEndOfBar,
-};
+export { getStepBoundaries, variationForBarStart, advanceChainAtEndOfBar };
 export type { ChainPlaybackState };
