@@ -10,6 +10,7 @@
 // Facade (live playback, offline rendering, and recovery all go through it)
 export {
   AudioEngine,
+  calculateExportDuration,
   getAudioEngine,
   type EngineDiagnostics,
   type KitSampleDescriptor,
@@ -23,8 +24,8 @@ export type { MasterChainSettings } from "./master-bus";
 // Playback data model
 export type { Pattern, PatternChain, VariationId } from "./pattern-types";
 
-// Audio Context
+// Audio Context (health snapshots are folded into engine.getDiagnostics())
 export {
   ensureAudioContextIsRunning,
-  getAudioContextHealth,
+  type AudioContextHealth,
 } from "./context/manager";

@@ -69,7 +69,7 @@ type MasterChainSettings = {
 interface MasterBusNodes {
   // Compressor section (front of chain with parallel compression)
   compressor: Compressor;
-  compMakeupGain: Gain; // Fixed makeup gain after compressor
+  compMakeupGain: Gain<"decibels">; // Fixed makeup gain after compressor
   compWetGain: Gain; // Controls wet (compressed) signal level
   compDryDelay: Delay; // Compensates for compressor latency
   compDryGain: Gain; // Controls dry (uncompressed) signal level
@@ -302,7 +302,7 @@ function createCompressorSection(settings: MasterChainSettings) {
   });
 
   // Fixed makeup gain compensates for gain reduction (+1.5dB)
-  const compMakeupGain = new Gain(Math.pow(10, MASTER_COMP_MAKEUP_GAIN / 20));
+  const compMakeupGain = new Gain(MASTER_COMP_MAKEUP_GAIN, "decibels");
 
   // Parallel compression wet/dry mix
   const compWetGain = new Gain(settings.compMix);

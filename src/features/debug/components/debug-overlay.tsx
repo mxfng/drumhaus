@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { getAudioContextHealth, getAudioEngine } from "@/core/audio/engine";
+import { getAudioEngine } from "@/core/audio/engine";
 import { useDebugStore } from "@/features/debug/store/use-debug-store";
 
 interface DebugStats {
@@ -66,7 +66,7 @@ const DebugOverlay = () => {
       const position = diagnostics.transportPosition.split(".")[0];
       const audioTime = Math.round(diagnostics.contextTime * 10) / 10;
 
-      const health = getAudioContextHealth();
+      const health = diagnostics.contextHealth;
       const resumedAgoSeconds =
         health.lastResume !== null
           ? Math.max((performance.now() - health.lastResume) / 1000, 0)

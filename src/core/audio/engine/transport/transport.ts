@@ -22,41 +22,39 @@ const liveTransport = getTransport();
 
 /**
  * Start the live transport and all sources synced to it.
- * @param time The time when the transport should start.
- * @param offset The timeline offset to start the transport.
  */
-function startTransport(time?: number, offset?: number): void {
-  liveTransport.start(time, offset);
+function startTransport(): void {
+  liveTransport.start();
 }
 
 /**
  * Stop the live transport and all sources synced to it.
- * @param time The time when the transport should stop.
  */
-function stopTransport(time?: number): void {
-  liveTransport.stop(time);
+function stopTransport(): void {
+  liveTransport.stop();
 }
 
 /**
- * Set the live transport BPM
+ * Set the live transport BPM, preserving the current swing.
  */
 function setTransportBpm(bpm: number): void {
-  liveTransport.bpm.value = bpm;
+  configureTransportTiming(liveTransport, bpm, liveTransport.swing);
 }
 
 /**
- * Set the live transport swing in domain units (0-0.5 Tone swing).
- * Knob-value conversion happens at the boundary in
- * bridge/knob-to-domain.ts (transportSwingKnobToDomain).
+ * Set the live transport swing in domain units (0-0.5 Tone swing),
+ * preserving the current bpm. Knob-value conversion happens at the
+ * boundary in bridge/knob-to-domain.ts (transportSwingKnobToDomain).
  */
 function setTransportSwing(swing: number): void {
-  liveTransport.swingSubdivision = SEQUENCE_SUBDIVISION;
-  liveTransport.swing = swing;
+  configureTransportTiming(liveTransport, liveTransport.bpm.value, swing);
 }
 
 /**
  * Configures transport timing settings from domain values (bpm, 0-0.5 swing).
- * Works with both online (getTransport) and offline transport objects.
+ * Works with both online (getTransport) and offline transport objects, and
+ * is the single assignment point for transport timing - the live setters
+ * above route through it.
  */
 function configureTransportTiming(
   transport: {

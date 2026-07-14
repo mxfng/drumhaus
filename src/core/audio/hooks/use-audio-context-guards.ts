@@ -1,9 +1,16 @@
 import { useEffect, useRef } from "react";
-import { getContext } from "tone/build/esm/index";
 
 import { getAudioEngine } from "@/core/audio/engine";
 import { useToast } from "@/shared/ui";
 import { ensureAudioContextIsRunning } from "../engine/context/manager";
+
+/**
+ * The guards observe the audio clock through the engine's read-only
+ * diagnostics snapshot instead of reaching into Tone directly.
+ */
+function getContextTime(): number {
+  return getAudioEngine().getDiagnostics().contextTime;
+}
 
 /**
  * Centralized audio context guard:
@@ -35,11 +42,11 @@ function useAudioContextGuards() {
 
     const scheduleChecks = (reason: string) => {
       clearScheduled();
-      const baseline = getContext().currentTime;
+      const baseline = getContextTime();
 
       CHECK_DELAY_MS.forEach((delay, index) => {
         const id = window.setTimeout(async () => {
-          const currentTime = getContext().currentTime;
+          const currentTime = getContextTime();
           const delta = currentTime - baseline;
           const stalled = delta < CTX_DELTA_THRESHOLD;
 
@@ -89,11 +96,11 @@ function useAudioContextGuards() {
           }
           await ensureAudioContextIsRunning(`guards:${reason}:rebuild`);
 
-          const rebuildBaseline = getContext().currentTime;
+          const rebuildBaseline = getContextTime();
           await new Promise((resolve) =>
             window.setTimeout(resolve, REBUILD_RECHECK_DELAY_MS),
           );
-          const rebuildDelta = getContext().currentTime - rebuildBaseline;
+          const rebuildDelta = getContextTime() - rebuildBaseline;
 
           if (rebuildDelta >= CTX_DELTA_THRESHOLD) {
             // The rebuild revived the clock - recovered without a reload.
