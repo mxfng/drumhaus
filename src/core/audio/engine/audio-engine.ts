@@ -32,7 +32,11 @@ import {
   STEP_COUNT,
   TRANSPORT_SWING_MAX,
 } from "./constants";
-import { ensureAudioContextIsRunning } from "./context/manager";
+import {
+  ensureAudioContextIsRunning,
+  getAudioContextHealth,
+  type AudioContextHealth,
+} from "./context/manager";
 import {
   InstrumentChannel,
   triggerAllInstrumentsReleaseAtTime,
@@ -92,12 +96,15 @@ interface PlaybackConfig {
 }
 
 /**
- * Read-only transport/context diagnostics for debug displays.
+ * Read-only transport/context diagnostics for debug displays and the
+ * context guards: transport state, the context clock, and the resume
+ * guard's context health, in one snapshot.
  */
 interface EngineDiagnostics {
   transportState: string;
   transportPosition: string;
   contextTime: number;
+  contextHealth: AudioContextHealth;
 }
 
 /**
@@ -379,8 +386,7 @@ class AudioEngine {
     const ohatIndex = roles.indexOf("ohat");
     const anySolos = playParams.some((params) => params?.solo);
 
-    const stepDuration = 60 / bpm / 4; // Duration of one 16th note in seconds
-    const barDuration = options.bars * STEP_COUNT * stepDuration;
+    const barDuration = calculateExportDuration(options.bars, bpm);
     // Add tail for reverb/release decay if requested, otherwise end on the
     // bar line for DAW looping.
     const tailTime = options.includeTail ? EXPORT_TAIL_TIME : 0;
@@ -746,7 +752,8 @@ class AudioEngine {
   }
 
   /**
-   * Read-only transport/context diagnostics for debug displays. Not a
+   * Read-only transport/context diagnostics for debug displays and the
+   * context guards. The engine's single observability surface; not a
    * mutation surface - values are snapshots.
    */
   getDiagnostics(): EngineDiagnostics {
@@ -755,6 +762,7 @@ class AudioEngine {
       transportState: transport.state,
       transportPosition: transport.position.toString(),
       contextTime: getContext().currentTime,
+      contextHealth: getAudioContextHealth(),
     };
   }
 
@@ -851,6 +859,21 @@ class AudioEngine {
 }
 
 // -----------------------------------------------------------------------------
+// Export duration
+// -----------------------------------------------------------------------------
+
+/**
+ * Duration in seconds of a whole-bar render: bars of STEP_COUNT 16th-note
+ * steps at the given bpm. Re-exported through export/wav-exporter so the
+ * export form's duration estimate can never drift from what renderWav
+ * actually renders.
+ */
+function calculateExportDuration(bars: number, bpm: number): number {
+  const stepDuration = 60 / bpm / 4; // Duration of one 16th note in seconds
+  return bars * STEP_COUNT * stepDuration;
+}
+
+// -----------------------------------------------------------------------------
 // Kit channel construction (shared by loadKit and renderWav)
 // -----------------------------------------------------------------------------
 
@@ -923,7 +946,7 @@ function getAudioEngine(): AudioEngine {
   return audioEngine;
 }
 
-export { AudioEngine, getAudioEngine };
+export { AudioEngine, calculateExportDuration, getAudioEngine };
 export type {
   EngineDiagnostics,
   KitSampleDescriptor,

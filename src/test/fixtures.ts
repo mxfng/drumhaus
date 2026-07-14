@@ -18,6 +18,11 @@ const FIXTURE_SAMPLE_RATE = 44100;
 /**
  * Neutral instrument knob values: tune centered, full decay, filter centered,
  * unity volume, centered pan.
+ *
+ * Deliberately hand-pinned rather than derived from init(): these are
+ * golden-stability snapshots, so golden renders cannot silently shift when
+ * the app's default preset changes. Any edit here invalidates the golden
+ * baselines - change these values only on purpose.
  */
 const DEFAULT_INSTRUMENT_PARAMS: InstrumentParams = {
   tune: 50,

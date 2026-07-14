@@ -40,6 +40,13 @@ const RENDER_TAIL_SECONDS = 0.3;
 /**
  * Neutral master chain knob values: filter centered, all sends off,
  * compressor threshold fully open (minimal compression), unity volume.
+ *
+ * Deliberately hand-pinned rather than derived from init(): these are
+ * golden-stability snapshots, so golden renders cannot silently shift when
+ * the app's default preset changes. compRatio deliberately differs from the
+ * app default (50 here vs init()'s ~57.14) - the golden baselines were
+ * captured against this value. Any edit here invalidates them, so change
+ * these values only on purpose.
  */
 const DEFAULT_MASTER_PARAMS: MasterChainParams = {
   filter: 50,

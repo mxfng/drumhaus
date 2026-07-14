@@ -64,9 +64,14 @@ async function ensureAudioContextIsRunning(
   return health.state === "running";
 }
 
+/**
+ * Read-only snapshot of the resume guard's context health. Folded into the
+ * engine's unified diagnostics surface (AudioEngine.getDiagnostics).
+ */
 function getAudioContextHealth(): AudioContextHealth {
   // Return a shallow copy to avoid accidental mutation
   return { ...health };
 }
 
 export { ensureAudioContextIsRunning, getAudioContextHealth };
+export type { AudioContextHealth };
