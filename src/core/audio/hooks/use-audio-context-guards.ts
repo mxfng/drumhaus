@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { getAudioEngine } from "@/core/audio/engine";
 import { useToast } from "@/shared/ui";
 import { ensureAudioContextIsRunning } from "../engine/context/manager";
+import { recordRecoveryEvent } from "./recovery-stats";
 
 /**
  * The guards observe the audio clock through the engine's read-only
@@ -18,6 +19,8 @@ function getContextTime(): number {
  * - detects stalled clocks, rebuilds the audio graph in place, and only
  *   reloads the page if the in-place rebuild fails to revive the clock
  * - notifies user when a reload was triggered due to recovery failure
+ * - counts each recovery tier (recovery-stats) so real sessions reveal
+ *   which path fires; the debug overlay surfaces the counters
  */
 function useAudioContextGuards() {
   const { toast } = useToast();
@@ -55,8 +58,11 @@ function useAudioContextGuards() {
             return;
           }
 
-          // First check: try to resume
+          // First check: try to resume. Counted once per stall episode -
+          // a stall at the second check implies one here (same baseline,
+          // monotonic clock), so this never undercounts escalations.
           if (index === 0) {
+            recordRecoveryEvent("stallDetected");
             recoveryAttemptsRef.current += 1;
             await ensureAudioContextIsRunning(`guards:${reason}`);
             return;
@@ -74,6 +80,7 @@ function useAudioContextGuards() {
             return;
           }
 
+          recordRecoveryEvent("rebuildAttempt");
           try {
             // Bound the rebuild attempt: a rebuild that hangs (e.g. on a
             // sample fetch that never settles) must not block the
@@ -87,6 +94,7 @@ function useAudioContextGuards() {
               ),
             ]);
             if (timedOut) {
+              recordRecoveryEvent("rebuildTimeout");
               console.warn(
                 "[audio-guards] In-place rebuild timed out; falling back to re-measure",
               );
@@ -104,6 +112,7 @@ function useAudioContextGuards() {
 
           if (rebuildDelta >= CTX_DELTA_THRESHOLD) {
             // The rebuild revived the clock - recovered without a reload.
+            recordRecoveryEvent("rebuildSuccess");
             recoveryAttemptsRef.current = 0;
             return;
           }
@@ -114,7 +123,9 @@ function useAudioContextGuards() {
             return;
           }
 
-          // Still stalled: reload as last resort
+          // Still stalled: reload as last resort. Counted BEFORE the
+          // navigation so the otherwise-invisible reload tier survives it.
+          recordRecoveryEvent("reloadFallback");
           reloadTriggeredRef.current = true;
           // Add URL parameter to notify user after reload
           const url = new URL(window.location.href);
@@ -132,8 +143,10 @@ function useAudioContextGuards() {
         return;
       }
       ensureThrottleRef.current = now;
+      recordRecoveryEvent("resumeAttempt");
       void ensureAudioContextIsRunning(reason).then((running) => {
         if (running) {
+          recordRecoveryEvent("resumeSuccess");
           hasStartedOnce = true;
           recoveryAttemptsRef.current = 0;
         }
