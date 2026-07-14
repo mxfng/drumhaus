@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { shallow } from "zustand/shallow";
 
 import { getAudioEngine } from "@/core/audio/engine";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
@@ -10,14 +11,11 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { useAudioContextGuards } from "../hooks/use-audio-context-guards";
 import { subscribeInstrumentParamsToEngine } from "./instrument-params";
+import {
+  kitDescriptorsChanged,
+  toKitSampleDescriptors,
+} from "./kit-descriptors";
 import { mapParamsToSettings, type MasterChainParams } from "./knob-to-domain";
-
-/**
- * Shallow-compares two objects field by field.
- */
-function shallowEqual<T extends object>(a: T, b: T): boolean {
-  return (Object.keys(a) as (keyof T)[]).every((key) => a[key] === b[key]);
-}
 
 /**
  * The bridge between the Zustand stores and the AudioEngine facade.
@@ -31,10 +29,6 @@ function shallowEqual<T extends object>(a: T, b: T): boolean {
 function useEngineBridge(): void {
   // Guard and recover audio context automatically (visibility/gestures/stall)
   useAudioContextGuards();
-
-  const instrumentSamplePaths = useInstrumentsStore((state) =>
-    state.instruments.map((inst) => inst.sample.path).join(","),
-  );
 
   // Engine lifecycle + store wiring (store subscriptions -> engine commands)
   useEffect(() => {
@@ -64,17 +58,14 @@ function useEngineBridge(): void {
     engine.setPlayback(prevPlayback);
     unsubscribers.push(
       usePatternStore.subscribe((state) => {
-        if (
-          state.chain !== prevPlayback.chain ||
-          state.chainEnabled !== prevPlayback.chainEnabled ||
-          state.variation !== prevPlayback.variation
-        ) {
-          prevPlayback = {
-            chain: state.chain,
-            chainEnabled: state.chainEnabled,
-            variation: state.variation,
-          };
-          engine.setPlayback(prevPlayback);
+        const playback = {
+          chain: state.chain,
+          chainEnabled: state.chainEnabled,
+          variation: state.variation,
+        };
+        if (!shallow(prevPlayback, playback)) {
+          prevPlayback = playback;
+          engine.setPlayback(playback);
         }
       }),
     );
@@ -82,12 +73,30 @@ function useEngineBridge(): void {
     // --- Instrument params (continuous + play params, knob -> domain) ---
     unsubscribers.push(subscribeInstrumentParamsToEngine(engine));
 
+    // --- Kit (keyed on the full id / path / role descriptor tuples) ---
+    let prevKit = toKitSampleDescriptors(
+      useInstrumentsStore.getState().instruments,
+    );
+    if (prevKit.length > 0) {
+      void engine.loadKit(prevKit);
+    }
+    unsubscribers.push(
+      useInstrumentsStore.subscribe((state) => {
+        if (kitDescriptorsChanged(prevKit, state.instruments)) {
+          prevKit = toKitSampleDescriptors(state.instruments);
+          if (prevKit.length > 0) {
+            void engine.loadKit(prevKit);
+          }
+        }
+      }),
+    );
+
     // --- Master chain ---
     let prevMasterParams: MasterChainParams | null = null;
     unsubscribers.push(
       useMasterChainStore.subscribe(() => {
         const params = getMasterChainParams();
-        if (prevMasterParams && shallowEqual(prevMasterParams, params)) {
+        if (prevMasterParams && shallow(prevMasterParams, params)) {
           return;
         }
         prevMasterParams = params;
@@ -122,22 +131,6 @@ function useEngineBridge(): void {
       engine.dispose();
     };
   }, []);
-
-  // Load the kit whenever the sample set changes
-  useEffect(() => {
-    if (instrumentSamplePaths.length === 0) {
-      return;
-    }
-
-    const instruments = useInstrumentsStore.getState().instruments;
-    void getAudioEngine().loadKit(
-      instruments.map((instrument) => ({
-        instrumentId: instrument.meta.id,
-        samplePath: instrument.sample.path,
-        role: instrument.role,
-      })),
-    );
-  }, [instrumentSamplePaths]);
 }
 
 export { useEngineBridge };
