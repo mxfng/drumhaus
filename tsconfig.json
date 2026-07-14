@@ -30,6 +30,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "vite.config.ts", "dh-files-plugin.ts"],
   "exclude": ["node_modules"]
 }
