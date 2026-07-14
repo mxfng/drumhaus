@@ -232,9 +232,11 @@ function scheduleVoice(
   const beatOffset = nudgeToBeatOffset(timingNudge);
   const secondsPerBeat = 60 / ctx.bpm;
   const nudgeSeconds = beatOffset * secondsPerBeat;
-  // Clamped to >= 0: offline renders start at t=0, so a negative nudge on
-  // step 0 would otherwise produce a negative absolute time and throw a
-  // RangeError inside the offline context.
+  // Clamped to >= 0: a negative absolute time would throw a RangeError.
+  // Only live playback can get near the floor (the live transport starts
+  // near context time 0); offline renders start past renderWav's pre-roll,
+  // so a step-0 negative nudge stays positive there and simply lands ahead
+  // of the bar line, where the export trims it.
   const adjustedTime = Math.max(0, timeSeconds + nudgeSeconds);
 
   // Closed hat mutes open hat (TR-909 style)
@@ -253,8 +255,9 @@ function scheduleVoice(
   // array on this hot path.
   const hasFlam = variation.flams?.[step] ?? false;
   if (hasFlam) {
-    // Clamped for the same reason as adjustedTime: a flam on step 0 places
-    // its grace note before t=0 in an offline render.
+    // Clamped for the same reason as adjustedTime: live playback near
+    // context time 0. Offline, a step-0 grace note lands inside renderWav's
+    // pre-roll (before the bar line) and is trimmed from the export.
     const flamGraceTime = Math.max(0, adjustedTime - FLAM_OFFSET_SECONDS);
     const flamGraceVelocity = velocity * FLAM_GRACE_VELOCITY;
     channel.trigger(flamGraceTime, {

@@ -168,6 +168,16 @@ const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
 const EXPORT_TAIL_TIME = 2; // Seconds
 const EXPORT_CHANNEL_COUNT = 2;
 
+/**
+ * Warm-up pre-roll rendered ahead of the first bar of an offline render and
+ * sliced off before the buffer is returned (see renderWav). Chromium's
+ * DynamicsCompressorNode initializes its internal gain low and slews up to
+ * unity over the first ~100ms of a fresh context, so anything scheduled
+ * near t=0 renders quiet (#318); 200ms is a 2x margin over the worst
+ * measured warm-up.
+ */
+const EXPORT_PREROLL_TIME = 0.2; // Seconds
+
 // ============================================================================
 // Audio context
 // ============================================================================
@@ -272,6 +282,7 @@ export {
   SPLIT_FILTER_BYPASS_FLOOR_HZ,
   EXPORT_TAIL_TIME,
   EXPORT_CHANNEL_COUNT,
+  EXPORT_PREROLL_TIME,
   AUDIO_CONTEXT_CHECK_THROTTLE_MS,
   RATCHET_OFFSET_BEATS,
   FLAM_OFFSET_SECONDS,

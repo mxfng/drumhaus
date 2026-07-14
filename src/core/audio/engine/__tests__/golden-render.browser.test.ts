@@ -8,9 +8,11 @@
  * interface is the stable contract; only its internals change per phase.
  *
  * NOTE on timing: the master chain delays the dry path by 6ms
- * (MASTER_COMP_LATENCY) to match the compressor's lookahead, so absolute
- * onset times include a small constant offset. All assertions therefore use
- * DELTAS between onsets, or compare two renders against each other.
+ * (MASTER_COMP_LATENCY) to match the compressor's lookahead, and the
+ * always-in-line limiter adds its own ~6ms of lookahead, so absolute onset
+ * times include a small constant offset (~12ms measured). All assertions
+ * therefore use DELTAS between onsets, or compare two renders against each
+ * other.
  */
 
 import { beforeAll, describe, expect, it } from "vitest";
@@ -229,56 +231,92 @@ describe("golden render: timing nudge", () => {
   });
 });
 
-describe("golden render: step-0 time clamping", () => {
-  it("renders a step-0 flam plus a negatively nudged step-0 hit", async () => {
-    // Voice 0 flams step 0 (grace note would land at -15ms) and plays a
-    // plain hit on step 4. Voice 1 has timing nudge -2 (step 0 would land
-    // at ~-10ms) with hits on steps 0 and 8. Offline renders start at t=0,
-    // so all step-0 trigger times must clamp to 0 instead of throwing a
-    // RangeError inside the offline context.
+describe("golden render: step-0 pre-bar trimming", () => {
+  // BASELINE CHANGE (#318): renderWav pre-rolls the offline transport past
+  // the compressor warm-up and slices the pre-roll off, so the export
+  // starts exactly on the bar line. Step-0 events pulled ahead of the bar
+  // line - flam grace notes and negative timing nudges - now land inside
+  // the pre-roll and are trimmed at the bar line, replacing the previous
+  // "step-0 time clamping" golden, which asserted the old clamp-to-t=0
+  // behavior (all pre-bar events stacked ON the bar line).
+  it("trims a step-0 flam grace note, keeping the main hit on the bar line", async () => {
     const buffer = await renderFixture({
       pattern: makePattern({
         steps: [
           { voice: 0, step: 0, flam: true },
           { voice: 0, step: 4 },
-          { voice: 1, step: 0 },
-          { voice: 1, step: 8 },
         ],
-        nudges: [{ voice: 1, nudge: -2 }],
       }),
-      instruments: [makeInstrument(0, "kick"), makeInstrument(1, "snare")],
-      sampleUrls: [clickUrl, clickUrl],
+      instruments: [makeInstrument(0, "kick")],
+      sampleUrls: [clickUrl],
+      bpm: BPM,
+    });
+
+    // The grace note (bar line - 15ms) is cut at the bar line; only its
+    // sub-peak decay tail bleeds into the export through the master
+    // chain's ~12ms latency. The raised threshold ignores that residual
+    // (measured ~0.11; an untrimmed grace would peak near 0.6) while
+    // still catching every full hit.
+    const onsets = findOnsets(buffer, { threshold: 0.2 });
+    // Two onsets, not three: contrast with the step-4 flam test above,
+    // which keeps its grace note and resolves two onsets 15ms apart.
+    expect(onsets).toHaveLength(2);
+    // The main hit stays on the bar line (offset only by master chain
+    // latency).
+    expect(onsets[0]).toBeLessThan(0.02);
+    // The step-4 hit stays on the grid relative to it.
+    expect(onsets[1] - onsets[0]).toBeGreaterThan(4 * STEP - TOL);
+    expect(onsets[1] - onsets[0]).toBeLessThan(4 * STEP + TOL);
+    // The trimmed grace leaves at most a quiet residual ahead of the main
+    // hit's onset.
+    expect(peakInWindow(buffer, 0, 0.008)).toBeLessThan(0.2);
+  });
+
+  it("keeps a step-0 negative nudge early instead of clamping it to the bar line", async () => {
+    // Nudge -2 pulls hits ~10.4ms early at 120 BPM. Pre-#318, the step-0
+    // trigger clamped to t=0 (losing its nudge), so the step-0 -> step-8
+    // gap measured 8 steps MINUS the nudge; now the whole voice keeps its
+    // timing and the gap is exactly 8 steps. The step-0 hit is trimmed at
+    // the bar line, but the master chain's ~12ms latency exceeds the
+    // 10.4ms nudge, so its audio still lands intact just inside the
+    // export - matching how the nudge sounds in live playback.
+    const buffer = await renderFixture({
+      pattern: makePattern({
+        steps: [
+          { voice: 0, step: 0 },
+          { voice: 0, step: 8 },
+        ],
+        nudges: [{ voice: 0, nudge: -2 }],
+      }),
+      instruments: [makeInstrument(0, "kick")],
+      sampleUrls: [clickUrl],
       bpm: BPM,
     });
 
     const onsets = findOnsets(buffer);
-    // Step 0 collapses into ONE onset: the flam grace note, the flammed
-    // main hit, and voice 1's nudged hit all clamp to t=0.
-    expect(onsets).toHaveLength(3);
-    // The clamped hits land right at the start of the buffer (offset only
-    // by the master chain's ~6ms compressor latency).
-    expect(onsets[0]).toBeLessThan(0.02);
-    // Voice 0's plain step-4 hit stays on the grid relative to step 0.
-    expect(onsets[1] - onsets[0]).toBeGreaterThan(4 * STEP - TOL);
-    expect(onsets[1] - onsets[0]).toBeLessThan(4 * STEP + TOL);
-    // Voice 1's step-8 hit keeps its -2 nudge (no clamping needed there),
-    // so the gap from step 4 is 4 steps minus the nudge magnitude.
-    const expectedGap = 4 * STEP - NUDGE_PLUS_2_OFFSET;
-    expect(onsets[2] - onsets[1]).toBeGreaterThan(expectedGap - TOL);
-    expect(onsets[2] - onsets[1]).toBeLessThan(expectedGap + TOL);
+    expect(onsets).toHaveLength(2);
+    // The nudged step-0 hit sounds ahead of where a bar-line hit lands
+    // (~12ms), not clamped onto it.
+    expect(onsets[0]).toBeLessThan(0.01);
+    // Both hits carry the same -2 nudge, so their gap is exactly 8 steps
+    // (the old clamp made this 8 * STEP - NUDGE_PLUS_2_OFFSET).
+    expect(onsets[1] - onsets[0]).toBeGreaterThan(8 * STEP - TOL);
+    expect(onsets[1] - onsets[0]).toBeLessThan(8 * STEP + TOL);
   });
 });
 
 describe("golden render: accent and velocity", () => {
-  // Peak comparisons avoid step 0: the current engine renders the very
-  // first hit of an offline render (t=0) ~46% quieter than steady state
-  // (verified empirically: hits on all 16 steps peak at 0.4709 then 0.8739
-  // for every later step). Timing tests are unaffected; peaks are measured
-  // from step 4 onward where amplitude is stable.
+  // Peak comparisons INCLUDE step 0 (baseline change, #318): renderWav's
+  // pre-roll removed the compressor warm-up that used to render the first
+  // hit of an export ~59% quieter than steady state, so first-hit peaks
+  // now match every later step (locked in by the first-hit amplitude test
+  // below). Steps 0 and 8 sit exactly 1s apart at 120 BPM, so both hits
+  // share the same sub-sample trigger phase and their peaks compare
+  // cleanly.
   it("boosts accented steps relative to non-accented steps", async () => {
     const instruments = [makeInstrument(0, "snare")];
     const steps = [
-      { voice: 0, step: 4 },
+      { voice: 0, step: 0 },
       { voice: 0, step: 8 },
     ];
 
@@ -322,11 +360,39 @@ describe("golden render: accent and velocity", () => {
     expect(Math.abs(plainPeak2 - plainPeak1)).toBeLessThan(plainPeak1 * 0.1);
   });
 
+  // Locks out #318: Chromium's DynamicsCompressorNode initializes its
+  // internal gain low and slews to unity over the first ~100ms of a fresh
+  // context, so un-pre-rolled renders played a step-0 hit at ~41% of
+  // steady-state amplitude (measured 0.4039 vs 0.9888 through the full
+  // master chain). renderWav's pre-roll moves the warm-up out of the
+  // export; the cured first/steady ratio measures 1.0000.
+  it("renders the first hit at steady-state amplitude", async () => {
+    const buffer = await renderFixture({
+      pattern: makePattern({
+        steps: Array.from({ length: 16 }, (_, step) => ({ voice: 0, step })),
+      }),
+      instruments: [makeInstrument(0, "hat")],
+      sampleUrls: [clickUrl],
+      bpm: BPM,
+    });
+
+    const onsets = findOnsets(buffer);
+    expect(onsets).toHaveLength(16);
+
+    const firstPeak = peakInWindow(buffer, onsets[0], onsets[0] + 0.015);
+    // Onset 8 lies exactly 1s after the first hit (8 steps at 120 BPM),
+    // so it shares the first hit's sub-sample trigger phase; peaks vary
+    // ~2% with sub-sample alignment and this pairing cancels that out.
+    const steadyPeak = peakInWindow(buffer, onsets[8], onsets[8] + 0.015);
+    expect(firstPeak).toBeGreaterThan(steadyPeak * 0.98);
+    expect(firstPeak).toBeLessThan(steadyPeak * 1.02);
+  });
+
   it("scales hit amplitude by step velocity", async () => {
     const buffer = await renderFixture({
       pattern: makePattern({
         steps: [
-          { voice: 0, step: 4, velocity: 1.0 },
+          { voice: 0, step: 0, velocity: 1.0 },
           { voice: 0, step: 8, velocity: 0.25 },
         ],
       }),
