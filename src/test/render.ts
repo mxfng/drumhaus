@@ -15,6 +15,7 @@
 
 import { getContext } from "tone/build/esm/index";
 
+import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
 import {
   instrumentKnobsToContinuousParams,
   instrumentKnobsToPlayParams,
@@ -143,11 +144,7 @@ async function createFixtureEngine(
     engine.setSwing(transportSwingKnobToDomain(swing));
 
     await engine.loadKit(
-      instruments.map((instrument) => ({
-        instrumentId: instrument.meta.id,
-        samplePath: instrument.sample.path,
-        role: instrument.role,
-      })),
+      toKitSampleDescriptors(instruments),
       resolveSampleSource,
     );
 

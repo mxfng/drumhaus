@@ -8,6 +8,8 @@
  *   by the scheduler on every trigger
  */
 
+import { shallow } from "zustand/shallow";
+
 import type { AudioEngine } from "@/core/audio/engine/audio-engine";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import type { InstrumentParams } from "@/features/instrument/types/instrument";
@@ -42,39 +44,28 @@ function subscribeInstrumentParamsToEngine(engine: AudioEngine): () => void {
   const prevPlay: (PlayKnobParams | undefined)[] = [];
 
   const pushIfChanged = (index: number, params: InstrumentParams) => {
-    const continuous = prevContinuous[index];
-    if (
-      !continuous ||
-      continuous.filter !== params.filter ||
-      continuous.pan !== params.pan ||
-      continuous.volume !== params.volume
-    ) {
+    const continuous: ContinuousKnobParams = {
+      filter: params.filter,
+      pan: params.pan,
+      volume: params.volume,
+    };
+    if (!shallow(prevContinuous[index], continuous)) {
       engine.setChannelContinuousParams(
         index,
         instrumentKnobsToContinuousParams(params),
       );
-      prevContinuous[index] = {
-        filter: params.filter,
-        pan: params.pan,
-        volume: params.volume,
-      };
+      prevContinuous[index] = continuous;
     }
 
-    const play = prevPlay[index];
-    if (
-      !play ||
-      play.tune !== params.tune ||
-      play.decay !== params.decay ||
-      play.mute !== params.mute ||
-      play.solo !== params.solo
-    ) {
+    const play: PlayKnobParams = {
+      tune: params.tune,
+      decay: params.decay,
+      mute: params.mute,
+      solo: params.solo,
+    };
+    if (!shallow(prevPlay[index], play)) {
       engine.setChannelPlayParams(index, instrumentKnobsToPlayParams(params));
-      prevPlay[index] = {
-        tune: params.tune,
-        decay: params.decay,
-        mute: params.mute,
-        solo: params.solo,
-      };
+      prevPlay[index] = play;
     }
   };
 
