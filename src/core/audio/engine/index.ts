@@ -8,24 +8,4 @@
  */
 
 // Facade (live playback, offline rendering, and recovery all go through it)
-export {
-  AudioEngine,
-  calculateExportDuration,
-  getAudioEngine,
-  type EngineDiagnostics,
-  type KitSampleDescriptor,
-  type PlaybackConfig,
-  type RenderWavOptions,
-} from "./audio-engine";
-
-// Master Bus settings shape (domain values; mapped at the bridge boundary)
-export type { MasterChainSettings } from "./master-bus";
-
-// Playback data model
-export type { Pattern, PatternChain, VariationId } from "./pattern-types";
-
-// Audio Context (health snapshots are folded into engine.getDiagnostics())
-export {
-  ensureAudioContextIsRunning,
-  type AudioContextHealth,
-} from "./context/manager";
+export { AudioEngine, getAudioEngine } from "./audio-engine";

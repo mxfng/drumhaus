@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import type { PatternChain } from "../types/sequencer";
 import {
   clampVariationId,
   DEFAULT_CHAIN,
   MAX_CHAIN_REPEAT,
   MAX_CHAIN_STEPS,
   sanitizeChain,
-} from "./chain";
+  type PatternChain,
+} from "@/core/audio/engine/pattern-types";
 
 describe("clampVariationId", () => {
   it("clamps below range to 0", () => {

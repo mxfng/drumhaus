@@ -6,7 +6,7 @@
  * them, shared by the bridge and the golden-render fixture.
  */
 
-import type { KitSampleDescriptor } from "@/core/audio/engine";
+import type { KitSampleDescriptor } from "@/core/audio/engine/audio-engine";
 import type { InstrumentData } from "@/features/instrument/types/instrument";
 
 /**

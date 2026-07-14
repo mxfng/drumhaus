@@ -3,9 +3,11 @@ import {
   MAX_CHAIN_REPEAT,
   MAX_CHAIN_STEPS,
   MIN_CHAIN_REPEAT,
+  PatternChain,
   sanitizeChain,
+  VariationId,
 } from "@/core/audio/engine/pattern-types";
-import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
+import { VariationCycle } from "../types/sequencer";
 
 function appendChainDraftStep(
   chainDraft: PatternChain,
@@ -87,15 +89,4 @@ function legacyCycleToChain(
   }
 }
 
-// The pure chain helpers and constants are owned by the audio engine
-// (core/audio/engine/pattern-types.ts); re-exported here to preserve the
-// historical feature-layer import path.
-export {
-  MIN_CHAIN_REPEAT,
-  MAX_CHAIN_REPEAT,
-  MAX_CHAIN_STEPS,
-  DEFAULT_CHAIN,
-  clampVariationId,
-  sanitizeChain,
-} from "@/core/audio/engine/pattern-types";
 export { appendChainDraftStep, legacyCycleToChain };

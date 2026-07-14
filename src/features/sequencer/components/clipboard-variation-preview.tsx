@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { StepSequence } from "@/features/sequencer/types/pattern";
+import { StepSequence } from "@/core/audio/engine/pattern-types";
 import { cn } from "@/shared/lib/utils";
 
 type ClipboardVariationPreviewProps = {

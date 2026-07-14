@@ -1,6 +1,6 @@
+import { VariationId } from "@/core/audio/engine/pattern-types";
 import { InlineMeta } from "@/features/preset/types/meta";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
-import { VariationId } from "@/features/sequencer/types/sequencer";
 import { ScreenFlashPayload } from "@/shared/store/use-screen-flash-store";
 
 type InstrumentPasteFlashOptions = {

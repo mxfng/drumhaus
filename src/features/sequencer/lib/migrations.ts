@@ -5,13 +5,13 @@ import {
   MASTER_SATURATION_DEFAULT,
   STEP_COUNT,
 } from "@/core/audio/engine/constants";
-import { InstrumentData } from "@/features/instrument/types/instrument";
-import { clampNudge } from "@/features/sequencer/lib/timing";
 import {
   Pattern,
   StepSequence,
   VariationMetadata,
-} from "@/features/sequencer/types/pattern";
+} from "@/core/audio/engine/pattern-types";
+import { InstrumentData } from "@/features/instrument/types/instrument";
+import { clampNudge } from "@/features/sequencer/lib/timing";
 
 const EMPTY_SEQUENCE: StepSequence = {
   triggers: Array.from({ length: STEP_COUNT }, () => false),

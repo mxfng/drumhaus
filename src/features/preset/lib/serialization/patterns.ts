@@ -3,7 +3,7 @@ import type {
   StepSequence,
   VariationMetadata,
   Voice,
-} from "@/features/sequencer/types/pattern";
+} from "@/core/audio/engine/pattern-types";
 import { STEP_COUNT } from "../../../../core/audio/engine/constants";
 import type {
   OptimizedPattern,

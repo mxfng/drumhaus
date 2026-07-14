@@ -1,9 +1,7 @@
 import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
+import { PatternChain } from "@/core/audio/engine/pattern-types";
 import { InstrumentParams } from "@/features/instrument/types/instrument";
-import {
-  PatternChain,
-  VariationCycle,
-} from "@/features/sequencer/types/sequencer";
+import { VariationCycle } from "@/features/sequencer/types/sequencer";
 import { TransportParams } from "@/features/transport/types/transport";
 import { Meta } from "../../types/meta";
 

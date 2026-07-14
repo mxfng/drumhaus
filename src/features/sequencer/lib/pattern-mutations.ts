@@ -1,7 +1,10 @@
 import { STEP_COUNT } from "@/core/audio/engine/constants";
+import {
+  Pattern,
+  TimingNudge,
+  VariationId,
+} from "@/core/audio/engine/pattern-types";
 import { clampNudge } from "@/features/sequencer/lib/timing";
-import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
-import { VariationId } from "@/features/sequencer/types/sequencer";
 
 function toggleStep(
   pattern: Pattern,

@@ -1,4 +1,4 @@
-import type { TimingNudge } from "@/features/sequencer/types/pattern";
+import type { TimingNudge } from "@/core/audio/engine/pattern-types";
 
 /**
  * Clamps a nudge value to the valid range [-2, 2].
@@ -30,8 +30,4 @@ function nudgeLabel(nudge: TimingNudge): string {
  */
 const TIMING_NUDGE_LEVELS: TimingNudge[] = [-2, -1, 0, 1, 2];
 
-// nudgeToBeatOffset is owned by the audio engine
-// (core/audio/engine/pattern-types.ts); re-exported here to preserve the
-// historical feature-layer import path.
-export { nudgeToBeatOffset } from "@/core/audio/engine/pattern-types";
 export { clampNudge, nudgeLabel, TIMING_NUDGE_LEVELS };

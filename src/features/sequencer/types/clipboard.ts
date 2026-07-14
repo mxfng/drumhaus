@@ -1,6 +1,5 @@
+import { StepSequence, VariationId } from "@/core/audio/engine/pattern-types";
 import { InlineMeta } from "@/features/preset/types/meta";
-import { StepSequence } from "./pattern";
-import { VariationId } from "./sequencer";
 
 /**
  * Clipboard content - the copied groove data.
