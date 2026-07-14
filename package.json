@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "smoke:lightshow": "node scripts/lightshow-smoke.mjs",
+    "test:e2e": "playwright test",
     "prepare": "husky",
     "kit:new": "tsx scripts/new-kit.ts",
     "waveforms:build": "tsx scripts/generate-waveforms.ts"
@@ -53,6 +54,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@playwright/test": "1.61.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@tailwindcss/vite": "^4.3.1",
     "@types/babel__core": "^7.20.5",
