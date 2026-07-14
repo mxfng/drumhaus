@@ -1,6 +1,7 @@
 // --- WAV export: offline render via the engine, then encode + download ---
 
-import { getAudioEngine, type PatternChain } from "../engine";
+import { getAudioEngine } from "../engine";
+import type { PatternChain } from "../engine/pattern-types";
 import { downloadWav, encodeWav } from "./wav-encoder";
 
 interface ExportOptions {
@@ -61,6 +62,6 @@ function getSuggestedBars(chain: PatternChain, chainEnabled: boolean): number {
 
 // Duration math lives in the engine next to renderWav; re-exported here so
 // the export form's estimate can never drift from what actually renders.
-export { calculateExportDuration } from "../engine";
+export { calculateExportDuration } from "../engine/audio-engine";
 export { exportToWav, getSuggestedBars };
 export type { ExportOptions, ExportProgress };

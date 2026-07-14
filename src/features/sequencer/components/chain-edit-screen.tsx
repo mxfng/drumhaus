@@ -1,7 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
 import { Plus } from "lucide-react";
 
-import { MAX_CHAIN_STEPS } from "@/features/sequencer/lib/chain";
+import { MAX_CHAIN_STEPS } from "@/core/audio/engine/pattern-types";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { VariationBadge } from "./variation-badge";

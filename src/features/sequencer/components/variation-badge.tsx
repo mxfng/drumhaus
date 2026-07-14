@@ -1,8 +1,6 @@
+import { VariationId } from "@/core/audio/engine/pattern-types";
 import { VARIATION_CHAIN_COLORS } from "@/features/sequencer/lib/colors";
-import {
-  VARIATION_LABELS,
-  VariationId,
-} from "@/features/sequencer/types/sequencer";
+import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { cn } from "@/shared/lib/utils";
 
 type VariationBadgeProps = {

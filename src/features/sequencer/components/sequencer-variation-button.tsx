@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
+import { VariationId } from "@/core/audio/engine/pattern-types";
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { buttonActive } from "@/shared/lib/button-active";
 import {
@@ -10,7 +11,7 @@ import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/use-pattern-store";
-import { VARIATION_LABELS, VariationId } from "../types/sequencer";
+import { VARIATION_LABELS } from "../types/sequencer";
 
 interface SequencerVariationButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variation: VariationId;

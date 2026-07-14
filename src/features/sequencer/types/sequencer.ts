@@ -1,5 +1,4 @@
-import type { PatternChain } from "@/core/audio/engine/pattern-types";
-import { Pattern } from "./pattern";
+import type { Pattern, PatternChain } from "@/core/audio/engine/pattern-types";
 
 const VARIATION_LABELS: readonly ["A", "B", "C", "D"] = ["A", "B", "C", "D"];
 
@@ -16,11 +15,4 @@ interface SequencerData {
 }
 
 export { VARIATION_LABELS };
-// Chain types are owned by the audio engine (core/audio/engine/pattern-types.ts);
-// re-exported here to preserve the historical feature-layer import path.
-export type {
-  VariationId,
-  PatternChainStep,
-  PatternChain,
-} from "@/core/audio/engine/pattern-types";
 export type { VariationCycle, SequencerData };

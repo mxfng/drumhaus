@@ -5,9 +5,8 @@
  * step sequences, variation metadata, and pattern chains - plus the pure
  * helpers the scheduler needs to sanitize and interpret them.
  *
- * The feature layer re-exports these from features/sequencer (types/pattern,
- * types/sequencer, lib/chain, lib/timing) so UI and preset code keep their
- * import paths; the engine itself never imports from features.
+ * UI, store, and preset code import these directly from this module; the
+ * engine itself never imports from features.
  */
 
 // -----------------------------------------------------------------------------

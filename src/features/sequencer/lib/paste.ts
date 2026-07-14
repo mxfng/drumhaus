@@ -1,3 +1,4 @@
+import { Pattern, VariationId } from "@/core/audio/engine/pattern-types";
 import { InstrumentData } from "@/features/instrument/types/instrument";
 import { InlineMeta } from "@/features/preset/types/meta";
 import { createInstrumentClipboard } from "@/features/sequencer/lib/clipboard";
@@ -9,8 +10,6 @@ import {
   ClipboardContent,
   CopySource,
 } from "@/features/sequencer/types/clipboard";
-import { Pattern } from "@/features/sequencer/types/pattern";
-import { VariationId } from "@/features/sequencer/types/sequencer";
 import { ScreenFlashPayload } from "@/shared/store/use-screen-flash-store";
 
 function resolveInstrumentMeta(

@@ -1,7 +1,10 @@
+import {
+  Pattern,
+  StepSequence,
+  VariationId,
+} from "@/core/audio/engine/pattern-types";
 import { InlineMeta } from "@/features/preset/types/meta";
 import { ClipboardContent, CopySource } from "../types/clipboard";
-import { Pattern, StepSequence } from "../types/pattern";
-import { VariationId } from "../types/sequencer";
 
 /**
  * Deep clone a StepSequence.

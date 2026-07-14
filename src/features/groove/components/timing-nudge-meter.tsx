@@ -1,5 +1,5 @@
+import type { TimingNudge } from "@/core/audio/engine/pattern-types";
 import { TIMING_NUDGE_LEVELS } from "@/features/sequencer/lib/timing";
-import type { TimingNudge } from "@/features/sequencer/types/pattern";
 import { cn } from "@/shared/lib/utils";
 import { usePatternStore } from "../../sequencer/store/use-pattern-store";
 

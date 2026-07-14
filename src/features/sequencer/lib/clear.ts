@@ -1,6 +1,5 @@
+import { Pattern, VariationId } from "@/core/audio/engine/pattern-types";
 import { clearStepSequence } from "@/features/sequencer/lib/pattern-mutations";
-import { Pattern } from "@/features/sequencer/types/pattern";
-import { VariationId } from "@/features/sequencer/types/sequencer";
 
 /** Clear a single instrument's pattern for a specific variation. Mutates the pattern in place. */
 function clearInstrumentVariation(

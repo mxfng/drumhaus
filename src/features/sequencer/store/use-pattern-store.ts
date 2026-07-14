@@ -2,13 +2,19 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import {
+  clampVariationId,
+  DEFAULT_CHAIN,
+  Pattern,
+  PatternChain,
+  sanitizeChain,
+  TimingNudge,
+  VariationId,
+} from "@/core/audio/engine/pattern-types";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import {
   appendChainDraftStep,
-  clampVariationId,
-  DEFAULT_CHAIN,
   legacyCycleToChain,
-  sanitizeChain,
 } from "@/features/sequencer/lib/chain";
 import {
   applyInstrumentClipboard,
@@ -30,7 +36,6 @@ import {
   ClipboardContent,
   CopySource,
 } from "@/features/sequencer/types/clipboard";
-import { Pattern, TimingNudge } from "@/features/sequencer/types/pattern";
 import { triggerScreenFlash } from "@/shared/store/use-screen-flash-store";
 import { clearInstrumentVariation, clearVariationPatterns } from "../lib/clear";
 import {
@@ -45,7 +50,7 @@ import {
   buildVariationClearFlash,
   buildVariationCopyFlash,
 } from "../lib/screen-flash";
-import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
+import { VariationCycle } from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.

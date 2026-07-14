@@ -1,26 +1,24 @@
 import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import { DEFAULT_VELOCITY, STEP_COUNT } from "@/core/audio/engine/constants";
 import {
+  clampVariationId,
+  DEFAULT_CHAIN,
+  Pattern,
+  PatternChain,
+  sanitizeChain,
+  StepSequence,
+  VariationId,
+  Voice,
+} from "@/core/audio/engine/pattern-types";
+import {
   InstrumentData,
   InstrumentParams,
 } from "@/features/instrument/types/instrument";
 import { KitFileV1 } from "@/features/kit/types/kit";
+import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import {
-  clampVariationId,
-  DEFAULT_CHAIN,
-  legacyCycleToChain,
-  sanitizeChain,
-} from "@/features/sequencer/lib/chain";
-import type {
-  Pattern,
-  StepSequence,
-  Voice,
-} from "@/features/sequencer/types/pattern";
-import {
-  PatternChain,
   VARIATION_LABELS,
   VariationCycle,
-  VariationId,
 } from "@/features/sequencer/types/sequencer";
 import { init } from "../../../../core/dh";
 import { PresetFileV1 } from "../../types/preset";

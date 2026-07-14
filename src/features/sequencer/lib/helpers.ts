@@ -1,5 +1,5 @@
 import { STEP_COUNT } from "@/core/audio/engine/constants";
-import { Pattern, Voice } from "@/features/sequencer/types/pattern";
+import { Pattern, Voice } from "@/core/audio/engine/pattern-types";
 import { clamp, quantize } from "@/shared/lib/utils";
 
 /**

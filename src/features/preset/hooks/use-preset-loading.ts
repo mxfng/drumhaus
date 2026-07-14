@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef } from "react";
 
+import {
+  DEFAULT_CHAIN,
+  sanitizeChain,
+} from "@/core/audio/engine/pattern-types";
 import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
-import {
-  DEFAULT_CHAIN,
-  legacyCycleToChain,
-  sanitizeChain,
-} from "@/features/sequencer/lib/chain";
+import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import {
   migrateInstruments,
   migrateMasterChainParams,
