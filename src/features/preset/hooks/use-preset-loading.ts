@@ -1,6 +1,5 @@
-import { RefObject, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
-import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
@@ -21,10 +20,6 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { useToast } from "@/shared/ui";
 
-interface UsePresetLoadingProps {
-  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
-}
-
 interface UsePresetLoadingResult {
   loadPreset: (preset: PresetFileV1) => void;
 }
@@ -34,9 +29,7 @@ interface UsePresetLoadingResult {
  *
  * Low-level: handles audio engine, playback stopping, store updates
  */
-function usePresetLoading({
-  instrumentRuntimes,
-}: UsePresetLoadingProps): UsePresetLoadingResult {
+function usePresetLoading(): UsePresetLoadingResult {
   const { toast } = useToast();
 
   const hasLoadedFromUrlRef = useRef(false);
@@ -85,7 +78,7 @@ function usePresetLoading({
     (preset: PresetFileV1) => {
       // Stop playback if currently playing (samples will reload)
       if (isPlaying) {
-        togglePlay(instrumentRuntimes.current);
+        void togglePlay();
       }
 
       // Add to custom presets if not a default preset
@@ -131,7 +124,6 @@ function usePresetLoading({
       setAllInstruments(migrateInstruments(preset.kit.instruments));
     },
     [
-      instrumentRuntimes,
       isPlaying,
       addCustomPreset,
       loadPresetMeta,

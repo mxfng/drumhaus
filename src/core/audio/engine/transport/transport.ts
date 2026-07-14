@@ -1,59 +1,61 @@
-import { getTransport, now, Ticks } from "tone/build/esm/index";
+import { getTransport, Ticks } from "tone/build/esm/index";
 
-import {
-  SEQUENCE_SUBDIVISION,
-  STEP_COUNT,
-  TRANSPORT_SWING_MAX,
-  TRANSPORT_SWING_RANGE,
-} from "../constants";
-import { ensureAudioContextIsRunning } from "../context/manager";
+import { SEQUENCE_SUBDIVISION, STEP_COUNT } from "../constants";
 
 /**
- * Start or resume the audio context
+ * The LIVE transport, captured once at module evaluation.
+ *
+ * Tone's Offline() swaps the global context (and therefore what
+ * getTransport() returns) while an offline render is being set up, and that
+ * setup awaits sample loading - so a transport command issued from the app
+ * during that window would otherwise land on the OFFLINE transport and be
+ * lost or corrupt the render. Routing every live command through this
+ * retained reference makes that impossible; the offline path receives its
+ * own transport explicitly (configureTransportTiming).
+ *
+ * Import order cannot capture an offline transport: ESM modules evaluate
+ * when the import graph loads, and Offline() is only ever entered from
+ * engine code that (transitively) imports this module, so this line always
+ * runs against the live context before any render can begin.
  */
-async function startAudioContext(): Promise<void> {
-  await ensureAudioContextIsRunning("transport");
-}
+const liveTransport = getTransport();
 
 /**
- * Start the transport and all sources synced to the transport
+ * Start the live transport and all sources synced to it.
  * @param time The time when the transport should start.
  * @param offset The timeline offset to start the transport.
  */
 function startTransport(time?: number, offset?: number): void {
-  getTransport().start(time, offset);
+  liveTransport.start(time, offset);
 }
 
 /**
- * Stop the transport and all sources synced to the transport.
+ * Stop the live transport and all sources synced to it.
  * @param time The time when the transport should stop.
- * @param onStop Optional callback to execute after stopping the transport.
  */
-function stopTransport(time?: number, onStop?: () => void): void {
-  getTransport().stop(time);
-  if (onStop) {
-    onStop();
-  }
+function stopTransport(time?: number): void {
+  liveTransport.stop(time);
 }
 
 /**
- * Set the transport BPM
+ * Set the live transport BPM
  */
 function setTransportBpm(bpm: number): void {
-  getTransport().bpm.value = bpm;
+  liveTransport.bpm.value = bpm;
 }
 
 /**
- * Set the transport swing
+ * Set the live transport swing in domain units (0-0.5 Tone swing).
+ * Knob-value conversion happens at the boundary in
+ * bridge/knob-to-domain.ts (transportSwingKnobToDomain).
  */
 function setTransportSwing(swing: number): void {
-  const newSwing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
-  getTransport().swingSubdivision = SEQUENCE_SUBDIVISION;
-  getTransport().swing = newSwing;
+  liveTransport.swingSubdivision = SEQUENCE_SUBDIVISION;
+  liveTransport.swing = swing;
 }
 
 /**
- * Configures transport timing settings.
+ * Configures transport timing settings from domain values (bpm, 0-0.5 swing).
  * Works with both online (getTransport) and offline transport objects.
  */
 function configureTransportTiming(
@@ -66,31 +68,31 @@ function configureTransportTiming(
   swing: number,
 ): void {
   transport.bpm.value = bpm;
-  transport.swing = (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;
+  transport.swing = swing;
   transport.swingSubdivision = SEQUENCE_SUBDIVISION;
 }
 
 /**
- * The current audio context time of the global context.
+ * The current audio context time of the LIVE context (routed through the
+ * retained live transport so a call landing mid-offline-render never reads
+ * the offline clock).
  */
 function getCurrentTime(): number {
-  return now();
+  return liveTransport.now();
 }
 
 /**
- * Calculate current step index (0-15) from transport ticks
+ * Calculate current step index (0-15) from live transport ticks
  * Use this directly in requestAnimationFrame loops to avoid React re-renders
  */
 function getCurrentStepFromTransport(): number {
-  const transport = getTransport();
-  const ticks = transport.ticks;
+  const ticks = liveTransport.ticks;
   const ticksPerStep = Ticks(SEQUENCE_SUBDIVISION).valueOf();
   const currentStep = Math.floor(ticks / ticksPerStep) % STEP_COUNT;
   return currentStep;
 }
 
 export {
-  startAudioContext,
   startTransport,
   stopTransport,
   setTransportBpm,

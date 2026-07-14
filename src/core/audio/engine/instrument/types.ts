@@ -1,14 +1,11 @@
 /**
- * Instrument Types
+ * Instrument types owned by the audio engine.
  *
- * Type definitions for instrument runtimes and data.
- * Re-exports main types for convenience.
+ * Only engine-facing types live here (roles and pushed param shapes in
+ * domain units). The store-facing instrument data model
+ * (InstrumentData / InstrumentParams, which reference kit and preset
+ * metadata) lives in features/instrument/types/instrument.ts.
  */
-
-import { AmplitudeEnvelope, Filter, Panner, Sampler } from "tone";
-
-import { SampleData } from "@/features/kit/types/sample";
-import { InlineMeta } from "@/features/preset/types/meta";
 
 type InstrumentRole =
   | "kick"
@@ -23,63 +20,32 @@ type InstrumentRole =
   | "synth"
   | "other";
 
-interface InstrumentData {
-  meta: InlineMeta; // id + display name of this pad
-  role: InstrumentRole; // where it lives conceptually in the kit
-  sample: SampleData;
-  params: InstrumentParams;
-}
-
-/**
- * Represents the runtime audio nodes for an instrument
- * Used during playback and rendering
- */
-interface InstrumentRuntime {
-  instrumentId: string; // matches InstrumentData.meta.id
-  samplerNode: Sampler;
-  /** Used for decay envelope and pseudo-monophonic behavior */
-  envelopeNode: AmplitudeEnvelope;
-  lowPassFilterNode: Filter;
-  highPassFilterNode: Filter;
-  pannerNode: Panner;
-}
-
 /**
  * Continuous parameters that are applied directly to audio nodes.
  * These stay active and are updated via subscription.
+ * All values are domain units, not knob values.
  */
 interface ContinuousRuntimeParams {
+  /** Split-filter position 0-100 (LP side 0-49, HP side 50-100); semantics in engine/fx/split-filter.ts */
   filter: number;
+  /** Stereo pan position, -1 (left) to 1 (right) */
   pan: number;
+  /** Level in dB (-Infinity = silence) */
   volume: number;
 }
 
 /**
- * Per-note parameters that are read during playback.
- * These are NOT applied to audio nodes in advance.
+ * Per-note parameters read by the scheduler on every trigger.
+ * Pushed into the engine in domain units; retained per channel so live
+ * knob tweaks during playback apply to the next trigger.
  */
-interface PerNoteParams {
-  tune: number;
-  decay: number;
-  solo: boolean;
+interface ChannelPlayParams {
+  /** Playback pitch (frequency, as produced by tuneMapping.knobToDomain) */
+  pitch: number;
+  /** Envelope decay time in seconds */
+  decaySeconds: number;
   mute: boolean;
+  solo: boolean;
 }
 
-interface InstrumentParams {
-  decay: number;
-  filter: number;
-  volume: number;
-  pan: number;
-  tune: number;
-  solo: boolean;
-  mute: boolean;
-}
-
-export type {
-  InstrumentRole,
-  InstrumentData,
-  InstrumentRuntime,
-  ContinuousRuntimeParams,
-  PerNoteParams,
-  InstrumentParams,
-};
+export type { InstrumentRole, ContinuousRuntimeParams, ChannelPlayParams };

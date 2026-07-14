@@ -1,18 +1,9 @@
-import { RefObject, useEffect } from "react";
+import { useEffect } from "react";
 
-import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 
-interface UseSpacebarTogglePlayProps {
-  instrumentRuntimes: RefObject<InstrumentRuntime[]>;
-  instrumentRuntimesVersion: number;
-}
-
-function useSpacebarTogglePlay({
-  instrumentRuntimes,
-  instrumentRuntimesVersion,
-}: UseSpacebarTogglePlayProps) {
+function useSpacebarTogglePlay() {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
@@ -33,18 +24,13 @@ function useSpacebarTogglePlay({
       e.preventDefault();
 
       if (!isAnyDialogOpen()) {
-        togglePlay(instrumentRuntimes.current);
+        void togglePlay();
       }
     };
 
     document.addEventListener("keydown", handleKeydown);
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [
-    isAnyDialogOpen,
-    instrumentRuntimes,
-    instrumentRuntimesVersion,
-    togglePlay,
-  ]);
+  }, [isAnyDialogOpen, togglePlay]);
 }
 
 export { useSpacebarTogglePlay };

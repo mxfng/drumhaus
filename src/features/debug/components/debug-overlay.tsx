@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { getContext, getTransport } from "tone";
 
-import { getAudioContextHealth } from "@/core/audio/engine";
+import { getAudioContextHealth, getAudioEngine } from "@/core/audio/engine";
 import { useDebugStore } from "@/features/debug/store/use-debug-store";
 
 interface DebugStats {
@@ -61,14 +60,11 @@ const DebugOverlay = () => {
         heapMB = Math.round(perfMemory.usedJSHeapSize / 1024 / 1024);
       }
 
-      // Get Tone.js transport info
-      const transport = getTransport();
-      const transportState = transport.state;
-      const position = transport.position.toString().split(".")[0];
-
-      // Get audio context time
-      const ctx = getContext();
-      const audioTime = Math.round(ctx.currentTime * 10) / 10;
+      // Read-only transport/context diagnostics from the engine
+      const diagnostics = getAudioEngine().getDiagnostics();
+      const transportState = diagnostics.transportState;
+      const position = diagnostics.transportPosition.split(".")[0];
+      const audioTime = Math.round(diagnostics.contextTime * 10) / 10;
 
       const health = getAudioContextHealth();
       const resumedAgoSeconds =

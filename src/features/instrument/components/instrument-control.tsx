@@ -1,3 +1,4 @@
+import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import {
@@ -5,20 +6,17 @@ import {
   interactableHighlight,
 } from "@/shared/lib/interactable-highlight";
 import { cn } from "@/shared/lib/utils";
-import { InstrumentRuntime } from "../../../core/audio/engine/instrument/types";
 import { useInstrumentsStore } from "../store/use-instruments-store";
 import { InstrumentHeader } from "./instrument-header";
 import { InstrumentParamsControl } from "./instrument-params-control";
 
 type InstrumentControlParams = {
-  runtime?: InstrumentRuntime;
   color?: string;
   index: number;
   waveformWidth?: number;
 };
 
 function InstrumentControl({
-  runtime,
   index,
   color = "currentColor",
   waveformWidth,
@@ -26,6 +24,9 @@ function InstrumentControl({
   const instrumentMeta = useInstrumentsStore(
     (state) => state.instruments[index].meta,
   );
+
+  // Refreshed on every kit load so readiness reflects the active channels
+  const isChannelReady = useChannelReady(index);
 
   const mode = usePatternStore((state) => state.mode);
   const variation = usePatternStore((state) => state.variation);
@@ -67,8 +68,8 @@ function InstrumentControl({
       className={cn(
         "group flex h-full w-full flex-col rounded-2xl border border-transparent",
         {
-          "cursor-pointer": runtime,
-          "cursor-default": !runtime,
+          "cursor-pointer": isChannelReady,
+          "cursor-default": !isChannelReady,
         },
         showSelectedState && "border-primary/60 bg-primary/5",
         interactableHighlight(shouldHighlight),
@@ -82,12 +83,11 @@ function InstrumentControl({
           index={index}
           color={color}
           waveformWidth={waveformWidth}
-          runtime={runtime}
         />
       </div>
 
       <div className="mb-2">
-        <InstrumentParamsControl index={index} runtime={runtime} />
+        <InstrumentParamsControl index={index} />
       </div>
     </div>
   );

@@ -3,6 +3,12 @@ import {
   INSTRUMENT_TUNE_SEMITONE_RANGE,
   MASTER_FILTER_RANGE,
 } from "@/core/audio/engine/constants";
+import {
+  SPLIT_FILTER_CURVE_POWER,
+  SPLIT_FILTER_POSITION_THRESHOLD_L,
+  SPLIT_FILTER_POSITION_THRESHOLD_R,
+  splitFilterPositionToFrequency,
+} from "@/core/audio/engine/fx/split-filter";
 import { clamp, lerp, normalize, normalizeCentered } from "@/shared/lib/utils";
 import { KNOB_VALUE_MAX, KNOB_VALUE_MIN } from "./constants";
 import {
@@ -13,8 +19,10 @@ import {
   toKnobValue,
 } from "./utils";
 
-const KNOB_ROTATION_THRESHOLD_L = 49;
-const KNOB_ROTATION_THRESHOLD_R = 50;
+// The knob rotation thresholds mirror the engine's split-filter position
+// semantics (LP side 0-49, HP side 50-100); the engine owns those values.
+const KNOB_ROTATION_THRESHOLD_L = SPLIT_FILTER_POSITION_THRESHOLD_L;
+const KNOB_ROTATION_THRESHOLD_R = SPLIT_FILTER_POSITION_THRESHOLD_R;
 
 // ============================================================================
 // FORWARD TRANSFORMS (knobValue 0-100 → domain value)
@@ -65,22 +73,13 @@ const transformKnobValueTune = (
  * Transform knob values split between two ranges, for different behavior on the left and right sides.
  * Used for low pass and high pass filters on a single knob.
  * Left half (0-49) = Low-pass filter, Right half (50-100) = High-pass filter
+ * Delegates to the engine, which owns the split-filter position semantics.
  */
 const transformKnobValueSplitFilter = (
   input: number,
   rangeLow: [number, number] = MASTER_FILTER_RANGE,
   rangeHigh: [number, number] = MASTER_FILTER_RANGE,
-): number => {
-  const shouldUseLowRange = input <= KNOB_ROTATION_THRESHOLD_L;
-  const [min, max] = shouldUseLowRange ? rangeLow : rangeHigh;
-
-  const newInput =
-    ((shouldUseLowRange ? input : input - KNOB_ROTATION_THRESHOLD_R) /
-      KNOB_ROTATION_THRESHOLD_L) *
-    KNOB_VALUE_MAX;
-
-  return transformKnobValueExponential(newInput, [min, max]);
-};
+): number => splitFilterPositionToFrequency(input, rangeLow, rangeHigh);
 
 // ============================================================================
 // INVERSE TRANSFORMS (domain value → knobValue 0-100)
@@ -147,9 +146,9 @@ const inverseTransformKnobValueSplitFilter = (
   // Clamp frequency to valid range
   const clampedFreq = clamp(freq, min, max);
 
-  // Invert exponential mapping
+  // Invert the engine's split-filter position -> frequency curve
   const normalized = normalize(clampedFreq, min, max);
-  const t = inverseExpCurve(normalized);
+  const t = Math.pow(normalized, 1 / SPLIT_FILTER_CURVE_POWER);
 
   // Determine which side (LP or HP) to map to
   // If we have a hint, preserve the current side

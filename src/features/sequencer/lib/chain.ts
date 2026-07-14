@@ -1,11 +1,11 @@
+import {
+  clampVariationId,
+  MAX_CHAIN_REPEAT,
+  MAX_CHAIN_STEPS,
+  MIN_CHAIN_REPEAT,
+  sanitizeChain,
+} from "@/core/audio/engine/pattern-types";
 import { PatternChain, VariationCycle, VariationId } from "../types/sequencer";
-
-const MIN_CHAIN_REPEAT = 1;
-const MAX_CHAIN_REPEAT = 8;
-const MAX_CHAIN_STEPS = 8;
-const DEFAULT_CHAIN: PatternChain = {
-  steps: [{ variation: 0, repeats: 1 }],
-};
 
 function appendChainDraftStep(
   chainDraft: PatternChain,
@@ -36,39 +36,6 @@ function appendChainDraftStep(
     },
     { allowEmpty: true },
   );
-}
-
-function clampVariationId(variation: number): VariationId {
-  if (variation < 0) return 0;
-  if (variation > 3) return 3;
-  return variation as VariationId;
-}
-
-function sanitizeChain(
-  chain?: PatternChain,
-  options?: { allowEmpty?: boolean },
-): PatternChain {
-  const allowEmpty = options?.allowEmpty ?? false;
-  if (!chain || !Array.isArray(chain.steps)) {
-    return allowEmpty ? { steps: [] } : DEFAULT_CHAIN;
-  }
-
-  const steps = chain.steps
-    .slice(0, MAX_CHAIN_STEPS)
-    .map((step) => ({
-      variation: clampVariationId(step.variation),
-      repeats: Math.min(
-        MAX_CHAIN_REPEAT,
-        Math.max(MIN_CHAIN_REPEAT, step.repeats ?? 1),
-      ),
-    }))
-    .filter((step) => step.repeats > 0);
-
-  if (steps.length === 0) {
-    return allowEmpty ? { steps: [] } : DEFAULT_CHAIN;
-  }
-
-  return { steps };
 }
 
 function legacyCycleToChain(
@@ -120,13 +87,15 @@ function legacyCycleToChain(
   }
 }
 
+// The pure chain helpers and constants are owned by the audio engine
+// (core/audio/engine/pattern-types.ts); re-exported here to preserve the
+// historical feature-layer import path.
 export {
   MIN_CHAIN_REPEAT,
   MAX_CHAIN_REPEAT,
   MAX_CHAIN_STEPS,
   DEFAULT_CHAIN,
-  appendChainDraftStep,
   clampVariationId,
   sanitizeChain,
-  legacyCycleToChain,
-};
+} from "@/core/audio/engine/pattern-types";
+export { appendChainDraftStep, legacyCycleToChain };
