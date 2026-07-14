@@ -45,3 +45,6 @@ jobs:
 
       - name: Build project
         run: pnpm build
+
+      - name: Lightshow cold-load smoke check
+        run: pnpm smoke:lightshow

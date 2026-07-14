@@ -14,6 +14,7 @@
     "lint": "oxlint src --max-warnings 0",
     "test": "vitest run",
     "test:watch": "vitest",
+    "smoke:lightshow": "node scripts/lightshow-smoke.mjs",
     "prepare": "husky",
     "kit:new": "tsx scripts/new-kit.ts",
     "waveforms:build": "tsx scripts/generate-waveforms.ts"
