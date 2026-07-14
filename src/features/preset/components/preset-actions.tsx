@@ -46,7 +46,12 @@ function PresetActions({ onOpenFromFile }: PresetActionsProps) {
     <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button onClick={handleSave} variant="screen" size="screen">
+          <Button
+            onClick={handleSave}
+            variant="screen"
+            size="screen"
+            aria-label={isCustom ? "Update preset" : "Save preset"}
+          >
             <Save
               className="group-hover:text-accent transition-all duration-200"
               size={20}
@@ -60,7 +65,12 @@ function PresetActions({ onOpenFromFile }: PresetActionsProps) {
 
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button onClick={onOpenFromFile} variant="screen" size="screen">
+          <Button
+            onClick={onOpenFromFile}
+            variant="screen"
+            size="screen"
+            aria-label="Import preset from file"
+          >
             <FolderOpen
               className="group-hover:text-accent transition-all duration-200"
               size={20}
@@ -76,6 +86,7 @@ function PresetActions({ onOpenFromFile }: PresetActionsProps) {
             onClick={() => openDialog("export")}
             variant="screen"
             size="screen"
+            aria-label="Export"
           >
             <AudioLines
               className="group-hover:text-accent transition-all duration-200"
@@ -92,6 +103,7 @@ function PresetActions({ onOpenFromFile }: PresetActionsProps) {
             onClick={() => openDialog("share")}
             variant="screen"
             size="screen"
+            aria-label="Share preset"
           >
             <Share2
               className="group-hover:text-accent transition-all duration-200"

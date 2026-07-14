@@ -19,6 +19,7 @@ function KitSelect({ selectedKitId, kits, onSelect }: KitSelectProps) {
       <Select value={selectedKitId} onValueChange={onSelect}>
         <SelectTrigger
           size="screen"
+          aria-label="Kit"
           className="text-screen-foreground w-full cursor-pointer rounded-none border-transparent bg-transparent px-1 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <SelectValue />

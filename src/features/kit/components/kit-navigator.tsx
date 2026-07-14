@@ -12,7 +12,12 @@ function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
     <div className="text-screen grid h-full w-full grid-cols-4">
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button onClick={onPrevious} variant="screen" size="screen">
+          <Button
+            onClick={onPrevious}
+            variant="screen"
+            size="screen"
+            aria-label="Previous kit"
+          >
             <ChevronLeft
               className="group-hover:text-accent transition-all duration-200"
               size={20}
@@ -27,7 +32,12 @@ function KitNavigator({ onPrevious, onNext }: KitNavigatorProps) {
 
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button onClick={onNext} variant="screen" size="screen">
+          <Button
+            onClick={onNext}
+            variant="screen"
+            size="screen"
+            aria-label="Next kit"
+          >
             <ChevronRight
               className="group-hover:text-accent transition-all duration-200"
               size={20}

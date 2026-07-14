@@ -13,6 +13,7 @@ const PlayPauseButton = () => {
         <TooltipTrigger asChild>
           <Button
             variant="hardware"
+            aria-label={isPlaying ? "Pause" : "Play"}
             className="h-(--app-play-button) w-(--app-play-button) rounded-xl p-1 [&_svg]:size-[50px]!"
             onClick={() => togglePlay()}
             onKeyDown={(ev) => {
