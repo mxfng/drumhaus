@@ -28,6 +28,7 @@ import {
 } from "../cache/sample";
 import {
   EXPORT_CHANNEL_COUNT,
+  EXPORT_PREROLL_TIME,
   EXPORT_TAIL_TIME,
   STEP_COUNT,
   TRANSPORT_SWING_MAX,
@@ -390,7 +391,27 @@ class AudioEngine {
     // Add tail for reverb/release decay if requested, otherwise end on the
     // bar line for DAW looping.
     const tailTime = options.includeTail ? EXPORT_TAIL_TIME : 0;
-    const duration = barDuration + tailTime;
+    // Output length in samples, exactly as a render without pre-roll would
+    // size it (OfflineAudioContext truncates duration * sampleRate), so the
+    // pre-roll below can never change the export's duration.
+    const outputSamples = Math.floor(
+      (barDuration + tailTime) * options.sampleRate,
+    );
+
+    // Pre-roll past the DynamicsCompressorNode warm-up (#318): a fresh
+    // offline context starts both compressor instances (parallel comp and
+    // limiter) at low internal gain, leaving the first ~100ms of output
+    // attenuated. Start the transport a whole-sample pre-roll in and slice
+    // those samples back off after rendering, so the export still begins
+    // exactly on the bar line at full amplitude. Step-0 events pulled ahead
+    // of the bar line (flam grace notes, negative timing nudges) land
+    // inside the pre-roll and are trimmed from the export.
+    const prerollSamples = Math.ceil(EXPORT_PREROLL_TIME * options.sampleRate);
+    const prerollSeconds = prerollSamples / options.sampleRate;
+    // One sample of margin so seconds -> samples truncation inside Offline
+    // can never leave the render shorter than the slice window below.
+    const renderDuration =
+      (prerollSamples + outputSamples + 1) / options.sampleRate;
 
     const toneBuffer = await Offline(
       async ({ transport, destination }) => {
@@ -423,9 +444,9 @@ class AudioEngine {
           barBudget: options.bars,
         });
 
-        transport.start(0);
+        transport.start(prerollSeconds);
       },
-      duration,
+      renderDuration,
       EXPORT_CHANNEL_COUNT,
       options.sampleRate,
     );
@@ -434,7 +455,7 @@ class AudioEngine {
     if (!nativeBuffer) {
       throw new Error("Failed to render audio buffer");
     }
-    return nativeBuffer;
+    return sliceRenderedBuffer(nativeBuffer, prerollSamples, outputSamples);
   }
 
   // ---------------------------------------------------------------------------
@@ -871,6 +892,32 @@ class AudioEngine {
 function calculateExportDuration(bars: number, bpm: number): number {
   const stepDuration = 60 / bpm / 4; // Duration of one 16th note in seconds
   return bars * STEP_COUNT * stepDuration;
+}
+
+/**
+ * Copies a window of a rendered buffer into a fresh AudioBuffer, dropping
+ * the first offsetSamples samples. renderWav renders a warm-up pre-roll
+ * ahead of the first bar and cuts it off here, so exports start exactly on
+ * the bar line.
+ */
+function sliceRenderedBuffer(
+  buffer: AudioBuffer,
+  offsetSamples: number,
+  lengthSamples: number,
+): AudioBuffer {
+  const sliced = new AudioBuffer({
+    numberOfChannels: buffer.numberOfChannels,
+    length: lengthSamples,
+    sampleRate: buffer.sampleRate,
+  });
+  for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+    const data = buffer.getChannelData(channel);
+    sliced.copyToChannel(
+      data.subarray(offsetSamples, offsetSamples + lengthSamples),
+      channel,
+    );
+  }
+  return sliced;
 }
 
 // -----------------------------------------------------------------------------

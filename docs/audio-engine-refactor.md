@@ -60,9 +60,9 @@ They must be kept in sync by hand for exports to match live playback.
 - `scheduleVoiceCore` reads `getTransport().bpm` (the live transport) for nudge and ratchet conversion even during offline rendering, because `Offline` restores the global context before the render completes.
   Exports only sound correct because the app happens to keep the live transport bpm in sync with the store.
   Phase 3's pushed snapshots should carry bpm so scheduling never reads the live transport.
-- The first hit of any offline render peaks deterministically about 46% lower than steady state (envelope spin-up at t=0).
-  This plausibly affects the first hit of WAV exports audibly.
-  Not fixed during the behavior-preserving phases; revisit after phase 5.
+- The first hit of any offline render used to peak deterministically about 46% lower than steady state.
+  The original "envelope spin-up at t=0" attribution was wrong: measurement traced it to Chromium's DynamicsCompressorNode startup transient, which slews its internal gain up to unity over the first ~100ms of a fresh context (issue #318).
+  Fixed by renderWav's 200ms pre-roll (`EXPORT_PREROLL_TIME`): the transport starts past the warm-up and the pre-roll is sliced off, so exports begin on the bar line at full amplitude; step-0 flam graces and negative nudges land inside the pre-roll and are trimmed.
 
 ## Target architecture
 
@@ -203,7 +203,7 @@ After phase 5, an adversarial review wave (8 finder angles, one verifier per ded
 The most consequential: negative trigger times crashing WAV export for step-0 flams/nudges, missing supersession on init/rebuild concurrency (duplicate master bus), failed kit loads poisoning retained descriptors, and an unbounded rebuild await ahead of the reload fallback.
 Three refuted candidates validated the architecture: the scheduler's fresh per-step reads make loadKit/rebuild interleavings safe by construction.
 
-Open follow-up: the first-hit attenuation quirk (see above) remains unfixed by design; investigate after the refactor settles.
+The first-hit attenuation quirk (see above) was left unfixed through the behavior-preserving phases by design; issue #318 diagnosed and fixed it afterward via the render pre-roll.
 
 ### Recovery instrumentation (issue #319)
 
