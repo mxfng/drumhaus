@@ -1,0 +1,143 @@
+import { useEffect } from "react";
+
+import { getAudioEngine } from "@/core/audio/engine";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
+import {
+  getMasterChainParams,
+  useMasterChainStore,
+} from "@/features/master-bus/store/use-master-chain-store";
+import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
+import { useTransportStore } from "@/features/transport/store/use-transport-store";
+import { useAudioContextGuards } from "../hooks/use-audio-context-guards";
+import { subscribeInstrumentParamsToEngine } from "./instrument-params";
+import { mapParamsToSettings, type MasterChainParams } from "./knob-to-domain";
+
+/**
+ * Shallow-compares two objects field by field.
+ */
+function shallowEqual<T extends object>(a: T, b: T): boolean {
+  return (Object.keys(a) as (keyof T)[]).every((key) => a[key] === b[key]);
+}
+
+/**
+ * The bridge between the Zustand stores and the AudioEngine facade.
+ *
+ * Initializes the engine, wires store subscriptions to engine commands
+ * (pattern, playback config, per-channel params, kit loads, master chain),
+ * and mirrors engine events back into the stores. Components never see
+ * engine internals; they address channels by index through engine commands
+ * and small bridge hooks (useKitVersion).
+ */
+function useEngineBridge(): void {
+  // Guard and recover audio context automatically (visibility/gestures/stall)
+  useAudioContextGuards();
+
+  const instrumentSamplePaths = useInstrumentsStore((state) =>
+    state.instruments.map((inst) => inst.sample.path).join(","),
+  );
+
+  // Engine lifecycle + store wiring (store subscriptions -> engine commands)
+  useEffect(() => {
+    const engine = getAudioEngine();
+    void engine.init(mapParamsToSettings(getMasterChainParams()));
+
+    const unsubscribers: (() => void)[] = [];
+
+    // --- Pattern ---
+    let prevPattern = usePatternStore.getState().pattern;
+    engine.setPattern(prevPattern);
+    unsubscribers.push(
+      usePatternStore.subscribe((state) => {
+        if (state.pattern !== prevPattern) {
+          prevPattern = state.pattern;
+          engine.setPattern(state.pattern);
+        }
+      }),
+    );
+
+    // --- Playback config (chain / chainEnabled / variation) ---
+    let prevPlayback = {
+      chain: usePatternStore.getState().chain,
+      chainEnabled: usePatternStore.getState().chainEnabled,
+      variation: usePatternStore.getState().variation,
+    };
+    engine.setPlayback(prevPlayback);
+    unsubscribers.push(
+      usePatternStore.subscribe((state) => {
+        if (
+          state.chain !== prevPlayback.chain ||
+          state.chainEnabled !== prevPlayback.chainEnabled ||
+          state.variation !== prevPlayback.variation
+        ) {
+          prevPlayback = {
+            chain: state.chain,
+            chainEnabled: state.chainEnabled,
+            variation: state.variation,
+          };
+          engine.setPlayback(prevPlayback);
+        }
+      }),
+    );
+
+    // --- Instrument params (continuous + play params, knob -> domain) ---
+    unsubscribers.push(subscribeInstrumentParamsToEngine(engine));
+
+    // --- Master chain ---
+    let prevMasterParams: MasterChainParams | null = null;
+    unsubscribers.push(
+      useMasterChainStore.subscribe(() => {
+        const params = getMasterChainParams();
+        if (prevMasterParams && shallowEqual(prevMasterParams, params)) {
+          return;
+        }
+        prevMasterParams = params;
+        engine.setMasterSettings(mapParamsToSettings(params));
+      }),
+    );
+
+    // --- Engine events -> stores ---
+    unsubscribers.push(
+      engine.onPlaybackVariationChange((variation) => {
+        const patternStore = usePatternStore.getState();
+        if (patternStore.playbackVariation !== variation) {
+          patternStore.setPlaybackVariation(variation);
+        }
+      }),
+    );
+
+    // Mirror engine-initiated playback transitions (e.g. a rebuild that
+    // does not replay, or a replay that fails) into the transport store.
+    // The store keeps its command role (togglePlay drives the engine); the
+    // value-changed guard prevents store-issued commands from echoing.
+    unsubscribers.push(
+      engine.onPlaybackStateChange((isPlaying) => {
+        if (useTransportStore.getState().isPlaying !== isPlaying) {
+          useTransportStore.setState({ isPlaying });
+        }
+      }),
+    );
+
+    return () => {
+      unsubscribers.forEach((unsubscribe) => unsubscribe());
+      engine.dispose();
+    };
+  }, []);
+
+  // Load the kit whenever the sample set changes
+  useEffect(() => {
+    if (instrumentSamplePaths.length === 0) {
+      return;
+    }
+
+    const instruments = useInstrumentsStore.getState().instruments;
+    void getAudioEngine().loadKit(
+      instruments.map((instrument) => ({
+        instrumentId: instrument.meta.id,
+        samplePath: instrument.sample.path,
+        role: instrument.role,
+      })),
+    );
+  }, [instrumentSamplePaths]);
+}
+
+export { useEngineBridge };

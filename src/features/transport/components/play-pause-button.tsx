@@ -1,11 +1,9 @@
 import { Pause, Play } from "lucide-react";
 
-import { useDrumhaus } from "@/core/providers/drumhaus-provider";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 const PlayPauseButton = () => {
-  const { instrumentRuntimes } = useDrumhaus();
   const isPlaying = useTransportStore((state) => state.isPlaying);
   const togglePlay = useTransportStore((state) => state.togglePlay);
 
@@ -16,7 +14,7 @@ const PlayPauseButton = () => {
           <Button
             variant="hardware"
             className="h-(--app-play-button) w-(--app-play-button) rounded-xl p-1 [&_svg]:size-[50px]!"
-            onClick={() => togglePlay(instrumentRuntimes.current)}
+            onClick={() => togglePlay()}
             onKeyDown={(ev) => {
               if (ev.key === " " || ev.key === "Enter") {
                 ev.preventDefault();

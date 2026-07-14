@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
+import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import {
   MASTER_COMP_DEFAULT_ATTACK,
   MASTER_COMP_DEFAULT_MIX,
@@ -13,7 +14,6 @@ import {
   MASTER_SATURATION_DEFAULT,
   MASTER_VOLUME_DEFAULT,
 } from "@/core/audio/engine/constants";
-import { MasterChainParams } from "@/core/audio/engine/fx/masterChain/types";
 
 /**
  * Selector to get MasterChainParams from the store state

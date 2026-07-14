@@ -1,14 +1,10 @@
-import { Pattern, Voice } from "@/features/sequencer/types/pattern";
 import {
   ACCENT_BOOST,
   ACCENT_DAMPEN,
   STEP_COUNT,
   VARIATION_COUNT,
 } from "../constants";
-
-// -----------------------------------------------------------------------------
-// Constants
-// -----------------------------------------------------------------------------
+import { Pattern, Voice } from "../pattern-types";
 
 // -----------------------------------------------------------------------------
 // Types
@@ -20,7 +16,6 @@ type PrecomputedHit = {
 };
 
 type PrecomputedPattern = {
-  version: number;
   stepsByVariation: PrecomputedHit[][][]; // [variation][step][hits]
 };
 
@@ -32,10 +27,7 @@ type PrecomputedPattern = {
  * Precomputes pattern data for efficient playback.
  * Applies accent dampening and velocity calculations ahead of time.
  */
-function buildPrecomputedPattern(
-  pattern: Pattern,
-  version: number,
-): PrecomputedPattern {
+function buildPrecomputedPattern(pattern: Pattern): PrecomputedPattern {
   const stepsByVariation: PrecomputedHit[][][] = Array.from(
     { length: VARIATION_COUNT },
     () => Array.from({ length: STEP_COUNT }, () => []),
@@ -86,7 +78,6 @@ function buildPrecomputedPattern(
   }
 
   return {
-    version,
     stepsByVariation,
   };
 }

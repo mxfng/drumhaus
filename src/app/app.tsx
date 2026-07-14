@@ -3,11 +3,9 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 import "@fontsource-variable/albert-sans";
 import "@/assets/fonts/fusion-pixel.css";
 
+import { useKitVersion } from "@/core/audio/bridge/use-kit-version";
 import { AppErrorBoundary } from "@/core/providers/app-error-boundary";
-import {
-  DrumhausProvider,
-  useDrumhaus,
-} from "@/core/providers/drumhaus-provider";
+import { DrumhausProvider } from "@/core/providers/drumhaus-provider";
 import { GlobalErrorHandler } from "@/core/providers/global-error-handler";
 import { DebugOverlay } from "@/features/debug/components/debug-overlay";
 import { NightSky } from "@/features/night/components/night-sky";
@@ -55,8 +53,8 @@ function getPresetTitleFromSlug(slug: string | null): string {
 }
 
 function AppOrchestrator() {
-  // --- Context (requires providers) ---
-  const { instrumentRuntimes, instrumentRuntimesVersion } = useDrumhaus();
+  // --- Engine bridge state (requires providers) ---
+  const kitVersion = useKitVersion();
   const { areWaveformsReady } = useWaveform();
 
   // --- Dialog State ---
@@ -66,15 +64,12 @@ function AppOrchestrator() {
   // --- Global Behavior Hooks ---
   useMobileWarning();
 
-  useSpacebarTogglePlay({
-    instrumentRuntimes,
-    instrumentRuntimesVersion,
-  });
+  useSpacebarTogglePlay();
 
   useSequencerEscToVoice();
 
   // --- Lightshow ---
-  useLightShowIntro(instrumentRuntimesVersion > 0 && areWaveformsReady, 320);
+  useLightShowIntro(kitVersion > 0 && areWaveformsReady, 320);
 
   return (
     <>

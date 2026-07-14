@@ -1,4 +1,3 @@
-import { useDrumhaus } from "@/core/providers/drumhaus-provider";
 import { InstrumentGrid } from "@/features/instrument/components/instrument-grid";
 import { Sequencer } from "@/features/sequencer/components/sequencer";
 import { useLayoutScale } from "@/shared/hooks/use-layout-scale";
@@ -9,9 +8,6 @@ import { Footer } from "./footer";
 import { Header } from "./header";
 
 const Drumhaus = () => {
-  // --- Context ---
-  const { instrumentRuntimesVersion } = useDrumhaus(); // Force re-rendering instrument grid to display waveform when loaded
-
   // --- Layout ---
   const { scale } = useLayoutScale();
 
@@ -41,7 +37,7 @@ const Drumhaus = () => {
           <Separator variant="neumorphic" />
 
           {/* Instrument Grid */}
-          <InstrumentGrid key={instrumentRuntimesVersion} />
+          <InstrumentGrid />
 
           <Separator variant="neumorphic" />
 

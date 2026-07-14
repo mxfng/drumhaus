@@ -1,18 +1,15 @@
 import { useEffect, useRef } from "react";
-import { Meter } from "tone";
 
-import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
+import { getAudioEngine } from "@/core/audio/engine";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/use-performance-store";
 
 interface GainMeterProps {
-  runtime?: InstrumentRuntime;
+  index: number;
 }
 
 const DOT_COUNT = 5;
-const NORMAL_RANGE = true;
-const SMOOTHING = 0.8;
 const PEAK_HOLD_MS = 100; // Hold peaks for 100ms
 const PEAK_DECAY_RATE = 0.95; // How fast peaks decay after hold time
 const PEAK_DETECTION_THRESHOLD = 0.001; // Threshold for peak detection
@@ -30,46 +27,25 @@ const DOT_COLORS = {
   inactive: ["bg-border", "bg-border", "bg-border", "bg-border", "bg-border"],
 };
 
-function GainMeter({ runtime }: GainMeterProps) {
+function GainMeter({ index }: GainMeterProps) {
   const dotRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const meterRef = useRef<Meter | null>(null);
   const peakLevelRef = useRef(0);
   const peakHoldTimeRef = useRef(0);
 
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
 
-  // Create our own meter and tap the instrument output
   useEffect(() => {
-    if (!runtime || potatoMode) return;
+    if (potatoMode) return;
 
-    // Create meter and tap the panner output (just like FrequencyAnalyzer taps Destination)
-    meterRef.current = new Meter({
-      normalRange: NORMAL_RANGE,
-      smoothing: SMOOTHING,
-    });
-    runtime.pannerNode.connect(meterRef.current);
-
-    return () => {
-      if (meterRef.current) {
-        try {
-          // Just dispose the meter - it will handle disconnection internally
-          meterRef.current.dispose();
-        } catch (e) {
-          console.warn("Error disposing meter:", e);
-        }
-        meterRef.current = null;
-      }
-    };
-  }, [runtime, potatoMode]);
-
-  useEffect(() => {
-    if (!runtime || !meterRef.current || potatoMode) return;
+    // Engine-owned meter tap: the instance is stable across kit swaps (the
+    // engine reconnects it to the replacement channel), so we can hold it
+    // for the whole subscription lifetime and never dispose it here.
+    const meter = getAudioEngine().getChannelMeter(index);
+    if (!meter) return;
 
     const updateMeter = (now: number) => {
-      if (!meterRef.current) return;
-
       // Get level from meter (0-1 range due to normalRange)
-      const rawValue = meterRef.current.getValue();
+      const rawValue = meter.getValue();
       const meterValue = Array.isArray(rawValue)
         ? Math.max(...rawValue)
         : (rawValue as number);
@@ -99,12 +75,12 @@ function GainMeter({ runtime }: GainMeterProps) {
       const activeDots = Math.ceil(normalized * DOT_COUNT);
 
       // Update each dot's appearance
-      dotRefs.current.forEach((dot, index) => {
+      dotRefs.current.forEach((dot, dotIndex) => {
         if (!dot) return;
 
-        const isActive = index < activeDots;
-        const activeClass = DOT_COLORS.active[index];
-        const inactiveClass = DOT_COLORS.inactive[index];
+        const isActive = dotIndex < activeDots;
+        const activeClass = DOT_COLORS.active[dotIndex];
+        const inactiveClass = DOT_COLORS.inactive[dotIndex];
 
         // Remove all color classes first
         dot.className = "h-1 w-1 rounded-full transition-all duration-100";
@@ -120,7 +96,7 @@ function GainMeter({ runtime }: GainMeterProps) {
     const unsubscribe = subscribeToPlaybackAnimation(updateMeter);
 
     return unsubscribe;
-  }, [runtime, potatoMode]);
+  }, [index, potatoMode]);
 
   if (potatoMode) {
     return <div className="h-full w-full" />;
@@ -128,13 +104,13 @@ function GainMeter({ runtime }: GainMeterProps) {
 
   return (
     <div className="flex h-full flex-col-reverse items-center justify-center gap-1.5">
-      {Array.from({ length: DOT_COUNT }).map((_, index) => (
+      {Array.from({ length: DOT_COUNT }).map((_, dotIndex) => (
         <div
-          key={index}
+          key={dotIndex}
           ref={(el) => {
-            dotRefs.current[index] = el;
+            dotRefs.current[dotIndex] = el;
           }}
-          className={`h-1 w-1 rounded-full transition-all duration-100 ${DOT_COLORS.inactive[index]}`}
+          className={`h-1 w-1 rounded-full transition-all duration-100 ${DOT_COLORS.inactive[dotIndex]}`}
         />
       ))}
     </div>

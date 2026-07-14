@@ -1,8 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 
-import type { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
-import { useInstrumentControls } from "@/core/audio/hooks/use-instrument-controls";
+import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { HardwareSlider } from "@/shared/components/hardware-slider";
@@ -22,10 +21,9 @@ import { GainMeter } from "./gain-meter";
 
 interface InstrumentParamsProps {
   index: number;
-  runtime?: InstrumentRuntime;
 }
 
-function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
+function InstrumentParamsControl({ index }: InstrumentParamsProps) {
   const isAnyDialogOpen = useDialogStore((state) => state.isAnyDialogOpen);
 
   // Read params from store
@@ -56,8 +54,18 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
     (state) => state.setInstrumentProperty,
   );
 
-  // Get instrument control actions with proper audio cleanup
-  const { toggleMute, toggleSolo } = useInstrumentControls(index, runtime);
+  // Mute/solo go straight to the store; the engine detects the transitions
+  // in setChannelPlayParams and handles audio cleanup (choke) internally.
+  const toggleMuteStore = useInstrumentsStore((state) => state.toggleMute);
+  const toggleSoloStore = useInstrumentsStore((state) => state.toggleSolo);
+  const toggleMute = useCallback(
+    () => toggleMuteStore(index),
+    [index, toggleMuteStore],
+  );
+  const toggleSolo = useCallback(
+    () => toggleSoloStore(index),
+    [index, toggleSoloStore],
+  );
 
   const mode = usePatternStore((state) => state.mode);
   const voiceIndex = mode.type === "voice" ? mode.voiceIndex : 0;
@@ -84,7 +92,8 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
     [index, setInstrumentProperty],
   );
 
-  const isRuntimeLoaded = !!runtime;
+  // Refreshed on every kit load so readiness reflects the active channels
+  const isChannelReady = useChannelReady(index);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -117,7 +126,7 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
     <div
       className={cn(
         "grid min-h-0 w-full flex-1 grid-cols-2 place-items-center gap-2",
-        isRuntimeLoaded ? "opacity-100" : "opacity-50",
+        isChannelReady ? "opacity-100" : "opacity-50",
       )}
     >
       {/* Top knobs - 2x2 grid */}
@@ -154,7 +163,7 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
 
       {/* Level/volume slider */}
       <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
-        <GainMeter runtime={runtime} />
+        <GainMeter index={index} />
         <HardwareSlider
           mapping={instrumentVolumeMapping}
           value={volume}
@@ -168,7 +177,7 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
                 variant="hardware-icon"
                 size="icon-sm"
                 onClick={toggleMute}
-                disabled={!isRuntimeLoaded}
+                disabled={!isChannelReady}
                 className={buttonActive(mute)}
               >
                 {mute ? <VolumeX size={14} /> : <Volume size={14} />}
@@ -184,7 +193,7 @@ function InstrumentParamsControl({ index, runtime }: InstrumentParamsProps) {
                 variant="hardware-icon"
                 size="icon-sm"
                 onClick={toggleSolo}
-                disabled={!isRuntimeLoaded}
+                disabled={!isChannelReady}
                 className={buttonActive(solo)}
               >
                 <Headphones

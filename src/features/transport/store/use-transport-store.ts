@@ -2,15 +2,8 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import {
-  releaseAllInstrumentRuntimes,
-  setTransportBpm,
-  setTransportSwing,
-  startAudioContext,
-  startTransport,
-  stopTransport,
-} from "@/core/audio/engine";
-import { InstrumentRuntime } from "@/core/audio/engine/instrument/types";
+import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
+import { getAudioEngine } from "@/core/audio/engine";
 
 interface TransportState {
   // Playback state
@@ -19,10 +12,7 @@ interface TransportState {
   swing: number;
 
   // Actions
-  togglePlay: (
-    instrumentRuntimes: InstrumentRuntime[],
-    onStop?: () => void,
-  ) => Promise<void>;
+  togglePlay: () => Promise<void>;
   setBpm: (bpm: number) => void;
   setSwing: (swing: number) => void;
 }
@@ -30,49 +20,47 @@ interface TransportState {
 const useTransportStore = create<TransportState>()(
   devtools(
     persist(
-      immer((set) => ({
+      immer((set, get) => ({
         // Initial state
         isPlaying: false,
         bpm: 100, // Default value, overwritten by preset load
         swing: 0, // Default value, overwritten by preset load
 
         // Actions
-        togglePlay: async (instrumentRuntimes, onStop) => {
-          // Start Tone.js context if needed
-          await startAudioContext();
+        togglePlay: async () => {
+          const engine = getAudioEngine();
 
-          set((state) => {
-            const newIsPlaying = !state.isPlaying;
+          // Decide and flip synchronously BEFORE any await so rapid toggles
+          // (double-tap) each observe the previous tap's intent instead of
+          // a stale pre-await value. The engine's onPlaybackStateChange
+          // event (mirrored by the bridge) reconciles any residual drift.
+          const shouldPlay = !get().isPlaying;
+          set({ isPlaying: shouldPlay });
 
-            if (newIsPlaying) {
-              // We set bpm and swing here as a backup.
-              // They should be set in loadPreset() or on rehydrate.
-              setTransportBpm(state.bpm);
-              setTransportSwing(state.swing);
+          if (!shouldPlay) {
+            engine.stop();
+            return;
+          }
 
-              startTransport();
-            } else {
-              stopTransport(undefined, () => {
-                // Release all samples
-                releaseAllInstrumentRuntimes(instrumentRuntimes);
-
-                // Call optional stop callback
-                if (onStop) onStop();
-              });
-            }
-
-            state.isPlaying = newIsPlaying;
-          });
+          try {
+            // Tempo and swing are already retained engine-side (pushed by
+            // setBpm/setSwing and on rehydrate); engine.play() re-applies
+            // them, so no backup push is needed here.
+            await engine.play();
+          } catch (error) {
+            console.error("Failed to start playback:", error);
+            set({ isPlaying: false });
+          }
         },
 
         setBpm: (bpm) => {
           set({ bpm });
-          setTransportBpm(bpm);
+          getAudioEngine().setTempo(bpm);
         },
 
         setSwing: (swing) => {
           set({ swing });
-          setTransportSwing(swing);
+          getAudioEngine().setSwing(transportSwingKnobToDomain(swing));
         },
       })),
       {
@@ -85,8 +73,9 @@ const useTransportStore = create<TransportState>()(
         // Apply persisted transport settings when store rehydrates
         onRehydrateStorage: () => (state) => {
           if (state) {
-            setTransportBpm(state.bpm);
-            setTransportSwing(state.swing);
+            const engine = getAudioEngine();
+            engine.setTempo(state.bpm);
+            engine.setSwing(transportSwingKnobToDomain(state.swing));
           }
         },
       },
