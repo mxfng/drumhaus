@@ -8,6 +8,8 @@
 
 # testing
 /coverage
+.vitest-attachments
+__screenshots__
 
 # vite
 /dist
