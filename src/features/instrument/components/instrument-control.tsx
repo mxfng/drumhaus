@@ -65,6 +65,8 @@ function InstrumentControl({
 
   return (
     <div
+      data-instrument-index={index}
+      data-selected={showSelectedState || undefined}
       className={cn(
         "group flex h-full w-full flex-col rounded-2xl border border-transparent",
         {

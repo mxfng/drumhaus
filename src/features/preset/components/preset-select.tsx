@@ -47,6 +47,7 @@ function PresetSelect({
       <Select value={selectedPresetId} onValueChange={onSelect}>
         <SelectTrigger
           size="screen"
+          aria-label="Preset"
           className="text-screen-foreground w-full cursor-pointer rounded-none border-transparent bg-transparent px-1 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <SelectValue />

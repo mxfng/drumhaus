@@ -8,6 +8,10 @@
 
 # testing
 /coverage
+.vitest-attachments
+__screenshots__
+/playwright-report
+/test-results
 
 # vite
 /dist

@@ -11,13 +11,21 @@ import {
   LightRigContext,
   type LightRigContextValue,
 } from "./light-rig-context";
+import { startRevealWatchdog } from "./reveal-watchdog";
 import { type PositionedLightNode, type RegisteredLightNode } from "./types";
 
 const TARGET_WAVE_DURATION = 800;
-const REVEAL_SAFETY_TIMEOUT = 3000;
+const WAVE_COMPLETION_TIMEOUT = 5000;
 const WAVE_ORDER_Y_WEIGHT = 0.35;
 const WAVE_COMPLETION_BUFFER = 200;
 const TAIL_GAP = 0;
+
+/**
+ * Intro lifecycle: "pending" until the readiness gate opens and the wave
+ * kicks off, "playing" while the wave runs, "done" once the UI is revealed.
+ * The reveal is permanent — the wave never plays over an already-revealed UI.
+ */
+type IntroPhase = "pending" | "playing" | "done";
 
 /** Run `fn` on every light-node DOM element currently registered. */
 function forEachElement(
@@ -89,10 +97,14 @@ function warmUpGpu(nodes: Map<string, RegisteredLightNode>) {
 function LightRigProvider({ children }: PropsWithChildren) {
   const nodesRef = useRef<Map<string, RegisteredLightNode>>(new Map());
   const idCounter = useRef(0);
-  const isPlayingRef = useRef(false);
   const rafIdRef = useRef<number | null>(null);
 
-  const [isIntroPlaying, setIsIntroPlaying] = useState(true);
+  const [introPhase, setIntroPhase] = useState<IntroPhase>("pending");
+  const introPhaseRef = useRef<IntroPhase>("pending");
+  const advancePhase = useCallback((phase: IntroPhase) => {
+    introPhaseRef.current = phase;
+    setIntroPhase(phase);
+  }, []);
 
   const setLightState = useCallback<LightRigContextValue["setLightState"]>(
     (ids, isOn) => {
@@ -174,34 +186,45 @@ function LightRigProvider({ children }: PropsWithChildren) {
   }, []);
 
   const finishIntro = useCallback(() => {
-    setIsIntroPlaying(false);
-    isPlayingRef.current = false;
+    if (introPhaseRef.current === "done") return;
+    advancePhase("done");
     releaseLightNodes();
-    rafIdRef.current = null;
-  }, [releaseLightNodes]);
-
-  // Safety net: auto-reveal if the intro never completes (e.g. audio context
-  // blocked, instruments fail to load, or playIntroWave is never called).
-  useEffect(() => {
-    if (!isIntroPlaying) return;
-    const id = window.setTimeout(finishIntro, REVEAL_SAFETY_TIMEOUT);
-    return () => window.clearTimeout(id);
-  }, [isIntroPlaying, finishIntro]);
-
-  const playIntroWave = useCallback<
-    LightRigContextValue["playIntroWave"]
-  >(() => {
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = null;
     }
+  }, [advancePhase, releaseLightNodes]);
 
-    if (isPlayingRef.current) return;
+  // Safety net while waiting for the readiness gate: reveal without the wave
+  // if the intro never starts (audio context blocked, load failure). Held
+  // open while assets are still arriving so slow cold loads don't get a
+  // premature reveal that stomps the wave (#330).
+  useEffect(() => {
+    if (introPhase !== "pending") return;
+    return startRevealWatchdog({ onReveal: finishIntro });
+  }, [introPhase, finishIntro]);
+
+  // Safety net while the wave runs: guarantee the reveal even if rAF never
+  // advances (e.g. the tab loads in the background and stays throttled).
+  useEffect(() => {
+    if (introPhase !== "playing") return;
+    const id = window.setTimeout(finishIntro, WAVE_COMPLETION_TIMEOUT);
+    return () => window.clearTimeout(id);
+  }, [introPhase, finishIntro]);
+
+  const playIntroWave = useCallback<
+    LightRigContextValue["playIntroWave"]
+  >(() => {
+    // Once the safety net has revealed the UI (or a wave is already running),
+    // a late wave would flash over live UI state — skip it entirely.
+    if (introPhaseRef.current !== "pending") return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       finishIntro();
       return;
     }
+
+    advancePhase("playing");
 
     // Frame 1: warm up GPU compositing layers
     rafIdRef.current = requestAnimationFrame(() => {
@@ -218,13 +241,14 @@ function LightRigProvider({ children }: PropsWithChildren) {
         const sorted = sortByWaveOrder(nodes);
         const { events, totalDuration } = buildWaveTimeline(sorted);
 
-        isPlayingRef.current = true;
-        setIsIntroPlaying(true);
-
         let nextEventIndex = 0;
         const start = performance.now();
 
         const step = (now: number) => {
+          // The completion watchdog may have already revealed the UI
+          // (throttled rAF); don't keep flipping lights over it.
+          if (introPhaseRef.current !== "playing") return;
+
           const elapsed = now - start;
 
           while (
@@ -247,7 +271,9 @@ function LightRigProvider({ children }: PropsWithChildren) {
         rafIdRef.current = requestAnimationFrame(step);
       });
     });
-  }, [getNodesWithPosition, setLightState, finishIntro]);
+  }, [advancePhase, getNodesWithPosition, setLightState, finishIntro]);
+
+  const isIntroPlaying = introPhase !== "done";
 
   const value = useMemo<LightRigContextValue>(
     () => ({

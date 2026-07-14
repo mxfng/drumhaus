@@ -40,9 +40,17 @@ function useInstrumentGridShortcuts({
         selectVoice(newVoiceDown(voiceIndex));
       } else if (event.key === "k") {
         selectVoice(newVoiceUp(voiceIndex));
-      } else if (event.key >= "1" && event.key <= "8") {
-        const number = Number(event.key) - 1; // 0-based
-        selectVoice(number);
+      } else {
+        // Digits are matched by physical position (event.code) so layouts
+        // whose digit row produces other characters (AZERTY, custom xkb
+        // configs, ...) still work. event.key is a fallback for events
+        // without a code, e.g. synthetic or IME-composed ones.
+        const digit =
+          /^(?:Digit|Numpad)([1-8])$/.exec(event.code)?.[1] ??
+          (event.key >= "1" && event.key <= "8" ? event.key : undefined);
+        if (digit !== undefined) {
+          selectVoice(Number(digit) - 1); // 0-based
+        }
       }
     };
 
