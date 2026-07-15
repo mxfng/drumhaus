@@ -29,9 +29,17 @@ export { useParamControl } from "./hooks/use-param-control";
 export type {
   UseParamControlProps,
   UseParamControlResult,
+  DragAxis,
 } from "./hooks/use-param-control";
 export { RotaryKnob } from "./components/rotary-knob";
 export type { RotaryKnobProps } from "./components/rotary-knob";
+export { LinearSlider } from "./components/linear-slider";
+export type {
+  LinearSliderProps,
+  SliderOrientation,
+} from "./components/linear-slider";
+export { ValueField } from "./components/value-field";
+export type { ValueFieldProps } from "./components/value-field";
 export * from "./descriptors/canonical-scalars";
 export {
   FILTER_MIN_HZ,

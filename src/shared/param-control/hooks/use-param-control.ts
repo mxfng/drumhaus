@@ -21,6 +21,9 @@ import {
 import { clamp01 } from "../lib/taper";
 import type { ParamDescriptor } from "../types";
 
+/** Which screen axis a drag reads: knobs and value fields use "vertical". */
+type DragAxis = "vertical" | "horizontal";
+
 interface UseParamControlProps<T> {
   descriptor: ParamDescriptor<T>;
   /** Current value, in CANONICAL units. */
@@ -36,6 +39,22 @@ interface UseParamControlProps<T> {
   /** Opt-in tab order: false removes the control from the tab sequence. */
   tabbable?: boolean;
   id?: string;
+  /**
+   * Which screen axis drives the drag. "vertical" (up increases) is the default
+   * for knobs and value fields; a horizontal fader passes "horizontal" (right
+   * increases). The delta is always computed in normalized space, so a single
+   * `dragSensitivity` is correct across every range and taper.
+   */
+  dragAxis?: DragAxis;
+  /**
+   * Pixels of movement before a press becomes a drag. 0 (the default) starts
+   * dragging immediately on pointer-down, as a knob or fader thumb does. A
+   * value field sets a small threshold so a click that never moves is treated
+   * as a tap (type-in) rather than a zero-delta drag.
+   */
+  dragThreshold?: number;
+  /** When true, a tap (a press released below `dragThreshold`) opens the type-in editor. */
+  tapOpensEdit?: boolean;
 }
 
 interface SliderAriaProps {
@@ -85,6 +104,9 @@ interface UseParamControlResult {
   bipolar: boolean;
 }
 
+/** Pointer-drag phase: idle, pressed-but-undecided, or actively dragging. */
+type DragPhase = "idle" | "pending" | "dragging";
+
 /**
  * Headless core for the descriptor-driven parameter control.
  *
@@ -92,6 +114,10 @@ interface UseParamControlResult {
  * strictly-internal transport. A gesture holds a raw, unrounded position and
  * rounds only at commit, so stepped params never accumulate drift and fine
  * drag can move sub-step amounts (docs/knob-primitive.md).
+ *
+ * The same core powers every presentation (knob, fader, value field). A drag
+ * reads whichever screen `dragAxis` names, and an optional `dragThreshold`
+ * lets a presentation distinguish a tap (type-in) from a drag on one element.
  */
 function useParamControl<T>({
   descriptor,
@@ -103,6 +129,9 @@ function useParamControl<T>({
   label,
   tabbable = true,
   id,
+  dragAxis = "vertical",
+  dragThreshold = 0,
+  tapOpensEdit = false,
 }: UseParamControlProps<T>): UseParamControlResult {
   const generatedId = useId();
   const controlId = id ?? generatedId;
@@ -111,13 +140,35 @@ function useParamControl<T>({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState("");
 
+  // True while window pointer listeners are attached (pending OR dragging).
+  const [tracking, setTracking] = useState(false);
+
+  // Drag state held through a gesture, never re-rendering per move.
+  const phaseRef = useRef<DragPhase>("idle");
+  const startPointRef = useRef({ x: 0, y: 0 });
+  const lastPointRef = useRef({ x: 0, y: 0 });
   // Raw, unrounded position held through a drag gesture.
   const rawPositionRef = useRef(0);
-  const lastYRef = useRef(0);
 
   // Latest props referenced by window listeners without re-subscribing.
-  const latest = useRef({ descriptor, onChange });
-  latest.current = { descriptor, onChange };
+  const latest = useRef({
+    descriptor,
+    onChange,
+    onGestureStart,
+    onGestureEnd,
+    dragAxis,
+    dragThreshold,
+    tapOpensEdit,
+  });
+  latest.current = {
+    descriptor,
+    onChange,
+    onGestureStart,
+    onGestureEnd,
+    dragAxis,
+    dragThreshold,
+    tapOpensEdit,
+  };
 
   const position = canonicalToNormalized(descriptor, value);
   const displayValue = formatValue(descriptor, value);
@@ -151,6 +202,10 @@ function useParamControl<T>({
     setIsEditing(true);
     onGestureStart?.();
   }, [disabled, descriptor, displayValue, onGestureStart]);
+
+  // Referenced by the window pointer-up handler (a tap) without re-subscribing.
+  const beginEditRef = useRef(beginEdit);
+  beginEditRef.current = beginEdit;
 
   const commitEdit = useCallback(() => {
     const parsed = parseValue(descriptor, editText);
@@ -187,59 +242,108 @@ function useParamControl<T>({
 
   const handlePointerMove = useCallback((event: PointerEvent) => {
     event.preventDefault();
-    const { descriptor: d, onChange: emit } = latest.current;
+    const {
+      descriptor: d,
+      onChange: emit,
+      dragAxis: axis,
+      dragThreshold: threshold,
+    } = latest.current;
 
-    const dyIncrement = lastYRef.current - event.clientY; // up = positive
-    lastYRef.current = event.clientY;
+    const x = event.clientX;
+    const y = event.clientY;
+
+    // Pending press: promote to a drag only once movement clears the threshold.
+    if (phaseRef.current === "pending") {
+      const moved =
+        axis === "horizontal"
+          ? Math.abs(x - startPointRef.current.x)
+          : Math.abs(y - startPointRef.current.y);
+      if (moved < threshold) return;
+      phaseRef.current = "dragging";
+      lastPointRef.current = { x, y };
+      setIsDragging(true);
+      latest.current.onGestureStart?.();
+      return;
+    }
+
+    if (phaseRef.current !== "dragging") return;
+
+    // Up (vertical) or right (horizontal) increases the value.
+    const increment =
+      axis === "horizontal"
+        ? x - lastPointRef.current.x
+        : lastPointRef.current.y - y;
+    lastPointRef.current = { x, y };
 
     const sensitivity = d.dragSensitivity ?? DEFAULT_DRAG_SENSITIVITY;
     const fine = event.shiftKey;
     const factor = fine ? (d.fineDragFactor ?? DEFAULT_FINE_DRAG_FACTOR) : 1;
 
     rawPositionRef.current = clamp01(
-      rawPositionRef.current + dyIncrement * sensitivity * factor,
+      rawPositionRef.current + increment * sensitivity * factor,
     );
     emit(normalizedToCanonical(d, rawPositionRef.current, { fine }));
   }, []);
 
-  const endDrag = useCallback(() => {
-    setIsDragging(false);
-    onGestureEnd?.();
-  }, [onGestureEnd]);
+  const endGesture = useCallback((cancelled: boolean) => {
+    const phase = phaseRef.current;
+    phaseRef.current = "idle";
+    setTracking(false);
+    if (phase === "dragging") {
+      setIsDragging(false);
+      latest.current.onGestureEnd?.();
+    } else if (
+      phase === "pending" &&
+      !cancelled &&
+      latest.current.tapOpensEdit
+    ) {
+      // A press that never crossed the threshold is a tap: open the editor.
+      beginEditRef.current();
+    }
+  }, []);
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
       if (disabled) return;
       event.preventDefault();
       rawPositionRef.current = canonicalToNormalized(descriptor, value);
-      lastYRef.current = event.clientY;
-      setIsDragging(true);
-      onGestureStart?.();
+      startPointRef.current = { x: event.clientX, y: event.clientY };
+      lastPointRef.current = { x: event.clientX, y: event.clientY };
+
+      if (dragThreshold <= 0) {
+        phaseRef.current = "dragging";
+        setIsDragging(true);
+        onGestureStart?.();
+      } else {
+        phaseRef.current = "pending";
+      }
+      setTracking(true);
       try {
         event.currentTarget.setPointerCapture(event.pointerId);
       } catch {
         // best-effort capture
       }
     },
-    [disabled, descriptor, value, onGestureStart],
+    [disabled, descriptor, value, onGestureStart, dragThreshold],
   );
 
   useEffect(() => {
-    if (!isDragging) return;
+    if (!tracking) return;
 
     const onMove = (event: PointerEvent) => handlePointerMove(event);
-    const onUp = () => endDrag();
+    const onUp = () => endGesture(false);
+    const onCancel = () => endGesture(true);
     const options: AddEventListenerOptions = { passive: false };
 
     window.addEventListener("pointermove", onMove, options);
     window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
+    window.addEventListener("pointercancel", onCancel);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("pointercancel", onCancel);
     };
-  }, [isDragging, handlePointerMove, endDrag]);
+  }, [tracking, handlePointerMove, endGesture]);
 
   // --- Keyboard, wheel, double-click ---
 
@@ -341,4 +445,4 @@ function useParamControl<T>({
 }
 
 export { useParamControl };
-export type { UseParamControlProps, UseParamControlResult };
+export type { UseParamControlProps, UseParamControlResult, DragAxis };
