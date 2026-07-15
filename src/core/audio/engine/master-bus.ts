@@ -355,7 +355,7 @@ function createFilterSection(settings: MasterChainSettings) {
     "highpass",
   );
 
-  // Apply initial filter position
+  // Apply initial filter
   applySplitFilterWithRamp(lowPassFilter, highPassFilter, settings.filter, {
     minFrequency: MASTER_FILTER_RANGE[0],
     maxFrequency: MASTER_FILTER_RANGE[1],
