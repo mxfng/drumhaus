@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
 
-import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getAllKits } from "@/features/kit/lib/constants";
 import { KitFileV1 } from "@/features/kit/types/kit";
+import type { PresetDocument } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { generateShareUrl } from "@/features/preset/lib/operations";
 import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
@@ -21,6 +21,7 @@ interface UsePresetManagerProps {
    * are defined in usePresetLoading hook.
    */
   loadPresetFile: (preset: PresetFileV1) => void;
+  loadPresetDocument: (document: PresetDocument) => void;
   importPresetFileText: (text: string) => void;
 }
 
@@ -28,8 +29,7 @@ interface UsePresetManagerResult {
   // Data
   kits: KitFileV1[];
   defaultPresets: PresetFileV1[];
-  customPresets: PresetFileV1[];
-  allPresets: PresetFileV1[];
+  customPresets: PresetDocument[];
 
   // Actions
   switchKit: (kitId: string) => void;
@@ -38,10 +38,7 @@ interface UsePresetManagerResult {
   sharePreset: (name: string) => Promise<string>;
 
   // Preset management
-  saveCurrentPreset: (name?: string) => void;
-  renamePreset: (id: string, newName: string) => void;
-  duplicatePreset: (id: string, newName?: string) => PresetFileV1;
-  deletePreset: (id: string) => void;
+  saveCurrentPreset: (name?: string) => Promise<void>;
   isCurrentPresetCustom: boolean;
   canAddMorePresets: boolean;
 }
@@ -51,11 +48,12 @@ interface UsePresetManagerResult {
  *
  * High-level: provides UI operations (import, export, share, switch)
  *
- * Depends on loadPreset from usePresetLoading hook, which manages
+ * Depends on the loaders from usePresetLoading hook, which manages
  * low level runtime updates
  */
 function usePresetManager({
   loadPresetFile,
+  loadPresetDocument,
   importPresetFileText,
 }: UsePresetManagerProps): UsePresetManagerResult {
   const { toast } = useToast();
@@ -67,9 +65,8 @@ function usePresetManager({
   const currentPresetMeta = usePresetMetaStore(
     (state) => state.currentPresetMeta,
   );
-  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
   const setKitMeta = usePresetMetaStore((state) => state.setKitMeta);
-  const markPresetClean = usePresetMetaStore((state) => state.markPresetClean);
+  const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
   const customPresets = usePresetMetaStore((state) => state.customPresets);
 
   // Store actions for preset management
@@ -79,15 +76,6 @@ function usePresetManager({
   const updateCustomPreset = usePresetMetaStore(
     (state) => state.updateCustomPreset,
   );
-  const renameCustomPreset = usePresetMetaStore(
-    (state) => state.renameCustomPreset,
-  );
-  const duplicateCustomPreset = usePresetMetaStore(
-    (state) => state.duplicateCustomPreset,
-  );
-  const deleteCustomPreset = usePresetMetaStore(
-    (state) => state.deleteCustomPreset,
-  );
   const isCustomPreset = usePresetMetaStore((state) => state.isCustomPreset);
   const canAddCustomPreset = usePresetMetaStore(
     (state) => state.canAddCustomPreset,
@@ -95,10 +83,6 @@ function usePresetManager({
 
   const kits = useMemo(() => getAllKits(), []);
   const defaultPresets = useMemo(() => getDefaultPresets(), []);
-  const allPresets = useMemo(
-    () => [...defaultPresets, ...customPresets],
-    [defaultPresets, customPresets],
-  );
 
   // --- Core Operations ---
 
@@ -123,18 +107,26 @@ function usePresetManager({
    * Switch to a preset by ID, behind the unsaved-changes guard: a dirty
    * session stages the load and opens the confirm dialog
    * (use-pending-preset-load-store.ts); a clean one loads immediately.
+   * Library entries are documents and apply DIRECTLY through the pipeline;
+   * factory presets run the v1 validate -> migrate ladder.
    */
   const switchPreset = useCallback(
     (presetId: string) => {
-      const preset = allPresets.find((p) => p.meta.id === presetId);
-      if (!preset) {
+      const custom = customPresets.find((d) => d.meta.id === presetId);
+      if (custom) {
+        requestGuardedPresetLoad("library", () => loadPresetDocument(custom));
+        return;
+      }
+
+      const factory = defaultPresets.find((p) => p.meta.id === presetId);
+      if (!factory) {
         console.error(`Preset ${presetId} not found`);
         return;
       }
 
-      requestGuardedPresetLoad("library", () => loadPresetFile(preset));
+      requestGuardedPresetLoad("library", () => loadPresetFile(factory));
     },
-    [allPresets, loadPresetFile],
+    [customPresets, defaultPresets, loadPresetDocument, loadPresetFile],
   );
 
   // --- File Operations ---
@@ -214,39 +206,51 @@ function usePresetManager({
   // --- PRESET MANAGEMENT ---
 
   /**
-   * Save current state as a new preset or update existing custom preset
+   * Save current state as a new preset or update existing custom preset.
+   * A refused storage write (StorageFullError from the library) surfaces
+   * as an error toast, same pattern as the preset limit.
    */
   const saveCurrentPreset = useCallback(
-    (name?: string) => {
+    async (name?: string) => {
       const isCustom = isCustomPreset(currentPresetMeta.id);
 
-      if (isCustom) {
-        // Update existing custom preset
-        updateCustomPreset(currentPresetMeta.id);
-        toast({
-          title: "Preset updated",
-          description: currentPresetMeta.name,
-          duration: 3000,
-        });
-      } else if (name) {
-        // Save factory preset as new custom preset
-        const newPreset = saveCurrentAsNewPreset(name);
-        if (newPreset) {
-          markPresetClean();
-          loadPresetFile(newPreset);
+      try {
+        if (isCustom) {
+          // Update existing custom preset
+          await updateCustomPreset(currentPresetMeta.id);
           toast({
-            title: "Preset saved",
-            description: name,
+            title: "Preset updated",
+            description: currentPresetMeta.name,
             duration: 3000,
           });
-        } else {
-          toast({
-            title: "Preset limit reached",
-            description: "Delete some presets to continue (max 100)",
-            status: "error",
-            duration: 5000,
-          });
+        } else if (name) {
+          // Save factory preset as new custom preset
+          const newDocument = await saveCurrentAsNewPreset(name);
+          if (newDocument) {
+            loadPresetDocument(newDocument);
+            toast({
+              title: "Preset saved",
+              description: name,
+              duration: 3000,
+            });
+          } else {
+            toast({
+              title: "Preset limit reached",
+              description: "Delete some presets to continue (max 100)",
+              status: "error",
+              duration: 5000,
+            });
+          }
         }
+      } catch (error) {
+        console.error("Failed to save preset:", error);
+        toast({
+          title: "Couldn't save preset",
+          description:
+            error instanceof Error ? error.message : "Please try again",
+          status: "error",
+          duration: 5000,
+        });
       }
     },
     [
@@ -254,74 +258,9 @@ function usePresetManager({
       currentPresetMeta,
       updateCustomPreset,
       saveCurrentAsNewPreset,
-      markPresetClean,
-      loadPresetFile,
+      loadPresetDocument,
       toast,
     ],
-  );
-
-  /**
-   * Rename a custom preset
-   */
-  const renamePreset = useCallback(
-    (id: string, newName: string) => {
-      renameCustomPreset(id, newName);
-      toast({
-        title: "Preset renamed",
-        description: `Renamed to "${newName}"`,
-        duration: 3000,
-      });
-    },
-    [renameCustomPreset, toast],
-  );
-
-  /**
-   * Duplicate a custom preset
-   */
-  const duplicatePreset = useCallback(
-    (id: string, newName?: string): PresetFileV1 => {
-      const duplicated = duplicateCustomPreset(id);
-
-      if (newName && newName !== duplicated.meta.name) {
-        renameCustomPreset(duplicated.meta.id, newName);
-        duplicated.meta.name = newName;
-      }
-
-      toast({
-        title: "Preset duplicated",
-        description: `Created "${duplicated.meta.name}"`,
-        duration: 3000,
-      });
-
-      return duplicated;
-    },
-    [duplicateCustomPreset, renameCustomPreset, toast],
-  );
-
-  /**
-   * Delete a custom preset
-   */
-  const deletePreset = useCallback(
-    (id: string) => {
-      const isDeletingCurrent = id === currentPresetMeta.id;
-
-      deleteCustomPreset(id);
-
-      if (isDeletingCurrent) {
-        loadPresetFile(init());
-        toast({
-          title: "Preset deleted",
-          description: "Loaded default preset",
-          duration: 3000,
-        });
-      } else {
-        toast({
-          title: "Preset deleted",
-          duration: 3000,
-        });
-      }
-    },
-    [deleteCustomPreset, currentPresetMeta.id, loadPresetFile, toast],
   );
 
   // Computed values
@@ -356,7 +295,6 @@ function usePresetManager({
     kits,
     defaultPresets,
     customPresets,
-    allPresets,
 
     // Actions
     switchKit,
@@ -366,9 +304,6 @@ function usePresetManager({
 
     // Preset management
     saveCurrentPreset,
-    renamePreset,
-    duplicatePreset,
-    deletePreset,
     isCurrentPresetCustom,
     canAddMorePresets,
   };

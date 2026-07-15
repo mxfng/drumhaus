@@ -11,7 +11,7 @@
  * the retired transport onRehydrateStorage proved the engine tolerates
  * pre-init tempo/swing commands for years.
  *
- * Boot decision ladder:
+ * Boot decision ladder (after the library phase, see bootstrapLibrary):
  * 1. Session envelope present  -> apply it, restore the clean hash from the
  *    envelope (a session that was closed dirty must reload dirty).
  * 2. Session envelope corrupt  -> quarantine the payload (never destroy
@@ -30,6 +30,8 @@ import {
 } from "@/features/preset/document";
 import { applyPresetDocument } from "@/features/preset/document/apply";
 import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
+import { adoptLegacyPresetLibrary } from "@/features/preset/library/adoption";
+import { hydrateLibrarySync } from "@/features/preset/library/library";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import {
@@ -106,10 +108,48 @@ function adoptLegacySession(): void {
 }
 
 /**
+ * Adopt the legacy library once and hydrate the in-memory library from the
+ * per-preset entries (features/preset/library). Runs BEFORE the session
+ * ladder, deliberately, for two reasons:
+ *
+ * - applyPresetDocument registers a restored non-factory session preset via
+ *   addCustomPreset, whose dedupe (and best-effort index write) must see
+ *   the real library, not an empty one;
+ * - the legacy library adoption is what stashes the retired preset-meta
+ *   fields (legacy-preset-meta-capture.ts) that the session adopter reads.
+ *
+ * Hydration is synchronous through the storage backend's sync internals
+ * (the public library interface stays async, decision 14): the e2e contract
+ * is that a saved preset is in the select immediately after reload, and a
+ * post-mount async fill would race first paint.
+ */
+function bootstrapLibrary(): void {
+  try {
+    adoptLegacyPresetLibrary();
+  } catch (error) {
+    // Adoption failure preserves the legacy key (and its backup) for the
+    // next attempt; the library simply hydrates whatever entries exist.
+    console.error(
+      "Drumhaus boot: legacy library adoption failed; " +
+        "the legacy preset storage is preserved",
+      error,
+    );
+  }
+
+  try {
+    usePresetMetaStore.getState().hydrateLibrary(hydrateLibrarySync());
+  } catch (error) {
+    console.error("Drumhaus boot: failed to hydrate the preset library", error);
+  }
+}
+
+/**
  * Restore the working session into the stores. Must run before React
  * mounts; see the module comment.
  */
 function bootstrapSession(): void {
+  bootstrapLibrary();
+
   const session = readSessionEnvelope();
 
   if (session.status === "ok") {

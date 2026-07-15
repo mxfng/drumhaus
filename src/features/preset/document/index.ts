@@ -16,6 +16,7 @@ export {
   CorruptFieldError,
   InvalidFileError,
   PresetDocumentError,
+  StorageFullError,
   UnknownKitError,
   UnsupportedVersionError,
 } from "./errors";

@@ -53,12 +53,12 @@ function loadPresetDocument(
 }
 
 /**
- * Load a knob-space (v1-family) preset object: library selections, the
- * delete fallback, and post-save reloads (boot itself now flows through
- * features/preset/session/bootstrap.ts). Library entries are persisted
- * verbatim in localStorage (until PR 6) and can still be version 1 or
- * corrupt, so they run the same validate -> migrate ladder as imported file
- * text before apply.
+ * Load a knob-space (v1-family) preset object: factory-preset selections
+ * and the delete fallback (boot itself now flows through
+ * features/preset/session/bootstrap.ts, and library entries are documents
+ * that go through loadStoredPresetDocument). Bundled files are validated at
+ * import time, but the full validate -> migrate ladder keeps this ingress
+ * identical to imported file text.
  */
 function loadPresetFile(
   preset: PresetFileV1,
@@ -66,6 +66,23 @@ function loadPresetFile(
 ): PresetDocument | null {
   return loadPresetDocument(
     () => migrateV1ToDocument(validatePresetFileV1(preset)),
+    (error) => showPresetLoadErrorToast(toast, error),
+  );
+}
+
+/**
+ * Load an already-decoded preset document: library selections (entries are
+ * stored as documents since PR 6) and post-save reloads. The document went
+ * through the schema when it was decoded or snapshotted, so only apply's
+ * conversion (kit resolution, domain-to-knob) can fail here; it shares the
+ * ingress error boundary all the same.
+ */
+function loadStoredPresetDocument(
+  document: PresetDocument,
+  toast: ShowToast,
+): PresetDocument | null {
+  return loadPresetDocument(
+    () => document,
     (error) => showPresetLoadErrorToast(toast, error),
   );
 }
@@ -114,6 +131,7 @@ function importPresetFileText(text: string, toast: ShowToast): void {
 
 interface UsePresetLoadingResult {
   loadPresetFile: (preset: PresetFileV1) => void;
+  loadPresetDocument: (document: PresetDocument) => void;
   importPresetFileText: (text: string) => void;
 }
 
@@ -131,6 +149,13 @@ function usePresetLoading(): UsePresetLoadingResult {
   const loadFile = useCallback(
     (preset: PresetFileV1) => {
       loadPresetFile(preset, toast);
+    },
+    [toast],
+  );
+
+  const loadDocument = useCallback(
+    (document: PresetDocument) => {
+      loadStoredPresetDocument(document, toast);
     },
     [toast],
   );
@@ -232,7 +257,11 @@ function usePresetLoading(): UsePresetLoadingResult {
     void loadFromUrlOrDefault();
   }, [loadFromUrlOrDefault]);
 
-  return { loadPresetFile: loadFile, importPresetFileText: importFileText };
+  return {
+    loadPresetFile: loadFile,
+    loadPresetDocument: loadDocument,
+    importPresetFileText: importFileText,
+  };
 }
 
 export {
@@ -241,5 +270,6 @@ export {
   loadPresetDocument,
   loadPresetFile,
   loadPresetFileText,
+  loadStoredPresetDocument,
 };
 export type { UsePresetLoadingResult };

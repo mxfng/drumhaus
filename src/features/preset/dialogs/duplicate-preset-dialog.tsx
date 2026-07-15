@@ -78,20 +78,16 @@ function DuplicatePresetDialog({
     trigger("presetName");
   }, [defaultValues, reset, trigger]);
 
-  const onSubmit = handleSubmit(({ presetName }) => {
+  const onSubmit = handleSubmit(async ({ presetName }) => {
     const trimmedName = presetName.trim();
 
     try {
-      // Duplicate the preset (with auto-generated name)
-      const duplicatedPreset = duplicateCustomPreset(presetId);
+      // Duplicate the preset (writes a library entry, so it can reject with
+      // StorageFullError; await before touching its meta).
+      const duplicatedPreset = await duplicateCustomPreset(presetId);
 
-      // If user changed the name, rename the duplicated preset
-      if (trimmedName !== suggestedName) {
-        renameCustomPreset(duplicatedPreset.meta.id, trimmedName);
-      } else {
-        // Use the suggested name
-        renameCustomPreset(duplicatedPreset.meta.id, trimmedName);
-      }
+      // Apply the (possibly edited) name to the duplicated preset.
+      await renameCustomPreset(duplicatedPreset.meta.id, trimmedName);
 
       toast({
         title: "Preset duplicated",

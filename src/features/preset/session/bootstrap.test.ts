@@ -40,6 +40,7 @@ const SEQUENCER_KEY = "drumhaus-sequencer-storage";
 const TRANSPORT_KEY = "drumhaus-transport-storage";
 const MASTER_KEY = "drumhaus-master-chain-storage";
 const PRESET_META_KEY = "drumhaus-preset-meta-storage";
+const LIBRARY_BACKUP_KEY = "drumhaus-library-backup";
 const MUSICAL_LEGACY_KEYS = [
   INSTRUMENTS_KEY,
   SEQUENCER_KEY,
@@ -331,7 +332,8 @@ describe("bootstrapSession: corrupt session", () => {
 
 describe("bootstrapSession: one-time legacy adoption", () => {
   it("replays the five envelopes into the state the old rehydration produced", async () => {
-    const ctx = await boot(createMemoryStorage(legacySeed()));
+    const seed = legacySeed();
+    const ctx = await boot(createMemoryStorage(seed));
 
     // Transport: bpm verbatim, pre-#269 swing knob rescaled 48 -> 64.
     expect(ctx.useTransportStore.getState().bpm).toBe(128);
@@ -366,7 +368,8 @@ describe("bootstrapSession: one-time legacy adoption", () => {
     expect(meta.currentKitMeta.id).toBe("kit-0");
 
     // Session written; the four retired keys deleted; the selection seeded
-    // into the session-UI key; the library key survives (narrowed to v2).
+    // into the session-UI key; the legacy preset-meta key is consumed by the
+    // PR 6 library adoption (backed up verbatim, then retired).
     const envelopeRaw = ctx.storage.map.get(SESSION_KEY);
     expect(envelopeRaw).toBeDefined();
     const envelope = JSON.parse(envelopeRaw!) as {
@@ -389,11 +392,10 @@ describe("bootstrapSession: one-time legacy adoption", () => {
     };
     expect(sessionUi.state.variation).toBe(2);
 
-    const presetMetaEnvelope = JSON.parse(
-      ctx.storage.map.get(PRESET_META_KEY)!,
-    ) as { state: Record<string, unknown>; version: number };
-    expect(presetMetaEnvelope.version).toBe(2);
-    expect(Object.keys(presetMetaEnvelope.state)).toEqual(["customPresets"]);
+    // The library adoption retired the legacy preset-meta key, preserving
+    // its raw payload verbatim under the backup key (never destroyed).
+    expect(ctx.storage.map.has(PRESET_META_KEY)).toBe(false);
+    expect(ctx.storage.map.get(LIBRARY_BACKUP_KEY)).toBe(seed[PRESET_META_KEY]);
 
     // The adopted session reads clean.
     expect(ctx.usePresetMetaStore.getState().hasUnsavedChanges()).toBe(false);

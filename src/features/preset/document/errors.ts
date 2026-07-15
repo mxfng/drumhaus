@@ -1,15 +1,13 @@
 /**
- * Typed error taxonomy for preset document parsing.
- *
- * This taxonomy will grow in later PRs (e.g. StorageFullError for library
- * saves).
+ * Typed error taxonomy for preset document parsing and storage.
  */
 
 type PresetDocumentErrorCode =
   | "invalid-file"
   | "unsupported-version"
   | "corrupt-field"
-  | "unknown-kit";
+  | "unknown-kit"
+  | "storage-full";
 
 /**
  * Base class for all errors raised while parsing a preset document.
@@ -84,11 +82,29 @@ class UnknownKitError extends PresetDocumentError {
   }
 }
 
+/**
+ * Browser storage refused a library write (QuotaExceededError). The message
+ * is user-facing: the preset library is full and something must go before
+ * the save can land.
+ */
+class StorageFullError extends PresetDocumentError {
+  readonly code = "storage-full";
+
+  constructor() {
+    super(
+      "Browser storage is full, so the preset could not be saved. " +
+        "Delete some presets from the library, then try again.",
+    );
+    this.name = "StorageFullError";
+  }
+}
+
 export {
   PresetDocumentError,
   InvalidFileError,
   UnsupportedVersionError,
   CorruptFieldError,
   UnknownKitError,
+  StorageFullError,
 };
 export type { PresetDocumentErrorCode };

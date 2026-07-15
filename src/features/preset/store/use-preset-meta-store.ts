@@ -1,13 +1,17 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { init } from "@/core/dh";
+import type { PresetDocument } from "@/features/preset/document";
 import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
-import { getCurrentPreset } from "@/features/preset/lib/helpers";
+import {
+  putLibraryEntry,
+  removeLibraryEntry,
+  writeLibraryIndex,
+} from "@/features/preset/library/library";
 import { hashPresetDocument } from "@/features/preset/session/canonical-hash";
-import { captureLegacyPresetMeta } from "@/features/preset/session/legacy-preset-meta-capture";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 
@@ -29,8 +33,14 @@ interface PresetMetaState {
    */
   cleanHash: string | null;
 
-  // Custom presets (loaded from files or URLs)
-  customPresets: PresetFileV1[];
+  /**
+   * The in-memory preset library: full documents in index order, hydrated
+   * from per-preset storage entries at boot (features/preset/library).
+   * This store is no longer persisted; storage entries and the index are
+   * written per mutation, and the index self-heals against entry meta at
+   * boot, so memory and storage cannot version-skew.
+   */
+  customPresets: PresetDocument[];
 
   // Actions
   setPresetMeta: (meta: Meta) => void;
@@ -65,45 +75,63 @@ interface PresetMetaState {
   hasUnsavedChanges: () => boolean;
 
   /**
-   * Add a custom preset if not already in default or custom presets
-   * Prevents duplicates when loading from URLs or files
+   * Replace the in-memory library with the boot-hydrated documents
+   * (bootstrapLibrary; must run before any preset document is applied so
+   * addCustomPreset's dedupe sees the real library).
    */
-  addCustomPreset: (preset: PresetFileV1) => void;
+  hydrateLibrary: (documents: PresetDocument[]) => void;
 
   /**
-   * Save current state as a new custom preset
-   * Returns the created preset or null if limit reached
+   * Add a preset document to the library if not already present (dedupe by
+   * id, most recent first). Called synchronously from applyPresetDocument
+   * when a non-factory preset loads (file import, share link), so the
+   * storage write is best-effort: a failure keeps the preset in memory for
+   * this session and logs.
    */
-  saveCurrentAsNewPreset: (name: string) => PresetFileV1 | null;
+  addCustomPreset: (document: PresetDocument) => void;
 
   /**
-   * Update an existing custom preset with current state
-   * Does nothing if preset is not found or is a factory preset
+   * Save current state as a new custom preset: snapshot -> entry write ->
+   * index -> memory. Returns the created document, or null if the library
+   * limit is reached.
+   *
+   * @throws {StorageFullError} If the browser refused the entry write
    */
-  updateCustomPreset: (id: string) => void;
+  saveCurrentAsNewPreset: (name: string) => Promise<PresetDocument | null>;
 
   /**
-   * Rename a custom preset
-   * Does nothing if preset is not found or is a factory preset
+   * Update an existing custom preset with current state.
+   * Does nothing if the preset is not in the library.
+   *
+   * @throws {StorageFullError} If the browser refused the entry write
    */
-  renameCustomPreset: (id: string, newName: string) => void;
+  updateCustomPreset: (id: string) => Promise<void>;
 
   /**
-   * Duplicate a custom preset
-   * Returns the duplicated preset
+   * Rename a custom preset: rewrites the entry's meta AND the index row.
+   * Does nothing if the preset is not in the library.
+   *
+   * @throws {StorageFullError} If the browser refused the entry write
    */
-  duplicateCustomPreset: (id: string) => PresetFileV1;
+  renameCustomPreset: (id: string, newName: string) => Promise<void>;
 
   /**
-   * Delete a custom preset
-   * Does nothing if preset is not found
+   * Duplicate a custom preset. Returns the duplicated document.
+   *
+   * @throws {StorageFullError} If the browser refused the entry write
    */
-  deleteCustomPreset: (id: string) => void;
+  duplicateCustomPreset: (id: string) => Promise<PresetDocument>;
+
+  /**
+   * Delete a custom preset (entry, index row, and memory).
+   * Does nothing if preset is not found.
+   */
+  deleteCustomPreset: (id: string) => Promise<void>;
 
   /**
    * Get a custom preset by ID
    */
-  getCustomPresetById: (id: string) => PresetFileV1 | undefined;
+  getCustomPresetById: (id: string) => PresetDocument | undefined;
 
   /**
    * Check if a preset ID is a custom preset (not factory)
@@ -118,11 +146,31 @@ interface PresetMetaState {
 
 const usePresetMetaStore = create<PresetMetaState>()(
   devtools(
-    persist(
-      immer((set, get) => ({
+    immer((set, get) => {
+      /**
+       * Rewrite the index from the in-memory order. The entry write is the
+       * one that must succeed (entry meta is truth); the index is a cache,
+       * so its write is best-effort and boot self-heal repairs a miss.
+       */
+      const persistIndexFromMemory = () => {
+        const rows = get().customPresets.map((document) => ({
+          id: document.meta.id,
+          name: document.meta.name,
+        }));
+        void writeLibraryIndex(rows).catch((error: unknown) => {
+          console.error(
+            "Drumhaus library: failed to write the index; " +
+              "the next boot rebuilds it from the entries",
+            error,
+          );
+        });
+      };
+
+      return {
         // Initial state - init preset "init.dh". The clean baseline starts
         // null (nothing to compare against); bootstrapSession always applies
-        // a document before React mounts, which sets it.
+        // a document before React mounts, which sets it. The library starts
+        // empty and hydrates in the same boot pass.
         currentPresetMeta: init().meta,
         currentKitMeta: init().kit.meta,
         cleanHash: null,
@@ -179,136 +227,179 @@ const usePresetMetaStore = create<PresetMetaState>()(
           return currentHash !== cleanHash;
         },
 
-        addCustomPreset: (preset) => {
+        hydrateLibrary: (documents) => {
           set((state) => {
-            // Check if already in custom presets
-            const exists = state.customPresets.some(
-              (p) => p.meta.id === preset.meta.id,
-            );
-            if (!exists) {
-              // Insert at front so most recent shows first
-              state.customPresets.unshift(preset);
-            }
+            state.customPresets = documents;
           });
         },
 
-        saveCurrentAsNewPreset: (name) => {
-          const { customPresets, currentPresetMeta, currentKitMeta } = get();
+        addCustomPreset: (document) => {
+          const exists = get().customPresets.some(
+            (preset) => preset.meta.id === document.meta.id,
+          );
+          if (exists) return;
+
+          // Insert at front so most recent shows first
+          set((state) => {
+            state.customPresets.unshift(document);
+          });
+
+          // Best-effort persistence (see the interface doc): entry first,
+          // then the index, mirroring the awaited mutations.
+          void putLibraryEntry(document)
+            .then(() => {
+              persistIndexFromMemory();
+            })
+            .catch((error: unknown) => {
+              console.error(
+                "Drumhaus library: failed to persist the imported preset " +
+                  `"${document.meta.name}"; it stays available this session`,
+                error,
+              );
+            });
+        },
+
+        saveCurrentAsNewPreset: async (name) => {
+          const { customPresets, currentKitMeta } = get();
 
           // Check limit
           if (customPresets.length >= MAX_CUSTOM_PRESETS) {
             return null;
           }
 
-          // Get current state from all stores
-          const currentState = getCurrentPreset(
-            currentPresetMeta,
+          // Snapshot the live stores as a document under fresh identity.
+          const now = new Date().toISOString();
+          const document = snapshotPresetDocument(
+            {
+              id: crypto.randomUUID(),
+              name,
+              createdAt: now,
+              updatedAt: now,
+            },
             currentKitMeta,
           );
 
-          // Create new preset with new ID and metadata
-          const newPreset: PresetFileV1 = {
-            ...currentState,
-            meta: {
-              id: crypto.randomUUID(),
-              name,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-          };
+          // Entry write first: a quota failure throws before memory changes,
+          // so the store never claims a save that did not land.
+          await putLibraryEntry(document);
 
-          // Add to custom presets
           set((state) => {
-            state.customPresets.unshift(newPreset);
+            state.customPresets.unshift(document);
           });
+          persistIndexFromMemory();
 
-          return newPreset;
+          return document;
         },
 
-        updateCustomPreset: (id) => {
-          let saved = false;
+        updateCustomPreset: async (id) => {
+          const { customPresets, currentKitMeta } = get();
+          const index = customPresets.findIndex(
+            (preset) => preset.meta.id === id,
+          );
+          if (index === -1) return;
+
+          // Snapshot current state under the entry's identity; the snapshot
+          // mints a fresh updatedAt.
+          const document = snapshotPresetDocument(
+            customPresets[index].meta,
+            currentKitMeta,
+          );
+
+          await putLibraryEntry(document);
+
           set((state) => {
-            const index = state.customPresets.findIndex(
-              (p) => p.meta.id === id,
-            );
-            if (index === -1) return;
-
-            // Get current state
-            const currentState = getCurrentPreset(
-              state.currentPresetMeta,
-              state.currentKitMeta,
-            );
-
-            // Update preset in place, preserving original ID and metadata
-            state.customPresets[index] = {
-              ...currentState,
-              meta: {
-                ...state.customPresets[index].meta,
-                updatedAt: new Date().toISOString(),
-              },
-            };
-
-            saved = true;
+            state.customPresets[index] = document;
           });
+          persistIndexFromMemory();
 
           // The saved state IS the current state, so reset the clean
           // baseline from the live snapshot.
-          if (saved) get().markPresetClean();
+          get().markPresetClean();
         },
 
-        renameCustomPreset: (id, newName) => {
+        renameCustomPreset: async (id, newName) => {
+          const { customPresets, currentPresetMeta, hasUnsavedChanges } = get();
+          const index = customPresets.findIndex(
+            (preset) => preset.meta.id === id,
+          );
+          if (index === -1) return;
+
+          // When renaming the CURRENT preset, a clean session must stay
+          // clean: the baseline hash includes meta.name, so it is
+          // recomputed after the rename. A dirty session stays dirty (the
+          // baseline keeps pointing at the last saved content).
+          const isCurrent = currentPresetMeta.id === id;
+          const wasClean = isCurrent && !hasUnsavedChanges();
+
+          const now = new Date().toISOString();
+          const renamed: PresetDocument = {
+            ...customPresets[index],
+            meta: {
+              ...customPresets[index].meta,
+              name: newName,
+              updatedAt: now,
+            },
+          };
+
+          // Rename rewrites the entry's meta AND the index row.
+          await putLibraryEntry(renamed);
+
           set((state) => {
-            const preset = state.customPresets.find((p) => p.meta.id === id);
-            if (!preset) return;
-
-            preset.meta.name = newName;
-            preset.meta.updatedAt = new Date().toISOString();
-
-            // If this is the current preset, update current meta too
-            if (state.currentPresetMeta.id === id) {
+            state.customPresets[index] = renamed;
+            if (isCurrent) {
               state.currentPresetMeta.name = newName;
-              state.currentPresetMeta.updatedAt = new Date().toISOString();
+              state.currentPresetMeta.updatedAt = now;
             }
           });
+          persistIndexFromMemory();
+
+          if (wasClean) get().markPresetClean();
         },
 
-        duplicateCustomPreset: (id) => {
-          const { customPresets } = get();
-          const sourcePreset = customPresets.find((p) => p.meta.id === id);
+        duplicateCustomPreset: async (id) => {
+          const sourcePreset = get().customPresets.find(
+            (preset) => preset.meta.id === id,
+          );
 
           if (!sourcePreset) {
             throw new Error(`Preset with id ${id} not found`);
           }
 
           // Create duplicate with new ID and timestamps
-          const duplicatedPreset: PresetFileV1 = {
+          const now = new Date().toISOString();
+          const duplicatedPreset: PresetDocument = {
             ...sourcePreset,
             meta: {
               ...sourcePreset.meta,
               id: crypto.randomUUID(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: now,
+              updatedAt: now,
             },
           };
 
-          // Add to custom presets
+          await putLibraryEntry(duplicatedPreset);
+
           set((state) => {
             state.customPresets.unshift(duplicatedPreset);
           });
+          persistIndexFromMemory();
 
           return duplicatedPreset;
         },
 
-        deleteCustomPreset: (id) => {
+        deleteCustomPreset: async (id) => {
+          await removeLibraryEntry(id);
+
           set((state) => {
             state.customPresets = state.customPresets.filter(
-              (p) => p.meta.id !== id,
+              (preset) => preset.meta.id !== id,
             );
           });
+          persistIndexFromMemory();
         },
 
         getCustomPresetById: (id) => {
-          return get().customPresets.find((p) => p.meta.id === id);
+          return get().customPresets.find((preset) => preset.meta.id === id);
         },
 
         isCustomPreset: (id) => {
@@ -320,32 +411,8 @@ const usePresetMetaStore = create<PresetMetaState>()(
         canAddCustomPreset: () => {
           return get().customPresets.length < MAX_CUSTOM_PRESETS;
         },
-      })),
-      {
-        name: "drumhaus-preset-meta-storage",
-        // v2 (PR 5): currentPresetMeta/currentKitMeta moved into the session
-        // document (features/preset/session); only the library remains here
-        // (PR 6's territory). cleanHash is runtime state persisted in the
-        // session envelope, never here.
-        version: 2,
-        partialize: (state) => ({
-          customPresets: state.customPresets,
-        }),
-        migrate: (persistedState: unknown, version: number) => {
-          if (version < 2) {
-            // Hand the dropped meta fields to the legacy session adopter
-            // before zustand's post-migration write-back narrows the
-            // envelope (see legacy-preset-meta-capture.ts).
-            captureLegacyPresetMeta(persistedState);
-            const state = persistedState as {
-              customPresets?: PresetFileV1[];
-            } | null;
-            return { customPresets: state?.customPresets ?? [] };
-          }
-          return persistedState;
-        },
-      },
-    ),
+      };
+    }),
     {
       name: "PresetMetaStore",
     },

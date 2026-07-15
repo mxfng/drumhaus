@@ -21,8 +21,8 @@
  * - master chain (unversioned): persisted fields over the store defaults,
  *   mirroring zustand's shallow merge.
  * - preset-meta: currentPresetMeta/currentKitMeta arrive via
- *   legacy-preset-meta-capture.ts (the store's own v2 migrate drops them
- *   from the envelope before this module runs).
+ *   legacy-preset-meta-capture.ts (the library adoption consumes and
+ *   deletes the envelope before this module runs).
  *
  * The assembled file is version 1.5 (current knob space - the swing replay
  * already happened), so the standard validate -> migrate -> apply pipeline
@@ -68,7 +68,12 @@ const LEGACY_INSTRUMENTS_STORAGE_KEY = "drumhaus-instruments-storage";
 const LEGACY_SEQUENCER_STORAGE_KEY = "drumhaus-sequencer-storage";
 const LEGACY_TRANSPORT_STORAGE_KEY = "drumhaus-transport-storage";
 const LEGACY_MASTER_CHAIN_STORAGE_KEY = "drumhaus-master-chain-storage";
-/** Stays alive for the library (customPresets, PR 6's territory). */
+/**
+ * Consumed and deleted by the library adoption
+ * (features/preset/library/adoption.ts), which runs before the session
+ * ladder and stashes the meta fields this adopter needs in
+ * legacy-preset-meta-capture.ts.
+ */
 const LEGACY_PRESET_META_STORAGE_KEY = "drumhaus-preset-meta-storage";
 
 /** The four keys the adopter deletes after a successful session write. */
@@ -113,8 +118,14 @@ function readLegacyPersistEnvelope(
   };
 }
 
-/** True when any of the five legacy persist keys is present. */
+/**
+ * True when any of the five legacy persist keys is present. The preset-meta
+ * key is usually gone by the time this runs (the library adoption consumes
+ * it earlier in the same boot), so its presence is read from the capture it
+ * leaves behind.
+ */
 function hasLegacySessionData(): boolean {
+  if (getCapturedLegacyPresetMeta() !== null) return true;
   try {
     return [
       ...RETIRED_LEGACY_STORAGE_KEYS,
