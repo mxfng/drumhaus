@@ -1,3 +1,4 @@
+import { validatePresetFileV1 } from "@/features/preset/document";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { compress, decompress } from "./compress";
 import {
@@ -72,7 +73,9 @@ function urlToPreset(urlParam: string): PresetFileV1 {
   const jsonString = decompress(urlParam);
   const shareablePreset = deserializePreset(jsonString);
   const preset = decodePreset(shareablePreset);
-  return preset;
+  // Belt over the compact decoder's construction: URL loads must satisfy
+  // the same invariants as file imports before reaching the stores.
+  return validatePresetFileV1(preset);
 }
 
 export { shareablePresetToUrl, urlToPreset };
