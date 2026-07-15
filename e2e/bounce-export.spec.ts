@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { unzipSync } from "fflate";
 
 import { gotoApp, toggleStep } from "./helpers";
@@ -58,8 +58,79 @@ function parseWav(buffer: Buffer): WavInfo {
   };
 }
 
-test.describe("stem export", () => {
-  test("exports pre-master stems as a valid zip download", async ({ page }) => {
+/** Opens the export dialog on the Bounce tab and fills the filename. */
+async function openBounceTab(page: Page, filename: string) {
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Export" });
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByRole("tab", { name: "Bounce" }).click();
+  await dialog.getByLabel("Filename").fill(filename);
+  return dialog;
+}
+
+/** Reads the per-file render duration the form promises, e.g. "4.8s". */
+async function promisedDuration(
+  dialog: ReturnType<Page["getByRole"]>,
+): Promise<number> {
+  const durationText = await dialog
+    .getByText(/^\d+\.\ds$/)
+    .first()
+    .innerText();
+  const duration = Number.parseFloat(durationText);
+  expect(duration).toBeGreaterThan(0);
+  return duration;
+}
+
+test.describe("bounce export", () => {
+  test("bounces the pattern as a single WAV by default", async ({ page }) => {
+    await gotoApp(page);
+
+    // Put something in the pattern so the render isn't trivially empty.
+    await toggleStep(page, 0, "true");
+    await toggleStep(page, 8, "true");
+
+    const dialog = await openBounceTab(page, "e2e-export");
+
+    // The stems toggle defaults to off: a plain bounce is one WAV.
+    await expect(
+      dialog.getByLabel("Export stems (one WAV per channel)"),
+    ).not.toBeChecked();
+
+    const expectedDuration = await promisedDuration(dialog);
+
+    // Submitting renders offline and triggers a browser download.
+    const downloadPromise = page.waitForEvent("download", {
+      timeout: 45_000,
+    });
+    await dialog.getByRole("button", { name: "Export", exact: true }).click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toBe("e2e-export.wav");
+
+    const path = await download.path();
+    const wav = fs.readFileSync(path);
+
+    // Non-trivial payload with a valid RIFF/WAVE header and real audio.
+    expect(wav.length).toBeGreaterThan(100_000);
+    const info = parseWav(wav);
+    expect(info.peak).toBeGreaterThan(0.05);
+
+    // The rendered duration matches what the export form promised.
+    expect(Math.abs(info.duration - expectedDuration)).toBeLessThan(0.25);
+
+    // The dialog closes and the app confirms the export.
+    await expect(dialog).not.toBeVisible();
+    // exact: true dodges the duplicate text inside the toast's aria-live
+    // announcement span.
+    await expect(
+      page.getByText("Export successful", { exact: true }),
+    ).toBeVisible();
+  });
+
+  test("bounces pre-master stems as a zip when the stems toggle is on", async ({
+    page,
+  }) => {
     await gotoApp(page);
 
     // Put steps into two lanes: kick (voice 0, selected by default) and
@@ -72,20 +143,10 @@ test.describe("stem export", () => {
     ).toHaveAttribute("data-instrument-index", "2");
     await toggleStep(page, 4, "true");
 
-    await page.getByRole("button", { name: "Export", exact: true }).click();
-    const dialog = page.getByRole("dialog", { name: "Export" });
-    await expect(dialog).toBeVisible();
+    const dialog = await openBounceTab(page, "e2e-stems");
+    await dialog.getByLabel("Export stems (one WAV per channel)").check();
 
-    await dialog.getByRole("tab", { name: "Stems" }).click();
-    await dialog.getByLabel("Filename").fill("e2e-stems");
-
-    // The form displays the expected per-file render duration, e.g. "4.8s".
-    const durationText = await dialog
-      .getByText(/^\d+\.\ds$/)
-      .first()
-      .innerText();
-    const expectedDuration = Number.parseFloat(durationText);
-    expect(expectedDuration).toBeGreaterThan(0);
+    const expectedDuration = await promisedDuration(dialog);
 
     // Submitting renders each stem offline and downloads one zip.
     const downloadPromise = page.waitForEvent("download", {

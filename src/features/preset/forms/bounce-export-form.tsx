@@ -5,10 +5,13 @@ import { z } from "zod";
 
 import {
   exportStems,
-  getSuggestedBars,
   type StemExportProgress,
 } from "@/core/audio/export/stem-exporter";
-import { calculateExportDuration } from "@/core/audio/export/wav-exporter";
+import {
+  calculateExportDuration,
+  exportToWav,
+  getSuggestedBars,
+} from "@/core/audio/export/wav-exporter";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
@@ -34,7 +37,7 @@ import {
   useToast,
 } from "@/shared/ui";
 
-interface StemsExportFormProps {
+interface BounceExportFormProps {
   onClose: () => void;
 }
 
@@ -46,14 +49,15 @@ const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
   { value: "48000", label: "48 kHz" },
 ];
 
-const stemsExportSchema = z.object({
+const bounceExportSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
   bars: z.number().int().min(1, "At least 1 bar").max(8, "Maximum 8 bars"),
   sampleRate: z.enum(["system", "44100", "48000"]),
   includeTail: z.boolean(),
+  stems: z.boolean(),
 });
 
-type StemsExportFormValues = z.infer<typeof stemsExportSchema>;
+type BounceExportFormValues = z.infer<typeof bounceExportSchema>;
 
 /** Progress line for the submit button, e.g. "Rendering stem 3/8". */
 function progressLabel(progress: StemExportProgress | null): string {
@@ -68,7 +72,7 @@ function progressLabel(progress: StemExportProgress | null): string {
   }
 }
 
-function StemsExportForm({ onClose }: StemsExportFormProps) {
+function BounceExportForm({ onClose }: BounceExportFormProps) {
   const pattern = usePatternStore((state) => state.pattern);
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
@@ -89,12 +93,13 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
       bars: recommendedBars,
       sampleRate: "system" as const,
       includeTail: false,
+      stems: false,
     }),
     [presetName, recommendedBars],
   );
 
-  const form = useForm<StemsExportFormValues>({
-    resolver: zodResolver(stemsExportSchema),
+  const form = useForm<BounceExportFormValues>({
+    resolver: zodResolver(bounceExportSchema),
     defaultValues,
     mode: "onChange",
   });
@@ -118,9 +123,63 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
   const bars = useWatch({ control, name: "bars" });
   const includeTail = useWatch({ control, name: "includeTail" });
   const sampleRate = useWatch({ control, name: "sampleRate" });
+  const stems = useWatch({ control, name: "stems" });
 
   const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
   const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
+
+  const exportWav = async (values: BounceExportFormValues, rate: number) => {
+    await exportToWav({
+      bars: values.bars,
+      sampleRate: rate,
+      includeTail: values.includeTail,
+      filename: values.filename.trim() || "drumhaus-export",
+    });
+
+    toast({
+      title: "Export successful",
+      description: "Your audio file has been exported.",
+      duration: 8000,
+    });
+  };
+
+  const exportStemsZip = async (
+    values: BounceExportFormValues,
+    rate: number,
+  ) => {
+    const summary = await exportStems(
+      {
+        filename: values.filename.trim() || "drumhaus-export",
+        bars: values.bars,
+        sampleRate: rate,
+        includeTail: values.includeTail,
+        presetName,
+        bpm,
+        pattern,
+        chain,
+        chainEnabled,
+        variation,
+        voices: instruments.map((instrument) => ({
+          name: instrument.meta.name,
+          mute: instrument.params.mute,
+          solo: instrument.params.solo,
+        })),
+      },
+      setProgress,
+    );
+
+    const stemCount = summary.rendered.length;
+    const skippedNames = summary.skipped.map((lane) => lane.name);
+    toast({
+      title: "Export successful",
+      description:
+        `${stemCount} ${stemCount === 1 ? "stem" : "stems"} + full mix zipped.` +
+        (skippedNames.length > 0
+          ? ` Skipped silent lanes: ${skippedNames.join(", ")}.`
+          : ""),
+      duration: 8000,
+    });
+  };
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -129,44 +188,17 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
           ? new AudioContext().sampleRate
           : parseInt(values.sampleRate, 10);
 
-      const summary = await exportStems(
-        {
-          filename: values.filename.trim() || "drumhaus-export",
-          bars: values.bars,
-          sampleRate: actualSampleRate,
-          includeTail: values.includeTail,
-          presetName,
-          bpm,
-          pattern,
-          chain,
-          chainEnabled,
-          variation,
-          voices: instruments.map((instrument) => ({
-            name: instrument.meta.name,
-            mute: instrument.params.mute,
-            solo: instrument.params.solo,
-          })),
-        },
-        setProgress,
-      );
-
-      const stemCount = summary.rendered.length;
-      const skippedNames = summary.skipped.map((lane) => lane.name);
-      toast({
-        title: "Export successful",
-        description:
-          `${stemCount} ${stemCount === 1 ? "stem" : "stems"} + full mix zipped.` +
-          (skippedNames.length > 0
-            ? ` Skipped silent lanes: ${skippedNames.join(", ")}.`
-            : ""),
-        duration: 8000,
-      });
+      if (values.stems) {
+        await exportStemsZip(values, actualSampleRate);
+      } else {
+        await exportWav(values, actualSampleRate);
+      }
       onClose();
     } catch (error) {
       console.error("Export failed:", error);
       toast({
         title: "Something went wrong",
-        description: "Couldn't export stems. Please try again.",
+        description: "Couldn't export audio. Please try again.",
         status: "error",
         duration: 8000,
       });
@@ -179,16 +211,14 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
     <form onSubmit={onSubmit}>
       <div className="space-y-4">
         <DialogDescription>
-          Export each channel as its own pre-master WAV stem (dry of
-          master-chain processing, so stems recombine cleanly in a DAW), zipped
-          together with the full mix. Silent channels are skipped.
+          Bounce your pattern to a WAV audio file.
         </DialogDescription>
 
         <FieldGroup>
           <Field data-invalid={Boolean(errors.filename)}>
-            <FieldLabel htmlFor="stems-filename">Filename</FieldLabel>
+            <FieldLabel htmlFor="bounce-filename">Filename</FieldLabel>
             <Input
-              id="stems-filename"
+              id="bounce-filename"
               autoFocus
               aria-invalid={Boolean(errors.filename)}
               disabled={isSubmitting}
@@ -203,7 +233,7 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
             <FieldLegend>Export options</FieldLegend>
             <FieldGroup>
               <Field data-invalid={Boolean(errors.bars)}>
-                <FieldLabel htmlFor="stems-bars">Length</FieldLabel>
+                <FieldLabel htmlFor="bounce-bars">Length</FieldLabel>
 
                 <div className="flex items-center justify-between">
                   <FieldDescription>
@@ -216,7 +246,7 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
                 </div>
                 <div>
                   <Slider
-                    id="stems-bars"
+                    id="bounce-bars"
                     value={[bars ?? recommendedBars]}
                     onValueChange={([value]) =>
                       setValue("bars", value, { shouldValidate: true })
@@ -261,10 +291,10 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
                     <div key={option.value} className="flex items-center gap-2">
                       <RadioGroupItem
                         value={option.value}
-                        id={`stems-${option.value}`}
+                        id={`bounce-${option.value}`}
                       />
                       <FieldLabel
-                        htmlFor={`stems-${option.value}`}
+                        htmlFor={`bounce-${option.value}`}
                         className="font-normal"
                       >
                         {option.label}
@@ -275,32 +305,44 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
 
                 <FieldError errors={[errors.sampleRate]} />
               </Field>
-              <FieldSet>
-                <FieldLabel>Reverb Tail</FieldLabel>
-                <FieldDescription>
-                  Add extra time at the end of every render so long decays
-                  aren’t cut off.
-                </FieldDescription>
 
-                <FieldGroup data-slot="checkbox-group">
-                  <Field orientation="horizontal">
-                    <Checkbox
-                      id="stems-includeTail"
-                      checked={includeTail}
-                      onCheckedChange={(checked) =>
-                        setValue("includeTail", checked === true)
-                      }
-                      disabled={isSubmitting}
-                    />
-                    <FieldLabel
-                      htmlFor="stems-includeTail"
-                      className="font-normal"
-                    >
-                      Preserve tails in export
-                    </FieldLabel>
-                  </Field>
-                </FieldGroup>
-              </FieldSet>
+              <FieldGroup data-slot="checkbox-group">
+                <Field orientation="horizontal">
+                  <Checkbox
+                    id="bounce-includeTail"
+                    checked={includeTail}
+                    onCheckedChange={(checked) =>
+                      setValue("includeTail", checked === true)
+                    }
+                    disabled={isSubmitting}
+                  />
+                  <FieldLabel
+                    htmlFor="bounce-includeTail"
+                    className="font-normal"
+                  >
+                    Preserve reverb tail in export
+                  </FieldLabel>
+                </Field>
+
+                <Field orientation="horizontal">
+                  <Checkbox
+                    id="bounce-stems"
+                    checked={stems}
+                    onCheckedChange={(checked) =>
+                      setValue("stems", checked === true)
+                    }
+                    disabled={isSubmitting}
+                  />
+                  <FieldLabel htmlFor="bounce-stems" className="font-normal">
+                    Export stems (one WAV per channel)
+                  </FieldLabel>
+                </Field>
+                <FieldDescription>
+                  {stems
+                    ? "Bounces a zip of pre-master stems (dry of master-chain processing, so they recombine cleanly in a DAW) plus the full mix. Silent channels are skipped."
+                    : "Bounces a single WAV rendered through the master chain."}
+                </FieldDescription>
+              </FieldGroup>
             </FieldGroup>
           </FieldSet>
         </FieldGroup>
@@ -338,4 +380,4 @@ function StemsExportForm({ onClose }: StemsExportFormProps) {
   );
 }
 
-export { StemsExportForm };
+export { BounceExportForm };
