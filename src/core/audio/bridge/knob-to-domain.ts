@@ -33,6 +33,7 @@ import {
   saturationWetMapping,
   tuneMapping,
 } from "@/shared/knob/lib/mapping";
+import { splitFilterPositionToFilter } from "@/shared/knob/lib/transform";
 
 /**
  * Master chain parameters as 0-100 knob values.
@@ -63,9 +64,11 @@ interface MasterChainParams {
  */
 function mapParamsToSettings(params: MasterChainParams): MasterChainSettings {
   return {
-    // The split-filter position 0-100 is itself the domain value; its
-    // semantics live in engine/fx/split-filter.ts.
-    filter: params.filter,
+    // TEMPORARY (PR C removes): the master store still holds a 0-100 filter
+    // position, so the bridge converts it to the canonical `{ side, cutoffHz }`
+    // the engine now consumes. Once the store holds canonical, this is a
+    // pass-through.
+    filter: splitFilterPositionToFilter(params.filter),
     saturationWet: saturationWetMapping.knobToDomain(params.saturation),
     saturationAmount: saturationAmountMapping.knobToDomain(params.saturation),
     phaserWet: phaserWetMapping.knobToDomain(params.phaser),
@@ -87,9 +90,11 @@ function instrumentKnobsToContinuousParams(
   params: InstrumentParams,
 ): ContinuousRuntimeParams {
   return {
-    // The split-filter position 0-100 is itself the domain value; its
-    // semantics live in engine/fx/split-filter.ts.
-    filter: params.filter,
+    // TEMPORARY (PR C removes): the instrument store still holds a 0-100
+    // filter position, so the bridge converts it to the canonical
+    // `{ side, cutoffHz }` the engine now consumes. Once the store holds
+    // canonical, this is a pass-through.
+    filter: splitFilterPositionToFilter(params.filter),
     pan: instrumentPanMapping.knobToDomain(params.pan),
     volume: instrumentVolumeMapping.knobToDomain(params.volume),
   };

@@ -1,83 +1,107 @@
 import { Filter } from "tone/build/esm/index";
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
-  MASTER_FILTER_RANGE,
   SPLIT_FILTER_BYPASS_FLOOR_HZ,
+  SPLIT_FILTER_DEFAULT_Q,
   SPLIT_FILTER_DEFAULT_RAMP_TIME,
 } from "../constants";
 
 /**
- * Split-filter position semantics.
+ * Split-filter engine path (Tone-native).
  *
- * The 0-100 split position is a domain value owned by the engine: positions
- * 0-49 sweep the low-pass side, positions 50-100 sweep the high-pass side.
- * The UI knob mapping layer derives its display and inverse mapping from
- * these exports so the knob UI and the engine cannot drift.
+ * The split filter is a canonical `{ side, cutoffHz }` value
+ * (docs/data-representation.md, Principle P2): the engine consumes DERIVED
+ * node frequencies and holds no UI encoding. The 0-100 position curve is a
+ * widget concern and lives in src/shared/knob/lib/transform.ts.
+ *
+ * Two dedicated Tone `Filter` nodes (a low-pass and a high-pass in series)
+ * implement the single-knob split so switching sides never re-types a live
+ * node. Whichever side is inactive is opened out of the way: on the low-pass
+ * side the high-pass drops to the bypass floor, on the high-pass side the
+ * low-pass opens to the range maximum.
  */
-const SPLIT_FILTER_POSITION_THRESHOLD_L = 49;
-const SPLIT_FILTER_POSITION_THRESHOLD_R = 50;
-
-/** Exponent of the perceptual position -> frequency curve. */
-const SPLIT_FILTER_CURVE_POWER = 2;
 
 interface SplitFilterConfig {
+  /** Lowest cutoff the range spans (Hz); the low-pass bypass floor is at least this. */
   minFrequency: number;
+  /** Highest cutoff the range spans (Hz); the low-pass opens here on the high-pass side. */
   maxFrequency: number;
   rampTime?: number;
   bypassFloorHz?: number;
 }
 
-/**
- * Whether a split-filter position selects the low-pass side.
- */
-function isSplitFilterLowPass(position: number): boolean {
-  return position <= SPLIT_FILTER_POSITION_THRESHOLD_L;
+/** The two node cutoff targets derived from a canonical filter value. */
+interface SplitFilterFrequencies {
+  lowPassTarget: number;
+  highPassTarget: number;
 }
 
 /**
- * Converts a split-filter position (0-100) to a cutoff frequency.
- * The active half of the position range is rescaled to 0-1 and shaped with
- * an exponential curve for perceptually uniform sweeps.
+ * Resonance Q applied to both split-filter nodes. Not exposed to the user,
+ * not canonical, and not persisted: the nodes are BUILT to accommodate a
+ * real Tone filter Q (docs/data-representation.md, Approved decisions), and
+ * this default equals Tone's own `Filter` default (1) so the sound is
+ * byte-identical to before Q was wired in.
  */
-function splitFilterPositionToFrequency(
-  position: number,
-  rangeLow: [number, number] = MASTER_FILTER_RANGE,
-  rangeHigh: [number, number] = MASTER_FILTER_RANGE,
-): number {
-  const lowPass = isSplitFilterLowPass(position);
-  const [min, max] = lowPass ? rangeLow : rangeHigh;
+const splitFilterResonanceQ = SPLIT_FILTER_DEFAULT_Q;
 
-  const sidePosition =
-    ((lowPass ? position : position - SPLIT_FILTER_POSITION_THRESHOLD_R) /
-      SPLIT_FILTER_POSITION_THRESHOLD_L) *
-    100;
-
-  const t = sidePosition / 100;
-  return min + Math.pow(t, SPLIT_FILTER_CURVE_POWER) * (max - min);
+/**
+ * Creates one split-filter node with the resonance Q wired in. Shared by the
+ * instrument channel and the master bus so both build the filter identically.
+ */
+function createSplitFilterNode(
+  frequency: number,
+  type: "lowpass" | "highpass",
+): Filter {
+  return new Filter({ frequency, type, Q: splitFilterResonanceQ });
 }
 
 /**
- * Applies split-filter behavior (LP on left, HP on right) to dedicated filter nodes
- * with a short ramp to avoid clicks when crossing the threshold.
+ * Derives the low-pass and high-pass node cutoffs from a canonical filter
+ * value. On the low-pass side the low-pass tracks the cutoff and the
+ * high-pass opens to the bypass floor; on the high-pass side the high-pass
+ * tracks the cutoff and the low-pass opens to the range maximum.
+ */
+function deriveSplitFilterFrequencies(
+  filter: CanonicalFilter,
+  config: SplitFilterConfig,
+): SplitFilterFrequencies {
+  const { minFrequency, maxFrequency, bypassFloorHz } = config;
+
+  if (filter.side === "lowpass") {
+    return {
+      lowPassTarget: filter.cutoffHz,
+      highPassTarget: Math.max(
+        minFrequency,
+        bypassFloorHz ?? SPLIT_FILTER_BYPASS_FLOOR_HZ,
+      ),
+    };
+  }
+
+  return {
+    lowPassTarget: maxFrequency,
+    highPassTarget: filter.cutoffHz,
+  };
+}
+
+/**
+ * Applies a canonical split-filter value to dedicated LP/HP nodes with a
+ * short ramp to avoid clicks when crossing between sides.
  */
 function applySplitFilterWithRamp(
   lowPassFilter: Filter,
   highPassFilter: Filter,
-  position: number,
+  filter: CanonicalFilter,
   config: SplitFilterConfig,
 ): void {
-  const { minFrequency, maxFrequency, rampTime, bypassFloorHz } = config;
+  const { lowPassTarget, highPassTarget } = deriveSplitFilterFrequencies(
+    filter,
+    config,
+  );
 
-  const cutoff = splitFilterPositionToFrequency(position);
-  const isLowPass = isSplitFilterLowPass(position);
-
-  const lowPassTarget = isLowPass ? cutoff : maxFrequency;
-  const highPassTarget = isLowPass
-    ? Math.max(minFrequency, bypassFloorHz ?? SPLIT_FILTER_BYPASS_FLOOR_HZ)
-    : cutoff;
-
-  rampFilterFrequency(lowPassFilter, lowPassTarget, rampTime);
-  rampFilterFrequency(highPassFilter, highPassTarget, rampTime);
+  rampFilterFrequency(lowPassFilter, lowPassTarget, config.rampTime);
+  rampFilterFrequency(highPassFilter, highPassTarget, config.rampTime);
 }
 
 function rampFilterFrequency(
@@ -94,9 +118,7 @@ function rampFilterFrequency(
 
 export {
   applySplitFilterWithRamp,
-  isSplitFilterLowPass,
-  splitFilterPositionToFrequency,
-  SPLIT_FILTER_CURVE_POWER,
-  SPLIT_FILTER_POSITION_THRESHOLD_L,
-  SPLIT_FILTER_POSITION_THRESHOLD_R,
+  createSplitFilterNode,
+  deriveSplitFilterFrequencies,
 };
+export type { SplitFilterConfig, SplitFilterFrequencies };

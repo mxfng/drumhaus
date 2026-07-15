@@ -47,11 +47,11 @@ describe("encode/decode round trip", () => {
     );
   });
 
-  it.each(ERA_FIXTURES)("%s encodes with the v2 envelope", (name) => {
+  it.each(ERA_FIXTURES)("%s encodes with the v2.1 envelope", (name) => {
     const text = encodePresetDocument(migrateFixture(name));
     const raw = JSON.parse(text) as Record<string, unknown>;
     expect(raw.kind).toBe("drumhaus.preset");
-    expect(raw.version).toBe(2);
+    expect(raw.version).toBe(2.1);
   });
 
   it("pretty-prints with 2-space indentation", () => {

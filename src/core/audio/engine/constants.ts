@@ -164,6 +164,13 @@ const ENVELOPE_DEFAULT_RELEASE = 0.05;
 
 const SPLIT_FILTER_DEFAULT_RAMP_TIME = 0.01;
 const SPLIT_FILTER_BYPASS_FLOOR_HZ = 10; // Avoid clamping HP to 0 Hz
+/**
+ * Resonance Q for the split-filter nodes. Equals Tone's own `Filter` default
+ * (1), so wiring Q into the nodes leaves the sound byte-identical; the filter
+ * is BUILT to accommodate a real Q even though nothing exposes it yet
+ * (docs/data-representation.md, Approved decisions).
+ */
+const SPLIT_FILTER_DEFAULT_Q = 1;
 
 // ============================================================================
 // Export / rendering
@@ -283,6 +290,7 @@ export {
   ENVELOPE_DEFAULT_RELEASE,
   SPLIT_FILTER_DEFAULT_RAMP_TIME,
   SPLIT_FILTER_BYPASS_FLOOR_HZ,
+  SPLIT_FILTER_DEFAULT_Q,
   EXPORT_TAIL_TIME,
   EXPORT_CHANNEL_COUNT,
   EXPORT_PREROLL_TIME,

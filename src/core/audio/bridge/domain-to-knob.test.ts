@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MasterChainSettings } from "@/core/audio/engine/master-bus";
 import type { InstrumentParams } from "@/features/instrument/types/instrument";
 import { compRatioMapping, tuneMapping } from "@/shared/knob/lib/mapping";
+import { splitFilterPositionToFilter } from "@/shared/knob/lib/transform";
 import {
   compRatioDomainToKnob,
   continuousParamsToInstrumentKnobs,
@@ -15,7 +16,7 @@ import {
   mapSettingsToParams,
   masterVolumeDomainToKnob,
   playParamsToInstrumentKnobs,
-  splitFilterPositionToKnob,
+  splitFilterToKnobPosition,
   transportSwingDomainToKnob,
   tuneDomainToKnob,
 } from "./domain-to-knob";
@@ -70,12 +71,11 @@ afterEach(() => {
 
 describe("instrument param round-trips", () => {
   it.each(KNOB_VALUES)(
-    "inverts continuous params (filter, pan, volume) at knob %f",
+    "inverts continuous params (pan, volume) at knob %f",
     (knobValue) => {
       const knobs = continuousParamsToInstrumentKnobs(
         instrumentKnobsToContinuousParams(makeInstrumentParams(knobValue)),
       );
-      expect(knobs.filter).toBeCloseTo(knobValue, 6);
       expect(knobs.pan).toBeCloseTo(knobValue, 6);
       expect(knobs.volume).toBeCloseTo(knobValue, 6);
     },
@@ -132,14 +132,49 @@ describe("compRatio", () => {
   );
 });
 
-describe("split-filter positions", () => {
-  it.each(KNOB_VALUES)("passes position %f through unchanged", (knobValue) => {
-    expect(splitFilterPositionToKnob(knobValue)).toBe(knobValue);
+describe("split-filter round-trip (position -> canonical -> position)", () => {
+  // Every valid position round-trips through the canonical { side, cutoffHz }
+  // EXCEPT the (49, 50) dead zone: those positions sit between the low-pass
+  // open extreme (49) and the high-pass open extreme (50) and map to tiny
+  // high-pass cutoffs whose inverse resolves to the 50+ side. The dead zone
+  // is inaudible (a near-open high-pass either way) and unreachable as a
+  // meaningful knob setting.
+  const ROUND_TRIP_POSITIONS = [
+    ...INTEGER_KNOB_VALUES,
+    0.25,
+    7.5,
+    33.333,
+    66.6,
+    87.125,
+    99.5,
+  ];
+
+  it.each(ROUND_TRIP_POSITIONS)(
+    "recovers position %f from its canonical filter",
+    (position) => {
+      expect(
+        splitFilterToKnobPosition(splitFilterPositionToFilter(position)),
+      ).toBeCloseTo(position, 6);
+    },
+  );
+
+  it("maps the low-pass side (0-49) to a lowpass filter", () => {
+    expect(splitFilterPositionToFilter(0).side).toBe("lowpass");
+    expect(splitFilterPositionToFilter(49).side).toBe("lowpass");
   });
 
-  it("clamps out-of-range positions to [0, 100]", () => {
-    expect(splitFilterPositionToKnob(-5)).toBe(0);
-    expect(splitFilterPositionToKnob(120)).toBe(100);
+  it("maps the high-pass side (50-100) to a highpass filter", () => {
+    expect(splitFilterPositionToFilter(50).side).toBe("highpass");
+    expect(splitFilterPositionToFilter(100).side).toBe("highpass");
+  });
+
+  it("clamps out-of-range cutoffs into [0, 100]", () => {
+    expect(splitFilterToKnobPosition({ side: "lowpass", cutoffHz: -5 })).toBe(
+      0,
+    );
+    expect(
+      splitFilterToKnobPosition({ side: "highpass", cutoffHz: 999999 }),
+    ).toBe(100);
   });
 });
 

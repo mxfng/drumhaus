@@ -21,6 +21,7 @@ import {
   type ToneAudioNode,
 } from "tone/build/esm/index";
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
   MASTER_COMP_KNEE,
   MASTER_COMP_LATENCY,
@@ -41,7 +42,10 @@ import {
   MASTER_REVERB_PRE_FILTER_FREQ,
   MASTER_SATURATION_OVERSAMPLE,
 } from "./constants";
-import { applySplitFilterWithRamp } from "./fx/split-filter";
+import {
+  applySplitFilterWithRamp,
+  createSplitFilterNode,
+} from "./fx/split-filter";
 
 /**
  * Master chain settings in domain values, ready to apply to audio nodes.
@@ -49,7 +53,7 @@ import { applySplitFilterWithRamp } from "./fx/split-filter";
  */
 type MasterChainSettings = {
   // Split filter settings (single filter that switches type, same as instrument filter)
-  filter: number; // Split-filter position 0-100; semantics in engine/fx/split-filter.ts
+  filter: CanonicalFilter; // Canonical { side, cutoffHz }; the engine derives node frequencies
   saturationWet: number;
   saturationAmount: number;
   phaserWet: number;
@@ -161,6 +165,12 @@ class MasterBus {
     const prev = this.appliedSettings;
     const changed = (field: keyof MasterChainSettings): boolean =>
       !prev || prev[field] !== settings[field];
+    // The filter is a canonical `{ side, cutoffHz }` object, so a reference
+    // check would re-ramp on every push; diff it by value instead.
+    const filterChanged =
+      !prev ||
+      prev.filter.side !== settings.filter.side ||
+      prev.filter.cutoffHz !== settings.filter.cutoffHz;
 
     // Compressor settings
     if (changed("compThreshold")) {
@@ -179,7 +189,7 @@ class MasterBus {
     }
 
     // Split filter settings (same as instrument filter implementation)
-    if (changed("filter")) {
+    if (filterChanged) {
       applySplitFilterWithRamp(
         nodes.lowPassFilter,
         nodes.highPassFilter,
@@ -336,8 +346,14 @@ function createCompressorSection(settings: MasterChainSettings) {
  * Uses dedicated nodes to avoid type switching artifacts.
  */
 function createFilterSection(settings: MasterChainSettings) {
-  const lowPassFilter = new Filter(MASTER_FILTER_RANGE[1], "lowpass");
-  const highPassFilter = new Filter(MASTER_FILTER_RANGE[0], "highpass");
+  const lowPassFilter = createSplitFilterNode(
+    MASTER_FILTER_RANGE[1],
+    "lowpass",
+  );
+  const highPassFilter = createSplitFilterNode(
+    MASTER_FILTER_RANGE[0],
+    "highpass",
+  );
 
   // Apply initial filter position
   applySplitFilterWithRamp(lowPassFilter, highPassFilter, settings.filter, {

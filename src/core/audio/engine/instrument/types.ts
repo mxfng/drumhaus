@@ -7,6 +7,8 @@
  * metadata) lives in features/instrument/types/instrument.ts.
  */
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
+
 type InstrumentRole =
   | "kick"
   | "snare"
@@ -26,8 +28,8 @@ type InstrumentRole =
  * All values are domain units, not knob values.
  */
 interface ContinuousRuntimeParams {
-  /** Split-filter position 0-100 (LP side 0-49, HP side 50-100); semantics in engine/fx/split-filter.ts */
-  filter: number;
+  /** Canonical split filter `{ side, cutoffHz }`; the engine derives node frequencies (engine/fx/split-filter.ts). */
+  filter: CanonicalFilter;
   /** Stereo pan position, -1 (left) to 1 (right) */
   pan: number;
   /** Level in dB (-Infinity = silence) */

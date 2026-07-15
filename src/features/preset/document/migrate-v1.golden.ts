@@ -19,7 +19,7 @@ type GoldenSurface = Omit<PresetDocument, "pattern">;
 const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
   "v1-current.json": {
     kind: "drumhaus.preset",
-    version: 2,
+    version: 2.1,
     meta: {
       id: "53b9eebd-6af5-43ed-b43e-eec354dbc4cc",
       name: "init",
@@ -32,7 +32,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
     channels: [
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -41,7 +41,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -50,7 +50,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -59,7 +59,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -68,7 +68,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -77,7 +77,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -86,7 +86,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -95,7 +95,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -119,7 +119,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       swing: 0,
     },
     master: {
-      filter: 50,
+      filter: { side: "highpass", cutoffHz: 0 },
       saturation: 0,
       phaser: 0,
       reverb: 0,
@@ -132,7 +132,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
   },
   "v1-legacy-params.json": {
     kind: "drumhaus.preset",
-    version: 2,
+    version: 2.1,
     meta: {
       id: "53b9eebd-6af5-43ed-b43e-eec354dbc4cc",
       name: "init",
@@ -145,7 +145,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
     channels: [
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -154,7 +154,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -163,7 +163,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -172,7 +172,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -181,7 +181,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -190,7 +190,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -199,7 +199,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -208,7 +208,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -232,7 +232,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       swing: 0,
     },
     master: {
-      filter: 50,
+      filter: { side: "highpass", cutoffHz: 0 },
       saturation: 0,
       phaser: 0,
       reverb: 0,
@@ -245,7 +245,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
   },
   "v1-legacy-master.json": {
     kind: "drumhaus.preset",
-    version: 2,
+    version: 2.1,
     meta: {
       id: "53b9eebd-6af5-43ed-b43e-eec354dbc4cc",
       name: "init",
@@ -258,7 +258,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
     channels: [
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -267,7 +267,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -276,7 +276,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -285,7 +285,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -294,7 +294,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -303,7 +303,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -312,7 +312,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -321,7 +321,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -345,7 +345,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       swing: 0,
     },
     master: {
-      filter: 50,
+      filter: { side: "highpass", cutoffHz: 0 },
       saturation: 0,
       phaser: 0,
       reverb: 0,
@@ -358,7 +358,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
   },
   "v1-legacy-cycle.json": {
     kind: "drumhaus.preset",
-    version: 2,
+    version: 2.1,
     meta: {
       id: "53b9eebd-6af5-43ed-b43e-eec354dbc4cc",
       name: "init",
@@ -371,7 +371,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
     channels: [
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -380,7 +380,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -389,7 +389,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -398,7 +398,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -407,7 +407,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -416,7 +416,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -425,7 +425,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -434,7 +434,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -462,7 +462,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       swing: 0,
     },
     master: {
-      filter: 50,
+      filter: { side: "highpass", cutoffHz: 0 },
       saturation: 0,
       phaser: 0,
       reverb: 0,
@@ -475,7 +475,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
   },
   "v1-legacy-pattern-array.json": {
     kind: "drumhaus.preset",
-    version: 2,
+    version: 2.1,
     meta: {
       id: "53b9eebd-6af5-43ed-b43e-eec354dbc4cc",
       name: "init",
@@ -488,7 +488,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
     channels: [
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -497,7 +497,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -506,7 +506,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -515,7 +515,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -524,7 +524,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -533,7 +533,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -542,7 +542,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -551,7 +551,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       },
       {
         decaySeconds: 5,
-        filter: 50,
+        filter: { side: "highpass", cutoffHz: 0 },
         volumeDb: 0,
         pan: 0,
         tuneSemitones: 0,
@@ -575,7 +575,7 @@ const GOLDEN_SURFACES: Record<string, GoldenSurface> = {
       swing: 0,
     },
     master: {
-      filter: 50,
+      filter: { side: "highpass", cutoffHz: 0 },
       saturation: 0,
       phaser: 0,
       reverb: 0,

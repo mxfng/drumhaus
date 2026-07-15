@@ -39,7 +39,7 @@ function makeVoice(instrumentIndex: number): Voice {
 function makeChannel(): PresetDocument["channels"][number] {
   return {
     decaySeconds: 0.5,
-    filter: 50,
+    filter: { side: "highpass", cutoffHz: 0 },
     volumeDb: 0,
     pan: 0,
     tuneSemitones: 0,
@@ -50,7 +50,7 @@ function makeChannel(): PresetDocument["channels"][number] {
 
 const validDocument: PresetDocument = {
   kind: "drumhaus.preset",
-  version: 2,
+  version: 2.1,
   meta: {
     id: "preset-test",
     name: "Test Preset",
@@ -88,7 +88,7 @@ const validDocument: PresetDocument = {
   },
   transport: { bpm: 120, swing: 0.25 },
   master: {
-    filter: 50,
+    filter: { side: "highpass", cutoffHz: 0 },
     saturation: 0.3,
     phaser: 0,
     reverb: 0.5,
@@ -209,6 +209,40 @@ describe("presetDocumentSchema", () => {
         d.channels[0].tuneSemitones = 8;
       }),
       ["channels", 0, "tuneSemitones"],
+    );
+  });
+
+  it("parses a canonical low-pass channel filter", () => {
+    const doc = mutated((d) => {
+      d.channels[0].filter = { side: "lowpass", cutoffHz: 8000 };
+    });
+    expect(presetDocumentSchema.safeParse(doc).success).toBe(true);
+  });
+
+  it("rejects an unknown filter side", () => {
+    expectFailureAt(
+      mutated((d) => {
+        (d.master.filter as { side: string }).side = "bandpass";
+      }),
+      ["master", "filter", "side"],
+    );
+  });
+
+  it("rejects a negative filter cutoff", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.channels[1].filter = { side: "lowpass", cutoffHz: -1 };
+      }),
+      ["channels", 1, "filter", "cutoffHz"],
+    );
+  });
+
+  it("rejects a filter cutoff above the ceiling", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.channels[1].filter = { side: "highpass", cutoffHz: 25000 };
+      }),
+      ["channels", 1, "filter", "cutoffHz"],
     );
   });
 

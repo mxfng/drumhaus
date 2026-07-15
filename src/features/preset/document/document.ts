@@ -1,20 +1,28 @@
 /**
  * The domain-unit preset document model (docs/preset-persistence.md).
  *
- * A `.dh` file, version 2: a domain-space (dB, seconds, semitones, -1..1
- * pan) description of a preset, decoupled from 0-100 knob positions except
- * for split-filter positions, whose 0-100 position IS the domain value.
+ * A `.dh` file, version 2.1: a domain-space (dB, seconds, semitones, -1..1
+ * pan) description of a preset, fully decoupled from 0-100 knob positions.
  * The zod schema is the single source of truth; the PresetDocument type is
- * inferred from it. No production code consumes this yet.
+ * inferred from it.
  *
- * The #269 swing retune sits between v1 and this document as version 1.5,
- * a knob-space revision of the v1 file shape
- * (src/features/preset/document/migrate.ts); version 2 remains this
- * domain document, as designed.
+ * Version history:
+ * - 1 / 1.5: the knob-space `.dh` file shape (migrate.ts); 1.5 marks the
+ *   #269 swing retune.
+ * - 2: the first domain document; every field domain-space EXCEPT the split
+ *   filter, which was still persisted as its 0-100 position.
+ * - 2.1 (this version): a refinement of the v2 domain document - the split
+ *   filter becomes canonical `{ side, cutoffHz }`
+ *   (docs/data-representation.md, Principle P2); every other field is
+ *   unchanged. The fractional minor signals "refinement, not a new
+ *   generation", mirroring the #269 swing retune's `.dh` v1.5. Version-2
+ *   documents in the wild migrate on read via migrate-v2.ts (position ->
+ *   canonical, frozen curve).
  */
 
 import { z } from "zod";
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
   INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_RANGE,
@@ -35,9 +43,35 @@ import {
 } from "@/core/audio/engine/pattern-types";
 
 const PRESET_DOCUMENT_KIND = "drumhaus.preset";
-const PRESET_DOCUMENT_VERSION = 2;
+/**
+ * Current preset document version. Fractional minor (2.1) marks a refinement
+ * of the v2 domain document - the canonical split filter - not a new
+ * generation, mirroring the `.dh` file's v1.5 (migrate.ts). Everything that
+ * dispatches on this value must treat versions as fractional, never
+ * integer-only.
+ */
+const PRESET_DOCUMENT_VERSION = 2.1;
 
 const CHANNEL_COUNT = 8;
+
+/**
+ * Upper bound on a canonical filter cutoff. The frozen split-filter curve's
+ * closed-high-pass extreme (position 100) sits slightly above the 15 kHz
+ * filter range max (15000 * (50/49)^2 ~= 15618 Hz), so the schema ceiling is
+ * the edge of human hearing rather than the range max, which would reject
+ * that legitimate value.
+ */
+const FILTER_MAX_CUTOFF_HZ = 20000;
+
+/**
+ * Canonical split filter (docs/data-representation.md, Principle P2): the
+ * side the filter is on and the active side's cutoff in Hz. The annotation
+ * pins the schema to the shared CanonicalFilter type so the two cannot drift.
+ */
+const canonicalFilterSchema: z.ZodType<CanonicalFilter> = z.object({
+  side: z.union([z.literal("lowpass"), z.literal("highpass")]),
+  cutoffHz: z.number().min(0).max(FILTER_MAX_CUTOFF_HZ),
+});
 
 // --- Pattern (mirrors the engine's Pattern type; arities enforced here) ---
 
@@ -96,9 +130,8 @@ const channelSchema = z.object({
     .number()
     .min(INSTRUMENT_DECAY_RANGE[0])
     .max(INSTRUMENT_DECAY_RANGE[1]),
-  // Split-filter position 0-100 (LP side 0-49, HP side 50-100); semantics
-  // in engine/fx/split-filter.ts.
-  filter: z.number().min(0).max(100),
+  // Canonical split filter `{ side, cutoffHz }`.
+  filter: canonicalFilterSchema,
   // null is the JSON-safe spelling of -Infinity (knob 0 = silence).
   volumeDb: z
     .number()
@@ -145,8 +178,8 @@ const transportSchema = z.object({
 });
 
 const masterSchema = z.object({
-  // Split-filter position 0-100, same semantics as the channel filter.
-  filter: z.number().min(0).max(100),
+  // Canonical split filter `{ side, cutoffHz }`, same shape as the channel filter.
+  filter: canonicalFilterSchema,
   saturation: z.number().min(0).max(1),
   phaser: z.number().min(0).max(1),
   reverb: z.number().min(0).max(1),

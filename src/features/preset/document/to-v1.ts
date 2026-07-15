@@ -18,7 +18,7 @@ import {
   compRatioDomainToKnob,
   instrumentVolumeDomainToKnob,
   masterVolumeDomainToKnob,
-  splitFilterPositionToKnob,
+  splitFilterToKnobPosition,
   transportSwingDomainToKnob,
 } from "@/core/audio/bridge/domain-to-knob";
 import type { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
@@ -66,7 +66,7 @@ function instrumentFromChannel(
     sample: instrument.sample,
     params: {
       decay: instrumentDecayMapping.domainToKnob(channel.decaySeconds),
-      filter: splitFilterPositionToKnob(channel.filter),
+      filter: splitFilterToKnobPosition(channel.filter),
       volume: instrumentVolumeDomainToKnob(channel.volumeDb),
       pan: instrumentPanMapping.domainToKnob(channel.pan),
       tune: tuneSemitonesToKnob(channel.tuneSemitones),
@@ -80,7 +80,7 @@ function masterChainFromDocument(
   master: PresetDocument["master"],
 ): MasterChainParams {
   return {
-    filter: splitFilterPositionToKnob(master.filter),
+    filter: splitFilterToKnobPosition(master.filter),
     // Macro amounts are the wet fraction, so the wet mapping's inverse is
     // the macro inverse (knob = amount * 100).
     saturation: saturationWetMapping.domainToKnob(master.saturation),

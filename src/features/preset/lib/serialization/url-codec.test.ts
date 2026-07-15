@@ -145,7 +145,10 @@ function buildDenseSyntheticDocument(): PresetDocument {
       ...channel,
       // Off-grid domain values that must round-trip within knob tolerance.
       decaySeconds: 0.005 + i * 0.61234567891,
-      filter: 3.7 + i * 12.345,
+      filter: {
+        side: i % 2 === 0 ? ("lowpass" as const) : ("highpass" as const),
+        cutoffHz: 300 + i * 1234.5,
+      },
       volumeDb: i === 0 ? null : -45.123456789 + i * 6.2,
       pan: -1 + i * 0.2857142857,
       tuneSemitones: -7 + i * 1.9876543,
@@ -164,7 +167,7 @@ function buildDenseSyntheticDocument(): PresetDocument {
     },
     transport: { bpm: 173.5, swing: 0.31415926 },
     master: {
-      filter: 61.803398875,
+      filter: { side: "highpass", cutoffHz: 6180.3398875 },
       saturation: 0.123456789,
       phaser: 0.987654321,
       reverb: 0.5555555,

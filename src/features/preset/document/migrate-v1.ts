@@ -30,6 +30,7 @@ import {
   type PresetDocument,
 } from "./document";
 import { UnknownKitError } from "./errors";
+import { frozenSplitFilterPositionToCanonical } from "./frozen-split-filter";
 
 /**
  * Deterministic stand-in for v1 timestamps that were missing or not strings,
@@ -94,8 +95,8 @@ function frozenVolumeDb(knob: number): number | null {
 const frozenV1Curves = {
   decaySeconds: (knob: number): number =>
     frozenExponential(knob, V1_DECAY_RANGE_SECONDS),
-  /** Split-filter positions are identity: the 0-100 knob IS the domain. */
-  filterPosition: (knob: number): number => clamp(knob, 0, 100),
+  /** The split-filter position converts to the canonical `{ side, cutoffHz }`. */
+  filter: frozenSplitFilterPositionToCanonical,
   volumeDb: frozenVolumeDb,
   pan: (knob: number): number => frozenLinear(knob, V1_PAN_RANGE),
   /**
@@ -169,7 +170,7 @@ function resolveKitId(kit: PresetFileV1["kit"]): string {
 function channelFromKnobParams(params: InstrumentParams) {
   return {
     decaySeconds: frozenV1Curves.decaySeconds(params.decay),
-    filter: frozenV1Curves.filterPosition(params.filter),
+    filter: frozenV1Curves.filter(params.filter),
     volumeDb: frozenV1Curves.volumeDb(params.volume),
     pan: frozenV1Curves.pan(params.pan),
     tuneSemitones: frozenV1Curves.tuneSemitones(params.tune),
@@ -197,7 +198,7 @@ function masterFromV1(masterChain: PresetFileV1["masterChain"]) {
   const knobs = migrateMasterChainParams(premapped);
 
   return {
-    filter: frozenV1Curves.filterPosition(knobs.filter),
+    filter: frozenV1Curves.filter(knobs.filter),
     saturation: frozenV1Curves.saturation(knobs.saturation),
     phaser: frozenV1Curves.phaser(knobs.phaser),
     reverb: frozenV1Curves.reverb(knobs.reverb),

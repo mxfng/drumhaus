@@ -1,14 +1,9 @@
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
   INSTRUMENT_TUNE_BASE_FREQUENCY,
   INSTRUMENT_TUNE_SEMITONE_RANGE,
   MASTER_FILTER_RANGE,
 } from "@/core/audio/engine/constants";
-import {
-  SPLIT_FILTER_CURVE_POWER,
-  SPLIT_FILTER_POSITION_THRESHOLD_L,
-  SPLIT_FILTER_POSITION_THRESHOLD_R,
-  splitFilterPositionToFrequency,
-} from "@/core/audio/engine/fx/split-filter";
 import { clamp, lerp, normalize, normalizeCentered } from "@/shared/lib/utils";
 import { KNOB_VALUE_MAX, KNOB_VALUE_MIN } from "./constants";
 import {
@@ -19,10 +14,75 @@ import {
   toKnobValue,
 } from "./utils";
 
-// The knob rotation thresholds mirror the engine's split-filter position
-// semantics (LP side 0-49, HP side 50-100); the engine owns those values.
-const KNOB_ROTATION_THRESHOLD_L = SPLIT_FILTER_POSITION_THRESHOLD_L;
-const KNOB_ROTATION_THRESHOLD_R = SPLIT_FILTER_POSITION_THRESHOLD_R;
+// --- Split-filter position curve (widget-owned) -----------------------------
+//
+// The 0-100 split position is a control encoding (docs/data-representation.md,
+// Principle P4), so its curve lives here in the widget, not in the engine.
+// Positions 0-49 sweep the low-pass side and 50-100 sweep the high-pass side;
+// the active half is rescaled to 0-1 and shaped with an exponential curve for
+// perceptually uniform sweeps. The engine consumes the canonical
+// `{ side, cutoffHz }` this curve produces (see splitFilterPositionToFilter).
+
+/** Position at or below which the low-pass side is active. */
+const KNOB_ROTATION_THRESHOLD_L = 49;
+/** Lowest high-pass-side position (the open extreme of the high-pass side). */
+const KNOB_ROTATION_THRESHOLD_R = 50;
+/** Exponent of the perceptual position -> frequency curve. */
+const SPLIT_FILTER_CURVE_POWER = 2;
+
+/** Whether a split-filter position selects the low-pass side. */
+const isSplitFilterLowPassPosition = (position: number): boolean =>
+  position <= KNOB_ROTATION_THRESHOLD_L;
+
+/**
+ * Converts a split-filter position (0-100) to the active side's cutoff
+ * frequency. The active half of the position range is rescaled to 0-1 and
+ * shaped with the exponential curve.
+ */
+const splitFilterPositionToFrequency = (
+  position: number,
+  rangeLow: [number, number] = MASTER_FILTER_RANGE,
+  rangeHigh: [number, number] = MASTER_FILTER_RANGE,
+): number => {
+  const lowPass = isSplitFilterLowPassPosition(position);
+  const [min, max] = lowPass ? rangeLow : rangeHigh;
+
+  const sidePosition =
+    ((lowPass ? position : position - KNOB_ROTATION_THRESHOLD_R) /
+      KNOB_ROTATION_THRESHOLD_L) *
+    100;
+
+  const t = sidePosition / 100;
+  return min + Math.pow(t, SPLIT_FILTER_CURVE_POWER) * (max - min);
+};
+
+/**
+ * Converts a split-filter position (0-100) to the canonical filter value the
+ * engine and preset document consume: the side the position selects and the
+ * active side's cutoff frequency.
+ */
+const splitFilterPositionToFilter = (position: number): CanonicalFilter => ({
+  side: isSplitFilterLowPassPosition(position) ? "lowpass" : "highpass",
+  cutoffHz: splitFilterPositionToFrequency(position),
+});
+
+/**
+ * Inverse of splitFilterPositionToFilter: a canonical filter value back to a
+ * 0-100 position. The `side` disambiguates the two positions that share a
+ * cutoff, so this is a lossless inverse of the forward curve (no side hint
+ * needed). cutoffHz above the range maximum recovers the closed high-pass
+ * extreme, so a round trip through position 100 lands back on 100.
+ */
+const splitFilterToPosition = (filter: CanonicalFilter): number => {
+  const [min, max] = MASTER_FILTER_RANGE;
+  const normalized = (Math.max(min, filter.cutoffHz) - min) / (max - min);
+  const t = Math.pow(normalized, 1 / SPLIT_FILTER_CURVE_POWER);
+  const position =
+    filter.side === "highpass"
+      ? KNOB_ROTATION_THRESHOLD_R + t * KNOB_ROTATION_THRESHOLD_L
+      : t * KNOB_ROTATION_THRESHOLD_L;
+  return clamp(position, 0, 100);
+};
 
 // ============================================================================
 // FORWARD TRANSFORMS (knobValue 0-100 → domain value)
@@ -73,7 +133,7 @@ const transformKnobValueTune = (
  * Transform knob values split between two ranges, for different behavior on the left and right sides.
  * Used for low pass and high pass filters on a single knob.
  * Left half (0-49) = Low-pass filter, Right half (50-100) = High-pass filter
- * Delegates to the engine, which owns the split-filter position semantics.
+ * Wraps the widget-owned split-filter curve above.
  */
 const transformKnobValueSplitFilter = (
   input: number,
@@ -167,10 +227,13 @@ const inverseTransformKnobValueSplitFilter = (
 export {
   KNOB_ROTATION_THRESHOLD_L,
   KNOB_ROTATION_THRESHOLD_R,
+  SPLIT_FILTER_CURVE_POWER,
   transformKnobValueLinear,
   transformKnobValueExponential,
   transformKnobValueTune,
   transformKnobValueSplitFilter,
+  splitFilterPositionToFilter,
+  splitFilterToPosition,
   inverseTransformKnobValue,
   inverseTransformKnobValueExponential,
   inverseTransformKnobValueTune,
