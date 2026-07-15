@@ -1,32 +1,93 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import {
-  DEFAULT_CHAIN,
-  sanitizeChain,
-} from "@/core/audio/engine/pattern-types";
 import { init } from "@/core/dh";
-import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
-import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
-import { migratePresetFileVersion } from "@/features/preset/document";
-import { getDefaultPresets } from "@/features/preset/lib/constants";
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import {
-  migrateInstruments,
-  migrateMasterChainParams,
-  migratePattern,
-} from "@/features/sequencer/lib/migrations";
-import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
-import { useTransportStore } from "@/features/transport/store/use-transport-store";
-import { useToast } from "@/shared/ui";
+  decodePresetFileText,
+  migrateV1ToDocument,
+  validatePresetFileV1,
+  type PresetDocument,
+} from "@/features/preset/document";
+import { applyPresetDocument } from "@/features/preset/document/apply";
+import type { PresetFileV1 } from "@/features/preset/types/preset";
+import { useToast, type ToastContextValue } from "@/shared/ui";
 
-interface UsePresetLoadingResult {
-  loadPreset: (preset: PresetFileV1) => void;
+type ShowToast = ToastContextValue["toast"];
+
+/**
+ * Map a preset-pipeline failure to its user-facing toast. Typed
+ * PresetDocumentErrors carry user-facing messages (document/errors.ts);
+ * anything else falls back to generic copy.
+ */
+function showPresetLoadErrorToast(toast: ShowToast, error: unknown): void {
+  console.error("Failed to load preset:", error);
+  toast({
+    title: "Something went wrong",
+    description:
+      error instanceof Error
+        ? error.message
+        : "Couldn't open file. It may be invalid or corrupted.",
+    status: "error",
+    duration: 8000,
+  });
 }
 
 /**
- * Loads a preset and updates all stores
+ * The single error boundary for every preset ingress. `produce` runs the
+ * decode/migrate/validate half of the pipeline, so any failure (invalid
+ * file, unsupported version, corrupt field, unknown kit) throws before
+ * applyPresetDocument writes the first store: a rejected preset leaves the
+ * session exactly as it was.
+ */
+function loadPresetDocument(
+  produce: () => PresetDocument,
+  onError: (error: unknown) => void,
+): PresetDocument | null {
+  try {
+    const document = produce();
+    applyPresetDocument(document);
+    return document;
+  } catch (error) {
+    onError(error);
+    return null;
+  }
+}
+
+/**
+ * Load a knob-space (v1-family) preset object: library selections, the
+ * delete fallback, the boot default, and post-save reloads. Library entries
+ * are persisted verbatim in localStorage (until PR 6) and can still be
+ * version 1 or corrupt, so they run the same validate -> migrate ladder as
+ * imported file text before apply.
+ */
+function loadPresetFile(
+  preset: PresetFileV1,
+  toast: ShowToast,
+): PresetDocument | null {
+  return loadPresetDocument(
+    () => migrateV1ToDocument(validatePresetFileV1(preset)),
+    (error) => showPresetLoadErrorToast(toast, error),
+  );
+}
+
+/** Load raw `.dh` file text (file import): decode -> apply. */
+function loadPresetFileText(
+  text: string,
+  toast: ShowToast,
+): PresetDocument | null {
+  return loadPresetDocument(
+    () => decodePresetFileText(text),
+    (error) => showPresetLoadErrorToast(toast, error),
+  );
+}
+
+interface UsePresetLoadingResult {
+  loadPresetFile: (preset: PresetFileV1) => void;
+  loadPresetFileText: (text: string) => PresetDocument | null;
+}
+
+/**
+ * Loads presets through the document pipeline
+ * (decode -> migrate -> validate -> apply) and updates all stores
  *
  * Low-level: handles audio engine, playback stopping, store updates
  */
@@ -35,27 +96,17 @@ function usePresetLoading(): UsePresetLoadingResult {
 
   const hasLoadedFromUrlRef = useRef(false);
 
-  const isPlaying = useTransportStore((state) => state.isPlaying);
-  const togglePlay = useTransportStore((state) => state.togglePlay);
-  const setBpm = useTransportStore((state) => state.setBpm);
-  const setSwing = useTransportStore((state) => state.setSwing);
-
-  const setAllInstruments = useInstrumentsStore(
-    (state) => state.setAllInstruments,
+  const loadFile = useCallback(
+    (preset: PresetFileV1) => {
+      loadPresetFile(preset, toast);
+    },
+    [toast],
   );
 
-  const setVoiceMode = usePatternStore((state) => state.setVoiceMode);
-  const setVariation = usePatternStore((state) => state.setVariation);
-  const setPattern = usePatternStore((state) => state.setPattern);
-  const setChain = usePatternStore((state) => state.setChain);
-  const setChainEnabled = usePatternStore((state) => state.setChainEnabled);
-
-  const setAllMasterChain = useMasterChainStore(
-    (state) => state.setAllMasterChain,
+  const loadFileText = useCallback(
+    (text: string) => loadPresetFileText(text, toast),
+    [toast],
   );
-
-  const loadPresetMeta = usePresetMetaStore((state) => state.loadPreset);
-  const addCustomPreset = usePresetMetaStore((state) => state.addCustomPreset);
 
   const showSharedPresetToast = useCallback(
     (presetName: string) => {
@@ -74,78 +125,6 @@ function usePresetLoading(): UsePresetLoadingResult {
       duration: 8000,
     });
   }, [toast]);
-
-  const loadPreset = useCallback(
-    (rawPreset: PresetFileV1) => {
-      // Normalize the file version first (idempotent): file imports and
-      // share URLs arrive already normalized via validatePresetFileV1, but
-      // library presets persisted verbatim in localStorage can still be
-      // version 1 and need the #269 swing knob migration.
-      const preset = migratePresetFileVersion(rawPreset);
-
-      // Stop playback if currently playing (samples will reload)
-      if (isPlaying) {
-        void togglePlay();
-      }
-
-      // Add to custom presets if not a default preset
-      const defaultPresets = getDefaultPresets();
-      const isCustomPreset = !defaultPresets.some(
-        (p) => p.meta.id === preset.meta.id,
-      );
-      if (isCustomPreset) {
-        addCustomPreset(preset);
-      }
-
-      // Update metadata
-      loadPresetMeta(preset);
-
-      // Update sequencer
-      setVoiceMode(0);
-      const migratedPattern = migratePattern(preset.sequencer.pattern);
-      const legacyCycle = legacyCycleToChain(
-        preset.sequencer.variationCycle,
-        0,
-      );
-      const chain = sanitizeChain(
-        preset.sequencer.chain ?? legacyCycle.chain ?? DEFAULT_CHAIN,
-      );
-      const initialVariation =
-        chain.steps[0]?.variation ?? legacyCycle.variation ?? 0;
-
-      setVariation(initialVariation);
-      setPattern(migratedPattern);
-      setChain(chain);
-      setChainEnabled(
-        preset.sequencer.chainEnabled ?? legacyCycle.chainEnabled ?? false,
-      );
-
-      // Update transport
-      setBpm(preset.transport.bpm);
-      setSwing(preset.transport.swing);
-
-      // Update master chain (with migration for legacy formats)
-      setAllMasterChain(migrateMasterChainParams(preset.masterChain));
-
-      // Update instruments (triggers audio engine reload) w/ migration for legacy presets
-      setAllInstruments(migrateInstruments(preset.kit.instruments));
-    },
-    [
-      isPlaying,
-      addCustomPreset,
-      loadPresetMeta,
-      setAllInstruments,
-      setAllMasterChain,
-      setBpm,
-      setPattern,
-      setSwing,
-      setChain,
-      setChainEnabled,
-      setVariation,
-      setVoiceMode,
-      togglePlay,
-    ],
-  );
 
   const loadFromUrlOrDefault = useCallback(async () => {
     // Prevent duplicate execution
@@ -168,7 +147,7 @@ function usePresetLoading(): UsePresetLoadingResult {
 
       if (!hasPersistedData) {
         // No persisted data, load default init preset
-        loadPreset(init());
+        loadFile(init());
       }
       hasLoadedFromUrlRef.current = true;
       return;
@@ -177,18 +156,30 @@ function usePresetLoading(): UsePresetLoadingResult {
     // Mark as loaded before async operations to prevent race conditions
     hasLoadedFromUrlRef.current = true;
 
+    const onSharedPresetError = (error: unknown) => {
+      console.error("Failed to load shared preset:", error);
+      showSharedPresetErrorToast();
+      loadFile(init());
+    };
+
     try {
       const { urlToPreset } =
         await import("@/features/preset/lib/serialization");
+      // The compact decoder still emits a knob-space v1.5 file (PR 4 moves
+      // it onto the document); it joins the pipeline at the same
+      // validate -> migrate rung as library presets.
       const preset = urlToPreset(presetParam);
-      loadPreset(preset);
-
-      showSharedPresetToast(preset.meta.name);
+      const document = loadPresetDocument(
+        () => migrateV1ToDocument(validatePresetFileV1(preset)),
+        onSharedPresetError,
+      );
+      if (document !== null) {
+        showSharedPresetToast(document.meta.name);
+      }
     } catch (error) {
-      console.error("Failed to load shared preset:", error);
-
-      showSharedPresetErrorToast();
-      loadPreset(init());
+      // urlToPreset itself rejected the link (legacy compact codec, outside
+      // the document pipeline).
+      onSharedPresetError(error);
     } finally {
       // Remove URL parameters after loading preset
       const url = new URL(window.location.href);
@@ -196,14 +187,20 @@ function usePresetLoading(): UsePresetLoadingResult {
       url.searchParams.delete("n");
       window.history.replaceState({}, "", url.toString());
     }
-  }, [loadPreset, showSharedPresetErrorToast, showSharedPresetToast]);
+  }, [loadFile, showSharedPresetErrorToast, showSharedPresetToast]);
 
   // Load initial preset on mount
   useEffect(() => {
     void loadFromUrlOrDefault();
   }, [loadFromUrlOrDefault]);
 
-  return { loadPreset };
+  return { loadPresetFile: loadFile, loadPresetFileText: loadFileText };
 }
 
-export { usePresetLoading };
+export {
+  usePresetLoading,
+  loadPresetDocument,
+  loadPresetFile,
+  loadPresetFileText,
+};
+export type { UsePresetLoadingResult };

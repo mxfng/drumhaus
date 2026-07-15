@@ -1,4 +1,5 @@
 import { useEngineBridge } from "@/core/audio/bridge/use-engine-bridge";
+import { useKitLoadFailureToast } from "@/core/audio/bridge/use-kit-load-failure";
 import { usePresetLoading } from "@/features/preset/hooks/use-preset-loading";
 import { DrumhausContext, type DrumhausContextValue } from "./drumhaus-context";
 
@@ -9,10 +10,12 @@ interface DrumhausProviderProps {
 const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
   // --- Audio Engine Bridge and Preset Loading ---
   useEngineBridge();
-  const { loadPreset } = usePresetLoading();
+  useKitLoadFailureToast();
+  const { loadPresetFile, loadPresetFileText } = usePresetLoading();
 
   const value: DrumhausContextValue = {
-    loadPreset,
+    loadPresetFile,
+    loadPresetFileText,
   };
 
   return (

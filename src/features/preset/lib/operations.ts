@@ -1,45 +1,9 @@
-import {
-  decodePresetFileText,
-  documentToV1,
-  encodePresetDocument,
-  migrateV1ToDocument,
-  parsePresetFileV1,
-  PRESET_DOCUMENT_VERSION,
-} from "@/features/preset/document";
+import { encodePresetDocument } from "@/features/preset/document";
+import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { MAX_PRESET_NAME_LENGTH } from "./constants";
 import { getCurrentPreset } from "./helpers";
-
-/**
- * Parse and validate a preset from a JSON string, dual-reading both file
- * versions: v2 documents are decoded and adapted to the v1 shape today's
- * loadPreset consumes, while v1 files keep flowing through the legacy parse
- * path untouched (the heuristic migrators inside loadPreset still normalize
- * them, exactly as before).
- * Throws a typed PresetDocumentError if the preset is invalid.
- */
-function parsePresetFile(jsonString: string): PresetFileV1 {
-  if (peekPresetVersion(jsonString) === PRESET_DOCUMENT_VERSION) {
-    return documentToV1(decodePresetFileText(jsonString));
-  }
-  return parsePresetFileV1(jsonString);
-}
-
-/**
- * Best-effort version peek for dispatch only; malformed text falls through
- * to the legacy parser, which raises the same typed errors it always has.
- */
-function peekPresetVersion(jsonString: string): unknown {
-  try {
-    const data: unknown = JSON.parse(jsonString);
-    return typeof data === "object" && data !== null
-      ? (data as { version?: unknown }).version
-      : undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 /**
  * Generate a shareable URL for a preset
@@ -84,7 +48,7 @@ function createPresetForExport(name: string, kitMeta: Meta): PresetFileV1 {
  * Download a preset as a .dh file
  */
 function downloadPreset(preset: PresetFileV1, name: string): void {
-  const blob = createPresetExportBlob(preset);
+  const blob = createPresetExportBlob(preset.meta, preset.kit.meta);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -108,12 +72,14 @@ function normalizePresetName(name: string): string {
 }
 
 /**
- * Create a Blob for downloading a preset as a .dh file.
- * The payload is the v2 document encoding: exports write version 2
- * (decision 1), migrated from the store-shaped v1 snapshot.
+ * Create a Blob for downloading the current store state as a .dh file:
+ * the standard egress, snapshot() -> encode. The payload is the v2 document
+ * encoding: exports write version 2 (decision 1).
  */
-function createPresetExportBlob(preset: PresetFileV1): Blob {
-  const json = encodePresetDocument(migrateV1ToDocument(preset));
+function createPresetExportBlob(presetMeta: Meta, kitMeta: Meta): Blob {
+  const json = encodePresetDocument(
+    snapshotPresetDocument(presetMeta, kitMeta),
+  );
   // Use a generic binary MIME type so iOS Safari doesn't append ".json"
   // to the downloaded ".dh" file name.
   return new Blob([json], { type: "application/octet-stream" });
@@ -135,7 +101,6 @@ function toPresetSlug(name: string): string {
 }
 
 export {
-  parsePresetFile,
   generateShareUrl,
   createPresetForExport,
   createPresetExportBlob,
