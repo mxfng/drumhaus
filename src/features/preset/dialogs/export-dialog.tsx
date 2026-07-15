@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { MidiExportForm } from "@/features/preset/forms/midi-export-form";
 import { PresetFileExportForm } from "@/features/preset/forms/preset-file-export-form";
 import { WavExportForm } from "@/features/preset/forms/wav-export-form";
 import {
@@ -19,11 +20,10 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
-type ExportTab = "file" | "wav";
-// Future: "midi" | etc.
+type ExportTab = "file" | "wav" | "midi";
 
 function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
-  const [activeTab, setActiveTab] = useState<"file" | "wav">("file");
+  const [activeTab, setActiveTab] = useState<ExportTab>("file");
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -39,10 +39,10 @@ function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as ExportTab)}
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="file">Preset File</TabsTrigger>
             <TabsTrigger value="wav">WAV</TabsTrigger>
-            {/* Future: <TabsTrigger value="midi">MIDI</TabsTrigger> */}
+            <TabsTrigger value="midi">MIDI</TabsTrigger>
           </TabsList>
 
           <TabsContent value="file">
@@ -53,11 +53,9 @@ function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
             <WavExportForm onClose={onClose} />
           </TabsContent>
 
-          {/* Future:
           <TabsContent value="midi">
             <MidiExportForm onClose={onClose} />
           </TabsContent>
-          */}
         </Tabs>
       </DialogContent>
     </Dialog>
