@@ -33,8 +33,9 @@ import {
  *   into KIT_ORDER (decision 12): inserting or reordering registry kits can
  *   never repoint an existing link.
  * - Channel and master params carry DOCUMENT values (seconds, dB, semitones,
- *   0..1 fractions; decision 15), sparse against the migrated init()
- *   document's defaults, quantized per the table below.
+ *   0..1 fractions, and the canonical split filter as a `[sideCode, cutoffHz]`
+ *   pair; decision 15), sparse against the migrated init() document's
+ *   defaults, quantized per the table below.
  * - Nullable volumes (null = silence, the JSON spelling of -Infinity) are
  *   encoded as an explicit JSON `null`.
  * - Decode validates shapes and lengths with the typed errors from
@@ -73,10 +74,17 @@ const CHANNEL_COUNT = 8;
  *   binding region is the domain floor, not knob 100. Worst case over a
  *   grid step at the floor: err <= 100 * sqrt(q / span).
  *
+ * The split filter is carried as a `[sideCode, cutoffHz]` pair (sideCode
+ * 0 = lowpass, 1 = highpass); its store position is recovered downstream by
+ * splitFilterToPosition (position = 49 * sqrt(cutoffHz / 15000) per side).
+ * That inverse is steepest at the cutoff floor, so like the exponential
+ * fields the bound is worst at cutoffHz -> 0: err <= 49 * sqrt(q / 15000);
+ * p = 3 keeps it at ~0.013 knob units, well under 0.05.
+ *
  * | field             | key | mapping (inverse slope, worst)       | p | worst knob err |
  * |-------------------|-----|--------------------------------------|---|----------------|
  * | decaySeconds      | d   | exp, span 4.995 s; 100*sqrt(q/span)  | 7 | 0.015          |
- * | filter (position) | f   | identity; 1 knob/unit                | 2 | 0.01           |
+ * | filter (cutoffHz) | f   | 49*sqrt(q/15000) at the floor        | 3 | 0.013          |
  * | volumeDb          | v   | linear, span 50 dB; 2 knob/dB        | 2 | 0.02           |
  * | pan               | p   | linear, span 2; 50 knob/unit         | 4 | 0.005          |
  * | tuneSemitones     | t   | linear, span 14 st; 50/7 knob/st     | 3 | 0.008          |
@@ -94,7 +102,7 @@ const CHANNEL_COUNT = 8;
  */
 const PRECISION = {
   decaySeconds: 7,
-  filter: 2,
+  filter: 3,
   volumeDb: 2,
   pan: 4,
   tuneSemitones: 3,
@@ -118,10 +126,13 @@ const INIT_DOCUMENT = migrateV1ToDocument(init());
 type Channel = PresetDocument["channels"][number];
 type Master = PresetDocument["master"];
 
+/** Canonical filter as a compact pair: [sideCode (0=lowpass, 1=highpass), cutoffHz]. */
+type CompactFilter = [number, number];
+
 /** Sparse domain-unit channel params; `v: null` spells silence. */
 type CompactChannelV2 = {
   d?: number; // decaySeconds
-  f?: number; // filter position 0-100
+  f?: CompactFilter; // canonical filter [sideCode, cutoffHz]
   v?: number | null; // volumeDb (null = silence)
   p?: number; // pan -1..1
   t?: number; // tuneSemitones -7..7
@@ -131,7 +142,7 @@ type CompactChannelV2 = {
 
 /** Sparse domain-unit master params; `mv: null` spells silence. */
 type CompactMasterV2 = {
-  f?: number; // filter position 0-100
+  f?: CompactFilter; // canonical filter [sideCode, cutoffHz]
   s?: number; // saturation 0..1
   ph?: number; // phaser 0..1
   rv?: number; // reverb 0..1
@@ -163,6 +174,31 @@ function quantize(value: number, decimals: number): number {
   return Number(value.toFixed(decimals));
 }
 
+/** Compact side code: 0 = lowpass, 1 = highpass. */
+function sideCode(side: Channel["filter"]["side"]): number {
+  return side === "highpass" ? 1 : 0;
+}
+
+/**
+ * Sparse canonical filter: the `[sideCode, cutoffHz]` pair, or undefined when
+ * it lands on the (quantized) default. cutoffHz is compared quantized so an
+ * omission and a written value round-trip to the same value.
+ */
+function sparseFilter(
+  filter: Channel["filter"],
+  defaultFilter: Channel["filter"],
+): CompactFilter | undefined {
+  const side = sideCode(filter.side);
+  const cutoff = quantize(filter.cutoffHz, PRECISION.filter);
+  if (
+    side === sideCode(defaultFilter.side) &&
+    cutoff === quantize(defaultFilter.cutoffHz, PRECISION.filter)
+  ) {
+    return undefined;
+  }
+  return [side, cutoff];
+}
+
 /** Quantized value, or undefined when it lands on the (quantized) default. */
 function sparse(
   value: number,
@@ -192,7 +228,7 @@ function encodeChannel(channel: Channel, defaults: Channel): CompactChannelV2 {
     defaults.decaySeconds,
     PRECISION.decaySeconds,
   );
-  const f = sparse(channel.filter, defaults.filter, PRECISION.filter);
+  const f = sparseFilter(channel.filter, defaults.filter);
   const v = sparseNullable(
     channel.volumeDb,
     defaults.volumeDb,
@@ -222,7 +258,7 @@ function encodeMaster(
 ): CompactMasterV2 | undefined {
   const compact: CompactMasterV2 = {};
 
-  const f = sparse(master.filter, defaults.filter, PRECISION.filter);
+  const f = sparseFilter(master.filter, defaults.filter);
   const s = sparse(
     master.saturation,
     defaults.saturation,
@@ -400,10 +436,39 @@ function validateAccents(value: unknown): CompactAccents | undefined {
   return accents as CompactAccents;
 }
 
-function decodeChannel(compact: CompactChannelV2, defaults: Channel): Channel {
+/**
+ * Decode the compact `[sideCode, cutoffHz]` pair to a canonical filter, or
+ * fall back to the default when absent. A malformed pair fails typed (never a
+ * TypeError); the final schema parse still range-checks cutoffHz.
+ */
+function decodeFilter(
+  f: CompactFilter | undefined,
+  defaultFilter: Channel["filter"],
+  path: string,
+): Channel["filter"] {
+  if (f === undefined) return defaultFilter;
+  if (
+    !Array.isArray(f) ||
+    f.length !== 2 ||
+    typeof f[0] !== "number" ||
+    typeof f[1] !== "number"
+  ) {
+    corrupt(path, "expected a [sideCode, cutoffHz] filter pair");
+  }
+  if (f[0] !== 0 && f[0] !== 1) {
+    corrupt(path, "filter side code must be 0 (lowpass) or 1 (highpass)");
+  }
+  return { side: f[0] === 1 ? "highpass" : "lowpass", cutoffHz: f[1] };
+}
+
+function decodeChannel(
+  compact: CompactChannelV2,
+  defaults: Channel,
+  index: number,
+): Channel {
   return {
     decaySeconds: compact.d ?? defaults.decaySeconds,
-    filter: compact.f ?? defaults.filter,
+    filter: decodeFilter(compact.f, defaults.filter, `ip.${index}.f`),
     volumeDb: compact.v !== undefined ? compact.v : defaults.volumeDb,
     pan: compact.p ?? defaults.pan,
     tuneSemitones: compact.t ?? defaults.tuneSemitones,
@@ -417,7 +482,7 @@ function decodeMaster(
   defaults: Master,
 ): Master {
   return {
-    filter: compact?.f ?? defaults.filter,
+    filter: decodeFilter(compact?.f, defaults.filter, "mc.f"),
     saturation: compact?.s ?? defaults.saturation,
     phaser: compact?.ph ?? defaults.phaser,
     reverb: compact?.rv ?? defaults.reverb,
@@ -497,7 +562,7 @@ function decodeCompactDocument(data: unknown): PresetDocument {
     },
     kit: { id: data.k },
     channels: data.ip.map((channel, index) =>
-      decodeChannel(channel, INIT_DOCUMENT.channels[index]),
+      decodeChannel(channel, INIT_DOCUMENT.channels[index], index),
     ) as PresetDocument["channels"],
     pattern,
     playback: {

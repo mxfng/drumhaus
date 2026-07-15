@@ -8,6 +8,7 @@
  * left continuous (unrounded); quantization is the caller's choice.
  */
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
   INSTRUMENT_TUNE_BASE_FREQUENCY,
   INSTRUMENT_TUNE_SEMITONE_RANGE,
@@ -35,6 +36,7 @@ import {
   saturationAmountMapping,
   saturationWetMapping,
 } from "@/shared/knob/lib/mapping";
+import { splitFilterToPosition } from "@/shared/knob/lib/transform";
 import { ratioToSemitones } from "@/shared/knob/lib/utils";
 import { clamp } from "@/shared/lib/utils";
 import type { MasterChainParams } from "./knob-to-domain";
@@ -53,12 +55,14 @@ function clampKnob(value: number): number {
 }
 
 /**
- * Split-filter positions (instrument filter, master filter) are identity
- * pass-throughs in the bridge: the 0-100 store value IS the engine's
- * domain value. Included so the inverse surface is total.
+ * TEMPORARY (PR C removes): the instrument and master stores still hold a
+ * 0-100 filter position, so the bridge inverts the canonical
+ * `{ side, cutoffHz }` the engine consumes back to a position when
+ * reconstructing knob-space store state. Once the stores hold canonical, the
+ * inverse surface no longer needs a filter case.
  */
-function splitFilterPositionToKnob(position: number): number {
-  return clampKnob(position);
+function splitFilterToKnobPosition(filter: CanonicalFilter): number {
+  return clampKnob(splitFilterToPosition(filter));
 }
 
 /**
@@ -153,7 +157,7 @@ function mapSettingsToParams(settings: MasterChainSettings): MasterChainParams {
   );
 
   return {
-    filter: splitFilterPositionToKnob(settings.filter),
+    filter: splitFilterToKnobPosition(settings.filter),
     saturation,
     phaser: clampKnob(phaserWetMapping.domainToKnob(settings.phaserWet)),
     reverb,
@@ -175,7 +179,7 @@ function continuousParamsToInstrumentKnobs(
   params: ContinuousRuntimeParams,
 ): Pick<InstrumentParams, "filter" | "pan" | "volume"> {
   return {
-    filter: splitFilterPositionToKnob(params.filter),
+    filter: splitFilterToKnobPosition(params.filter),
     pan: clampKnob(instrumentPanMapping.domainToKnob(params.pan)),
     volume: instrumentVolumeDomainToKnob(params.volume),
   };
@@ -212,7 +216,7 @@ export {
   mapSettingsToParams,
   masterVolumeDomainToKnob,
   playParamsToInstrumentKnobs,
-  splitFilterPositionToKnob,
+  splitFilterToKnobPosition,
   transportSwingDomainToKnob,
   tuneDomainToKnob,
 };

@@ -29,7 +29,10 @@ import {
   INSTRUMENT_FILTER_RANGE,
   SAMPLER_ROOT_NOTE,
 } from "./constants";
-import { applySplitFilterWithRamp } from "./fx/split-filter";
+import {
+  applySplitFilterWithRamp,
+  createSplitFilterNode,
+} from "./fx/split-filter";
 import type { ContinuousRuntimeParams } from "./instrument/types";
 import type { MasterBus } from "./master-bus";
 import {
@@ -92,8 +95,11 @@ class InstrumentChannel {
     resolveSampleSource: SampleSourceResolver = defaultSampleSourceResolver,
   ): Promise<InstrumentChannel> {
     // Split filter section: dedicated LP/HP nodes avoid type switching artifacts
-    const lowPassFilterNode = new Filter(INSTRUMENT_FILTER_RANGE[1], "lowpass");
-    const highPassFilterNode = new Filter(
+    const lowPassFilterNode = createSplitFilterNode(
+      INSTRUMENT_FILTER_RANGE[1],
+      "lowpass",
+    );
+    const highPassFilterNode = createSplitFilterNode(
       INSTRUMENT_FILTER_RANGE[0],
       "highpass",
     );
@@ -184,10 +190,10 @@ class InstrumentChannel {
 
   /**
    * Applies continuous instrument params (domain values) to audio nodes.
-   * Expects pan in -1..1, volume in dB, and filter as the 0-100 split-filter
-   * position. Does NOT handle per-note params (pitch, decay, solo, mute) -
-   * those are pushed into the engine as ChannelPlayParams and read by the
-   * scheduler on every trigger.
+   * Expects pan in -1..1, volume in dB, and filter as the canonical
+   * `{ side, cutoffHz }` value. Does NOT handle per-note params (pitch,
+   * decay, solo, mute) - those are pushed into the engine as
+   * ChannelPlayParams and read by the scheduler on every trigger.
    */
   applyContinuousParams(params: ContinuousRuntimeParams): void {
     applySplitFilterWithRamp(

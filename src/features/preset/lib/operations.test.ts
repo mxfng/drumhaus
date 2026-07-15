@@ -50,7 +50,7 @@ describe("createPresetExportBlob", () => {
 
     const raw = JSON.parse(text) as Record<string, unknown>;
     expect(raw.kind).toBe("drumhaus.preset");
-    expect(raw.version).toBe(2);
+    expect(raw.version).toBe(2.1);
     expect((raw.kit as { id: string }).id).toBe("kit-0");
     expect((raw.meta as Meta).id).toBe("export-test");
   });

@@ -1,12 +1,3 @@
-/**
- * Decode raw `.dh` file text into the canonical v2 preset document.
- *
- * The dual-read entry point: versions 1 and 1.5 flow through the legacy
- * parse path (which normalizes 1 to 1.5 knob space, #269) and the 1-to-2
- * migration, version 2 parses strictly against the document schema, and any
- * other version is hard-refused (decision 2).
- */
-
 import {
   PRESET_DOCUMENT_KIND,
   PRESET_DOCUMENT_VERSION,
@@ -20,13 +11,31 @@ import {
 } from "./errors";
 import { isReadablePresetFileVersion } from "./migrate";
 import { migrateV1ToDocument } from "./migrate-v1";
+import { migrateV2ToDocument } from "./migrate-v2";
 import { validatePresetFileV1 } from "./parse";
+
+/**
+ * Decode raw `.dh` file text into the current (v2.1) preset document.
+ *
+ * The multi-version read entry point: versions 1 and 1.5 flow through the
+ * frozen legacy parse path (which normalizes 1 to 1.5 knob space, #269) and
+ * the 1-to-2.1 migration; version 2 (the short-lived domain document whose
+ * split filter was still a 0-100 position) is migrated to v2.1 (split filter
+ * -> canonical `{ side, cutoffHz }`); version 2.1 parses strictly against the
+ * document schema; any other version is hard-refused (decision 2). The version
+ * is dispatched on BEFORE the strict parse, so a v2 filter-as-number is always
+ * routed through its migration and can never be mis-read as a v2.1 canonical
+ * filter.
+ */
+
+/** The v2 domain document, whose split filter was still a 0-100 position. */
+const PRESET_DOCUMENT_VERSION_V2 = 2;
 
 /**
  * Parse preset file text of any supported version into a PresetDocument.
  *
  * @throws {InvalidFileError} If the text is not JSON or not a preset file
- * @throws {UnsupportedVersionError} If the version is not 1, 1.5, or 2
+ * @throws {UnsupportedVersionError} If the version is not 1, 1.5, 2, or 2.1
  * @throws {CorruptFieldError} If a field inside the envelope is corrupt
  * @throws {UnknownKitError} If a v1 file's kit id does not resolve in the
  * registry
@@ -50,6 +59,10 @@ function decodePresetFileText(text: string): PresetDocument {
 
   if (isReadablePresetFileVersion(raw.version)) {
     return migrateV1ToDocument(validatePresetFileV1(raw));
+  }
+
+  if (raw.version === PRESET_DOCUMENT_VERSION_V2) {
+    return migrateV2ToDocument(raw);
   }
 
   if (raw.version === PRESET_DOCUMENT_VERSION) {

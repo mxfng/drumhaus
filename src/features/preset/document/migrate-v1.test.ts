@@ -92,7 +92,8 @@ describe("frozen v1 curves match the live bridge mappings", () => {
       Math.abs(frozenHz - tuneMapping.knobToDomain(knob)),
     ).toBeLessThanOrEqual(EPSILON);
 
-    // Split-filter positions are identity through the live bridge.
+    // The split-filter position converts to the same canonical
+    // { side, cutoffHz } as the live bridge.
     const continuous = instrumentKnobsToContinuousParams({
       decay: knob,
       filter: knob,
@@ -102,7 +103,7 @@ describe("frozen v1 curves match the live bridge mappings", () => {
       solo: false,
       mute: false,
     });
-    expect(frozenV1Curves.filterPosition(knob)).toBe(continuous.filter);
+    expect(frozenV1Curves.filter(knob)).toEqual(continuous.filter);
   });
 
   it.each(KNOB_VALUES)("master conversions at knob %i", (knob) => {
@@ -118,7 +119,7 @@ describe("frozen v1 curves match the live bridge mappings", () => {
       masterVolume: knob,
     });
 
-    expect(frozenV1Curves.filterPosition(knob)).toBe(settings.filter);
+    expect(frozenV1Curves.filter(knob)).toEqual(settings.filter);
     // The macro amount is the wet fraction; the companion fields
     // (saturationAmount, reverbDecay) are the engine-side recipe and are
     // deliberately not stored in the document (decision 15).
@@ -180,7 +181,7 @@ describe("golden corpus", () => {
   it("v1-current spot values", () => {
     const document = migrateFixture("v1-current.json");
     expect(document.kind).toBe("drumhaus.preset");
-    expect(document.version).toBe(2);
+    expect(document.version).toBe(2.1);
     expect(document.meta.id).toBe("53b9eebd-6af5-43ed-b43e-eec354dbc4cc");
     expect(document.meta.name).toBe("init");
     expect(document.kit.id).toBe("kit-0");
@@ -189,14 +190,15 @@ describe("golden corpus", () => {
 
     const channel = document.channels[0];
     expect(channel.decaySeconds).toBe(5); // knob 100, exponential [0.005, 5]
-    expect(channel.filter).toBe(50);
+    // knob 50 is the high-pass open extreme: high-pass at 0 Hz.
+    expect(channel.filter).toEqual({ side: "highpass", cutoffHz: 0 });
     expect(channel.volumeDb).toBeCloseTo(0, 9); // knob 92, linear [-46, 4]
     expect(channel.pan).toBe(0); // knob 50, linear [-1, 1]
     expect(channel.tuneSemitones).toBe(0); // knob 50 = center
     expect(channel.mute).toBe(false);
     expect(channel.solo).toBe(false);
 
-    expect(document.master.filter).toBe(50);
+    expect(document.master.filter).toEqual({ side: "highpass", cutoffHz: 0 });
     expect(document.master.saturation).toBe(0);
     expect(document.master.compRatio).toBe(5); // knob 57.142857... -> 5:1
     expect(document.master.compThresholdDb).toBe(0); // knob 100, linear [-40, 0]
@@ -223,9 +225,10 @@ describe("golden corpus", () => {
     expect(channel.tuneSemitones).toBe(0);
     expect(channel.volumeDb).toBeCloseTo(0, 9);
 
-    // Legacy master: lowPass 100 / highPass 0 -> neutral filter center 50;
-    // saturation and compAttack take migration defaults (0 and knob 50).
-    expect(document.master.filter).toBe(50);
+    // Legacy master: lowPass 100 / highPass 0 -> neutral filter center (knob
+    // 50 = high-pass open at 0 Hz); saturation and compAttack take migration
+    // defaults (0 and knob 50).
+    expect(document.master.filter).toEqual({ side: "highpass", cutoffHz: 0 });
     expect(document.master.saturation).toBe(0);
     expect(document.master.compAttackSeconds).toBeCloseTo(0.02575, 9);
     expect(document.master.compRatio).toBe(4); // knob 43 -> round(4.01)
@@ -240,7 +243,8 @@ describe("golden corpus", () => {
   it("v1-legacy-master spot values", () => {
     const document = migrateFixture("v1-legacy-master.json");
     expect(document.kit.id).toBe("kit-0");
-    expect(document.master.filter).toBe(50); // lowPass 100 -> center
+    // lowPass 100 -> center (knob 50 = high-pass open at 0 Hz).
+    expect(document.master.filter).toEqual({ side: "highpass", cutoffHz: 0 });
     expect(document.master.saturation).toBe(0);
     expect(document.master.compRatio).toBe(4); // knob 43
     // Params were already modern in this mixed-era file.
@@ -273,8 +277,9 @@ describe("golden corpus", () => {
         expect(variation.flams).toEqual(Array(16).fill(false));
       }
     }
-    // hiPass 0 stays low-pass mode; missing compMix defaults to knob 70.
-    expect(document.master.filter).toBe(50);
+    // hiPass 0 stays center (knob 50 = high-pass open); missing compMix
+    // defaults to knob 70.
+    expect(document.master.filter).toEqual({ side: "highpass", cutoffHz: 0 });
     expect(document.master.compMix).toBeCloseTo(0.7, 9);
     expect(document.channels[0].decaySeconds).toBe(5); // legacy release 100
   });
@@ -288,22 +293,33 @@ describe("hiPass behavior fix", () => {
     const raw = rawCurrentFixture();
     raw.masterChain = { lowPass: 100, hiPass: 30 };
     const document = migrateRaw(raw);
-    // highPass 30 selects high-pass mode: 50 + round(30 / 2) = 65.
-    expect(document.master.filter).toBe(65);
+    // highPass 30 selects high-pass mode at position 50 + round(30 / 2) = 65,
+    // which the frozen curve maps to a high-pass cutoff of ~1405.66 Hz.
+    expect(document.master.filter.side).toBe("highpass");
+    expect(document.master.filter.cutoffHz).toBeCloseTo(1405.664, 3);
 
     const rawHighPass = rawCurrentFixture();
     rawHighPass.masterChain = { lowPass: 100, highPass: 30 };
-    expect(document.master.filter).toBe(migrateRaw(rawHighPass).master.filter);
+    expect(document.master.filter).toEqual(
+      migrateRaw(rawHighPass).master.filter,
+    );
   });
 
   it("does not let hiPass shadow a modern filter or a spelled-out highPass", () => {
     const raw = rawCurrentFixture();
     raw.masterChain = { filter: 20, hiPass: 30 };
-    expect(migrateRaw(raw).master.filter).toBe(20);
+    // Position 20 is on the low-pass side (~2498.96 Hz cutoff).
+    const modern = migrateRaw(raw).master.filter;
+    expect(modern.side).toBe("lowpass");
+    expect(modern.cutoffHz).toBeCloseTo(2498.959, 3);
 
     const rawBoth = rawCurrentFixture();
     rawBoth.masterChain = { lowPass: 100, highPass: 0, hiPass: 30 };
-    expect(migrateRaw(rawBoth).master.filter).toBe(50);
+    // Position 50 = high-pass open at 0 Hz.
+    expect(migrateRaw(rawBoth).master.filter).toEqual({
+      side: "highpass",
+      cutoffHz: 0,
+    });
   });
 });
 

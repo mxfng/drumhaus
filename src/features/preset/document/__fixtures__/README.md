@@ -54,11 +54,11 @@ Caution: `migrateMasterChainParams` only reads `highPass`, so a nonzero `hiPass`
 Source: synthetic (modern `v1-current.json` with `kind` changed to `"drumhaus.kit"`).
 Exercises envelope validation: a structurally valid document whose `kind` is not `"drumhaus.preset"` must be rejected before any migrator runs.
 
-## future-version.json
+## unsupported-version.json
 
-Source: synthetic (modern `v1-current.json` with `version` changed to `2`).
-Exercises envelope validation: a document with a `version` newer than the reader supports must be rejected or handled explicitly, not silently parsed.
-Note the knob-space reader accepts versions 1 and 1.5 (the #269 swing revision); version 2 is the domain-unit preset document, which has a different shape, so a v1-shaped file stamped `2` must be rejected.
+Source: synthetic (modern `v1-current.json` with `version` changed to `99`).
+Exercises envelope validation: a document with a `version` newer than any reader supports must be rejected or handled explicitly, not silently parsed.
+Version 99 is beyond every known era (the knob-space reader accepts 1 and 1.5; the document decode path additionally handles 2 and 2.1), so this file is genuinely unsupported and must be rejected on read.
 
 ## missing-sequencer.json
 

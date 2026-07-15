@@ -174,7 +174,7 @@ test.describe("legacy session adoption", () => {
     expect(storage[LIBRARY_BACKUP_KEY]).not.toBeNull();
     expect(storage[SESSION_KEY]).not.toBeNull();
 
-    // The written envelope is a v2 document carrying the adopted values in
+    // The written envelope is a v2.1 document carrying the adopted values in
     // domain units (reverb macro: knob 45 -> 0.45).
     const envelope = JSON.parse(storage[SESSION_KEY] as string) as {
       v: number;
@@ -189,7 +189,7 @@ test.describe("legacy session adoption", () => {
     };
     expect(envelope.v).toBe(1);
     expect(typeof envelope.cleanHash).toBe("string");
-    expect(envelope.document.version).toBe(2);
+    expect(envelope.document.version).toBe(2.1);
     expect(envelope.document.meta.name).toBe("Legacy Groove");
     expect(envelope.document.kit.id).toBe("kit-0");
     expect(envelope.document.transport.bpm).toBe(128);

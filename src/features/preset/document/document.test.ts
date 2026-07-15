@@ -13,6 +13,7 @@ import type {
   Voice,
 } from "@/core/audio/engine/pattern-types";
 import { presetDocumentSchema, type PresetDocument } from "./document";
+import { SPLIT_FILTER_MAX_CUTOFF_HZ } from "./frozen-split-filter";
 
 function makeStepSequence(): StepSequence {
   return {
@@ -39,7 +40,7 @@ function makeVoice(instrumentIndex: number): Voice {
 function makeChannel(): PresetDocument["channels"][number] {
   return {
     decaySeconds: 0.5,
-    filter: 50,
+    filter: { side: "highpass", cutoffHz: 0 },
     volumeDb: 0,
     pan: 0,
     tuneSemitones: 0,
@@ -50,7 +51,7 @@ function makeChannel(): PresetDocument["channels"][number] {
 
 const validDocument: PresetDocument = {
   kind: "drumhaus.preset",
-  version: 2,
+  version: 2.1,
   meta: {
     id: "preset-test",
     name: "Test Preset",
@@ -88,7 +89,7 @@ const validDocument: PresetDocument = {
   },
   transport: { bpm: 120, swing: 0.25 },
   master: {
-    filter: 50,
+    filter: { side: "highpass", cutoffHz: 0 },
     saturation: 0.3,
     phaser: 0,
     reverb: 0.5,
@@ -209,6 +210,52 @@ describe("presetDocumentSchema", () => {
         d.channels[0].tuneSemitones = 8;
       }),
       ["channels", 0, "tuneSemitones"],
+    );
+  });
+
+  it("parses a canonical low-pass channel filter", () => {
+    const doc = mutated((d) => {
+      d.channels[0].filter = { side: "lowpass", cutoffHz: 8000 };
+    });
+    expect(presetDocumentSchema.safeParse(doc).success).toBe(true);
+  });
+
+  it("accepts the frozen curve's closed high-pass extreme", () => {
+    const doc = mutated((d) => {
+      d.channels[0].filter = {
+        side: "highpass",
+        cutoffHz: SPLIT_FILTER_MAX_CUTOFF_HZ,
+      };
+    });
+    expect(presetDocumentSchema.safeParse(doc).success).toBe(true);
+  });
+
+  it("rejects an unknown filter side", () => {
+    expectFailureAt(
+      mutated((d) => {
+        (d.master.filter as { side: string }).side = "bandpass";
+      }),
+      ["master", "filter", "side"],
+    );
+  });
+
+  it("rejects a negative filter cutoff", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.channels[1].filter = { side: "lowpass", cutoffHz: -1 };
+      }),
+      ["channels", 1, "filter", "cutoffHz"],
+    );
+  });
+
+  it("rejects a filter cutoff above the ceiling", () => {
+    // 16000 Hz is above the frozen curve's HP-side max (~15618.5 Hz) yet below
+    // the old 20000 Hz literal, so this pins the tightened, honest bound.
+    expectFailureAt(
+      mutated((d) => {
+        d.channels[1].filter = { side: "highpass", cutoffHz: 16000 };
+      }),
+      ["channels", 1, "filter", "cutoffHz"],
     );
   });
 
