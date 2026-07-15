@@ -16,6 +16,7 @@ import {
 } from "@/shared/knob/lib/mapping";
 import { UnknownKitError } from "./errors";
 import { frozenV1Curves, migrateV1ToDocument } from "./migrate-v1";
+import { GOLDEN_SURFACES } from "./migrate-v1.golden";
 import { parsePresetFileV1, validatePresetFileV1 } from "./parse";
 
 function readFixture(name: string): string {
@@ -160,11 +161,18 @@ describe("frozen v1 curves match the live bridge mappings", () => {
 });
 
 describe("golden corpus", () => {
-  it.each(ERA_FIXTURES)("%s migrates to a stable document", (name) => {
-    expect(migrateFixture(name)).toMatchSnapshot();
-  });
+  // Pattern is excluded from the pinned surface: the migration reuses
+  // migratePattern verbatim, and pattern integrity is covered by
+  // corpus.test.ts and the migrate -> toV1 -> migrate round-trip.
+  it.each(ERA_FIXTURES)(
+    "%s migrates to the pinned document surface",
+    (name) => {
+      const { pattern: _pattern, ...surface } = migrateFixture(name);
+      expect(surface).toEqual(GOLDEN_SURFACES[name]);
+    },
+  );
 
-  // Hand-verified anchors so the snapshots are not self-fulfilling. All
+  // Hand-verified anchors so the pinned surfaces are not self-fulfilling. All
   // fixtures are the init preset, so the interesting values are the knob
   // defaults under the frozen curves: decay 100 -> 5s, volume 92 -> 0 dB,
   // pan/tune 50 -> center, compRatio knob 400/7 -> 5, swing 0 -> 0.
