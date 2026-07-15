@@ -188,3 +188,25 @@ The following PRs are already known; the audit may add or reprioritize.
 Reading genuinely old data stays knob-to-canonical at one boundary and never touches live state, exactly like reading any legacy format.
 The permanent members are the `migrate-v1` frozen curves (old `.dh` files and embedded kits), the v1.5 compact decoder (old share links), the legacy swing rescale, and the legacy localStorage adopter.
 Everything born after this work is canonical.
+
+## Coverage and verification
+
+Every requirement in this document is assigned to a PR and verified against that PR's diff before it merges.
+The main coordinator checks each PR against the row below independently, not on a coordinator's report; a PR does not merge until its assigned findings are provably closed.
+
+| Requirement                                  | PR                    | Proven closed by                                                                   |
+| -------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------- |
+| V1 split filter (P2, P3)                     | B                     | `{ side, cutoffHz }` in engine, document, and codec; golden-render sound-identical |
+| V2 knob params in stores (P1, P4)            | C                     | stores hold canonical; no 0-100 in any store or the bridge                         |
+| V5 legacy island on the live path (P6, P7)   | C                     | `snapshot` reads canonical; `migrate-v1` no longer on the live path                |
+| V6 knob constants in the engine (P3, P4)     | C, F                  | removed from `engine/constants.ts`                                                 |
+| V7 swing converts in a store action (P7)     | C                     | swing is canonical; `transportSwingKnobToDomain` gone                              |
+| V8 display projected from position (P5)      | Epic 2 (new), F (old) | `format` takes canonical; the `knobValue` formatter arg deleted                    |
+| V3 `.dhkit` knob params (P1, P4)             | D                     | `KitFileV2` with canonical params                                                  |
+| V4 `.dh` defaults v1.5-embedded (P1, P4, P6) | E                     | re-authored current-version documents; no knob-embedded factory data               |
+| LOW cleanup                                  | F                     | dead mappings, inverses, hash rounding, and stale comments removed                 |
+| Knob primitive (knob-primitive.md)           | Epic 2                | descriptor model, interaction set, canonical-only API, tests                       |
+| Approved decisions 1-7, principles P1-P7     | across B-F and Epic 2 | each closed finding restores its principle                                         |
+
+Verification status: Epic 2 (PR #359) is verified and closes the knob-primitive row and V8's new-code half.
+The remaining rows are open until their PR lands and is checked against this table.
