@@ -1,0 +1,257 @@
+/**
+ * Canonical-unit descriptors for the scalar parameters, ported from the
+ * existing knob mappings (src/shared/knob/lib/mapping.ts). Each speaks the
+ * canonical unit the app stores and the engine hears: seconds, dB, a -1..1 pan,
+ * semitone offset, 0..1 macro fractions, and the Tone swing fraction.
+ *
+ * These live ALONGSIDE the legacy mappings; nothing here is wired into the app
+ * yet (that is a later PR). They are `ParamDescriptor<number>`.
+ */
+
+import {
+  INSTRUMENT_DECAY_RANGE,
+  INSTRUMENT_PAN_RANGE,
+  INSTRUMENT_TUNE_SEMITONE_RANGE,
+  INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_ATTACK_RANGE,
+  MASTER_COMP_MIX_RANGE,
+  MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_THRESHOLD_RANGE,
+  MASTER_PHASER_WET_RANGE,
+  MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_WET_RANGE,
+  MASTER_VOLUME_RANGE,
+  TRANSPORT_SWING_MAX,
+} from "@/core/audio/engine/constants";
+import type { ParamDescriptor } from "../types";
+
+/**
+ * Skew equivalent to the legacy `t^2` exponential knob curve. The legacy
+ * forward map is `value = lerp(t^power, ...)`; JUCE's inverse skew relates by
+ * `skew = 1 / power`, so a power-2 curve is `skew = 0.5`.
+ */
+const LEGACY_EXP_SKEW = 0.5;
+
+// --- Formatting / parsing helpers ---
+
+function parseNumber(text: string): number | null {
+  const match = text.replace(",", ".").match(/-?\d*\.?\d+/);
+  if (!match) return null;
+  const n = Number(match[0]);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatDb(value: number, floor: number): string {
+  if (value <= floor) return "-∞ dB";
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)} dB`;
+}
+
+function parseDb(text: string, floor: number): number | null {
+  if (/[-−]?\s*(∞|inf)/i.test(text)) return floor;
+  return parseNumber(text);
+}
+
+function formatPercent(value: number): string {
+  return `${Math.round(value * 100)}%`;
+}
+
+function parsePercent(text: string): number | null {
+  const n = parseNumber(text);
+  return n === null ? null : n / 100;
+}
+
+function formatDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "0 ms";
+  if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
+  if (seconds < 10) return `${seconds.toFixed(2)} s`;
+  return `${seconds.toFixed(1)} s`;
+}
+
+function parseDuration(text: string): number | null {
+  const n = parseNumber(text);
+  if (n === null) return null;
+  return /ms/i.test(text) ? n / 1000 : n;
+}
+
+// --- Instrument descriptors ---
+
+const instrumentDecayDescriptor: ParamDescriptor<number> = {
+  min: INSTRUMENT_DECAY_RANGE[0],
+  max: INSTRUMENT_DECAY_RANGE[1],
+  taper: { kind: "exponential", skew: LEGACY_EXP_SKEW },
+  default: INSTRUMENT_DECAY_RANGE[1],
+  unit: "s",
+  format: formatDuration,
+  parse: parseDuration,
+};
+
+const instrumentVolumeDescriptor: ParamDescriptor<number> = {
+  min: INSTRUMENT_VOLUME_RANGE[0],
+  max: INSTRUMENT_VOLUME_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  unit: "dB",
+  format: (v) => formatDb(v, INSTRUMENT_VOLUME_RANGE[0]),
+  parse: (t) => parseDb(t, INSTRUMENT_VOLUME_RANGE[0]),
+};
+
+const instrumentPanDescriptor: ParamDescriptor<number> = {
+  min: INSTRUMENT_PAN_RANGE[0],
+  max: INSTRUMENT_PAN_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  polarity: "bipolar",
+  detents: [{ value: 0, radiusPct: 0.05 }],
+  format: formatPan,
+  parse: parsePan,
+};
+
+const instrumentTuneDescriptor: ParamDescriptor<number> = {
+  min: -INSTRUMENT_TUNE_SEMITONE_RANGE,
+  max: INSTRUMENT_TUNE_SEMITONE_RANGE,
+  taper: { kind: "linear" },
+  default: 0,
+  polarity: "bipolar",
+  unit: "st",
+  detents: [{ value: 0, radiusPct: 0.05 }],
+  format: (v) => `${v > 0 ? "+" : ""}${v.toFixed(1)} st`,
+  parse: parseNumber,
+};
+
+function formatPan(value: number): string {
+  if (Math.abs(value) < 0.005) return "C";
+  const side = value < 0 ? "L" : "R";
+  return `${side}${Math.round(Math.abs(value) * 100)}`;
+}
+
+function parsePan(text: string): number | null {
+  const t = text.trim().toUpperCase();
+  if (t.startsWith("C")) return 0;
+  const n = parseNumber(t);
+  if (n === null) return null;
+  if (t.startsWith("L")) return -Math.abs(n) / 100;
+  if (t.startsWith("R")) return Math.abs(n) / 100;
+  return Math.abs(n) <= 1 ? n : n / 100;
+}
+
+// --- Master descriptors (nine params; `filter` is the generic-T descriptor) ---
+
+const masterVolumeDescriptor: ParamDescriptor<number> = {
+  min: MASTER_VOLUME_RANGE[0],
+  max: MASTER_VOLUME_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  unit: "dB",
+  format: (v) => formatDb(v, MASTER_VOLUME_RANGE[0]),
+  parse: (t) => parseDb(t, MASTER_VOLUME_RANGE[0]),
+};
+
+const masterSaturationDescriptor: ParamDescriptor<number> = {
+  min: MASTER_SATURATION_WET_RANGE[0],
+  max: MASTER_SATURATION_WET_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  format: formatPercent,
+  parse: parsePercent,
+};
+
+const masterPhaserDescriptor: ParamDescriptor<number> = {
+  min: MASTER_PHASER_WET_RANGE[0],
+  max: MASTER_PHASER_WET_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  format: formatPercent,
+  parse: parsePercent,
+};
+
+const masterReverbDescriptor: ParamDescriptor<number> = {
+  min: MASTER_REVERB_WET_RANGE[0],
+  max: MASTER_REVERB_WET_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  format: formatPercent,
+  parse: parsePercent,
+};
+
+const masterCompThresholdDescriptor: ParamDescriptor<number> = {
+  min: MASTER_COMP_THRESHOLD_RANGE[0],
+  max: MASTER_COMP_THRESHOLD_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0,
+  unit: "dB",
+  format: (v) => `${v.toFixed(1)} dB`,
+  parse: parseNumber,
+};
+
+const masterCompRatioDescriptor: ParamDescriptor<number> = {
+  min: MASTER_COMP_RATIO_RANGE[0],
+  max: MASTER_COMP_RATIO_RANGE[1],
+  taper: { kind: "linear" },
+  default: 4,
+  interval: 1,
+  format: (v) => `${Math.round(v)}:1`,
+  parse: parseNumber,
+};
+
+const masterCompAttackDescriptor: ParamDescriptor<number> = {
+  min: MASTER_COMP_ATTACK_RANGE[0],
+  max: MASTER_COMP_ATTACK_RANGE[1],
+  taper: { kind: "exponential", skew: LEGACY_EXP_SKEW },
+  default: 0.01,
+  unit: "ms",
+  format: (v) => `${(v * 1000).toFixed(v < 0.01 ? 1 : 0)} ms`,
+  parse: (t) => {
+    const n = parseNumber(t);
+    return n === null ? null : n / 1000;
+  },
+};
+
+const masterCompMixDescriptor: ParamDescriptor<number> = {
+  min: MASTER_COMP_MIX_RANGE[0],
+  max: MASTER_COMP_MIX_RANGE[1],
+  taper: { kind: "linear" },
+  default: 0.7,
+  format: formatPercent,
+  parse: parsePercent,
+};
+
+// --- Transport ---
+
+/**
+ * Swing as the canonical Tone.Transport swing fraction (0..0.375). Display is
+ * MPC swing percent: MPC% = 50 + (100/3) * swing, so 0 -> 50.0%, 0.375 -> 62.5%.
+ */
+const MPC_PER_SWING = 100 / 3;
+
+const transportSwingDescriptor: ParamDescriptor<number> = {
+  min: 0,
+  max: TRANSPORT_SWING_MAX,
+  taper: { kind: "linear" },
+  default: 0,
+  format: (swing) => {
+    const mpc = 50 + MPC_PER_SWING * swing;
+    return `${mpc.toFixed(1).replace(/\.0$/, "")}%`;
+  },
+  parse: (text) => {
+    const n = parseNumber(text);
+    if (n === null) return null;
+    return (n - 50) / MPC_PER_SWING;
+  },
+};
+
+export {
+  LEGACY_EXP_SKEW,
+  instrumentDecayDescriptor,
+  instrumentVolumeDescriptor,
+  instrumentPanDescriptor,
+  instrumentTuneDescriptor,
+  masterVolumeDescriptor,
+  masterSaturationDescriptor,
+  masterPhaserDescriptor,
+  masterReverbDescriptor,
+  masterCompThresholdDescriptor,
+  masterCompRatioDescriptor,
+  masterCompAttackDescriptor,
+  masterCompMixDescriptor,
+  transportSwingDescriptor,
+};
