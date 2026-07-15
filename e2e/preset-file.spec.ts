@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import { gotoApp, step, toggleStep } from "./helpers";
 
 test.describe(".dh file export and import", () => {
-  test("exports a v2 document that re-imports cleanly", async ({
+  test("exports a v2.1 document that re-imports cleanly", async ({
     page,
   }, testInfo) => {
     await gotoApp(page);
@@ -27,12 +27,15 @@ test.describe(".dh file export and import", () => {
     const filePath = testInfo.outputPath("e2e-round-trip.dh");
     await download.saveAs(filePath);
 
-    // The exported payload is a version 2 document in domain units.
+    // The exported payload is a version 2.1 document in domain units, with
+    // the split filter as a canonical { side, cutoffHz } value.
     const exported = JSON.parse(readFileSync(filePath, "utf-8"));
     expect(exported.kind).toBe("drumhaus.preset");
-    expect(exported.version).toBe(2);
+    expect(exported.version).toBe(2.1);
     expect(typeof exported.kit.id).toBe("string");
     expect(exported.channels).toHaveLength(8);
+    expect(typeof exported.channels[0].filter.side).toBe("string");
+    expect(typeof exported.channels[0].filter.cutoffHz).toBe("number");
     expect(typeof exported.master.compThresholdDb).toBe("number");
     expect(exported.transport.swing).toBeLessThanOrEqual(0.375);
 
