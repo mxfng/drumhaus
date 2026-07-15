@@ -205,6 +205,13 @@ Three refuted candidates validated the architecture: the scheduler's fresh per-s
 
 The first-hit attenuation quirk (see above) was left unfixed through the behavior-preserving phases by design; issue #318 diagnosed and fixed it afterward via the render pre-roll.
 
+### Stem rendering options (issue #308)
+
+`renderWav` remains the single offline render path; stem export extends its options instead of adding a parallel renderer.
+`soloChannelIndex` isolates one channel by transforming the render's snapshot (the target becomes the only soloed channel and the solo flag is forced on) - retained engine state is never mutated, so live playback is unaffected and a muted channel honestly renders a silent stem.
+`masterTap` selects the tap point: `"master"` (default) renders through the full master chain exactly like a mix export, while `"preMaster"` connects the channel chains straight to the offline destination, carrying channel-level processing only (the compressor, saturation, EQ, limiter, and the phaser/reverb sends are master-bus-level and drop out, and master volume stays at unity).
+The #318 warm-up pre-roll applies in both modes: the pre-master tap has no compressors to warm up, but one uniform code path keeps every render scheduled, sliced, and sized identically, including step-0 pre-bar trimming.
+
 ### Recovery instrumentation (issue #319)
 
 The rebuild recovery path shipped without real-world evidence of which tier actually fires, so the context guards now count every tier: eager resume attempts and successes, stall detections, rebuild attempts, rebuild successes (clock revived), rebuild timeouts, and reload fallbacks.

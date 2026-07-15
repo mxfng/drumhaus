@@ -116,6 +116,23 @@ interface RenderWavOptions {
   sampleRate: number;
   /** Append EXPORT_TAIL_TIME of reverb/release tail after the last bar. */
   includeTail: boolean;
+  /**
+   * Renders a single channel's stem: the channel at this index is treated
+   * as the only soloed channel for this render, silencing every other
+   * channel. Applied to the render's snapshot only - the retained play
+   * params (and live playback) are never touched. A muted channel renders
+   * a silent stem, matching what it contributes to the mix.
+   */
+  soloChannelIndex?: number;
+  /**
+   * Where the rendered signal is tapped. "master" (the default) renders
+   * through the full master chain, exactly like a mix export. "preMaster"
+   * connects the channel chains straight to the offline destination, so
+   * the render carries channel-level processing only (no compression,
+   * saturation, EQ, limiting, or phaser/reverb sends - those are
+   * master-bus-level) and plays at unity master volume.
+   */
+  masterTap?: "master" | "preMaster";
 }
 
 /**
@@ -369,8 +386,11 @@ class AudioEngine {
     if (!kit || !resolver) {
       throw new Error("renderWav: no kit has been loaded");
     }
-    const masterSettings = this.masterSettings;
-    if (!masterSettings) {
+    // Master settings are only needed when rendering through the master
+    // chain; a pre-master stem render is channel processing only.
+    const masterTap = options.masterTap ?? "master";
+    const masterSettings = masterTap === "master" ? this.masterSettings : null;
+    if (masterTap === "master" && !masterSettings) {
       throw new Error("renderWav: no master settings have been pushed");
     }
 
@@ -378,14 +398,28 @@ class AudioEngine {
     // offline samplers load) cannot affect this render.
     const precomputed = this.precomputed;
     const playback = this.playback;
-    const playParams = this.playParams.slice();
+    let playParams = this.playParams.slice();
     const continuousParams = this.continuousParams.slice();
     const bpm = this.bpm;
     const swing = this.swing;
 
     const roles = kit.map((slot) => slot.role);
     const ohatIndex = roles.indexOf("ohat");
-    const anySolos = playParams.some((params) => params?.solo);
+    let anySolos = playParams.some((params) => params?.solo);
+
+    // Stem isolation transforms the SNAPSHOT only: the requested channel
+    // becomes the sole soloed channel and anySolos is forced on, so the
+    // scheduler skips every other channel - including when the isolated
+    // channel has no pushed params yet (an honestly silent stem). Retained
+    // engine state is never mutated, so live playback is unaffected.
+    const soloChannelIndex = options.soloChannelIndex;
+    if (soloChannelIndex !== undefined) {
+      playParams = playParams.map(
+        (params, index) =>
+          params && { ...params, solo: index === soloChannelIndex },
+      );
+      anySolos = true;
+    }
 
     const barDuration = calculateExportDuration(options.bars, bpm);
     // Add tail for reverb/release decay if requested, otherwise end on the
@@ -405,7 +439,11 @@ class AudioEngine {
     // those samples back off after rendering, so the export still begins
     // exactly on the bar line at full amplitude. Step-0 events pulled ahead
     // of the bar line (flam grace notes, negative timing nudges) land
-    // inside the pre-roll and are trimmed from the export.
+    // inside the pre-roll and are trimmed from the export. The pre-roll
+    // applies to the pre-master tap too: it has no compressors to warm up,
+    // but keeping one code path means every render is scheduled, sliced,
+    // and sized identically regardless of tap, and step-0 pre-bar trimming
+    // behaves the same in both modes.
     const prerollSamples = Math.ceil(EXPORT_PREROLL_TIME * options.sampleRate);
     const prerollSeconds = prerollSamples / options.sampleRate;
     // One sample of margin so seconds -> samples truncation inside Offline
@@ -417,12 +455,20 @@ class AudioEngine {
       async ({ transport, destination }) => {
         configureTransportTiming(transport, bpm, swing);
 
-        // Fresh bus and channels against the offline destination, from the
-        // retained settings/descriptors/resolver - created and wired by the
-        // same helpers loadKit uses, so live and offline graphs match.
-        const bus = await MasterBus.create(masterSettings, destination);
+        // Fresh channels against the offline context, from the retained
+        // descriptors/resolver - created and wired by the same helpers
+        // loadKit uses, so live and offline graphs match. The master tap
+        // decides what they feed: the full master chain (masterSettings is
+        // non-null exactly when the tap is "master"), or the offline
+        // destination directly for pre-master stems.
         const channels = await createKitChannels(kit, resolver);
-        attachChannels(channels, bus, continuousParams);
+        if (masterSettings) {
+          const bus = await MasterBus.create(masterSettings, destination);
+          attachChannels(channels, bus, continuousParams);
+        } else {
+          attachChannels(channels, null, continuousParams);
+          channels.forEach((channel) => channel.connectToNode(destination));
+        }
 
         // Offline scheduling reads a fixed snapshot context; the sequence
         // itself is the exact one live playback uses.
