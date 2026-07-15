@@ -11,11 +11,11 @@ const DrumhausProvider = ({ children }: DrumhausProviderProps) => {
   // --- Audio Engine Bridge and Preset Loading ---
   useEngineBridge();
   useKitLoadFailureToast();
-  const { loadPresetFile, loadPresetFileText } = usePresetLoading();
+  const { loadPresetFile, importPresetFileText } = usePresetLoading();
 
   const value: DrumhausContextValue = {
     loadPresetFile,
-    loadPresetFileText,
+    importPresetFileText,
   };
 
   return (

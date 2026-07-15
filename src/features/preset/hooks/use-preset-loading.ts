@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
 
-import { init } from "@/core/dh";
 import {
   decodePresetFileText,
   migrateV1ToDocument,
@@ -8,6 +7,7 @@ import {
   type PresetDocument,
 } from "@/features/preset/document";
 import { applyPresetDocument } from "@/features/preset/document/apply";
+import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { useToast, type ToastContextValue } from "@/shared/ui";
 
@@ -54,10 +54,11 @@ function loadPresetDocument(
 
 /**
  * Load a knob-space (v1-family) preset object: library selections, the
- * delete fallback, the boot default, and post-save reloads. Library entries
- * are persisted verbatim in localStorage (until PR 6) and can still be
- * version 1 or corrupt, so they run the same validate -> migrate ladder as
- * imported file text before apply.
+ * delete fallback, and post-save reloads (boot itself now flows through
+ * features/preset/session/bootstrap.ts). Library entries are persisted
+ * verbatim in localStorage (until PR 6) and can still be version 1 or
+ * corrupt, so they run the same validate -> migrate ladder as imported file
+ * text before apply.
  */
 function loadPresetFile(
   preset: PresetFileV1,
@@ -80,9 +81,40 @@ function loadPresetFileText(
   );
 }
 
+/**
+ * The file-import ingress with the unsaved-changes guard (decision 6's PR 5
+ * extension): decode first, so a file that would fail anyway toasts its
+ * typed error without ever prompting, then apply immediately (clean
+ * session) or behind the shared confirm dialog (dirty session). Cancel
+ * discards the decoded document and leaves the session untouched.
+ */
+function importPresetFileText(text: string, toast: ShowToast): void {
+  let document: PresetDocument;
+  try {
+    document = decodePresetFileText(text);
+  } catch (error) {
+    showPresetLoadErrorToast(toast, error);
+    return;
+  }
+
+  requestGuardedPresetLoad("file", () => {
+    const applied = loadPresetDocument(
+      () => document,
+      (error) => showPresetLoadErrorToast(toast, error),
+    );
+    if (applied !== null) {
+      toast({
+        title: "Preset loaded",
+        description: applied.meta.name,
+        status: "success",
+      });
+    }
+  });
+}
+
 interface UsePresetLoadingResult {
   loadPresetFile: (preset: PresetFileV1) => void;
-  loadPresetFileText: (text: string) => PresetDocument | null;
+  importPresetFileText: (text: string) => void;
 }
 
 /**
@@ -103,8 +135,10 @@ function usePresetLoading(): UsePresetLoadingResult {
     [toast],
   );
 
-  const loadFileText = useCallback(
-    (text: string) => loadPresetFileText(text, toast),
+  const importFileText = useCallback(
+    (text: string) => {
+      importPresetFileText(text, toast);
+    },
     [toast],
   );
 
@@ -136,19 +170,8 @@ function usePresetLoading(): UsePresetLoadingResult {
     const presetParam = urlParams.get("p");
 
     if (!presetParam) {
-      // Check if we have persisted store values in localStorage
-      const hasPersistedData =
-        typeof window !== "undefined" &&
-        localStorage.getItem("drumhaus-preset-meta-storage") !== null;
-
-      // TODO: Add validation to check if the persisted data is valid
-      // This could potentially lead to corrupted projects if any states
-      // are malformed.
-
-      if (!hasPersistedData) {
-        // No persisted data, load default init preset
-        loadFile(init());
-      }
+      // No share link: bootstrapSession() already restored the session (or
+      // applied the default preset) synchronously before React mounted.
       hasLoadedFromUrlRef.current = true;
       return;
     }
@@ -156,10 +179,14 @@ function usePresetLoading(): UsePresetLoadingResult {
     // Mark as loaded before async operations to prevent race conditions
     hasLoadedFromUrlRef.current = true;
 
+    // No init() repair here: bootstrapSession() already restored a valid
+    // session (or the default preset) before React mounted, so a failed
+    // link keeps the user's session instead of silently overwriting it
+    // with the default preset (the old repair predates the session boot
+    // and became a data-loss path once boot stopped skipping the restore).
     const onSharedPresetError = (error: unknown) => {
       console.error("Failed to load shared preset:", error);
       showSharedPresetErrorToast();
-      loadFile(init());
     };
 
     try {
@@ -168,36 +195,49 @@ function usePresetLoading(): UsePresetLoadingResult {
       // urlToDocument runs the full decode half of the pipeline: v2
       // payloads decode straight to a document, v1.5 payloads run the same
       // validate -> migrate rung as library presets, and versionless
-      // (pre-#269) links are refused with a typed error.
-      const document = loadPresetDocument(
-        () => urlToDocument(presetParam),
-        onSharedPresetError,
-      );
-      if (document !== null) {
-        showSharedPresetToast(document.meta.name);
+      // (pre-#269) links are refused with a typed error. Decode before the
+      // guard so an invalid link never prompts.
+      let document: PresetDocument;
+      try {
+        document = urlToDocument(presetParam);
+      } catch (error) {
+        onSharedPresetError(error);
+        return;
       }
+
+      // The unsaved-changes guard (decision 6's PR 5 extension): a dirty
+      // restored session defers the apply behind the confirm dialog; cancel
+      // keeps the restored session.
+      requestGuardedPresetLoad("shareLink", () => {
+        const applied = loadPresetDocument(() => document, onSharedPresetError);
+        if (applied !== null) {
+          showSharedPresetToast(applied.meta.name);
+        }
+      });
     } catch (error) {
       // The serialization module itself failed to load (dynamic import).
       onSharedPresetError(error);
     } finally {
-      // Remove URL parameters after loading preset
+      // Remove URL parameters after loading preset (whether the load was
+      // applied, deferred behind the dialog, or refused)
       const url = new URL(window.location.href);
       url.searchParams.delete("p");
       url.searchParams.delete("n");
       window.history.replaceState({}, "", url.toString());
     }
-  }, [loadFile, showSharedPresetErrorToast, showSharedPresetToast]);
+  }, [showSharedPresetErrorToast, showSharedPresetToast]);
 
   // Load initial preset on mount
   useEffect(() => {
     void loadFromUrlOrDefault();
   }, [loadFromUrlOrDefault]);
 
-  return { loadPresetFile: loadFile, loadPresetFileText: loadFileText };
+  return { loadPresetFile: loadFile, importPresetFileText: importFileText };
 }
 
 export {
   usePresetLoading,
+  importPresetFileText,
   loadPresetDocument,
   loadPresetFile,
   loadPresetFileText,
