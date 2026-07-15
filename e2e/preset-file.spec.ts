@@ -34,7 +34,7 @@ test.describe(".dh file export and import", () => {
     expect(typeof exported.kit.id).toBe("string");
     expect(exported.channels).toHaveLength(8);
     expect(typeof exported.master.compThresholdDb).toBe("number");
-    expect(exported.transport.swing).toBeLessThanOrEqual(0.5);
+    expect(exported.transport.swing).toBeLessThanOrEqual(0.375);
 
     // Undo the edit so a successful import must restore it.
     await toggleStep(page, 0, "false");

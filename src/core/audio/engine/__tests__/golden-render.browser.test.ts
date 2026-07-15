@@ -34,14 +34,15 @@ const TOL = 0.005;
 
 /**
  * Swing offset applied to odd 16th steps at swing knob 50.
- * Engine: transport.swing = (50 / 100) * TRANSPORT_SWING_MAX(0.5) = 0.25.
+ * Engine (#269 retune): transport.swing = (50 / 100) *
+ * TRANSPORT_SWING_MAX(0.375) = 0.1875 (MPC 56.25%).
  * Tone Transport._processTick (tone@15.5.25): for ticks halfway between
  * swing subdivision pairs, offset = sin(pi * 0.5) * swing * Ticks((swingTicks * 2) / 3).
  * With 16n subdivision (48 ticks at PPQ 192): (48 * 2) / 3 = 32 ticks
  * = (32 / 192) beats = (1 / 6) * (60 / BPM) seconds.
- * At 120 BPM: 0.25 * (1 / 6) * 0.5 = 0.0208333s.
+ * At 120 BPM: 0.1875 * (1 / 6) * 0.5 = 0.0156250s.
  */
-const SWING_50_OFFSET = 0.25 * (1 / 6) * (60 / BPM);
+const SWING_50_OFFSET = 0.1875 * (1 / 6) * (60 / BPM);
 
 /** FLAM_OFFSET_SECONDS in engine/sequencer/sequencer.ts. */
 const FLAM_OFFSET = 0.015;

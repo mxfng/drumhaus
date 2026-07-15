@@ -86,7 +86,7 @@ describe("adapter output is a modern v1 file", () => {
     const asV1 = documentToV1(migrateFixture(name));
     const validated = validatePresetFileV1(asV1);
     expect(validated.kind).toBe("drumhaus.preset");
-    expect(validated.version).toBe(1);
+    expect(validated.version).toBe(1.5);
   });
 
   it.each(ERA_FIXTURES)("%s is a no-op through today's migrators", (name) => {

@@ -7,6 +7,7 @@ import {
 import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
+import { migratePresetFileVersion } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
@@ -75,7 +76,13 @@ function usePresetLoading(): UsePresetLoadingResult {
   }, [toast]);
 
   const loadPreset = useCallback(
-    (preset: PresetFileV1) => {
+    (rawPreset: PresetFileV1) => {
+      // Normalize the file version first (idempotent): file imports and
+      // share URLs arrive already normalized via validatePresetFileV1, but
+      // library presets persisted verbatim in localStorage can still be
+      // version 1 and need the #269 swing knob migration.
+      const preset = migratePresetFileVersion(rawPreset);
+
       // Stop playback if currently playing (samples will reload)
       if (isPlaying) {
         void togglePlay();

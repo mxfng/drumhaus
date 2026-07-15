@@ -31,11 +31,18 @@ const ERA_FIXTURES = [
 ];
 
 describe("historical corpus", () => {
-  it.each(ERA_FIXTURES)("%s parses as a v1 preset file", (name) => {
-    const preset = parsePresetFileV1(readFixture(name));
-    expect(preset.kind).toBe("drumhaus.preset");
-    expect(preset.version).toBe(1);
-  });
+  it.each(ERA_FIXTURES)(
+    "%s parses as a v1 preset file, normalized to version 1.5",
+    (name) => {
+      const preset = parsePresetFileV1(readFixture(name));
+      expect(preset.kind).toBe("drumhaus.preset");
+      // validatePresetFileV1 normalizes v1 files to the current version
+      // (the #269 swing retune bump); every fixture in this corpus has
+      // swing 0, which migrates to 0.
+      expect(preset.version).toBe(1.5);
+      expect(preset.transport.swing).toBe(0);
+    },
+  );
 
   it.each(ERA_FIXTURES)("%s flows through today's migrators", (name) => {
     const preset = parsePresetFileV1(readFixture(name)) as PresetFileV1;

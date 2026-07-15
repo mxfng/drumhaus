@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "^1.2.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fflate": "^0.8.3",
     "framer-motion": "^12.40.0",
     "immer": "^11.1.8",
     "lucide-react": "^1.21.0",

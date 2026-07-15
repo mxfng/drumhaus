@@ -1,9 +1,10 @@
 /**
  * Decode raw `.dh` file text into the canonical v2 preset document.
  *
- * The dual-read entry point: version 1 flows through the legacy parse path
- * and the 1-to-2 migration, version 2 parses strictly against the document
- * schema, and any other version is hard-refused (decision 2).
+ * The dual-read entry point: versions 1 and 1.5 flow through the legacy
+ * parse path (which normalizes 1 to 1.5 knob space, #269) and the 1-to-2
+ * migration, version 2 parses strictly against the document schema, and any
+ * other version is hard-refused (decision 2).
  */
 
 import {
@@ -17,6 +18,7 @@ import {
   InvalidFileError,
   UnsupportedVersionError,
 } from "./errors";
+import { isReadablePresetFileVersion } from "./migrate";
 import { migrateV1ToDocument } from "./migrate-v1";
 import { validatePresetFileV1 } from "./parse";
 
@@ -24,7 +26,7 @@ import { validatePresetFileV1 } from "./parse";
  * Parse preset file text of any supported version into a PresetDocument.
  *
  * @throws {InvalidFileError} If the text is not JSON or not a preset file
- * @throws {UnsupportedVersionError} If the version is neither 1 nor 2
+ * @throws {UnsupportedVersionError} If the version is not 1, 1.5, or 2
  * @throws {CorruptFieldError} If a field inside the envelope is corrupt
  * @throws {UnknownKitError} If a v1 file's kit id does not resolve in the
  * registry
@@ -46,7 +48,7 @@ function decodePresetFileText(text: string): PresetDocument {
     throw new InvalidFileError("Invalid preset file type");
   }
 
-  if (raw.version === 1) {
+  if (isReadablePresetFileVersion(raw.version)) {
     return migrateV1ToDocument(validatePresetFileV1(raw));
   }
 

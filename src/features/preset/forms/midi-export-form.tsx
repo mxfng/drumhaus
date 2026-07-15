@@ -3,18 +3,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
+import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import {
-  calculateExportDuration,
-  exportToWav,
+  exportToMidi,
   getSuggestedBars,
-} from "@/core/audio/export/wav-exporter";
+} from "@/core/audio/export/midi-exporter";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
-import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
 import {
   Button,
-  Checkbox,
   DialogDescription,
   DialogFooter,
   Field,
@@ -26,37 +25,29 @@ import {
   FieldSeparator,
   FieldSet,
   Input,
-  RadioGroup,
-  RadioGroupItem,
   Slider,
   useToast,
 } from "@/shared/ui";
 
-interface WavExportFormProps {
+interface MidiExportFormProps {
   onClose: () => void;
 }
 
-type SampleRateOption = "system" | "44100" | "48000";
-
-const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
-  { value: "system", label: "System" },
-  { value: "44100", label: "44.1 kHz" },
-  { value: "48000", label: "48 kHz" },
-];
-
-const wavExportSchema = z.object({
+const midiExportSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
   bars: z.number().int().min(1, "At least 1 bar").max(8, "Maximum 8 bars"),
-  sampleRate: z.enum(["system", "44100", "48000"]),
-  includeTail: z.boolean(),
 });
 
-type WavExportFormValues = z.infer<typeof wavExportSchema>;
+type MidiExportFormValues = z.infer<typeof midiExportSchema>;
 
-function WavExportForm({ onClose }: WavExportFormProps) {
+function MidiExportForm({ onClose }: MidiExportFormProps) {
+  const pattern = usePatternStore((state) => state.pattern);
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
+  const variation = usePatternStore((state) => state.variation);
   const bpm = useTransportStore((state) => state.bpm);
+  const swing = useTransportStore((state) => state.swing);
+  const instruments = useInstrumentsStore((state) => state.instruments);
   const presetName = usePresetMetaStore(
     (state) => state.currentPresetMeta.name,
   );
@@ -68,14 +59,12 @@ function WavExportForm({ onClose }: WavExportFormProps) {
     () => ({
       filename: presetName,
       bars: recommendedBars,
-      sampleRate: "system" as const,
-      includeTail: false,
     }),
     [presetName, recommendedBars],
   );
 
-  const form = useForm<WavExportFormValues>({
-    resolver: zodResolver(wavExportSchema),
+  const form = useForm<MidiExportFormValues>({
+    resolver: zodResolver(midiExportSchema),
     defaultValues,
     mode: "onChange",
   });
@@ -97,29 +86,27 @@ function WavExportForm({ onClose }: WavExportFormProps) {
   }, [recommendedBars, setValue]);
 
   const bars = useWatch({ control, name: "bars" });
-  const includeTail = useWatch({ control, name: "includeTail" });
-  const sampleRate = useWatch({ control, name: "sampleRate" });
-
-  const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
-  const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const actualSampleRate =
-        values.sampleRate === "system"
-          ? new AudioContext().sampleRate
-          : parseInt(values.sampleRate, 10);
-
-      await exportToWav({
-        bars: values.bars,
-        sampleRate: actualSampleRate,
-        includeTail: values.includeTail,
+      exportToMidi({
         filename: values.filename.trim() || "drumhaus-export",
+        bars: values.bars,
+        bpm,
+        swing: transportSwingKnobToDomain(swing),
+        pattern,
+        chain,
+        chainEnabled,
+        variation,
+        voices: instruments.map((instrument) => ({
+          name: instrument.meta.name,
+          role: instrument.role,
+        })),
       });
 
       toast({
         title: "Export successful",
-        description: "Your audio file has been exported.",
+        description: "Your MIDI file has been exported.",
         duration: 8000,
       });
       onClose();
@@ -127,7 +114,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       console.error("Export failed:", error);
       toast({
         title: "Something went wrong",
-        description: "Couldn't export audio. Please try again.",
+        description: "Couldn't export MIDI. Please try again.",
         status: "error",
         duration: 8000,
       });
@@ -138,14 +125,14 @@ function WavExportForm({ onClose }: WavExportFormProps) {
     <form onSubmit={onSubmit}>
       <div className="space-y-4">
         <DialogDescription>
-          Export your pattern as a WAV audio file.
+          Export your pattern as a MIDI file for use in a DAW.
         </DialogDescription>
 
         <FieldGroup>
           <Field data-invalid={Boolean(errors.filename)}>
-            <FieldLabel htmlFor="filename">Filename</FieldLabel>
+            <FieldLabel htmlFor="midi-filename">Filename</FieldLabel>
             <Input
-              id="filename"
+              id="midi-filename"
               autoFocus
               aria-invalid={Boolean(errors.filename)}
               disabled={isSubmitting}
@@ -160,7 +147,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
             <FieldLegend>Export options</FieldLegend>
             <FieldGroup>
               <Field data-invalid={Boolean(errors.bars)}>
-                <FieldLabel htmlFor="bars">Length</FieldLabel>
+                <FieldLabel htmlFor="midi-bars">Length</FieldLabel>
 
                 <div className="flex items-center justify-between">
                   <FieldDescription>
@@ -173,7 +160,7 @@ function WavExportForm({ onClose }: WavExportFormProps) {
                 </div>
                 <div>
                   <Slider
-                    id="bars"
+                    id="midi-bars"
                     value={[bars ?? recommendedBars]}
                     onValueChange={([value]) =>
                       setValue("bars", value, { shouldValidate: true })
@@ -200,58 +187,11 @@ function WavExportForm({ onClose }: WavExportFormProps) {
                 <FieldError errors={[errors.bars]} />
               </Field>
 
-              <Field data-invalid={Boolean(errors.sampleRate)}>
-                <FieldLabel>Sample rate</FieldLabel>
-                <FieldDescription>
-                  For audio nerds. System is usually fine.
-                </FieldDescription>
-                <RadioGroup
-                  value={sampleRate}
-                  onValueChange={(value) =>
-                    setValue("sampleRate", value as SampleRateOption, {
-                      shouldValidate: true,
-                    })
-                  }
-                  disabled={isSubmitting}
-                >
-                  {sampleRateOptions.map((option) => (
-                    <div key={option.value} className="flex items-center gap-2">
-                      <RadioGroupItem value={option.value} id={option.value} />
-                      <FieldLabel
-                        htmlFor={option.value}
-                        className="font-normal"
-                      >
-                        {option.label}
-                      </FieldLabel>
-                    </div>
-                  ))}
-                </RadioGroup>
-
-                <FieldError errors={[errors.sampleRate]} />
-              </Field>
-              <FieldSet>
-                <FieldLabel>Reverb Tail</FieldLabel>
-                <FieldDescription>
-                  Add extra time at the end of the export so long reverb or FX
-                  decays aren’t cut off.
-                </FieldDescription>
-
-                <FieldGroup data-slot="checkbox-group">
-                  <Field orientation="horizontal">
-                    <Checkbox
-                      id="includeTail"
-                      checked={includeTail}
-                      onCheckedChange={(checked) =>
-                        setValue("includeTail", checked === true)
-                      }
-                      disabled={isSubmitting}
-                    />
-                    <FieldLabel htmlFor="includeTail" className="font-normal">
-                      Preserve reverb tail in export
-                    </FieldLabel>
-                  </Field>
-                </FieldGroup>
-              </FieldSet>
+              <FieldDescription>
+                Notes follow the General MIDI drum map on channel 10, with
+                tempo, accents, flams, ratchets, timing nudge, and swing baked
+                in.
+              </FieldDescription>
             </FieldGroup>
           </FieldSet>
         </FieldGroup>
@@ -259,10 +199,6 @@ function WavExportForm({ onClose }: WavExportFormProps) {
       </div>
 
       <DialogFooter className="pt-6">
-        <Field className="gap-0">
-          <FieldLabel>Duration</FieldLabel>
-          <FieldDescription>{duration.toFixed(1)}s</FieldDescription>
-        </Field>
         <Button
           type="button"
           variant="ghost"
@@ -272,21 +208,11 @@ function WavExportForm({ onClose }: WavExportFormProps) {
           Cancel
         </Button>
         <Button type="submit" disabled={!isValid || isSubmitting}>
-          <span className={isSubmitting ? "mr-2" : ""}>
-            {isSubmitting ? "Exporting" : "Export"}
-          </span>
-          {isSubmitting && (
-            <PixelatedSpinner
-              color="currentColor"
-              size={20}
-              pixelSize={2}
-              gap={2}
-            />
-          )}
+          Export
         </Button>
       </DialogFooter>
     </form>
   );
 }
 
-export { WavExportForm };
+export { MidiExportForm };

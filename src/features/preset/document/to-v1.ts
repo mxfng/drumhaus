@@ -39,6 +39,7 @@ import {
 import { clamp } from "@/shared/lib/utils";
 import type { PresetDocument } from "./document";
 import { UnknownKitError } from "./errors";
+import { PRESET_FILE_VERSION } from "./migrate";
 
 type Channel = PresetDocument["channels"][number];
 
@@ -109,7 +110,7 @@ function documentToV1(document: PresetDocument): PresetFileV1 {
 
   return {
     kind: "drumhaus.preset",
-    version: 1,
+    version: PRESET_FILE_VERSION,
     meta: {
       id: document.meta.id,
       name: document.meta.name,

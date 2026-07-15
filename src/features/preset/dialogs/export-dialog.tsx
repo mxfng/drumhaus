@@ -1,7 +1,8 @@
 import { useState } from "react";
 
+import { BounceExportForm } from "@/features/preset/forms/bounce-export-form";
+import { MidiExportForm } from "@/features/preset/forms/midi-export-form";
 import { PresetFileExportForm } from "@/features/preset/forms/preset-file-export-form";
-import { WavExportForm } from "@/features/preset/forms/wav-export-form";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +20,10 @@ interface ExportDialogProps {
   onClose: () => void;
 }
 
-type ExportTab = "file" | "wav";
-// Future: "midi" | etc.
+type ExportTab = "file" | "bounce" | "midi";
 
 function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
-  const [activeTab, setActiveTab] = useState<"file" | "wav">("file");
+  const [activeTab, setActiveTab] = useState<ExportTab>("file");
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -39,25 +39,23 @@ function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as ExportTab)}
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="file">Preset File</TabsTrigger>
-            <TabsTrigger value="wav">WAV</TabsTrigger>
-            {/* Future: <TabsTrigger value="midi">MIDI</TabsTrigger> */}
+            <TabsTrigger value="bounce">Bounce</TabsTrigger>
+            <TabsTrigger value="midi">MIDI</TabsTrigger>
           </TabsList>
 
           <TabsContent value="file">
             <PresetFileExportForm onClose={onClose} />
           </TabsContent>
 
-          <TabsContent value="wav">
-            <WavExportForm onClose={onClose} />
+          <TabsContent value="bounce">
+            <BounceExportForm onClose={onClose} />
           </TabsContent>
 
-          {/* Future:
           <TabsContent value="midi">
             <MidiExportForm onClose={onClose} />
           </TabsContent>
-          */}
         </Tabs>
       </DialogContent>
     </Dialog>

@@ -168,11 +168,13 @@ describe("validatePresetFileV1", () => {
     vi.restoreAllMocks();
   });
 
-  it("parses a minimal valid current-v1 preset", () => {
+  it("parses a minimal valid v1 preset, normalized to version 1.5", () => {
     const preset = makePreset();
     const parsed = validatePresetFileV1(preset);
 
-    expect(parsed).toEqual(preset);
+    // The v1 -> v2 normalization only touches the version marker (swing 0
+    // migrates to 0); everything else round-trips unchanged.
+    expect(parsed).toEqual({ ...preset, version: 1.5 });
     expect(warnSpy).not.toHaveBeenCalled();
   });
 
@@ -182,7 +184,37 @@ describe("validatePresetFileV1", () => {
     expect(parsed.meta.name).toBe("Legacy Preset");
     expect(Array.isArray(parsed.sequencer.pattern)).toBe(true);
     expect(parsed.sequencer.variationCycle).toBe("AB");
+    // v1 swing knob 20 (old Tone swing 0.1) rescales by 4/3 (#269).
+    expect(parsed.transport.swing).toBeCloseTo(80 / 3, 12);
     expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("migrates v1 swing knob values into the retuned knob space (#269)", () => {
+    const preset = makePreset();
+    preset.transport.swing = 48;
+
+    const parsed = validatePresetFileV1(preset);
+
+    expect(parsed.version).toBe(1.5);
+    expect(parsed.transport.swing).toBe(64);
+  });
+
+  it("clamps v1 swing values above 75 to knob 100 (#269)", () => {
+    const preset = makePreset();
+    preset.transport.swing = 90;
+
+    const parsed = validatePresetFileV1(preset);
+
+    expect(parsed.transport.swing).toBe(100);
+  });
+
+  it("passes version-1.5 presets through without touching swing", () => {
+    const preset = { ...makePreset(), version: 1.5 };
+    preset.transport.swing = 64;
+
+    const parsed = validatePresetFileV1(preset);
+
+    expect(parsed).toEqual(preset);
   });
 
   it("throws InvalidFileError for a non-object", () => {

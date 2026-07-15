@@ -62,7 +62,12 @@ const V1_COMP_THRESHOLD_RANGE_DB: [number, number] = [-40, 0];
 const V1_COMP_RATIO_RANGE: [number, number] = [1, 8];
 const V1_COMP_ATTACK_RANGE_SECONDS: [number, number] = [0.001, 0.1];
 const V1_UNIT_RANGE: [number, number] = [0, 1];
-const V1_SWING_MAX = 0.5;
+// Swing is frozen at the v1.5 interpretation, not v1: validatePresetFileV1
+// migrates v1 swing knobs to v1.5 space (k * 4/3, clamped; #269) before this
+// module runs, so the knob reaching swingFraction always means k/100 * 0.375.
+// The composition reproduces #269's feel-preserving intent for original v1
+// files: min(k/100 * 0.5, 0.375).
+const V1_SWING_MAX = 0.375;
 const V1_EXP_CURVE_POWER = 2;
 
 function frozenLinear(knob: number, range: [number, number]): number {

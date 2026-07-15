@@ -85,7 +85,7 @@ describe("parsePresetFile on v2 files", () => {
 
       const validated = validatePresetFileV1(asV1);
       expect(validated.kind).toBe("drumhaus.preset");
-      expect(validated.version).toBe(1);
+      expect(validated.version).toBe(1.5);
 
       expectDeepClose(migrateV1ToDocument(asV1), document, "document");
     },

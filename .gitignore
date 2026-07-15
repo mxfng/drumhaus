@@ -12,6 +12,7 @@
 __screenshots__
 /playwright-report
 /test-results
+/audition-out
 
 # vite
 /dist

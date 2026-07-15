@@ -156,16 +156,30 @@ class InstrumentChannel {
    * and connects the output to the master bus's parallel compression input.
    */
   connectToMasterBus(bus: MasterBus): void {
-    // Chain internal nodes first
+    this.chainInternalNodes();
+
+    // Connect to master bus (parallel compression)
+    bus.connectInput(this.output);
+  }
+
+  /**
+   * Chains internal nodes and connects the output straight to an arbitrary
+   * node, bypassing any master bus. Used for pre-master stem rendering,
+   * where the channel's own processing is the entire chain.
+   */
+  connectToNode(node: ToneAudioNode): void {
+    this.chainInternalNodes();
+    this.output.connect(node);
+  }
+
+  /** Wires the internal signal flow: sampler -> envelope -> LP -> HP -> pan. */
+  private chainInternalNodes(): void {
     this.samplerNode.chain(
       this.envelopeNode,
       this.lowPassFilterNode,
       this.highPassFilterNode,
       this.pannerNode,
     );
-
-    // Connect to master bus (parallel compression)
-    bus.connectInput(this.output);
   }
 
   /**

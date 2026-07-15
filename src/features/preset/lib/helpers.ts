@@ -1,5 +1,6 @@
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getMasterChainParams } from "@/features/master-bus/store/use-master-chain-store";
+import { PRESET_FILE_VERSION } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
@@ -21,7 +22,7 @@ function getCurrentPreset(presetMeta: Meta, kitMeta: Meta): PresetFileV1 {
 
   return {
     kind: "drumhaus.preset",
-    version: 1,
+    version: PRESET_FILE_VERSION,
     meta: {
       ...presetMeta,
       updatedAt: new Date().toISOString(),

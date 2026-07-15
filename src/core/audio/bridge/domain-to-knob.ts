@@ -198,8 +198,8 @@ function playParamsToInstrumentKnobs(
 }
 
 /**
- * Converts Tone transport swing (0-0.5) back to the 0-100 swing knob value.
- * Inverse of transportSwingKnobToDomain.
+ * Converts Tone transport swing (0-TRANSPORT_SWING_MAX) back to the 0-100
+ * swing knob value. Inverse of transportSwingKnobToDomain.
  */
 function transportSwingDomainToKnob(swing: number): number {
   return clampKnob((swing / TRANSPORT_SWING_MAX) * TRANSPORT_SWING_RANGE[1]);
