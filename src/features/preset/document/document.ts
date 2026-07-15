@@ -41,6 +41,7 @@ import {
   MIN_CHAIN_REPEAT,
   type Pattern,
 } from "@/core/audio/engine/pattern-types";
+import { SPLIT_FILTER_MAX_CUTOFF_HZ } from "./frozen-split-filter";
 
 const PRESET_DOCUMENT_KIND = "drumhaus.preset";
 /**
@@ -55,13 +56,13 @@ const PRESET_DOCUMENT_VERSION = 2.1;
 const CHANNEL_COUNT = 8;
 
 /**
- * Upper bound on a canonical filter cutoff. The frozen split-filter curve's
- * closed-high-pass extreme (position 100) sits slightly above the 15 kHz
- * filter range max (15000 * (50/49)^2 ~= 15618 Hz), so the schema ceiling is
- * the edge of human hearing rather than the range max, which would reject
- * that legitimate value.
+ * Upper bound on a canonical filter cutoff: the frozen curve's HP-side
+ * overshoot (SPLIT_FILTER_MAX_CUTOFF_HZ ~= 15618.5 Hz, the position-100 closed
+ * high-pass extreme). Traceable to the frozen curve rather than a round magic
+ * number, so the schema accepts every value the curve can legitimately produce
+ * and rejects anything above it.
  */
-const FILTER_MAX_CUTOFF_HZ = 20000;
+const FILTER_MAX_CUTOFF_HZ = SPLIT_FILTER_MAX_CUTOFF_HZ;
 
 /**
  * Canonical split filter (docs/data-representation.md, Principle P2): the

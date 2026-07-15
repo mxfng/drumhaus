@@ -54,4 +54,19 @@ function frozenSplitFilterPositionToCanonical(
   return { side: lowPass ? "lowpass" : "highpass", cutoffHz };
 }
 
-export { FROZEN_SPLIT_FILTER_RANGE, frozenSplitFilterPositionToCanonical };
+/**
+ * Highest cutoff the frozen curve can produce. Its closed-high-pass extreme
+ * (position 100) overshoots the range max because the high-pass side
+ * normalizes its 50..100 span by 49, so the curve reaches (50/49)^2 of the
+ * range at the top (~15618.5 Hz, above the 15 kHz range max). Derived by
+ * evaluating the frozen curve at its maximum position so it cannot drift from
+ * the curve; the preset schema uses it as the honest cutoff ceiling.
+ */
+const SPLIT_FILTER_MAX_CUTOFF_HZ =
+  frozenSplitFilterPositionToCanonical(100).cutoffHz;
+
+export {
+  FROZEN_SPLIT_FILTER_RANGE,
+  frozenSplitFilterPositionToCanonical,
+  SPLIT_FILTER_MAX_CUTOFF_HZ,
+};

@@ -13,6 +13,7 @@ import type {
   Voice,
 } from "@/core/audio/engine/pattern-types";
 import { presetDocumentSchema, type PresetDocument } from "./document";
+import { SPLIT_FILTER_MAX_CUTOFF_HZ } from "./frozen-split-filter";
 
 function makeStepSequence(): StepSequence {
   return {
@@ -219,6 +220,16 @@ describe("presetDocumentSchema", () => {
     expect(presetDocumentSchema.safeParse(doc).success).toBe(true);
   });
 
+  it("accepts the frozen curve's closed high-pass extreme", () => {
+    const doc = mutated((d) => {
+      d.channels[0].filter = {
+        side: "highpass",
+        cutoffHz: SPLIT_FILTER_MAX_CUTOFF_HZ,
+      };
+    });
+    expect(presetDocumentSchema.safeParse(doc).success).toBe(true);
+  });
+
   it("rejects an unknown filter side", () => {
     expectFailureAt(
       mutated((d) => {
@@ -238,9 +249,11 @@ describe("presetDocumentSchema", () => {
   });
 
   it("rejects a filter cutoff above the ceiling", () => {
+    // 16000 Hz is above the frozen curve's HP-side max (~15618.5 Hz) yet below
+    // the old 20000 Hz literal, so this pins the tightened, honest bound.
     expectFailureAt(
       mutated((d) => {
-        d.channels[1].filter = { side: "highpass", cutoffHz: 25000 };
+        d.channels[1].filter = { side: "highpass", cutoffHz: 16000 };
       }),
       ["channels", 1, "filter", "cutoffHz"],
     );
