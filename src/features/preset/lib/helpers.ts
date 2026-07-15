@@ -3,7 +3,10 @@ import { getMasterChainParams } from "@/features/master-bus/store/use-master-cha
 import { PRESET_FILE_VERSION } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import type { Meta } from "@/features/preset/types/meta";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type {
+  PresetFileV1,
+  PresetListItem,
+} from "@/features/preset/types/preset";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 
@@ -60,7 +63,7 @@ function isFactoryPreset(presetId: string): boolean {
  */
 function generateDuplicateName(
   baseName: string,
-  existingPresets: PresetFileV1[],
+  existingPresets: PresetListItem[],
 ): string {
   const nameSet = new Set(existingPresets.map((p) => p.meta.name));
 

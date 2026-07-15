@@ -51,10 +51,11 @@ function applyPresetDocument(document: PresetDocument): void {
     void transport.togglePlay();
   }
 
-  // Add to custom presets if not a default preset
+  // Register a non-factory preset in the library (dedupe by id; the entry
+  // write is best-effort, see addCustomPreset)
   const presetMeta = usePresetMetaStore.getState();
   if (isCustomPreset) {
-    presetMeta.addCustomPreset(file);
+    presetMeta.addCustomPreset(document);
   }
 
   // Update metadata (the clean dirty baseline is set post-commit below)

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 
 import { PresetActionsDialog } from "@/features/preset/dialogs/preset-actions-dialog";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type { PresetListItem } from "@/features/preset/types/preset";
 import {
   Button,
   Select,
@@ -17,8 +17,11 @@ import {
 
 interface PresetSelectProps {
   selectedPresetId: string;
-  defaultPresets: PresetFileV1[];
-  customPresets: PresetFileV1[];
+  // Both lists are read for identity only (meta.id/meta.name), so they take
+  // the minimal PresetListItem shape: factory presets (PresetFileV1) and
+  // library entries (PresetDocument) both satisfy it.
+  defaultPresets: PresetListItem[];
+  customPresets: PresetListItem[];
   onSelect: (value: string) => void;
   onRenamePreset?: (presetId: string, presetName: string) => void;
   onDuplicatePreset?: (presetId: string, presetName: string) => void;
