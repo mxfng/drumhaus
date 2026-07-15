@@ -5,6 +5,8 @@
 // byte-level encoding only - musical decisions (tick math, note mapping,
 // velocities) live in midi-exporter.ts.
 
+import { triggerBlobDownload } from "./download";
+
 /**
  * One note in absolute ticks. The encoder expands this into a note-on /
  * note-off pair and handles delta-time conversion and event ordering.
@@ -195,15 +197,7 @@ function encodeMidi(file: MidiFile): ArrayBuffer {
  * Triggers a browser download of the MIDI file
  */
 function downloadMidi(midiBuffer: ArrayBuffer, filename: string): void {
-  const blob = new Blob([midiBuffer], { type: "audio/midi" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  triggerBlobDownload(midiBuffer, filename, "audio/midi");
 }
 
 export { downloadMidi, encodeMidi, encodeVariableLengthQuantity };
