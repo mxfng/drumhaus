@@ -1,14 +1,15 @@
 /**
  * Typed error taxonomy for preset document parsing.
  *
- * This taxonomy will grow in later PRs (e.g. UnknownKitError for share-URL
- * kit references, StorageFullError for library saves).
+ * This taxonomy will grow in later PRs (e.g. StorageFullError for library
+ * saves).
  */
 
 type PresetDocumentErrorCode =
   | "invalid-file"
   | "unsupported-version"
-  | "corrupt-field";
+  | "corrupt-field"
+  | "unknown-kit";
 
 /**
  * Base class for all errors raised while parsing a preset document.
@@ -38,7 +39,11 @@ class UnsupportedVersionError extends PresetDocumentError {
   readonly version: unknown;
 
   constructor(version: unknown) {
-    super(`Unsupported preset version: ${String(version)}`);
+    super(
+      `This preset uses file format version ${String(version)}, which this ` +
+        "version of Drumhaus cannot read. The app may be older than the " +
+        "file; try updating.",
+    );
     this.name = "UnsupportedVersionError";
     this.version = version;
   }
@@ -59,10 +64,31 @@ class CorruptFieldError extends PresetDocumentError {
   }
 }
 
+/**
+ * The preset references a kit id the registry cannot resolve (decision 12:
+ * fail typed rather than silently substitute sounds). `kitId` is undefined
+ * when the preset carries no usable kit id at all.
+ */
+class UnknownKitError extends PresetDocumentError {
+  readonly code = "unknown-kit";
+  readonly kitId: string | undefined;
+
+  constructor(kitId: string | undefined) {
+    super(
+      kitId === undefined
+        ? "This preset does not reference a kit, so its sounds cannot be loaded."
+        : `This preset uses the kit "${kitId}", which this build of Drumhaus does not include.`,
+    );
+    this.name = "UnknownKitError";
+    this.kitId = kitId;
+  }
+}
+
 export {
   PresetDocumentError,
   InvalidFileError,
   UnsupportedVersionError,
   CorruptFieldError,
+  UnknownKitError,
 };
 export type { PresetDocumentErrorCode };

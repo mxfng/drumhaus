@@ -1,15 +1,44 @@
-import { parsePresetFileV1 } from "@/features/preset/document";
+import {
+  decodePresetFileText,
+  documentToV1,
+  encodePresetDocument,
+  migrateV1ToDocument,
+  parsePresetFileV1,
+  PRESET_DOCUMENT_VERSION,
+} from "@/features/preset/document";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { MAX_PRESET_NAME_LENGTH } from "./constants";
 import { getCurrentPreset } from "./helpers";
 
 /**
- * Parse and validate a preset from a JSON string
- * Throws a typed PresetDocumentError if the preset is invalid
+ * Parse and validate a preset from a JSON string, dual-reading both file
+ * versions: v2 documents are decoded and adapted to the v1 shape today's
+ * loadPreset consumes, while v1 files keep flowing through the legacy parse
+ * path untouched (the heuristic migrators inside loadPreset still normalize
+ * them, exactly as before).
+ * Throws a typed PresetDocumentError if the preset is invalid.
  */
 function parsePresetFile(jsonString: string): PresetFileV1 {
+  if (peekPresetVersion(jsonString) === PRESET_DOCUMENT_VERSION) {
+    return documentToV1(decodePresetFileText(jsonString));
+  }
   return parsePresetFileV1(jsonString);
+}
+
+/**
+ * Best-effort version peek for dispatch only; malformed text falls through
+ * to the legacy parser, which raises the same typed errors it always has.
+ */
+function peekPresetVersion(jsonString: string): unknown {
+  try {
+    const data: unknown = JSON.parse(jsonString);
+    return typeof data === "object" && data !== null
+      ? (data as { version?: unknown }).version
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -79,10 +108,12 @@ function normalizePresetName(name: string): string {
 }
 
 /**
- * Create a Blob for downloading a preset as a .dh file
+ * Create a Blob for downloading a preset as a .dh file.
+ * The payload is the v2 document encoding: exports write version 2
+ * (decision 1), migrated from the store-shaped v1 snapshot.
  */
 function createPresetExportBlob(preset: PresetFileV1): Blob {
-  const json = JSON.stringify(preset, null, 2);
+  const json = encodePresetDocument(migrateV1ToDocument(preset));
   // Use a generic binary MIME type so iOS Safari doesn't append ".json"
   // to the downloaded ".dh" file name.
   return new Blob([json], { type: "application/octet-stream" });
@@ -107,5 +138,6 @@ export {
   parsePresetFile,
   generateShareUrl,
   createPresetForExport,
+  createPresetExportBlob,
   downloadPreset,
 };
