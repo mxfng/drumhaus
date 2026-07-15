@@ -4,12 +4,12 @@ import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getAllKits } from "@/features/kit/lib/constants";
 import { KitFileV1 } from "@/features/kit/types/kit";
+import type { PresetDocument } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import {
   createPresetForExport,
   downloadPreset,
   generateShareUrl,
-  parsePresetFile,
 } from "@/features/preset/lib/operations";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
@@ -18,13 +18,15 @@ import { useToast } from "@/shared/ui";
 
 interface UsePresetManagerProps {
   /**
-   * Load preset function from usePresetLoading
-   * This orchestrates updating all stores and stopping playback
+   * Preset loaders from usePresetLoading: the document pipeline entry
+   * points (decode/migrate/validate -> apply), which orchestrate updating
+   * all stores, stopping playback, and the shared error boundary.
    *
-   * Externalized because it depends on instrument runtimes and
-   * is defined in usePresetLoading hook.
+   * Externalized because they depend on instrument runtimes and
+   * are defined in usePresetLoading hook.
    */
-  loadPreset: (preset: PresetFileV1) => void;
+  loadPresetFile: (preset: PresetFileV1) => void;
+  loadPresetFileText: (text: string) => PresetDocument | null;
 }
 
 interface UsePresetManagerResult {
@@ -59,7 +61,8 @@ interface UsePresetManagerResult {
  * low level runtime updates
  */
 function usePresetManager({
-  loadPreset,
+  loadPresetFile,
+  loadPresetFileText,
 }: UsePresetManagerProps): UsePresetManagerResult {
   const { toast } = useToast();
 
@@ -145,9 +148,9 @@ function usePresetManager({
         return;
       }
 
-      loadPreset(preset);
+      loadPresetFile(preset);
     },
-    [hasUnsavedChanges, allPresets, loadPreset, openDialog],
+    [hasUnsavedChanges, allPresets, loadPresetFile, openDialog],
   );
 
   // --- File Operations ---
@@ -164,9 +167,9 @@ function usePresetManager({
 
       // Update state
       markPresetClean(preset);
-      loadPreset(preset);
+      loadPresetFile(preset);
     },
-    [currentKitMeta, markPresetClean, loadPreset],
+    [currentKitMeta, markPresetClean, loadPresetFile],
   );
 
   /**
@@ -207,31 +210,28 @@ function usePresetManager({
 
       const reader = new FileReader();
       reader.onload = (e) => {
-        try {
-          const result = e.target?.result;
-          if (typeof result !== "string") throw new Error("Invalid file");
-
-          const preset = parsePresetFile(result);
-          loadPreset(preset);
-          toast({
-            title: "Preset loaded",
-            description: preset.meta.name,
-            status: "success",
-          });
-        } catch (error) {
-          console.error("Failed to import preset:", error);
+        const result = e.target?.result;
+        if (typeof result !== "string") {
           toast({
             title: "Something went wrong",
-            description:
-              error instanceof Error
-                ? error.message
-                : "Couldn't open file. It may be invalid or corrupted.",
+            description: "There was a problem reading the file.",
             status: "error",
             duration: 8000,
           });
-        } finally {
           cleanup();
+          return;
         }
+
+        // The pipeline's shared error boundary toasts on failure.
+        const loaded = loadPresetFileText(result);
+        if (loaded !== null) {
+          toast({
+            title: "Preset loaded",
+            description: loaded.meta.name,
+            status: "success",
+          });
+        }
+        cleanup();
       };
       reader.onerror = () => {
         toast({
@@ -247,7 +247,7 @@ function usePresetManager({
     input.onerror = cleanup;
     document.body.appendChild(input);
     input.click();
-  }, [loadPreset, toast]);
+  }, [loadPresetFileText, toast]);
 
   // --- PRESET MANAGEMENT ---
 
@@ -271,7 +271,7 @@ function usePresetManager({
         const newPreset = saveCurrentAsNewPreset(name);
         if (newPreset) {
           markPresetClean(newPreset);
-          loadPreset(newPreset);
+          loadPresetFile(newPreset);
           toast({
             title: "Preset saved",
             description: name,
@@ -293,7 +293,7 @@ function usePresetManager({
       updateCustomPreset,
       saveCurrentAsNewPreset,
       markPresetClean,
-      loadPreset,
+      loadPresetFile,
       toast,
     ],
   );
@@ -346,7 +346,7 @@ function usePresetManager({
       deleteCustomPreset(id);
 
       if (isDeletingCurrent) {
-        loadPreset(init());
+        loadPresetFile(init());
         toast({
           title: "Preset deleted",
           description: "Loaded default preset",
@@ -359,7 +359,7 @@ function usePresetManager({
         });
       }
     },
-    [deleteCustomPreset, currentPresetMeta.id, loadPreset, toast],
+    [deleteCustomPreset, currentPresetMeta.id, loadPresetFile, toast],
   );
 
   // Computed values

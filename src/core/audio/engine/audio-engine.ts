@@ -88,6 +88,18 @@ interface KitSampleDescriptor {
 }
 
 /**
+ * Outcome of a loadKit call. "loaded" means this call's channels are now
+ * live. "superseded" means a newer loadKit (or dispose) won the loadSeq
+ * race while this one was in flight - not an error, the newer load owns
+ * the engine's kit. "failed" means this call was still the latest but its
+ * samples could not be loaded; the engine keeps the previous kit's
+ * channels and the retained descriptors stay untouched, so the caller can
+ * reconcile (the bridge rolls the instruments store back, decision 5 in
+ * docs/preset-persistence.md).
+ */
+type KitLoadResult = "loaded" | "superseded" | "failed";
+
+/**
  * Playback configuration pushed from the pattern store.
  */
 interface PlaybackConfig {
@@ -323,6 +335,11 @@ class AudioEngine {
    * while it is in flight, the orphaned new channels are disposed and the
    * active ones are left untouched.
    *
+   * Resolves with the outcome (see KitLoadResult); it never rejects. On
+   * "failed" the previous kit stays live and the retained descriptors are
+   * not poisoned, so rebuild and renderWav keep targeting the last kit
+   * that actually loaded.
+   *
    * During playback the live sequence is deliberately left untouched: the
    * scheduler reads channels fresh on every step, so it picks up the new
    * kit on its next step, and recreating the sequence here would reset the
@@ -331,7 +348,7 @@ class AudioEngine {
   async loadKit(
     kit: KitSampleDescriptor[],
     resolver?: SampleSourceResolver,
-  ): Promise<void> {
+  ): Promise<KitLoadResult> {
     const token = ++this.loadSeq;
     let newChannels: InstrumentChannel[] = [];
 
@@ -344,7 +361,7 @@ class AudioEngine {
 
       if (token !== this.loadSeq) {
         newChannels.forEach((channel) => channel.dispose());
-        return;
+        return "superseded";
       }
 
       // Retain the kit only now that it has fully loaded (still guarded by
@@ -380,12 +397,14 @@ class AudioEngine {
       );
 
       this.kitLoadedListeners.forEach((listener) => listener());
+      return "loaded";
     } catch (error) {
       if (token !== this.loadSeq) {
         newChannels.forEach((channel) => channel.dispose());
-        return;
+        return "superseded";
       }
       console.error("Error loading audio buffers:", error);
+      return "failed";
     }
   }
 
@@ -1086,6 +1105,7 @@ function getAudioEngine(): AudioEngine {
 export { AudioEngine, calculateExportDuration, getAudioEngine };
 export type {
   EngineDiagnostics,
+  KitLoadResult,
   KitSampleDescriptor,
   PlaybackConfig,
   RenderWavOptions,

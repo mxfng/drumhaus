@@ -57,7 +57,7 @@ const ConfirmSelectPresetDialog = lazy(() =>
 );
 
 function PresetControl() {
-  const { loadPreset } = useDrumhaus();
+  const { loadPresetFile, loadPresetFileText } = useDrumhaus();
   const {
     kits,
     defaultPresets,
@@ -68,7 +68,7 @@ function PresetControl() {
     importPreset,
     saveCurrentPreset,
     sharePreset,
-  } = usePresetManager({ loadPreset });
+  } = usePresetManager({ loadPresetFile, loadPresetFileText });
 
   // Store state
   const currentPresetMeta = usePresetMetaStore(
@@ -93,7 +93,7 @@ function PresetControl() {
   const handleConfirmPresetChange = () => {
     closeDialog();
     const preset = allPresets.find((p) => p.meta.id === dialogData.preset?.id);
-    if (preset) loadPreset(preset);
+    if (preset) loadPresetFile(preset);
   };
 
   // Preset management handlers

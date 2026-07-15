@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { shallow } from "zustand/shallow";
 
 import { getAudioEngine } from "@/core/audio/engine";
-import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import {
   getMasterChainParams,
   useMasterChainStore,
@@ -11,10 +10,7 @@ import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { useAudioContextGuards } from "../hooks/use-audio-context-guards";
 import { subscribeInstrumentParamsToEngine } from "./instrument-params";
-import {
-  kitDescriptorsChanged,
-  toKitSampleDescriptors,
-} from "./kit-descriptors";
+import { subscribeKitToEngine } from "./kit-subscription";
 import { mapParamsToSettings, type MasterChainParams } from "./knob-to-domain";
 
 /**
@@ -73,23 +69,8 @@ function useEngineBridge(): void {
     // --- Instrument params (continuous + play params, knob -> domain) ---
     unsubscribers.push(subscribeInstrumentParamsToEngine(engine));
 
-    // --- Kit (keyed on the full id / path / role descriptor tuples) ---
-    let prevKit = toKitSampleDescriptors(
-      useInstrumentsStore.getState().instruments,
-    );
-    if (prevKit.length > 0) {
-      void engine.loadKit(prevKit);
-    }
-    unsubscribers.push(
-      useInstrumentsStore.subscribe((state) => {
-        if (kitDescriptorsChanged(prevKit, state.instruments)) {
-          prevKit = toKitSampleDescriptors(state.instruments);
-          if (prevKit.length > 0) {
-            void engine.loadKit(prevKit);
-          }
-        }
-      }),
-    );
+    // --- Kit (descriptor-keyed loads + failure rollback, decision 5) ---
+    unsubscribers.push(subscribeKitToEngine(engine));
 
     // --- Master chain ---
     let prevMasterParams: MasterChainParams | null = null;
