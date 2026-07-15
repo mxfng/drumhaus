@@ -111,7 +111,9 @@ function instrumentKnobsToPlayParams(
 }
 
 /**
- * Converts the 0-100 swing knob value to Tone transport swing (0-0.5).
+ * Converts the 0-100 swing knob value linearly to Tone transport swing
+ * (0-TRANSPORT_SWING_MAX): knob 100 = 0.375 = the TR-909's maximum shuffle
+ * = MPC 62.5% (#269).
  */
 function transportSwingKnobToDomain(swing: number): number {
   return (swing / TRANSPORT_SWING_RANGE[1]) * TRANSPORT_SWING_MAX;

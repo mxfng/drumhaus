@@ -1,3 +1,4 @@
+import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
@@ -8,7 +9,7 @@ import {
   transportBpmMapping,
   transportSwingMapping,
 } from "@/shared/knob/lib/mapping";
-import { cn } from "@/shared/lib/utils";
+import { clamp, cn } from "@/shared/lib/utils";
 
 function TempoControlsScreen() {
   const bpm = useTransportStore((state) => state.bpm);
@@ -25,10 +26,18 @@ function TempoControlsScreen() {
     setBpm(Math.round(domainValue));
   };
 
-  const swingKnobValue = transportSwingMapping.domainToKnob(swing);
+  // The store's swing IS the 0-100 knob value (the mapping's domain is the
+  // MPC display percent), so the knob value passes through directly.
+  // Integer rounding matches tempo-controls.tsx so both swing entry points
+  // persist the same granularity.
   const handleSwingChange = (knobValue: number) => {
-    const domainValue = transportSwingMapping.knobToDomain(knobValue);
-    setSwing(domainValue);
+    setSwing(
+      clamp(
+        Math.round(knobValue),
+        TRANSPORT_SWING_RANGE[0],
+        TRANSPORT_SWING_RANGE[1],
+      ),
+    );
   };
 
   // Convert chain to string format (e.g., "AABBABCD")
@@ -48,7 +57,7 @@ function TempoControlsScreen() {
           labelClassName="text-xs"
         />
         <ClickableValue
-          value={swingKnobValue}
+          value={swing}
           onValueChange={handleSwingChange}
           mapping={transportSwingMapping}
           sensitivity={0.2}

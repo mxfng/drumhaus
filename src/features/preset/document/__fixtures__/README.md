@@ -57,7 +57,8 @@ Exercises envelope validation: a structurally valid document whose `kind` is not
 ## future-version.json
 
 Source: synthetic (modern `v1-current.json` with `version` changed to `2`).
-Exercises envelope validation: a document with a `version` newer than the reader supports must be rejected or handled explicitly, not silently parsed as v1.
+Exercises envelope validation: a document with a `version` newer than the reader supports must be rejected or handled explicitly, not silently parsed.
+Note the knob-space reader accepts versions 1 and 1.5 (the #269 swing revision); version 2 is the domain-unit preset document, which has a different shape, so a v1-shaped file stamped `2` must be rejected.
 
 ## missing-sequencer.json
 

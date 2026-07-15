@@ -28,7 +28,7 @@ import {
   MASTER_VOLUME_DEFAULT,
   MASTER_VOLUME_RANGE,
   TRANSPORT_BPM_RANGE,
-  TRANSPORT_SWING_RANGE,
+  TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
 import { FormattedValue, ParamMapping } from "../types/types";
 import { KNOB_VALUE_DEFAULT, KNOB_VALUE_MAX } from "./constants";
@@ -38,7 +38,7 @@ import {
   formatDisplayDecayDuration,
   formatDisplayFilter,
   formatDisplayPercentage,
-  formatDisplayPercentageValue,
+  formatDisplaySwingMpc,
   formatDisplayTuneSemitone,
   formatDisplayVolumeInstrument as formatDisplayVolume,
   formatDisplayVolumeMaster,
@@ -379,17 +379,34 @@ const saturationAmountMapping = makeLinearMapping(
 );
 
 /**
- * Transport swing (0-100%)
+ * MPC swing percent displayed by the transport swing knob: 50.0% (straight)
+ * at knob 0 up to 62.5% (TR-909 max shuffle) at knob 100 (#269).
+ *
+ * MPC% = 50 + (100 / 3) * toneSwing, and the knob maps linearly onto Tone
+ * swing 0..TRANSPORT_SWING_MAX, so with the 0.375 ceiling the display is
+ * 50 + knob / 8. Derived from the constant so display and audio ceiling
+ * cannot drift apart.
+ */
+const TRANSPORT_SWING_MPC_DISPLAY_RANGE: [number, number] = [
+  50,
+  50 + (100 / 3) * TRANSPORT_SWING_MAX,
+];
+
+/**
+ * Transport swing knob, displayed as MPC swing percent (50.0-62.5%).
+ *
+ * The mapping's domain is the DISPLAY percent, not Tone swing: the store
+ * keeps the raw 0-100 knob value and the bridge
+ * (transportSwingKnobToDomain) owns the knob -> Tone swing conversion.
+ * knobToDomain/domainToKnob are exact inverses (both linear over powers of
+ * two), so ParamKnob's canonicalization round-trip is lossless.
  */
 const transportSwingMapping = makeLinearMapping(
-  TRANSPORT_SWING_RANGE,
-  formatDisplayPercentageValue,
+  TRANSPORT_SWING_MPC_DISPLAY_RANGE,
+  formatDisplaySwingMpc,
   {
-    knobValueCount: TRANSPORT_SWING_RANGE[1] - TRANSPORT_SWING_RANGE[0],
-    defaultKnobValue: inverseTransformKnobValue(
-      TRANSPORT_SWING_RANGE[0],
-      TRANSPORT_SWING_RANGE,
-    ),
+    knobValueCount: 100,
+    defaultKnobValue: 0,
   },
 );
 

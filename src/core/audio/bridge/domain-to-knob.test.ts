@@ -144,11 +144,29 @@ describe("split-filter positions", () => {
 });
 
 describe("transport swing", () => {
-  it.each(KNOB_VALUES)("round-trips knob %f through 0-0.5", (knobValue) => {
-    const knob = transportSwingDomainToKnob(
-      transportSwingKnobToDomain(knobValue),
-    );
-    expect(Math.abs(knob - knobValue)).toBeLessThanOrEqual(EPSILON);
+  it.each(KNOB_VALUES)(
+    "round-trips knob %f through the Tone swing domain",
+    (knobValue) => {
+      const knob = transportSwingDomainToKnob(
+        transportSwingKnobToDomain(knobValue),
+      );
+      expect(Math.abs(knob - knobValue)).toBeLessThanOrEqual(EPSILON);
+    },
+  );
+
+  // Pins the #269 retune: the knob maps linearly onto the TR-909 shuffle
+  // range, so knob 100 = Tone swing 0.375 (MPC 62.5%) and knob 50 = 0.1875
+  // (MPC 56.25%).
+  it("maps knob 100 to Tone swing 0.375 (the 909 ceiling)", () => {
+    expect(transportSwingKnobToDomain(100)).toBe(0.375);
+  });
+
+  it("maps knob 50 to Tone swing 0.1875", () => {
+    expect(transportSwingKnobToDomain(50)).toBe(0.1875);
+  });
+
+  it("maps knob 0 to straight time", () => {
+    expect(transportSwingKnobToDomain(0)).toBe(0);
   });
 });
 

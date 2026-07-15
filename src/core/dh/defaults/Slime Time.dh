@@ -1,6 +1,6 @@
 {
   "kind": "drumhaus.preset",
-  "version": 1,
+  "version": 1.5,
   "meta": {
     "id": "37088980-248c-4ea0-8daf-08f6fce01dbb",
     "name": "Slime Time",
@@ -206,7 +206,7 @@
   },
   "transport": {
     "bpm": 124,
-    "swing": 38
+    "swing": 50.666666666666664
   },
   "sequencer": {
     "pattern": {

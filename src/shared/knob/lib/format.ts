@@ -39,8 +39,8 @@ const formatDisplayPercentage = (value: number) => {
   return { value: `${(value * 100).toFixed(0)}`, append: "%" };
 };
 
-const formatDisplayPercentageValue = (value: number) => {
-  return { value: value.toFixed(0), append: "%" };
+const formatDisplaySwingMpc = (value: number) => {
+  return { value: value.toFixed(1), append: "%" };
 };
 
 const formatDisplayCompRatio = (value: number) => {
@@ -75,6 +75,6 @@ export {
   formatDisplayBpm,
   formatDisplaySplitFilter,
   formatDisplayPercentage,
-  formatDisplayPercentageValue,
+  formatDisplaySwingMpc,
   formatDisplayCompRatio,
 };

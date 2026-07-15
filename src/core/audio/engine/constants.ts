@@ -63,9 +63,17 @@ const MASTER_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 
 const TRANSPORT_BPM_RANGE: Range = [40, 300];
 
-// UI swing control (0–100) mapped to Tone.Transport swing (0–0.5)
+// UI swing control (0–100) mapped to Tone.Transport swing (0–TRANSPORT_SWING_MAX)
 const TRANSPORT_SWING_RANGE: Range = [0, 100];
-const TRANSPORT_SWING_MAX = 0.5;
+/**
+ * Maximum Tone.Transport swing (#269).
+ *
+ * The ceiling is the TR-909's maximum shuffle: 6 ticks at 96 PPQN = 25% of
+ * a 16th note, i.e. MPC 62.5% swing. Tone applies swing as a delay of
+ * swing * 1/6 beat on odd 16ths, so 0.375 * 1/6 = 1/16 beat = 25% of a
+ * 16th. (The previous ceiling of 0.5 was a full triplet shift, MPC 66.7%.)
+ */
+const TRANSPORT_SWING_MAX = 0.375;
 
 // ============================================================================
 // Sequencer

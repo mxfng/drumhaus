@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 
 import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import { getAudioEngine } from "@/core/audio/engine";
+import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
 
 interface TransportState {
   // Playback state
@@ -65,6 +66,17 @@ const useTransportStore = create<TransportState>()(
       })),
       {
         name: "drumhaus-transport-storage",
+        // v1 (#269 swing retune): persisted swing knob values written under
+        // the old curve (Tone swing = knob / 200) are reinterpreted by the
+        // new curve (knob * 0.00375) and must be rescaled to keep the feel.
+        version: 1,
+        migrate: (persistedState, version) => {
+          const state = persistedState as { bpm: number; swing: number };
+          if (version < 1 && typeof state?.swing === "number") {
+            return { ...state, swing: migrateLegacySwingKnob(state.swing) };
+          }
+          return state;
+        },
         // Only persist user-facing state, not Tone.js refs
         partialize: (state) => ({
           bpm: state.bpm,

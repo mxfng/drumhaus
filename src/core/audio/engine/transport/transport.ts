@@ -42,8 +42,8 @@ function setTransportBpm(bpm: number): void {
 }
 
 /**
- * Set the live transport swing in domain units (0-0.5 Tone swing),
- * preserving the current bpm. Knob-value conversion happens at the
+ * Set the live transport swing in domain units (Tone swing, clamped by the
+ * engine to 0-TRANSPORT_SWING_MAX), preserving the current bpm. Knob-value conversion happens at the
  * boundary in bridge/knob-to-domain.ts (transportSwingKnobToDomain).
  */
 function setTransportSwing(swing: number): void {
@@ -51,7 +51,7 @@ function setTransportSwing(swing: number): void {
 }
 
 /**
- * Configures transport timing settings from domain values (bpm, 0-0.5 swing).
+ * Configures transport timing settings from domain values (bpm, Tone swing).
  * Works with both online (getTransport) and offline transport objects, and
  * is the single assignment point for transport timing - the live setters
  * above route through it.

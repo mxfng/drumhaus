@@ -5,12 +5,16 @@ import {
   UnsupportedVersionError,
 } from "./errors";
 import { collectStrippedKeyPaths, presetFileV1Schema } from "./file-v1";
+import {
+  isReadablePresetFileVersion,
+  migratePresetFileVersion,
+} from "./migrate";
 
 /**
  * Parse and validate a preset from raw file text.
  *
  * @throws {InvalidFileError} If the text is not JSON or not a preset file
- * @throws {UnsupportedVersionError} If the preset version is not 1
+ * @throws {UnsupportedVersionError} If the preset version is not 1 or 1.5
  * @throws {CorruptFieldError} If a field inside the envelope is corrupt
  */
 function parsePresetFileV1(text: string): PresetFileV1 {
@@ -24,13 +28,15 @@ function parsePresetFileV1(text: string): PresetFileV1 {
 }
 
 /**
- * Validate an already-parsed value as a v1 preset file.
+ * Validate an already-parsed value as a knob-space (v1-family) preset file
+ * and normalize it to the current version (v1.5): version-1 files get the
+ * #269 swing knob migration applied (see migratePresetFileVersion).
  *
  * Unknown keys at the envelope and section level are stripped from the
  * returned value and reported once via console.warn.
  *
  * @throws {InvalidFileError} If the value is not an object or the wrong kind
- * @throws {UnsupportedVersionError} If the preset version is not 1
+ * @throws {UnsupportedVersionError} If the preset version is not 1 or 1.5
  * @throws {CorruptFieldError} If a field inside the envelope is corrupt
  */
 function validatePresetFileV1(data: unknown): PresetFileV1 {
@@ -43,7 +49,7 @@ function validatePresetFileV1(data: unknown): PresetFileV1 {
   if (raw.kind !== "drumhaus.preset") {
     throw new InvalidFileError("Invalid preset file type");
   }
-  if (raw.version !== 1) {
+  if (!isReadablePresetFileVersion(raw.version)) {
     throw new UnsupportedVersionError(raw.version);
   }
 
@@ -62,7 +68,7 @@ function validatePresetFileV1(data: unknown): PresetFileV1 {
 
   // The schema is intentionally looser than the compile-time type; the
   // migrators invoked by loadPreset normalize the remaining legacy variance.
-  return result.data as unknown as PresetFileV1;
+  return migratePresetFileVersion(result.data as unknown as PresetFileV1);
 }
 
 export { parsePresetFileV1, validatePresetFileV1 };

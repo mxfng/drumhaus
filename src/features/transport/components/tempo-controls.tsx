@@ -55,12 +55,14 @@ const TempoControls = () => {
     };
   }, [mode, bpm, swing]);
 
-  const knobValue = mapping.domainToKnob(value);
+  // BPM is stored in domain units (bpm) and needs the inverse mapping;
+  // swing is stored as the raw 0-100 knob value (the swing mapping's domain
+  // is the MPC display percent), so it passes through directly.
+  const knobValue = mode === "bpm" ? mapping.domainToKnob(value) : value;
 
   const handleKnobChange = (newKnobValue: number) => {
-    const domainValue = mapping.knobToDomain(newKnobValue);
-
     if (mode === "bpm") {
+      const domainValue = mapping.knobToDomain(newKnobValue);
       const clamped = clamp(
         Math.round(domainValue),
         TRANSPORT_BPM_RANGE[0],
@@ -70,8 +72,10 @@ const TempoControls = () => {
       return;
     }
 
+    // Integer knob rounding matches tempo-controls-screen.tsx so both swing
+    // entry points persist the same granularity.
     const clamped = clamp(
-      Math.round(domainValue),
+      Math.round(newKnobValue),
       TRANSPORT_SWING_RANGE[0],
       TRANSPORT_SWING_RANGE[1],
     );
