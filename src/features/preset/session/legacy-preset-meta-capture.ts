@@ -3,17 +3,19 @@
  * PR 5 (currentPresetMeta/currentKitMeta now restore via the session
  * document).
  *
- * WHY THIS EXISTS: zustand's persist middleware writes the migrated state
- * back to storage as soon as a version-bumped store hydrates, which happens
- * synchronously at module import - BEFORE bootstrapSession() runs. That
- * write-back narrows the drumhaus-preset-meta-storage envelope to
- * { customPresets }, destroying the very meta fields the one-time legacy
- * adopter needs to know which preset and kit the user had loaded. The
- * store's migrate function therefore hands the dropped fields to this
- * module on their way out, and the adopter reads them from here instead of
- * from storage.
+ * WHY THIS EXISTS: the legacy drumhaus-preset-meta-storage envelope is
+ * consumed and DELETED by the library adoption
+ * (features/preset/library/adoption.ts), which runs at the top of
+ * bootstrapSession - before the session ladder decides whether the one-time
+ * legacy SESSION adoption needs the currentPresetMeta/currentKitMeta fields
+ * that pre-PR 5 envelopes still carry. The library adoption therefore hands
+ * those fields to this module on their way out, and the session adopter
+ * reads them from here instead of from storage. (In PR 5 the same duty was
+ * performed by the store's persist migrate, which narrowed the envelope to
+ * { customPresets }; the persist is gone now that the library owns its own
+ * storage.)
  *
- * Deliberately import-free of stores so both the preset-meta store and the
+ * Deliberately import-free of stores so the library adoption and the
  * session bootstrap can depend on it without cycles.
  */
 
@@ -47,9 +49,9 @@ function asMeta(value: unknown): Meta | undefined {
 }
 
 /**
- * Called by the preset-meta store's persist migrate with the pre-narrowing
- * persisted state. Malformed fields capture as undefined; the adopter then
- * falls back to init()'s meta.
+ * Called by the library adoption with the legacy envelope's state, before
+ * the envelope is retired. Malformed fields capture as undefined; the
+ * session adopter then falls back to init()'s meta.
  */
 function captureLegacyPresetMeta(persistedState: unknown): void {
   if (typeof persistedState !== "object" || persistedState === null) return;
