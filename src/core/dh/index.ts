@@ -1,4 +1,4 @@
-import { validatePresetFile } from "@/features/preset/lib/helpers";
+import { validatePresetFileV1 } from "@/features/preset/document";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import aDrumCalledHausJson from "./defaults/A Drum Called Haus.dh";
 import amsterdamJson from "./defaults/Amsterdam.dh";
@@ -18,20 +18,21 @@ import welcomeToTheHausJson from "./defaults/Welcome to the Haus.dh";
  */
 
 const aDrumCalledHaus = (): PresetFileV1 =>
-  validatePresetFile(aDrumCalledHausJson);
-const amsterdam = (): PresetFileV1 => validatePresetFile(amsterdamJson);
-const init = (): PresetFileV1 => validatePresetFile(initJson);
+  validatePresetFileV1(aDrumCalledHausJson);
+const amsterdam = (): PresetFileV1 => validatePresetFileV1(amsterdamJson);
+const init = (): PresetFileV1 => validatePresetFileV1(initJson);
 const polaroidBounce = (): PresetFileV1 =>
-  validatePresetFile(polaroidBounceJson);
-const purpleHaus = (): PresetFileV1 => validatePresetFile(purpleHausJson);
-const richKids = (): PresetFileV1 => validatePresetFile(richKidsJson);
-const slimeTime = (): PresetFileV1 => validatePresetFile(slimeTimeJson);
-const sunflower = (): PresetFileV1 => validatePresetFile(sunflowerJson);
+  validatePresetFileV1(polaroidBounceJson);
+const purpleHaus = (): PresetFileV1 => validatePresetFileV1(purpleHausJson);
+const richKids = (): PresetFileV1 => validatePresetFileV1(richKidsJson);
+const slimeTime = (): PresetFileV1 => validatePresetFileV1(slimeTimeJson);
+const sunflower = (): PresetFileV1 => validatePresetFileV1(sunflowerJson);
 const superDreamHaus = (): PresetFileV1 =>
-  validatePresetFile(superDreamHausJson);
-const togetherAgain = (): PresetFileV1 => validatePresetFile(togetherAgainJson);
+  validatePresetFileV1(superDreamHausJson);
+const togetherAgain = (): PresetFileV1 =>
+  validatePresetFileV1(togetherAgainJson);
 const welcomeToTheHaus = (): PresetFileV1 =>
-  validatePresetFile(welcomeToTheHausJson);
+  validatePresetFileV1(welcomeToTheHausJson);
 
 export {
   aDrumCalledHaus,

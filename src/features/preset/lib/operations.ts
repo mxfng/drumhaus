@@ -1,15 +1,15 @@
+import { parsePresetFileV1 } from "@/features/preset/document";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { MAX_PRESET_NAME_LENGTH } from "./constants";
-import { getCurrentPreset, validatePresetFile } from "./helpers";
+import { getCurrentPreset } from "./helpers";
 
 /**
  * Parse and validate a preset from a JSON string
- * Throws an error if the preset is invalid
+ * Throws a typed PresetDocumentError if the preset is invalid
  */
 function parsePresetFile(jsonString: string): PresetFileV1 {
-  const parsed = JSON.parse(jsonString);
-  return validatePresetFile(parsed);
+  return parsePresetFileV1(jsonString);
 }
 
 /**

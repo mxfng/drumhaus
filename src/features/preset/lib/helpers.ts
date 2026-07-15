@@ -60,26 +60,6 @@ function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
 }
 
 /**
- * Validates a parsed preset file object
- */
-function validatePresetFile(data: unknown): PresetFileV1 {
-  if (typeof data !== "object" || data === null) {
-    throw new Error("Invalid preset file: expected an object");
-  }
-
-  const preset = data as Record<string, unknown>;
-
-  if (preset.kind !== "drumhaus.preset") {
-    throw new Error("Invalid preset file type");
-  }
-  if (preset.version !== 1) {
-    throw new Error(`Unsupported preset version: ${preset.version}`);
-  }
-
-  return preset as unknown as PresetFileV1;
-}
-
-/**
  * Check if a preset ID corresponds to a factory preset
  */
 function isFactoryPreset(presetId: string): boolean {
@@ -111,7 +91,6 @@ function generateDuplicateName(
 export {
   getCurrentPreset,
   arePresetsEqual,
-  validatePresetFile,
   isFactoryPreset,
   generateDuplicateName,
 };
