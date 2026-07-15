@@ -17,8 +17,6 @@ import {
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters
   instruments: InstrumentData[];
-  // Sample durations (runtime-computed, not persisted)
-  durations: number[];
 
   // Actions - granular property setters (prevents cross-instrument re-renders)
   setInstrumentProperty: <K extends keyof InstrumentParams>(
@@ -28,11 +26,9 @@ interface InstrumentsState {
   ) => void;
   toggleMute: (index: number) => void;
   toggleSolo: (index: number) => void;
-  setDuration: (index: number, value: number) => void;
 
   // Batch actions for kit/preset loading
   setAllInstruments: (instruments: InstrumentData[]) => void;
-  setAllDurations: (durations: number[]) => void;
 }
 
 const useInstrumentsStore = create<InstrumentsState>()(
@@ -40,7 +36,6 @@ const useInstrumentsStore = create<InstrumentsState>()(
     immer((set) => ({
       // Initial state - default kit (kit-0)
       instruments: loadKit("kit-0")!.instruments,
-      durations: loadKit("kit-0")!.instruments.map(() => 0), // update at runtime
 
       setInstrumentProperty: (index, key, value) => {
         set((state) => {
@@ -62,19 +57,9 @@ const useInstrumentsStore = create<InstrumentsState>()(
         });
       },
 
-      setDuration: (index, value) => {
-        set((state) => {
-          state.durations[index] = value;
-        });
-      },
-
       // Batch setters for kit/preset loading
       setAllInstruments: (instruments) => {
         set({ instruments });
-      },
-
-      setAllDurations: (durations) => {
-        set({ durations });
       },
     })),
     {

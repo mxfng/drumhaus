@@ -17,7 +17,6 @@
     "smoke:lightshow": "node scripts/lightshow-smoke.mjs",
     "test:e2e": "playwright test",
     "prepare": "husky",
-    "kit:new": "tsx scripts/new-kit.ts",
     "waveforms:build": "tsx scripts/generate-waveforms.ts"
   },
   "dependencies": {
