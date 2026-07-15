@@ -2,19 +2,20 @@ import { useCallback, useEffect } from "react";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 
 import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
-import { HardwareSlider } from "@/shared/components/hardware-slider";
-import { ParamKnob } from "@/shared/knob/knob";
-import {
-  instrumentDecayMapping,
-  instrumentPanMapping,
-  instrumentVolumeMapping,
-  splitFilterMapping,
-  tuneMapping,
-} from "@/shared/knob/lib/mapping";
 import { buttonActive } from "@/shared/lib/button-active";
 import { cn } from "@/shared/lib/utils";
+import {
+  instrumentDecayDescriptor,
+  instrumentPanDescriptor,
+  instrumentTuneDescriptor,
+  instrumentVolumeDescriptor,
+  LinearSlider,
+  RotaryKnob,
+  splitFilterDescriptor,
+} from "@/shared/param-control";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { GainMeter } from "./gain-meter";
@@ -76,7 +77,7 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
     [index, setInstrumentProperty],
   );
   const setFilter = useCallback(
-    (value: number) => setInstrumentProperty(index, "filter", value),
+    (value: CanonicalFilter) => setInstrumentProperty(index, "filter", value),
     [index, setInstrumentProperty],
   );
   const setPan = useCallback(
@@ -130,32 +131,29 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
       )}
     >
       {/* Top knobs - 2x2 grid */}
-      <ParamKnob
+      <RotaryKnob
         value={decay}
-        onValueChange={setDecay}
+        onChange={setDecay}
         label="decay"
-        mapping={instrumentDecayMapping}
+        descriptor={instrumentDecayDescriptor}
       />
-      <ParamKnob
+      <RotaryKnob
         value={tune}
-        onValueChange={setTune}
+        onChange={setTune}
         label="tune"
-        mapping={tuneMapping}
-        outerTickCount={15}
+        descriptor={instrumentTuneDescriptor}
       />
-      <ParamKnob
+      <RotaryKnob
         value={filter}
-        onValueChange={setFilter}
+        onChange={setFilter}
         label="filter"
-        mapping={splitFilterMapping}
-        outerTickCount={3}
+        descriptor={splitFilterDescriptor}
       />
-      <ParamKnob
+      <RotaryKnob
         value={pan}
-        onValueChange={setPan}
+        onChange={setPan}
         label="pan"
-        mapping={instrumentPanMapping}
-        outerTickCount={3}
+        descriptor={instrumentPanDescriptor}
       />
 
       {/* Spacer */}
@@ -164,11 +162,13 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
       {/* Level/volume slider */}
       <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
         <GainMeter index={index} />
-        <HardwareSlider
-          mapping={instrumentVolumeMapping}
+        <LinearSlider
+          descriptor={instrumentVolumeDescriptor}
           value={volume}
-          onValueChange={setVolume}
+          onChange={setVolume}
+          label="volume"
           orientation="vertical"
+          hideLabel
         />
         <div className="flex h-full flex-col items-center justify-center gap-2">
           <Tooltip>

@@ -29,18 +29,6 @@
  * absorbs the remaining field-presence legacy exactly as it does for files.
  */
 
-import type { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
-import {
-  MASTER_COMP_DEFAULT_ATTACK,
-  MASTER_COMP_DEFAULT_MIX,
-  MASTER_COMP_DEFAULT_RATIO,
-  MASTER_COMP_DEFAULT_THRESHOLD,
-  MASTER_FILTER_DEFAULT,
-  MASTER_PHASER_DEFAULT,
-  MASTER_REVERB_DEFAULT,
-  MASTER_SATURATION_DEFAULT,
-  MASTER_VOLUME_DEFAULT,
-} from "@/core/audio/engine/constants";
 import {
   clampVariationId,
   DEFAULT_CHAIN,
@@ -51,11 +39,12 @@ import {
 } from "@/core/audio/engine/pattern-types";
 import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
-import type {
-  InstrumentData,
-  InstrumentParams,
-} from "@/features/instrument/types/instrument";
 import { PRESET_FILE_VERSION } from "@/features/preset/document";
+import type {
+  LegacyKnobInstrumentData,
+  LegacyKnobInstrumentParams,
+  LegacyKnobMasterChainParams,
+} from "@/features/preset/types/legacy-v1";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
@@ -148,18 +137,106 @@ function deleteRetiredLegacyStorageKeys(): void {
   }
 }
 
+// Legacy-read island: the kit-0 default knob params, frozen from the v1.5
+// registry. Used only when a partial legacy session has no instruments key;
+// the assembled file is knob-space and migrateV1ToDocument converts it.
+const KIT_0_DEFAULT_KNOB_PARAMS: LegacyKnobInstrumentParams[] = [
+  {
+    decay: 100,
+    filter: 50,
+    volume: 92,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 36,
+    filter: 50,
+    volume: 88,
+    pan: 50,
+    tune: 36,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 55,
+    volume: 87,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 50,
+    volume: 92,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 50,
+    volume: 89,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 50,
+    volume: 80,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 50,
+    volume: 84,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+  {
+    decay: 100,
+    filter: 50,
+    volume: 85,
+    pan: 50,
+    tune: 50,
+    solo: false,
+    mute: false,
+  },
+];
+
+/** The kit-0 default kit in the knob-space legacy shape. */
+function defaultKnobInstruments(): LegacyKnobInstrumentData[] {
+  return loadKit("kit-0")!.instruments.map((inst, index) => ({
+    meta: inst.meta,
+    role: inst.role,
+    sample: inst.sample,
+    params: KIT_0_DEFAULT_KNOB_PARAMS[index],
+  }));
+}
+
 /**
  * Replay of the instruments store's retired v1 -> v2 persist migration:
  * rename release -> decay and pitch -> tune, drop attack.
  */
 function replayInstrumentsEnvelope(
   envelope: LegacyPersistEnvelope,
-): InstrumentData[] {
+): LegacyKnobInstrumentData[] {
   const state = envelope.state as { instruments?: unknown } | undefined;
   if (!Array.isArray(state?.instruments)) {
     throw new Error("Legacy instruments envelope has no instruments array");
   }
-  const instruments = state.instruments as InstrumentData[];
+  const instruments = state.instruments as LegacyKnobInstrumentData[];
   if (envelope.version !== 1) return instruments;
 
   return instruments.map((inst) => {
@@ -171,7 +248,7 @@ function replayInstrumentsEnvelope(
         ...rest,
         decay: release ?? oldParams.decay,
         tune: pitch ?? oldParams.tune,
-      } as InstrumentParams,
+      } as LegacyKnobInstrumentParams,
     };
   });
 }
@@ -238,18 +315,19 @@ function replayTransportEnvelope(envelope: LegacyPersistEnvelope): {
  */
 function replayMasterChainEnvelope(
   envelope: LegacyPersistEnvelope,
-): MasterChainParams {
-  const state = (envelope.state ?? {}) as Partial<MasterChainParams>;
+): LegacyKnobMasterChainParams {
+  const state = (envelope.state ?? {}) as Partial<LegacyKnobMasterChainParams>;
+  // Frozen v1.5 master-chain knob defaults (the old store initializer values).
   return {
-    filter: state.filter ?? MASTER_FILTER_DEFAULT,
-    saturation: state.saturation ?? MASTER_SATURATION_DEFAULT,
-    phaser: state.phaser ?? MASTER_PHASER_DEFAULT,
-    reverb: state.reverb ?? MASTER_REVERB_DEFAULT,
-    compThreshold: state.compThreshold ?? MASTER_COMP_DEFAULT_THRESHOLD,
-    compRatio: state.compRatio ?? MASTER_COMP_DEFAULT_RATIO,
-    compAttack: state.compAttack ?? MASTER_COMP_DEFAULT_ATTACK,
-    compMix: state.compMix ?? MASTER_COMP_DEFAULT_MIX,
-    masterVolume: state.masterVolume ?? MASTER_VOLUME_DEFAULT,
+    filter: state.filter ?? 50,
+    saturation: state.saturation ?? 0,
+    phaser: state.phaser ?? 0,
+    reverb: state.reverb ?? 0,
+    compThreshold: state.compThreshold ?? 100,
+    compRatio: state.compRatio ?? 50,
+    compAttack: state.compAttack ?? 50,
+    compMix: state.compMix ?? 70,
+    masterVolume: state.masterVolume ?? 92,
   };
 }
 
@@ -286,7 +364,7 @@ function assembleLegacySession(): AssembledLegacySession {
 
   const instruments = instrumentsEnvelope
     ? replayInstrumentsEnvelope(instrumentsEnvelope)
-    : loadKit("kit-0")!.instruments;
+    : defaultKnobInstruments();
 
   const sequencer: AdoptedSequencerState = sequencerEnvelope
     ? replaySequencerEnvelope(sequencerEnvelope)
@@ -316,7 +394,7 @@ function assembleLegacySession(): AssembledLegacySession {
     kit: {
       kind: "drumhaus.kit",
       version: 1,
-      meta: capturedMeta?.currentKitMeta ?? fallback.kit.meta,
+      meta: capturedMeta?.currentKitMeta ?? loadKit(fallback.kit.id)!.meta,
       instruments,
     },
     transport,

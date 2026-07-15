@@ -1,16 +1,15 @@
-import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
 import { MAX_CHAIN_STEPS } from "@/core/audio/engine/pattern-types";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { ScreenBar } from "@/layout/screen-bar";
-import { ClickableValue } from "@/shared/components/clickable-value";
+import { cn } from "@/shared/lib/utils";
 import {
-  transportBpmMapping,
-  transportSwingMapping,
-} from "@/shared/knob/lib/mapping";
-import { clamp, cn } from "@/shared/lib/utils";
+  transportBpmDescriptor,
+  transportSwingDescriptor,
+  ValueField,
+} from "@/shared/param-control";
 
 function TempoControlsScreen() {
   const bpm = useTransportStore((state) => state.bpm);
@@ -20,26 +19,6 @@ function TempoControlsScreen() {
   const chain = usePatternStore((state) => state.chain);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
   const playbackVariation = usePatternStore((state) => state.playbackVariation);
-
-  const bpmKnobValue = transportBpmMapping.domainToKnob(bpm);
-  const handleBpmChange = (knobValue: number) => {
-    const domainValue = transportBpmMapping.knobToDomain(knobValue);
-    setBpm(Math.round(domainValue));
-  };
-
-  // The store's swing IS the 0-100 knob value (the mapping's domain is the
-  // MPC display percent), so the knob value passes through directly.
-  // Integer rounding matches tempo-controls.tsx so both swing entry points
-  // persist the same granularity.
-  const handleSwingChange = (knobValue: number) => {
-    setSwing(
-      clamp(
-        Math.round(knobValue),
-        TRANSPORT_SWING_RANGE[0],
-        TRANSPORT_SWING_RANGE[1],
-      ),
-    );
-  };
 
   // Convert chain to string format (e.g., "AABBABCD")
   const chainString = chain.steps
@@ -52,20 +31,18 @@ function TempoControlsScreen() {
           them. Each numeric value reserves its widest rendering (min-w in
           ch, tabular digits) so neighbors don't shift while dragging. */}
       <div className="flex w-full items-center justify-between gap-1 whitespace-nowrap tabular-nums">
-        <ClickableValue
-          value={bpmKnobValue}
-          onValueChange={handleBpmChange}
-          mapping={transportBpmMapping}
-          sensitivity={0.3}
+        <ValueField
+          descriptor={transportBpmDescriptor}
+          value={bpm}
+          onChange={setBpm}
           label="bpm"
           labelClassName="text-xs"
           valueClassName="inline-block min-w-[3.5ch]"
         />
-        <ClickableValue
+        <ValueField
+          descriptor={transportSwingDescriptor}
           value={swing}
-          onValueChange={handleSwingChange}
-          mapping={transportSwingMapping}
-          sensitivity={0.2}
+          onChange={setSwing}
           label="swing"
           labelClassName="text-xs"
           valueClassName="inline-block min-w-[4ch]"

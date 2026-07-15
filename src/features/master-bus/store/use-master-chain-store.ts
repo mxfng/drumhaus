@@ -6,23 +6,30 @@ import { immer } from "zustand/middleware/immer";
 // document (features/preset/session), restored by bootstrapSession() before
 // React mounts.
 
-import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
-import {
-  MASTER_COMP_DEFAULT_ATTACK,
-  MASTER_COMP_DEFAULT_MIX,
-  MASTER_COMP_DEFAULT_RATIO,
-  MASTER_COMP_DEFAULT_THRESHOLD,
-  MASTER_FILTER_DEFAULT,
-  MASTER_PHASER_DEFAULT,
-  MASTER_REVERB_DEFAULT,
-  MASTER_SATURATION_DEFAULT,
-  MASTER_VOLUME_DEFAULT,
-} from "@/core/audio/engine/constants";
+import type { MasterChainCanonical } from "@/core/audio/bridge/engine-params";
 
 /**
- * Selector to get MasterChainParams from the store state
+ * Canonical master-chain defaults (docs/data-representation.md): the units the
+ * engine hears, not 0-100 knob positions. These are the init preset's values;
+ * bootstrapSession applies a document before React mounts, so this literal is
+ * only the transient pre-boot state. Filter `{ highpass, 0 }` is fully open.
  */
-function getMasterChainParams(): MasterChainParams {
+const DEFAULT_MASTER_CHAIN: MasterChainCanonical = {
+  filter: { side: "highpass", cutoffHz: 0 },
+  saturation: 0,
+  phaser: 0,
+  reverb: 0,
+  compThreshold: 0, // dB
+  compRatio: 5,
+  compAttack: 0.02575, // seconds
+  compMix: 0.7,
+  masterVolume: 0, // dB
+};
+
+/**
+ * Selector to read the canonical master-chain params from the store state.
+ */
+function getMasterChainParams(): MasterChainCanonical {
   const state = useMasterChainStore.getState();
   return {
     filter: state.filter,
@@ -37,24 +44,9 @@ function getMasterChainParams(): MasterChainParams {
   };
 }
 
-interface MasterChainState {
-  // Filter effects
-  filter: number;
-  saturation: number;
-  phaser: number;
-  reverb: number;
-
-  // Compressor
-  compThreshold: number;
-  compRatio: number;
-  compAttack: number;
-  compMix: number;
-
-  // Master output
-  masterVolume: number;
-
+interface MasterChainState extends MasterChainCanonical {
   // Actions
-  setFilter: (filter: number) => void;
+  setFilter: (filter: MasterChainCanonical["filter"]) => void;
   setSaturation: (saturation: number) => void;
   setPhaser: (phaser: number) => void;
   setReverb: (reverb: number) => void;
@@ -64,23 +56,15 @@ interface MasterChainState {
   setCompMix: (compMix: number) => void;
   setMasterVolume: (masterVolume: number) => void;
 
-  // Batch setters for preset loading
-  setAllMasterChain: (params: MasterChainParams) => void;
+  // Batch setter for preset loading
+  setAllMasterChain: (params: MasterChainCanonical) => void;
 }
 
 const useMasterChainStore = create<MasterChainState>()(
   devtools(
     immer((set) => ({
-      // Initial state (default/init preset values)
-      filter: MASTER_FILTER_DEFAULT,
-      saturation: MASTER_SATURATION_DEFAULT,
-      phaser: MASTER_PHASER_DEFAULT,
-      reverb: MASTER_REVERB_DEFAULT,
-      compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
-      compRatio: MASTER_COMP_DEFAULT_RATIO,
-      compAttack: MASTER_COMP_DEFAULT_ATTACK,
-      compMix: MASTER_COMP_DEFAULT_MIX,
-      masterVolume: MASTER_VOLUME_DEFAULT,
+      // Initial state (canonical init-preset values)
+      ...DEFAULT_MASTER_CHAIN,
 
       // Individual setters
       setFilter: (filter) => {
@@ -129,7 +113,7 @@ const useMasterChainStore = create<MasterChainState>()(
           compThreshold: params.compThreshold,
           compRatio: params.compRatio,
           compAttack: params.compAttack,
-          compMix: params.compMix ?? MASTER_COMP_DEFAULT_MIX,
+          compMix: params.compMix,
           masterVolume: params.masterVolume,
         });
       },
@@ -140,4 +124,4 @@ const useMasterChainStore = create<MasterChainState>()(
   ),
 );
 
-export { getMasterChainParams, useMasterChainStore };
+export { DEFAULT_MASTER_CHAIN, getMasterChainParams, useMasterChainStore };

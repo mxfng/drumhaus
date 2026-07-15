@@ -11,11 +11,11 @@ declare module "@fontsource-variable/*";
 
 // Custom file type declarations
 declare module "*.dhkit" {
-  const content: import("@/features/kit/types/kit").KitFileV1;
+  const content: import("@/features/kit/types/kit").KitFile;
   export default content;
 }
 
 declare module "*.dh" {
-  const content: import("@/features/preset/types/preset").PresetFileV1;
+  const content: import("@/features/preset/document").PresetDocument;
   export default content;
 }

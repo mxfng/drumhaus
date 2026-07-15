@@ -1,5 +1,5 @@
 import * as presets from "@/core/dh/index";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type { PresetDocument } from "@/features/preset/document";
 
 /**
  * Maximum allowed length for preset names
@@ -7,10 +7,10 @@ import type { PresetFileV1 } from "@/features/preset/types/preset";
 const MAX_PRESET_NAME_LENGTH = 20;
 
 /**
- * All default presets included with the application
- * Lazy-loaded to avoid loading all preset data upfront
+ * All default presets included with the application, as canonical documents.
+ * Lazy-loaded to avoid loading all preset data upfront.
  */
-const getDefaultPresets = (): PresetFileV1[] => [
+const getDefaultPresets = (): PresetDocument[] => [
   presets.init(),
   presets.welcomeToTheHaus(),
   presets.aDrumCalledHaus(),

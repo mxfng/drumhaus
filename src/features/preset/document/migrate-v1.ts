@@ -14,7 +14,7 @@ import {
   sanitizeChain,
 } from "@/core/audio/engine/pattern-types";
 import { getKitLoader } from "@/core/dhkit";
-import type { InstrumentParams } from "@/features/instrument/types/instrument";
+import type { LegacyKnobInstrumentParams } from "@/features/preset/types/legacy-v1";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import {
@@ -167,7 +167,7 @@ function resolveKitId(kit: PresetFileV1["kit"]): string {
 
 // --- Section conversions ----------------------------------------------------
 
-function channelFromKnobParams(params: InstrumentParams) {
+function channelFromKnobParams(params: LegacyKnobInstrumentParams) {
   return {
     decaySeconds: frozenV1Curves.decaySeconds(params.decay),
     filter: frozenV1Curves.filter(params.filter),

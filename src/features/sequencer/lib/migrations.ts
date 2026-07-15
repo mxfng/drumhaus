@@ -1,17 +1,22 @@
-import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
-import {
-  MASTER_COMP_DEFAULT_ATTACK,
-  MASTER_FILTER_DEFAULT,
-  MASTER_SATURATION_DEFAULT,
-  STEP_COUNT,
-} from "@/core/audio/engine/constants";
+import { STEP_COUNT } from "@/core/audio/engine/constants";
 import {
   Pattern,
   StepSequence,
   VariationMetadata,
 } from "@/core/audio/engine/pattern-types";
-import { InstrumentData } from "@/features/instrument/types/instrument";
+import type {
+  LegacyKnobInstrumentData,
+  LegacyKnobInstrumentParams,
+  LegacyKnobMasterChainParams,
+} from "@/features/preset/types/legacy-v1";
 import { clampNudge } from "@/features/sequencer/lib/timing";
+
+// Legacy-read island: these migrators rewrite 0-100 knob-space v1 data only
+// (docs/data-representation.md). The knob defaults below are frozen at the v1
+// values; they are NOT the app's live defaults (which are canonical now).
+const LEGACY_MASTER_FILTER_DEFAULT = 50;
+const LEGACY_MASTER_SATURATION_DEFAULT = 0;
+const LEGACY_MASTER_COMP_DEFAULT_ATTACK = 50;
 
 const EMPTY_SEQUENCE: StepSequence = {
   triggers: Array.from({ length: STEP_COUNT }, () => false),
@@ -308,15 +313,7 @@ function migrateVariationMetadataUnsafe(metadata: unknown): VariationMetadata {
 /**
  * Migrates instrument params from legacy format to current format.
  */
-function migrateInstrumentParams(params: unknown): {
-  decay: number;
-  filter: number;
-  volume: number;
-  pan: number;
-  tune: number;
-  solo: boolean;
-  mute: boolean;
-} {
+function migrateInstrumentParams(params: unknown): LegacyKnobInstrumentParams {
   if (!params || typeof params !== "object") {
     throw new Error("Invalid instrument params: expected object");
   }
@@ -362,7 +359,9 @@ function migrateInstrumentParams(params: unknown): {
  * Legacy format: { attack, release, pitch, ... }
  * Current format: { decay, tune, ... }
  */
-function migrateInstruments(instruments: InstrumentData[]): InstrumentData[] {
+function migrateInstruments(
+  instruments: LegacyKnobInstrumentData[],
+): LegacyKnobInstrumentData[] {
   return instruments.map((instrument) => ({
     ...instrument,
     params: migrateInstrumentParams(instrument.params),
@@ -377,20 +376,20 @@ function migrateInstruments(instruments: InstrumentData[]): InstrumentData[] {
  * Current format: { filter, saturation, compAttack, ... }
  */
 function migrateMasterChainParams(
-  params: MasterChainParams | unknown,
-): MasterChainParams {
-  const rawParams = params as Partial<MasterChainParams>;
+  params: LegacyKnobMasterChainParams | unknown,
+): LegacyKnobMasterChainParams {
+  const rawParams = params as Partial<LegacyKnobMasterChainParams>;
 
   // If new format already exists, use it (with defaults for missing fields)
   if (rawParams.filter !== undefined) {
     return {
-      filter: rawParams.filter ?? MASTER_FILTER_DEFAULT,
-      saturation: rawParams.saturation ?? MASTER_SATURATION_DEFAULT,
+      filter: rawParams.filter ?? LEGACY_MASTER_FILTER_DEFAULT,
+      saturation: rawParams.saturation ?? LEGACY_MASTER_SATURATION_DEFAULT,
       phaser: rawParams.phaser ?? 0,
       reverb: rawParams.reverb ?? 0,
       compThreshold: rawParams.compThreshold ?? 100,
       compRatio: rawParams.compRatio ?? 50,
-      compAttack: rawParams.compAttack ?? MASTER_COMP_DEFAULT_ATTACK,
+      compAttack: rawParams.compAttack ?? LEGACY_MASTER_COMP_DEFAULT_ATTACK,
       compMix: rawParams.compMix ?? 70,
       masterVolume: rawParams.masterVolume ?? 92,
     };
@@ -410,12 +409,12 @@ function migrateMasterChainParams(
 
   return {
     filter,
-    saturation: MASTER_SATURATION_DEFAULT, // New parameter
+    saturation: LEGACY_MASTER_SATURATION_DEFAULT, // New parameter
     phaser: rawParams.phaser ?? 0,
     reverb: rawParams.reverb ?? 0,
     compThreshold: rawParams.compThreshold ?? 100,
     compRatio: rawParams.compRatio ?? 50,
-    compAttack: rawParams.compAttack ?? MASTER_COMP_DEFAULT_ATTACK, // New parameter
+    compAttack: rawParams.compAttack ?? LEGACY_MASTER_COMP_DEFAULT_ATTACK, // New parameter
     compMix: rawParams.compMix ?? 70,
     masterVolume: rawParams.masterVolume ?? 92,
   };

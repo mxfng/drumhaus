@@ -58,8 +58,7 @@ const ConfirmSelectPresetDialog = lazy(() =>
 );
 
 function PresetControl() {
-  const { loadPresetFile, loadPresetDocument, importPresetFileText } =
-    useDrumhaus();
+  const { loadPresetDocument, importPresetFileText } = useDrumhaus();
   const {
     kits,
     defaultPresets,
@@ -70,7 +69,6 @@ function PresetControl() {
     saveCurrentPreset,
     sharePreset,
   } = usePresetManager({
-    loadPresetFile,
     loadPresetDocument,
     importPresetFileText,
   });

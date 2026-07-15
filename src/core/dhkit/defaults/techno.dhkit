@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-9",
     "name": "Techno",
@@ -23,11 +22,14 @@
         "path": "7/14_SOT_kick_C.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 90,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "7/08_SOT_kick_F.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "7/09_SOT_Snare.wav"
       },
       "params": {
-        "decay": 11,
-        "filter": 50,
-        "volume": 86,
-        "pan": 50,
-        "tune": 43,
+        "decay": 0.0654395,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -3,
+        "pan": 0,
+        "tune": -0.9800000000000001,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "7/16_SOT_Clap.wav"
       },
       "params": {
-        "decay": 49,
-        "filter": 50,
-        "volume": 85,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.2042994999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -3.5,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "7/02_SOT_Hat.wav"
       },
       "params": {
-        "decay": 51,
-        "filter": 50,
-        "volume": 82,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.3041995,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -5,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "7/20_SOT_Hat.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 87,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -2.5,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "7/13_SOT_Perc.wav"
       },
       "params": {
-        "decay": 79,
-        "filter": 55,
-        "volume": 70,
-        "pan": 35,
-        "tune": 0,
+        "decay": 3.1223795000000005,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 156.18492294877137
+        },
+        "volume": -11,
+        "pan": -0.30000000000000004,
+        "tune": -7,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "7/09_SOT_Perc.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 54,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0.08000000000000007,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

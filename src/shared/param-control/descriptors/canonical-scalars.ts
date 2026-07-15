@@ -21,6 +21,7 @@ import {
   MASTER_REVERB_WET_RANGE,
   MASTER_SATURATION_WET_RANGE,
   MASTER_VOLUME_RANGE,
+  TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
 import type { ParamDescriptor } from "../types";
@@ -239,8 +240,24 @@ const transportSwingDescriptor: ParamDescriptor<number> = {
   },
 };
 
+/**
+ * Tempo in BPM: the canonical value the store and engine already hold. Linear,
+ * integer-stepped over the app's tempo range.
+ */
+const transportBpmDescriptor: ParamDescriptor<number> = {
+  min: TRANSPORT_BPM_RANGE[0],
+  max: TRANSPORT_BPM_RANGE[1],
+  taper: { kind: "linear" },
+  default: 120,
+  interval: 1,
+  unit: "bpm",
+  format: (bpm) => `${Math.round(bpm)}`,
+  parse: parseNumber,
+};
+
 export {
   LEGACY_EXP_SKEW,
+  transportBpmDescriptor,
   instrumentDecayDescriptor,
   instrumentVolumeDescriptor,
   instrumentPanDescriptor,

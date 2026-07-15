@@ -1,4 +1,7 @@
-import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
+// Legacy-read island: the old 0-100 swing knob range, frozen here (it no
+// longer exists in the engine). Swing is canonical everywhere born after the
+// flip; this migrator only ever sees pre-retune knob values.
+const LEGACY_SWING_KNOB_RANGE: [number, number] = [0, 100];
 
 /**
  * Migration for swing knob values persisted before the #269 swing retune.

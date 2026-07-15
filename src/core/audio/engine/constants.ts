@@ -11,47 +11,35 @@ type Range = [number, number];
 // Tune
 const INSTRUMENT_TUNE_BASE_FREQUENCY = 65.4064; // C2
 const INSTRUMENT_TUNE_SEMITONE_RANGE = 7;
-const INSTRUMENT_TUNE_DEFAULT = 50; // Knob center = base frequency
 
 // Level / pan
 const INSTRUMENT_VOLUME_RANGE: Range = [-46, 4]; // dB
-const INSTRUMENT_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 const INSTRUMENT_PAN_RANGE: Range = [-1, 1];
-const INSTRUMENT_PAN_DEFAULT = 50;
 
 // Envelope
 const INSTRUMENT_DECAY_RANGE: Range = [0.005, 5];
-const INSTRUMENT_DECAY_DEFAULT = 100;
 
 // Filter
 const INSTRUMENT_FILTER_RANGE: Range = [0, 15000]; // Hz
-const INSTRUMENT_FILTER_DEFAULT = 50;
 
 // Solo / mute
 const INSTRUMENT_SOLO_DEFAULT = false;
 const INSTRUMENT_MUTE_DEFAULT = false;
 
 // ============================================================================
-// Master bus: ranges & knob defaults
+// Master bus: canonical ranges
 // ============================================================================
 
 const MASTER_FILTER_RANGE: Range = [0, 15000]; // Hz
-const MASTER_FILTER_DEFAULT = 50; // Knob 50 = center (transition point)
-const MASTER_LOW_PASS_DEFAULT = 100; // Knob 100 = fully open (legacy)
-const MASTER_HIGH_PASS_DEFAULT = 0; // Knob 0 = off (legacy)
 const MASTER_SATURATION_WET_RANGE: Range = [0, 1]; // 0-100% wet for drum saturation
 const MASTER_SATURATION_AMOUNT_RANGE: Range = [0, 0.25]; // 0-25% drive amount
-const MASTER_SATURATION_DEFAULT = 0; // Knob 0 = no saturation
 
 const MASTER_PHASER_WET_RANGE: Range = [0, 1];
-const MASTER_PHASER_DEFAULT = 0; // Knob 0 = off
 
 const MASTER_REVERB_WET_RANGE: Range = [0, 1];
-const MASTER_REVERB_DEFAULT = 0; // Knob 0 = off
 const MASTER_REVERB_DECAY_RANGE: Range = [0.1, 1.5]; // Tighter for drums
 
 const MASTER_VOLUME_RANGE: Range = [-46, 4]; // dB
-const MASTER_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 
 // ============================================================================
 // Transport
@@ -59,8 +47,6 @@ const MASTER_VOLUME_DEFAULT = 92; // Knob ~92% = 0 dB
 
 const TRANSPORT_BPM_RANGE: Range = [40, 300];
 
-// UI swing control (0–100) mapped to Tone.Transport swing (0–TRANSPORT_SWING_MAX)
-const TRANSPORT_SWING_RANGE: Range = [0, 100];
 /**
  * Maximum Tone.Transport swing (#269).
  *
@@ -108,19 +94,14 @@ const MASTER_REVERB_PRE_FILTER_FREQ = 250; // Hz
 // Master FX: Compressor (API 2500-style, fast timing for drums)
 // ============================================================================
 
-// Tone.js Compressor threshold is -100..0 dB; we expose -40..0 on the knob.
-// Knob 100% = 0 dB = "off" (minimal compression).
+// Tone.js Compressor threshold is -100..0 dB; we expose -40..0 (canonical dB).
 const MASTER_COMP_THRESHOLD_RANGE: Range = [-40, 0];
-const MASTER_COMP_DEFAULT_THRESHOLD = 100; // Knob position
 
 const MASTER_COMP_RATIO_RANGE: Range = [1, 8];
-const MASTER_COMP_DEFAULT_RATIO = 50; // Knob ~50% ≈ mid ratio (~4.5:1)
 
 const MASTER_COMP_MIX_RANGE: Range = [0, 1]; // Parallel wet/dry
-const MASTER_COMP_DEFAULT_MIX = 70; // 70% wet for parallel comp
 
 const MASTER_COMP_ATTACK_RANGE: Range = [0.001, 0.1]; // 1ms - 100ms
-const MASTER_COMP_DEFAULT_ATTACK = 50; // Knob ~50% ≈ ~10ms
 const MASTER_COMP_ATTACK = 0.01; // 10 ms - catches transients (legacy constant)
 const MASTER_COMP_RELEASE = 0.05; // 50 ms - fast recovery, punchy drums
 const MASTER_COMP_KNEE = 0; // dB - hard knee

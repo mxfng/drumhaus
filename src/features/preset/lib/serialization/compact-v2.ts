@@ -4,7 +4,6 @@ import { getKitLoader } from "@/core/dhkit";
 import {
   CorruptFieldError,
   InvalidFileError,
-  migrateV1ToDocument,
   presetDocumentSchema,
   UnknownKitError,
   UnsupportedVersionError,
@@ -53,7 +52,7 @@ const CHANNEL_COUNT = 8;
 /**
  * Per-field quantization (decimal places written to the payload).
  *
- * Requirement: decode(encode(doc)) must yield a document whose documentToV1
+ * Requirement: decode(encode(doc)) must yield a document whose canonical
  * knob values differ from the original's by less than 0.05 knob units (half
  * the 0.1 knob display step).
  *
@@ -117,11 +116,9 @@ const PRECISION = {
 } as const;
 
 /**
- * The sparse baseline: the init preset in document space, computed once via
- * the same migration every ingress uses (mirroring how the v1.5 codec
- * derives its knob-space defaults from init()).
+ * The sparse baseline: the init preset, which is already a canonical document.
  */
-const INIT_DOCUMENT = migrateV1ToDocument(init());
+const INIT_DOCUMENT = init();
 
 type Channel = PresetDocument["channels"][number];
 type Master = PresetDocument["master"];

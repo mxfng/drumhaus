@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-5",
     "name": "Hybrid",
@@ -23,11 +22,14 @@
         "path": "6/superich_kick.wav"
       },
       "params": {
-        "decay": 49,
-        "filter": 50,
-        "volume": 90,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.2042994999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "6/superich_kick2.wav"
       },
       "params": {
-        "decay": 10,
-        "filter": 50,
-        "volume": 94,
-        "pan": 70,
-        "tune": 50,
+        "decay": 0.054950000000000006,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 1,
+        "pan": 0.3999999999999999,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "6/superich_snare.wav"
       },
       "params": {
-        "decay": 42,
-        "filter": 56,
-        "volume": 94,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.8861179999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 224.90628904623074
+        },
+        "volume": 1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "6/superich_tap.wav"
       },
       "params": {
-        "decay": 10,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.054950000000000006,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "6/superich_hat.wav"
       },
       "params": {
-        "decay": 10,
-        "filter": 50,
-        "volume": 92,
-        "pan": 36,
-        "tune": 50,
+        "decay": 0.054950000000000006,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": -0.28,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "6/superich_ohat.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "6/superich_clav.wav"
       },
       "params": {
-        "decay": 40,
-        "filter": 56,
-        "volume": 92,
-        "pan": 62,
-        "tune": 50,
+        "decay": 0.8042000000000001,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 224.90628904623074
+        },
+        "volume": 0,
+        "pan": 0.24,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "6/superich_ride.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

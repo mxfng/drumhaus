@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-11",
     "name": "Jungle",
@@ -23,11 +22,14 @@
         "path": "8/indie_kick.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 13,
-        "volume": 94,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "lowpass",
+          "cutoffHz": 1055.8100791336944
+        },
+        "volume": 1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "8/indie_kick2.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 54,
-        "volume": 92,
-        "pan": 50,
-        "tune": 45.833333333333336,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 99.95835068721368
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": -0.583333333333333,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "8/indie_snare.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 53,
-        "volume": 92,
-        "pan": 50,
-        "tune": 52.083333333333336,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 56.226572261557685
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0.29166666666666696,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "8/indie_snare2.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 37,
-        "volume": 98,
-        "pan": 37,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "lowpass",
+          "cutoffHz": 8552.686380674717
+        },
+        "volume": 3,
+        "pan": -0.26,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "8/indie_hat.wav"
       },
       "params": {
-        "decay": 38,
-        "filter": 58,
-        "volume": 86,
-        "pan": 50,
-        "tune": 45.833333333333336,
+        "decay": 0.726278,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 399.8334027488547
+        },
+        "volume": -3,
+        "pan": 0,
+        "tune": -0.583333333333333,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "8/indie_ohat.wav"
       },
       "params": {
-        "decay": 52,
-        "filter": 39,
-        "volume": 90,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.355648,
+        "filter": {
+          "side": "lowpass",
+          "cutoffHz": 9502.290712203247
+        },
+        "volume": -1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "8/indie_cymbal.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 65,
-        "volume": 91,
-        "pan": 33,
-        "tune": 47.91666666666667,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 1405.6643065389421
+        },
+        "volume": -0.5,
+        "pan": -0.33999999999999997,
+        "tune": -0.291666666666666,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "8/indie_crash.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 26,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "lowpass",
+          "cutoffHz": 4223.240316534778
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

@@ -1,11 +1,11 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
-import { ParamKnob } from "@/shared/knob/knob";
 import {
-  compAttackMapping,
-  compMixMapping,
-  compRatioMapping,
-  compThresholdMapping,
-} from "@/shared/knob/lib/mapping";
+  masterCompAttackDescriptor,
+  masterCompMixDescriptor,
+  masterCompRatioDescriptor,
+  masterCompThresholdDescriptor,
+  RotaryKnob,
+} from "@/shared/param-control";
 
 function MasterCompressor() {
   const attack = useMasterChainStore((state) => state.compAttack);
@@ -20,31 +20,29 @@ function MasterCompressor() {
 
   return (
     <>
-      <ParamKnob
+      <RotaryKnob
         value={attack}
-        onValueChange={setAttack}
+        onChange={setAttack}
         label="punch"
-        mapping={compAttackMapping}
+        descriptor={masterCompAttackDescriptor}
       />
-      <ParamKnob
+      <RotaryKnob
         value={threshold}
-        onValueChange={setThreshold}
+        onChange={setThreshold}
         label="threshold"
-        mapping={compThresholdMapping}
+        descriptor={masterCompThresholdDescriptor}
       />
-      <ParamKnob
+      <RotaryKnob
         value={ratio}
-        onValueChange={setRatio}
+        onChange={setRatio}
         label="ratio"
-        mapping={compRatioMapping}
-        outerTickCount={8}
+        descriptor={masterCompRatioDescriptor}
       />
-
-      <ParamKnob
+      <RotaryKnob
         value={mix}
-        onValueChange={setMix}
+        onChange={setMix}
         label="mix"
-        mapping={compMixMapping}
+        descriptor={masterCompMixDescriptor}
       />
     </>
   );

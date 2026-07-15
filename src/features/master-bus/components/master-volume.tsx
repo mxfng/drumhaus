@@ -1,19 +1,17 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
-import { ParamKnob } from "@/shared/knob/knob";
-import { masterVolumeMapping } from "@/shared/knob/lib/mapping";
+import { masterVolumeDescriptor, RotaryKnob } from "@/shared/param-control";
 
 function MasterVolume() {
   const masterVolume = useMasterChainStore((state) => state.masterVolume);
   const setMasterVolume = useMasterChainStore((state) => state.setMasterVolume);
 
   return (
-    <ParamKnob
+    <RotaryKnob
+      descriptor={masterVolumeDescriptor}
       value={masterVolume}
-      onValueChange={setMasterVolume}
+      onChange={setMasterVolume}
       label="output level"
-      mapping={masterVolumeMapping}
-      outerTickCount={13}
-      size="lg"
+      size={96}
     />
   );
 }

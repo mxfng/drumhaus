@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import { getAudioEngine } from "@/core/audio/engine";
 
 // No persist middleware: bpm/swing persist inside the session document
@@ -16,6 +15,7 @@ interface TransportState {
   // Playback state
   isPlaying: boolean;
   bpm: number;
+  /** Canonical Tone.Transport swing fraction (0..TRANSPORT_SWING_MAX). */
   swing: number;
 
   // Actions
@@ -66,7 +66,7 @@ const useTransportStore = create<TransportState>()(
 
       setSwing: (swing) => {
         set({ swing });
-        getAudioEngine().setSwing(transportSwingKnobToDomain(swing));
+        getAudioEngine().setSwing(swing);
       },
     })),
     {

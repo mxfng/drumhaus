@@ -2,13 +2,12 @@ import { useCallback, useMemo } from "react";
 
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getAllKits } from "@/features/kit/lib/constants";
-import { KitFileV1 } from "@/features/kit/types/kit";
+import { KitFile } from "@/features/kit/types/kit";
 import type { PresetDocument } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { generateShareUrl } from "@/features/preset/lib/operations";
 import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { useToast } from "@/shared/ui";
 
 interface UsePresetManagerProps {
@@ -20,15 +19,14 @@ interface UsePresetManagerProps {
    * Externalized because they depend on instrument runtimes and
    * are defined in usePresetLoading hook.
    */
-  loadPresetFile: (preset: PresetFileV1) => void;
   loadPresetDocument: (document: PresetDocument) => void;
   importPresetFileText: (text: string) => void;
 }
 
 interface UsePresetManagerResult {
   // Data
-  kits: KitFileV1[];
-  defaultPresets: PresetFileV1[];
+  kits: KitFile[];
+  defaultPresets: PresetDocument[];
   customPresets: PresetDocument[];
 
   // Actions
@@ -52,7 +50,6 @@ interface UsePresetManagerResult {
  * low level runtime updates
  */
 function usePresetManager({
-  loadPresetFile,
   loadPresetDocument,
   importPresetFileText,
 }: UsePresetManagerProps): UsePresetManagerResult {
@@ -124,9 +121,9 @@ function usePresetManager({
         return;
       }
 
-      requestGuardedPresetLoad("library", () => loadPresetFile(factory));
+      requestGuardedPresetLoad("library", () => loadPresetDocument(factory));
     },
-    [customPresets, defaultPresets, loadPresetDocument, loadPresetFile],
+    [customPresets, defaultPresets, loadPresetDocument],
   );
 
   // --- File Operations ---

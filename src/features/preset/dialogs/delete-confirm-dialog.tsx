@@ -25,7 +25,7 @@ function DeleteConfirmDialog({
   presetId,
   presetName,
 }: DeleteConfirmDialogProps) {
-  const { loadPresetFile } = useDrumhaus();
+  const { loadPresetDocument } = useDrumhaus();
   const deleteCustomPreset = usePresetMetaStore(
     (state) => state.deleteCustomPreset,
   );
@@ -43,7 +43,7 @@ function DeleteConfirmDialog({
 
     // If deleting current preset, load init preset
     if (isDeletingCurrent) {
-      loadPresetFile(init());
+      loadPresetDocument(init());
       toast({
         title: "Preset deleted",
         description: "Loaded default preset",

@@ -9,9 +9,12 @@ import {
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { useAudioContextGuards } from "../hooks/use-audio-context-guards";
+import {
+  mapMasterToSettings,
+  type MasterChainCanonical,
+} from "./engine-params";
 import { subscribeInstrumentParamsToEngine } from "./instrument-params";
 import { subscribeKitToEngine } from "./kit-subscription";
-import { mapParamsToSettings, type MasterChainParams } from "./knob-to-domain";
 
 /**
  * The bridge between the Zustand stores and the AudioEngine facade.
@@ -29,7 +32,7 @@ function useEngineBridge(): void {
   // Engine lifecycle + store wiring (store subscriptions -> engine commands)
   useEffect(() => {
     const engine = getAudioEngine();
-    void engine.init(mapParamsToSettings(getMasterChainParams()));
+    void engine.init(mapMasterToSettings(getMasterChainParams()));
 
     const unsubscribers: (() => void)[] = [];
 
@@ -73,7 +76,7 @@ function useEngineBridge(): void {
     unsubscribers.push(subscribeKitToEngine(engine));
 
     // --- Master chain ---
-    let prevMasterParams: MasterChainParams | null = null;
+    let prevMasterParams: MasterChainCanonical | null = null;
     unsubscribers.push(
       useMasterChainStore.subscribe(() => {
         const params = getMasterChainParams();
@@ -81,7 +84,7 @@ function useEngineBridge(): void {
           return;
         }
         prevMasterParams = params;
-        engine.setMasterSettings(mapParamsToSettings(params));
+        engine.setMasterSettings(mapMasterToSettings(params));
       }),
     );
 

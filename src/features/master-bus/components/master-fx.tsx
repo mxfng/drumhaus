@@ -1,11 +1,11 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
-import { ParamKnob } from "@/shared/knob/knob";
 import {
-  phaserWetMapping,
-  reverbWetMapping,
-  saturationWetMapping,
-  splitFilterMapping,
-} from "@/shared/knob/lib/mapping";
+  masterPhaserDescriptor,
+  masterReverbDescriptor,
+  masterSaturationDescriptor,
+  RotaryKnob,
+  splitFilterDescriptor,
+} from "@/shared/param-control";
 
 function MasterFX() {
   const filter = useMasterChainStore((state) => state.filter);
@@ -20,33 +20,29 @@ function MasterFX() {
 
   return (
     <>
-      <ParamKnob
-        label="filter" // TODO: fix routing to use 2 nodes so we dont reload nodes mid playback
-        mapping={splitFilterMapping}
+      <RotaryKnob
+        label="filter"
+        descriptor={splitFilterDescriptor}
         value={filter}
-        onValueChange={setFilter}
-        outerTickCount={3}
+        onChange={setFilter}
       />
-      <ParamKnob
+      <RotaryKnob
         label="saturation"
-        mapping={saturationWetMapping}
+        descriptor={masterSaturationDescriptor}
         value={saturation}
-        onValueChange={setSaturation}
+        onChange={setSaturation}
       />
-      <ParamKnob
+      <RotaryKnob
         label="reverb"
-        mapping={reverbWetMapping}
+        descriptor={masterReverbDescriptor}
         value={reverb}
-        onValueChange={setReverb}
-        outerTickCount={5}
+        onChange={setReverb}
       />
-
-      <ParamKnob
+      <RotaryKnob
         label="phaser"
-        mapping={phaserWetMapping}
+        descriptor={masterPhaserDescriptor}
         value={phaser}
-        onValueChange={setPhaser}
-        outerTickCount={5}
+        onChange={setPhaser}
       />
     </>
   );

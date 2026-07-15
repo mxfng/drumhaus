@@ -54,7 +54,7 @@ import {
  */
 function applyInitFallback(): void {
   try {
-    applyPresetDocument(migrateV1ToDocument(init()));
+    applyPresetDocument(init());
   } catch (error) {
     console.error("Drumhaus boot: failed to apply the default preset", error);
   }

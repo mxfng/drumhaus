@@ -6,19 +6,65 @@
  * A plain function over store.getState() actions rather than hook
  * selectors, so it is callable outside React (boot restore, tests).
  *
+ * The stores hold canonical units, so this writes the document's values
+ * DIRECTLY (V5): no domain->knob crossing. The only shaping is the field
+ * renames (decaySeconds -> decay, volumeDb null -> -Infinity, tuneSemitones
+ * -> tune) and rehydrating the kit's samples/metadata from the registry.
+ *
  * Deliberately not exported from the document barrel (see index.ts): this
  * module pulls in the stores, whose import graph reaches back into
  * @/core/dh and would cycle through the barrel.
  */
 
+import type { MasterChainCanonical } from "@/core/audio/bridge/engine-params";
+import { loadKit } from "@/core/dhkit";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
+import type {
+  InstrumentData,
+  InstrumentParams,
+} from "@/features/instrument/types/instrument";
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import type { PresetDocument } from "./document";
-import { documentToV1 } from "./to-v1";
+import { UnknownKitError } from "./errors";
+
+/** null (JSON-safe silence) becomes -Infinity dB in the store. */
+function dbFromDocument(volumeDb: number | null): number {
+  return volumeDb === null ? -Infinity : volumeDb;
+}
+
+function paramsFromChannel(
+  channel: PresetDocument["channels"][number],
+): InstrumentParams {
+  return {
+    decay: channel.decaySeconds,
+    filter: channel.filter,
+    volume: dbFromDocument(channel.volumeDb),
+    pan: channel.pan,
+    tune: channel.tuneSemitones,
+    solo: channel.solo,
+    mute: channel.mute,
+  };
+}
+
+function masterFromDocument(
+  master: PresetDocument["master"],
+): MasterChainCanonical {
+  return {
+    filter: master.filter,
+    saturation: master.saturation,
+    phaser: master.phaser,
+    reverb: master.reverb,
+    compThreshold: master.compThresholdDb,
+    compRatio: master.compRatio,
+    compAttack: master.compAttackSeconds,
+    compMix: master.compMix,
+    masterVolume: dbFromDocument(master.masterVolumeDb),
+  };
+}
 
 /**
  * Commit a preset document to the stores, all-or-nothing.
@@ -27,18 +73,28 @@ import { documentToV1 } from "./to-v1";
  * the registry; nothing has been written when this fires
  */
 function applyPresetDocument(document: PresetDocument): void {
-  // Conversion phase: every store payload is derived up front (registry kit
-  // rehydration plus the domain-to-knob inverses, all inside documentToV1),
-  // so a failure throws before the first store write and the session is
-  // untouched.
-  const file = documentToV1(document);
+  // Conversion phase: derive every store payload up front (registry kit
+  // rehydration plus the document's canonical channel params), so a failure
+  // throws before the first store write and the session is untouched.
+  const kit = loadKit(document.kit.id);
+  if (kit === undefined) {
+    throw new UnknownKitError(document.kit.id);
+  }
+
+  const instruments: InstrumentData[] = kit.instruments.map(
+    (instrument, index) => ({
+      ...instrument,
+      params: paramsFromChannel(document.channels[index]),
+    }),
+  );
+  const masterChain = masterFromDocument(document.master);
 
   // Decision 7: the selected A/B/C/D pad is performance state, not preset
   // state; the initial selection derives from the chain's entry point.
   const initialVariation = document.playback.chain.steps[0]?.variation ?? 0;
 
   const isCustomPreset = !getDefaultPresets().some(
-    (preset) => preset.meta.id === file.meta.id,
+    (preset) => preset.meta.id === document.meta.id,
   );
 
   // Commit phase: the same setters in the same order as the legacy
@@ -59,7 +115,7 @@ function applyPresetDocument(document: PresetDocument): void {
   }
 
   // Update metadata (the clean dirty baseline is set post-commit below)
-  presetMeta.loadPreset(file);
+  presetMeta.loadPreset(document.meta, kit.meta);
 
   // Update sequencer
   const pattern = usePatternStore.getState();
@@ -70,19 +126,18 @@ function applyPresetDocument(document: PresetDocument): void {
   pattern.setChainEnabled(document.playback.chainEnabled);
 
   // Update transport
-  transport.setBpm(file.transport.bpm);
-  transport.setSwing(file.transport.swing);
+  transport.setBpm(document.transport.bpm);
+  transport.setSwing(document.transport.swing);
 
   // Update master chain
-  useMasterChainStore.getState().setAllMasterChain(file.masterChain);
+  useMasterChainStore.getState().setAllMasterChain(masterChain);
 
   // Update instruments last (triggers the audio engine kit reload)
-  useInstrumentsStore.getState().setAllInstruments(file.kit.instruments);
+  useInstrumentsStore.getState().setAllInstruments(instruments);
 
-  // Dirty baseline LAST, from the POST-APPLY snapshot rather than the input
-  // document: the domain -> knob -> domain crossing leaves float noise the
-  // canonical hash's rounding absorbs, and hashing what the stores actually
-  // hold guarantees a just-applied preset (or restored session) reads clean.
+  // Dirty baseline LAST, from the POST-APPLY snapshot: apply -> snapshot is
+  // now an identity round trip (canonical throughout), so a just-applied
+  // preset (or restored session) reads clean.
   presetMeta.markPresetClean();
 }
 

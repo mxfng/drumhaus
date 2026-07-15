@@ -3,10 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-  createPresetForExport,
-  downloadPreset,
-} from "@/features/preset/lib/operations";
+import { downloadPreset } from "@/features/preset/lib/operations";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { presetNameSchema } from "@/shared/lib/schemas";
 import {
@@ -59,11 +56,8 @@ function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
     const trimmedName = presetName.trim();
 
     try {
-      // Create preset from current state
-      const preset = createPresetForExport(trimmedName, currentKitMeta);
-
-      // Download as .dh file
-      downloadPreset(preset, trimmedName);
+      // Snapshot the current store state and download as a .dh file
+      downloadPreset(trimmedName, currentKitMeta);
 
       toast({
         title: "Preset exported",
