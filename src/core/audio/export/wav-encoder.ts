@@ -1,6 +1,7 @@
 // --- WAV encoding utilities for AudioBuffer export ---
 
 import { clamp } from "@/shared/lib/utils";
+import { triggerBlobDownload } from "./download";
 
 /**
  * Encodes an AudioBuffer to WAV format (PCM 16-bit)
@@ -68,15 +69,7 @@ function writeString(view: DataView, offset: number, str: string): void {
  * Triggers a browser download of the WAV file
  */
 function downloadWav(wavBuffer: ArrayBuffer, filename: string): void {
-  const blob = new Blob([wavBuffer], { type: "audio/wav" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  triggerBlobDownload(wavBuffer, filename, "audio/wav");
 }
 
 /**

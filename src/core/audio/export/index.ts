@@ -12,3 +12,10 @@ export {
   type MidiVoiceDescriptor,
 } from "./midi-exporter";
 export { downloadMidi, encodeMidi } from "./midi-encoder";
+export {
+  exportStems,
+  type StemExportOptions,
+  type StemExportProgress,
+  type StemExportSummary,
+  type StemVoiceDescriptor,
+} from "./stem-exporter";
