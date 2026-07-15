@@ -20,7 +20,7 @@ It is the rubric the codebase is audited against; every violation is a tracked f
 - Legacy handling is option A: the frozen legacy-read island stays, so every existing `.dh` file, share link, and saved session keeps loading forever.
   It is kept as small and hard-isolated as possible, in one clearly marked module, with a documented seam to sunset it in a future PR if desired.
 - The refactor is behavior-preserving: no audible change except the deliberate, sound-identical filter refactor, gated by golden-render and e2e.
-- Factory data is regenerated to canonical: `.dhkit` to `KitFileV2`, the eleven `.dh` defaults to v2 documents.
+- Factory data is regenerated to canonical: the `.dhkit` registry to a single canonical `KitFile` shape (no version series, since the registry is bundled-only), and the eleven `.dh` defaults to current-version documents.
 
 ## The representation stack
 
@@ -171,14 +171,20 @@ The following PRs are already known; the audit may add or reprioritize.
   Canonical filter becomes `{ side, cutoffHz }`; the engine consumes derived frequencies; the position curve moves to the widget; the document schema and the frozen legacy migration (old 0-100 to `{ side, cutoffHz }`) update.
   This lands before the store flip because the stores, document, registry, and widgets all key on the filter's shape.
 
+- **BC. Control presentations.**
+  Extend the `param-control` library with the slider and clickable value-field presentations on the shared descriptor core, additive and standalone like the knob, so all three presentations exist before the flip needs them.
+  This is a follow-on to the knob primitive (Epic 2), not part of the flip.
+
 - **C. Stores, widgets, and bridge to canonical units.**
-  Every store holds canonical; the three shared widgets convert position at the edge like BPM already does; the bridge collapses to canonical-to-engine (semitone to Hz, filter derivation, master macro expansion) plus pass-through; `snapshot` reads canonical and `apply` writes it.
+  Every store holds canonical; the feature widgets adopt the `param-control` presentations, converting position at the edge like BPM already does; the bridge collapses to canonical-to-engine (semitone to Hz, filter derivation, master macro expansion) plus pass-through; `snapshot` reads canonical and `apply` writes it; the temporary filter conversions from PR B are removed.
 
 - **D. Kit registry to canonical.**
-  The `.dhkit` files store canonical params; `KitFileV2`; `switchKit` and store initialization consume canonical directly.
+  The `.dhkit` files store canonical params in a single canonical `KitFile` shape, not a version series: the registry is bundled-only and regenerated with the app, so there is a right shape rather than versioned data to tell apart.
+  `switchKit` and store initialization consume canonical directly.
+  The old knob-kit shape survives only for kits embedded in legacy `.dh` files, inside the legacy-read island.
 
-- **E. Factory defaults to v2 documents.**
-  The eleven bundled `.dh` presets are re-authored as v2 documents so the app ships what it writes.
+- **E. Factory defaults to current-version documents.**
+  The eleven bundled `.dh` presets are re-authored as current-version documents so the app ships what it writes.
 
 - **F. Cleanup.**
   Delete the dead knob machinery (the bridge's knob-to-domain functions, the production domain-to-knob inverses, the knob-shaped `MasterChainParams` type, the legacy compact encoder, the dead low/high-pass mappings), recompute the canonical-hash noise floor, and name the legacy-read island explicitly.
@@ -202,7 +208,7 @@ The main coordinator checks each PR against the row below independently, not on 
 | V6 knob constants in the engine (P3, P4)     | C, F                  | removed from `engine/constants.ts`                                                 |
 | V7 swing converts in a store action (P7)     | C                     | swing is canonical; `transportSwingKnobToDomain` gone                              |
 | V8 display projected from position (P5)      | Epic 2 (new), F (old) | `format` takes canonical; the `knobValue` formatter arg deleted                    |
-| V3 `.dhkit` knob params (P1, P4)             | D                     | `KitFileV2` with canonical params                                                  |
+| V3 `.dhkit` knob params (P1, P4)             | D                     | canonical `KitFile` shape (no version series; registry is bundled-only)            |
 | V4 `.dh` defaults v1.5-embedded (P1, P4, P6) | E                     | re-authored current-version documents; no knob-embedded factory data               |
 | LOW cleanup                                  | F                     | dead mappings, inverses, hash rounding, and stale comments removed                 |
 | Knob primitive (knob-primitive.md)           | Epic 2                | descriptor model, interaction set, canonical-only API, tests                       |
