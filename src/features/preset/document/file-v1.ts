@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 /**
- * Zod schemas for the v1 .dh preset file format.
+ * Zod schemas for the knob-space .dh preset file format (versions 1 and 1.5;
+ * the two versions share one shape, and v1.5 only marks the #269 swing knob
+ * reinterpretation handled by migratePresetFileVersion).
  *
  * Deliberately tolerant: these schemas must accept every legacy shape the
  * runtime migrators (src/features/sequencer/lib/migrations.ts) accept, so
@@ -87,7 +89,7 @@ const sequencerSchema = z.object({
 
 const presetFileV1Schema = z.object({
   kind: z.literal("drumhaus.preset"),
-  version: z.literal(1),
+  version: z.union([z.literal(1), z.literal(1.5)]),
   meta: metaSchema,
   kit: kitSchema,
   transport: transportSchema,

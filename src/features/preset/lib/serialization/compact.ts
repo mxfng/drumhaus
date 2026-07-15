@@ -20,7 +20,9 @@ import {
   VARIATION_LABELS,
   VariationCycle,
 } from "@/features/sequencer/types/sequencer";
+import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
 import { init } from "../../../../core/dh";
+import { PRESET_FILE_VERSION } from "../../document/migrate";
 import { PresetFileV1 } from "../../types/preset";
 import { compactCodeToKitId, kitIdToCompactCode } from "./default-kits";
 
@@ -31,6 +33,12 @@ import { compactCodeToKitId, kitIdToCompactCode } from "./default-kits";
  * - Single-letter keys
  * - Kit ID as single digit (0-9)
  * - Omit default values
+ *
+ * Versioning: the codec was originally unversioned; the `v` field was
+ * introduced with the #269 swing retune, mirroring the .dh file version
+ * (PRESET_FILE_VERSION = 1.5). A URL without `v` was written by a pre-retune
+ * build, so its `sw` value (or the implied default when omitted) is in the
+ * OLD swing knob space and is migrated on decode.
  */
 
 const PACKED_TRIGGER_HEX_LENGTH = Math.ceil(STEP_COUNT / 4);
@@ -197,6 +205,7 @@ type CompactParams = {
  */
 type CompactPreset = {
   id: string; // preset UUID (new UUID generated when sharing)
+  v?: number; // codec version, mirrors PRESET_FILE_VERSION (absent = pre-#269 legacy URL)
   k: string; // kit ID (single digit 0-9)
   n?: string; // preset name
   ip: CompactParams[]; // instrument params (8 items, only non-defaults)
@@ -326,6 +335,7 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
 
   const compact: CompactPreset = {
     id: preset.meta.id, // Include the UUID (generated fresh when sharing)
+    v: PRESET_FILE_VERSION,
     k: kitId,
     ip: preset.kit.instruments.map((inst: InstrumentData) =>
       encodeParams(inst.params),
@@ -482,6 +492,27 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
   };
 }
 
+/**
+ * Init-preset swing default of every pre-`v` (pre-#269) build: `sw` was
+ * omitted when the swing knob equaled it. Pinned as a literal because the
+ * legacy decode branch must not drift if the current init default ever
+ * changes.
+ */
+const LEGACY_DEFAULT_SWING = 0;
+
+/**
+ * Decodes the swing knob value. Legacy URLs (no `v` field) carry `sw` in
+ * the pre-#269 swing knob space and are migrated; when `sw` is omitted the
+ * writing build's init default applies before migration.
+ */
+function decodeSwing(compact: CompactPreset): number {
+  const isLegacyUrl = compact.v === undefined;
+  if (isLegacyUrl) {
+    return migrateLegacySwingKnob(compact.sw ?? LEGACY_DEFAULT_SWING);
+  }
+  return compact.sw ?? DEFAULT_SWING;
+}
+
 function decodeCompactPreset(
   compact: CompactPreset,
   kitLoader: (kitId: string) => KitFileV1,
@@ -551,7 +582,9 @@ function decodeCompactPreset(
 
   return {
     kind: "drumhaus.preset",
-    version: 1,
+    // Decoded presets are always normalized to the current file version:
+    // decodeSwing has already applied the legacy-URL swing migration.
+    version: PRESET_FILE_VERSION,
     meta: {
       id: compact.id, // Use the UUID from the encoded preset
       name: compact.n || "Shared Preset",
@@ -566,7 +599,7 @@ function decodeCompactPreset(
     },
     transport: {
       bpm: compact.bpm ?? DEFAULT_BPM,
-      swing: compact.sw ?? DEFAULT_SWING,
+      swing: decodeSwing(compact),
     },
     sequencer: {
       pattern,

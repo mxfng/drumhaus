@@ -174,7 +174,7 @@ interface MidiExportOptions {
   /** Number of bars to export; the chain arrangement advances per bar. */
   bars: number;
   bpm: number;
-  /** Transport swing in Tone domain units (0-0.5), converted at the boundary. */
+  /** Transport swing in Tone domain units (0-TRANSPORT_SWING_MAX), converted at the boundary. */
   swing: number;
   pattern: Pattern;
   chain: PatternChain;

@@ -183,7 +183,7 @@ class AudioEngine {
   private anySolos = false;
   private masterSettings: MasterChainSettings | null = null;
   private bpm = 120;
-  /** Transport swing in Tone units (0-0.5); the bridge converts from knobs. */
+  /** Transport swing in Tone units (0-TRANSPORT_SWING_MAX); the bridge converts from knobs. */
   private swing = 0;
 
   // --- Lifecycle & playback state ---

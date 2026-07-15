@@ -1,7 +1,7 @@
 /**
- * Parse-level tests for the v2 preset document schema: a hand-built valid
- * document parses, and each range/arity violation fails at the offending
- * path.
+ * Parse-level tests for the domain-unit (v3) preset document schema: a
+ * hand-built valid document parses, and each range/arity violation fails
+ * at the offending path.
  */
 
 import { describe, expect, it } from "vitest";
@@ -143,19 +143,25 @@ describe("presetDocumentSchema", () => {
     );
   });
 
-  it("rejects version 1", () => {
+  it("rejects the knob-space file-family versions 1 and 1.5", () => {
     expectFailureAt(
       mutated((d) => {
         d.version = 1 as PresetDocument["version"];
       }),
       ["version"],
     );
-  });
-
-  it("rejects swing above 0.5", () => {
     expectFailureAt(
       mutated((d) => {
-        d.transport.swing = 0.6;
+        d.version = 1.5 as PresetDocument["version"];
+      }),
+      ["version"],
+    );
+  });
+
+  it("rejects swing above the 0.375 ceiling", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.transport.swing = 0.5;
       }),
       ["transport", "swing"],
     );

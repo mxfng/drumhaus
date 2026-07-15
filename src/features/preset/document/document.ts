@@ -1,11 +1,16 @@
 /**
- * The v2 preset document model.
+ * The domain-unit preset document model (docs/preset-persistence.md).
  *
  * A `.dh` file, version 2: a domain-space (dB, seconds, semitones, -1..1
  * pan) description of a preset, decoupled from 0-100 knob positions except
  * for split-filter positions, whose 0-100 position IS the domain value.
  * The zod schema is the single source of truth; the PresetDocument type is
  * inferred from it. No production code consumes this yet.
+ *
+ * The #269 swing retune sits between v1 and this document as version 1.5,
+ * a knob-space revision of the v1 file shape
+ * (src/features/preset/document/migrate.ts); version 2 remains this
+ * domain document, as designed.
  */
 
 import { z } from "zod";
