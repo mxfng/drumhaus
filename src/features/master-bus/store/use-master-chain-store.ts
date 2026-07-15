@@ -1,6 +1,10 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+
+// No persist middleware: master-chain settings persist inside the session
+// document (features/preset/session), restored by bootstrapSession() before
+// React mounts.
 
 import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import {
@@ -66,87 +70,70 @@ interface MasterChainState {
 
 const useMasterChainStore = create<MasterChainState>()(
   devtools(
-    persist(
-      immer((set) => ({
-        // Initial state (default/init preset values)
-        filter: MASTER_FILTER_DEFAULT,
-        saturation: MASTER_SATURATION_DEFAULT,
-        phaser: MASTER_PHASER_DEFAULT,
-        reverb: MASTER_REVERB_DEFAULT,
-        compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
-        compRatio: MASTER_COMP_DEFAULT_RATIO,
-        compAttack: MASTER_COMP_DEFAULT_ATTACK,
-        compMix: MASTER_COMP_DEFAULT_MIX,
-        masterVolume: MASTER_VOLUME_DEFAULT,
+    immer((set) => ({
+      // Initial state (default/init preset values)
+      filter: MASTER_FILTER_DEFAULT,
+      saturation: MASTER_SATURATION_DEFAULT,
+      phaser: MASTER_PHASER_DEFAULT,
+      reverb: MASTER_REVERB_DEFAULT,
+      compThreshold: MASTER_COMP_DEFAULT_THRESHOLD,
+      compRatio: MASTER_COMP_DEFAULT_RATIO,
+      compAttack: MASTER_COMP_DEFAULT_ATTACK,
+      compMix: MASTER_COMP_DEFAULT_MIX,
+      masterVolume: MASTER_VOLUME_DEFAULT,
 
-        // Individual setters
-        setFilter: (filter) => {
-          set({ filter });
-        },
-
-        setSaturation: (saturation) => {
-          set({ saturation });
-        },
-
-        setPhaser: (phaser) => {
-          set({ phaser });
-        },
-
-        setReverb: (reverb) => {
-          set({ reverb });
-        },
-
-        setCompThreshold: (compThreshold) => {
-          set({ compThreshold });
-        },
-
-        setCompRatio: (compRatio) => {
-          set({ compRatio });
-        },
-
-        setCompAttack: (compAttack) => {
-          set({ compAttack });
-        },
-
-        setCompMix: (compMix) => {
-          set({ compMix });
-        },
-
-        setMasterVolume: (masterVolume) => {
-          set({ masterVolume });
-        },
-
-        // Batch setter for preset loading
-        setAllMasterChain: (params) => {
-          set({
-            filter: params.filter,
-            saturation: params.saturation,
-            phaser: params.phaser,
-            reverb: params.reverb,
-            compThreshold: params.compThreshold,
-            compRatio: params.compRatio,
-            compAttack: params.compAttack,
-            compMix: params.compMix ?? MASTER_COMP_DEFAULT_MIX,
-            masterVolume: params.masterVolume,
-          });
-        },
-      })),
-      {
-        name: "drumhaus-master-chain-storage",
-        // Persist all master FX settings
-        partialize: (state) => ({
-          filter: state.filter,
-          saturation: state.saturation,
-          phaser: state.phaser,
-          reverb: state.reverb,
-          compThreshold: state.compThreshold,
-          compRatio: state.compRatio,
-          compAttack: state.compAttack,
-          compMix: state.compMix,
-          masterVolume: state.masterVolume,
-        }),
+      // Individual setters
+      setFilter: (filter) => {
+        set({ filter });
       },
-    ),
+
+      setSaturation: (saturation) => {
+        set({ saturation });
+      },
+
+      setPhaser: (phaser) => {
+        set({ phaser });
+      },
+
+      setReverb: (reverb) => {
+        set({ reverb });
+      },
+
+      setCompThreshold: (compThreshold) => {
+        set({ compThreshold });
+      },
+
+      setCompRatio: (compRatio) => {
+        set({ compRatio });
+      },
+
+      setCompAttack: (compAttack) => {
+        set({ compAttack });
+      },
+
+      setCompMix: (compMix) => {
+        set({ compMix });
+      },
+
+      setMasterVolume: (masterVolume) => {
+        set({ masterVolume });
+      },
+
+      // Batch setter for preset loading
+      setAllMasterChain: (params) => {
+        set({
+          filter: params.filter,
+          saturation: params.saturation,
+          phaser: params.phaser,
+          reverb: params.reverb,
+          compThreshold: params.compThreshold,
+          compRatio: params.compRatio,
+          compAttack: params.compAttack,
+          compMix: params.compMix ?? MASTER_COMP_DEFAULT_MIX,
+          masterVolume: params.masterVolume,
+        });
+      },
+    })),
     {
       name: "MasterChainStore",
     },

@@ -24,13 +24,6 @@ vi.mock("@/core/audio/engine", () => ({
 let useTransportStore: typeof import("./use-transport-store").useTransportStore;
 
 beforeAll(async () => {
-  // zustand's persist middleware expects a Web Storage; give it an
-  // in-memory stub so the store module can be imported under node.
-  vi.stubGlobal("localStorage", {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-  });
   ({ useTransportStore } = await import("./use-transport-store"));
 });
 

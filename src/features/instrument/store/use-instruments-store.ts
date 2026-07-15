@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { loadKit } from "@/core/dhkit";
@@ -7,6 +7,12 @@ import {
   InstrumentData,
   InstrumentParams,
 } from "@/features/instrument/types/instrument";
+
+// No persist middleware: instruments persist inside the session document
+// (features/preset/session), restored by bootstrapSession() before React
+// mounts. The retired v1 -> v2 persist migrate (release -> decay,
+// pitch -> tune) now lives in the legacy session adopter
+// (legacy-adopter.ts).
 
 interface InstrumentsState {
   // Array of 8 instruments with all their parameters
@@ -31,78 +37,46 @@ interface InstrumentsState {
 
 const useInstrumentsStore = create<InstrumentsState>()(
   devtools(
-    persist(
-      immer((set) => ({
-        // Initial state - default kit (kit-0)
-        instruments: loadKit("kit-0")!.instruments,
-        durations: loadKit("kit-0")!.instruments.map(() => 0), // update at runtime
+    immer((set) => ({
+      // Initial state - default kit (kit-0)
+      instruments: loadKit("kit-0")!.instruments,
+      durations: loadKit("kit-0")!.instruments.map(() => 0), // update at runtime
 
-        setInstrumentProperty: (index, key, value) => {
-          set((state) => {
-            state.instruments[index].params[key] = value;
-          });
-        },
-
-        toggleMute: (index) => {
-          set((state) => {
-            state.instruments[index].params.mute =
-              !state.instruments[index].params.mute;
-          });
-        },
-
-        toggleSolo: (index) => {
-          set((state) => {
-            state.instruments[index].params.solo =
-              !state.instruments[index].params.solo;
-          });
-        },
-
-        setDuration: (index, value) => {
-          set((state) => {
-            state.durations[index] = value;
-          });
-        },
-
-        // Batch setters for kit/preset loading
-        setAllInstruments: (instruments) => {
-          set({ instruments });
-        },
-
-        setAllDurations: (durations) => {
-          set({ durations });
-        },
-      })),
-      {
-        name: "drumhaus-instruments-storage",
-        version: 2,
-        // Persist instruments but not durations (computed from samples)
-        partialize: (state) => ({
-          instruments: state.instruments,
-        }),
-        migrate: (persistedState: unknown, version: number) => {
-          // Migrate from v1 to v2: rename release → decay, pitch → tune, remove attack
-          if (version === 1) {
-            const state = persistedState as { instruments: InstrumentData[] };
-            state.instruments = state.instruments.map((inst) => {
-              const oldParams = inst.params as unknown as Record<
-                string,
-                unknown
-              >;
-              const { attack: _attack, release, pitch, ...rest } = oldParams;
-              return {
-                ...inst,
-                params: {
-                  ...rest,
-                  decay: release ?? oldParams.decay,
-                  tune: pitch ?? oldParams.tune,
-                } as InstrumentParams,
-              };
-            });
-          }
-          return persistedState;
-        },
+      setInstrumentProperty: (index, key, value) => {
+        set((state) => {
+          state.instruments[index].params[key] = value;
+        });
       },
-    ),
+
+      toggleMute: (index) => {
+        set((state) => {
+          state.instruments[index].params.mute =
+            !state.instruments[index].params.mute;
+        });
+      },
+
+      toggleSolo: (index) => {
+        set((state) => {
+          state.instruments[index].params.solo =
+            !state.instruments[index].params.solo;
+        });
+      },
+
+      setDuration: (index, value) => {
+        set((state) => {
+          state.durations[index] = value;
+        });
+      },
+
+      // Batch setters for kit/preset loading
+      setAllInstruments: (instruments) => {
+        set({ instruments });
+      },
+
+      setAllDurations: (durations) => {
+        set({ durations });
+      },
+    })),
     {
       name: "InstrumentsStore",
     },

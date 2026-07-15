@@ -1,10 +1,16 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import { getAudioEngine } from "@/core/audio/engine";
-import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
+
+// No persist middleware: bpm/swing persist inside the session document
+// (features/preset/session), restored by bootstrapSession() before React
+// mounts. The retired v0 -> v1 swing migrate (#269) now lives in the
+// legacy session adopter (legacy-adopter.ts), and the old
+// onRehydrateStorage engine push is unnecessary: bootstrap applies through
+// setBpm/setSwing, which already issue the engine commands.
 
 interface TransportState {
   // Playback state
@@ -20,78 +26,49 @@ interface TransportState {
 
 const useTransportStore = create<TransportState>()(
   devtools(
-    persist(
-      immer((set, get) => ({
-        // Initial state
-        isPlaying: false,
-        bpm: 100, // Default value, overwritten by preset load
-        swing: 0, // Default value, overwritten by preset load
+    immer((set, get) => ({
+      // Initial state
+      isPlaying: false,
+      bpm: 100, // Default value, overwritten by preset load
+      swing: 0, // Default value, overwritten by preset load
 
-        // Actions
-        togglePlay: async () => {
-          const engine = getAudioEngine();
+      // Actions
+      togglePlay: async () => {
+        const engine = getAudioEngine();
 
-          // Decide and flip synchronously BEFORE any await so rapid toggles
-          // (double-tap) each observe the previous tap's intent instead of
-          // a stale pre-await value. The engine's onPlaybackStateChange
-          // event (mirrored by the bridge) reconciles any residual drift.
-          const shouldPlay = !get().isPlaying;
-          set({ isPlaying: shouldPlay });
+        // Decide and flip synchronously BEFORE any await so rapid toggles
+        // (double-tap) each observe the previous tap's intent instead of
+        // a stale pre-await value. The engine's onPlaybackStateChange
+        // event (mirrored by the bridge) reconciles any residual drift.
+        const shouldPlay = !get().isPlaying;
+        set({ isPlaying: shouldPlay });
 
-          if (!shouldPlay) {
-            engine.stop();
-            return;
-          }
+        if (!shouldPlay) {
+          engine.stop();
+          return;
+        }
 
-          try {
-            // Tempo and swing are already retained engine-side (pushed by
-            // setBpm/setSwing and on rehydrate); engine.play() re-applies
-            // them, so no backup push is needed here.
-            await engine.play();
-          } catch (error) {
-            console.error("Failed to start playback:", error);
-            set({ isPlaying: false });
-          }
-        },
-
-        setBpm: (bpm) => {
-          set({ bpm });
-          getAudioEngine().setTempo(bpm);
-        },
-
-        setSwing: (swing) => {
-          set({ swing });
-          getAudioEngine().setSwing(transportSwingKnobToDomain(swing));
-        },
-      })),
-      {
-        name: "drumhaus-transport-storage",
-        // v1 (#269 swing retune): persisted swing knob values written under
-        // the old curve (Tone swing = knob / 200) are reinterpreted by the
-        // new curve (knob * 0.00375) and must be rescaled to keep the feel.
-        version: 1,
-        migrate: (persistedState, version) => {
-          const state = persistedState as { bpm: number; swing: number };
-          if (version < 1 && typeof state?.swing === "number") {
-            return { ...state, swing: migrateLegacySwingKnob(state.swing) };
-          }
-          return state;
-        },
-        // Only persist user-facing state, not Tone.js refs
-        partialize: (state) => ({
-          bpm: state.bpm,
-          swing: state.swing,
-        }),
-        // Apply persisted transport settings when store rehydrates
-        onRehydrateStorage: () => (state) => {
-          if (state) {
-            const engine = getAudioEngine();
-            engine.setTempo(state.bpm);
-            engine.setSwing(transportSwingKnobToDomain(state.swing));
-          }
-        },
+        try {
+          // Tempo and swing are already retained engine-side (pushed by
+          // setBpm/setSwing and on rehydrate); engine.play() re-applies
+          // them, so no backup push is needed here.
+          await engine.play();
+        } catch (error) {
+          console.error("Failed to start playback:", error);
+          set({ isPlaying: false });
+        }
       },
-    ),
+
+      setBpm: (bpm) => {
+        set({ bpm });
+        getAudioEngine().setTempo(bpm);
+      },
+
+      setSwing: (swing) => {
+        set({ swing });
+        getAudioEngine().setSwing(transportSwingKnobToDomain(swing));
+      },
+    })),
     {
       name: "TransportStore",
     },

@@ -12,17 +12,13 @@ import {
   VariationId,
 } from "@/core/audio/engine/pattern-types";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
-import {
-  appendChainDraftStep,
-  legacyCycleToChain,
-} from "@/features/sequencer/lib/chain";
+import { appendChainDraftStep } from "@/features/sequencer/lib/chain";
 import {
   applyInstrumentClipboard,
   applyVariationClipboard,
   createVariationClipboard,
 } from "@/features/sequencer/lib/clipboard";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
-import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
 import {
   adjustTimingNudge,
   setTimingNudge,
@@ -50,7 +46,6 @@ import {
   buildVariationClearFlash,
   buildVariationCopyFlash,
 } from "../lib/screen-flash";
-import { VariationCycle } from "../types/sequencer";
 
 /**
  * Sequencer mode - represents what the user is currently editing.
@@ -536,45 +531,18 @@ const usePatternStore = create<PatternState>()(
       })),
 
       {
-        name: "drumhaus-sequencer-storage",
-        version: 3,
-        // Persist pattern and settings
+        // Musical state (pattern, chain) persists inside the session
+        // document (features/preset/session); the retired
+        // drumhaus-sequencer-storage migrations now live in the legacy
+        // session adopter (legacy-adopter.ts). Only the selected A/B/C/D
+        // pad remains persisted here: it is session-UI state, deliberately
+        // kept out of presets (decision 7,
+        // docs/preset-persistence.md).
+        name: "drumhaus-session-ui",
+        version: 1,
         partialize: (state) => ({
-          pattern: state.pattern,
           variation: state.variation,
-          chain: state.chain,
-          chainEnabled: state.chainEnabled,
         }),
-        // Migration: ensure all pattern fields are up-to-date
-        migrate: (persistedState: unknown) => {
-          const state = persistedState as Partial<PatternState> & {
-            variationCycle?: VariationCycle;
-          };
-
-          // Migrate pattern to latest format (handles all versions)
-          try {
-            state.pattern = migratePatternUnsafe(
-              state.pattern ?? createEmptyPattern(),
-            );
-          } catch (error) {
-            console.error("Failed to migrate pattern:", error);
-            state.pattern = createEmptyPattern();
-          }
-
-          const legacy = legacyCycleToChain(
-            state.variationCycle,
-            state.variation ?? 0,
-          );
-
-          state.variation = clampVariationId(
-            state.variation ?? legacy.variation,
-          );
-          state.chain = sanitizeChain(state.chain ?? legacy.chain);
-          state.chainEnabled = state.chainEnabled ?? legacy.chainEnabled;
-          state.chainDraft = { steps: [] };
-
-          return state as PatternState;
-        },
       },
     ),
     {
