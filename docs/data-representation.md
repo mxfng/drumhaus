@@ -16,7 +16,7 @@ It is the rubric the codebase is audited against; every violation is a tracked f
 - Canonical is Tone-native acoustic units with exactly two musical exceptions: pitch as semitones, filter as `{ side, cutoffHz }`.
 - The engine is refactored so its filter takes derived frequencies, and is built to accommodate resonance (Q) as a real filter parameter; Q is not exposed to the user, not canonical, and not persisted now.
 - There is no explicit filter bypass state; the center of the knob is the open extreme of a side.
-- 0-100 is eliminated entirely; the knob is a best-in-class React primitive working in normalized [0, 1] internally and exposing only canonical values (see The knob primitive).
+- 0-100 is eliminated entirely; the knob is a best-in-class React primitive working in normalized [0, 1] internally and exposing only canonical values (see knob-primitive.md).
 - Legacy handling is option A: the frozen legacy-read island stays, so every existing `.dh` file, share link, and saved session keeps loading forever.
   It is kept as small and hard-isolated as possible, in one clearly marked module, with a documented seam to sunset it in a future PR if desired.
 - The refactor is behavior-preserving: no audible change except the deliberate, sound-identical filter refactor, gated by golden-render and e2e.
@@ -77,7 +77,7 @@ A 0-100 position, a knob value, or any UI-flavored scalar in an engine signature
 
 The normalized [0, 1] position exists only inside the control component.
 It never appears in a store, a document, the registry, an engine call, a file, or a share link.
-The widget maps position to and from canonical through a per-parameter descriptor (see The knob primitive); its scalar encoding is a free implementation choice.
+The widget maps position to and from canonical through a per-parameter descriptor (see knob-primitive.md); its scalar encoding is a free implementation choice.
 
 ### P5. Display values are projections, never state.
 
@@ -100,34 +100,9 @@ No conversion is duplicated across layers, and no datum crosses a boundary it do
 
 ## The knob primitive
 
-The control layer is one descriptor-driven primitive, not a widget per parameter.
-It exposes only canonical values on its public API, works in normalized [0, 1] internally (the VST3/JUCE transport), and a single knob, slider, or value field renders and edits any parameter described by a `ParamDescriptor`.
-0-100 exists nowhere outside it.
-
-### ParamDescriptor
-
-- `min`, `max`: canonical range endpoints.
-- `taper`: the normalized-to-canonical mapping, a discriminated union: `linear`; `exponential` with a scalar `skew` (and `symmetric` for bipolar); or `custom` with a `to01`/`from01` pair.
-  The scalar skew is the default because it is serializable and comparable, and JUCE's `setSkewForCentre(value)` lets an author say "1 kHz sits at knob-center" instead of hand-picking an exponent.
-  The custom pair is the escape hatch for curves that are not a single exponent, such as the split filter's position to `{ side, cutoffHz }`.
-- `default`: reset target, and the center value for bipolar params.
-- `interval` / `stepCount` / `valueLabels`: continuous snapping in canonical units, discrete step counts (VST3 model), and names for discrete steps.
-- `polarity`: unipolar or bipolar (center-origin fill plus a center detent).
-- `detents`: magnetic notch points with a small radius (pan center, unity gain), auto-disabled under fine drag.
-- `format` / `parse` / `unit` / `precision`: canonical to display string, type-in entry back to canonical, and rounding.
-- `dragSensitivity`, `fineDragFactor`, `keyStep`, `keyStepLarge`: interaction tuning.
-
-The existing linear, exponential, tune, and split-filter mappings become descriptors.
-
-### Interaction, must-have for the primitive
-
-Absolute vertical drag with the delta computed in normalized space (one sensitivity works across every range and taper); Shift for fine drag (Ableton/Serum convention, chosen over Vital's Shift-as-coarse so Shift has one meaning); double-click or Delete resets to default; type-in entry; keyboard and ARIA (`role="slider"`, arrows and Page and Home/End, with `aria-valuetext` set to the display string, not the raw number); gesture bracketing (`onGestureStart`/`onGestureEnd` distinct from `onChange`, from day one, since undo coalescing and dirty-tracking depend on it); range clamping everywhere.
-A gesture holds a raw, unrounded value and rounds only at display and commit, so stepped params do not drift and fine drag can move sub-step amounts.
-
-Nice-to-have: mouse-wheel stepping, bipolar center-fill, value bubble, one pointer/touch gesture path, opt-in tab order (dense panels should not flood the tab sequence).
-Future seams left in the render model but not built now: a modulation-range arc decoupled from the value indicator, an optional circular drag mode, a right-click context menu.
-
-Sources: JUCE `NormalisableRange`, VST3 `Vst::Parameter`, Vital `synth_slider`, react-knob-headless, the WAI-ARIA slider pattern, Ableton.
+The control layer (stack layer 3) is a single descriptor-driven primitive that exposes only canonical values, works in normalized [0, 1] internally, and eliminates 0-100 from the codebase.
+Its full design (the `ParamDescriptor` model, the interaction set, and the reference implementations it draws on) lives in its own doc: [knob-primitive.md](./knob-primitive.md).
+It is built as its own epic (Epic 2 below).
 
 ## Audit findings
 
