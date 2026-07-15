@@ -225,6 +225,17 @@ class MasterBus {
   }
 
   /**
+   * Connects a read-only tap (e.g. a meter) to the bus output, AFTER the
+   * limiter, so the tap observes exactly the signal that reaches the
+   * destination. Disposing the bus disconnects the tap along with the
+   * limiter; callers that keep tap nodes alive across rebuilds must
+   * reconnect them to the replacement bus.
+   */
+  connectOutputTap(tap: ToneAudioNode): void {
+    this.nodes.limiter.connect(tap);
+  }
+
+  /**
    * Disposes all master bus nodes.
    * Handles errors gracefully to prevent crashes during cleanup.
    */

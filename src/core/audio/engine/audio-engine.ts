@@ -140,6 +140,14 @@ interface RenderWavOptions {
  */
 const CHANNEL_METER_SMOOTHING = 0.8;
 
+/**
+ * Smoothing for the master output level tap. Deliberately 0: the tap
+ * reports the raw per-window RMS so each consumer can shape its own
+ * attack/release envelope (the night-sky glow does its smoothing in
+ * feature land).
+ */
+const MASTER_METER_SMOOTHING = 0;
+
 // -----------------------------------------------------------------------------
 // AudioEngine
 // -----------------------------------------------------------------------------
@@ -155,6 +163,12 @@ class AudioEngine {
    * consumers survive kit loads.
    */
   private meters: (Meter | null)[] = [];
+  /**
+   * Engine-owned master output level tap, created lazily by
+   * getMasterLevelDb and reconnected to each new master bus (init and
+   * rebuild) so polling consumers survive graph reconstruction.
+   */
+  private masterMeter: Meter | null = null;
 
   // --- Kit metadata (derived at loadKit time) ---
   private roles: InstrumentRole[] = [];
@@ -253,6 +267,12 @@ class AudioEngine {
 
     this.masterBus = bus;
 
+    // Reattach the master level tap to the new bus (init after dispose,
+    // or a rebuild's re-init) so polling consumers keep reading levels.
+    if (this.masterMeter) {
+      bus.connectOutputTap(this.masterMeter);
+    }
+
     // Settings may have been pushed while the bus was being built.
     if (this.masterSettings !== masterSettings) {
       bus.applySettings(this.masterSettings ?? masterSettings);
@@ -283,6 +303,9 @@ class AudioEngine {
 
     this.meters.forEach((meter) => meter?.dispose());
     this.meters = [];
+
+    this.masterMeter?.dispose();
+    this.masterMeter = null;
 
     this.masterBus?.dispose();
     this.masterBus = null;
@@ -808,6 +831,27 @@ class AudioEngine {
       this.channels[index]?.output.connect(meter);
     }
     return meter;
+  }
+
+  /**
+   * Current master output level in dB RMS, tapped AFTER the limiter on the
+   * live master bus, so it reads exactly what reaches the speakers (the
+   * offline renderWav path is untouched). Returns -Infinity while silent
+   * or before the bus exists.
+   *
+   * The meter is created lazily on the first call, so the tap costs
+   * nothing until something polls it, and it survives rebuild(): doInit
+   * reconnects the retained meter to each replacement bus. Unsmoothed by
+   * design (see MASTER_METER_SMOOTHING); consumers shape their own
+   * attack/release. Safe to poll from requestAnimationFrame loops.
+   */
+  getMasterLevelDb(): number {
+    if (!this.masterMeter) {
+      this.masterMeter = new Meter({ smoothing: MASTER_METER_SMOOTHING });
+      this.masterBus?.connectOutputTap(this.masterMeter);
+    }
+    const value = this.masterMeter.getValue();
+    return typeof value === "number" ? value : value[0];
   }
 
   /**
