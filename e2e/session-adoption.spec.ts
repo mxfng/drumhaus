@@ -29,6 +29,7 @@ const RETIRED_KEYS = [
   "drumhaus-master-chain-storage",
 ];
 const PRESET_META_KEY = "drumhaus-preset-meta-storage";
+const LIBRARY_BACKUP_KEY = "drumhaus-library-backup";
 
 /** A silent 16-step sequence, as every era of the store persisted it. */
 function emptySequence() {
@@ -158,17 +159,19 @@ test.describe("legacy session adoption", () => {
     expect(Number(swingKnobValue)).toBeCloseTo(80, 9);
 
     // Storage after adoption: one session document, the four retired keys
-    // deleted (only after the write landed), the preset-meta key kept for
-    // the library.
+    // deleted (only after the write landed). The legacy preset-meta key is
+    // consumed by the PR 6 library adoption, which preserves its raw payload
+    // under the backup key before retiring it.
     const storage = await page.evaluate(
       (keys: string[]) =>
         Object.fromEntries(keys.map((key) => [key, localStorage.getItem(key)])),
-      [SESSION_KEY, PRESET_META_KEY, ...RETIRED_KEYS],
+      [SESSION_KEY, PRESET_META_KEY, LIBRARY_BACKUP_KEY, ...RETIRED_KEYS],
     );
     for (const key of RETIRED_KEYS) {
       expect(storage[key], `${key} should be deleted`).toBeNull();
     }
-    expect(storage[PRESET_META_KEY]).not.toBeNull();
+    expect(storage[PRESET_META_KEY]).toBeNull();
+    expect(storage[LIBRARY_BACKUP_KEY]).not.toBeNull();
     expect(storage[SESSION_KEY]).not.toBeNull();
 
     // The written envelope is a v2 document carrying the adopted values in
