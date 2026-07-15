@@ -96,10 +96,10 @@ describe("corrupt corpus", () => {
     );
   });
 
-  it("future-version.json fails as an unsupported version", () => {
-    expect(() => parsePresetFileV1(readFixture("future-version.json"))).toThrow(
-      UnsupportedVersionError,
-    );
+  it("unsupported-version.json fails as an unsupported version", () => {
+    expect(() =>
+      parsePresetFileV1(readFixture("unsupported-version.json")),
+    ).toThrow(UnsupportedVersionError);
   });
 
   it("missing-sequencer.json fails on the sequencer path", () => {
