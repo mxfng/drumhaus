@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 
+import { nearPlaneFade, nearScaleCap } from "@/features/night/lib/star-field";
+
 interface Star {
   x: number;
   y: number;
@@ -87,28 +89,36 @@ function NightSky() {
       const baseOpacity = 0.7 + Math.sin(time * 0.5) * 0.1;
 
       // Draw stars
+      const fov = 2;
+      const scaleCap = nearScaleCap(fov);
+
       stars.forEach((star) => {
         // Apply rotation, need to reassign z and not double compute
         let { x, z } = rotateY(star.x, star.z, rotationRef.current.y);
         let { y } = rotateX(star.y, z, rotationRef.current.x);
         ({ y, z } = rotateX(y, z, rotationRef.current.x));
 
+        // Near-plane dissolve: stars approaching the camera fade out over
+        // a z-band (and their projection scale is capped) instead of
+        // ballooning and vanishing in a single frame.
+        const fade = nearPlaneFade(z, fov);
+        if (fade === 0) return;
+
         // Simple perspective projection
-        const fov = 2;
-        const scale = fov / (fov + z);
+        const scale = Math.min(fov / (fov + z), scaleCap);
         const x2d = x * scale * width * 0.15 + width / 2;
         const y2d = y * scale * height * 0.15 + height / 2;
 
         // Size with perspective
         const size = star.size * scale * 2;
 
-        // Skip if behind camera or off-screen
-        if (z < -fov || size < 0.1) return;
+        // Skip if too small or off-screen
+        if (size < 0.1) return;
         if (x2d < -50 || x2d > width + 50 || y2d < -50 || y2d > height + 50)
           return;
 
         // Draw star with glow effect (Minecraft-style squares)
-        const opacity = baseOpacity * (0.6 + scale * 0.4);
+        const opacity = baseOpacity * (0.6 + scale * 0.4) * fade;
         ctx.globalCompositeOperation = "lighter"; // Additive blending
 
         // Glow (larger square)
