@@ -1,4 +1,5 @@
 import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
+import { MAX_CHAIN_STEPS } from "@/core/audio/engine/pattern-types";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
@@ -47,7 +48,10 @@ function TempoControlsScreen() {
 
   return (
     <ScreenBar>
-      <div className="grid w-full grid-cols-5 place-items-stretch gap-0">
+      {/* Content-sized cells with the leftover space spread evenly between
+          them. Each numeric value reserves its widest rendering (min-w in
+          ch, tabular digits) so neighbors don't shift while dragging. */}
+      <div className="flex w-full items-center justify-between gap-1 whitespace-nowrap tabular-nums">
         <ClickableValue
           value={bpmKnobValue}
           onValueChange={handleBpmChange}
@@ -55,6 +59,7 @@ function TempoControlsScreen() {
           sensitivity={0.3}
           label="bpm"
           labelClassName="text-xs"
+          valueClassName="inline-block min-w-[3.5ch]"
         />
         <ClickableValue
           value={swing}
@@ -63,20 +68,35 @@ function TempoControlsScreen() {
           sensitivity={0.2}
           label="swing"
           labelClassName="text-xs"
+          valueClassName="inline-block min-w-[4ch]"
         />
 
-        <span className="flex w-full items-center justify-start">
-          <span className="pr-2 pl-1 text-xs">play</span>
+        <span className="flex items-center">
+          <span className="pr-2 text-xs">play</span>
           <VariationBadge variation={playbackVariation} />
         </span>
-        <span className="col-span-2 flex w-full items-center justify-start">
+        <span className="flex items-center">
           <span className="text-xs">chain</span>
-          <span
-            className={cn("flex-1 pl-1", {
-              "flex w-full items-center justify-center": !chainEnabled,
-            })}
-          >
-            {chainEnabled ? chainString : "—"}
+          {/* Reserve the worst-case chain width: one invisible sizer per
+              variation letter, each repeated to the maximum chain length,
+              stacked in the same grid cell so the widest letter wins. */}
+          <span className="ml-1 grid">
+            {VARIATION_LABELS.map((letter) => (
+              <span
+                key={letter}
+                aria-hidden="true"
+                className="invisible col-start-1 row-start-1"
+              >
+                {letter.repeat(MAX_CHAIN_STEPS)}
+              </span>
+            ))}
+            <span
+              className={cn("col-start-1 row-start-1", {
+                "text-center": !chainEnabled,
+              })}
+            >
+              {chainEnabled ? chainString : "—"}
+            </span>
           </span>
         </span>
       </div>
