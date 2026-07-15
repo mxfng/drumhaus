@@ -31,13 +31,6 @@ function applyPresetDocument(document: PresetDocument): void {
   // rehydration plus the domain-to-knob inverses, all inside documentToV1),
   // so a failure throws before the first store write and the session is
   // untouched.
-  //
-  // DIRTY-DETECTION INVARIANT: the store payloads and the cleanPreset
-  // baseline must all be fields of this ONE documentToV1 result.
-  // hasUnsavedChanges() JSON-compares getCurrentPreset() (fresh store
-  // reads, knob space) against cleanPreset, so committing a second,
-  // separately converted object could differ in float noise and make a
-  // just-loaded preset read as dirty.
   const file = documentToV1(document);
 
   // Decision 7: the selected A/B/C/D pad is performance state, not preset
@@ -64,7 +57,7 @@ function applyPresetDocument(document: PresetDocument): void {
     presetMeta.addCustomPreset(file);
   }
 
-  // Update metadata (also sets the cleanPreset dirty baseline)
+  // Update metadata (the clean dirty baseline is set post-commit below)
   presetMeta.loadPreset(file);
 
   // Update sequencer
@@ -84,6 +77,12 @@ function applyPresetDocument(document: PresetDocument): void {
 
   // Update instruments last (triggers the audio engine kit reload)
   useInstrumentsStore.getState().setAllInstruments(file.kit.instruments);
+
+  // Dirty baseline LAST, from the POST-APPLY snapshot rather than the input
+  // document: the domain -> knob -> domain crossing leaves float noise the
+  // canonical hash's rounding absorbs, and hashing what the stores actually
+  // hold guarantees a just-applied preset (or restored session) reads clean.
+  presetMeta.markPresetClean();
 }
 
 export { applyPresetDocument };

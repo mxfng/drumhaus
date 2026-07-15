@@ -47,20 +47,6 @@ function getCurrentPreset(presetMeta: Meta, kitMeta: Meta): PresetFileV1 {
 }
 
 /**
- * Deep equality check for two Preset objects
- *
- * Uses JSON.stringify since both presets are created from getCurrentPreset()
- * with deterministic property ordering from the stores. This is safe because:
- * - No undefined values (all stores have defaults)
- * - No functions or special objects
- * - Consistent property ordering from object literals
- * - Arrays maintain order
- */
-function arePresetsEqual(a: PresetFileV1, b: PresetFileV1): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
-/**
  * Check if a preset ID corresponds to a factory preset
  */
 function isFactoryPreset(presetId: string): boolean {
@@ -89,9 +75,4 @@ function generateDuplicateName(
   return newName;
 }
 
-export {
-  getCurrentPreset,
-  arePresetsEqual,
-  isFactoryPreset,
-  generateDuplicateName,
-};
+export { getCurrentPreset, isFactoryPreset, generateDuplicateName };

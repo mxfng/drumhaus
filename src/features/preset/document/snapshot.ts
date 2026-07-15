@@ -4,12 +4,11 @@
  * halves": every egress is snapshot() -> encode).
  *
  * DELIBERATE DEVIATION from the design doc's PR 3 line ("replace
- * getCurrentPreset with snapshot() everywhere"): save, share, and dirty
- * detection keep reading the stores in knob space via getCurrentPreset()
- * until PR 5 lands document-hash dirty tracking. Deriving those paths
- * through knob -> domain -> knob would introduce float noise into the
- * JSON-equality dirty comparison in hasUnsavedChanges(). Only the .dh
- * export egress flows through here for now.
+ * getCurrentPreset with snapshot() everywhere"): library saves
+ * (customPresets) still store the knob-space getCurrentPreset() shape until
+ * PR 6 moves the library to document storage. Exports, shares, the session
+ * autosave, and dirty detection (via the canonical hash, which rounds away
+ * the knob -> domain float noise) all flow through here.
  *
  * Deliberately not exported from the document barrel (see index.ts): this
  * module reads the stores via lib/helpers, whose import graph reaches back

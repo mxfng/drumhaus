@@ -3,7 +3,7 @@
  *
  * The engine module is mocked (vi.mock) so these run in the node project:
  * apply's contract is store-level (conversion before the first write, the
- * legacy setter order, the cleanPreset dirty baseline); bridge-to-engine
+ * legacy setter order, the clean-hash dirty baseline); bridge-to-engine
  * propagation is covered by the browser and e2e suites.
  */
 
@@ -31,6 +31,8 @@ let encodePresetDocument: typeof import("./encode").encodePresetDocument;
 let UnknownKitError: typeof import("./errors").UnknownKitError;
 let migrateV1ToDocument: typeof import("./migrate-v1").migrateV1ToDocument;
 let parsePresetFileV1: typeof import("./parse").parsePresetFileV1;
+let snapshotPresetDocument: typeof import("./snapshot").snapshotPresetDocument;
+let hashPresetDocument: typeof import("@/features/preset/session/canonical-hash").hashPresetDocument;
 let useInstrumentsStore: typeof import("@/features/instrument/store/use-instruments-store").useInstrumentsStore;
 let useMasterChainStore: typeof import("@/features/master-bus/store/use-master-chain-store").useMasterChainStore;
 let usePresetMetaStore: typeof import("@/features/preset/store/use-preset-meta-store").usePresetMetaStore;
@@ -85,7 +87,7 @@ function snapshotStores() {
     },
     currentPresetMeta: meta.currentPresetMeta,
     currentKitMeta: meta.currentKitMeta,
-    cleanPreset: meta.cleanPreset,
+    cleanHash: meta.cleanHash,
     customPresets: meta.customPresets,
   };
 }
@@ -108,6 +110,9 @@ beforeAll(async () => {
   ({ UnknownKitError } = await import("./errors"));
   ({ migrateV1ToDocument } = await import("./migrate-v1"));
   ({ parsePresetFileV1 } = await import("./parse"));
+  ({ snapshotPresetDocument } = await import("./snapshot"));
+  ({ hashPresetDocument } =
+    await import("@/features/preset/session/canonical-hash"));
   ({ useInstrumentsStore } =
     await import("@/features/instrument/store/use-instruments-store"));
   ({ useMasterChainStore } =
@@ -142,7 +147,7 @@ beforeEach(() => {
   usePresetMetaStore.setState({
     currentPresetMeta: defaults.currentPresetMeta,
     currentKitMeta: defaults.currentKitMeta,
-    cleanPreset: defaults.cleanPreset,
+    cleanHash: defaults.cleanHash,
     customPresets: defaults.customPresets,
   });
 });
@@ -186,13 +191,17 @@ describe("applyPresetDocument", () => {
     expect(params.solo).toBe(false);
     expect(params.mute).toBe(false);
 
-    // Meta: current meta and the clean baseline point at the loaded preset.
+    // Meta: current meta points at the loaded preset, and the clean
+    // baseline is the hash of the post-apply snapshot.
     const meta = usePresetMetaStore.getState();
     expect(meta.currentPresetMeta.id).toBe(document.meta.id);
     expect(meta.currentKitMeta.id).toBe("kit-0");
     expect(meta.currentKitMeta.name).toBe("808");
-    expect(meta.cleanPreset?.meta.id).toBe(document.meta.id);
-    expect(meta.cleanPreset?.kit.instruments).toBe(instruments);
+    expect(meta.cleanHash).toBe(
+      hashPresetDocument(
+        snapshotPresetDocument(meta.currentPresetMeta, meta.currentKitMeta),
+      ),
+    );
   });
 
   it("stops playback before committing (the kit swap reloads samples)", () => {
@@ -261,11 +270,10 @@ describe("applyPresetDocument", () => {
 });
 
 describe("dirty-detection invariant", () => {
-  // The store payloads and the cleanPreset baseline are fields of ONE
-  // documentToV1 result, so hasUnsavedChanges() (a JSON comparison of a
-  // fresh knob-space store read against cleanPreset) must be false the
-  // instant a preset finishes loading. Two separate conversions could
-  // disagree in float noise; this pins that they never diverge.
+  // apply sets the clean baseline from the POST-APPLY snapshot's canonical
+  // hash, so hasUnsavedChanges() (hash of a fresh snapshot vs cleanHash)
+  // must be false the instant a preset finishes loading, for every era of
+  // fixture. The canonical rounding absorbs the knob<->domain float noise.
   it.each(ERA_FIXTURES)("%s loads clean through the v1 import path", (name) => {
     applyPresetDocument(migrateFixture(name));
     expect(usePresetMetaStore.getState().hasUnsavedChanges()).toBe(false);

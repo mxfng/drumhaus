@@ -9,6 +9,14 @@ import { expect, type Locator, type Page } from "@playwright/test";
  */
 async function gotoApp(page: Page): Promise<void> {
   await page.goto("/");
+  await waitForAppReady(page);
+}
+
+/**
+ * Wait for an already-initiated navigation (page.goto elsewhere, reload) to
+ * reach the same genuinely-interactive state gotoApp waits for.
+ */
+async function waitForAppReady(page: Page): Promise<void> {
   await waitForChannelsReady(page);
   // The lightshow marks its nodes "done" when the intro wave completes
   // (safety timeout 3s), after which step/selection visuals are live.
@@ -85,5 +93,6 @@ export {
   step,
   stopPlayback,
   toggleStep,
+  waitForAppReady,
   waitForChannelsReady,
 };

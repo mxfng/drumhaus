@@ -3,8 +3,11 @@ import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { init } from "@/core/dh";
+import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { getCurrentPreset } from "@/features/preset/lib/helpers";
+import { hashPresetDocument } from "@/features/preset/session/canonical-hash";
+import { captureLegacyPresetMeta } from "@/features/preset/session/legacy-preset-meta-capture";
 import type { Meta } from "@/features/preset/types/meta";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 
@@ -18,8 +21,13 @@ interface PresetMetaState {
   currentPresetMeta: Meta;
   currentKitMeta: Meta;
 
-  // Snapshot of last loaded/saved preset for change detection
-  cleanPreset: PresetFileV1 | null;
+  /**
+   * Canonical hash of the last clean (loaded/saved) state's document, for
+   * change detection. Not persisted here: it survives reloads inside the
+   * session envelope (features/preset/session), so dirty tracking is
+   * reload-stable by construction.
+   */
+  cleanHash: string | null;
 
   // Custom presets (loaded from files or URLs)
   customPresets: PresetFileV1[];
@@ -29,19 +37,30 @@ interface PresetMetaState {
   setKitMeta: (meta: Meta) => void;
 
   /**
-   * Load a preset and update all metadata
-   * Sets both current meta and cleanPreset snapshot
+   * Load a preset's metadata (current preset and kit meta).
+   *
+   * Deliberately does NOT touch the clean baseline: this runs at the start
+   * of applyPresetDocument's commit phase, before the musical stores are
+   * written, and the baseline must hash the APPLIED state (the post-apply
+   * snapshot), which applyPresetDocument sets via markPresetClean.
    */
   loadPreset: (preset: PresetFileV1) => void;
 
   /**
-   * Update cleanPreset to current state after saving
-   * Call this after successfully saving a preset
+   * Reset the clean baseline to the current store state: hash the live
+   * snapshot and store it. Call after a load or save completes.
    */
-  markPresetClean: (preset: PresetFileV1) => void;
+  markPresetClean: () => void;
 
   /**
-   * Check if current state differs from cleanPreset
+   * Set the clean baseline to a known hash (session restore: the envelope's
+   * persisted baseline, which may differ from the current state's hash when
+   * the session was closed dirty).
+   */
+  setCleanHash: (hash: string | null) => void;
+
+  /**
+   * Check if current state differs from the clean baseline
    */
   hasUnsavedChanges: () => boolean;
 
@@ -101,10 +120,12 @@ const usePresetMetaStore = create<PresetMetaState>()(
   devtools(
     persist(
       immer((set, get) => ({
-        // Initial state - init preset "init.dh"
+        // Initial state - init preset "init.dh". The clean baseline starts
+        // null (nothing to compare against); bootstrapSession always applies
+        // a document before React mounts, which sets it.
         currentPresetMeta: init().meta,
         currentKitMeta: init().kit.meta,
-        cleanPreset: init(),
+        cleanHash: null,
         customPresets: [],
 
         // Actions
@@ -124,43 +145,38 @@ const usePresetMetaStore = create<PresetMetaState>()(
           set((state) => {
             state.currentPresetMeta = preset.meta;
             state.currentKitMeta = preset.kit.meta;
-            state.cleanPreset = preset;
           });
         },
 
-        markPresetClean: (preset) => {
+        markPresetClean: () => {
+          const { currentPresetMeta, currentKitMeta } = get();
+          const hash = hashPresetDocument(
+            snapshotPresetDocument(currentPresetMeta, currentKitMeta),
+          );
           set((state) => {
-            state.cleanPreset = preset;
-            state.currentPresetMeta = {
-              ...preset.meta,
-              updatedAt: new Date().toISOString(),
-            };
+            state.cleanHash = hash;
+          });
+        },
+
+        setCleanHash: (hash) => {
+          set((state) => {
+            state.cleanHash = hash;
           });
         },
 
         hasUnsavedChanges: () => {
-          const { cleanPreset, currentPresetMeta, currentKitMeta } = get();
+          const { cleanHash, currentPresetMeta, currentKitMeta } = get();
 
-          if (!cleanPreset) return false;
+          if (cleanHash === null) return false;
 
-          // Get current state from all stores
-          const currentPreset = getCurrentPreset(
-            currentPresetMeta,
-            currentKitMeta,
+          // The canonical hash rounds away knob<->domain float noise and
+          // excludes meta.updatedAt (minted fresh on every snapshot), so
+          // this comparison is exactly "did the user edit anything".
+          const currentHash = hashPresetDocument(
+            snapshotPresetDocument(currentPresetMeta, currentKitMeta),
           );
 
-          // Compare by stringifying (exclude updatedAt since that's only for saves)
-
-          const cleanMetaRest = (({ updatedAt: _updatedAt, ...rest }) => rest)(
-            cleanPreset.meta,
-          );
-
-          const currentMetaRest = (({ updatedAt: _updatedAt, ...rest }) =>
-            rest)(currentPreset.meta);
-          const cleanCopy = { ...cleanPreset, meta: cleanMetaRest };
-          const currentCopy = { ...currentPreset, meta: currentMetaRest };
-
-          return JSON.stringify(cleanCopy) !== JSON.stringify(currentCopy);
+          return currentHash !== cleanHash;
         },
 
         addCustomPreset: (preset) => {
@@ -210,6 +226,7 @@ const usePresetMetaStore = create<PresetMetaState>()(
         },
 
         updateCustomPreset: (id) => {
+          let saved = false;
           set((state) => {
             const index = state.customPresets.findIndex(
               (p) => p.meta.id === id,
@@ -231,9 +248,12 @@ const usePresetMetaStore = create<PresetMetaState>()(
               },
             };
 
-            // Update cleanPreset to mark as saved
-            state.cleanPreset = state.customPresets[index];
+            saved = true;
           });
+
+          // The saved state IS the current state, so reset the clean
+          // baseline from the live snapshot.
+          if (saved) get().markPresetClean();
         },
 
         renameCustomPreset: (id, newName) => {
@@ -303,13 +323,27 @@ const usePresetMetaStore = create<PresetMetaState>()(
       })),
       {
         name: "drumhaus-preset-meta-storage",
-        version: 1,
-        // Persist current meta, history, and custom presets (but not cleanPreset - runtime only)
+        // v2 (PR 5): currentPresetMeta/currentKitMeta moved into the session
+        // document (features/preset/session); only the library remains here
+        // (PR 6's territory). cleanHash is runtime state persisted in the
+        // session envelope, never here.
+        version: 2,
         partialize: (state) => ({
-          currentPresetMeta: state.currentPresetMeta,
-          currentKitMeta: state.currentKitMeta,
           customPresets: state.customPresets,
         }),
+        migrate: (persistedState: unknown, version: number) => {
+          if (version < 2) {
+            // Hand the dropped meta fields to the legacy session adopter
+            // before zustand's post-migration write-back narrows the
+            // envelope (see legacy-preset-meta-capture.ts).
+            captureLegacyPresetMeta(persistedState);
+            const state = persistedState as {
+              customPresets?: PresetFileV1[];
+            } | null;
+            return { customPresets: state?.customPresets ?? [] };
+          }
+          return persistedState;
+        },
       },
     ),
     {

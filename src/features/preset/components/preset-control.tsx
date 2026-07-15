@@ -7,6 +7,7 @@ import { PresetActions } from "@/features/preset/components/preset-actions";
 import { PresetSelect } from "@/features/preset/components/preset-select";
 import { usePresetManager } from "@/features/preset/hooks/use-preset-manager";
 import { generateDuplicateName } from "@/features/preset/lib/helpers";
+import { usePendingPresetLoadStore } from "@/features/preset/store/use-pending-preset-load-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 
@@ -57,18 +58,17 @@ const ConfirmSelectPresetDialog = lazy(() =>
 );
 
 function PresetControl() {
-  const { loadPresetFile, loadPresetFileText } = useDrumhaus();
+  const { loadPresetFile, importPresetFileText } = useDrumhaus();
   const {
     kits,
     defaultPresets,
     customPresets,
-    allPresets,
     switchKit,
     switchPreset,
     importPreset,
     saveCurrentPreset,
     sharePreset,
-  } = usePresetManager({ loadPresetFile, loadPresetFileText });
+  } = usePresetManager({ loadPresetFile, importPresetFileText });
 
   // Store state
   const currentPresetMeta = usePresetMetaStore(
@@ -82,6 +82,19 @@ function PresetControl() {
   const activeDialog = useDialogStore((state) => state.activeDialog);
   const dialogData = useDialogStore((state) => state.dialogData);
 
+  // The staged preset load behind the unsaved-changes confirm dialog
+  // (library switch, file import, or share link; see
+  // use-pending-preset-load-store.ts).
+  const pendingLoadSource = usePendingPresetLoadStore(
+    (state) => state.pending?.source,
+  );
+  const confirmPendingLoad = usePendingPresetLoadStore(
+    (state) => state.confirm,
+  );
+  const discardPendingLoad = usePendingPresetLoadStore(
+    (state) => state.discard,
+  );
+
   const handleKitChange = (value: string) => {
     switchKit(value);
   };
@@ -92,8 +105,12 @@ function PresetControl() {
 
   const handleConfirmPresetChange = () => {
     closeDialog();
-    const preset = allPresets.find((p) => p.meta.id === dialogData.preset?.id);
-    if (preset) loadPresetFile(preset);
+    confirmPendingLoad();
+  };
+
+  const handleCancelPresetChange = () => {
+    discardPendingLoad();
+    closeDialog();
   };
 
   // Preset management handlers
@@ -237,8 +254,9 @@ function PresetControl() {
       <Suspense fallback={null}>
         <ConfirmSelectPresetDialog
           isOpen={activeDialog === "presetChange"}
-          onClose={closeDialog}
+          onClose={handleCancelPresetChange}
           onSelect={handleConfirmPresetChange}
+          source={pendingLoadSource}
         />
       </Suspense>
     </>

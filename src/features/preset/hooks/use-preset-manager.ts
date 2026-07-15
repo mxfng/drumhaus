@@ -4,16 +4,11 @@ import { init } from "@/core/dh";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getAllKits } from "@/features/kit/lib/constants";
 import { KitFileV1 } from "@/features/kit/types/kit";
-import type { PresetDocument } from "@/features/preset/document";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
-import {
-  createPresetForExport,
-  downloadPreset,
-  generateShareUrl,
-} from "@/features/preset/lib/operations";
+import { generateShareUrl } from "@/features/preset/lib/operations";
+import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { useDialogStore } from "@/shared/store/use-dialog-store";
 import { useToast } from "@/shared/ui";
 
 interface UsePresetManagerProps {
@@ -26,7 +21,7 @@ interface UsePresetManagerProps {
    * are defined in usePresetLoading hook.
    */
   loadPresetFile: (preset: PresetFileV1) => void;
-  loadPresetFileText: (text: string) => PresetDocument | null;
+  importPresetFileText: (text: string) => void;
 }
 
 interface UsePresetManagerResult {
@@ -40,7 +35,6 @@ interface UsePresetManagerResult {
   switchKit: (kitId: string) => void;
   switchPreset: (presetId: string) => void;
   importPreset: () => void;
-  exportPreset: (name: string) => void;
   sharePreset: (name: string) => Promise<string>;
 
   // Preset management
@@ -62,7 +56,7 @@ interface UsePresetManagerResult {
  */
 function usePresetManager({
   loadPresetFile,
-  loadPresetFileText,
+  importPresetFileText,
 }: UsePresetManagerProps): UsePresetManagerResult {
   const { toast } = useToast();
 
@@ -76,9 +70,6 @@ function usePresetManager({
   const currentKitMeta = usePresetMetaStore((state) => state.currentKitMeta);
   const setKitMeta = usePresetMetaStore((state) => state.setKitMeta);
   const markPresetClean = usePresetMetaStore((state) => state.markPresetClean);
-  const hasUnsavedChanges = usePresetMetaStore(
-    (state) => state.hasUnsavedChanges,
-  );
   const customPresets = usePresetMetaStore((state) => state.customPresets);
 
   // Store actions for preset management
@@ -101,9 +92,6 @@ function usePresetManager({
   const canAddCustomPreset = usePresetMetaStore(
     (state) => state.canAddCustomPreset,
   );
-
-  // Dialog state
-  const openDialog = useDialogStore((state) => state.openDialog);
 
   const kits = useMemo(() => getAllKits(), []);
   const defaultPresets = useMemo(() => getDefaultPresets(), []);
@@ -132,45 +120,24 @@ function usePresetManager({
   );
 
   /**
-   * Switch to a preset by ID
-   * Checks for unsaved changes first
+   * Switch to a preset by ID, behind the unsaved-changes guard: a dirty
+   * session stages the load and opens the confirm dialog
+   * (use-pending-preset-load-store.ts); a clean one loads immediately.
    */
   const switchPreset = useCallback(
     (presetId: string) => {
-      if (hasUnsavedChanges()) {
-        openDialog("presetChange", { preset: { id: presetId } });
-        return;
-      }
-
       const preset = allPresets.find((p) => p.meta.id === presetId);
       if (!preset) {
         console.error(`Preset ${presetId} not found`);
         return;
       }
 
-      loadPresetFile(preset);
+      requestGuardedPresetLoad("library", () => loadPresetFile(preset));
     },
-    [hasUnsavedChanges, allPresets, loadPresetFile, openDialog],
+    [allPresets, loadPresetFile],
   );
 
   // --- File Operations ---
-
-  /**
-   * Export current state as a .dh file
-   */
-  const exportPreset = useCallback(
-    (name: string) => {
-      const preset = createPresetForExport(name, currentKitMeta);
-
-      // Download file
-      downloadPreset(preset, name);
-
-      // Update state
-      markPresetClean(preset);
-      loadPresetFile(preset);
-    },
-    [currentKitMeta, markPresetClean, loadPresetFile],
-  );
 
   /**
    * Import a preset from a .dh file
@@ -222,15 +189,10 @@ function usePresetManager({
           return;
         }
 
-        // The pipeline's shared error boundary toasts on failure.
-        const loaded = loadPresetFileText(result);
-        if (loaded !== null) {
-          toast({
-            title: "Preset loaded",
-            description: loaded.meta.name,
-            status: "success",
-          });
-        }
+        // Decode -> unsaved-changes guard -> apply, with the pipeline's
+        // shared error boundary toasting on failure (use-preset-loading.ts,
+        // importPresetFileText).
+        importPresetFileText(result);
         cleanup();
       };
       reader.onerror = () => {
@@ -247,7 +209,7 @@ function usePresetManager({
     input.onerror = cleanup;
     document.body.appendChild(input);
     input.click();
-  }, [loadPresetFileText, toast]);
+  }, [importPresetFileText, toast]);
 
   // --- PRESET MANAGEMENT ---
 
@@ -270,7 +232,7 @@ function usePresetManager({
         // Save factory preset as new custom preset
         const newPreset = saveCurrentAsNewPreset(name);
         if (newPreset) {
-          markPresetClean(newPreset);
+          markPresetClean();
           loadPresetFile(newPreset);
           toast({
             title: "Preset saved",
@@ -400,7 +362,6 @@ function usePresetManager({
     switchKit,
     switchPreset,
     importPreset,
-    exportPreset,
     sharePreset,
 
     // Preset management

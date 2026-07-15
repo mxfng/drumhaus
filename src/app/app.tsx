@@ -10,6 +10,7 @@ import { GlobalErrorHandler } from "@/core/providers/global-error-handler";
 import { DebugOverlay } from "@/features/debug/components/debug-overlay";
 import { NightSky } from "@/features/night/components/night-sky";
 import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
+import { useSessionAutosave } from "@/features/preset/session/use-session-autosave";
 import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
 import { AboutDialog } from "@/shared/dialogs/about-dialog";
 import { MobileDialog } from "@/shared/dialogs/mobile-dialog";
@@ -92,6 +93,10 @@ function App() {
 
   // Service Worker Registration
   useServiceWorker();
+
+  // Session autosave: the debounced session-document writer that replaced
+  // the per-store persists (docs/preset-persistence.md, PR 5).
+  useSessionAutosave();
 
   // Night Mode
   const nightMode = useNightModeStore((state) => state.nightMode);
