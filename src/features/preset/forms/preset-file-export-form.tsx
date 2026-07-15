@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -52,13 +52,8 @@ function PresetFileExportForm({ onClose }: PresetFileExportFormProps) {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isValid, isSubmitting },
   } = form;
-
-  useEffect(() => {
-    reset({ presetName: currentPresetName });
-  }, [currentPresetName, reset]);
 
   const onSubmit = handleSubmit(({ presetName }) => {
     const trimmedName = presetName.trim();
