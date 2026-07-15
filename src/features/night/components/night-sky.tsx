@@ -1,5 +1,16 @@
 import { useEffect, useRef } from "react";
 
+import { getAudioEngine } from "@/core/audio/engine";
+import { nearPlaneFade, nearScaleCap } from "@/features/night/lib/star-field";
+import {
+  GLOW_ACTIVE_THRESHOLD,
+  GLOW_BRIGHTNESS_GAIN,
+  GLOW_SILENT_THRESHOLD,
+  GLOW_SIZE_GAIN,
+  glowTargetFromDb,
+  smoothGlowLevel,
+} from "@/features/night/lib/star-glow";
+
 interface Star {
   x: number;
   y: number;
@@ -69,6 +80,10 @@ function NightSky() {
     };
 
     // Animation loop
+    let lastFrameAt: number | null = null;
+    let glowLevel = 0;
+    let glowSeamActive = false;
+
     const animate = () => {
       animationFrameRef.current = requestAnimationFrame(animate);
 
@@ -86,34 +101,68 @@ function NightSky() {
       const time = Date.now() * 0.001;
       const baseOpacity = 0.7 + Math.sin(time * 0.5) * 0.1;
 
+      const now = performance.now();
+      const deltaMs = lastFrameAt === null ? 0 : now - lastFrameAt;
+      lastFrameAt = now;
+
+      // Audio-coupled glow: the glow squares breathe with the
+      // engine's actual master output level (post-limiter dB RMS), polled
+      // imperatively each frame like an audio visualizer. Silence decays
+      // to exactly 0, restoring the baseline idle look.
+      glowLevel = smoothGlowLevel(
+        glowLevel,
+        glowTargetFromDb(getAudioEngine().getMasterLevelDb()),
+        deltaMs,
+      );
+      const glowSizeBoost = 1 + GLOW_SIZE_GAIN * glowLevel;
+      const glowAlphaBoost = 1 + GLOW_BRIGHTNESS_GAIN * glowLevel;
+
+      // Test seam for the audio layer, written only on state change
+      // (hysteresis keeps it from flapping at the threshold).
+      if (!glowSeamActive && glowLevel > GLOW_ACTIVE_THRESHOLD) {
+        glowSeamActive = true;
+        canvas.dataset.starGlow = "active";
+      } else if (glowSeamActive && glowLevel < GLOW_SILENT_THRESHOLD) {
+        glowSeamActive = false;
+        canvas.dataset.starGlow = "silent";
+      }
+
       // Draw stars
+      const fov = 2;
+      const scaleCap = nearScaleCap(fov);
+
       stars.forEach((star) => {
         // Apply rotation, need to reassign z and not double compute
         let { x, z } = rotateY(star.x, star.z, rotationRef.current.y);
         let { y } = rotateX(star.y, z, rotationRef.current.x);
         ({ y, z } = rotateX(y, z, rotationRef.current.x));
 
+        // Near-plane dissolve: stars approaching the camera fade out over
+        // a z-band (and their projection scale is capped) instead of
+        // ballooning and vanishing in a single frame.
+        const fade = nearPlaneFade(z, fov);
+        if (fade === 0) return;
+
         // Simple perspective projection
-        const fov = 2;
-        const scale = fov / (fov + z);
+        const scale = Math.min(fov / (fov + z), scaleCap);
         const x2d = x * scale * width * 0.15 + width / 2;
         const y2d = y * scale * height * 0.15 + height / 2;
 
         // Size with perspective
         const size = star.size * scale * 2;
 
-        // Skip if behind camera or off-screen
-        if (z < -fov || size < 0.1) return;
+        // Skip if too small or off-screen
+        if (size < 0.1) return;
         if (x2d < -50 || x2d > width + 50 || y2d < -50 || y2d > height + 50)
           return;
 
         // Draw star with glow effect (Minecraft-style squares)
-        const opacity = baseOpacity * (0.6 + scale * 0.4);
+        const opacity = baseOpacity * (0.6 + scale * 0.4) * fade;
         ctx.globalCompositeOperation = "lighter"; // Additive blending
 
-        // Glow (larger square)
-        const glowSize = size * 1.5;
-        ctx.fillStyle = `rgba(${star.r * 255}, ${star.g * 255}, ${star.b * 255}, ${opacity * 0.3})`;
+        // Glow (larger square); size and opacity ride the audio level
+        const glowSize = size * 1.5 * glowSizeBoost;
+        ctx.fillStyle = `rgba(${star.r * 255}, ${star.g * 255}, ${star.b * 255}, ${opacity * 0.3 * glowAlphaBoost})`;
         ctx.fillRect(
           x2d - glowSize,
           y2d - glowSize,
@@ -149,6 +198,7 @@ function NightSky() {
   return (
     <canvas
       ref={canvasRef}
+      data-star-glow="silent"
       className="fixed inset-0 z-0"
       style={{
         width: "100vw",

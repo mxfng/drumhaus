@@ -221,6 +221,12 @@ Storage access is fully guarded: private-browsing or storage-denied modes degrad
 To read the counters when reproducing the idle-tab scenario: enable Debug Mode from the floating menu, background the tab for 10+ minutes, return and interact, and check the Resume, Stalls, Rebuild, Timeouts, and Reloads rows in the overlay (Resume and Rebuild show success/attempt pairs).
 The manual Chrome/Safari validation and any threshold tuning remain open on #319 pending the evidence these counters collect.
 
+### Master output level tap (issue #268)
+
+The facade exposes one more read-only tap alongside `getChannelMeter`: `getMasterLevelDb()`, the master output level in dB RMS measured after the limiter on the live bus, so it reads exactly what reaches the destination.
+It is a general surface for audio visualizers (night mode's starfield glow is the first consumer), not a feature-specific hook: consumers poll it from their own animation loops and shape their own attack/release envelopes, which is why the tap is deliberately unsmoothed.
+The meter is created lazily on the first poll (the tap costs nothing until something reads it), survives `rebuild()` by being reattached to the replacement bus in `doInit`, and never touches the offline render path.
+
 ## Expected outcome
 
 `core/audio` stays around its current size (~2,600 lines) but becomes strictly one-directional and testable.
