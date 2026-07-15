@@ -23,15 +23,11 @@ function isDefaultKit(kitId: string): boolean {
 }
 
 /**
- * Converts a full PresetFileV1 to ultra-compact format
- * Throws CustomKitError if the preset uses a custom kit
+ * Converts a full PresetFileV1 to the v1.5 compact format.
+ * Throws CustomKitError if the preset uses a custom kit.
  *
- * Optimizations applied:
- * - Bit-packed triggers (16 bools → 4 hex chars)
- * - Quantized velocities (floats → ints 0-100)
- * - Single-letter keys
- * - Kit ID as single digit
- * - Omit default values
+ * The live share path writes v2 payloads (compact-v2.ts); this encoder is
+ * retained to exercise the v1.5 decoder in tests until the v1.x sunset.
  */
 function encodePreset(preset: PresetFileV1): CompactPreset {
   const kitId = preset.kit.meta.id;
@@ -44,12 +40,4 @@ function encodePreset(preset: PresetFileV1): CompactPreset {
   return encodeCompactPreset(preset);
 }
 
-/**
- * Serializes a CompactPreset to a minified JSON string
- */
-function serializePreset(preset: CompactPreset): string {
-  // Minify JSON (no whitespace)
-  return JSON.stringify(preset);
-}
-
-export { CustomKitError, isDefaultKit, encodePreset, serializePreset };
+export { CustomKitError, isDefaultKit, encodePreset };

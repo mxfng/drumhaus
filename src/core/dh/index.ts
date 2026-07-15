@@ -17,22 +17,24 @@ import welcomeToTheHausJson from "./defaults/Welcome to the Haus.dh";
  * Each function returns a PresetFileV1 object
  */
 
-const aDrumCalledHaus = (): PresetFileV1 =>
-  validatePresetFileV1(aDrumCalledHausJson);
-const amsterdam = (): PresetFileV1 => validatePresetFileV1(amsterdamJson);
-const init = (): PresetFileV1 => validatePresetFileV1(initJson);
-const polaroidBounce = (): PresetFileV1 =>
-  validatePresetFileV1(polaroidBounceJson);
-const purpleHaus = (): PresetFileV1 => validatePresetFileV1(purpleHausJson);
-const richKids = (): PresetFileV1 => validatePresetFileV1(richKidsJson);
-const slimeTime = (): PresetFileV1 => validatePresetFileV1(slimeTimeJson);
-const sunflower = (): PresetFileV1 => validatePresetFileV1(sunflowerJson);
-const superDreamHaus = (): PresetFileV1 =>
-  validatePresetFileV1(superDreamHausJson);
-const togetherAgain = (): PresetFileV1 =>
-  validatePresetFileV1(togetherAgainJson);
-const welcomeToTheHaus = (): PresetFileV1 =>
-  validatePresetFileV1(welcomeToTheHausJson);
+// Clone before validating: the tolerant v1 schema passes nested sections
+// (pattern, params) through by reference, and the imported JSON modules are
+// process-wide singletons - without the clone, mutating a loaded preset
+// would contaminate every later call to the same loader.
+const loadDefault = (json: unknown): PresetFileV1 =>
+  validatePresetFileV1(structuredClone(json));
+
+const aDrumCalledHaus = (): PresetFileV1 => loadDefault(aDrumCalledHausJson);
+const amsterdam = (): PresetFileV1 => loadDefault(amsterdamJson);
+const init = (): PresetFileV1 => loadDefault(initJson);
+const polaroidBounce = (): PresetFileV1 => loadDefault(polaroidBounceJson);
+const purpleHaus = (): PresetFileV1 => loadDefault(purpleHausJson);
+const richKids = (): PresetFileV1 => loadDefault(richKidsJson);
+const slimeTime = (): PresetFileV1 => loadDefault(slimeTimeJson);
+const sunflower = (): PresetFileV1 => loadDefault(sunflowerJson);
+const superDreamHaus = (): PresetFileV1 => loadDefault(superDreamHausJson);
+const togetherAgain = (): PresetFileV1 => loadDefault(togetherAgainJson);
+const welcomeToTheHaus = (): PresetFileV1 => loadDefault(welcomeToTheHausJson);
 
 export {
   aDrumCalledHaus,

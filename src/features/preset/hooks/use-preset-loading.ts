@@ -163,22 +163,21 @@ function usePresetLoading(): UsePresetLoadingResult {
     };
 
     try {
-      const { urlToPreset } =
+      const { urlToDocument } =
         await import("@/features/preset/lib/serialization");
-      // The compact decoder still emits a knob-space v1.5 file (PR 4 moves
-      // it onto the document); it joins the pipeline at the same
-      // validate -> migrate rung as library presets.
-      const preset = urlToPreset(presetParam);
+      // urlToDocument runs the full decode half of the pipeline: v2
+      // payloads decode straight to a document, v1.5 payloads run the same
+      // validate -> migrate rung as library presets, and versionless
+      // (pre-#269) links are refused with a typed error.
       const document = loadPresetDocument(
-        () => migrateV1ToDocument(validatePresetFileV1(preset)),
+        () => urlToDocument(presetParam),
         onSharedPresetError,
       );
       if (document !== null) {
         showSharedPresetToast(document.meta.name);
       }
     } catch (error) {
-      // urlToPreset itself rejected the link (legacy compact codec, outside
-      // the document pipeline).
+      // The serialization module itself failed to load (dynamic import).
       onSharedPresetError(error);
     } finally {
       // Remove URL parameters after loading preset
