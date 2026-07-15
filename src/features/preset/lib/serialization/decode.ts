@@ -37,7 +37,7 @@ function loadDefaultKit(kitId: string): KitFileV1 {
 }
 
 /**
- * Validates a CompactPreset structure
+ * Validates a v1.5 CompactPreset structure
  */
 function validateCompactPreset(data: unknown): asserts data is CompactPreset {
   if (typeof data !== "object" || data === null) {
@@ -59,24 +59,6 @@ function validateCompactPreset(data: unknown): asserts data is CompactPreset {
 }
 
 /**
- * Deserializes a JSON string to a CompactPreset with validation
- */
-function deserializePreset(jsonString: string): CompactPreset {
-  try {
-    const data = JSON.parse(jsonString);
-    validateCompactPreset(data);
-    return data;
-  } catch (error) {
-    if (error instanceof InvalidPresetError || error instanceof SyntaxError) {
-      throw error;
-    }
-    throw new InvalidPresetError(
-      error instanceof Error ? error.message : "Unknown parsing error",
-    );
-  }
-}
-
-/**
  * Converts a CompactPreset to a full PresetFileV1
  * Rehydrates kit data from the default kit registry
  */
@@ -84,4 +66,9 @@ function decodePreset(compactPreset: CompactPreset): PresetFileV1 {
   return decodeCompactPreset(compactPreset, loadDefaultKit);
 }
 
-export { UnknownKitError, InvalidPresetError, deserializePreset, decodePreset };
+export {
+  UnknownKitError,
+  InvalidPresetError,
+  validateCompactPreset,
+  decodePreset,
+};

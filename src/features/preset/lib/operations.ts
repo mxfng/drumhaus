@@ -6,23 +6,31 @@ import { MAX_PRESET_NAME_LENGTH } from "./constants";
 import { getCurrentPreset } from "./helpers";
 
 /**
- * Generate a shareable URL for a preset
- * Creates a new preset with generated metadata and encodes it
+ * Generate a shareable URL for a preset: the standard egress,
+ * snapshot() -> encode. The payload is the v2 compact document encoding
+ * (share links write version 2, decision 1).
  */
 async function generateShareUrl(
   presetMeta: Meta,
   kitMeta: Meta,
   baseUrl: string = window.location.origin,
 ): Promise<string> {
-  const preset = createPresetForExport(presetMeta.name, kitMeta);
-  const normalizedName = preset.meta.name;
+  const normalizedName = normalizePresetName(presetMeta.name);
+  const now = new Date().toISOString();
+  const meta: Meta = {
+    id: crypto.randomUUID(),
+    name: normalizedName,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const document = snapshotPresetDocument(meta, kitMeta);
 
   const slug = toPresetSlug(normalizedName);
 
   // Avoid bundling compression unless needed
-  const { shareablePresetToUrl } =
+  const { shareableDocumentToUrl } =
     await import("@/features/preset/lib/serialization");
-  const urlParam = shareablePresetToUrl(preset);
+  const urlParam = shareableDocumentToUrl(document);
 
   return `${baseUrl}/?p=${urlParam}&n=${encodeURIComponent(slug)}`;
 }

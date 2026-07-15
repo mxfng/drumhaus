@@ -1,16 +1,15 @@
 /**
- * Share-URL codec tests for the #269 swing retune.
+ * Share-URL codec tests for the retained v1.5 knob-space compact codec.
  *
- * The compact codec was unversioned before the retune; the `v` field now
- * marks post-retune URLs. Decoding must treat a missing `v` as a legacy
- * URL whose `sw` value (or implied default, when omitted) is in the OLD
- * swing knob space and rescale it, while `v: 1.5` URLs pass through.
+ * The `v` field was introduced with the #269 swing retune; versionless
+ * (pre-#269) payloads are no longer decoded here at all - urlToDocument
+ * refuses them with UnsupportedVersionError before this decoder runs (see
+ * url-codec.test.ts). v1.5 swing knob values pass through unchanged.
  */
 
 import { describe, expect, it } from "vitest";
 
 import { init } from "@/core/dh";
-import type { CompactPreset } from "./compact";
 import { decodePreset } from "./decode";
 import { encodePreset } from "./encode";
 
@@ -37,30 +36,6 @@ describe("compact codec versioning (#269)", () => {
 
   it("omits sw at the init default and still decodes to it", () => {
     const compact = encodePreset(makePresetWithSwing(0));
-    expect(compact.sw).toBeUndefined();
-
-    expect(decodePreset(compact).transport.swing).toBe(0);
-  });
-
-  it("migrates a legacy URL's swing from the old knob space", () => {
-    const compact = encodePreset(makePresetWithSwing(48));
-    delete compact.v; // Simulate a pre-retune URL: unversioned, old space.
-
-    const decoded = decodePreset(compact);
-    expect(decoded.version).toBe(1.5);
-    expect(decoded.transport.swing).toBe(64);
-  });
-
-  it("clamps a legacy URL's swing above 75 to knob 100", () => {
-    const compact = encodePreset(makePresetWithSwing(90));
-    delete compact.v;
-
-    expect(decodePreset(compact).transport.swing).toBe(100);
-  });
-
-  it("decodes a legacy URL with omitted swing to straight time", () => {
-    const compact: CompactPreset = encodePreset(makePresetWithSwing(0));
-    delete compact.v;
     expect(compact.sw).toBeUndefined();
 
     expect(decodePreset(compact).transport.swing).toBe(0);

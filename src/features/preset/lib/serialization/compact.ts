@@ -1,14 +1,9 @@
 import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
-import { DEFAULT_VELOCITY, STEP_COUNT } from "@/core/audio/engine/constants";
 import {
-  clampVariationId,
   DEFAULT_CHAIN,
   Pattern,
   PatternChain,
   sanitizeChain,
-  StepSequence,
-  VariationId,
-  Voice,
 } from "@/core/audio/engine/pattern-types";
 import {
   InstrumentData,
@@ -16,32 +11,36 @@ import {
 } from "@/features/instrument/types/instrument";
 import { KitFileV1 } from "@/features/kit/types/kit";
 import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
-import {
-  VARIATION_LABELS,
-  VariationCycle,
-} from "@/features/sequencer/types/sequencer";
-import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
+import { VariationCycle } from "@/features/sequencer/types/sequencer";
 import { init } from "../../../../core/dh";
 import { PRESET_FILE_VERSION } from "../../document/migrate";
 import { PresetFileV1 } from "../../types/preset";
 import { compactCodeToKitId, kitIdToCompactCode } from "./default-kits";
+import {
+  CompactAccents,
+  CompactVoice,
+  decodeAccents,
+  decodeVoices,
+  encodeAccents,
+  encodeVoices,
+  parseChainString,
+  stringifyChain,
+} from "./pattern-codec";
 
 /**
- * Ultra-compact preset format with aggressive optimizations:
- * - Bit-packed triggers (16 bools → 4 hex chars)
- * - Quantized velocities (floats → ints 0-100)
- * - Single-letter keys
- * - Kit ID as single digit (0-9)
- * - Omit default values
+ * The v1.5 compact share format: knob-space (0-100) values with single-letter
+ * keys, bit-packed pattern data, sparse non-default values, and a positional
+ * kit code (index into KIT_ORDER).
  *
  * Versioning: the codec was originally unversioned; the `v` field was
  * introduced with the #269 swing retune, mirroring the .dh file version
- * (PRESET_FILE_VERSION = 1.5). A URL without `v` was written by a pre-retune
- * build, so its `sw` value (or the implied default when omitted) is in the
- * OLD swing knob space and is migrated on decode.
+ * (PRESET_FILE_VERSION = 1.5). Versionless (pre-#269) payloads are no longer
+ * decoded at all: urlToDocument refuses them with UnsupportedVersionError
+ * (docs/preset-persistence.md, decision 4), so this module only ever sees
+ * `v: 1.5` payloads. New links are written by the v2 document codec
+ * (compact-v2.ts); this decoder stays alive alongside the v1.x file readers
+ * until the v1.x sunset.
  */
-
-const PACKED_TRIGGER_HEX_LENGTH = Math.ceil(STEP_COUNT / 4);
 
 const INIT_PRESET = init();
 const DEFAULT_SWING = INIT_PRESET.transport.swing;
@@ -56,56 +55,6 @@ const DEFAULT_PARAMS: InstrumentParams = init().kit.instruments[0].params;
 
 const DEFAULT_MASTER_CHAIN: MasterChainParams = init().masterChain;
 
-// --- BIT PACKING FOR TRIGGERS ---
-
-/**
- * Pack 16 boolean triggers into a 4-character hex string
- * [true,false,false,false,true,false,false,false,...] → "9000"
- */
-function packTriggers(triggers: boolean[]): string {
-  if (STEP_COUNT !== 16) {
-    throw new Error("Invalid bit packing params: STEP_COUNT must be 16");
-  }
-
-  let bits = 0;
-  for (let i = 0; i < STEP_COUNT; i++) {
-    if (triggers[i]) {
-      bits |= 1 << i;
-    }
-  }
-  return bits.toString(16).padStart(PACKED_TRIGGER_HEX_LENGTH, "0");
-}
-
-/**
- * Unpack 4-character hex string into 16 boolean triggers
- * "9000" → [true,false,false,false,true,false,false,false,...]
- */
-function unpackTriggers(hex: string): boolean[] {
-  if (STEP_COUNT !== 16) {
-    throw new Error("Invalid bit packing params: STEP_COUNT must be 16");
-  }
-
-  const bits = parseInt(hex, 16);
-  const triggers: boolean[] = [];
-  for (let i = 0; i < STEP_COUNT; i++) {
-    triggers.push((bits & (1 << i)) !== 0);
-  }
-  return triggers;
-}
-
-const EMPTY_TRIGGERS = Array(STEP_COUNT).fill(false);
-const EMPTY_COMPACT_STEP: CompactStepSequence = {
-  t: packTriggers(EMPTY_TRIGGERS),
-};
-
-function stringifyChain(chain: PatternChain): string {
-  return sanitizeChain(chain)
-    .steps.map(
-      ({ variation, repeats }) => `${VARIATION_LABELS[variation]}${repeats}`,
-    )
-    .join("");
-}
-
 const DEFAULT_CHAIN_STRING = stringifyChain(DEFAULT_PATTERN_CHAIN);
 
 function encodeChain(chain: PatternChain): string | undefined {
@@ -115,77 +64,10 @@ function encodeChain(chain: PatternChain): string | undefined {
 
 function decodeChainString(chainString?: string): PatternChain {
   if (!chainString) return DEFAULT_PATTERN_CHAIN;
-
-  const steps: PatternChain["steps"] = [];
-
-  for (let i = 0; i < chainString.length; i += 2) {
-    const label = chainString[i];
-    if (!label) continue;
-
-    const repeatChar = chainString[i + 1] ?? "1";
-    const variationIndex = VARIATION_LABELS.indexOf(
-      label as (typeof VARIATION_LABELS)[number],
-    );
-
-    if (variationIndex < 0) continue;
-
-    const repeats = Number.parseInt(repeatChar, 10);
-
-    steps.push({
-      variation: clampVariationId(variationIndex as VariationId),
-      repeats: Number.isFinite(repeats) ? repeats : 1,
-    });
-  }
-
-  return sanitizeChain({ steps });
-}
-
-// --- VELOCITY QUANTIZATION ---
-
-/**
- * Quantize velocity from float (0.0-1.0) to int (0-100)
- * 0.5625965996908809 → 56
- */
-function quantizeVelocity(velocity: number): number {
-  return Math.round(velocity * 100);
-}
-
-/**
- * Dequantize velocity from int (0-100) to float (0.0-1.0)
- * 56 → 0.56
- */
-function dequantizeVelocity(quantized: number): number {
-  return quantized / 100;
+  return parseChainString(chainString);
 }
 
 // --- COMPACT ENCODING ---
-
-/**
- * Compact step sequence format
- * - t: 4-char hex (bit-packed triggers)
- * - v: sparse velocities as ints 0-100
- * - n: timing nudge (omit if 0)
- * - r: ratchets (bit-packed, omit if none)
- * - f: flams (bit-packed, omit if none)
- */
-type CompactStepSequence = {
-  t: string; // hex-encoded bit-packed triggers
-  v?: Record<string, number>; // sparse velocities (quantized to 0-100)
-  n?: number; // timing nudge (-2 to +2, omit if 0)
-  r?: string; // ratchets (bit-packed)
-  f?: string; // flams (bit-packed)
-};
-
-/**
- * Compact voice format
- */
-type CompactVoice = {
-  i: number; // instrument index
-  a: CompactStepSequence; // variation A
-  b: CompactStepSequence; // variation B
-  c?: CompactStepSequence; // variation C
-  d?: CompactStepSequence; // variation D
-};
 
 /**
  * Compact instrument params (only non-default values)
@@ -205,12 +87,12 @@ type CompactParams = {
  */
 type CompactPreset = {
   id: string; // preset UUID (new UUID generated when sharing)
-  v?: number; // codec version, mirrors PRESET_FILE_VERSION (absent = pre-#269 legacy URL)
-  k: string; // kit ID (single digit 0-9)
+  v?: number; // codec version, mirrors PRESET_FILE_VERSION (absent = refused pre-#269 legacy URL)
+  k: string; // kit code (positional index into KIT_ORDER)
   n?: string; // preset name
   ip: CompactParams[]; // instrument params (8 items, only non-defaults)
   pt: CompactVoice[]; // pattern voices (8 items)
-  ac?: [string?, string?, string?, string?]; // accent patterns (hex-encoded, omit if no accents) [A, B, C, D]
+  ac?: CompactAccents; // accent patterns (hex-encoded, omit if no accents) [A, B, C, D]
   vc?: string; // legacy variation cycle (omit if undefined)
   ch?: string; // chain string (variation + repeat pairs)
   ce?: number; // chain enabled flag
@@ -237,57 +119,6 @@ type CompactMasterChain = Partial<{
 }>;
 
 // --- ENCODE FUNCTIONS ---
-
-function encodeStepSequence(seq: StepSequence): CompactStepSequence {
-  const compact: CompactStepSequence = {
-    t: packTriggers(seq.triggers),
-  };
-
-  // Sparse velocities (only non-1.0, quantized)
-  const velocities: Record<string, number> = {};
-  seq.velocities.forEach((vel, idx) => {
-    if (vel !== DEFAULT_VELOCITY) {
-      velocities[idx] = quantizeVelocity(vel);
-    }
-  });
-
-  if (Object.keys(velocities).length > 0) {
-    compact.v = velocities;
-  }
-
-  // Timing nudge (only if non-zero)
-  if (seq.timingNudge !== 0) {
-    compact.n = seq.timingNudge;
-  }
-
-  // Ratchets/flams (only if any are enabled)
-  if (seq.ratchets?.some((r) => r)) {
-    compact.r = packTriggers(seq.ratchets);
-  }
-
-  if (seq.flams?.some((f) => f)) {
-    compact.f = packTriggers(seq.flams);
-  }
-
-  return compact;
-}
-
-function isSequenceEmpty(seq: StepSequence): boolean {
-  const hasTriggers = seq.triggers.some(Boolean);
-  const hasVelocityChanges = seq.velocities.some(
-    (vel) => vel !== DEFAULT_VELOCITY,
-  );
-  const hasRatchets = seq.ratchets?.some(Boolean);
-  const hasFlams = seq.flams?.some(Boolean);
-
-  return (
-    !hasTriggers &&
-    !hasVelocityChanges &&
-    !hasRatchets &&
-    !hasFlams &&
-    (seq.timingNudge ?? 0) === 0
-  );
-}
 
 function encodeParams(params: InstrumentParams): CompactParams {
   const compact: CompactParams = {};
@@ -340,42 +171,13 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
     ip: preset.kit.instruments.map((inst: InstrumentData) =>
       encodeParams(inst.params),
     ),
-    pt: preset.sequencer.pattern.voices.map((voice: Voice) => {
-      const voicePayload: CompactVoice = {
-        i: voice.instrumentIndex,
-        a: encodeStepSequence(voice.variations[0]),
-        b: encodeStepSequence(voice.variations[1]),
-      };
-
-      if (!isSequenceEmpty(voice.variations[2])) {
-        voicePayload.c = encodeStepSequence(voice.variations[2]);
-      }
-
-      if (!isSequenceEmpty(voice.variations[3])) {
-        voicePayload.d = encodeStepSequence(voice.variations[3]);
-      }
-
-      return voicePayload;
-    }),
+    pt: encodeVoices(preset.sequencer.pattern),
   };
 
   // Encode accent patterns (only if any accents exist)
-  const accentA = preset.sequencer.pattern.variationMetadata[0].accent;
-  const accentB = preset.sequencer.pattern.variationMetadata[1].accent;
-  const accentC = preset.sequencer.pattern.variationMetadata[2].accent;
-  const accentD = preset.sequencer.pattern.variationMetadata[3].accent;
-  const hasAccentsA = accentA.some((a) => a);
-  const hasAccentsB = accentB.some((a) => a);
-  const hasAccentsC = accentC.some((a) => a);
-  const hasAccentsD = accentD.some((a) => a);
-
-  if (hasAccentsA || hasAccentsB || hasAccentsC || hasAccentsD) {
-    compact.ac = [
-      hasAccentsA ? packTriggers(accentA) : undefined,
-      hasAccentsB ? packTriggers(accentB) : undefined,
-      hasAccentsC ? packTriggers(accentC) : undefined,
-      hasAccentsD ? packTriggers(accentD) : undefined,
-    ];
+  const accents = encodeAccents(preset.sequencer.pattern.variationMetadata);
+  if (accents) {
+    compact.ac = accents;
   }
 
   // Always include preset name
@@ -417,33 +219,6 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
 }
 
 // --- DECODE FUNCTIONS ---
-
-function decodeStepSequence(compact: CompactStepSequence): StepSequence {
-  const triggers = unpackTriggers(compact.t);
-  const velocities = Array(STEP_COUNT).fill(DEFAULT_VELOCITY);
-
-  if (compact.v) {
-    Object.entries(compact.v).forEach(([idx, quantized]) => {
-      const stepIndex = Number(idx);
-      velocities[stepIndex] = dequantizeVelocity(quantized);
-    });
-  }
-
-  const ratchets = compact.r
-    ? unpackTriggers(compact.r)
-    : Array(STEP_COUNT).fill(false);
-  const flams = compact.f
-    ? unpackTriggers(compact.f)
-    : Array(STEP_COUNT).fill(false);
-
-  return {
-    triggers,
-    velocities,
-    timingNudge: (compact.n ?? 0) as -2 | -1 | 0 | 1 | 2,
-    ratchets,
-    flams,
-  };
-}
 
 function decodeParams(compact: CompactParams): InstrumentParams {
   return {
@@ -492,27 +267,6 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
   };
 }
 
-/**
- * Init-preset swing default of every pre-`v` (pre-#269) build: `sw` was
- * omitted when the swing knob equaled it. Pinned as a literal because the
- * legacy decode branch must not drift if the current init default ever
- * changes.
- */
-const LEGACY_DEFAULT_SWING = 0;
-
-/**
- * Decodes the swing knob value. Legacy URLs (no `v` field) carry `sw` in
- * the pre-#269 swing knob space and are migrated; when `sw` is omitted the
- * writing build's init default applies before migration.
- */
-function decodeSwing(compact: CompactPreset): number {
-  const isLegacyUrl = compact.v === undefined;
-  if (isLegacyUrl) {
-    return migrateLegacySwingKnob(compact.sw ?? LEGACY_DEFAULT_SWING);
-  }
-  return compact.sw ?? DEFAULT_SWING;
-}
-
 function decodeCompactPreset(
   compact: CompactPreset,
   kitLoader: (kitId: string) => KitFileV1,
@@ -524,41 +278,10 @@ function decodeCompactPreset(
 
   const defaultKit = kitLoader(kitId);
 
-  const emptySequence = decodeStepSequence(EMPTY_COMPACT_STEP);
-
   const pattern: Pattern = {
-    voices: compact.pt.map((voice) => ({
-      instrumentIndex: voice.i,
-      variations: [
-        decodeStepSequence(voice.a),
-        decodeStepSequence(voice.b),
-        voice.c ? decodeStepSequence(voice.c) : emptySequence,
-        voice.d ? decodeStepSequence(voice.d) : emptySequence,
-      ],
-    })),
+    voices: decodeVoices(compact.pt),
     // Decode accent patterns (default to no accents if not present)
-    variationMetadata: [
-      {
-        accent: compact.ac?.[0]
-          ? unpackTriggers(compact.ac[0])
-          : Array(STEP_COUNT).fill(false),
-      },
-      {
-        accent: compact.ac?.[1]
-          ? unpackTriggers(compact.ac[1])
-          : Array(STEP_COUNT).fill(false),
-      },
-      {
-        accent: compact.ac?.[2]
-          ? unpackTriggers(compact.ac[2])
-          : Array(STEP_COUNT).fill(false),
-      },
-      {
-        accent: compact.ac?.[3]
-          ? unpackTriggers(compact.ac[3])
-          : Array(STEP_COUNT).fill(false),
-      },
-    ],
+    variationMetadata: decodeAccents(compact.ac),
   };
 
   const instruments = defaultKit.instruments.map((inst, idx: number) => ({
@@ -582,8 +305,9 @@ function decodeCompactPreset(
 
   return {
     kind: "drumhaus.preset",
-    // Decoded presets are always normalized to the current file version:
-    // decodeSwing has already applied the legacy-URL swing migration.
+    // Decoded presets are normalized to the current knob-space file
+    // version: only v: 1.5 payloads reach this decoder (versionless legacy
+    // URLs are refused upstream, decision 4), so no swing migration applies.
     version: PRESET_FILE_VERSION,
     meta: {
       id: compact.id, // Use the UUID from the encoded preset
@@ -599,7 +323,7 @@ function decodeCompactPreset(
     },
     transport: {
       bpm: compact.bpm ?? DEFAULT_BPM,
-      swing: decodeSwing(compact),
+      swing: compact.sw ?? DEFAULT_SWING,
     },
     sequencer: {
       pattern,
