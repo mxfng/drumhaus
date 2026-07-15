@@ -1,14 +1,18 @@
 # Preset persistence: maturing .dh save/load
 
-Status: proposed (audit complete, implementation pending review).
+Status: accepted (audit complete, greenfield redesign adopted in review, implementation pending).
 Author: Max, July 2026.
 Tracking issue: #329.
 
 ## Summary
 
 The audio engine is now a framework-free facade that deals in musical data pushed through the bridge, but `.dh` files remain snapshots of React-side store state, loaded through a non-atomic sequence of store writes with shallow validation and heuristic migrations.
-This document inventories every producer and consumer of the `.dh`/`.dhkit` formats, assesses the versioning and migration story, analyzes the gaps against a pro-level persistence layer, and proposes a target design sequenced into incremental PRs.
+This document inventories every producer and consumer of the `.dh`/`.dhkit` formats, assesses the versioning and migration story, analyzes the gaps against a pro-level persistence layer, and derives a greenfield target design plus the migration path to it, sequenced into incremental PRs.
 The core findings: the `version` field is decorative (never bumped, migrations keyed on field presence instead), the share-URL encoding is unversioned with a positional kit index that will silently corrupt existing links when a kit is inserted, load is a half-applied-on-failure sequence of ~11 store writes, and a single failed sample leaves the UI and the engine showing different kits with no user feedback.
+A first-principles format review (see Format assessment) concludes that the JSON-file approach itself is the norm for this class of instrument and needs no rewrite; the flaws are in validation, versioning, and load orchestration, not in the choice of container.
+Two schema-level changes land with v2: parameter values move from UI knob positions to the engine's domain units, decoupling the format from the UI (decision 11), and the embedded kit is replaced by a stable registry reference, collapsing the file and share formats into one data model (decision 12).
+At review's request the whole target was then rethought greenfield, unconstrained by the legacy persistence code: the result is document-centric, with one canonical preset document defined against the engine's command surface, one decode-migrate-validate-apply pipeline behind every ingress (boot restore, file import, share link, library), and document storage replacing both the five per-store persists of musical state and the monolithic library array.
+The open questions from the initial draft were resolved in review; they are recorded with rationale in the Decisions section.
 
 ## Inventory
 
@@ -161,121 +165,247 @@ Two fields deep on files, three fields deep on URLs, zero on localStorage.
 - A single 404ing sample leaves the store and the engine on different kits; saving in that state persists instruments the user cannot hear.
 - Post-reload dirty detection is unreliable (`cleanPreset` not persisted), so the guard that does exist can both false-positive and false-negative.
 
-## Target design
+## Format assessment
 
-Principles: parse, don't validate (one schema source of truth producing typed values or typed errors); migrations keyed on an honest version number; all parsing and migration completed before any store mutation; failures loud and specific; every accepted legacy shape pinned by a fixture test.
+The review asked a fair question: is JSON even the right container, and are the schemas themselves sound, or does pro-level warrant a rewrite?
+Verdict: the approach is squarely the norm for this class of application, and no rewrite is warranted; what is missing is rigor around the format, not a different format.
 
-### Schema module
+### JSON is the right container
 
-A new `src/features/preset/schema/` module owns zod schemas for the `.dh` envelope, the kit, the pattern, and the compact format, plus a typed error taxonomy (`InvalidFile`, `UnsupportedVersion`, `CorruptField`, `UnknownKit`, ...).
-Every load surface (file import, share URL, `customPresets`, and bundled defaults via a build-time test) parses through it.
-Deep validation replaces the `as` casts; array arities (8 voices, 4 variations, 16 steps) and value ranges become explicit.
-Defaults for genuinely optional fields live in the schema or the migration for exactly one version transition, never as scattered `??` at use sites.
+Browser-based and open music tools overwhelmingly persist patches as plain JSON or text: VCV Rack's `.vcv` is JSON, the live-coding family (Sonic Pi, Strudel) is text, and the web-audio ecosystem is JSON throughout.
+Native DAWs that use compressed or binary containers (Ableton's `.als` is gzipped XML, Renoise's `.xrns` is a zip) do so to manage multi-megabyte projects and embedded assets, neither of which applies to a `.dh` at a few kilobytes with registry-referenced samples.
+At this size, human-readable pretty-printed JSON is a feature, not a compromise: factory presets are versioned in git and diff cleanly, users can inspect and hand-repair files, and the golden-fixture strategy in this design depends on that inspectability.
+Compression and binary encoding already exist where they earn their keep, in the URL share path.
+A zip-style container becomes the right call only if user-imported samples ship with embedded audio; per decision 8 that is endgame-or-never, so choosing a container now would be speculative complexity.
 
-### Version-keyed migration ladder
+### Two schema shapes changed under scrutiny; the rest holds up
 
-Migration becomes a ladder: parse the envelope (`kind` + `version`), apply `MIGRATIONS[version]` steps up to `CURRENT_VERSION`, then strict-parse the result against the current schema.
-The existing heuristics (param renames, `lowPass`/`highPass`, `variationCycle`, array-shaped patterns, missing nudge/ratchet/flam/accent fields) are folded into a single normalization step for version 1 inputs, pinned by fixtures generated from real historical files.
-The `.dh` version bumps to 2 as the formalization point: version 2 is defined as today's canonical shape with none of the legacy spellings, so the 1-to-2 migration is exactly the current heuristic set, run once and then retired from the hot path.
-Old builds reading a v2 file fail with a clean "unsupported version" error rather than silent field loss, which is the correct failure mode the current exact-equality gate accidentally provides; whether to soften it further is an open question below.
+**The embedded kit goes: v2 references kits by id (decision 12).**
+The initial draft kept the embed for self-description and registry-independence, but review pressed on whether that holds up greenfield, and it does not.
+A `.dh` is not actually self-contained either way: the audio lives in the app bundle and is referenced by path, so embedding kit metadata without the samples buys the appearance of portability, not the substance.
+The reordering hazard the embed guards against is solved by stable kit ids alone, and the embed's real effect is denormalization: every preset file and every localStorage library entry carries a stale copy of registry data (sample paths, roles, attribution), so registry fixes never propagate to existing presets.
+The compact URL format already proved the reference model: a kit id plus the user-mutable instrument params, rehydrated from the registry.
+v2 adopts it for files too, which collapses the file and share formats into one data model with two encodings, and it extends cleanly to the custom-sample endgame as a discriminated union (a registry reference, or an inline kit carried only when it actually differs from the registry).
+It leans on one new contract, stated in the greenfield design: published kit ids are immutable.
 
-### Versioned compact format
+**Knob-space values go: v2 stores domain units (decision 11).**
+The initial draft's one genuinely debatable call was keeping UI knob positions (0-100) in the file, with a policy that knob-curve retunes require a version bump.
+Review overruled it: the file format should be UI-agnostic and coupled to the engine, which is the stable semantic core after the engine refactor, while knob curves are a UI concern that should be free to change.
+The v2 schema therefore stores the engine's domain vocabulary (Hz, dB, seconds, playback rate, normalized mix fractions), exactly as `setChannelParams` and `setMasterParams` consume it.
+Pattern data (triggers, normalized velocities, nudge) and bpm already speak musical units; this change brings the instrument and master parameters in line, and any remaining knob-space stragglers (swing, if it proves to be one) get audited in PR 2.
+The costs the draft weighed are real but contained: each mapping needs an inverse (the curves are monotonic, so invertible), save and load each gain one mapping crossing at the serialization boundary, and the stores and bridge stay knob-space so nothing else moves.
+The payoff is structural: the 1-to-2 migration freezes the current curves as the permanent interpretation of v1 files, and from v2 on, retuning a knob curve changes where a knob sits, never how a saved preset sounds.
 
-The compact encoding gains a `v` field; a payload without `v` is decoded by the frozen legacy decoder, so every existing shared link keeps working indefinitely (or until a sunset date, see open questions).
-The kit reference switches from a positional index to the stable kit id, removing the `KIT_ORDER` insertion hazard at the cost of a few URL characters.
-The decoder validates array lengths and rejects structurally short payloads with a typed error instead of a `TypeError`.
+**The rest holds up.**
+The envelope (`kind`, `version`, `meta`) follows convention.
+Dense 16-element arrays are verbose but readable and diffable, and the compact format already solves size where size matters.
+The pattern shape (voices, then variations, plus variation-level metadata) is a faithful model of the instrument.
 
-### Atomic load pipeline
+## Greenfield design
 
-Loading becomes `parse -> migrate -> validate -> commit`: everything that can fail happens before the first store write, producing a fully-formed, canonical preset value.
-The commit phase then applies all store writes; since parsing can no longer throw mid-commit, the half-applied failure mode disappears, and every entry point (import, URL, library switch, delete-fallback) shares one error boundary with typed, user-facing messages.
-Kit-load failure gets surfaced: `engine.loadKit` (or a bridge-level wrapper) reports its outcome, and on failure the app either rolls the instruments store back to the last kit the engine actually holds or keeps the store state and offers a retry, with a toast either way (open question on which).
-This closes the silent UI/engine desync.
+This section answers the review's sharpest question: how would this be built today, from scratch, with the engine-centric architecture as a given and none of the legacy persistence code?
+The answer is document-centric: one canonical preset document defined against the engine's command surface, one pipeline that every ingress and egress passes through, and storage that holds documents rather than store snapshots.
+The audit sections above describe the migration source; nothing in this section is constrained by it.
 
-### Dirty-state and data-loss guards
+### The organizing idea: one document, one pipeline
 
-`cleanPreset` (or a content hash of it) joins the persisted preset-meta state so dirty detection survives reloads.
-The unsaved-changes check extends from library switch to file import, share-link boot, and delete-current.
-A `beforeunload` prompt fires only when dirty (open question; localStorage autosave already limits the blast radius).
-Library saves handle `QuotaExceededError` explicitly instead of throwing into the void.
+A preset document is the complete argument set to the engine's command surface, plus identity metadata.
+It is not the UI stores' shape (v1's mistake), and it is not the engine's retained state either: the engine keeps only a lossy precomputed pattern after `setPattern`, so the document must carry the raw editable `Pattern`.
+The document is the engine's input, not its memory: `apply(document)` is, conceptually, the full sequence of engine commands that makes the instrument sound like the preset.
+The boundary is exact and was verified against the bridge: everything musical that flows store-to-engine is in the document (pattern, playback, channel params, kit reference, bpm, swing, master), and everything that does not flow is out (edit mode, voice selection, chain draft, clipboard, playhead, playback state).
+One canonical model then has N encodings: pretty-printed JSON for the `.dh` file, the compact string for the share URL, and minified JSON for storage entries.
+One schema, one migration ladder, one error taxonomy; every encoding is a codec over the same document, so a format change happens in exactly one place.
+Every ingress runs the same pipeline, `decode -> migrate -> validate -> document`, then `apply(document)` commits atomically; boot restore, file import, share link, and library select become one code path with one error boundary.
+Every egress is `snapshot() -> encode`.
 
-### Stored-library hygiene
+### The document model (v2)
 
-The preset-meta persist version bumps, and its `migrate` runs every stored custom preset through the same parse-and-migrate pipeline at rehydrate time.
-Presets that fail to parse are quarantined (kept raw under a separate key, surfaced as a count with an export escape hatch) rather than dropped or left as load-time landmines.
+The document, with units chosen from the mapping audit:
 
-### Cleanups
+```
+kind: "drumhaus.preset"
+version: 2
+meta        { id, name, createdAt, updatedAt, author? }
+kit         { id }                                     // registry reference (decision 12)
+channels[8] { decaySeconds     0.005..5
+              filter            0..100 split position  // see decision 15
+              volumeDb          -46..4 | null          // null = silence
+              pan               -1..1
+              tuneSemitones     -7..+7
+              mute, solo        boolean }
+pattern     { voices[8] x variations[4] x
+                { triggers[16], velocities[16] 0..1,
+                  timingNudge -2..2, ratchets[16], flams[16] },
+              variationMetadata[4] { accent[16] } }
+playback    { chain (max 8 steps of { variation 0..3, repeats 1..8 }),
+              chainEnabled }
+transport   { bpm, swing 0..0.5 }
+master      { filter            0..100 split position
+              saturation        0..1                   // macro
+              phaser            0..1
+              reverb            0..1                   // macro
+              compThresholdDb   -40..0
+              compRatio         1..8 integer
+              compAttackSeconds 0.001..0.1
+              compMix           0..1
+              masterVolumeDb    -46..4 | null }
+```
 
-Delete the dead `ShareablePreset`/`patterns.ts` format and fix the stale comments in `serialization/index.ts`; delete or rewrite `scripts/new-kit.ts` against `src/core/dhkit/`; remove the dead `durations` surface; add `superDreamHaus` to `getDefaultPresets()` or delete the file.
+Each unit choice is forced by something the mapping audit surfaced (decision 15):
+
+- The split filters store the 0-100 position because that is the engine's own vocabulary: `MasterChainSettings.filter` and `ContinuousRuntimeParams.filter` take the position, the LP/HP split and its response curve live inside the engine (`fx/split-filter.ts`), and the Hz value is non-bijective across the split (an LP position and an HP position can produce the same frequency).
+- Saturation and reverb are macros: one musical control fans out to two engine fields with a fixed recipe (`saturationWet` plus `saturationAmount`; `reverbWet` plus `reverbDecay`).
+  The document stores one normalized amount and the recipe stays engine-side; storing both fields was rejected because a redundant pair invites hand-edited files with inconsistent halves that the schema cannot reconcile.
+- Volume fields are nullable dB because the mapping hits `-Infinity` at the bottom of the range and JSON has no `-Infinity`; `null` means silence, explicitly.
+- Tune is a semitone offset rather than Hz because Hz bakes each instrument's base pitch into the file; the semitone offset is the musical intent and stays valid if a kit sample's base pitch is ever corrected.
+- Comp ratio is the integer 1..8 the mapping already quantizes to.
+- Swing is the 0..0.5 fraction the engine consumes, not the store's 0-100 knob value; bpm is already raw in both store and engine.
+- Velocities, accents, ratchets, flams, and nudge are already musical values and carry over unchanged; the accent boost factor, flam offset, and ratchet spacing are engine constants, not preset fields, and stay that way.
+
+### The pipeline and its two halves
+
+`snapshot()` reads the stores and crosses knob-to-domain once, using the same mapping module the bridge uses, so the document a save produces is by construction the state the engine is hearing; a dev-mode assertion can compare `snapshot()` against the bridge's last pushes.
+`apply(document)` is all-or-nothing: decode, migration, and validation have already happened in the codec, so apply only stops playback, crosses domain-to-knob, and commits all stores in one pass; the bridge then propagates to the engine exactly as it does for any store change.
+Kit resolution is part of apply's contract: on sample failure the instruments store rolls back to the kit the engine actually holds and the user is notified (decision 5), so the UI never shows a kit the audio does not have.
+The wiring audit confirmed apply is safe at boot, before any user gesture: every engine command is retained lazily or writes the module-level transport, nothing needs a running AudioContext until `play()`, and the bridge already performs an explicit initial push after mount.
+A typed error taxonomy (`InvalidFile`, `UnsupportedVersion`, `CorruptField`, `UnknownKit`, `StorageFull`, ...) surfaces through one boundary with user-facing messages; unknown fields are stripped with a console warning (decision 3).
+
+### Versioning
+
+The envelope is `kind` plus an integer `version`; migration is a ladder (`MIGRATIONS[version]` steps up to `CURRENT_VERSION = 2`), followed by a strict parse of the result, and every accepted legacy shape is pinned by a fixture generated from a real historical file.
+The 1-to-2 migration is where the entire legacy is absorbed in one step: the field-presence heuristics (param renames, `lowPass`/`highPass`, `variationCycle`, array-shaped patterns), the knob-to-domain conversion under the frozen v1 curves (decision 11), the embedded-kit dereference (decision 12), the swing knob-to-fraction conversion, and the macro folding.
+Newer versions hard-refuse on older builds with a clean "unsupported version" error (decision 2), and after v2 a knob-curve retune is a pure UI change that can never alter how a saved preset sounds.
+
+### Kit registry contract
+
+Kit-by-reference (decision 12) is only sound if references stay meaningful, so the registry takes on an explicit contract: a published kit id is immutable, its slot roles and sonic content do not change once shipped, and changing a kit's sound means publishing a new id.
+Retiring a kit means keeping its id resolvable (the samples are cheap) rather than deleting it, so no preset is ever orphaned by cleanup.
+A preset referencing an id the build does not know fails with a typed unknown-kit error rather than silently substituting sounds, consistent with the hard-refusal posture of decision 2.
+
+### Share encoding
+
+The compact codec is just another encoder over the document: a `v` field, stable kit ids, bit-packed pattern data, sparse non-default values, per-field quantization chosen to round-trip knob resolution, gzip, base64url.
+The legacy versionless decoder is deleted (decision 4); old links fail with the existing invalid-link toast and init fallback, a deliberate accepted break.
+Length and shape validation happen in the codec like everywhere else, with typed errors instead of `TypeError`s.
+
+### Session storage: the document replaces five persists
+
+This is the largest divergence from the incremental plan (decision 13).
+Today the working session is smeared across five independently versioned Zustand persist keys (instruments v2, sequencer v3, transport unversioned, master-chain unversioned, preset-meta v1), each with its own migrate path, restored by five separate rehydrations that boot trusts blindly, with the transport store issuing engine commands from inside `onRehydrateStorage`.
+The five migrate paths overlap the import-path migrators, the keys can version-skew against each other, and the dirty baseline (`cleanPreset`) dies on every reload because it alone is not persisted.
+Greenfield, the session is a document: a debounced autosave writes `snapshot()` to one session key, and boot restores it through the same decode-migrate-validate-apply pipeline as a file import.
+The five musical persists disappear, the rehydration side effects disappear, and "boot trusts localStorage blindly" is closed structurally rather than patched: a corrupt session document fails typed and falls back to init, instead of five keys partially rehydrating around each other.
+Dirty tracking becomes a persisted content hash of the last clean document stored next to the session key; `hasUnsavedChanges` compares `hash(snapshot())` against it and survives reload by construction.
+UI preferences (night mode, debug, groove display, performance) keep their small per-store persists, and one tiny session-UI key keeps the selected variation, which decision 7 deliberately keeps out of presets.
+
+### Library storage: documents under per-preset keys
+
+The library stops being an array inside a store's persist blob (decision 14).
+Today every library mutation rewrites the entire `drumhaus-preset-meta-storage` key, which reaches roughly 1.65 MB at the 100-preset cap with embedded kits, a single corrupt entry poisons the whole array, and no quota handling exists anywhere.
+Greenfield, each saved preset is its own entry (`drumhaus.preset.<id>`) holding the storage encoding of the document, plus a small index key for ordering.
+Kit-by-reference shrinks a typical entry from ~16.5 KB to a few KB, writes touch one entry at a time, `QuotaExceededError` is caught per save as a typed `StorageFull` error, corruption quarantines per entry, and migration runs per entry through the standard pipeline.
+The backend stays localStorage behind a thin async storage interface; IndexedDB is not justified by capacity today and slots in behind the same interface only if custom samples ever ship blobs (decision 8).
 
 ### Test spine
 
-A fixture corpus drives everything: historical `.dh` files (mined from git history at each format transition), legacy share URLs, current-version files, and deliberately corrupt variants.
-Golden tests assert that each fixture migrates to a pinned canonical snapshot or fails with the expected typed error, and a round-trip property test asserts `save(load(x))` is idempotent for current-version files.
+A fixture corpus drives everything: historical `.dh` files mined from git at each format transition, legacy share URLs, current-version documents, and deliberately corrupt variants.
+Golden tests assert that each fixture migrates to a pinned canonical document (exact expected domain values) or fails with the expected typed error.
+Property tests pin the codec algebra: `decode(encode(doc))` is identity for every encoding, `snapshot()` after `apply(doc)` equals `doc`, and every knob mapping round-trips knob-to-domain-to-knob within knob resolution.
+Because every ingress shares one pipeline, the corpus covers boot restore, file import, share links, and library loads by construction.
+
+### Cleanups
+
+Delete the dead `ShareablePreset`/`patterns.ts` format and fix the stale comments in `serialization/index.ts`; delete the stale `scripts/new-kit.ts` (kit authoring is manual until a new kit actually lands, at which point a fresh script can be written against `src/core/dhkit/`); remove the dead `durations` surface; add `superDreamHaus` to `getDefaultPresets()` or delete the file; remove the unused `INSTRUMENT_TUNE_RANGE` constant the mapping audit flagged as diverging from the live tune curve.
 
 ## Migration path
 
-Each PR is independently shippable; PR 1 gates the rest.
+The greenfield design is reached incrementally; each PR is independently shippable, and PR 1 gates the rest.
 
-### PR 1: schema module and fixture corpus (no behavior change)
+### PR 1: document schema, codecs, and fixture corpus (no behavior change)
 
-Add the zod schemas and error taxonomy, mirroring exactly what today's code accepts; wire file and URL import through them behind the existing toasts; land the fixture corpus and golden tests.
-Risk: an over-strict schema rejecting in-the-wild files that previously loaded via silent defaults; mitigated by modeling every observed legacy shape in the corpus before enforcement, and by shipping the schema in warn-only mode first if any doubt remains.
+Add the document model, zod schemas, typed error taxonomy, and `domainToKnob` inverses; land the fixture corpus; wire file and URL import through the decoder behind the existing toasts, still applying via the legacy `loadPreset`.
+Risk: an over-strict schema rejecting in-the-wild files that previously loaded via silent defaults; mitigated by modeling every observed legacy shape in the corpus before enforcement.
 
-### PR 2: version ladder and the v2 bump
+### PR 2: the v2 document and the 1-to-2 migration
 
-Introduce `CURRENT_VERSION = 2`, fold the heuristics into the 1-to-2 migration, dual-read versions 1 and 2, write version 2.
-Risk: old builds (stale tabs, old deployments) hard-reject v2 files with a clean error; this is the intended compatibility break and needs sign-off (open question 1).
+Introduce `CURRENT_VERSION = 2` (decisions 11, 12, and 15) and fold the legacy heuristics, the frozen-curve knob-to-domain conversion, the kit dereference, the swing conversion, and the macro folding into the single 1-to-2 migration; dual-read versions 1 and 2, write version 2.
+Risk: the highest-risk PR of the series.
+Old builds hard-reject v2 files with a clean error (intended, decision 1); beyond that, a wrong or non-invertible mapping would corrupt the sound of every migrated preset, so the corpus pins exact expected domain values for every historical file and the round-trip property test gates the inverses.
 
-### PR 3: atomic load pipeline and kit-failure surfacing
+### PR 3: snapshot/apply pipeline
 
-Restructure `loadPreset` into parse/migrate/validate/commit, unify error handling across entry points, propagate `loadKit` outcomes to the UI with rollback or retry.
-Risk: this touches the store/bridge/engine boundary; the existing golden render tests plus new load-pipeline tests gate it, and the engine's `loadSeq` semantics are left untouched.
+Replace `loadPreset` with `apply(document)` and `getCurrentPreset` with `snapshot()`; unify file import, share URL, library select, and delete-fallback onto the pipeline with one error boundary; surface kit-load failure with rollback and notify (decision 5).
+Risk: touches the store/bridge boundary; gated by the golden render tests, new pipeline tests, and the untouched engine `loadSeq` semantics.
 
-### PR 4: compact format v2
+### PR 4: compact codec v2
 
-Add the `v` field, stable kit ids, and length validation; keep the frozen legacy decoder for versionless payloads.
-Risk: regressions in shared-link decoding; mitigated by legacy URL fixtures captured before the change.
+The versioned compact encoder and decoder over the document, with stable kit ids; delete the legacy versionless decoder (decision 4).
+Risk: every previously shared link stops resolving and falls back to init with an error toast; this is a deliberate, accepted break.
 
-### PR 5: dirty-state and quota guards
+### PR 5: session document
 
-Persist `cleanPreset`, extend unsaved-changes checks to all destructive loads, add the optional `beforeunload` prompt, handle localStorage quota on save.
-Risk: low technically; the UX choices are open questions 6 and 7.
+Debounced `snapshot()` autosave to the session key; boot restore through the pipeline; retire the five musical persists via a one-time adopter that assembles a session document from the legacy keys (using the v1 migrators) on first boot and deletes them only after a successful session-document write; persist the clean-document hash for reload-stable dirty tracking; extend unsaved-changes checks to file import and share-link loads (no `beforeunload`, decision 6).
+Risk: the riskiest wiring change of the series, since it replaces the boot path; mitigated by the adopter's delete-only-after-write ordering, the strict-mode-safe single-run guard pattern already proven in `loadFromUrlOrDefault`, and the pipeline tests.
 
-### PR 6: stored-library migration and quarantine
+### PR 6: library storage
 
-Bump the preset-meta persist version, migrate `customPresets` at rehydrate, quarantine unparseable entries, close the boot-time validation TODO.
-Risk: highest user-data sensitivity of the series; the quarantine-never-delete policy plus a pre-migration raw export path mitigates it.
+Per-preset entries behind the async storage interface; adopt the legacy `customPresets` array into entries, quarantining what fails to parse rather than deleting it; per-save quota handling.
+Risk: highest user-data sensitivity of the series; mitigated by quarantine-never-delete plus a pre-adoption raw export escape hatch.
 
 ### PR 7: cleanups
 
-Dead format, stale script, dead `durations`, unlisted default preset.
+Dead compact format, stale kit script, dead `durations`, unlisted default preset, unused tune-range constant.
 Risk: none.
 
-## Open questions
+## Decisions
 
-These are the decisions that need Max's judgment before or during implementation; nothing below is assumed by the PRs that precede it.
+The ten open questions from the initial draft were resolved in review on 2026-07-14; decisions 11 and 12 were added in the same review, and decisions 13 through 15 in the greenfield redesign that followed.
+They are recorded here with rationale so implementation PRs can cite them by number.
 
-1. **Version bump policy.**
-   Formalize as `.dh` version 2 (clean ladder anchor, old builds cleanly reject new files), or stay on version 1 with additive-only evolution and strict validation (no break, but the version field stays meaningless and renames stay heuristic)?
-   PR 2 assumes the bump.
-2. **Forward-compatibility posture.**
-   When a future app writes version 3, should a version-2-era build hard-refuse (current behavior, simplest), or attempt best-effort load with a warning (requires an envelope design decision now, e.g. a `minReader` field or major/minor split)?
-3. **Unknown-field policy.**
-   Should load preserve unknown fields and re-emit them on save (protects round-trips through older builds), or keep dropping them (simpler, current behavior)?
-4. **Share-link compatibility horizon.**
-   Keep the frozen legacy URL decoder forever, or time-box it?
-   And confirm the kit-reference change from positional index to stable id, which lengthens URLs slightly.
-5. **Kit-load failure handling.**
-   On sample failure, roll the instruments store back to the kit the engine still holds (UI snaps back, honest but surprising), or keep the new store state with a persistent error and retry affordance (UI stays put, audio stays old)?
-6. **beforeunload prompt.**
-   Wanted when dirty, or is Zustand-persist autosave considered sufficient protection against tab closes?
-7. **Serialize the current variation?**
-   Should the selected A/B/C/D variation be captured in the preset (user intent preserved across save/load), or stay derived from the chain's first step (current)?
-8. **Custom samples roadmap.**
-   Is `.dh` staying JSON-with-sample-references over the bundled registry, or are user-imported samples planned?
-   If they are, the v2 boundary is the moment to choose a container (e.g. zip with embedded audio) rather than retrofitting one at v3.
-9. **Stored-library migration policy.**
-   Eager migration at rehydrate with quarantine (proposed, PR 6), or keep the current lazy fix-on-load and accept that stored presets age?
-10. **Dead format deletion.**
-    Confirm deleting `ShareablePreset`/`OptimizedPattern` (`serialization/types.ts`, `patterns.ts`) and the stale `scripts/new-kit.ts`, or should the kit script be rewritten against `src/core/dhkit/` instead (it is the only kit-authoring tool)?
+1. **Version bump: yes, v2.**
+   Everything before this change is considered the immature form of `.dh` persistence.
+   Version 2 is the formalization point; the 1-to-2 migration folds in all existing field-presence heuristics, which then retire from the hot path.
+2. **Forward compatibility: hard refusal.**
+   The schema is not expected to evolve much; an older build reading a newer file fails with a clean "unsupported version" error, and no `minReader` or best-effort machinery is built.
+3. **Unknown fields: strip at load with a warning.**
+   Restated in product terms: with hard version gating, unknown fields cannot arise from version skew (newer files are refused outright), so they can only come from hand-edited files or third-party tooling adding keys.
+   Preserving them through load and save would mean carrying opaque data drumhaus cannot validate, while hard-rejecting would refuse an otherwise-working file over a stray key.
+   Stripping with a console warning takes the middle path, and the strict schema still catches typos and corruption loudly.
+4. **Legacy share links: killed.**
+   The versionless compact decoder is deleted rather than frozen; old links fail with the existing invalid-link toast and fall back to init.
+   A deliberate, accepted break on a personal project, in exchange for not maintaining a frozen decoder.
+5. **Kit-load failure: roll back and notify.**
+   On sample failure the instruments store rolls back to the kit the engine actually holds, with a user-facing error; the UI never shows a kit the audio does not have.
+6. **No beforeunload prompt.**
+   Zustand-persist autosave is sufficient protection against tab closes.
+7. **Current variation stays derived, not serialized.**
+   A `.dh` is a preset in the instrument sense, a musical artifact, not a saved workspace, so it should not reopen into a specific editing surface.
+   Its playback entry point is already defined by the chain, and the selected A/B/C/D pad is performance state; deriving the initial selection from the chain's first step keeps session state out of the format, consistent with how hardware presets behave.
+8. **No container format now.**
+   User-imported samples are endgame or possibly never; `.dh` stays plain JSON with registry sample references.
+   A zip-style container with embedded audio is deferred to the version boundary where user samples actually ship, if they ever do.
+9. **Stored library: eager migration with quarantine.**
+   As proposed in PR 6: migrate `customPresets` at rehydrate, quarantine what fails to parse, never delete.
+10. **Dead formats: deleted.**
+    `ShareablePreset`/`OptimizedPattern` (`serialization/types.ts`, `patterns.ts`) go, along with the stale `scripts/new-kit.ts`; kit authoring is manual until a new kit lands.
+11. **Parameter values: domain units, not knob positions.**
+    This reverses the initial draft's keep-knob-space stance: the file format should be UI-agnostic and coupled to the audio engine, which thinks in musical values, so the v2 schema stores the engine's domain vocabulary and knob positions are derived at load via inverse mappings.
+    The stores and bridge stay knob-space; only the serialization boundary changes.
+    The 1-to-2 migration bakes the current knob curves in as the permanent interpretation of v1 files, and from v2 on a curve retune is a pure UI concern that can never change how a saved preset sounds, which retires the retune-means-version-bump policy the draft had proposed instead.
+    Alternatives rejected: keeping knob space with that policy (leaves the format UI-coupled), and making the stores themselves domain-native (relocates mapping into every knob component, against the engine refactor's bridge-boundary rule).
+12. **Kit storage: reference by stable id, not embedded.**
+    Review asked whether the embed survives first-principles scrutiny without the legacy code, and it does not.
+    The file is not self-contained regardless (samples live in the app bundle and are referenced by path), stable ids already solve reordering, and the embed denormalizes registry data into every preset so upstream fixes never propagate.
+    v2 stores a kit id plus the eight instrument-param objects, matching the model the compact format already proved; the file and share formats become one data model with two encodings.
+    The corollary is the kit registry contract: published kit ids are immutable, sonic content never changes under an existing id, and retired kits stay resolvable.
+    If custom samples ever ship (decision 8), the kit field grows into a discriminated union with an inline variant instead of retrofitting a second format.
+13. **Session persistence: one document, not five store persists.**
+    The greenfield redesign replaces the per-store Zustand persistence of musical state (instruments, sequencer, transport, master-chain, preset-meta) with a debounced autosave of the canonical document, restored at boot through the same pipeline as a file import.
+    Rationale: five independently versioned keys can skew against each other, their migrate paths duplicate the import migrators, boot trusts them blindly, and the non-persisted dirty baseline breaks on every reload; one document closes all four structurally.
+    UI preferences keep their small per-store persists, and a tiny session-UI key keeps the selected variation, which decision 7 deliberately keeps out of presets.
+14. **Library storage: per-preset entries behind an async interface, localStorage backend.**
+    Each saved preset becomes its own storage entry rather than an element of a single array that reaches ~1.65 MB at the cap and is rewritten in full on every mutation; corruption quarantines and migrates per entry, and quota errors surface per save.
+    IndexedDB is not justified by capacity (entries are a few KB after kit-by-reference) and waits behind the same interface until custom samples ever ship blobs.
+15. **Document units where mappings are not clean functions.**
+    Split filters store the engine's own 0-100 position (the Hz value is non-bijective across the LP/HP split); saturation and reverb store one normalized macro amount each (one control fans out to two engine fields by a fixed engine-side recipe); volume fields are nullable dB (JSON has no `-Infinity`, so `null` means silence); tune stores a semitone offset rather than Hz (Hz bakes in the sample's base pitch); comp ratio stores the quantized integer; swing stores the 0..0.5 engine fraction.
+    These refine decision 11: "domain units" means the engine's semantic surface, which for macro controls is one normalized amount, not a raw pair of internal fields.
