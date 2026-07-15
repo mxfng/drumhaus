@@ -40,7 +40,9 @@ const formatDisplayPercentage = (value: number) => {
 };
 
 const formatDisplaySwingMpc = (value: number) => {
-  return { value: value.toFixed(1), append: "%" };
+  // One decimal of honest MPC precision, minus a gratuitous trailing ".0"
+  // so integral values render as e.g. "50" instead of "50.0".
+  return { value: value.toFixed(1).replace(/\.0$/, ""), append: "%" };
 };
 
 const formatDisplayCompRatio = (value: number) => {

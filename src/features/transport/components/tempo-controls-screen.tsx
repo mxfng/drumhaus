@@ -55,6 +55,7 @@ function TempoControlsScreen() {
           sensitivity={0.3}
           label="bpm"
           labelClassName="text-xs"
+          className="whitespace-nowrap tabular-nums"
         />
         <ClickableValue
           value={swing}
@@ -63,6 +64,7 @@ function TempoControlsScreen() {
           sensitivity={0.2}
           label="swing"
           labelClassName="text-xs"
+          className="whitespace-nowrap tabular-nums"
         />
 
         <span className="flex w-full items-center justify-start">
