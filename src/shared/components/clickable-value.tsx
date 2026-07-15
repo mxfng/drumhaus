@@ -15,6 +15,7 @@ interface ClickableValueProps {
   onEditingChange?: (isEditing: boolean) => void;
   label?: string;
   labelClassName?: string;
+  valueClassName?: string;
 }
 
 const defaultParse = (text: string) => parseFloat(text);
@@ -34,6 +35,7 @@ function ClickableValue({
   onEditingChange,
   label,
   labelClassName = "",
+  valueClassName = "",
 }: ClickableValueProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -264,7 +266,7 @@ function ClickableValue({
 
   return (
     <div
-      className={cn("focus-ring", className)}
+      className={cn("focus-ring relative", className)}
       onPointerDown={handlePointerDown}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -276,26 +278,28 @@ function ClickableValue({
       aria-valuenow={value}
       style={{ cursor: isDragging ? "ns-resize" : "pointer" }}
     >
-      {isEditing ? (
+      {/* The display stays in flow (invisible while editing) so the
+          component keeps its width when the input overlays it, even in
+          content-sized layouts. */}
+      <span className={cn({ invisible: isEditing })}>
+        {label && <span className={labelClassName}>{label} </span>}
+        <span className={cn(label ? "pl-0.5" : "", valueClassName)}>
+          {formattedDisplay.value}
+        </span>
+        {!label && formattedDisplay.append ? (
+          <span className="pl-0.5">{formattedDisplay.append}</span>
+        ) : null}
+      </span>
+      {isEditing && (
         <Input
           ref={inputRef}
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleSubmit}
           onKeyDown={handleInputKeyDown}
-          className="text-primary-foreground m-0 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-center font-sans leading-none shadow-none ring-0 ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="text-primary-foreground absolute inset-0 m-0 h-auto w-full min-w-0 rounded-none border-none bg-transparent p-0 text-center font-sans leading-none shadow-none ring-0 ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
           style={{ height: "auto", minHeight: "0", lineHeight: "inherit" }}
         />
-      ) : (
-        <>
-          {label && <span className={labelClassName}>{label} </span>}
-          <span className={label ? "pl-0.5" : ""}>
-            {formattedDisplay.value}
-          </span>
-          {!label && formattedDisplay.append ? (
-            <span className="pl-0.5">{formattedDisplay.append}</span>
-          ) : null}
-        </>
       )}
     </div>
   );
