@@ -14,6 +14,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { init } from "@/core/dh";
+import { loadKit } from "@/core/dhkit";
+import { buildDenseSharePreset } from "@/features/preset/lib/serialization/__fixtures__/dense-preset";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { adoptLegacyPresetLibrary, LIBRARY_BACKUP_KEY } from "./adoption";
 import {
@@ -65,17 +67,16 @@ function createMemoryStorage(seed: Record<string, string> = {}): MemoryStorage {
 
 /** A full, valid v1 preset (embedded kit and all) under a custom identity. */
 function legacyPreset(id: string, name: string): PresetFileV1 {
-  const preset = init();
+  const preset = buildDenseSharePreset();
   return { ...preset, meta: { ...preset.meta, id, name } };
 }
 
 /** The legacy preset-meta envelope shape (persist version 1). */
 function legacyEnvelope(customPresets: unknown[]): string {
-  const preset = init();
   return JSON.stringify({
     state: {
-      currentPresetMeta: preset.meta,
-      currentKitMeta: preset.kit.meta,
+      currentPresetMeta: init().meta,
+      currentKitMeta: loadKit(init().kit.id)!.meta,
       customPresets,
     },
     version: 1,

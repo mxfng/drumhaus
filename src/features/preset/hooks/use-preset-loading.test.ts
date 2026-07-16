@@ -11,8 +11,6 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-
 const engineMock = vi.hoisted(() => ({
   play: vi.fn<() => Promise<void>>(() => Promise.resolve()),
   stop: vi.fn(),
@@ -31,7 +29,7 @@ let encodePresetDocument: typeof import("@/features/preset/document").encodePres
 let migrateV1ToDocument: typeof import("@/features/preset/document").migrateV1ToDocument;
 let parsePresetFileV1: typeof import("@/features/preset/document").parsePresetFileV1;
 let importPresetFileText: typeof import("./use-preset-loading").importPresetFileText;
-let loadPresetFile: typeof import("./use-preset-loading").loadPresetFile;
+let loadStoredPresetDocument: typeof import("./use-preset-loading").loadStoredPresetDocument;
 let loadPresetFileText: typeof import("./use-preset-loading").loadPresetFileText;
 let usePendingPresetLoadStore: typeof import("@/features/preset/store/use-pending-preset-load-store").usePendingPresetLoadStore;
 let useDialogStore: typeof import("@/shared/store/use-dialog-store").useDialogStore;
@@ -93,7 +91,7 @@ beforeAll(async () => {
   ({ init } = await import("@/core/dh"));
   ({ encodePresetDocument, migrateV1ToDocument, parsePresetFileV1 } =
     await import("@/features/preset/document"));
-  ({ importPresetFileText, loadPresetFile, loadPresetFileText } =
+  ({ importPresetFileText, loadStoredPresetDocument, loadPresetFileText } =
     await import("./use-preset-loading"));
   ({ usePendingPresetLoadStore } =
     await import("@/features/preset/store/use-pending-preset-load-store"));
@@ -283,22 +281,20 @@ describe("guarded file import entry point (importPresetFileText)", () => {
   });
 });
 
-describe("library select entry point (loadPresetFile)", () => {
-  it("surfaces a typed error as a toast without mutating stores for a corrupt v1 object", () => {
+describe("library select entry point (loadStoredPresetDocument)", () => {
+  it("surfaces a typed error as a toast without mutating stores when apply fails", () => {
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    // A library entry persisted verbatim in localStorage, damaged in place.
-    const corrupt = JSON.parse(JSON.stringify(init())) as Record<
-      string,
-      { bpm: unknown }
-    >;
-    corrupt.transport.bpm = "fast";
+    // A decoded library document whose kit is not in the registry: apply
+    // throws UnknownKitError before the first store write.
+    const document = init();
+    document.kit.id = "kit-404";
 
     const before = snapshotStores();
     const toast = vi.fn();
 
-    const loaded = loadPresetFile(corrupt as unknown as PresetFileV1, toast);
+    const loaded = loadStoredPresetDocument(document, toast);
 
     expect(loaded).toBeNull();
     expect(toast).toHaveBeenCalledTimes(1);
@@ -309,8 +305,8 @@ describe("library select entry point (loadPresetFile)", () => {
     };
     expect(toastArgs.title).toBe("Something went wrong");
     expect(toastArgs.status).toBe("error");
-    // CorruptFieldError carries the offending dot path.
-    expect(toastArgs.description).toContain("transport.bpm");
+    // UnknownKitError names the missing kit id.
+    expect(toastArgs.description).toContain("kit-404");
 
     // The throw happened before the first store write.
     expect(snapshotStores()).toEqual(before);
@@ -318,11 +314,11 @@ describe("library select entry point (loadPresetFile)", () => {
     consoleError.mockRestore();
   });
 
-  it("loads a valid v1 library object through validate -> migrate -> apply", () => {
+  it("loads a valid library document through apply", () => {
     const preset = init();
     const toast = vi.fn();
 
-    const loaded = loadPresetFile(preset, toast);
+    const loaded = loadStoredPresetDocument(preset, toast);
 
     expect(loaded).not.toBeNull();
     expect(toast).not.toHaveBeenCalled();
