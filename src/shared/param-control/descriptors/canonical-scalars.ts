@@ -24,7 +24,8 @@ import {
   TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
-import type { ParamDescriptor } from "../types";
+import { clamp01 } from "../lib/taper";
+import type { ParamDescriptor, Taper } from "../types";
 
 /**
  * Skew equivalent to the legacy `t^2` exponential knob curve. The legacy
@@ -42,14 +43,33 @@ function parseNumber(text: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function formatDb(value: number, floor: number): string {
-  if (value <= floor) return "-∞ dB";
+function formatDb(value: number): string {
+  // -∞ is true silence only; the -46 dB floor is a real, displayable value.
+  if (value === -Infinity) return "-∞ dB";
   return `${value > 0 ? "+" : ""}${value.toFixed(1)} dB`;
 }
 
-function parseDb(text: string, floor: number): number | null {
-  if (/[-−]?\s*(∞|inf)/i.test(text)) return floor;
+function parseDb(text: string): number | null {
+  if (/[-−]?\s*(∞|inf)/i.test(text)) return -Infinity;
   return parseNumber(text);
+}
+
+/**
+ * Volume taper: position 0 is true silence (-Infinity dB); positions above 0
+ * map linearly across the finite [floorDb, ceilDb] display range. This restores
+ * the legacy `withInfinityAtZero` behavior so a fader dragged fully down is real
+ * silence rather than the -46 dB floor. The descriptor pairs it with a min of
+ * -Infinity so the emitted silence survives range clamping.
+ */
+function volumeTaper(range: readonly [number, number]): Taper<number> {
+  const [floorDb, ceilDb] = range;
+  const span = ceilDb - floorDb;
+  return {
+    kind: "custom",
+    to01: (db) => (db === -Infinity ? 0 : clamp01((db - floorDb) / span)),
+    from01: (position) =>
+      position <= 0 ? -Infinity : floorDb + position * span,
+  };
 }
 
 function formatPercent(value: number): string {
@@ -87,13 +107,13 @@ const instrumentDecayDescriptor: ParamDescriptor<number> = {
 };
 
 const instrumentVolumeDescriptor: ParamDescriptor<number> = {
-  min: INSTRUMENT_VOLUME_RANGE[0],
+  min: -Infinity,
   max: INSTRUMENT_VOLUME_RANGE[1],
-  taper: { kind: "linear" },
+  taper: volumeTaper(INSTRUMENT_VOLUME_RANGE),
   default: 0,
   unit: "dB",
-  format: (v) => formatDb(v, INSTRUMENT_VOLUME_RANGE[0]),
-  parse: (t) => parseDb(t, INSTRUMENT_VOLUME_RANGE[0]),
+  format: formatDb,
+  parse: parseDb,
 };
 
 const instrumentPanDescriptor: ParamDescriptor<number> = {
@@ -138,13 +158,13 @@ function parsePan(text: string): number | null {
 // --- Master descriptors (nine params; `filter` is the generic-T descriptor) ---
 
 const masterVolumeDescriptor: ParamDescriptor<number> = {
-  min: MASTER_VOLUME_RANGE[0],
+  min: -Infinity,
   max: MASTER_VOLUME_RANGE[1],
-  taper: { kind: "linear" },
+  taper: volumeTaper(MASTER_VOLUME_RANGE),
   default: 0,
   unit: "dB",
-  format: (v) => formatDb(v, MASTER_VOLUME_RANGE[0]),
-  parse: (t) => parseDb(t, MASTER_VOLUME_RANGE[0]),
+  format: formatDb,
+  parse: parseDb,
 };
 
 const masterSaturationDescriptor: ParamDescriptor<number> = {

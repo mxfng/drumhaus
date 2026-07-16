@@ -21,16 +21,39 @@ import {
 } from "../lib/descriptor";
 
 describe("volume descriptor", () => {
-  it("formats dB with -infinity at the floor", () => {
-    expect(instrumentVolumeDescriptor.format(-46)).toBe("-∞ dB");
+  it("shows -infinity only for true silence, not the -46 dB floor", () => {
+    expect(instrumentVolumeDescriptor.format(-Infinity)).toBe("-∞ dB");
+    expect(instrumentVolumeDescriptor.format(-46)).toBe("-46.0 dB");
     expect(instrumentVolumeDescriptor.format(0)).toBe("0.0 dB");
     expect(instrumentVolumeDescriptor.format(4)).toBe("+4.0 dB");
   });
 
-  it("parses dB, including the silence sentinel", () => {
+  it("parses dB, including the silence sentinel as -Infinity", () => {
     expect(instrumentVolumeDescriptor.parse?.("-6.0 dB")).toBeCloseTo(-6, 9);
-    expect(instrumentVolumeDescriptor.parse?.("-∞ dB")).toBe(-46);
-    expect(masterVolumeDescriptor.parse?.("-inf")).toBe(-46);
+    expect(instrumentVolumeDescriptor.parse?.("-∞ dB")).toBe(-Infinity);
+    expect(masterVolumeDescriptor.parse?.("-inf")).toBe(-Infinity);
+  });
+
+  it("maps position 0 to true silence (-Infinity)", () => {
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 0)).toBe(
+      -Infinity,
+    );
+    expect(normalizedToCanonical(masterVolumeDescriptor, 0)).toBe(-Infinity);
+    expect(canonicalToNormalized(instrumentVolumeDescriptor, -Infinity)).toBe(
+      0,
+    );
+  });
+
+  it("maps positions above 0 across the finite [-46, 4] dB range", () => {
+    // Position 1 is the ceiling; the midpoint is the linear middle of the span.
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 1)).toBeCloseTo(
+      4,
+      9,
+    );
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 0.5)).toBeCloseTo(
+      -21,
+      9,
+    );
   });
 
   it("round-trips format -> parse for finite values", () => {
