@@ -185,9 +185,16 @@ function useParamControl<T>({
   const bipolar = descriptor.polarity === "bipolar";
 
   const numeric = typeof descriptor.min === "number";
-  const descriptorMin = numeric ? (descriptor.min as unknown as number) : 0;
-  const descriptorMax = numeric ? (descriptor.max as unknown as number) : 1;
-  const descriptorNow = numeric ? (value as unknown as number) : position;
+  const rawMin = numeric ? (descriptor.min as unknown as number) : 0;
+  const rawMax = numeric ? (descriptor.max as unknown as number) : 1;
+  const rawNow = numeric ? (value as unknown as number) : position;
+  // ARIA numbers must be finite. A volume control's silence sentinel
+  // (-Infinity) - and defensively any non-finite bound - is not a valid ARIA
+  // number, so substitute the finite floor; `aria-valuetext` still carries the
+  // human label ("-∞ dB").
+  const ariaMin = Number.isFinite(rawMin) ? rawMin : rawMax;
+  const ariaMax = Number.isFinite(rawMax) ? rawMax : rawMin;
+  const ariaNow = Number.isFinite(rawNow) ? rawNow : ariaMin;
 
   /** Commit a discrete change as its own bracketed gesture (own undo unit). */
   const commitDiscrete = useCallback(
@@ -453,9 +460,9 @@ function useParamControl<T>({
     role: "slider",
     tabIndex: disabled || !tabbable ? -1 : 0,
     "aria-label": label,
-    "aria-valuemin": descriptorMin,
-    "aria-valuemax": descriptorMax,
-    "aria-valuenow": descriptorNow,
+    "aria-valuemin": ariaMin,
+    "aria-valuemax": ariaMax,
+    "aria-valuenow": ariaNow,
     "aria-valuetext": displayValue,
     "aria-disabled": disabled || undefined,
   };

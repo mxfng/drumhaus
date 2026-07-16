@@ -2,12 +2,19 @@ import { describe, expect, it } from "vitest";
 
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
+  INSTRUMENT_VOLUME_RANGE,
+  MASTER_VOLUME_RANGE,
+} from "@/core/audio/engine/constants";
+import { init } from "@/core/dh";
+import {
   instrumentDecayDescriptor,
   instrumentPanDescriptor,
   instrumentTuneDescriptor,
   instrumentVolumeDescriptor,
+  masterCompAttackDescriptor,
   masterCompRatioDescriptor,
   masterVolumeDescriptor,
+  transportBpmDescriptor,
   transportSwingDescriptor,
 } from "../descriptors/canonical-scalars";
 import {
@@ -17,7 +24,9 @@ import {
 } from "../descriptors/filter";
 import {
   canonicalToNormalized,
+  endpointValue,
   normalizedToCanonical,
+  parseValue,
 } from "../lib/descriptor";
 
 describe("volume descriptor", () => {
@@ -62,6 +71,77 @@ describe("volume descriptor", () => {
       expect(instrumentVolumeDescriptor.parse?.(text)).toBeCloseTo(v, 1);
     }
   });
+});
+
+// The document schema pins volumeDb to [floor, ceil] (nullable, where null is
+// the JSON-safe spelling of -Infinity silence). The type-in commit path is
+// `parseValue`; every value it yields must satisfy those bounds so no egress
+// (export, share, autosave, dirty-hash) throws a ZodError. See issue #383.
+describe("volume type-in stays within the document schema bounds (#383)", () => {
+  const cases = [
+    {
+      name: "instrument",
+      descriptor: instrumentVolumeDescriptor,
+      range: INSTRUMENT_VOLUME_RANGE,
+    },
+    {
+      name: "master",
+      descriptor: masterVolumeDescriptor,
+      range: MASTER_VOLUME_RANGE,
+    },
+  ] as const;
+
+  /** A committed volume is schema-acceptable: -Infinity silence, or in range. */
+  function isSchemaAcceptable(value: number, range: readonly [number, number]) {
+    return value === -Infinity || (value >= range[0] && value <= range[1]);
+  }
+
+  for (const { name, descriptor, range } of cases) {
+    it(`${name}: type-in below the floor clamps up to the floor, not below`, () => {
+      const parsed = parseValue(descriptor, "-50");
+      expect(parsed).toBe(range[0]);
+      expect(isSchemaAcceptable(parsed as number, range)).toBe(true);
+    });
+
+    it(`${name}: type-in above the ceiling clamps down to the ceiling`, () => {
+      expect(parseValue(descriptor, "20")).toBe(range[1]);
+    });
+
+    it(`${name}: "-inf" still reaches true silence (-Infinity) via type-in`, () => {
+      expect(parseValue(descriptor, "-inf")).toBe(-Infinity);
+      expect(parseValue(descriptor, "-∞ dB")).toBe(-Infinity);
+    });
+
+    it(`${name}: every commit path (type-in, drag ends, Home) is schema-acceptable`, () => {
+      // Type-in across and beyond the range.
+      for (const text of [
+        "-999",
+        "-46",
+        "-46.5",
+        "-12",
+        "0",
+        "4",
+        "4.1",
+        "50",
+      ]) {
+        const parsed = parseValue(descriptor, text);
+        expect(parsed).not.toBeNull();
+        expect(isSchemaAcceptable(parsed as number, range)).toBe(true);
+      }
+      // Drag/keyboard endpoints resolve through normalizedToCanonical.
+      for (const position of [0, 0.001, 0.25, 0.5, 0.75, 1]) {
+        expect(
+          isSchemaAcceptable(
+            normalizedToCanonical(descriptor, position),
+            range,
+          ),
+        ).toBe(true);
+      }
+      // Home is true silence; End is the ceiling.
+      expect(endpointValue(descriptor, "min")).toBe(-Infinity);
+      expect(endpointValue(descriptor, "max")).toBe(range[1]);
+    });
+  }
 });
 
 describe("pan descriptor", () => {
@@ -130,6 +210,42 @@ describe("swing descriptor", () => {
   it("round-trips MPC display back to the swing fraction", () => {
     expect(transportSwingDescriptor.parse?.("62.5%")).toBeCloseTo(0.375, 9);
     expect(transportSwingDescriptor.parse?.("50%")).toBeCloseTo(0, 9);
+  });
+});
+
+// A double-click/Enter reset commits the descriptor's `default`. If that value
+// diverges from what a factory-fresh session actually holds (the init preset,
+// which is the shipped truth applied by bootstrapSession), the reset instantly
+// dirty-flags an untouched preset. This guards every reset target that has bitten
+// us against the init document so the two can never drift again (issue #385).
+describe("descriptor reset targets match the shipped init defaults (#385)", () => {
+  const initDoc = init();
+
+  it("compressor ratio default equals the init ratio", () => {
+    expect(masterCompRatioDescriptor.default).toBe(initDoc.master.compRatio);
+  });
+
+  it("compressor attack default equals the init attack byte-for-byte", () => {
+    // The init value is a specific float64 (the migrated legacy knob-50 value);
+    // toBe pins it exactly, not merely close, so a reset produces no dirty flag.
+    expect(masterCompAttackDescriptor.default).toBe(
+      initDoc.master.compAttackSeconds,
+    );
+  });
+
+  it("bpm default equals the init bpm", () => {
+    expect(transportBpmDescriptor.default).toBe(initDoc.transport.bpm);
+  });
+
+  it("split-filter default matches the init filter spelling and renders centred", () => {
+    expect(splitFilterDescriptor.default).toEqual(initDoc.master.filter);
+    // Same open extreme as the mapping's knob-centre, so reset lands at 0.5.
+    expect(
+      canonicalToNormalized(
+        splitFilterDescriptor,
+        splitFilterDescriptor.default,
+      ),
+    ).toBeCloseTo(0.5, 9);
   });
 });
 

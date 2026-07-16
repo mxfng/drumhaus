@@ -61,7 +61,11 @@ const splitFilterDescriptor: ParamDescriptor<CanonicalFilter> = {
     to01: filterToPosition,
     from01: positionToFilter,
   },
-  default: { side: "lowpass", cutoffHz: FILTER_MAX_HZ },
+  // Factory/init/store spelling of "fully open" (renders at knob-centre 0.5, the
+  // same open extreme as { lowpass, FILTER_MAX_HZ }). Matching the factory
+  // spelling exactly means resetting a factory-fresh filter knob does not
+  // rewrite the stored value and never dirties the preset.
+  default: { side: "highpass", cutoffHz: 0 },
   polarity: "bipolar",
   detents: [
     { value: { side: "lowpass", cutoffHz: FILTER_MAX_HZ }, radiusPct: 0.04 },

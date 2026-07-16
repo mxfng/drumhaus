@@ -33,6 +33,7 @@ import {
   MASTER_COMP_THRESHOLD_RANGE,
   MASTER_VOLUME_RANGE,
   STEP_COUNT,
+  TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
 import {
@@ -174,7 +175,7 @@ const playbackSchema = z.object({
 });
 
 const transportSchema = z.object({
-  bpm: z.number().positive(),
+  bpm: z.number().min(TRANSPORT_BPM_RANGE[0]).max(TRANSPORT_BPM_RANGE[1]),
   swing: z.number().min(0).max(TRANSPORT_SWING_MAX),
 });
 

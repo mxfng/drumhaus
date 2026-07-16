@@ -1,6 +1,6 @@
 # Preset persistence: maturing .dh save/load
 
-Status: accepted (audit complete, greenfield redesign adopted in review, implementation pending).
+Status: shipped and complete (#329, across PRs #339-#355).
 Author: Max, July 2026.
 Tracking issue: #329.
 
@@ -8,6 +8,11 @@ Update (2026-07-14, #269): the swing retune landed before this design's document
 Version 1.5 is a knob-space revision of the v1 shape (identical fields; `transport.swing` knob values written under the old curve are rescaled by 4/3 on load, see `src/features/preset/document/migrate.ts`), the share codec gained a `v` field mirroring the file version (absent = legacy URL, swing migrated on decode), and the transport persist is now versioned (v1, with a swing migrate).
 Version 2 remains the domain-unit document described below, unchanged; its 1-to-2 migration must now also accept 1.5 as input (the swing rescale is already applied there).
 The audit sections still describe the pre-#269 state where they mention an unversioned codec and transport persist.
+
+Update (2026-07-16, #389): the greenfield design below shipped as document version 2.1, not the version 2 this doc specifies.
+The domain-representation flip (epic #357, squash PR #366) went one step further than decision 11: the split filter is canonical `{ side, cutoffHz }`, not a 0-100 position, and the stores and bridge are canonical end to end, not knob-space.
+The Inventory and Schema assessment sections below (the pre-refactor audit, including `getCurrentPreset`, `loadPreset`, and `use-preset-loading.ts` as then written) describe code that the pipeline in this design's own Greenfield section replaced; `getCurrentPreset`/`loadPreset` are gone, replaced by `snapshot()`/`apply()` under `src/features/preset/document/` and `src/features/preset/session/`.
+This doc remains as design history; for the shape and rules that actually shipped, see docs/data-representation.md (canonical units) and docs/preset-versioning.md (the living version policy; it already supersedes this doc's own Versioning section, tracked separately as #381).
 
 ## Summary
 
@@ -198,6 +203,8 @@ The initial draft's one genuinely debatable call was keeping UI knob positions (
 Review overruled it: the file format should be UI-agnostic and coupled to the engine, which is the stable semantic core after the engine refactor, while knob curves are a UI concern that should be free to change.
 The v2 schema therefore stores the engine's domain vocabulary (Hz, dB, seconds, playback rate, normalized mix fractions), exactly as `setChannelParams` and `setMasterParams` consume it.
 Pattern data (triggers, normalized velocities, nudge) and bpm already speak musical units; this change brings the instrument and master parameters in line, and any remaining knob-space stragglers (swing, if it proves to be one) get audited in PR 2.
+Update (2026-07-16, #389): `setChannelParams` and `setMasterParams` are this design's names for the facade methods, not what shipped.
+The shipped facade (`src/core/audio/engine/audio-engine.ts`) names them `setChannelContinuousParams` and `setMasterSettings`; see docs/audio-engine-refactor.md for the full shipped command surface.
 The costs the draft weighed are real but contained: each mapping needs an inverse (the curves are monotonic, so invertible), save and load each gain one mapping crossing at the serialization boundary, and the stores and bridge stay knob-space so nothing else moves.
 The payoff is structural: the 1-to-2 migration freezes the current curves as the permanent interpretation of v1 files, and from v2 on, retuning a knob curve changes where a knob sits, never how a saved preset sounds.
 
@@ -224,6 +231,10 @@ Every ingress runs the same pipeline, `decode -> migrate -> validate -> document
 Every egress is `snapshot() -> encode`.
 
 ### The document model (v2)
+
+Update (2026-07-16, #389): the block below is this design's original v2 target, and it shipped, but a later epic moved the ground again.
+Version 2.1 (epic #357, squash PR #366) replaced the `filter` field's `0..100 split position` shown below with the canonical `{ side, cutoffHz }` shape, and made the split filter the only case where domain units per decision 15 were not the final word.
+See docs/data-representation.md for the shipped canonical-units model and docs/preset-versioning.md for the version-2-to-2.1 migration and the current document shape.
 
 The document, with units chosen from the mapping audit:
 
@@ -268,6 +279,9 @@ Each unit choice is forced by something the mapping audit surfaced (decision 15)
 - Velocities, accents, ratchets, flams, and nudge are already musical values and carry over unchanged; the accent boost factor, flam offset, and ratchet spacing are engine constants, not preset fields, and stay that way.
 
 ### The pipeline and its two halves
+
+Update (2026-07-16, #389): "crosses knob-to-domain" and "crosses domain-to-knob" below describe this design's target, written before the domain-representation flip.
+Now that the stores are canonical (epic #357), `snapshot()` and `apply()` read and write canonical units directly; there is no knob-to-domain crossing left at this boundary, only at the thin canonical-to-engine bridge (`src/core/audio/bridge/engine-params.ts`).
 
 `snapshot()` reads the stores and crosses knob-to-domain once, using the same mapping module the bridge uses, so the document a save produces is by construction the state the engine is hearing; a dev-mode assertion can compare `snapshot()` against the bridge's last pushes.
 `apply(document)` is all-or-nothing: decode, migration, and validation have already happened in the codec, so apply only stops playback, crosses domain-to-knob, and commits all stores in one pass; the bridge then propagates to the engine exactly as it does for any store change.
@@ -399,6 +413,9 @@ They are recorded here with rationale so implementation PRs can cite them by num
     The stores and bridge stay knob-space; only the serialization boundary changes.
     The 1-to-2 migration bakes the current knob curves in as the permanent interpretation of v1 files, and from v2 on a curve retune is a pure UI concern that can never change how a saved preset sounds, which retires the retune-means-version-bump policy the draft had proposed instead.
     Alternatives rejected: keeping knob space with that policy (leaves the format UI-coupled), and making the stores themselves domain-native (relocates mapping into every knob component, against the engine refactor's bridge-boundary rule).
+    Update (2026-07-16, #389): "the stores and bridge stay knob-space" is false as of the domain-representation flip (epic #357, squash PR #366).
+    The alternative rejected here, making the stores themselves domain-native, is what shipped: every store holds canonical units, and the bridge (`src/core/audio/bridge/engine-params.ts`) is a thin canonical-to-engine crossing with no knob mapping left at that boundary.
+    See docs/data-representation.md for the shipped model and its rationale.
 12. **Kit storage: reference by stable id, not embedded.**
     Review asked whether the embed survives first-principles scrutiny without the legacy code, and it does not.
     The file is not self-contained regardless (samples live in the app bundle and are referenced by path), stable ids already solve reordering, and the embed denormalizes registry data into every preset so upstream fixes never propagate.
@@ -415,3 +432,6 @@ They are recorded here with rationale so implementation PRs can cite them by num
 15. **Document units where mappings are not clean functions.**
     Split filters store the engine's own 0-100 position (the Hz value is non-bijective across the LP/HP split); saturation and reverb store one normalized macro amount each (one control fans out to two engine fields by a fixed engine-side recipe); volume fields are nullable dB (JSON has no `-Infinity`, so `null` means silence); tune stores a semitone offset rather than Hz (Hz bakes in the sample's base pitch); comp ratio stores the quantized integer; swing stores the 0..0.5 engine fraction.
     These refine decision 11: "domain units" means the engine's semantic surface, which for macro controls is one normalized amount, not a raw pair of internal fields.
+    Update (2026-07-16, #389): the split-filter call was reversed by the domain-representation flip.
+    Canonical is `{ side, cutoffHz }`, not the engine's 0-100 position; P2 in docs/data-representation.md accepts a musical exception to acoustic-unit canonical precisely when it is strictly more stable than the engine's own vocabulary, and the split filter turned out to qualify.
+    The other unit choices in this decision (macro amounts, nullable dB, semitone tune, quantized comp ratio, fractional swing) shipped as described.
