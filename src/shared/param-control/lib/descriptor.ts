@@ -29,6 +29,10 @@ function isNumericDescriptor<T>(
 /** Clamp a canonical value to [min, max] (numeric params only; no-op otherwise). */
 function clampValue<T>(descriptor: ParamDescriptor<T>, value: T): T {
   if (typeof value === "number" && isNumericDescriptor(descriptor)) {
+    // -Infinity is the silence sentinel (a volume fader fully down): it rides
+    // below the finite floor and must survive clamping so true silence stays
+    // reachable and round-trips (canonical-scalars.ts `volumeTaper`).
+    if (value === -Infinity) return value as unknown as T;
     return clamp(value, descriptor.min, descriptor.max) as unknown as T;
   }
   return value;
