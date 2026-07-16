@@ -54,7 +54,7 @@ interface InstrumentChannelNodes {
  * A single note to trigger, in domain values.
  */
 interface InstrumentHit {
-  /** Playback pitch (frequency, as produced by tuneMapping.knobToDomain) */
+  /** Playback pitch (frequency, as produced by semitonesToHz) */
   pitch: number;
   /** Envelope decay time in seconds */
   decaySeconds: number;
@@ -285,9 +285,9 @@ class InstrumentChannel {
   /**
    * Triggers the channel for preview/manual playback at the current time.
    *
-   * Takes domain values: `pitch` is the playback pitch (a frequency, as
-   * produced by tuneMapping.knobToDomain) and `decaySeconds` is the envelope
-   * decay time in seconds. Callers convert knob values before calling.
+   * Takes canonical/engine values: `pitch` is the playback pitch (a frequency,
+   * as produced by semitonesToHz from the canonical semitone offset) and
+   * `decaySeconds` is the envelope decay time in seconds.
    */
   preview(pitch: number, decaySeconds: number): void {
     if (!this.samplerNode.loaded) {

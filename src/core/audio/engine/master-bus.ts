@@ -48,8 +48,9 @@ import {
 } from "./fx/split-filter";
 
 /**
- * Master chain settings in domain values, ready to apply to audio nodes.
- * The knob-level MasterChainParams shape lives in bridge/knob-to-domain.ts.
+ * Master chain settings in canonical/engine values, ready to apply to audio
+ * nodes. The canonical MasterChainCanonical shape lives in
+ * bridge/engine-params.ts.
  */
 type MasterChainSettings = {
   // Split filter settings (single filter that switches type, same as instrument filter)
