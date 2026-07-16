@@ -32,6 +32,14 @@ export type {
   UseParamControlResult,
   DragAxis,
 } from "./hooks/use-param-control";
+export { Knob, useKnob } from "./primitives/knob";
+export type {
+  KnobRootProps,
+  KnobTrackProps,
+  KnobIndicatorProps,
+  KnobValueProps,
+  KnobContextValue,
+} from "./primitives/knob";
 export { RotaryKnob } from "./components/rotary-knob";
 export type { RotaryKnobProps } from "./components/rotary-knob";
 export { LinearSlider } from "./components/linear-slider";
