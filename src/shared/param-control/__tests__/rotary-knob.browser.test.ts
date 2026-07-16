@@ -10,7 +10,9 @@ import { act, createElement, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { INSTRUMENT_VOLUME_RANGE } from "@/core/audio/engine/constants";
 import { RotaryKnob } from "../components/rotary-knob";
+import { instrumentVolumeDescriptor } from "../descriptors/canonical-scalars";
 import type { ParamDescriptor } from "../types";
 
 declare global {
@@ -204,6 +206,39 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     expect(slider().getAttribute("aria-valuetext")).toBe("42 u");
     expect(slider().getAttribute("aria-valuenow")).toBe("42");
     expect(slider().getAttribute("role")).toBe("slider");
+  });
+
+  it("renders finite ARIA numbers for a silenced volume control (#383)", async () => {
+    // A volume control at true silence holds -Infinity, which is not a valid
+    // ARIA number: aria-valuemin/now must fall back to the finite floor, while
+    // aria-valuetext still reads "-∞ dB".
+    await act(async () => {
+      root?.render(
+        createElement(RotaryKnob<number>, {
+          descriptor: instrumentVolumeDescriptor,
+          value: -Infinity,
+          label: "Volume",
+          onChange: () => {},
+        }),
+      );
+    });
+    const el = slider();
+    expect(Number.isFinite(Number(el.getAttribute("aria-valuemin")))).toBe(
+      true,
+    );
+    expect(Number.isFinite(Number(el.getAttribute("aria-valuemax")))).toBe(
+      true,
+    );
+    expect(Number.isFinite(Number(el.getAttribute("aria-valuenow")))).toBe(
+      true,
+    );
+    expect(Number(el.getAttribute("aria-valuemin"))).toBe(
+      INSTRUMENT_VOLUME_RANGE[0],
+    );
+    expect(Number(el.getAttribute("aria-valuenow"))).toBe(
+      INSTRUMENT_VOLUME_RANGE[0],
+    );
+    expect(el.getAttribute("aria-valuetext")).toBe("-∞ dB");
   });
 
   it("accepts type-in entry opened by a double-click on the label", async () => {

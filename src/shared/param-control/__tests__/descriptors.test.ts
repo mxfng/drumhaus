@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
+  INSTRUMENT_VOLUME_RANGE,
+  MASTER_VOLUME_RANGE,
+} from "@/core/audio/engine/constants";
+import {
   instrumentDecayDescriptor,
   instrumentPanDescriptor,
   instrumentTuneDescriptor,
@@ -17,7 +21,9 @@ import {
 } from "../descriptors/filter";
 import {
   canonicalToNormalized,
+  endpointValue,
   normalizedToCanonical,
+  parseValue,
 } from "../lib/descriptor";
 
 describe("volume descriptor", () => {
@@ -62,6 +68,77 @@ describe("volume descriptor", () => {
       expect(instrumentVolumeDescriptor.parse?.(text)).toBeCloseTo(v, 1);
     }
   });
+});
+
+// The document schema pins volumeDb to [floor, ceil] (nullable, where null is
+// the JSON-safe spelling of -Infinity silence). The type-in commit path is
+// `parseValue`; every value it yields must satisfy those bounds so no egress
+// (export, share, autosave, dirty-hash) throws a ZodError. See issue #383.
+describe("volume type-in stays within the document schema bounds (#383)", () => {
+  const cases = [
+    {
+      name: "instrument",
+      descriptor: instrumentVolumeDescriptor,
+      range: INSTRUMENT_VOLUME_RANGE,
+    },
+    {
+      name: "master",
+      descriptor: masterVolumeDescriptor,
+      range: MASTER_VOLUME_RANGE,
+    },
+  ] as const;
+
+  /** A committed volume is schema-acceptable: -Infinity silence, or in range. */
+  function isSchemaAcceptable(value: number, range: readonly [number, number]) {
+    return value === -Infinity || (value >= range[0] && value <= range[1]);
+  }
+
+  for (const { name, descriptor, range } of cases) {
+    it(`${name}: type-in below the floor clamps up to the floor, not below`, () => {
+      const parsed = parseValue(descriptor, "-50");
+      expect(parsed).toBe(range[0]);
+      expect(isSchemaAcceptable(parsed as number, range)).toBe(true);
+    });
+
+    it(`${name}: type-in above the ceiling clamps down to the ceiling`, () => {
+      expect(parseValue(descriptor, "20")).toBe(range[1]);
+    });
+
+    it(`${name}: "-inf" still reaches true silence (-Infinity) via type-in`, () => {
+      expect(parseValue(descriptor, "-inf")).toBe(-Infinity);
+      expect(parseValue(descriptor, "-∞ dB")).toBe(-Infinity);
+    });
+
+    it(`${name}: every commit path (type-in, drag ends, Home) is schema-acceptable`, () => {
+      // Type-in across and beyond the range.
+      for (const text of [
+        "-999",
+        "-46",
+        "-46.5",
+        "-12",
+        "0",
+        "4",
+        "4.1",
+        "50",
+      ]) {
+        const parsed = parseValue(descriptor, text);
+        expect(parsed).not.toBeNull();
+        expect(isSchemaAcceptable(parsed as number, range)).toBe(true);
+      }
+      // Drag/keyboard endpoints resolve through normalizedToCanonical.
+      for (const position of [0, 0.001, 0.25, 0.5, 0.75, 1]) {
+        expect(
+          isSchemaAcceptable(
+            normalizedToCanonical(descriptor, position),
+            range,
+          ),
+        ).toBe(true);
+      }
+      // Home is true silence; End is the ceiling.
+      expect(endpointValue(descriptor, "min")).toBe(-Infinity);
+      expect(endpointValue(descriptor, "max")).toBe(range[1]);
+    });
+  }
 });
 
 describe("pan descriptor", () => {
