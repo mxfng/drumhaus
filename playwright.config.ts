@@ -16,8 +16,14 @@ export default defineConfig({
   testMatch: "**/*.spec.ts",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  retries: 0,
-  workers: process.env.CI ? 1 : undefined,
+  // CI runs single-worker and gets standard retries. Locally we keep parallel
+  // workers but cap them: with the default (~50% of cores) the audio-heavy
+  // specs (offline WAV renders) saturate CPU at suite start and starve the
+  // storage-heavy, UI-driven library.spec flows past their 10s expect timeout
+  // (issue #367). A modest cap removes that contention; the single local retry
+  // is a belt-and-suspenders net, not the primary fix.
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : "25%",
   reporter: process.env.CI
     ? [["list"], ["html", { open: "never" }]]
     : [["list"]],
