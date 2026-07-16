@@ -20,7 +20,7 @@ test.describe("share link round trip", () => {
     await expect(nameInput).toHaveValue("E2E Shared Link");
     await dialog.getByRole("button", { name: "Get Link" }).click();
 
-    // The result step shows the generated URL (v2 compact payload in ?p=).
+    // The result step shows the generated URL (compact payload in ?p=).
     await expect(dialog.getByText("Your link is ready!")).toBeVisible();
     const shareUrl = (await dialog.getByText(/\?p=/).textContent())?.trim();
     expect(shareUrl).toBeTruthy();

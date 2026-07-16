@@ -1,5 +1,5 @@
 /**
- * The v2 compact share codec carries the canonical split filter as a
+ * The share compact codec carries the canonical split filter as a
  * `[sideCode, cutoffHz]` pair. These tests pin that the filter round-trips
  * through encode -> decode and that a malformed pair fails typed.
  */
@@ -14,7 +14,7 @@ import {
   parsePresetFileV1,
   type PresetDocument,
 } from "@/features/preset/document";
-import { decodeCompactDocument, encodeCompactDocument } from "./compact-v2";
+import { decodeCompactDocument, encodeCompactDocument } from "./compact";
 
 function baseDocument(): PresetDocument {
   const text = readFileSync(
@@ -47,7 +47,7 @@ const CASES: CanonicalFilter[] = [
   { side: "highpass", cutoffHz: 9876.543 },
 ];
 
-describe("compact-v2 filter round-trip", () => {
+describe("compact filter round-trip", () => {
   it.each(CASES)("round-trips channel and master filter %o", (filter) => {
     const document = withFilters(filter, filter);
     const decoded = decodeCompactDocument(encodeCompactDocument(document));

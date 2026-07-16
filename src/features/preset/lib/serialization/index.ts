@@ -1,28 +1,30 @@
 import {
   InvalidFileError,
-  migrateV1ToDocument,
-  PRESET_FILE_VERSION,
   UnsupportedVersionError,
-  validatePresetFileV1,
   type PresetDocument,
 } from "@/features/preset/document";
-import { decodeCompactDocument, encodeCompactDocument } from "./compact-v2";
+import {
+  COMPACT_CODEC_VERSION,
+  decodeCompactDocument,
+  encodeCompactDocument,
+} from "./compact";
 import { compress, decompress } from "./compress";
-import { decodePreset, validateCompactPreset } from "./decode";
 
 /**
  * The share-URL codec: gzip + base64url over a compact JSON payload carried
  * in the `?p=` query param.
  *
- * Outbound links always encode the v2 preset document (compact-v2.ts).
- * Inbound payloads dispatch on their `v` field:
- * - 2: decoded directly to a PresetDocument.
- * - 1.5 (the #269 knob-space codec): decoded by the retained v1.5 path,
- *   which feeds the same validatePresetFileV1 + migrateV1ToDocument ladder
- *   as v1.x file imports, and lives until the v1.x file sunset.
- * - absent (pre-#269 legacy links): refused with UnsupportedVersionError
- *   (docs/preset-persistence.md, decision 4); the URL ingress surfaces the
- *   existing invalid-link toast and falls back to init().
+ * There is exactly ONE share codec (compact.ts). Outbound links always encode
+ * the current canonical PresetDocument. Inbound links are read latest-only:
+ * a payload whose `v` equals the current COMPACT_CODEC_VERSION is decoded to a
+ * PresetDocument; every other `v` is refused with UnsupportedVersionError.
+ * That refusal covers older v1.5 knob-space links and pre-#269 versionless
+ * links alike (#373); the share codec no longer carries a legacy decoder, so
+ * pre-#269 links stop resolving. Saved `.dh` files and library kits are
+ * UNAFFECTED - they still migrate v1/v1.5/v2 through the document ladder.
+ *
+ * A refused or corrupt link surfaces the existing invalid-link toast and the
+ * URL ingress falls back to init(), never a crash.
  *
  * This module is imported dynamically by the share and URL-load paths to
  * keep pako out of the main bundle.
@@ -36,7 +38,7 @@ import { decodePreset, validateCompactPreset } from "./decode";
  * @throws {UnknownKitError} If the document's kit id is not in the registry
  */
 function shareableDocumentToUrl(document: PresetDocument): string {
-  // Chain: PresetDocument -> CompactPresetV2 -> JSON -> compressed base64url
+  // Chain: PresetDocument -> CompactPreset -> JSON -> compressed base64url
   const compact = encodeCompactDocument(document);
   return compress(JSON.stringify(compact));
 }
@@ -47,9 +49,11 @@ function shareableDocumentToUrl(document: PresetDocument): string {
  * @param urlParam - The compressed URL-safe string from the ?p= query parameter
  * @returns Validated preset document ready for applyPresetDocument
  * @throws {InvalidFileError} If the payload cannot be decompressed or parsed
- * @throws {UnsupportedVersionError} If the payload's codec version is not
- * 1.5 or 2 (notably pre-#269 versionless links, decision 4)
- * @throws {CorruptFieldError} If a v2 payload fails shape/range validation
+ * @throws {UnsupportedVersionError} If the payload's codec version is not the
+ * single current COMPACT_CODEC_VERSION (older v1.5 links and pre-#269
+ * versionless links are refused, #373)
+ * @throws {CorruptFieldError} If a current-version payload fails shape/range
+ * validation
  * @throws {UnknownKitError} If the kit reference does not resolve
  */
 function urlToDocument(urlParam: string): PresetDocument {
@@ -77,20 +81,13 @@ function urlToDocument(urlParam: string): PresetDocument {
 
   const version = (data as Record<string, unknown>).v;
 
-  if (version === 2) {
-    return decodeCompactDocument(data);
+  // Latest-only: only the single current codec version decodes. Everything
+  // else - older v1.5 links and versionless pre-#269 links - is refused here.
+  if (version !== COMPACT_CODEC_VERSION) {
+    throw new UnsupportedVersionError(version);
   }
 
-  if (version === PRESET_FILE_VERSION) {
-    // The v1.5 knob-space path: compact -> PresetFileV1, then the same
-    // validate -> migrate rung every v1.x file ingress uses.
-    validateCompactPreset(data);
-    const preset = decodePreset(data);
-    return migrateV1ToDocument(validatePresetFileV1(preset));
-  }
-
-  // Versionless pre-#269 links land here and are deliberately refused.
-  throw new UnsupportedVersionError(version);
+  return decodeCompactDocument(data);
 }
 
 export { shareableDocumentToUrl, urlToDocument };
