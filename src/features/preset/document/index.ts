@@ -10,7 +10,13 @@ export {
   presetDocumentSchema,
 } from "./document";
 export type { PresetDocument } from "./document";
-export { decodePresetFileText, decodePresetObject } from "./decode";
+export {
+  decodePresetFileText,
+  decodePresetObject,
+  decodeStoredPresetObject,
+  decodeStoredPresetText,
+} from "./decode";
+export type { StoredDocumentDecodeResult } from "./decode";
 export { encodePresetDocument } from "./encode";
 export {
   CorruptFieldError,

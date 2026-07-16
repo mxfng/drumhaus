@@ -17,10 +17,10 @@ import { z } from "zod";
 
 import {
   CorruptFieldError,
-  decodePresetObject,
+  decodeStoredPresetObject,
   InvalidFileError,
-  PresetDocumentError,
   type PresetDocument,
+  type PresetDocumentError,
 } from "@/features/preset/document";
 
 const SESSION_STORAGE_KEY = "drumhaus-session";
@@ -95,20 +95,19 @@ function readSessionEnvelope(): SessionReadResult {
   // Route the inner document through the version-dispatching ladder, so a
   // v2-era (or any future readable) document migrates rather than reads as
   // corrupt. A genuinely bad document surfaces as a typed error to quarantine.
-  let document: PresetDocument;
-  try {
-    document = decodePresetObject(shell.data.document);
-  } catch (error) {
-    if (error instanceof PresetDocumentError) {
-      return { status: "corrupt", raw, error };
-    }
-    throw error;
+  const decoded = decodeStoredPresetObject(shell.data.document);
+  if (decoded.status === "corrupt") {
+    return { status: "corrupt", raw, error: decoded.error };
   }
 
   return {
     status: "ok",
     raw,
-    envelope: { v: shell.data.v, document, cleanHash: shell.data.cleanHash },
+    envelope: {
+      v: shell.data.v,
+      document: decoded.document,
+      cleanHash: shell.data.cleanHash,
+    },
   };
 }
 

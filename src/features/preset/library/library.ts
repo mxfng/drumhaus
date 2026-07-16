@@ -19,11 +19,10 @@
  */
 
 import {
-  decodePresetObject,
-  InvalidFileError,
-  PresetDocumentError,
+  decodeStoredPresetText,
   presetDocumentSchema,
   type PresetDocument,
+  type StoredDocumentDecodeResult,
 } from "@/features/preset/document";
 import {
   getItemSync,
@@ -81,35 +80,14 @@ function encodeLibraryEntry(document: PresetDocument): string {
   return JSON.stringify(presetDocumentSchema.parse(document));
 }
 
-type LibraryEntryDecodeResult =
-  | { status: "ok"; document: PresetDocument }
-  | { status: "corrupt"; error: PresetDocumentError };
-
 /**
  * Decode one entry payload through the version-dispatching ladder
- * (decodePresetObject), so a v2-era (or any future readable) entry migrates to
- * the current document rather than reading as corrupt. A genuinely bad payload
- * surfaces as a typed error for quarantine (never destroyed).
+ * (decodeStoredPresetText), so a v2-era (or any future readable) entry
+ * migrates to the current document rather than reading as corrupt. A genuinely
+ * bad payload surfaces as a typed error for quarantine (never destroyed).
  */
-function decodeLibraryEntry(raw: string): LibraryEntryDecodeResult {
-  let data: unknown;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    return {
-      status: "corrupt",
-      error: new InvalidFileError("Library entry is not valid JSON"),
-    };
-  }
-
-  try {
-    return { status: "ok", document: decodePresetObject(data) };
-  } catch (error) {
-    if (error instanceof PresetDocumentError) {
-      return { status: "corrupt", error };
-    }
-    throw error;
-  }
+function decodeLibraryEntry(raw: string): StoredDocumentDecodeResult {
+  return decodeStoredPresetText(raw);
 }
 
 // --- Sync internals (boot + adoption) ----------------------------------------
