@@ -25,6 +25,20 @@ export default defineConfig({
         test: {
           name: "browser",
           include: ["src/**/*.browser.test.ts"],
+          // Run browser test FILES serially (issue #363). Every
+          // *.browser.test.ts runs in the one shared chromium browser, and the
+          // offline-render suites (golden, stem, master-level, rebuild,
+          // kit-swap, split-filter) each spin up real-time + OfflineAudioContexts.
+          // Under file parallelism those contexts contend for the browser
+          // process's audio subsystem, and standardized-audio-context can
+          // intermittently fail to resolve a freshly-created node's native
+          // counterpart during generic node wiring (a
+          // "value with the given key could not be found" crash in
+          // connectMasterBusNodes, before any effect value is applied).
+          // Serializing removes that cross-file contention. It is scheduling
+          // only - each file still renders identically, so golden/stem output
+          // stays byte-identical.
+          fileParallelism: false,
           browser: {
             enabled: true,
             headless: true,
