@@ -2,8 +2,8 @@ import type { CSSProperties } from "react";
 
 import { cn } from "@/shared/lib/utils";
 import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
-import { useParamControl } from "../hooks/use-param-control";
 import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
+import { Knob, useKnob } from "../primitives/knob";
 import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
 
 type SliderOrientation = "horizontal" | "vertical";
@@ -43,58 +43,35 @@ type LinearSliderProps<T> = {
   className?: string;
 } & RotaryKnobFutureSeams;
 
-/**
- * The linear (fader) presentation of the descriptor-driven control: the
- * hand-built hardware track and thumb driven by `useParamControl`. The body
- * owns look only (recessed track, raised thumb); all behaviour and the
- * canonical-only contract live in the hook.
- *
- * The resting fader shows no number - the value surfaces in a wrap-around
- * tooltip only while dragging, exactly as the original. The track is drag-only:
- * a press without drag changes nothing. Type-in is a deliberate double-click on
- * the caption label (swaps the word for an input; Enter/blur commits, Esc
- * cancels), and only when the descriptor can `parse`. The drag reads whichever
- * axis the orientation names (up / right increases), always in normalized space,
- * so `dragSensitivity`, fine drag, and detents work identically to the knob.
- * FUTURE seams are declared on the props but intentionally not implemented.
- */
-function LinearSlider<T>({
-  descriptor,
-  value,
-  onChange,
-  onGestureStart,
-  onGestureEnd,
-  disabled = false,
-  label,
-  tabbable = true,
-  id,
-  orientation = "horizontal",
-  length,
-  thickness = 12,
-  thumbSize = 16,
-  hideLabel = false,
-  dragSensitivity = KNOB_DRAG_SENSITIVITY,
-  className,
-  // Declared future seams; not wired yet.
-  modulationRange: _modulationRange,
-  dragMode: _dragMode,
-  onContextMenuRequest: _onContextMenuRequest,
-}: LinearSliderProps<T>) {
-  const control = useParamControl({
-    descriptor,
-    value,
-    onChange,
-    onGestureStart,
-    onGestureEnd,
-    disabled,
-    label,
-    tabbable,
-    id,
-    dragAxis: orientation === "vertical" ? "vertical" : "horizontal",
-    dragThreshold: DRAG_THRESHOLD_PX,
-    dragSensitivity,
-  });
+/** The styling-only props threaded from `LinearSlider` down to its body. */
+type LinearSliderBodyProps = {
+  disabled: boolean;
+  label: string;
+  orientation: SliderOrientation;
+  length?: number;
+  thickness: number;
+  thumbSize: number;
+  hideLabel: boolean;
+  className?: string;
+};
 
+/**
+ * The neumorphic fader skin, composed on the headless `Knob` primitive. Owns
+ * look only (recessed track, raised thumb, on-drag tooltip); all behaviour and
+ * the canonical-only contract live in the primitive, read here through
+ * `useKnob()`.
+ */
+function LinearSliderBody({
+  disabled,
+  label,
+  orientation,
+  length,
+  thickness,
+  thumbSize,
+  hideLabel,
+  className,
+}: LinearSliderBodyProps) {
+  const { control, descriptor } = useKnob();
   const { position } = control;
   const isVertical = orientation === "vertical";
 
@@ -143,9 +120,7 @@ function LinearSlider<T>({
     >
       <Tooltip open={control.isDragging}>
         <TooltipTrigger asChild>
-          <div
-            {...control.handlers}
-            {...control.ariaProps}
+          <Knob.Track
             aria-orientation={orientation}
             aria-labelledby={hideLabel ? undefined : `${control.id}-label`}
             className={cn(
@@ -157,15 +132,15 @@ function LinearSlider<T>({
             style={{ ...trackStyle, touchAction: "none" }}
           >
             {/* Thumb */}
-            <div
+            <Knob.Indicator
               className="bg-surface font-pixel absolute block rounded-full border"
               style={thumbStyle}
               aria-hidden="true"
             />
-          </div>
+          </Knob.Track>
         </TooltipTrigger>
         <TooltipContent side={isVertical ? "right" : "top"}>
-          {control.displayValue}
+          <Knob.Value />
         </TooltipContent>
       </Tooltip>
 
@@ -196,6 +171,72 @@ function LinearSlider<T>({
           </Label>
         ))}
     </div>
+  );
+}
+
+/**
+ * The linear (fader) presentation of the descriptor-driven control: the
+ * hand-built hardware track and thumb driven by the headless `Knob` primitive
+ * (whose engine is `useParamControl`). The body owns look only; all behaviour
+ * and the canonical-only contract live in the primitive.
+ *
+ * The resting fader shows no number - the value surfaces in a wrap-around
+ * tooltip only while dragging, exactly as the original. The track is drag-only:
+ * a press without drag changes nothing. Type-in is a deliberate double-click on
+ * the caption label (swaps the word for an input; Enter/blur commits, Esc
+ * cancels), and only when the descriptor can `parse`. The drag reads whichever
+ * axis the orientation names (up / right increases), always in normalized space,
+ * so `dragSensitivity`, fine drag, and detents work identically to the knob.
+ * FUTURE seams are declared on the props but intentionally not implemented.
+ */
+function LinearSlider<T>({
+  descriptor,
+  value,
+  onChange,
+  onGestureStart,
+  onGestureEnd,
+  disabled = false,
+  label,
+  tabbable = true,
+  id,
+  orientation = "horizontal",
+  length,
+  thickness = 12,
+  thumbSize = 16,
+  hideLabel = false,
+  dragSensitivity = KNOB_DRAG_SENSITIVITY,
+  className,
+  // Declared future seams; not wired yet.
+  modulationRange: _modulationRange,
+  dragMode: _dragMode,
+  onContextMenuRequest: _onContextMenuRequest,
+}: LinearSliderProps<T>) {
+  return (
+    <Knob.Root
+      descriptor={descriptor}
+      value={value}
+      onChange={onChange}
+      onGestureStart={onGestureStart}
+      onGestureEnd={onGestureEnd}
+      disabled={disabled}
+      label={label}
+      tabbable={tabbable}
+      id={id}
+      dragAxis={orientation === "vertical" ? "vertical" : "horizontal"}
+      dragThreshold={DRAG_THRESHOLD_PX}
+      dragSensitivity={dragSensitivity}
+    >
+      <LinearSliderBody
+        disabled={disabled}
+        label={label}
+        orientation={orientation}
+        length={length}
+        thickness={thickness}
+        thumbSize={thumbSize}
+        hideLabel={hideLabel}
+        className={className}
+      />
+    </Knob.Root>
   );
 }
 
