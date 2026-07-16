@@ -214,7 +214,7 @@ describe("stem render: masterTap", () => {
       instruments: [makeInstrument(0, "snare")],
       sampleUrls: [clickUrl],
       bpm: BPM,
-      masterParams: { reverb: 100 },
+      masterParams: { reverb: 1 },
     });
 
     const masterBuffer = await renderWithOptions(fixture(), {
