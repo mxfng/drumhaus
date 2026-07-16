@@ -229,6 +229,10 @@ const transportSwingDescriptor: ParamDescriptor<number> = {
   max: TRANSPORT_SWING_MAX,
   taper: { kind: "linear" },
   default: 0,
+  // Finer than the general knob feel: swing is a precision screen-bar control
+  // you land on exact values with. Mirrors the old ClickableValue swing feel
+  // (finer than bpm), normalized against the canonical range.
+  dragSensitivity: 0.0008,
   format: (swing) => {
     const mpc = 50 + MPC_PER_SWING * swing;
     return `${mpc.toFixed(1).replace(/\.0$/, "")}%`;
@@ -250,6 +254,10 @@ const transportBpmDescriptor: ParamDescriptor<number> = {
   taper: { kind: "linear" },
   default: 120,
   interval: 1,
+  // Finer than the general knob feel: bpm is a precision screen-bar control.
+  // The old ClickableValue moved ~0.3 bpm/px; over the ~260 bpm span that is
+  // ~0.00115 in normalized units per pixel.
+  dragSensitivity: 0.0012,
   unit: "bpm",
   format: (bpm) => `${Math.round(bpm)}`,
   parse: parseNumber,

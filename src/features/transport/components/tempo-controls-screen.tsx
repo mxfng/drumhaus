@@ -36,7 +36,6 @@ function TempoControlsScreen() {
           value={bpm}
           onChange={setBpm}
           label="bpm"
-          dragSensitivity={0.003}
           labelClassName="text-xs"
           valueClassName="inline-block min-w-[3.5ch]"
         />
@@ -45,7 +44,6 @@ function TempoControlsScreen() {
           value={swing}
           onChange={setSwing}
           label="swing"
-          dragSensitivity={0.002}
           labelClassName="text-xs"
           valueClassName="inline-block min-w-[5ch]"
         />
