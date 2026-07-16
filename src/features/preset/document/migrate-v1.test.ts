@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { ZodError } from "zod";
 
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
@@ -20,7 +19,8 @@ import {
   MASTER_VOLUME_RANGE,
   TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
-import { UnknownKitError } from "./errors";
+import { decodePresetFileText } from "./decode";
+import { CorruptFieldError, UnknownKitError } from "./errors";
 import { frozenV1Curves, migrateV1ToDocument } from "./migrate-v1";
 import { GOLDEN_SURFACES } from "./migrate-v1.golden";
 import { parsePresetFileV1, validatePresetFileV1 } from "./parse";
@@ -399,12 +399,42 @@ describe("meta normalization", () => {
 });
 
 describe("schema enforcement", () => {
-  it("fails loudly when the migrated result violates the document schema", () => {
+  it("maps a migration-bug schema violation to a typed CorruptFieldError", () => {
     const raw = rawCurrentFixture();
     const sequencer = raw.sequencer as {
       pattern: { voices: { variations: { velocities: number[] }[] }[] };
     };
     sequencer.pattern.voices[0].variations[0].velocities[0] = 2;
-    expect(() => migrateRaw(raw)).toThrow(ZodError);
+
+    let error: unknown;
+    try {
+      migrateRaw(raw);
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeInstanceOf(CorruptFieldError);
+    expect((error as CorruptFieldError).path).toBe(
+      "pattern.voices.0.variations.0.velocities.0",
+    );
+  });
+
+  it("maps out-of-range user data the tolerant v1 schema let through to a typed CorruptFieldError", () => {
+    // file-v1.ts leaves transport.bpm a bare z.number(), so a hand-edited bpm
+    // outside [40, 300] passes validatePresetFileV1 and only fails the strict
+    // document schema. The boundary must see a CorruptFieldError, not a raw
+    // ZodError (issue #386).
+    const raw = rawCurrentFixture();
+    (raw.transport as Record<string, unknown>).bpm = -5;
+
+    let error: unknown;
+    try {
+      decodePresetFileText(JSON.stringify(raw));
+    } catch (e) {
+      error = e;
+    }
+
+    expect(error).toBeInstanceOf(CorruptFieldError);
+    expect((error as CorruptFieldError).path).toBe("transport.bpm");
   });
 });

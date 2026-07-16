@@ -1,4 +1,5 @@
 import {
+  collectDocumentStrippedKeyPaths,
   PRESET_DOCUMENT_KIND,
   PRESET_DOCUMENT_VERSION,
   presetDocumentSchema,
@@ -14,6 +15,7 @@ import { isReadablePresetFileVersion } from "./migrate";
 import { migrateV1ToDocument } from "./migrate-v1";
 import { migrateV2ToDocument } from "./migrate-v2";
 import { validatePresetFileV1 } from "./parse";
+import { warnStrippedKeyPaths } from "./stripped-keys";
 
 /**
  * Decode raw `.dh` file text into the current (v2.1) preset document.
@@ -85,6 +87,10 @@ function decodePresetObject(data: unknown): PresetDocument {
       const issue = result.error.issues[0];
       throw new CorruptFieldError(issue.path.join("."), issue.message);
     }
+    warnStrippedKeyPaths(
+      "Preset document",
+      collectDocumentStrippedKeyPaths(raw),
+    );
     return result.data;
   }
 

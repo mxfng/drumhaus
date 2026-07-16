@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { collectStrippedKeyPaths as collectSectionStrippedKeyPaths } from "./stripped-keys";
+
 /**
  * Zod schemas for the knob-space .dh preset file format (versions 1 and 1.5;
  * the two versions share one shape, and v1.5 only marks the #269 swing knob
@@ -105,29 +107,33 @@ type PresetFileV1Parsed = z.infer<typeof presetFileV1Schema>;
  * Lists the key paths that z.object stripping will drop from a raw preset,
  * at the envelope and section level only. masterChain keys are data, not
  * schema keys, and are never stripped; instrument/pattern internals pass
- * through loose objects untouched.
+ * through loose objects untouched. Delegates the walk to the neutral shared
+ * helper so the v1 and current-version read paths share one implementation.
  */
 function collectStrippedKeyPaths(raw: Record<string, unknown>): string[] {
-  const stripped: string[] = [];
-
-  const check = (value: unknown, prefix: string, known: string[]) => {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) {
-      return;
-    }
-    for (const key of Object.keys(value)) {
-      if (!known.includes(key)) {
-        stripped.push(prefix ? `${prefix}.${key}` : key);
-      }
-    }
-  };
-
-  check(raw, "", Object.keys(presetFileV1Schema.shape));
-  check(raw.meta, "meta", Object.keys(metaSchema.shape));
-  check(raw.kit, "kit", Object.keys(kitSchema.shape));
-  check(raw.transport, "transport", Object.keys(transportSchema.shape));
-  check(raw.sequencer, "sequencer", Object.keys(sequencerSchema.shape));
-
-  return stripped;
+  return collectSectionStrippedKeyPaths([
+    {
+      value: raw,
+      prefix: "",
+      knownKeys: Object.keys(presetFileV1Schema.shape),
+    },
+    {
+      value: raw.meta,
+      prefix: "meta",
+      knownKeys: Object.keys(metaSchema.shape),
+    },
+    { value: raw.kit, prefix: "kit", knownKeys: Object.keys(kitSchema.shape) },
+    {
+      value: raw.transport,
+      prefix: "transport",
+      knownKeys: Object.keys(transportSchema.shape),
+    },
+    {
+      value: raw.sequencer,
+      prefix: "sequencer",
+      knownKeys: Object.keys(sequencerSchema.shape),
+    },
+  ]);
 }
 
 export { presetFileV1Schema, collectStrippedKeyPaths };

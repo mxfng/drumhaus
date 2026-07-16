@@ -15,12 +15,14 @@
  */
 
 import {
+  collectDocumentStrippedKeyPaths,
   PRESET_DOCUMENT_VERSION,
   presetDocumentSchema,
   type PresetDocument,
 } from "./document";
 import { CorruptFieldError } from "./errors";
 import { frozenSplitFilterPositionToCanonical } from "./frozen-split-filter";
+import { warnStrippedKeyPaths } from "./stripped-keys";
 
 /** Reads a required 0-100 filter position from a raw v2 field. */
 function readFilterPosition(value: unknown, path: string): number {
@@ -74,6 +76,10 @@ function migrateV2ToDocument(raw: unknown): PresetDocument {
     const issue = result.error.issues[0];
     throw new CorruptFieldError(issue.path.join("."), issue.message);
   }
+  warnStrippedKeyPaths(
+    "Preset document",
+    collectDocumentStrippedKeyPaths(candidate),
+  );
   return result.data;
 }
 

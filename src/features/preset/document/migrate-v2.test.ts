@@ -5,7 +5,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { decodePresetFileText } from "./decode";
 import type { PresetDocument } from "./document";
@@ -96,5 +96,34 @@ describe("migrateV2ToDocument", () => {
     expect(document.master.filter).toEqual(
       frozenSplitFilterPositionToCanonical(MASTER_FILTER_POSITION),
     );
+  });
+});
+
+describe("migrateV2ToDocument - strip warning", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("strips an unknown v2 field on migrate and warns naming it", () => {
+    const warnSpy = vi
+      .spyOn(console, "warn")
+      .mockImplementation(() => undefined);
+    const v2 = { ...buildV2Document(), legacyExtra: true };
+
+    const document = migrateV2ToDocument(v2);
+
+    expect("legacyExtra" in document).toBe(false);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(String(warnSpy.mock.calls[0][0])).toContain("legacyExtra");
+  });
+
+  it("does not warn for a clean v2 document", () => {
+    const warnSpy = vi
+      .spyOn(console, "warn")
+      .mockImplementation(() => undefined);
+
+    migrateV2ToDocument(buildV2Document());
+
+    expect(warnSpy).not.toHaveBeenCalled();
   });
 });

@@ -9,6 +9,7 @@ import {
   isReadablePresetFileVersion,
   migratePresetFileVersion,
 } from "./migrate";
+import { warnStrippedKeyPaths } from "./stripped-keys";
 
 /**
  * Parse and validate a preset from raw file text.
@@ -59,12 +60,7 @@ function validatePresetFileV1(data: unknown): PresetFileV1 {
     throw new CorruptFieldError(issue.path.join("."), issue.message);
   }
 
-  const strippedPaths = collectStrippedKeyPaths(raw);
-  if (strippedPaths.length > 0) {
-    console.warn(
-      `Preset file contains unknown fields (stripped): ${strippedPaths.join(", ")}`,
-    );
-  }
+  warnStrippedKeyPaths("Preset file", collectStrippedKeyPaths(raw));
 
   // The schema is intentionally looser than the compile-time type; the
   // migrators invoked by loadPreset normalize the remaining legacy variance.
