@@ -7,6 +7,7 @@ import {
 import {
   CorruptFieldError,
   InvalidFileError,
+  PresetDocumentError,
   UnsupportedVersionError,
 } from "./errors";
 import { isReadablePresetFileVersion } from "./migrate";
@@ -90,4 +91,55 @@ function decodePresetObject(data: unknown): PresetDocument {
   throw new UnsupportedVersionError(raw.version);
 }
 
-export { decodePresetFileText, decodePresetObject };
+/**
+ * The non-throwing decode result for stored-document readers (the session
+ * envelope and library entries), whose corrupt-handling is quarantine, not a
+ * user-facing toast: a readable document decodes (migrating if it is an older
+ * readable version), and any document-level failure comes back as a typed
+ * error for the caller to quarantine.
+ */
+type StoredDocumentDecodeResult =
+  | { status: "ok"; document: PresetDocument }
+  | { status: "corrupt"; error: PresetDocumentError };
+
+/**
+ * Decode an already-parsed stored value through the version-dispatching
+ * ladder without throwing on document-level failures. Non-document errors
+ * (real bugs) still propagate.
+ */
+function decodeStoredPresetObject(data: unknown): StoredDocumentDecodeResult {
+  try {
+    return { status: "ok", document: decodePresetObject(data) };
+  } catch (error) {
+    if (error instanceof PresetDocumentError) {
+      return { status: "corrupt", error };
+    }
+    throw error;
+  }
+}
+
+/**
+ * Decode stored JSON text through the version-dispatching ladder without
+ * throwing on document-level failures; not-JSON reads as a typed corrupt
+ * result like any other unreadable payload.
+ */
+function decodeStoredPresetText(raw: string): StoredDocumentDecodeResult {
+  let data: unknown;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return {
+      status: "corrupt",
+      error: new InvalidFileError("Stored preset is not valid JSON"),
+    };
+  }
+  return decodeStoredPresetObject(data);
+}
+
+export {
+  decodePresetFileText,
+  decodePresetObject,
+  decodeStoredPresetObject,
+  decodeStoredPresetText,
+};
+export type { StoredDocumentDecodeResult };
