@@ -1,10 +1,10 @@
 /**
  * Unit tests for the canonical preset-document hash.
  *
- * The two margins from the canonical-hash module comment are pinned here:
- * the rounding must absorb apply -> snapshot knob<->domain float noise
- * (hash-stable round trips for every era fixture), while never swallowing a
- * real edit (a 0.1 knob step on the flattest mapping in the app, master
+ * The apply -> snapshot round trip is a bit-exact identity (stores hold
+ * canonical units, JSON preserves doubles), so the hash is stable across the
+ * round trip for every era fixture. The smallest-real-edit guard is still
+ * pinned here (a 0.1 knob step on the flattest mapping in the app, master
  * compAttack at the bottom of its exponential curve, must change the hash).
  *
  * The engine module is mocked so the store-backed round-trip tests run in
@@ -113,15 +113,6 @@ describe("hashPresetDocument", () => {
     expect(hashPresetDocument(renamed)).not.toBe(hashPresetDocument(document));
   });
 
-  it("is insensitive to float noise below the canonical rounding", () => {
-    const document = migrateFixture("v1-current.json");
-    const noisy = structuredClone(document);
-    noisy.channels[0].decaySeconds += 1e-12;
-    noisy.transport.bpm += 1e-12;
-
-    expect(hashPresetDocument(noisy)).toBe(hashPresetDocument(document));
-  });
-
   it("is insensitive to object key construction order", () => {
     const document = migrateFixture("v1-current.json");
     const reordered = {
@@ -139,7 +130,8 @@ describe("hashPresetDocument", () => {
     // Master compAttack has the smallest domain delta per knob step in the
     // app: exponential over 0.001..0.1 s, so a 0.1 knob step at the flat end
     // (0.001 s) moves the canonical value by (0.1/100)^2 * 0.099 s ~= 9.9e-8 s.
-    // That is still two orders of magnitude above the 1e-9 canonical resolution.
+    // The hash is bit-exact, so any nonzero edit changes it; this guard pins
+    // that the smallest musical edit still round-trips as a real difference.
     applyPresetDocument(migrateFixture("v1-current.json"));
 
     useMasterChainStore.getState().setCompAttack(0.001);

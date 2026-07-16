@@ -42,9 +42,10 @@ function setTransportBpm(bpm: number): void {
 }
 
 /**
- * Set the live transport swing in domain units (Tone swing, clamped by the
- * engine to 0-TRANSPORT_SWING_MAX), preserving the current bpm. Knob-value conversion happens at the
- * boundary in bridge/knob-to-domain.ts (transportSwingKnobToDomain).
+ * Set the live transport swing in canonical units (Tone swing, clamped by the
+ * engine to 0-TRANSPORT_SWING_MAX), preserving the current bpm. The transport
+ * store already holds the canonical Tone swing, so the bridge forwards it
+ * directly with no knob conversion.
  */
 function setTransportSwing(swing: number): void {
   configureTransportTiming(liveTransport, liveTransport.bpm.value, swing);

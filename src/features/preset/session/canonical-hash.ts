@@ -5,24 +5,19 @@
  * persists": dirty tracking becomes a persisted content hash of the last
  * clean document).
  *
- * Two stability traps shape the canonical form:
+ * Two stability concerns shape the canonical form:
  *
- * 1. Float noise. After applyPresetDocument, a fresh snapshotPresetDocument
- *    differs from the applied document by knob<->domain round-trip noise:
- *    the apply path crosses domain -> knob (live inverses in
- *    domain-to-knob.ts) and the snapshot path crosses knob -> domain (the
- *    frozen v1 curves, identical to the live curves today), leaving pure
- *    float-arithmetic error of ~1e-12 absolute on these magnitudes. Every
- *    number is therefore rounded to 9 decimal places before hashing.
- *    Derivation of the 9: the noise floor sits around 1e-12, three orders
- *    below the 5e-10 rounding threshold, while the smallest real edit - a
- *    0.1 knob step on the flattest mapping in the app, master compAttack at
- *    the bottom of its exponential curve - moves the domain value by
- *    (0.1/100)^2 * 0.099 s ~= 9.9e-8 s, two orders above it. (Coarser
- *    mappings move by >1e-5 per knob step.) Both margins are pinned in
- *    canonical-hash.test.ts.
+ * 1. No float floor is needed. The stores hold canonical units, so
+ *    applyPresetDocument writes the document's numbers directly and
+ *    snapshotPresetDocument reads them back unchanged (field renames only, no
+ *    arithmetic); JSON preserves IEEE-754 doubles exactly. The
+ *    apply -> snapshot round trip is therefore a bit-exact identity, and the
+ *    hash can compare raw numbers - the old 9-decimal rounding that absorbed
+ *    knob<->domain round-trip noise is obsolete and gone. The
+ *    smallest-real-edit margin is still pinned in canonical-hash.test.ts as a
+ *    guard.
  *
- * 2. Timestamps. getCurrentPreset mints a fresh meta.updatedAt on every
+ * 2. Timestamps. snapshotPresetDocument mints a fresh meta.updatedAt on every
  *    call, so two snapshots of identical musical state differ only there;
  *    the canonical form excludes meta.updatedAt, mirroring what the old
  *    JSON-comparing hasUnsavedChanges stripped for the same reason.
@@ -39,20 +34,8 @@
 
 import type { PresetDocument } from "@/features/preset/document";
 
-/** See the module comment for the derivation of this precision. */
-const CANONICAL_DECIMALS = 9;
-const CANONICAL_SCALE = 10 ** CANONICAL_DECIMALS;
-
-function canonicalizeNumber(value: number): number {
-  // The document schema forbids non-finite numbers; pass them through
-  // rather than crash if one ever leaks in (JSON spells them "null").
-  if (!Number.isFinite(value)) return value;
-  return Math.round(value * CANONICAL_SCALE) / CANONICAL_SCALE;
-}
-
-/** Round every number and sort every key, recursively. */
+/** Sort every key, recursively; numbers pass through bit-exact (see above). */
 function canonicalize(value: unknown): unknown {
-  if (typeof value === "number") return canonicalizeNumber(value);
   if (Array.isArray(value)) return value.map(canonicalize);
   if (value !== null && typeof value === "object") {
     const source = value as Record<string, unknown>;

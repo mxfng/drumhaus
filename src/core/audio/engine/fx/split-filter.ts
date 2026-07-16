@@ -12,8 +12,9 @@ import {
  *
  * The split filter is a canonical `{ side, cutoffHz }` value
  * (docs/data-representation.md, Principle P2): the engine consumes DERIVED
- * node frequencies and holds no UI encoding. The 0-100 position curve is a
- * widget concern and lives in src/shared/knob/lib/transform.ts.
+ * node frequencies and holds no UI encoding. The normalized position curve is
+ * a widget concern and lives in the split-filter descriptor
+ * (src/shared/param-control/descriptors/filter.ts).
  *
  * Two dedicated Tone `Filter` nodes (a low-pass and a high-pass in series)
  * implement the single-knob split so switching sides never re-types a live

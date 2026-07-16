@@ -9,6 +9,8 @@
  * engine itself never imports from features.
  */
 
+import { STEP_COUNT } from "./constants";
+
 // -----------------------------------------------------------------------------
 // Pattern types
 // -----------------------------------------------------------------------------
@@ -123,6 +125,49 @@ type PatternChain = {
 };
 
 // -----------------------------------------------------------------------------
+// Pattern factory (pure)
+// -----------------------------------------------------------------------------
+
+/**
+ * Build an empty pattern: all triggers off, velocities at 1.0, no accents,
+ * across 8 voices and 4 variations. Lives here in the engine's data model (not
+ * in features) so both the store/UI and the engine's own tests can construct
+ * one without the engine ever reaching into features.
+ */
+function createEmptyPattern(): Pattern {
+  const emptyVariation = (): StepSequence => ({
+    triggers: Array.from({ length: STEP_COUNT }, () => false),
+    velocities: Array.from({ length: STEP_COUNT }, () => 1),
+    timingNudge: 0,
+    ratchets: Array.from({ length: STEP_COUNT }, () => false),
+    flams: Array.from({ length: STEP_COUNT }, () => false),
+  });
+  const emptyAccent = (): VariationMetadata => ({
+    accent: Array.from({ length: STEP_COUNT }, () => false),
+  });
+
+  const voices: Voice[] = Array.from({ length: 8 }, (_, instrumentIndex) => ({
+    instrumentIndex,
+    variations: [
+      emptyVariation(),
+      emptyVariation(),
+      emptyVariation(),
+      emptyVariation(),
+    ],
+  }));
+
+  return {
+    voices,
+    variationMetadata: [
+      emptyAccent(),
+      emptyAccent(),
+      emptyAccent(),
+      emptyAccent(),
+    ],
+  };
+}
+
+// -----------------------------------------------------------------------------
 // Chain helpers (pure)
 // -----------------------------------------------------------------------------
 
@@ -197,6 +242,7 @@ function nudgeToBeatOffset(nudge: TimingNudge): number {
 }
 
 export {
+  createEmptyPattern,
   MIN_CHAIN_REPEAT,
   MAX_CHAIN_REPEAT,
   MAX_CHAIN_STEPS,

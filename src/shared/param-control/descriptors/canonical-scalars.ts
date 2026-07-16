@@ -1,11 +1,11 @@
 /**
- * Canonical-unit descriptors for the scalar parameters, ported from the
- * existing knob mappings (src/shared/knob/lib/mapping.ts). Each speaks the
+ * Canonical-unit descriptors for the scalar parameters. Each speaks the
  * canonical unit the app stores and the engine hears: seconds, dB, a -1..1 pan,
  * semitone offset, 0..1 macro fractions, and the Tone swing fraction.
  *
- * These live ALONGSIDE the legacy mappings; nothing here is wired into the app
- * yet (that is a later PR). They are `ParamDescriptor<number>`.
+ * These are the LIVE descriptors the controls render from post-flip (the old
+ * src/shared/knob 0-100 mappings they were ported from have been removed).
+ * They are `ParamDescriptor<number>`.
  */
 
 import {

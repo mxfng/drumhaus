@@ -6,8 +6,9 @@
  * state snapshots in via a narrow command API in domain units; the scheduler
  * reads engine-owned copies only. Nothing here (or anywhere under engine/)
  * imports React, Zustand, or anything from features/ or shared/ - store
- * wiring and knob-to-domain mapping happen at the boundary in
- * core/audio/bridge and core/audio/hooks.
+ * wiring happens at the boundary in core/audio/bridge and core/audio/hooks.
+ * The stores already hold canonical units, so the boundary forwards them
+ * without any knob mapping.
  *
  * Events flow the other way: playback-variation changes and kit loads are
  * emitted to listeners so the UI can mirror engine state.

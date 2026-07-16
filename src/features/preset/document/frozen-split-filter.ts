@@ -3,13 +3,14 @@
  *
  * FROZEN-CURVE CONTRACT: this is the PERMANENT interpretation of a 0-100
  * split-filter position as a canonical `{ side, cutoffHz }` value. It
- * intentionally duplicates the widget's live curve
- * (src/shared/knob/lib/transform.ts) as of the moment the filter became
- * canonical, and it must NEVER be re-pointed at that module or edited to
- * track it. The widget curve is UI-owned and may be retuned; when it is,
- * that retune is a pure control concern, and old positions - both v1/v1.5
- * knob values (migrate-v1.ts) and v2 documents whose filter was still a
- * position (migrate-v2.ts) - must keep converting with the curve their
+ * intentionally duplicates the widget's live curve as of the moment the filter
+ * became canonical (that curve now lives in the param-control filter
+ * descriptor, src/shared/param-control/descriptors/filter.ts; the canonical
+ * flip retired the old src/shared/knob module). It must NEVER be re-pointed at
+ * the live curve or edited to track it. The widget curve is UI-owned and may be
+ * retuned; when it is, that retune is a pure control concern, and old positions
+ * - both v1/v1.5 knob values (migrate-v1.ts) and v2 documents whose filter was
+ * still a position (migrate-v2.ts) - must keep converting with the curve their
  * authors heard, which is exactly what this block preserves.
  *
  * A parity test (frozen-split-filter.test.ts) asserts frozen === live today;

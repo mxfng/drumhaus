@@ -3,8 +3,9 @@
  *
  * Cohesive class owning the master bus graph: parallel compression, split
  * filter, phaser/reverb sends, saturation, EQ, and output limiting.
- * All methods take MasterChainSettings (domain values); knob-value mapping
- * happens at the boundary in bridge/knob-to-domain.ts.
+ * All methods take MasterChainSettings in canonical units; the stores already
+ * hold canonical values, so the bridge (core/audio/bridge) forwards them
+ * directly with no knob mapping.
  */
 
 import {

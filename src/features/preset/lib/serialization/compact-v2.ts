@@ -74,9 +74,10 @@ const CHANNEL_COUNT = 8;
  *   grid step at the floor: err <= 100 * sqrt(q / span).
  *
  * The split filter is carried as a `[sideCode, cutoffHz]` pair (sideCode
- * 0 = lowpass, 1 = highpass); its store position is recovered downstream by
- * splitFilterToPosition (position = 49 * sqrt(cutoffHz / 15000) per side).
- * That inverse is steepest at the cutoff floor, so like the exponential
+ * 0 = lowpass, 1 = highpass); its widget position is recovered downstream by
+ * the filter descriptor's filterToPosition (position = 49 * sqrt(cutoffHz /
+ * 15000) per side). That inverse is steepest at the cutoff floor, so like the
+ * exponential
  * fields the bound is worst at cutoffHz -> 0: err <= 49 * sqrt(q / 15000);
  * p = 3 keeps it at ~0.013 knob units, well under 0.05.
  *

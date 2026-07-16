@@ -42,7 +42,7 @@ interface ContinuousRuntimeParams {
  * knob tweaks during playback apply to the next trigger.
  */
 interface ChannelPlayParams {
-  /** Playback pitch (frequency, as produced by tuneMapping.knobToDomain) */
+  /** Playback pitch (frequency, derived from the channel's canonical tune in semitones) */
   pitch: number;
   /** Envelope decay time in seconds */
   decaySeconds: number;

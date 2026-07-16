@@ -3,8 +3,9 @@
  *
  * Cohesive class owning one instrument's audio graph:
  * sampler -> envelope -> lowpass -> highpass -> panner.
- * All methods take domain values (Hz, dB, seconds, playback pitch);
- * knob-value mapping happens at the boundary in bridge/knob-to-domain.ts.
+ * All methods take canonical values (Hz, dB, seconds, playback pitch); the
+ * stores already hold canonical units, so the bridge (core/audio/bridge)
+ * forwards them directly with no knob mapping.
  */
 
 import {
