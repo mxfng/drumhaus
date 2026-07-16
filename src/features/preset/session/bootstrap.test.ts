@@ -15,6 +15,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
 import { type PresetDocument } from "@/features/preset/document";
+import { frozenSplitFilterPositionToCanonical } from "@/features/preset/document/frozen-split-filter";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { hashPresetDocument } from "./canonical-hash";
 
@@ -119,6 +120,29 @@ function autosaveNow(ctx: BootContext): void {
 
 function initDocument(): PresetDocument {
   return init();
+}
+
+/** Distinct v2 filter positions per channel, mirroring migrate-v2.test.ts. */
+const V2_CHANNEL_FILTER_POSITIONS = [0, 20, 49, 50, 51, 80, 100, 35];
+const V2_MASTER_FILTER_POSITION = 65;
+
+/**
+ * A version-2 document (the first domain document, whose split filter was
+ * still a 0-100 position), built by downgrading init() to the v2 shape.
+ * Mirrors migrate-v2.test.ts's buildV2Document helper.
+ */
+function buildV2Document(): Record<string, unknown> {
+  const v21 = init();
+  const channels = v21.channels.map((channel, index) => ({
+    ...channel,
+    filter: V2_CHANNEL_FILTER_POSITIONS[index],
+  }));
+  return {
+    ...v21,
+    version: 2,
+    channels,
+    master: { ...v21.master, filter: V2_MASTER_FILTER_POSITION },
+  };
 }
 
 function sessionEnvelopeJson(
@@ -250,6 +274,32 @@ describe("bootstrapSession: session restore", () => {
     expect(ctx.useTransportStore.getState().bpm).toBe(140);
     expect(ctx.usePresetMetaStore.getState().hasUnsavedChanges()).toBe(true);
   });
+
+  it("restores and migrates a session envelope wrapping a v2 document", async () => {
+    // A drumhaus-session written by the v2-era build (between #353 and the 2.1
+    // flip in #366): the envelope embeds a version-2 document. It must migrate
+    // through decodePresetObject, not read as corrupt (issue #382).
+    const envelope = JSON.stringify({
+      v: 1,
+      document: buildV2Document(),
+      cleanHash: null,
+    });
+
+    const ctx = await boot(createMemoryStorage({ [SESSION_KEY]: envelope }));
+
+    // Restored, not quarantined: the session key is intact and nothing landed
+    // in the quarantine key.
+    expect(ctx.storage.map.has(QUARANTINE_KEY)).toBe(false);
+    expect(ctx.storage.map.get(SESSION_KEY)).toBe(envelope);
+
+    // The master 0-100 split-filter position migrated to canonical units.
+    const canonical = frozenSplitFilterPositionToCanonical(
+      V2_MASTER_FILTER_POSITION,
+    );
+    const master = ctx.useMasterChainStore.getState();
+    expect(master.filter.side).toBe(canonical.side);
+    expect(master.filter.cutoffHz).toBeCloseTo(canonical.cutoffHz, 6);
+  });
 });
 
 describe("bootstrapSession: corrupt session", () => {
@@ -299,6 +349,28 @@ describe("bootstrapSession: corrupt session", () => {
 
     expect(ctx.storage.map.get(QUARANTINE_KEY)).toBe(invalidEnvelope);
     expect(ctx.useTransportStore.getState().bpm).toBe(init().transport.bpm);
+    consoleError.mockRestore();
+  });
+
+  it("quarantines a session whose document version the ladder cannot read", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    // The envelope shell is well-formed, but the document version is outside
+    // the readable range: the ladder refuses it (UnsupportedVersionError) and
+    // the session quarantines rather than silently mis-reading it.
+    const badVersion = JSON.stringify({
+      v: 1,
+      document: { ...init(), version: 99 },
+      cleanHash: null,
+    });
+
+    const ctx = await boot(createMemoryStorage({ [SESSION_KEY]: badVersion }));
+
+    expect(ctx.storage.map.get(QUARANTINE_KEY)).toBe(badVersion);
+    expect(ctx.storage.map.has(SESSION_KEY)).toBe(false);
+    expect(ctx.useTransportStore.getState().bpm).toBe(init().transport.bpm);
+    expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 

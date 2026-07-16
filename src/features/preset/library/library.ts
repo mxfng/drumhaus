@@ -19,11 +19,11 @@
  */
 
 import {
-  CorruptFieldError,
+  decodePresetObject,
   InvalidFileError,
+  PresetDocumentError,
   presetDocumentSchema,
   type PresetDocument,
-  type PresetDocumentError,
 } from "@/features/preset/document";
 import {
   getItemSync,
@@ -85,7 +85,12 @@ type LibraryEntryDecodeResult =
   | { status: "ok"; document: PresetDocument }
   | { status: "corrupt"; error: PresetDocumentError };
 
-/** Decode one entry payload through the standard document schema. */
+/**
+ * Decode one entry payload through the version-dispatching ladder
+ * (decodePresetObject), so a v2-era (or any future readable) entry migrates to
+ * the current document rather than reading as corrupt. A genuinely bad payload
+ * surfaces as a typed error for quarantine (never destroyed).
+ */
 function decodeLibraryEntry(raw: string): LibraryEntryDecodeResult {
   let data: unknown;
   try {
@@ -97,16 +102,14 @@ function decodeLibraryEntry(raw: string): LibraryEntryDecodeResult {
     };
   }
 
-  const result = presetDocumentSchema.safeParse(data);
-  if (!result.success) {
-    const issue = result.error.issues[0];
-    return {
-      status: "corrupt",
-      error: new CorruptFieldError(issue.path.join("."), issue.message),
-    };
+  try {
+    return { status: "ok", document: decodePresetObject(data) };
+  } catch (error) {
+    if (error instanceof PresetDocumentError) {
+      return { status: "corrupt", error };
+    }
+    throw error;
   }
-
-  return { status: "ok", document: result.data };
 }
 
 // --- Sync internals (boot + adoption) ----------------------------------------

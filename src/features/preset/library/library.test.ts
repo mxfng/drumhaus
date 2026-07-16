@@ -15,8 +15,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { init } from "@/core/dh";
 import {
   StorageFullError,
+  UnsupportedVersionError,
   type PresetDocument,
 } from "@/features/preset/document";
+import { frozenSplitFilterPositionToCanonical } from "@/features/preset/document/frozen-split-filter";
 import {
   decodeLibraryEntry,
   hydrateLibrarySync,
@@ -74,6 +76,29 @@ function createMemoryStorage(seed: Record<string, string> = {}): MemoryStorage {
 function makeDocument(id: string, name: string): PresetDocument {
   const document = init();
   return { ...document, meta: { ...document.meta, id, name } };
+}
+
+/** Distinct v2 filter positions per channel, mirroring migrate-v2.test.ts. */
+const V2_CHANNEL_FILTER_POSITIONS = [0, 20, 49, 50, 51, 80, 100, 35];
+const V2_MASTER_FILTER_POSITION = 65;
+
+/**
+ * A version-2 document (the first domain document, whose split filter was
+ * still a 0-100 position), built by downgrading a current document to the v2
+ * shape. Mirrors migrate-v2.test.ts's buildV2Document helper.
+ */
+function buildV2Document(id: string, name: string): Record<string, unknown> {
+  const v21 = makeDocument(id, name);
+  const channels = v21.channels.map((channel, index) => ({
+    ...channel,
+    filter: V2_CHANNEL_FILTER_POSITIONS[index],
+  }));
+  return {
+    ...v21,
+    version: 2,
+    channels,
+    master: { ...v21.master, filter: V2_MASTER_FILTER_POSITION },
+  };
 }
 
 /** The index rows implied by a set of documents, in the given order. */
@@ -221,6 +246,42 @@ describe("corrupt-entry quarantine", () => {
     expect(storage.map.has(libraryQuarantineKey("wrong"))).toBe(true);
     expect(storage.map.has(libraryEntryKey("wrong"))).toBe(false);
     expect(consoleError).toHaveBeenCalled();
+  });
+
+  it("still reports a genuinely unreadable entry as a typed corrupt error", () => {
+    // An entry version outside the readable range is refused by the ladder;
+    // decodeLibraryEntry surfaces the typed error so hydrate quarantines it.
+    const result = decodeLibraryEntry(
+      JSON.stringify({ kind: "drumhaus.preset", version: 99 }),
+    );
+
+    expect(result.status).toBe("corrupt");
+    if (result.status === "corrupt") {
+      expect(result.error).toBeInstanceOf(UnsupportedVersionError);
+    }
+  });
+});
+
+describe("v2 entry migration on hydrate", () => {
+  it("hydrates and migrates a library entry holding a v2 document", () => {
+    // A drumhaus-preset-<id> entry written by the v2-era build embeds a
+    // version-2 document (split filter as a 0-100 position). It must migrate
+    // through decodePresetObject on hydrate, not read as corrupt (issue #382).
+    const v2Document = buildV2Document("v2-preset", "V2 Preset");
+    storage.map.set(libraryEntryKey("v2-preset"), JSON.stringify(v2Document));
+    writeLibraryIndexSync([{ id: "v2-preset", name: "V2 Preset" }]);
+
+    const listed = hydrateLibrarySync();
+
+    // Migrated to the current version, not quarantined.
+    expect(listed).toHaveLength(1);
+    expect(listed[0].version).toBe(2.1);
+    expect(listed[0].meta.id).toBe("v2-preset");
+    expect(listed[0].master.filter).toEqual(
+      frozenSplitFilterPositionToCanonical(V2_MASTER_FILTER_POSITION),
+    );
+    expect(storage.map.has(libraryQuarantineKey("v2-preset"))).toBe(false);
+    expect(storage.map.has(libraryEntryKey("v2-preset"))).toBe(true);
   });
 });
 

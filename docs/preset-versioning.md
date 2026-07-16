@@ -66,6 +66,8 @@ The order is deliberate: the schema is the source of truth, so it moves first; r
    If the change reinterprets any value that a frozen curve owns, freeze the old interpretation in a new `frozen-*` module and NEVER repoint a live one (the frozen-curve contract in `migrate-v1.ts` and `frozen-split-filter.ts`).
 3. `document/decode.ts`: add the new version to the dispatch ladder.
    Route the previous current version through its new migration BEFORE the strict parse (mirror how `2` is routed ahead of the `2.1` strict parse), keep the strict-parse rung on `PRESET_DOCUMENT_VERSION`, and update the `UnsupportedVersionError` docstrings.
+   The stored-document readers inherit this ladder and need NO per-version edit: `session/session-storage.ts` (`readSessionEnvelope` parses the envelope shell strictly, then routes the inner document through `decodePresetObject`), `library/library.ts` (`decodeLibraryEntry` routes each entry payload through `decodePresetObject`), and `library/adoption.ts` (legacy-array adoption).
+   Their one hard rule is the inverse of a per-version edit: they must NEVER re-pin `presetDocumentSchema` on the stored document, or a v2-era and every future-version session and library entry would quarantine instead of migrate (the #382 regression); the envelope shell stays strict but its `document` stays `z.unknown()` routed through the ladder.
 4. `document/snapshot.ts` and `document/encode.ts`: verify egress.
    Both already follow `PRESET_DOCUMENT_VERSION`, so no version edit is needed, but confirm `snapshot` maps every added or renamed field.
 5. `lib/serialization/compact.ts` and `serialization/index.ts`: reconcile the single share codec.

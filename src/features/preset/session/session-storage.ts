@@ -4,8 +4,10 @@
  * persists"): a versioned envelope carrying the current preset document
  * plus the clean-content hash for reload-stable dirty tracking.
  *
- * Reads decode the document through the same presetDocumentSchema every
- * other ingress uses, so a corrupt session fails typed instead of partially
+ * Reads parse only the envelope shell strictly, then route the inner
+ * document through decodePresetObject, the same version-dispatching ladder
+ * every other document ingress uses, so a v2-era session migrates instead of
+ * quarantining and a corrupt session fails typed instead of partially
  * rehydrating. All storage access is guarded like recovery-stats.ts:
  * private-browsing/storage-denied modes degrade to a no-op rather than
  * break boot or autosave.
@@ -15,10 +17,10 @@ import { z } from "zod";
 
 import {
   CorruptFieldError,
+  decodePresetObject,
   InvalidFileError,
-  presetDocumentSchema,
+  PresetDocumentError,
   type PresetDocument,
-  type PresetDocumentError,
 } from "@/features/preset/document";
 
 const SESSION_STORAGE_KEY = "drumhaus-session";
@@ -29,15 +31,26 @@ const SESSION_STORAGE_KEY = "drumhaus-session";
 const SESSION_QUARANTINE_KEY = "drumhaus-session-quarantine";
 const SESSION_ENVELOPE_VERSION = 1;
 
-const sessionEnvelopeSchema = z.object({
+/**
+ * The envelope SHELL only: `v`, `cleanHash`, and an opaque `document`. The
+ * document is left as `z.unknown()` here so it can be routed through the
+ * version-dispatching ladder (decodePresetObject) rather than pinned to the
+ * strict current-version schema, which would orphan v2-era and future-version
+ * documents.
+ */
+const sessionEnvelopeShellSchema = z.object({
   v: z.literal(SESSION_ENVELOPE_VERSION),
-  document: presetDocumentSchema,
+  document: z.unknown(),
   // null only if the session was written before any clean baseline existed;
   // restoring null keeps hasUnsavedChanges() quiet, like today.
   cleanHash: z.string().nullable(),
 });
 
-type SessionEnvelope = z.infer<typeof sessionEnvelopeSchema>;
+interface SessionEnvelope {
+  v: typeof SESSION_ENVELOPE_VERSION;
+  document: PresetDocument;
+  cleanHash: string | null;
+}
 
 type SessionReadResult =
   | { status: "missing" }
@@ -69,9 +82,9 @@ function readSessionEnvelope(): SessionReadResult {
     };
   }
 
-  const result = sessionEnvelopeSchema.safeParse(data);
-  if (!result.success) {
-    const issue = result.error.issues[0];
+  const shell = sessionEnvelopeShellSchema.safeParse(data);
+  if (!shell.success) {
+    const issue = shell.error.issues[0];
     return {
       status: "corrupt",
       raw,
@@ -79,7 +92,24 @@ function readSessionEnvelope(): SessionReadResult {
     };
   }
 
-  return { status: "ok", raw, envelope: result.data };
+  // Route the inner document through the version-dispatching ladder, so a
+  // v2-era (or any future readable) document migrates rather than reads as
+  // corrupt. A genuinely bad document surfaces as a typed error to quarantine.
+  let document: PresetDocument;
+  try {
+    document = decodePresetObject(shell.data.document);
+  } catch (error) {
+    if (error instanceof PresetDocumentError) {
+      return { status: "corrupt", raw, error };
+    }
+    throw error;
+  }
+
+  return {
+    status: "ok",
+    raw,
+    envelope: { v: shell.data.v, document, cleanHash: shell.data.cleanHash },
+  };
 }
 
 /**
