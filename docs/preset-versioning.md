@@ -23,21 +23,21 @@ The rest of this doc is about namespaces 1 and 2.
 
 Document versions (the `version` field of a `.dh` file / `PresetDocument`):
 
-| version | shape | readable | writable | notes |
-|---------|-------|----------|----------|-------|
-| 1 | knob-space file (0-100 positions) | yes | no | legacy `.dh`; migrates 1 -> 1.5 swing on read (`migrate.ts`), then 1.x -> 2.1 (`migrate-v1.ts`) |
-| 1.5 | knob-space file | yes | no | #269 swing retune; identical shape to v1 |
-| 2 | first domain document | yes | no | domain-space except the split filter, still a 0-100 position; migrates 2 -> 2.1 (`migrate-v2.ts`) |
-| 2.1 | canonical domain document | yes | yes | current; split filter is canonical `{ side, cutoffHz }`; the only writable version |
-| anything else | - | no | no | hard-refused with `UnsupportedVersionError` (decision 2) |
+| version       | shape                             | readable | writable | notes                                                                                             |
+| ------------- | --------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
+| 1             | knob-space file (0-100 positions) | yes      | no       | legacy `.dh`; migrates 1 -> 1.5 swing on read (`migrate.ts`), then 1.x -> 2.1 (`migrate-v1.ts`)   |
+| 1.5           | knob-space file                   | yes      | no       | #269 swing retune; identical shape to v1                                                          |
+| 2             | first domain document             | yes      | no       | domain-space except the split filter, still a 0-100 position; migrates 2 -> 2.1 (`migrate-v2.ts`) |
+| 2.1           | canonical domain document         | yes      | yes      | current; split filter is canonical `{ side, cutoffHz }`; the only writable version                |
+| anything else | -                                 | no       | no       | hard-refused with `UnsupportedVersionError` (decision 2)                                          |
 
 Compact share-codec versions (the `v` field of a `?p=` payload; a separate namespace):
 
-| `v` | codec | readable | written | notes |
-|-----|-------|----------|---------|-------|
-| absent | pre-#269 versionless | no | no | refused with `UnsupportedVersionError` (decision 4) |
-| 1.5 | knob-space compact (`compact.ts`) | yes | no | decodes via `validatePresetFileV1` + `migrateV1ToDocument`, same ladder as v1.x file imports |
-| 2 | v2 document compact (`compact-v2.ts`) | yes | yes | the only outbound codec; carries a canonical (v2.1) payload despite the `v: 2` label (see Findings) |
+| `v`    | codec                                 | readable | written | notes                                                                                               |
+| ------ | ------------------------------------- | -------- | ------- | --------------------------------------------------------------------------------------------------- |
+| absent | pre-#269 versionless                  | no       | no      | refused with `UnsupportedVersionError` (decision 4)                                                 |
+| 1.5    | knob-space compact (`compact.ts`)     | yes      | no      | decodes via `validatePresetFileV1` + `migrateV1ToDocument`, same ladder as v1.x file imports        |
+| 2      | v2 document compact (`compact-v2.ts`) | yes      | yes     | the only outbound codec; carries a canonical (v2.1) payload despite the `v: 2` label (see Findings) |
 
 The rule in one line: every document version is readable and only the highest (`2.1`) is writable; egress never downgrades.
 
