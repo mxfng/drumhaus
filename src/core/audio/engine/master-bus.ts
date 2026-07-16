@@ -3,8 +3,9 @@
  *
  * Cohesive class owning the master bus graph: parallel compression, split
  * filter, phaser/reverb sends, saturation, EQ, and output limiting.
- * All methods take MasterChainSettings (domain values); knob-value mapping
- * happens at the boundary in bridge/knob-to-domain.ts.
+ * All methods take MasterChainSettings in canonical units; the stores already
+ * hold canonical values, so the bridge (core/audio/bridge) forwards them
+ * directly with no knob mapping.
  */
 
 import {
@@ -48,8 +49,9 @@ import {
 } from "./fx/split-filter";
 
 /**
- * Master chain settings in domain values, ready to apply to audio nodes.
- * The knob-level MasterChainParams shape lives in bridge/knob-to-domain.ts.
+ * Master chain settings in canonical/engine values, ready to apply to audio
+ * nodes. The canonical MasterChainCanonical shape lives in
+ * bridge/engine-params.ts.
  */
 type MasterChainSettings = {
   // Split filter settings (single filter that switches type, same as instrument filter)

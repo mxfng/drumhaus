@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-4",
     "name": "Studio",
@@ -23,11 +22,14 @@
         "path": "9/kick_puffy.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 96,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 2,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "9/tom_clonk.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 88,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -2,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "9/snare_together.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 98,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 3,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "9/clap_hectic.wav"
       },
       "params": {
-        "decay": 43,
-        "filter": 50,
-        "volume": 76,
-        "pan": 37,
-        "tune": 50,
+        "decay": 0.9285754999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -8,
+        "pan": -0.26,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "9/hat_crisp.wav"
       },
       "params": {
-        "decay": 29,
-        "filter": 50,
-        "volume": 84,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.4250795,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -4,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "9/ohat_thick.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 80,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -6,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "9/perc_jungle.wav"
       },
       "params": {
-        "decay": 54,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.4615420000000001,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "9/crash_legend.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 78,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -7,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

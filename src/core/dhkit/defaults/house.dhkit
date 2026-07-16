@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-8",
     "name": "House",
@@ -23,11 +22,14 @@
         "path": "2/paris_kick.wav"
       },
       "params": {
-        "decay": 49,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.2042994999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "2/paris_bass.wav"
       },
       "params": {
-        "decay": 63,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.9875155,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "2/paris_snare.wav"
       },
       "params": {
-        "decay": 42,
-        "filter": 54,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.8861179999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 99.95835068721368
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "2/paris_clap.wav"
       },
       "params": {
-        "decay": 40,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.8042000000000001,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "2/paris_hat.wav"
       },
       "params": {
-        "decay": 43,
-        "filter": 50,
-        "volume": 86,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.9285754999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -3,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "2/paris_ohat.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 90,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -1,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "2/paris_p_E.wav"
       },
       "params": {
-        "decay": 79,
-        "filter": 55,
-        "volume": 87,
-        "pan": 35,
-        "tune": 50,
+        "decay": 3.1223795000000005,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 156.18492294877137
+        },
+        "volume": -2.5,
+        "pan": -0.30000000000000004,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "2/paris_p_Abm.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 87,
-        "pan": 66,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -2.5,
+        "pan": 0.32000000000000006,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

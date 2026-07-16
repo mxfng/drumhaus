@@ -10,7 +10,7 @@ export {
   presetDocumentSchema,
 } from "./document";
 export type { PresetDocument } from "./document";
-export { decodePresetFileText } from "./decode";
+export { decodePresetFileText, decodePresetObject } from "./decode";
 export { encodePresetDocument } from "./encode";
 export {
   CorruptFieldError,
@@ -29,4 +29,3 @@ export {
 } from "./migrate";
 export { migrateV1ToDocument } from "./migrate-v1";
 export { parsePresetFileV1, validatePresetFileV1 } from "./parse";
-export { documentToV1 } from "./to-v1";

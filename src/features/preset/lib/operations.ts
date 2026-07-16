@@ -1,9 +1,7 @@
 import { encodePresetDocument } from "@/features/preset/document";
 import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import type { Meta } from "@/features/preset/types/meta";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { MAX_PRESET_NAME_LENGTH } from "./constants";
-import { getCurrentPreset } from "./helpers";
 
 /**
  * Generate a shareable URL for a preset: the standard egress,
@@ -36,11 +34,11 @@ async function generateShareUrl(
 }
 
 /**
- * Create a preset export with metadata for saving
+ * Download the current store state as a `.dh` file under a fresh identity:
+ * the standard egress, snapshot() -> encode.
  */
-function createPresetForExport(name: string, kitMeta: Meta): PresetFileV1 {
+function downloadPreset(name: string, kitMeta: Meta): void {
   const normalizedName = normalizePresetName(name);
-
   const now = new Date().toISOString();
   const meta: Meta = {
     id: crypto.randomUUID(),
@@ -49,18 +47,11 @@ function createPresetForExport(name: string, kitMeta: Meta): PresetFileV1 {
     updatedAt: now,
   };
 
-  return getCurrentPreset(meta, kitMeta);
-}
-
-/**
- * Download a preset as a .dh file
- */
-function downloadPreset(preset: PresetFileV1, name: string): void {
-  const blob = createPresetExportBlob(preset.meta, preset.kit.meta);
+  const blob = createPresetExportBlob(meta, kitMeta);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${normalizePresetName(name)}.dh`;
+  link.download = `${normalizedName}.dh`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -108,9 +99,4 @@ function toPresetSlug(name: string): string {
   return base || "preset";
 }
 
-export {
-  generateShareUrl,
-  createPresetForExport,
-  createPresetExportBlob,
-  downloadPreset,
-};
+export { generateShareUrl, createPresetExportBlob, downloadPreset };

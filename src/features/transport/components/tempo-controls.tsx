@@ -1,18 +1,15 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ArrowDownToDot, Music3, Timer } from "lucide-react";
 
-import {
-  TRANSPORT_BPM_RANGE,
-  TRANSPORT_SWING_RANGE,
-} from "@/core/audio/engine/constants";
+import { TRANSPORT_BPM_RANGE } from "@/core/audio/engine/constants";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
-import { ParamKnob } from "@/shared/knob/knob";
-import {
-  transportBpmMapping,
-  transportSwingMapping,
-} from "@/shared/knob/lib/mapping";
 import { buttonActive } from "@/shared/lib/button-active";
 import { clamp, cn } from "@/shared/lib/utils";
+import {
+  RotaryKnob,
+  transportBpmDescriptor,
+  transportSwingDescriptor,
+} from "@/shared/param-control";
 import {
   Button,
   Label,
@@ -40,47 +37,6 @@ const TempoControls = () => {
   const setSwing = useTransportStore((state) => state.setSwing);
   const [mode, setMode] = useState<TempoMode>("bpm");
   const [tapTimestamps, setTapTimestamps] = useState<number[]>([]);
-
-  const { mapping, value } = useMemo(() => {
-    if (mode === "bpm") {
-      return {
-        mapping: transportBpmMapping,
-        value: bpm,
-      };
-    }
-
-    return {
-      mapping: transportSwingMapping,
-      value: swing,
-    };
-  }, [mode, bpm, swing]);
-
-  // BPM is stored in domain units (bpm) and needs the inverse mapping;
-  // swing is stored as the raw 0-100 knob value (the swing mapping's domain
-  // is the MPC display percent), so it passes through directly.
-  const knobValue = mode === "bpm" ? mapping.domainToKnob(value) : value;
-
-  const handleKnobChange = (newKnobValue: number) => {
-    if (mode === "bpm") {
-      const domainValue = mapping.knobToDomain(newKnobValue);
-      const clamped = clamp(
-        Math.round(domainValue),
-        TRANSPORT_BPM_RANGE[0],
-        TRANSPORT_BPM_RANGE[1],
-      );
-      setBpm(clamped);
-      return;
-    }
-
-    // Integer knob rounding matches tempo-controls-screen.tsx so both swing
-    // entry points persist the same granularity.
-    const clamped = clamp(
-      Math.round(newKnobValue),
-      TRANSPORT_SWING_RANGE[0],
-      TRANSPORT_SWING_RANGE[1],
-    );
-    setSwing(clamped);
-  };
 
   const handleTapTempo = () => {
     const now = Date.now();
@@ -123,14 +79,27 @@ const TempoControls = () => {
 
   return (
     <div className="mx-auto flex w-5/6 flex-col items-center justify-center gap-4 px-4">
-      <ParamKnob
-        value={knobValue}
-        onValueChange={handleKnobChange}
-        label=""
-        mapping={mapping}
-        outerTickCount={0}
-        showTickIndicator={false}
-      />
+      {mode === "bpm" ? (
+        <RotaryKnob
+          descriptor={transportBpmDescriptor}
+          value={bpm}
+          onChange={setBpm}
+          label="bpm"
+          hideLabel
+          outerTickCount={0}
+          showTickIndicator={false}
+        />
+      ) : (
+        <RotaryKnob
+          descriptor={transportSwingDescriptor}
+          value={swing}
+          onChange={setSwing}
+          label="swing"
+          hideLabel
+          outerTickCount={0}
+          showTickIndicator={false}
+        />
+      )}
       <div className="grid grid-cols-3 place-items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>

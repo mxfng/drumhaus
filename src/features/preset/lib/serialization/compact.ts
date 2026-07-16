@@ -1,18 +1,16 @@
-import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
 import {
-  DEFAULT_CHAIN,
   Pattern,
   PatternChain,
   sanitizeChain,
 } from "@/core/audio/engine/pattern-types";
-import {
-  InstrumentData,
-  InstrumentParams,
-} from "@/features/instrument/types/instrument";
-import { KitFileV1 } from "@/features/kit/types/kit";
+import type { KitFile } from "@/features/kit/types/kit";
+import type {
+  LegacyKnobInstrumentData,
+  LegacyKnobInstrumentParams,
+  LegacyKnobMasterChainParams,
+} from "@/features/preset/types/legacy-v1";
 import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import { VariationCycle } from "@/features/sequencer/types/sequencer";
-import { init } from "../../../../core/dh";
 import { PRESET_FILE_VERSION } from "../../document/migrate";
 import { PresetFileV1 } from "../../types/preset";
 import { compactCodeToKitId, kitIdToCompactCode } from "./default-kits";
@@ -42,18 +40,38 @@ import {
  * until the v1.x sunset.
  */
 
-const INIT_PRESET = init();
-const DEFAULT_SWING = INIT_PRESET.transport.swing;
-const DEFAULT_VARIATION_CYCLE = INIT_PRESET.sequencer.variationCycle;
-const DEFAULT_PATTERN_CHAIN = sanitizeChain(
-  INIT_PRESET.sequencer.chain ?? DEFAULT_CHAIN,
-);
-const DEFAULT_CHAIN_ENABLED = INIT_PRESET.sequencer.chainEnabled ?? false;
-const DEFAULT_BPM = INIT_PRESET.transport.bpm;
+// Legacy-read island: the delta-defaults are FROZEN at the v1.5 init preset's
+// knob values, not derived from the live init() (which is canonical now). Old
+// links omit any field that equalled these defaults, so they must never drift.
+const DEFAULT_SWING = 0;
+const DEFAULT_VARIATION_CYCLE: VariationCycle | undefined = undefined;
+const DEFAULT_PATTERN_CHAIN = sanitizeChain({
+  steps: [{ variation: 0, repeats: 1 }],
+});
+const DEFAULT_CHAIN_ENABLED = false;
+const DEFAULT_BPM = 100;
 
-const DEFAULT_PARAMS: InstrumentParams = init().kit.instruments[0].params;
+const DEFAULT_PARAMS: LegacyKnobInstrumentParams = {
+  decay: 100,
+  filter: 50,
+  volume: 92,
+  pan: 50,
+  tune: 50,
+  solo: false,
+  mute: false,
+};
 
-const DEFAULT_MASTER_CHAIN: MasterChainParams = init().masterChain;
+const DEFAULT_MASTER_CHAIN: LegacyKnobMasterChainParams = {
+  filter: 50,
+  saturation: 0,
+  phaser: 0,
+  reverb: 0,
+  compThreshold: 100,
+  compRatio: 57.14285714285714,
+  compAttack: 50,
+  compMix: 70,
+  masterVolume: 92,
+};
 
 const DEFAULT_CHAIN_STRING = stringifyChain(DEFAULT_PATTERN_CHAIN);
 
@@ -120,7 +138,7 @@ type CompactMasterChain = Partial<{
 
 // --- ENCODE FUNCTIONS ---
 
-function encodeParams(params: InstrumentParams): CompactParams {
+function encodeParams(params: LegacyKnobInstrumentParams): CompactParams {
   const compact: CompactParams = {};
 
   if (params.decay !== DEFAULT_PARAMS.decay) compact.d = params.decay;
@@ -135,7 +153,7 @@ function encodeParams(params: InstrumentParams): CompactParams {
 }
 
 function encodeMasterChain(
-  chain: MasterChainParams,
+  chain: LegacyKnobMasterChainParams,
 ): CompactMasterChain | undefined {
   const mc: CompactMasterChain = {};
   if (chain.filter !== DEFAULT_MASTER_CHAIN.filter) mc.f = chain.filter;
@@ -168,7 +186,7 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
     id: preset.meta.id, // Include the UUID (generated fresh when sharing)
     v: PRESET_FILE_VERSION,
     k: kitId,
-    ip: preset.kit.instruments.map((inst: InstrumentData) =>
+    ip: preset.kit.instruments.map((inst: LegacyKnobInstrumentData) =>
       encodeParams(inst.params),
     ),
     pt: encodeVoices(preset.sequencer.pattern),
@@ -220,7 +238,7 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
 
 // --- DECODE FUNCTIONS ---
 
-function decodeParams(compact: CompactParams): InstrumentParams {
+function decodeParams(compact: CompactParams): LegacyKnobInstrumentParams {
   return {
     decay: compact.d ?? DEFAULT_PARAMS.decay,
     filter: compact.f ?? DEFAULT_PARAMS.filter,
@@ -232,7 +250,9 @@ function decodeParams(compact: CompactParams): InstrumentParams {
   };
 }
 
-function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
+function decodeMasterChain(
+  compact?: CompactMasterChain,
+): LegacyKnobMasterChainParams {
   // Handle legacy format (lp/hp) or new format (f/s/ca)
   if (compact?.f !== undefined) {
     // New format
@@ -269,7 +289,7 @@ function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
 
 function decodeCompactPreset(
   compact: CompactPreset,
-  kitLoader: (kitId: string) => KitFileV1,
+  kitLoader: (kitId: string) => KitFile,
 ): PresetFileV1 {
   const kitId = compactCodeToKitId(compact.k);
   if (!kitId) {
@@ -284,10 +304,16 @@ function decodeCompactPreset(
     variationMetadata: decodeAccents(compact.ac),
   };
 
-  const instruments = defaultKit.instruments.map((inst, idx: number) => ({
-    ...inst,
-    params: decodeParams(compact.ip[idx]),
-  }));
+  // The registry kit is canonical; the v1.5 decoder keeps its sample/meta
+  // identity and overrides with the decoded knob params (legacy shape).
+  const instruments: LegacyKnobInstrumentData[] = defaultKit.instruments.map(
+    (inst, idx: number) => ({
+      meta: inst.meta,
+      role: inst.role,
+      sample: inst.sample,
+      params: decodeParams(compact.ip[idx]),
+    }),
+  );
 
   const legacyChain = legacyCycleToChain(
     (compact.vc ?? DEFAULT_VARIATION_CYCLE) as VariationCycle | undefined,

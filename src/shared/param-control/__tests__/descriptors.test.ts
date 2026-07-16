@@ -21,16 +21,39 @@ import {
 } from "../lib/descriptor";
 
 describe("volume descriptor", () => {
-  it("formats dB with -infinity at the floor", () => {
-    expect(instrumentVolumeDescriptor.format(-46)).toBe("-∞ dB");
+  it("shows -infinity only for true silence, not the -46 dB floor", () => {
+    expect(instrumentVolumeDescriptor.format(-Infinity)).toBe("-∞ dB");
+    expect(instrumentVolumeDescriptor.format(-46)).toBe("-46.0 dB");
     expect(instrumentVolumeDescriptor.format(0)).toBe("0.0 dB");
     expect(instrumentVolumeDescriptor.format(4)).toBe("+4.0 dB");
   });
 
-  it("parses dB, including the silence sentinel", () => {
+  it("parses dB, including the silence sentinel as -Infinity", () => {
     expect(instrumentVolumeDescriptor.parse?.("-6.0 dB")).toBeCloseTo(-6, 9);
-    expect(instrumentVolumeDescriptor.parse?.("-∞ dB")).toBe(-46);
-    expect(masterVolumeDescriptor.parse?.("-inf")).toBe(-46);
+    expect(instrumentVolumeDescriptor.parse?.("-∞ dB")).toBe(-Infinity);
+    expect(masterVolumeDescriptor.parse?.("-inf")).toBe(-Infinity);
+  });
+
+  it("maps position 0 to true silence (-Infinity)", () => {
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 0)).toBe(
+      -Infinity,
+    );
+    expect(normalizedToCanonical(masterVolumeDescriptor, 0)).toBe(-Infinity);
+    expect(canonicalToNormalized(instrumentVolumeDescriptor, -Infinity)).toBe(
+      0,
+    );
+  });
+
+  it("maps positions above 0 across the finite [-46, 4] dB range", () => {
+    // Position 1 is the ceiling; the midpoint is the linear middle of the span.
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 1)).toBeCloseTo(
+      4,
+      9,
+    );
+    expect(normalizedToCanonical(instrumentVolumeDescriptor, 0.5)).toBeCloseTo(
+      -21,
+      9,
+    );
   });
 
   it("round-trips format -> parse for finite values", () => {
@@ -127,6 +150,28 @@ describe("split-filter descriptor (generic-T custom taper)", () => {
       const back = positionToFilter(pos);
       expect(back.side).toBe(filter.side);
       expect(back.cutoffHz).toBeCloseTo(filter.cutoffHz, 3);
+    }
+  });
+
+  it("clamps an out-of-range cutoffHz into a valid display position", () => {
+    // A migrated old/factory preset can carry a cutoffHz outside the
+    // descriptor's [20, 15000] audible range: the frozen curve reaches 0 Hz at
+    // the old centre and ~15618 Hz at its closed high-pass extreme. The live
+    // descriptor may DISPLAY such a preset at a shifted knob position (that is
+    // the accepted two-curve trade-off), but filterToPosition must stay finite
+    // and inside [0, 1] rather than produce NaN or overflow. The engine still
+    // consumes the exact stored cutoffHz (engine/fx/split-filter.ts).
+    const outOfRange: CanonicalFilter[] = [
+      { side: "lowpass", cutoffHz: 0 },
+      { side: "highpass", cutoffHz: 0 },
+      { side: "lowpass", cutoffHz: 15618.49 },
+      { side: "highpass", cutoffHz: 15618.49 },
+    ];
+    for (const filter of outOfRange) {
+      const pos = filterToPosition(filter);
+      expect(Number.isFinite(pos)).toBe(true);
+      expect(pos).toBeGreaterThanOrEqual(0);
+      expect(pos).toBeLessThanOrEqual(1);
     }
   });
 

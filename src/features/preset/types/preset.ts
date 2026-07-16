@@ -1,7 +1,6 @@
-import { MasterChainParams } from "@/core/audio/bridge/knob-to-domain";
-import { KitFileV1 } from "@/features/kit/types/kit";
 import { SequencerData } from "@/features/sequencer/types/sequencer";
 import { TransportParams } from "@/features/transport/types/transport";
+import type { LegacyKitFile, LegacyKnobMasterChainParams } from "./legacy-v1";
 import { InlineMeta, Meta } from "./meta";
 
 // Presets hold all serializable data for a project
@@ -16,10 +15,10 @@ interface PresetFileV1 {
   kind: "drumhaus.preset";
   version: 1 | 1.5;
   meta: Meta;
-  kit: KitFileV1;
+  kit: LegacyKitFile;
   transport: TransportParams;
   sequencer: SequencerData;
-  masterChain: MasterChainParams;
+  masterChain: LegacyKnobMasterChainParams;
 }
 
 // The minimal shape a preset list needs: identity meta only. Both

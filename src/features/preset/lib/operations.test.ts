@@ -1,11 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  encodePresetDocument,
-  migrateV1ToDocument,
-} from "@/features/preset/document";
+import { encodePresetDocument } from "@/features/preset/document";
+import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import type { Meta } from "@/features/preset/types/meta";
-import { getCurrentPreset } from "./helpers";
 import { createPresetExportBlob } from "./operations";
 
 // Store reads happen twice (once inside the blob, once for the expected
@@ -43,9 +40,7 @@ describe("createPresetExportBlob", () => {
 
     const text = await blob.text();
     expect(text).toBe(
-      encodePresetDocument(
-        migrateV1ToDocument(getCurrentPreset(presetMeta, kitMeta)),
-      ),
+      encodePresetDocument(snapshotPresetDocument(presetMeta, kitMeta)),
     );
 
     const raw = JSON.parse(text) as Record<string, unknown>;

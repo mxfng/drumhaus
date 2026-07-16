@@ -145,18 +145,21 @@ test.describe("legacy session adoption", () => {
     );
     await expect(page.getByRole("combobox", { name: "Kit" })).toHaveText("808");
     await expect(step(page, 3)).toHaveAttribute("data-active", "true");
-    await expect(page.getByRole("slider", { name: "bpm" })).toContainText(
-      "128",
-    );
+    // Scope to the screen value field: the hardware tempo knob is also a slider
+    // named "bpm" (it defaults to bpm mode), so the plain role query is ambiguous.
+    await expect(
+      page.locator('[data-slot="value-field"][aria-label="bpm"]'),
+    ).toContainText("128");
 
-    // The pre-#269 swing knob replayed through the 4/3 rescale: 60 -> 80.
-    // The knob value round-trips knob -> swing fraction -> knob through the
-    // document, so compare numerically (float noise ~1e-14 is expected) and
-    // pin the user-visible MPC swing display (50 + knob/8 = 60).
+    // Post-flip the control is canonical: aria-valuenow is the Tone swing
+    // fraction, not the old 0-100 knob value. The adopted swing round-trips
+    // through the document and surfaces as MPC 60% (50 + (100/3) * swing), so
+    // the fraction is 0.3. Compare numerically (float noise ~1e-14 is expected)
+    // and pin the user-visible MPC swing display.
     const swingControl = page.getByRole("slider", { name: "swing" });
     await expect(swingControl).toHaveText(/swing\s+60/);
     const swingKnobValue = await swingControl.getAttribute("aria-valuenow");
-    expect(Number(swingKnobValue)).toBeCloseTo(80, 9);
+    expect(Number(swingKnobValue)).toBeCloseTo(0.3, 9);
 
     // Storage after adoption: one session document, the four retired keys
     // deleted (only after the write landed). The legacy preset-meta key is

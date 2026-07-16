@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import {
   exportToMidi,
   getSuggestedBars,
@@ -93,7 +92,8 @@ function MidiExportForm({ onClose }: MidiExportFormProps) {
         filename: values.filename.trim() || "drumhaus-export",
         bars: values.bars,
         bpm,
-        swing: transportSwingKnobToDomain(swing),
+        // Store swing is already the canonical Tone swing fraction.
+        swing,
         pattern,
         chain,
         chainEnabled,

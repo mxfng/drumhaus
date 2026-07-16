@@ -1,4 +1,7 @@
-import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
+// Legacy-read island: the old 0-100 swing knob range, frozen here (it no
+// longer exists in the engine). Swing is canonical everywhere born after the
+// flip; this migrator only ever sees pre-retune knob values.
+const LEGACY_SWING_KNOB_RANGE: [number, number] = [0, 100];
 
 /**
  * Migration for swing knob values persisted before the #269 swing retune.
@@ -16,14 +19,14 @@ import { TRANSPORT_SWING_RANGE } from "@/core/audio/engine/constants";
  * knob 100 - an accepted trade-off of the retune (#269).
  */
 function migrateLegacySwingKnob(swing: number): number {
-  if (!Number.isFinite(swing)) return TRANSPORT_SWING_RANGE[0];
+  if (!Number.isFinite(swing)) return LEGACY_SWING_KNOB_RANGE[0];
   // (swing * 4) / 3 rather than swing * (4 / 3): the numerator is exact in
   // floating point, so shipped integer values migrate without float noise
   // (48 -> 64, 75 -> 100).
   const migrated = (swing * 4) / 3;
   return Math.min(
-    TRANSPORT_SWING_RANGE[1],
-    Math.max(TRANSPORT_SWING_RANGE[0], migrated),
+    LEGACY_SWING_KNOB_RANGE[1],
+    Math.max(LEGACY_SWING_KNOB_RANGE[0], migrated),
   );
 }
 

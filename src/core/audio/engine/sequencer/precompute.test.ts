@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
+import { createEmptyPattern } from "@/core/audio/engine/pattern-types";
 import {
   ACCENT_BOOST,
   ACCENT_DAMPEN,

@@ -66,6 +66,9 @@ async function mount(initial = 50) {
       descriptor: testDescriptor,
       value,
       label: "Test",
+      // Pin the default sensitivity so the drag math is independent of the
+      // component's hardware-feel default.
+      dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
         setValue(v);
@@ -86,6 +89,12 @@ async function mount(initial = 50) {
 function slider(): HTMLElement {
   const el = container?.querySelector('[role="slider"]');
   if (!(el instanceof HTMLElement)) throw new Error("slider not found");
+  return el;
+}
+
+function label(): HTMLElement {
+  const el = container?.querySelector('[data-slot="label"]');
+  if (!(el instanceof HTMLElement)) throw new Error("label not found");
   return el;
 }
 
@@ -121,18 +130,18 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
   it("drags in normalized space and emits canonical values", async () => {
     await mount(50); // pos 0.5
     await pointer("pointerdown", 100);
-    // drag up 20px: default sensitivity 1/200 -> +0.1 pos -> 60
-    await pointer("pointermove", 80);
-    await pointer("pointerup", 80);
+    await pointer("pointermove", 95); // 5px > threshold: promotes, no change yet
+    await pointer("pointermove", 75); // +20px from 95 -> +0.1 pos -> 60
+    await pointer("pointerup", 75);
     expect(last()).toBeCloseTo(60, 6);
   });
 
   it("halves the delta while Shift (fine) is held", async () => {
     await mount(50);
     await pointer("pointerdown", 100);
-    // shift-drag up 20px: +0.1 * 0.25 fine factor -> +0.025 pos -> 52.5
-    await pointer("pointermove", 80, true);
-    await pointer("pointerup", 80, true);
+    await pointer("pointermove", 95, true); // promote (no change)
+    await pointer("pointermove", 75, true); // +20px * 0.25 fine factor -> +0.025 pos -> 52.5
+    await pointer("pointerup", 75, true);
     expect(last()).toBeCloseTo(52.5, 6);
   });
 
@@ -146,7 +155,7 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     expect(recorded.gestureEnds).toBe(1);
   });
 
-  it("resets to default on double-click", async () => {
+  it("resets to default on double-click of the body", async () => {
     await mount(20);
     await act(async () => {
       slider().dispatchEvent(
@@ -154,6 +163,24 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
       );
     });
     expect(last()).toBe(50);
+  });
+
+  it("a press without drag on the body does nothing (no change, no editor)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100);
+    await pointer("pointerup", 100); // released below the drag threshold
+    expect(recorded.changes).toHaveLength(0);
+    expect(container?.querySelector("input")).toBeNull();
+  });
+
+  it("resets to default on Enter and on Space", async () => {
+    await mount(20);
+    await keydown("Enter");
+    expect(last()).toBe(50);
+    await keydown(" ");
+    expect(last()).toBe(50);
+    // No keyboard path opens the type-in editor on a knob.
+    expect(container?.querySelector("input")).toBeNull();
   });
 
   it("steps by keyStep on arrows and keyStepLarge on Page", async () => {
@@ -179,13 +206,13 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     expect(slider().getAttribute("role")).toBe("slider");
   });
 
-  it("accepts type-in entry parsed through the descriptor", async () => {
+  it("accepts type-in entry opened by a double-click on the label", async () => {
     await mount(50);
-    const valueButton = container?.querySelector(
-      '[data-slot="rotary-knob-value"]',
-    ) as HTMLButtonElement;
+    // A double-click on the caption label opens the type-in editor.
     await act(async () => {
-      valueButton.click();
+      label().dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true, cancelable: true }),
+      );
     });
     const input = container?.querySelector("input") as HTMLInputElement;
     await act(async () => {

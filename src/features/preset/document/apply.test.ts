@@ -165,31 +165,37 @@ describe("applyPresetDocument", () => {
     expect(pattern.variation).toBe(0);
     expect(pattern.mode).toEqual({ type: "voice", voiceIndex: 0 });
 
-    // Transport: bpm raw, swing knob = inverse of the engine fraction.
+    // Transport: bpm raw, swing the canonical Tone fraction.
     const transport = useTransportStore.getState();
     expect(transport.bpm).toBe(100);
-    expect(transport.swing).toBe(0);
+    expect(transport.swing).toBe(document.transport.swing);
 
-    // Master: knob values recovered from the golden domain surface.
+    // Master: the document's canonical master lands verbatim in the store.
     const master = useMasterChainStore.getState();
-    expect(master.filter).toBe(50);
-    expect(master.compThreshold).toBeCloseTo(100, 6); // 0 dB
-    expect(master.compRatio).toBeCloseTo(400 / 7, 9); // ratio 5:1
-    expect(master.compAttack).toBeCloseTo(50, 6);
-    expect(master.compMix).toBeCloseTo(70, 6);
-    expect(master.masterVolume).toBeCloseTo(92, 6); // 0 dB
+    expect(master.filter).toEqual(document.master.filter);
+    expect(master.saturation).toBe(document.master.saturation);
+    expect(master.phaser).toBe(document.master.phaser);
+    expect(master.reverb).toBe(document.master.reverb);
+    expect(master.compThreshold).toBe(document.master.compThresholdDb);
+    expect(master.compRatio).toBe(document.master.compRatio);
+    expect(master.compAttack).toBe(document.master.compAttackSeconds);
+    expect(master.compMix).toBe(document.master.compMix);
+    expect(master.masterVolume).toBe(
+      document.master.masterVolumeDb ?? -Infinity,
+    );
 
-    // Instruments: registry kit-0 rehydrated, knob params inverted.
+    // Instruments: registry kit-0 rehydrated with the channel's canonical params.
     const instruments = useInstrumentsStore.getState().instruments;
     expect(instruments).toHaveLength(8);
     const params = instruments[0].params;
-    expect(params.decay).toBeCloseTo(100, 6); // 5 s
-    expect(params.filter).toBe(50);
-    expect(params.volume).toBeCloseTo(92, 6); // 0 dB
-    expect(params.pan).toBeCloseTo(50, 6);
-    expect(params.tune).toBeCloseTo(50, 6); // 0 semitones
-    expect(params.solo).toBe(false);
-    expect(params.mute).toBe(false);
+    const channel = document.channels[0];
+    expect(params.decay).toBe(channel.decaySeconds);
+    expect(params.filter).toEqual(channel.filter);
+    expect(params.volume).toBe(channel.volumeDb ?? -Infinity);
+    expect(params.pan).toBe(channel.pan);
+    expect(params.tune).toBe(channel.tuneSemitones);
+    expect(params.solo).toBe(channel.solo);
+    expect(params.mute).toBe(channel.mute);
 
     // Meta: current meta points at the loaded preset, and the clean
     // baseline is the hash of the post-apply snapshot.

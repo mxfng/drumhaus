@@ -1,10 +1,27 @@
-import { cn } from "@/shared/lib/utils";
-import { useParamControl } from "../hooks/use-param-control";
-import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
+import { useCallback, useRef, useState } from "react";
 
-/** Sweep of the dial, in degrees, centred on 12 o'clock. */
+import { Coachmark } from "@/shared/components/coachmark";
+import { cn } from "@/shared/lib/utils";
+import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
+import { useKnobGuidance } from "../hooks/use-knob-guidance";
+import { useParamControl } from "../hooks/use-param-control";
+import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
+import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
+import { KnobTicks } from "./knob-ticks";
+
+/** Diameter presets, matching the original hardware knob: 90px / 180px cells. */
+type KnobSize = "default" | "lg";
+
+/** Sweep of the dial, centred on 12 o'clock: 0 -> -135deg, 1 -> +135deg. */
+const START_ANGLE_DEG = -135;
 const ROTATION_RANGE_DEG = 270;
-const START_ANGLE_DEG = -ROTATION_RANGE_DEG / 2;
+
+/**
+ * Movement (px) before a press on the body counts as a drag. Below it the press
+ * is a no-op: the body is drag-only, so a click that never moves changes
+ * nothing and opens no editor (type-in lives on the label, see below).
+ */
+const DRAG_THRESHOLD_PX = 3;
 
 type RotaryKnobProps<T> = {
   descriptor: ParamDescriptor<T>;
@@ -19,50 +36,35 @@ type RotaryKnobProps<T> = {
   /** Opt-in tab order (default true). */
   tabbable?: boolean;
   id?: string;
-  /** Diameter in pixels. */
-  size?: number;
+  /** Diameter preset - `"default"` is 90px, `"lg"` is 180px. */
+  size?: KnobSize;
+  /** Number of fixed outer tick marks (odd for a centred mark; 0 to hide). */
+  outerTickCount?: number;
+  /** Hide the rotating value indicator at 12 o'clock. */
+  showTickIndicator?: boolean;
   /** Hide the caption label under the dial. */
   hideLabel?: boolean;
-  /** Hide the value readout. */
-  hideValue?: boolean;
+  /** Per-instance override for the normalized drag delta per pixel. */
+  dragSensitivity?: number;
   className?: string;
 } & RotaryKnobFutureSeams;
 
-/** Point on the dial circle for a normalized [0,1] position. */
-function polarToXY(cx: number, cy: number, r: number, position: number) {
-  const angleDeg = START_ANGLE_DEG + position * ROTATION_RANGE_DEG;
-  const angleRad = (angleDeg * Math.PI) / 180;
-  return {
-    x: cx + r * Math.sin(angleRad),
-    y: cy - r * Math.cos(angleRad),
-    angleDeg,
-  };
-}
-
-/** SVG arc path between two normalized positions along the dial circle. */
-function describeArc(
-  cx: number,
-  cy: number,
-  r: number,
-  from: number,
-  to: number,
-) {
-  const lo = Math.min(from, to);
-  const hi = Math.max(from, to);
-  const start = polarToXY(cx, cy, r, lo);
-  const end = polarToXY(cx, cy, r, hi);
-  const largeArc = (hi - lo) * ROTATION_RANGE_DEG > 180 ? 1 : 0;
-  return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 1 ${end.x} ${end.y}`;
-}
-
 /**
- * The rotary presentation of the descriptor-driven control. A thin skin over
- * `useParamControl`: it owns look only (track, fill, indicator, readout), while
- * all behavior and the canonical-only contract live in the hook.
+ * The rotary presentation of the descriptor-driven control: the hand-built
+ * neumorphic knob body driven entirely by `useParamControl`. The body owns look
+ * only (sculpted base, rotating indicator, outer ticks); all behaviour and the
+ * canonical-only contract live in the hook.
+ *
+ * The resting knob shows no number - the value surfaces in a wrap-around
+ * tooltip only while dragging (viewport-aware side), exactly as the original.
+ * The dial body is drag-only: a press without drag changes nothing. Type-in is
+ * a deliberate, out-of-the-way gesture - a double-click on the caption label
+ * swaps the word for an input (Enter/blur commits, Esc cancels), and only when
+ * the descriptor can `parse`. A horizontal drag triggers the first-use
+ * guidance coachmark.
  *
  * FUTURE seams (modulation-range arc, circular drag mode, context menu) are
- * declared on the props but intentionally not implemented (see
- * docs/knob-primitive.md).
+ * declared on the props but intentionally not implemented (docs/knob-primitive.md).
  */
 function RotaryKnob<T>({
   descriptor,
@@ -74,9 +76,11 @@ function RotaryKnob<T>({
   label,
   tabbable = true,
   id,
-  size = 72,
+  size = "default",
+  outerTickCount = 2,
+  showTickIndicator = true,
   hideLabel = false,
-  hideValue = false,
+  dragSensitivity = KNOB_DRAG_SENSITIVITY,
   className,
   // Declared future seams; not wired yet.
   modulationRange: _modulationRange,
@@ -93,17 +97,51 @@ function RotaryKnob<T>({
     label,
     tabbable,
     id,
+    dragThreshold: DRAG_THRESHOLD_PX,
+    dragSensitivity,
   });
 
-  const { position, bipolar } = control;
+  const knobContainerRef = useRef<HTMLDivElement>(null);
+  const [tooltipSide, setTooltipSide] = useState<"left" | "right">("right");
+  const guidance = useKnobGuidance();
 
-  const stroke = size * 0.09;
-  const r = (size - stroke) / 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const fillStart = bipolar ? 0.5 : 0;
-  const indicator = polarToXY(cx, cy, r, position);
-  const indicatorInner = polarToXY(cx, cy, r * 0.42, position);
+  const rotation = START_ANGLE_DEG + control.position * ROTATION_RANGE_DEG;
+  const containerClass = size === "lg" ? "h-44" : "h-20";
+
+  // Wrap-around tooltip: flip to whichever side has more viewport room, mirroring
+  // the original hand-built knob so it never renders off-screen at the edges.
+  const updateTooltipSide = useCallback(() => {
+    const node = knobContainerRef.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const spaceLeft = rect.left;
+    const spaceRight = window.innerWidth - rect.right;
+    setTooltipSide(spaceLeft > spaceRight ? "left" : "right");
+  }, []);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent) => {
+      if (disabled) return;
+      updateTooltipSide();
+
+      // Drive the first-use guidance heuristic alongside the hook's own drag
+      // tracking; window listeners self-tear-down on release.
+      guidance.handleStart({ x: event.clientX, y: event.clientY });
+      const onMove = (ev: PointerEvent) =>
+        guidance.handleMove({ x: ev.clientX, y: ev.clientY });
+      const onUp = () => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+
+      control.handlers.onPointerDown(event);
+    },
+    [disabled, updateTooltipSide, guidance, control.handlers],
+  );
 
   return (
     <div
@@ -111,88 +149,112 @@ function RotaryKnob<T>({
       data-disabled={disabled || undefined}
       data-dragging={control.isDragging || undefined}
       className={cn(
-        "flex flex-col items-center gap-1 select-none",
+        "flex aspect-square flex-col items-center justify-center",
+        containerClass,
         disabled && "opacity-50",
         className,
       )}
     >
-      <div
-        {...control.handlers}
-        {...control.ariaProps}
-        aria-labelledby={hideLabel ? undefined : `${control.id}-label`}
-        className={cn(
-          "relative touch-none rounded-full outline-none",
-          "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
-        )}
-        style={{ width: size, height: size, touchAction: "none" }}
-      >
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          {/* Track */}
-          <path
-            d={describeArc(cx, cy, r, 0, 1)}
-            fill="none"
-            className="stroke-border"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-          />
-          {/* Fill */}
-          <path
-            d={describeArc(cx, cy, r, fillStart, position)}
-            fill="none"
-            className="stroke-primary"
-            strokeWidth={stroke}
-            strokeLinecap="round"
-          />
-          {/* Indicator */}
-          <line
-            x1={indicatorInner.x}
-            y1={indicatorInner.y}
-            x2={indicator.x}
-            y2={indicator.y}
-            className="stroke-foreground"
-            strokeWidth={stroke * 0.6}
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-
-      {!hideValue &&
-        (control.isEditing ? (
-          <input
-            {...control.editProps}
-            aria-label={`${label} value`}
-            className={cn(
-              "bg-surface text-foreground w-16 rounded-sm px-1 text-center text-xs",
-              "outline-none",
-            )}
-          />
-        ) : (
-          <button
-            type="button"
-            data-slot="rotary-knob-value"
-            disabled={disabled || !descriptor.parse}
-            onClick={control.beginEdit}
-            className={cn(
-              "text-foreground-muted text-xs tabular-nums",
-              descriptor.parse && "hover:text-foreground cursor-text",
-            )}
+      <Tooltip open={control.isDragging}>
+        <TooltipTrigger asChild>
+          <div
+            ref={knobContainerRef}
+            className="relative flex aspect-square h-4/5 touch-none items-center justify-center rounded-full select-none"
+            style={{ touchAction: "none" }}
           >
-            {control.displayValue}
-          </button>
-        ))}
+            <Coachmark
+              visible={guidance.showCoachmark}
+              message="Drag up/down to adjust"
+              anchorRef={knobContainerRef}
+            />
+
+            {/* Hitbox - rotates with the value; carries the interaction. */}
+            <div
+              {...control.ariaProps}
+              onKeyDown={control.handlers.onKeyDown}
+              onDoubleClick={control.handlers.onDoubleClick}
+              onWheel={control.handlers.onWheel}
+              onPointerDown={handlePointerDown}
+              aria-labelledby={hideLabel ? undefined : `${control.id}-label`}
+              className={cn(
+                "absolute z-1 aspect-square h-5/6 origin-center touch-none rounded-full outline-none select-none",
+                "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
+              )}
+              style={{ transform: `rotate(${rotation}deg)` }}
+            >
+              {showTickIndicator && (
+                <svg
+                  className="absolute top-[2%] left-1/2 w-[4.17%] -translate-x-1/2"
+                  height="19%"
+                  viewBox="0 0 2 20"
+                  preserveAspectRatio="none"
+                >
+                  <line
+                    x1="1"
+                    y1="0"
+                    x2="1"
+                    y2="20"
+                    className="stroke-foreground-muted"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              )}
+            </div>
+
+            {/* Knob base - fixed and motionless so the neumorphic shadow reads. */}
+            <div
+              className="border-shadow-30 flex aspect-square h-4/5 items-center justify-center rounded-full border shadow-(--shadow-neu-tall)"
+              style={{ background: "var(--knob-gradient)" }}
+            >
+              {/* Raised knob edge */}
+              <div
+                className="border-shadow-30 relative flex h-3/5 w-3/5 items-center justify-center rounded-full border shadow-(--shadow-neu-tall-raised)"
+                style={{ background: "var(--knob-gradient)" }}
+              >
+                {/* Raised knob inner circle */}
+                <div className="border-shadow-10 bg-knob raised absolute top-1/2 left-1/2 h-4/5 w-4/5 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow-(--knob-shadow-center)" />
+              </div>
+            </div>
+
+            {/* Outer ticks */}
+            {outerTickCount > 0 && (
+              <KnobTicks outerTickCount={outerTickCount} />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side={tooltipSide}>
+          {control.displayValue}
+        </TooltipContent>
+      </Tooltip>
 
       {!hideLabel && (
-        <span
-          id={`${control.id}-label`}
-          data-slot="rotary-knob-label"
-          className="text-foreground-muted text-xs"
-        >
-          {label}
-        </span>
+        <div className="flex items-center justify-center">
+          {control.isEditing ? (
+            // Type-in editor - the caption label becomes an input in place.
+            <input
+              {...control.editProps}
+              aria-label={`${label} value`}
+              onFocus={(event) => event.target.select()}
+              className={cn(
+                "bg-surface text-foreground w-16 rounded-sm px-1 text-center",
+                "text-xs leading-none outline-none",
+              )}
+            />
+          ) : (
+            <Label
+              id={`${control.id}-label`}
+              className={cn("text-xs", descriptor.parse && "cursor-text")}
+              onDoubleClick={descriptor.parse ? control.beginEdit : undefined}
+            >
+              {label}
+            </Label>
+          )}
+        </div>
       )}
     </div>
   );
 }
 
 export { RotaryKnob };
-export type { RotaryKnobProps };
+export type { RotaryKnobProps, KnobSize };

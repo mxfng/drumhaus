@@ -1,5 +1,5 @@
 import { validateKitFile } from "@/features/kit/lib/helpers";
-import { KitFileV1 } from "@/features/kit/types/kit";
+import { KitFile } from "@/features/kit/types/kit";
 // Import all kit files (ordered by kit ID)
 import kit0Json from "./defaults/808.dhkit";
 import kit6Json from "./defaults/bounce.dhkit";
@@ -18,7 +18,7 @@ import kit10Json from "./defaults/trap.dhkit";
  * Kit loaders indexed by stable ID (kit-0 through kit-11).
  * Display names can change freely; these indices are permanent.
  */
-const KIT_LOADERS: Record<string, () => KitFileV1> = {
+const KIT_LOADERS: Record<string, () => KitFile> = {
   "kit-0": () => validateKitFile(kit0Json),
   // "kit-1": reserved for 909
   // "kit-2": reserved for LinnDrum
@@ -55,21 +55,21 @@ const KIT_ORDER: string[] = [
 /**
  * Get all available kits in display order
  */
-function getAllKits(): KitFileV1[] {
+function getAllKits(): KitFile[] {
   return KIT_ORDER.map((id) => KIT_LOADERS[id]());
 }
 
 /**
  * Get a kit loader by its stable ID
  */
-function getKitLoader(id: string): (() => KitFileV1) | undefined {
+function getKitLoader(id: string): (() => KitFile) | undefined {
   return KIT_LOADERS[id];
 }
 
 /**
  * Load a kit by its stable ID
  */
-function loadKit(id: string): KitFileV1 | undefined {
+function loadKit(id: string): KitFile | undefined {
   const loader = KIT_LOADERS[id];
   return loader?.();
 }

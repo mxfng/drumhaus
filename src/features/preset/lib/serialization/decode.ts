@@ -1,4 +1,4 @@
-import { KitFileV1 } from "@/features/kit/types/kit";
+import { KitFile } from "@/features/kit/types/kit";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { decodeCompactPreset, type CompactPreset } from "./compact";
 import { getDefaultKitLoader } from "./default-kits";
@@ -28,7 +28,7 @@ class InvalidPresetError extends Error {
 /**
  * Loads a default kit by ID from the registry
  */
-function loadDefaultKit(kitId: string): KitFileV1 {
+function loadDefaultKit(kitId: string): KitFile {
   const loader = getDefaultKitLoader(kitId);
   if (!loader) {
     throw new UnknownKitError(kitId);

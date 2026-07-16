@@ -9,9 +9,16 @@ import { gotoApp, step, toggleStep, waitForAppReady } from "./helpers";
  * inside the same envelope.
  */
 
-/** The tempo screen's bpm readout: click-to-edit via keyboard. */
+/**
+ * The tempo screen's bpm readout: click-to-edit via keyboard. Scoped to the
+ * screen value field: the hardware tempo knob is also a slider named "bpm"
+ * (it defaults to bpm mode), so the plain role query is ambiguous.
+ */
+const screenBpm = (page: Page) =>
+  page.locator('[data-slot="value-field"][aria-label="bpm"]');
+
 async function setBpmViaScreen(page: Page, bpm: number): Promise<void> {
-  const bpmControl = page.getByRole("slider", { name: "bpm" });
+  const bpmControl = screenBpm(page);
   await bpmControl.press("Enter");
   const input = bpmControl.locator("input");
   await input.fill(String(bpm));
@@ -35,9 +42,7 @@ test.describe("session persistence across reloads", () => {
     await waitForAppReady(page);
 
     await expect(step(page, 0)).toHaveAttribute("data-active", "true");
-    await expect(page.getByRole("slider", { name: "bpm" })).toContainText(
-      "128",
-    );
+    await expect(screenBpm(page)).toContainText("128");
 
     // The dirty baseline survived the reload too: switching presets still
     // warns about unsaved changes.

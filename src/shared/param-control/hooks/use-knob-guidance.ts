@@ -5,7 +5,6 @@ import { useCoachmark } from "@/shared/hooks/use-coachmark";
 const HORIZONTAL_RATIO_THRESHOLD = 1.5;
 const HORIZONTAL_MIN_DELTA = 10;
 const VERTICAL_MIN_DELTA = 8;
-const TAP_DISTANCE_THRESHOLD = 6;
 
 const KNOB_COACHMARK_STORAGE_KEY = "coachmark-shown-knob-guidance";
 
@@ -15,9 +14,16 @@ interface Point {
 }
 
 /**
- * Lightweight heuristics to detect confusing knob interactions and trigger
- * the one-time coachmark. Keeps horizontal-drag/tap detection isolated from
- * the main knob interaction logic.
+ * Lightweight heuristics to detect a confusing knob interaction and trigger the
+ * one-time coachmark. A user who drags horizontally (expecting the value to
+ * change) is nudged toward the correct vertical gesture; a vertical drag
+ * dismisses the hint. Kept isolated from the descriptor-driven interaction core
+ * in `useParamControl` so the knob stays a thin presentation skin.
+ *
+ * Ported from the original hand-built knob. The tap heuristic was dropped: the
+ * descriptor-driven knob body is drag-only, so a press without drag changes
+ * nothing and is no longer an ambiguous gesture worth coaching (type-in moved
+ * to a double-click on the caption label).
  */
 function useKnobGuidance() {
   const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
@@ -58,26 +64,10 @@ function useKnobGuidance() {
     [dismissCoachmark, triggerCoachmark],
   );
 
-  const handleEnd = useCallback(
-    (point: Point) => {
-      if (!startRef.current || hasVerticalDragRef.current) return;
-
-      const distance = Math.hypot(
-        startRef.current.x - point.x,
-        startRef.current.y - point.y,
-      );
-      if (distance < TAP_DISTANCE_THRESHOLD) {
-        triggerCoachmark();
-      }
-    },
-    [triggerCoachmark],
-  );
-
   return {
     showCoachmark,
     handleStart,
     handleMove,
-    handleEnd,
     dismissCoachmark,
   };
 }

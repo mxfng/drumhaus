@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Analyser } from "tone";
 
+import { semitonesToRatio } from "@/core/audio/canonical/tune";
 import {
   createFrequencyAnalyzer,
   disposeFrequencyAnalyzer,
 } from "@/core/audio/frequency-analyzer";
-import { semitonesToRatio } from "@/shared/knob/lib/utils";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp, normalize } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/use-performance-store";

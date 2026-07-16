@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-10",
     "name": "Trap",
@@ -23,11 +22,14 @@
         "path": "4/ts_kick.wav"
       },
       "params": {
-        "decay": 49,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.2042994999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "4/ts_kick2.wav"
       },
       "params": {
-        "decay": 63,
-        "filter": 50,
-        "volume": 92,
-        "pan": 70,
-        "tune": 50,
+        "decay": 1.9875155,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0.3999999999999999,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "4/ts_snare.wav"
       },
       "params": {
-        "decay": 42,
-        "filter": 56,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.8861179999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 224.90628904623074
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "4/ts_clap.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 88,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -2,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "4/ts_hat.wav"
       },
       "params": {
-        "decay": 10,
-        "filter": 50,
-        "volume": 92,
-        "pan": 36,
-        "tune": 50,
+        "decay": 0.054950000000000006,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": -0.28,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "4/ts_ohat.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "4/ts_hat2.wav"
       },
       "params": {
-        "decay": 40,
-        "filter": 56,
-        "volume": 88,
-        "pan": 62,
-        "tune": 50,
+        "decay": 0.8042000000000001,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 224.90628904623074
+        },
+        "volume": -2,
+        "pan": 0.24,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "4/ts_hat3.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

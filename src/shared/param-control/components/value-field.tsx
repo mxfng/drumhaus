@@ -20,6 +20,8 @@ type ValueFieldProps<T> = {
   id?: string;
   /** Show the label inline before the value (default true). */
   showLabel?: boolean;
+  /** Per-instance override for the normalized drag delta per pixel. */
+  dragSensitivity?: number;
   className?: string;
   labelClassName?: string;
   valueClassName?: string;
@@ -47,6 +49,7 @@ function ValueField<T>({
   tabbable = true,
   id,
   showLabel = true,
+  dragSensitivity,
   className,
   labelClassName,
   valueClassName,
@@ -63,6 +66,7 @@ function ValueField<T>({
     id,
     dragThreshold: DRAG_THRESHOLD_PX,
     tapOpensEdit: true,
+    dragSensitivity,
   });
 
   const { handlers } = control;
@@ -91,14 +95,14 @@ function ValueField<T>({
           <span
             id={`${control.id}-label`}
             data-slot="value-field-label"
-            className={cn("text-foreground-muted", labelClassName)}
+            className={labelClassName}
           >
             {label}{" "}
           </span>
         )}
         <span
           data-slot="value-field-value"
-          className={cn("tabular-nums", valueClassName)}
+          className={cn("tabular-nums", showLabel && "pl-0.5", valueClassName)}
         >
           {control.displayValue}
         </span>

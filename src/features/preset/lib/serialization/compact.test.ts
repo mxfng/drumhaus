@@ -9,12 +9,13 @@
 
 import { describe, expect, it } from "vitest";
 
-import { init } from "@/core/dh";
+import type { PresetFileV1 } from "@/features/preset/types/preset";
+import { buildDenseSharePreset } from "./__fixtures__/dense-preset";
 import { decodePreset } from "./decode";
 import { encodePreset } from "./encode";
 
-function makePresetWithSwing(swing: number) {
-  const preset = init();
+function makePresetWithSwing(swing: number): PresetFileV1 {
+  const preset = buildDenseSharePreset();
   preset.transport.swing = swing;
   return preset;
 }

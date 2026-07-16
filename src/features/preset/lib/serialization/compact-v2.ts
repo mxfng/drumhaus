@@ -4,7 +4,6 @@ import { getKitLoader } from "@/core/dhkit";
 import {
   CorruptFieldError,
   InvalidFileError,
-  migrateV1ToDocument,
   presetDocumentSchema,
   UnknownKitError,
   UnsupportedVersionError,
@@ -53,7 +52,7 @@ const CHANNEL_COUNT = 8;
 /**
  * Per-field quantization (decimal places written to the payload).
  *
- * Requirement: decode(encode(doc)) must yield a document whose documentToV1
+ * Requirement: decode(encode(doc)) must yield a document whose canonical
  * knob values differ from the original's by less than 0.05 knob units (half
  * the 0.1 knob display step).
  *
@@ -75,9 +74,10 @@ const CHANNEL_COUNT = 8;
  *   grid step at the floor: err <= 100 * sqrt(q / span).
  *
  * The split filter is carried as a `[sideCode, cutoffHz]` pair (sideCode
- * 0 = lowpass, 1 = highpass); its store position is recovered downstream by
- * splitFilterToPosition (position = 49 * sqrt(cutoffHz / 15000) per side).
- * That inverse is steepest at the cutoff floor, so like the exponential
+ * 0 = lowpass, 1 = highpass); its widget position is recovered downstream by
+ * the filter descriptor's filterToPosition (position = 49 * sqrt(cutoffHz /
+ * 15000) per side). That inverse is steepest at the cutoff floor, so like the
+ * exponential
  * fields the bound is worst at cutoffHz -> 0: err <= 49 * sqrt(q / 15000);
  * p = 3 keeps it at ~0.013 knob units, well under 0.05.
  *
@@ -117,11 +117,9 @@ const PRECISION = {
 } as const;
 
 /**
- * The sparse baseline: the init preset in document space, computed once via
- * the same migration every ingress uses (mirroring how the v1.5 codec
- * derives its knob-space defaults from init()).
+ * The sparse baseline: the init preset, which is already a canonical document.
  */
-const INIT_DOCUMENT = migrateV1ToDocument(init());
+const INIT_DOCUMENT = init();
 
 type Channel = PresetDocument["channels"][number];
 type Master = PresetDocument["master"];

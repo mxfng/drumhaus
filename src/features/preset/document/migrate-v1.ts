@@ -4,7 +4,7 @@
  * This is where the entire v1 legacy is absorbed in one step (decision 1):
  * the field-presence heuristics (param renames, lowPass/highPass,
  * variationCycle, array-shaped patterns) via the existing runtime migrators,
- * the knob-to-domain conversion under the frozen v1 curves (decision 11),
+ * the knob-to-canonical conversion under the frozen v1 curves (decision 11),
  * the embedded-kit dereference (decision 12), the swing knob-to-fraction
  * conversion, and the macro folding (decision 15).
  */
@@ -14,7 +14,7 @@ import {
   sanitizeChain,
 } from "@/core/audio/engine/pattern-types";
 import { getKitLoader } from "@/core/dhkit";
-import type { InstrumentParams } from "@/features/instrument/types/instrument";
+import type { LegacyKnobInstrumentParams } from "@/features/preset/types/legacy-v1";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import {
@@ -42,15 +42,16 @@ const V1_TIMESTAMP_SENTINEL = "1970-01-01T00:00:00.000Z";
 // --- Frozen v1 curves -------------------------------------------------------
 //
 // FROZEN-CURVE CONTRACT (decision 11): these constants and functions are the
-// permanent interpretation of v1 knob values. They intentionally duplicate
-// the live mappings in src/core/audio/bridge/knob-to-domain.ts and
-// src/shared/knob/lib/* as of the moment v1 was retired, and they must NEVER
-// be re-pointed at those modules or edited to track them. If the app's knob
-// curves are ever retuned, that retune is a pure UI concern; old v1 files
-// must keep converting with the curves their authors heard, which is exactly
-// what this block preserves. The parity test in migrate-v1.test.ts asserts
-// frozen === live today; on a deliberate retune, the TEST gets updated to
-// pin these frozen values, never this file.
+// permanent interpretation of v1 knob values. They duplicate the knob-to-domain
+// mappings that were live as of the moment v1 was retired (the canonical flip
+// has since removed those modules - the old src/core/audio/bridge knob mappings
+// and the src/shared/knob library - because the stores now hold canonical
+// units). They must NEVER be re-pointed at any live module or edited to track
+// one. If the app's control curves are ever retuned, that retune is a pure UI
+// concern; old v1 files must keep converting with the curves their authors
+// heard, which is exactly what this block preserves. The parity test in
+// migrate-v1.test.ts pins these frozen values against the retired curves; on a
+// deliberate retune, the TEST is updated, never this file.
 //
 // Outputs are clamped into the document schema's ranges so float noise at
 // the range edges cannot fail the strict parse.
@@ -167,7 +168,7 @@ function resolveKitId(kit: PresetFileV1["kit"]): string {
 
 // --- Section conversions ----------------------------------------------------
 
-function channelFromKnobParams(params: InstrumentParams) {
+function channelFromKnobParams(params: LegacyKnobInstrumentParams) {
   return {
     decaySeconds: frozenV1Curves.decaySeconds(params.decay),
     filter: frozenV1Curves.filter(params.filter),

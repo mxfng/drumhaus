@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-7",
     "name": "Eighties",
@@ -23,11 +22,14 @@
         "path": "5/hs_kick.wav"
       },
       "params": {
-        "decay": 49,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.2042994999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -46,11 +48,14 @@
         "path": "5/hs_kick2.wav"
       },
       "params": {
-        "decay": 63,
-        "filter": 50,
-        "volume": 92,
-        "pan": 70,
-        "tune": 50,
+        "decay": 1.9875155,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0.3999999999999999,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -69,11 +74,14 @@
         "path": "5/hs_snare.wav"
       },
       "params": {
-        "decay": 42,
-        "filter": 54,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.8861179999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 99.95835068721368
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -92,11 +100,14 @@
         "path": "5/hs_clap.wav"
       },
       "params": {
-        "decay": 36,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.6523519999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -115,11 +126,14 @@
         "path": "5/hs_hat.wav"
       },
       "params": {
-        "decay": 26,
-        "filter": 50,
-        "volume": 92,
-        "pan": 36,
-        "tune": 50,
+        "decay": 0.342662,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": -0.28,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -138,11 +152,14 @@
         "path": "5/hs_ohat.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -161,11 +178,14 @@
         "path": "5/hs_perc.wav"
       },
       "params": {
-        "decay": 43,
-        "filter": 55,
-        "volume": 84,
-        "pan": 62,
-        "tune": 50,
+        "decay": 0.9285754999999999,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 156.18492294877137
+        },
+        "volume": -4,
+        "pan": 0.24,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -184,11 +204,14 @@
         "path": "5/hs_crash.wav"
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }

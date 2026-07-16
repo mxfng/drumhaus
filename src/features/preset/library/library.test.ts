@@ -14,7 +14,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { init } from "@/core/dh";
 import {
-  migrateV1ToDocument,
   StorageFullError,
   type PresetDocument,
 } from "@/features/preset/document";
@@ -73,7 +72,7 @@ function createMemoryStorage(seed: Record<string, string> = {}): MemoryStorage {
 }
 
 function makeDocument(id: string, name: string): PresetDocument {
-  const document = migrateV1ToDocument(init());
+  const document = init();
   return { ...document, meta: { ...document.meta, id, name } };
 }
 

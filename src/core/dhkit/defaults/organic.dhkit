@@ -1,6 +1,5 @@
 {
   "kind": "drumhaus.kit",
-  "version": 1,
   "meta": {
     "id": "kit-3",
     "name": "Organic",
@@ -28,11 +27,14 @@
         }
       },
       "params": {
-        "decay": 21,
-        "filter": 50,
-        "volume": 97,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.22527949999999997,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 2.5,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -56,11 +58,14 @@
         }
       },
       "params": {
-        "decay": 30,
-        "filter": 50,
-        "volume": 96,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.45455,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 2,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -84,11 +89,14 @@
         }
       },
       "params": {
-        "decay": 28,
-        "filter": 50,
-        "volume": 97,
-        "pan": 61,
-        "tune": 50,
+        "decay": 0.39660800000000007,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 2.5,
+        "pan": 0.21999999999999997,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -112,11 +120,14 @@
         }
       },
       "params": {
-        "decay": 23,
-        "filter": 50,
-        "volume": 95,
-        "pan": 36,
-        "tune": 50,
+        "decay": 0.2692355,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 1.5,
+        "pan": -0.28,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -140,11 +151,14 @@
         }
       },
       "params": {
-        "decay": 29,
-        "filter": 50,
-        "volume": 89,
-        "pan": 50,
-        "tune": 50,
+        "decay": 0.4250795,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -1.5,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -168,11 +182,14 @@
         }
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 91,
-        "pan": 27,
-        "tune": 50,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -0.5,
+        "pan": -0.45999999999999996,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -196,11 +213,14 @@
         }
       },
       "params": {
-        "decay": 54,
-        "filter": 50,
-        "volume": 92,
-        "pan": 50,
-        "tune": 50,
+        "decay": 1.4615420000000001,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": 0,
+        "pan": 0,
+        "tune": 0,
         "solo": false,
         "mute": false
       }
@@ -224,11 +244,14 @@
         }
       },
       "params": {
-        "decay": 100,
-        "filter": 50,
-        "volume": 75,
-        "pan": 50,
-        "tune": 44,
+        "decay": 5,
+        "filter": {
+          "side": "highpass",
+          "cutoffHz": 0
+        },
+        "volume": -8.5,
+        "pan": 0,
+        "tune": -0.84,
         "solo": false,
         "mute": false
       }

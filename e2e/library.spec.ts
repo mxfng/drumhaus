@@ -178,8 +178,10 @@ test.describe("preset library storage", () => {
   test("adopts a legacy library, backing up and quarantining", async ({
     page,
   }) => {
-    // A real v1 preset with a distinctive edit (voice 0, variation A, step 5),
-    // built from a shipped default so the embedded kit resolves on migration.
+    // A real preset document with a distinctive edit (voice 0, variation A,
+    // step 5), built from a shipped default so the embedded kit resolves on
+    // adoption. init.dh is now a v2.1 document: pattern/channels/master live at
+    // the top level (no legacy `sequencer` wrapper).
     const validPreset = JSON.parse(
       readFileSync(
         new URL("../src/core/dh/defaults/init.dh", import.meta.url),
@@ -187,16 +189,14 @@ test.describe("preset library storage", () => {
       ),
     ) as {
       meta: { id: string; name: string };
-      sequencer: {
-        pattern: { voices: { variations: { triggers: boolean[] }[] }[] };
-      };
+      pattern: { voices: { variations: { triggers: boolean[] }[] }[] };
     };
     validPreset.meta = {
       ...validPreset.meta,
       id: "adopted-valid",
       name: "Adopted Beat",
     };
-    validPreset.sequencer.pattern.voices[0].variations[0].triggers[5] = true;
+    validPreset.pattern.voices[0].variations[0].triggers[5] = true;
 
     // A corrupt custom preset: passes the kind/version gate, fails the schema.
     const corruptPreset = {

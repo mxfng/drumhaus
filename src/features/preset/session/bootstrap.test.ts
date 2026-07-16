@@ -14,10 +14,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
-import {
-  migrateV1ToDocument,
-  type PresetDocument,
-} from "@/features/preset/document";
+import { type PresetDocument } from "@/features/preset/document";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import { hashPresetDocument } from "./canonical-hash";
 
@@ -121,7 +118,7 @@ function autosaveNow(ctx: BootContext): void {
 }
 
 function initDocument(): PresetDocument {
-  return migrateV1ToDocument(init());
+  return init();
 }
 
 function sessionEnvelopeJson(
@@ -322,7 +319,7 @@ describe("bootstrapSession: corrupt session", () => {
     expect(ctx.storage.map.get(QUARANTINE_KEY)).toBe(envelope);
     expect(ctx.storage.map.has(SESSION_KEY)).toBe(false);
     expect(ctx.usePresetMetaStore.getState().currentKitMeta.id).toBe(
-      init().kit.meta.id,
+      loadKit(init().kit.id)!.meta.id,
     );
     expect(ctx.useTransportStore.getState().bpm).toBe(init().transport.bpm);
     expect(consoleError).toHaveBeenCalled();
@@ -335,13 +332,15 @@ describe("bootstrapSession: one-time legacy adoption", () => {
     const seed = legacySeed();
     const ctx = await boot(createMemoryStorage(seed));
 
-    // Transport: bpm verbatim, pre-#269 swing knob rescaled 48 -> 64.
+    // Transport: bpm verbatim; the pre-#269 swing knob 48 rescales to knob 64
+    // and lands in canonical Tone-swing units (64 / 100 * 0.375 = 0.24).
     expect(ctx.useTransportStore.getState().bpm).toBe(128);
-    expect(ctx.useTransportStore.getState().swing).toBeCloseTo(64, 6);
+    expect(ctx.useTransportStore.getState().swing).toBeCloseTo(0.24, 6);
 
-    // Instruments: the v1-era release value became decay.
+    // Instruments: the v1-era release knob (63) became the canonical decay
+    // time in seconds through the frozen exponential curve.
     const instruments = ctx.useInstrumentsStore.getState().instruments;
-    expect(instruments[0].params.decay).toBeCloseTo(63, 6);
+    expect(instruments[0].params.decay).toBeCloseTo(1.9875155, 6);
     expect("release" in instruments[0].params).toBe(false);
 
     // Sequencer: pattern and chain restored, selection kept from the
@@ -355,11 +354,14 @@ describe("bootstrapSession: one-time legacy adoption", () => {
     expect(patternState.chainEnabled).toBe(true);
     expect(patternState.variation).toBe(2);
 
-    // Master: split-filter position is identity, macros round-trip.
+    // Master: the knob values convert to canonical units - the split-filter
+    // position (25) to a low-pass `{ side, cutoffHz }`, the reverb macro to a
+    // 0..1 fraction (33 -> 0.33), and master volume to dB (88 -> -2).
     const master = ctx.useMasterChainStore.getState();
-    expect(master.filter).toBe(25);
-    expect(master.reverb).toBeCloseTo(33, 6);
-    expect(master.masterVolume).toBeCloseTo(88, 6);
+    expect(master.filter.side).toBe("lowpass");
+    expect(master.filter.cutoffHz).toBeCloseTo(3904.6230737, 6);
+    expect(master.reverb).toBeCloseTo(0.33, 6);
+    expect(master.masterVolume).toBeCloseTo(-2, 6);
 
     // Meta: restored via the capture (the persist migrate narrowed the
     // envelope before bootstrap ran).
@@ -457,7 +459,7 @@ describe("bootstrapSession: first visit", () => {
       initFile.meta.id,
     );
     expect(ctx.usePresetMetaStore.getState().currentKitMeta.id).toBe(
-      initFile.kit.meta.id,
+      loadKit(initFile.kit.id)!.meta.id,
     );
 
     // Clean from the start, with a real baseline (not the null placeholder).

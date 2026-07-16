@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { init } from "@/core/dh";
+import { loadKit } from "@/core/dhkit";
 import type { PresetDocument } from "@/features/preset/document";
 import { snapshotPresetDocument } from "@/features/preset/document/snapshot";
 import { getDefaultPresets } from "@/features/preset/lib/constants";
@@ -13,7 +14,6 @@ import {
 } from "@/features/preset/library/library";
 import { hashPresetDocument } from "@/features/preset/session/canonical-hash";
 import type { Meta } from "@/features/preset/types/meta";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
 
 /**
  * Maximum number of custom presets allowed in storage
@@ -54,7 +54,7 @@ interface PresetMetaState {
    * written, and the baseline must hash the APPLIED state (the post-apply
    * snapshot), which applyPresetDocument sets via markPresetClean.
    */
-  loadPreset: (preset: PresetFileV1) => void;
+  loadPreset: (presetMeta: Meta, kitMeta: Meta) => void;
 
   /**
    * Reset the clean baseline to the current store state: hash the live
@@ -172,7 +172,7 @@ const usePresetMetaStore = create<PresetMetaState>()(
         // a document before React mounts, which sets it. The library starts
         // empty and hydrates in the same boot pass.
         currentPresetMeta: init().meta,
-        currentKitMeta: init().kit.meta,
+        currentKitMeta: loadKit(init().kit.id)!.meta,
         cleanHash: null,
         customPresets: [],
 
@@ -189,10 +189,10 @@ const usePresetMetaStore = create<PresetMetaState>()(
           });
         },
 
-        loadPreset: (preset) => {
+        loadPreset: (presetMeta, kitMeta) => {
           set((state) => {
-            state.currentPresetMeta = preset.meta;
-            state.currentKitMeta = preset.kit.meta;
+            state.currentPresetMeta = presetMeta;
+            state.currentKitMeta = kitMeta;
           });
         },
 

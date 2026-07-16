@@ -55,6 +55,13 @@ interface UseParamControlProps<T> {
   dragThreshold?: number;
   /** When true, a tap (a press released below `dragThreshold`) opens the type-in editor. */
   tapOpensEdit?: boolean;
+  /**
+   * Per-instance override for the normalized drag delta per pixel. Falls back to
+   * the descriptor's `dragSensitivity`, then the global default. Lets one
+   * descriptor drive presentations with different feels (e.g. the transport
+   * knob vs the tighter screen-bar value field).
+   */
+  dragSensitivity?: number;
 }
 
 interface SliderAriaProps {
@@ -132,6 +139,7 @@ function useParamControl<T>({
   dragAxis = "vertical",
   dragThreshold = 0,
   tapOpensEdit = false,
+  dragSensitivity,
 }: UseParamControlProps<T>): UseParamControlResult {
   const generatedId = useId();
   const controlId = id ?? generatedId;
@@ -159,6 +167,7 @@ function useParamControl<T>({
     dragAxis,
     dragThreshold,
     tapOpensEdit,
+    dragSensitivity,
   });
   latest.current = {
     descriptor,
@@ -168,6 +177,7 @@ function useParamControl<T>({
     dragAxis,
     dragThreshold,
     tapOpensEdit,
+    dragSensitivity,
   };
 
   const position = canonicalToNormalized(descriptor, value);
@@ -275,7 +285,10 @@ function useParamControl<T>({
         : lastPointRef.current.y - y;
     lastPointRef.current = { x, y };
 
-    const sensitivity = d.dragSensitivity ?? DEFAULT_DRAG_SENSITIVITY;
+    const sensitivity =
+      latest.current.dragSensitivity ??
+      d.dragSensitivity ??
+      DEFAULT_DRAG_SENSITIVITY;
     const fine = event.shiftKey;
     const factor = fine ? (d.fineDragFactor ?? DEFAULT_FINE_DRAG_FACTOR) : 1;
 
@@ -378,20 +391,43 @@ function useParamControl<T>({
           event.preventDefault();
           commitDiscrete(endpointValue(descriptor, "max"));
           break;
+        // Reset keys differ by presentation. Where a tap opens the editor (the
+        // screen-bar value field), type-in is the primary gesture, so reset is
+        // Delete/Backspace and Enter opens the editor. Otherwise (knobs and
+        // faders, whose type-in is a deliberate double-click on the label),
+        // the body is a button-like control: Enter and Space reset to default.
         case "Delete":
         case "Backspace":
-          event.preventDefault();
-          commitDiscrete(resetValue(descriptor));
+          if (tapOpensEdit) {
+            event.preventDefault();
+            commitDiscrete(resetValue(descriptor));
+          }
           break;
         case "Enter":
-          if (descriptor.parse) {
+          event.preventDefault();
+          if (tapOpensEdit) {
+            if (descriptor.parse) beginEdit();
+          } else {
+            commitDiscrete(resetValue(descriptor));
+          }
+          break;
+        case " ":
+          if (!tapOpensEdit) {
             event.preventDefault();
-            beginEdit();
+            commitDiscrete(resetValue(descriptor));
           }
           break;
       }
     },
-    [disabled, isEditing, descriptor, value, commitDiscrete, beginEdit],
+    [
+      disabled,
+      isEditing,
+      descriptor,
+      value,
+      commitDiscrete,
+      beginEdit,
+      tapOpensEdit,
+    ],
   );
 
   const handleDoubleClick = useCallback(

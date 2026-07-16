@@ -6,23 +6,27 @@
  * is the stable contract across the audio engine refactor - only the
  * internals of this file will be rewritten as engine phases land.
  *
- * Since phase 5, rendering goes through the REAL production path: fixture
- * state is pushed into a throwaway AudioEngine via the engine's command API
- * (with knob-to-domain conversion at the boundary, exactly like the bridge)
- * and rendered with engine.renderWav. Every golden test therefore exercises
- * the actual export pipeline end to end.
+ * Rendering goes through the REAL production path: fixture state is pushed
+ * into a throwaway AudioEngine via the engine's command API and rendered with
+ * engine.renderWav. Instruments are CANONICAL (the store-facing units), so
+ * they cross the boundary through the canonical-to-engine bridge
+ * (engine-params.ts) exactly like production. The master chain and swing are
+ * still supplied to this harness as 0-100 knob positions - the golden and stem
+ * specs pin knob values that must not change - and this file converts them to
+ * canonical through PRODUCTION code (the scalar descriptors and the frozen
+ * split-filter curve), so any drift between production conversion and the old
+ * engine mapping surfaces as a golden/stem failure.
  */
 
 import { getContext } from "tone/build/esm/index";
 
-import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
 import {
-  instrumentKnobsToContinuousParams,
-  instrumentKnobsToPlayParams,
-  mapParamsToSettings,
-  transportSwingKnobToDomain,
-  type MasterChainParams,
-} from "@/core/audio/bridge/knob-to-domain";
+  instrumentContinuousParams,
+  instrumentPlayParams,
+  mapMasterToSettings,
+  type MasterChainCanonical,
+} from "@/core/audio/bridge/engine-params";
+import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
 import { AudioEngine } from "@/core/audio/engine";
 import type {
   Pattern,
@@ -30,13 +34,47 @@ import type {
   VariationId,
 } from "@/core/audio/engine/pattern-types";
 import type { InstrumentData } from "@/features/instrument/types/instrument";
+import { frozenSplitFilterPositionToCanonical } from "@/features/preset/document/frozen-split-filter";
+import {
+  masterCompAttackDescriptor,
+  masterCompMixDescriptor,
+  masterCompRatioDescriptor,
+  masterCompThresholdDescriptor,
+  masterPhaserDescriptor,
+  masterReverbDescriptor,
+  masterSaturationDescriptor,
+  masterVolumeDescriptor,
+  normalizedToCanonical,
+  transportSwingDescriptor,
+} from "@/shared/param-control";
 
 /**
  * Historical extra render time after the last bar. Kept exported for
- * interface stability: since phase 5 renders go through engine.renderWav
- * with includeTail=false, so buffers end exactly on the bar line.
+ * interface stability: renders go through engine.renderWav with
+ * includeTail=false, so buffers end exactly on the bar line.
  */
 const RENDER_TAIL_SECONDS = 0.3;
+
+/**
+ * Master chain as the 0-100 knob positions the golden and stem specs pin.
+ *
+ * The stores hold canonical master units now; this knob shape is a FROZEN
+ * test-harness boundary that keeps the pinned golden values (NO_COMP,
+ * { reverb: 100 }, ...) meaning what they meant pre-flip. masterKnobsToCanonical
+ * converts it back to canonical before the engine sees it.
+ */
+interface MasterChainParams {
+  /** Split-filter position (0-100). */
+  filter: number;
+  saturation: number;
+  phaser: number;
+  reverb: number;
+  compThreshold: number;
+  compRatio: number;
+  compAttack: number;
+  compMix: number;
+  masterVolume: number;
+}
 
 /**
  * Neutral master chain knob values: filter centered, all sends off,
@@ -61,6 +99,58 @@ const DEFAULT_MASTER_PARAMS: MasterChainParams = {
   masterVolume: 92,
 };
 
+// --- Knob-to-canonical master conversion ------------------------------------
+//
+// The harness API stays knob-valued so the golden and stem specs pass the same
+// values, but the conversion runs through PRODUCTION code: the scalar
+// descriptors (src/shared/param-control) and the frozen split-filter curve for
+// the filter (Max's two-curve decision - the live descriptor curve is
+// exponential, the frozen curve preserves old/factory cutoffs). Routing
+// through production means any drift between production canonical conversion
+// and the old engine mapping surfaces as a golden/stem failure. No live store,
+// bridge, or engine holds a 0-100 knob value.
+
+/**
+ * Maps the harness knob master params to the canonical master chain the engine
+ * bridge consumes. The filter uses the frozen curve (position 50 = highpass at
+ * 0 Hz, the old open extreme); every scalar uses its production descriptor; the
+ * two macros stay 0-1 wet fractions that engine-params expands to their engine
+ * companions.
+ */
+function masterKnobsToCanonical(
+  params: MasterChainParams,
+): MasterChainCanonical {
+  return {
+    filter: frozenSplitFilterPositionToCanonical(params.filter),
+    saturation: normalizedToCanonical(
+      masterSaturationDescriptor,
+      params.saturation / 100,
+    ),
+    phaser: normalizedToCanonical(masterPhaserDescriptor, params.phaser / 100),
+    reverb: normalizedToCanonical(masterReverbDescriptor, params.reverb / 100),
+    compThreshold: normalizedToCanonical(
+      masterCompThresholdDescriptor,
+      params.compThreshold / 100,
+    ),
+    compRatio: normalizedToCanonical(
+      masterCompRatioDescriptor,
+      params.compRatio / 100,
+    ),
+    compAttack: normalizedToCanonical(
+      masterCompAttackDescriptor,
+      params.compAttack / 100,
+    ),
+    compMix: normalizedToCanonical(
+      masterCompMixDescriptor,
+      params.compMix / 100,
+    ),
+    masterVolume: normalizedToCanonical(
+      masterVolumeDescriptor,
+      params.masterVolume / 100,
+    ),
+  };
+}
+
 interface RenderFixtureOptions {
   pattern: Pattern;
   instruments: InstrumentData[];
@@ -79,8 +169,8 @@ interface RenderFixtureOptions {
 /**
  * Constructs a fresh (non-singleton) AudioEngine and pushes the fixture
  * state through the real engine commands: pattern, playback config,
- * per-channel play/continuous params (knob values converted to domain at
- * the boundary), master settings, tempo, swing, and the kit.
+ * per-channel canonical play/continuous params, master settings, tempo,
+ * swing, and the kit.
  *
  * The caller owns the returned engine and MUST dispose() it. Note that
  * loadKit creates live-context channels as a side effect; dispose() cleans
@@ -131,17 +221,23 @@ async function createFixtureEngine(
     instruments.forEach((instrument, index) => {
       engine.setChannelPlayParams(
         index,
-        instrumentKnobsToPlayParams(instrument.params),
+        instrumentPlayParams(instrument.params),
       );
       engine.setChannelContinuousParams(
         index,
-        instrumentKnobsToContinuousParams(instrument.params),
+        instrumentContinuousParams(instrument.params),
       );
     });
 
-    engine.setMasterSettings(mapParamsToSettings(mergedMasterParams));
+    engine.setMasterSettings(
+      mapMasterToSettings(masterKnobsToCanonical(mergedMasterParams)),
+    );
     engine.setTempo(bpm);
-    engine.setSwing(transportSwingKnobToDomain(swing));
+    // Knob (0-100) to the canonical Tone swing fraction via the production
+    // swing descriptor.
+    engine.setSwing(
+      normalizedToCanonical(transportSwingDescriptor, swing / 100),
+    );
 
     await engine.loadKit(
       toKitSampleDescriptors(instruments),
@@ -179,4 +275,4 @@ export {
   DEFAULT_MASTER_PARAMS,
   RENDER_TAIL_SECONDS,
 };
-export type { RenderFixtureOptions };
+export type { RenderFixtureOptions, MasterChainParams };

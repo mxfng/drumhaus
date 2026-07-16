@@ -5,11 +5,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui";
-import { KitFileV1 } from "../types/kit";
+import { KitFile } from "../types/kit";
 
 interface KitSelectProps {
   selectedKitId: string;
-  kits: KitFileV1[];
+  kits: KitFile[];
   onSelect: (value: string) => void;
 }
 
