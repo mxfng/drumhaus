@@ -11,11 +11,11 @@
  * engine.renderWav. Instruments are CANONICAL (the store-facing units), so
  * they cross the boundary through the canonical-to-engine bridge
  * (engine-params.ts) exactly like production. The master chain and swing are
- * still supplied to this harness as 0-100 knob positions - the golden and
- * stem specs pin knob values that must not change - so this file owns a small
- * frozen knob-to-canonical conversion (the pre-flip bridge's master math) and
- * then routes through the same canonical bridge. The engine inputs it
- * produces are byte-identical to the pre-flip harness.
+ * still supplied to this harness as 0-100 knob positions - the golden and stem
+ * specs pin knob values that must not change - and this file converts them to
+ * canonical through PRODUCTION code (the scalar descriptors and the frozen
+ * split-filter curve), so any drift between production conversion and the old
+ * engine mapping surfaces as a golden/stem failure.
  */
 
 import { getContext } from "tone/build/esm/index";
@@ -27,23 +27,26 @@ import {
   type MasterChainCanonical,
 } from "@/core/audio/bridge/engine-params";
 import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
-import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import { AudioEngine } from "@/core/audio/engine";
-import {
-  MASTER_COMP_ATTACK_RANGE,
-  MASTER_COMP_RATIO_RANGE,
-  MASTER_COMP_THRESHOLD_RANGE,
-  MASTER_FILTER_RANGE,
-  MASTER_VOLUME_RANGE,
-  TRANSPORT_SWING_MAX,
-} from "@/core/audio/engine/constants";
 import type {
   Pattern,
   PatternChain,
   VariationId,
 } from "@/core/audio/engine/pattern-types";
 import type { InstrumentData } from "@/features/instrument/types/instrument";
-import { lerp } from "@/shared/lib/utils";
+import { frozenSplitFilterPositionToCanonical } from "@/features/preset/document/frozen-split-filter";
+import {
+  masterCompAttackDescriptor,
+  masterCompMixDescriptor,
+  masterCompRatioDescriptor,
+  masterCompThresholdDescriptor,
+  masterPhaserDescriptor,
+  masterReverbDescriptor,
+  masterSaturationDescriptor,
+  masterVolumeDescriptor,
+  normalizedToCanonical,
+  transportSwingDescriptor,
+} from "@/shared/param-control";
 
 /**
  * Historical extra render time after the last bar. Kept exported for
@@ -96,79 +99,55 @@ const DEFAULT_MASTER_PARAMS: MasterChainParams = {
   masterVolume: 92,
 };
 
-// --- Frozen knob-to-canonical master math (the pre-flip bridge) -------------
+// --- Knob-to-canonical master conversion ------------------------------------
 //
-// Reproduces the deleted knob-to-domain/transform curves for the master chain
-// exactly, so the engine sees the same values the golden baselines were
-// captured against. Confined to this test harness; no live store, bridge, or
-// engine holds a 0-100 knob value.
-
-/** Exponent of the pre-flip perceptual knob curve (compressor attack). */
-const KNOB_EXPONENTIAL_CURVE_POWER = 2;
-/** Split-filter geometry from the retired widget curve. */
-const SPLIT_FILTER_CURVE_POWER = 2;
-const KNOB_ROTATION_THRESHOLD_L = 49;
-const KNOB_ROTATION_THRESHOLD_R = 50;
+// The harness API stays knob-valued so the golden and stem specs pass the same
+// values, but the conversion runs through PRODUCTION code: the scalar
+// descriptors (src/shared/param-control) and the frozen split-filter curve for
+// the filter (Max's two-curve decision - the live descriptor curve is
+// exponential, the frozen curve preserves old/factory cutoffs). Routing
+// through production means any drift between production canonical conversion
+// and the old engine mapping surfaces as a golden/stem failure. No live store,
+// bridge, or engine holds a 0-100 knob value.
 
 /**
- * Split-filter position (0-100) to the canonical `{ side, cutoffHz }`, using
- * the pre-flip curve: 0-49 sweeps the low-pass side, 50-100 the high-pass
- * side, each rescaled to 0-1 and shaped with a power-2 curve over
- * MASTER_FILTER_RANGE. Position 50 is the open extreme (highpass at 0 Hz).
- */
-function splitFilterPositionToCanonical(position: number): CanonicalFilter {
-  const lowPass = position <= KNOB_ROTATION_THRESHOLD_L;
-  const [min, max] = MASTER_FILTER_RANGE;
-  const sidePosition =
-    ((lowPass ? position : position - KNOB_ROTATION_THRESHOLD_R) /
-      KNOB_ROTATION_THRESHOLD_L) *
-    100;
-  const t = sidePosition / 100;
-  const cutoffHz = min + Math.pow(t, SPLIT_FILTER_CURVE_POWER) * (max - min);
-  return { side: lowPass ? "lowpass" : "highpass", cutoffHz };
-}
-
-/**
- * Maps the harness knob master params to the canonical master chain the
- * engine bridge consumes. Linear knob curves rescale to their canonical
- * range; the compressor attack keeps its power-2 curve; masterVolume treats
- * knob 0 as silence (-Infinity); the two macros stay 0-1 wet fractions that
- * engine-params expands to their engine companions.
+ * Maps the harness knob master params to the canonical master chain the engine
+ * bridge consumes. The filter uses the frozen curve (position 50 = highpass at
+ * 0 Hz, the old open extreme); every scalar uses its production descriptor; the
+ * two macros stay 0-1 wet fractions that engine-params expands to their engine
+ * companions.
  */
 function masterKnobsToCanonical(
   params: MasterChainParams,
 ): MasterChainCanonical {
   return {
-    filter: splitFilterPositionToCanonical(params.filter),
-    saturation: params.saturation / 100,
-    phaser: params.phaser / 100,
-    reverb: params.reverb / 100,
-    compThreshold: lerp(
+    filter: frozenSplitFilterPositionToCanonical(params.filter),
+    saturation: normalizedToCanonical(
+      masterSaturationDescriptor,
+      params.saturation / 100,
+    ),
+    phaser: normalizedToCanonical(masterPhaserDescriptor, params.phaser / 100),
+    reverb: normalizedToCanonical(masterReverbDescriptor, params.reverb / 100),
+    compThreshold: normalizedToCanonical(
+      masterCompThresholdDescriptor,
       params.compThreshold / 100,
-      MASTER_COMP_THRESHOLD_RANGE[0],
-      MASTER_COMP_THRESHOLD_RANGE[1],
     ),
-    compRatio: Math.round(
-      lerp(
-        params.compRatio / 100,
-        MASTER_COMP_RATIO_RANGE[0],
-        MASTER_COMP_RATIO_RANGE[1],
-      ),
+    compRatio: normalizedToCanonical(
+      masterCompRatioDescriptor,
+      params.compRatio / 100,
     ),
-    compAttack: lerp(
-      Math.pow(params.compAttack / 100, KNOB_EXPONENTIAL_CURVE_POWER),
-      MASTER_COMP_ATTACK_RANGE[0],
-      MASTER_COMP_ATTACK_RANGE[1],
+    compAttack: normalizedToCanonical(
+      masterCompAttackDescriptor,
+      params.compAttack / 100,
     ),
-    compMix: params.compMix / 100,
-    masterVolume:
-      params.masterVolume === 0
-        ? -Infinity
-        : lerp(
-            params.masterVolume / 100,
-            MASTER_VOLUME_RANGE[0],
-            MASTER_VOLUME_RANGE[1],
-          ),
+    compMix: normalizedToCanonical(
+      masterCompMixDescriptor,
+      params.compMix / 100,
+    ),
+    masterVolume: normalizedToCanonical(
+      masterVolumeDescriptor,
+      params.masterVolume / 100,
+    ),
   };
 }
 
@@ -254,9 +233,11 @@ async function createFixtureEngine(
       mapMasterToSettings(masterKnobsToCanonical(mergedMasterParams)),
     );
     engine.setTempo(bpm);
-    // Knob (0-100) to the canonical Tone swing fraction (0-TRANSPORT_SWING_MAX),
-    // matching the retired transportSwingKnobToDomain exactly.
-    engine.setSwing((swing / 100) * TRANSPORT_SWING_MAX);
+    // Knob (0-100) to the canonical Tone swing fraction via the production
+    // swing descriptor.
+    engine.setSwing(
+      normalizedToCanonical(transportSwingDescriptor, swing / 100),
+    );
 
     await engine.loadKit(
       toKitSampleDescriptors(instruments),

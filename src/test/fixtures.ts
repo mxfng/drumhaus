@@ -14,31 +14,70 @@ import type {
   InstrumentData,
   InstrumentParams,
 } from "@/features/instrument/types/instrument";
+import { frozenSplitFilterPositionToCanonical } from "@/features/preset/document/frozen-split-filter";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
+import {
+  instrumentDecayDescriptor,
+  instrumentPanDescriptor,
+  instrumentTuneDescriptor,
+  instrumentVolumeDescriptor,
+  normalizedToCanonical,
+} from "@/shared/param-control";
 
 const FIXTURE_SAMPLE_RATE = 44100;
 
+/** Instrument params as the 0-100 knob positions the golden/stem specs pin. */
+interface KnobInstrumentParams {
+  tune: number;
+  decay: number;
+  filter: number;
+  volume: number;
+  pan: number;
+  solo: boolean;
+  mute: boolean;
+}
+
 /**
- * Neutral instrument params in CANONICAL units: tune centered (0 semitones),
- * full decay (5s), filter at its open extreme, unity volume (0 dB), centered
- * pan (0).
+ * Neutral instrument knob values: tune centered, full decay, filter centered,
+ * unity volume, centered pan.
  *
  * Deliberately hand-pinned rather than derived from init(): these are
  * golden-stability snapshots, so golden renders cannot silently shift when
- * the app's default preset changes. The values are the exact canonical
- * equivalents of the historical knob pins (tune 50, decay 100, filter 50,
- * volume 92, pan 50), so the engine hears the same inputs. Any edit here
- * invalidates the golden baselines - change these values only on purpose.
+ * the app's default preset changes. Any edit here invalidates the golden
+ * baselines - change these values only on purpose.
  */
-const DEFAULT_INSTRUMENT_PARAMS: InstrumentParams = {
-  tune: 0,
-  decay: 5,
-  filter: { side: "highpass", cutoffHz: 0 },
-  volume: 0,
-  pan: 0,
+const DEFAULT_INSTRUMENT_PARAMS: KnobInstrumentParams = {
+  tune: 50,
+  decay: 100,
+  filter: 50,
+  volume: 92,
+  pan: 50,
   solo: false,
   mute: false,
 };
+
+/**
+ * Convert the harness knob params to canonical units through the PRODUCTION
+ * conversions: the scalar descriptors (src/shared/param-control) for
+ * decay/volume/pan/tune and the frozen split-filter curve for the filter. The
+ * harness API stays knob-valued so the golden/stem specs pass the same values;
+ * routing through production means any drift between production canonical
+ * conversion and the old engine mapping surfaces as a golden/stem failure.
+ */
+function knobParamsToCanonical(knob: KnobInstrumentParams): InstrumentParams {
+  return {
+    decay: normalizedToCanonical(instrumentDecayDescriptor, knob.decay / 100),
+    filter: frozenSplitFilterPositionToCanonical(knob.filter),
+    volume: normalizedToCanonical(
+      instrumentVolumeDescriptor,
+      knob.volume / 100,
+    ),
+    pan: normalizedToCanonical(instrumentPanDescriptor, knob.pan / 100),
+    tune: normalizedToCanonical(instrumentTuneDescriptor, knob.tune / 100),
+    solo: knob.solo,
+    mute: knob.mute,
+  };
+}
 
 function samplesToBlobUrl(samples: Float32Array<ArrayBuffer>): string {
   const buffer = new AudioBuffer({
@@ -86,7 +125,7 @@ function makeToneSampleUrl(durationSeconds = 1.5): string {
 function makeInstrument(
   index: number,
   role: InstrumentRole,
-  overrides?: Partial<InstrumentParams>,
+  overrides?: Partial<KnobInstrumentParams>,
 ): InstrumentData {
   return {
     meta: { id: `test-inst-${index}`, name: `Test ${role} ${index}` },
@@ -95,7 +134,10 @@ function makeInstrument(
       meta: { id: `test-sample-${index}`, name: `Test sample ${index}` },
       path: `test-sample-${index}.wav`,
     },
-    params: { ...DEFAULT_INSTRUMENT_PARAMS, ...overrides },
+    params: knobParamsToCanonical({
+      ...DEFAULT_INSTRUMENT_PARAMS,
+      ...overrides,
+    }),
   };
 }
 
