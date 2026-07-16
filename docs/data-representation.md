@@ -1,6 +1,6 @@
 # Musical data representation
 
-Status: proposed (principles rubric; audit and fixes to follow).
+Status: shipped and complete (epic #357, squash PR #366).
 Author: Max, July 2026.
 
 ## Why this exists
@@ -226,5 +226,6 @@ The main coordinator checks each PR against the row below independently, not on 
 | Knob primitive (knob-primitive.md)           | Epic 2                | descriptor model, interaction set, canonical-only API, tests                       |
 | Approved decisions 1-7, principles P1-P7     | across B-F and Epic 2 | each closed finding restores its principle                                         |
 
-Verification status: Epic 2 (PR #359) is verified and closes the knob-primitive row and V8's new-code half.
-The remaining rows are open until their PR lands and is checked against this table.
+Verification status: closed.
+Epic 2 (PR #359, recomposed onto the headless primitive in PR #365) closes the knob-primitive row and V8's new-code half.
+PRs B through F landed as a single squash merge (PR #366), closing epic #357; every remaining row above is closed and was checked against that diff.

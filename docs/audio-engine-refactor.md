@@ -79,6 +79,10 @@ src/core/audio/
     knob-to-domain.ts      # knob mapping applied here, at the boundary
 ```
 
+Update (2026-07-16, epic #357): this is the phase-3/4 target sketch, not the shipped layout.
+`scheduler.ts` shipped as `engine/sequencer/sequencer.ts`.
+`bridge/knob-to-domain.ts` was deleted by the later domain-representation flip (docs/data-representation.md): the stores became canonical, so the bridge (`bridge/engine-params.ts`) is a thin canonical-to-engine crossing with no knob mapping left at the boundary.
+
 ### The engine facade
 
 A single class owning channels, master bus, transport, and scheduler, with a narrow command API in domain units:
@@ -97,6 +101,10 @@ engine.onStep(cb)                    // events out, for playhead / step ticker
 engine.getAnalyser(i)                // taps for meters and analyzers
 engine.rebuild()                     // teardown + reconstruct graph from last-pushed state
 ```
+
+Update (2026-07-16): this is the phase-3 target sketch, not the shipped command surface.
+On the shipped facade (`src/core/audio/engine/audio-engine.ts`), `setChannelParams` shipped as `setChannelContinuousParams`, and `setMasterParams` shipped as `setMasterSettings`.
+`onStep` and `getAnalyser` never shipped; the events out are `onPlaybackVariationChange`, `onKitLoaded`, and `onPlaybackStateChange`, and the read-only taps are `getChannelMeter`, `getMasterLevelDb` (issue #268), and `getCurrentStep`.
 
 Key properties:
 
@@ -196,6 +204,7 @@ Notable findings and deviations recorded for posterity:
   `loadKit` retains kit descriptors and the resolved sample resolver, so `renderWav` needs no store access and no `init()`.
   The golden test helper drives the production render path end to end via a throwaway `AudioEngine`.
 - **The playback data model moved engine-side** (`engine/pattern-types.ts`), with the old `features/sequencer` locations kept as re-export shims; `InstrumentData` moved to `features/instrument/types` since it references preset metadata.
+  Update (2026-07-16, epic #357): the `features/sequencer` re-export shims are gone; `features/sequencer` now imports `Pattern`, `PatternChain`, and related types straight from `engine/pattern-types.ts`.
 - **The transport store issues engine commands directly** (features -> core is the allowed direction); full store purity was deliberately not pursued because the gesture-gated context unlock must run inside the click task.
 - **Context recovery** now tries `engine.rebuild()` on the second stalled check and only falls back to the page reload if the clock is still stalled afterwards.
 

@@ -1,6 +1,6 @@
 # The knob primitive
 
-Status: proposed (design; implementation as its own epic).
+Status: shipped and complete (epic #359; recomposed onto the headless primitive in PR #365).
 Author: Max, July 2026.
 Related: [data-representation.md](./data-representation.md) defines the canonical-units rule this control binds to (its P4 confines control position to this widget).
 
