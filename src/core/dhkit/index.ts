@@ -55,21 +55,21 @@ const KIT_ORDER: string[] = [
 /**
  * Get all available kits in display order
  */
-function getAllKits(): KitFileV1[] {
+function getAllKits(): KitFile[] {
   return KIT_ORDER.map((id) => KIT_LOADERS[id]());
 }
 
 /**
  * Get a kit loader by its stable ID
  */
-function getKitLoader(id: string): (() => KitFileV1) | undefined {
+function getKitLoader(id: string): (() => KitFile) | undefined {
   return KIT_LOADERS[id];
 }
 
 /**
  * Load a kit by its stable ID
  */
-function loadKit(id: string): KitFileV1 | undefined {
+function loadKit(id: string): KitFile | undefined {
   const loader = KIT_LOADERS[id];
   return loader?.();
 }

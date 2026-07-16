@@ -138,7 +138,7 @@ type CompactMasterChain = Partial<{
 
 // --- ENCODE FUNCTIONS ---
 
-function encodeParams(params: InstrumentParams): CompactParams {
+function encodeParams(params: LegacyKnobInstrumentParams): CompactParams {
   const compact: CompactParams = {};
 
   if (params.decay !== DEFAULT_PARAMS.decay) compact.d = params.decay;
@@ -153,7 +153,7 @@ function encodeParams(params: InstrumentParams): CompactParams {
 }
 
 function encodeMasterChain(
-  chain: MasterChainParams,
+  chain: LegacyKnobMasterChainParams,
 ): CompactMasterChain | undefined {
   const mc: CompactMasterChain = {};
   if (chain.filter !== DEFAULT_MASTER_CHAIN.filter) mc.f = chain.filter;
@@ -186,7 +186,7 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
     id: preset.meta.id, // Include the UUID (generated fresh when sharing)
     v: PRESET_FILE_VERSION,
     k: kitId,
-    ip: preset.kit.instruments.map((inst: InstrumentData) =>
+    ip: preset.kit.instruments.map((inst: LegacyKnobInstrumentData) =>
       encodeParams(inst.params),
     ),
     pt: encodeVoices(preset.sequencer.pattern),
@@ -238,7 +238,7 @@ function encodeCompactPreset(preset: PresetFileV1): CompactPreset {
 
 // --- DECODE FUNCTIONS ---
 
-function decodeParams(compact: CompactParams): InstrumentParams {
+function decodeParams(compact: CompactParams): LegacyKnobInstrumentParams {
   return {
     decay: compact.d ?? DEFAULT_PARAMS.decay,
     filter: compact.f ?? DEFAULT_PARAMS.filter,
@@ -250,7 +250,9 @@ function decodeParams(compact: CompactParams): InstrumentParams {
   };
 }
 
-function decodeMasterChain(compact?: CompactMasterChain): MasterChainParams {
+function decodeMasterChain(
+  compact?: CompactMasterChain,
+): LegacyKnobMasterChainParams {
   // Handle legacy format (lp/hp) or new format (f/s/ca)
   if (compact?.f !== undefined) {
     // New format
