@@ -6,6 +6,7 @@
 
 import { describe, expect, it } from "vitest";
 
+import { TRANSPORT_BPM_RANGE } from "@/core/audio/engine/constants";
 import type {
   StepSequence,
   TimingNudge,
@@ -168,10 +169,52 @@ describe("presetDocumentSchema", () => {
     );
   });
 
-  it("rejects a non-positive bpm", () => {
+  // bpm is pinned to the engine's TRANSPORT_BPM_RANGE ([40, 300]) like every
+  // other param field, closing the one unbounded schema hole (issue #385).
+  it("accepts bpm at both ends of the engine range", () => {
+    expect(
+      presetDocumentSchema.safeParse(
+        mutated((d) => {
+          d.transport.bpm = TRANSPORT_BPM_RANGE[0];
+        }),
+      ).success,
+    ).toBe(true);
+    expect(
+      presetDocumentSchema.safeParse(
+        mutated((d) => {
+          d.transport.bpm = TRANSPORT_BPM_RANGE[1];
+        }),
+      ).success,
+    ).toBe(true);
+  });
+
+  it("rejects a bpm below the engine range", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.transport.bpm = TRANSPORT_BPM_RANGE[0] - 1;
+      }),
+      ["transport", "bpm"],
+    );
+    // 0 (non-positive) is below the floor too and still fails.
     expectFailureAt(
       mutated((d) => {
         d.transport.bpm = 0;
+      }),
+      ["transport", "bpm"],
+    );
+  });
+
+  it("rejects a bpm above the engine range", () => {
+    expectFailureAt(
+      mutated((d) => {
+        d.transport.bpm = TRANSPORT_BPM_RANGE[1] + 1;
+      }),
+      ["transport", "bpm"],
+    );
+    // The previously-accepted hand-crafted out-of-range value now fails.
+    expectFailureAt(
+      mutated((d) => {
+        d.transport.bpm = 10000;
       }),
       ["transport", "bpm"],
     );

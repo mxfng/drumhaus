@@ -13,6 +13,7 @@ import {
   INSTRUMENT_PAN_RANGE,
   INSTRUMENT_TUNE_SEMITONE_RANGE,
   INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_ATTACK_DEFAULT,
   MASTER_COMP_ATTACK_RANGE,
   MASTER_COMP_MIX_RANGE,
   MASTER_COMP_RATIO_RANGE,
@@ -210,7 +211,9 @@ const masterCompRatioDescriptor: ParamDescriptor<number> = {
   min: MASTER_COMP_RATIO_RANGE[0],
   max: MASTER_COMP_RATIO_RANGE[1],
   taper: { kind: "linear" },
-  default: 4,
+  // Matches the shipped init/store default so double-click reset never dirties
+  // a factory-fresh preset (see the descriptor drift-guard test).
+  default: 5,
   interval: 1,
   format: (v) => `${Math.round(v)}:1`,
   parse: parseNumber,
@@ -220,7 +223,9 @@ const masterCompAttackDescriptor: ParamDescriptor<number> = {
   min: MASTER_COMP_ATTACK_RANGE[0],
   max: MASTER_COMP_ATTACK_RANGE[1],
   taper: { kind: "exponential", skew: LEGACY_EXP_SKEW },
-  default: 0.01,
+  // Shared with the init/store default (the migrated legacy knob-50 value) so
+  // reset lands on the factory value byte-for-byte and never dirties it.
+  default: MASTER_COMP_ATTACK_DEFAULT,
   unit: "ms",
   format: (v) => `${(v * 1000).toFixed(v < 0.01 ? 1 : 0)} ms`,
   parse: (t) => {
@@ -274,7 +279,9 @@ const transportBpmDescriptor: ParamDescriptor<number> = {
   min: TRANSPORT_BPM_RANGE[0],
   max: TRANSPORT_BPM_RANGE[1],
   taper: { kind: "linear" },
-  default: 120,
+  // Matches the shipped init/store default (100 bpm) so reset never dirties a
+  // factory-fresh preset.
+  default: 100,
   interval: 1,
   // Finer than the general knob feel: bpm is a precision screen-bar control.
   // The old ClickableValue moved ~0.3 bpm/px; over the ~260 bpm span that is

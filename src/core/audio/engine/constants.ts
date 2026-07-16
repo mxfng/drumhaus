@@ -102,7 +102,11 @@ const MASTER_COMP_RATIO_RANGE: Range = [1, 8];
 const MASTER_COMP_MIX_RANGE: Range = [0, 1]; // Parallel wet/dry
 
 const MASTER_COMP_ATTACK_RANGE: Range = [0.001, 0.1]; // 1ms - 100ms
-const MASTER_COMP_ATTACK = 0.01; // 10 ms - catches transients (legacy constant)
+// The shipped default compressor attack: the migrated legacy knob-50 value that
+// the init preset (init.dh) and the master-chain store hold, expressed as the
+// exact stored float64 so descriptor reset lands on it byte-for-byte (no dirty
+// flag on a factory-fresh preset). Single source of truth for that default.
+const MASTER_COMP_ATTACK_DEFAULT = 0.025750000000000002; // 25.75 ms
 const MASTER_COMP_RELEASE = 0.05; // 50 ms - fast recovery, punchy drums
 const MASTER_COMP_KNEE = 0; // dB - hard knee
 const MASTER_COMP_MAKEUP_GAIN = 1.5; // dB - compensates gain reduction
@@ -236,7 +240,7 @@ export {
   MASTER_COMP_RATIO_RANGE,
   MASTER_COMP_MIX_RANGE,
   MASTER_COMP_ATTACK_RANGE,
-  MASTER_COMP_ATTACK,
+  MASTER_COMP_ATTACK_DEFAULT,
   MASTER_COMP_RELEASE,
   MASTER_COMP_KNEE,
   MASTER_COMP_MAKEUP_GAIN,
