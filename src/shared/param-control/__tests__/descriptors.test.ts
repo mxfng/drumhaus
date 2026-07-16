@@ -5,13 +5,16 @@ import {
   INSTRUMENT_VOLUME_RANGE,
   MASTER_VOLUME_RANGE,
 } from "@/core/audio/engine/constants";
+import { init } from "@/core/dh";
 import {
   instrumentDecayDescriptor,
   instrumentPanDescriptor,
   instrumentTuneDescriptor,
   instrumentVolumeDescriptor,
+  masterCompAttackDescriptor,
   masterCompRatioDescriptor,
   masterVolumeDescriptor,
+  transportBpmDescriptor,
   transportSwingDescriptor,
 } from "../descriptors/canonical-scalars";
 import {
@@ -207,6 +210,42 @@ describe("swing descriptor", () => {
   it("round-trips MPC display back to the swing fraction", () => {
     expect(transportSwingDescriptor.parse?.("62.5%")).toBeCloseTo(0.375, 9);
     expect(transportSwingDescriptor.parse?.("50%")).toBeCloseTo(0, 9);
+  });
+});
+
+// A double-click/Enter reset commits the descriptor's `default`. If that value
+// diverges from what a factory-fresh session actually holds (the init preset,
+// which is the shipped truth applied by bootstrapSession), the reset instantly
+// dirty-flags an untouched preset. This guards every reset target that has bitten
+// us against the init document so the two can never drift again (issue #385).
+describe("descriptor reset targets match the shipped init defaults (#385)", () => {
+  const initDoc = init();
+
+  it("compressor ratio default equals the init ratio", () => {
+    expect(masterCompRatioDescriptor.default).toBe(initDoc.master.compRatio);
+  });
+
+  it("compressor attack default equals the init attack byte-for-byte", () => {
+    // The init value is a specific float64 (the migrated legacy knob-50 value);
+    // toBe pins it exactly, not merely close, so a reset produces no dirty flag.
+    expect(masterCompAttackDescriptor.default).toBe(
+      initDoc.master.compAttackSeconds,
+    );
+  });
+
+  it("bpm default equals the init bpm", () => {
+    expect(transportBpmDescriptor.default).toBe(initDoc.transport.bpm);
+  });
+
+  it("split-filter default matches the init filter spelling and renders centred", () => {
+    expect(splitFilterDescriptor.default).toEqual(initDoc.master.filter);
+    // Same open extreme as the mapping's knob-centre, so reset lands at 0.5.
+    expect(
+      canonicalToNormalized(
+        splitFilterDescriptor,
+        splitFilterDescriptor.default,
+      ),
+    ).toBeCloseTo(0.5, 9);
   });
 });
 

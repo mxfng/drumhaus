@@ -7,6 +7,7 @@ import { immer } from "zustand/middleware/immer";
 // React mounts.
 
 import type { MasterChainCanonical } from "@/core/audio/bridge/engine-params";
+import { MASTER_COMP_ATTACK_DEFAULT } from "@/core/audio/engine/constants";
 
 /**
  * Canonical master-chain defaults (docs/data-representation.md): the units the
@@ -21,7 +22,7 @@ const DEFAULT_MASTER_CHAIN: MasterChainCanonical = {
   reverb: 0,
   compThreshold: 0, // dB
   compRatio: 5,
-  compAttack: 0.02575, // seconds
+  compAttack: MASTER_COMP_ATTACK_DEFAULT, // seconds
   compMix: 0.7,
   masterVolume: 0, // dB
 };
