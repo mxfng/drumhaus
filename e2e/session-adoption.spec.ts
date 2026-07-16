@@ -149,14 +149,15 @@ test.describe("legacy session adoption", () => {
       "128",
     );
 
-    // The pre-#269 swing knob replayed through the 4/3 rescale: 60 -> 80.
-    // The knob value round-trips knob -> swing fraction -> knob through the
-    // document, so compare numerically (float noise ~1e-14 is expected) and
-    // pin the user-visible MPC swing display (50 + knob/8 = 60).
+    // Post-flip the control is canonical: aria-valuenow is the Tone swing
+    // fraction, not the old 0-100 knob value. The adopted swing round-trips
+    // through the document and surfaces as MPC 60% (50 + (100/3) * swing), so
+    // the fraction is 0.3. Compare numerically (float noise ~1e-14 is expected)
+    // and pin the user-visible MPC swing display.
     const swingControl = page.getByRole("slider", { name: "swing" });
     await expect(swingControl).toHaveText(/swing\s+60/);
     const swingKnobValue = await swingControl.getAttribute("aria-valuenow");
-    expect(Number(swingKnobValue)).toBeCloseTo(80, 9);
+    expect(Number(swingKnobValue)).toBeCloseTo(0.3, 9);
 
     // Storage after adoption: one session document, the four retired keys
     // deleted (only after the write landed). The legacy preset-meta key is
