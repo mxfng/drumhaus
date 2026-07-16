@@ -91,6 +91,11 @@ async function presetOptionCount(page: Page, name: string): Promise<number> {
 }
 
 test.describe("preset library storage", () => {
+  // These flows are storage-heavy and UI-driven (dialogs, preset select). Run
+  // them serially so they never pile onto parallel workers simultaneously and
+  // race the 10s expect timeout under local CPU contention (issue #367).
+  test.describe.configure({ mode: "serial" });
+
   test("a saved preset survives reload and applies its edit when selected", async ({
     page,
   }) => {
