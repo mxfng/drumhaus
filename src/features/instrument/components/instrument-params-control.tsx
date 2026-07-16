@@ -142,18 +142,21 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
         onChange={setTune}
         label="tune"
         descriptor={instrumentTuneDescriptor}
+        outerTickCount={15}
       />
       <RotaryKnob
         value={filter}
         onChange={setFilter}
         label="filter"
         descriptor={splitFilterDescriptor}
+        outerTickCount={3}
       />
       <RotaryKnob
         value={pan}
         onChange={setPan}
         label="pan"
         descriptor={instrumentPanDescriptor}
+        outerTickCount={3}
       />
 
       {/* Spacer */}

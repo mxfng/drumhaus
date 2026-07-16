@@ -1,10 +1,15 @@
 import type { CSSProperties } from "react";
 
 import { cn } from "@/shared/lib/utils";
+import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { useParamControl } from "../hooks/use-param-control";
+import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
 import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
 
 type SliderOrientation = "horizontal" | "vertical";
+
+/** Movement (px) before a press counts as a drag rather than a tap-to-type. */
+const DRAG_THRESHOLD_PX = 3;
 
 type LinearSliderProps<T> = {
   descriptor: ParamDescriptor<T>;
@@ -21,7 +26,7 @@ type LinearSliderProps<T> = {
   id?: string;
   /** "horizontal" (default) or "vertical" fader. */
   orientation?: SliderOrientation;
-  /** Length of the track along its axis, in pixels. */
+  /** Length of the track along its axis, in pixels (defaults to filling the axis). */
   length?: number;
   /** Thickness of the track across its axis, in pixels. */
   thickness?: number;
@@ -29,20 +34,22 @@ type LinearSliderProps<T> = {
   thumbSize?: number;
   /** Hide the caption label. */
   hideLabel?: boolean;
-  /** Hide the value readout. */
-  hideValue?: boolean;
+  /** Per-instance override for the normalized drag delta per pixel. */
+  dragSensitivity?: number;
   className?: string;
 } & RotaryKnobFutureSeams;
 
 /**
- * The linear (fader) presentation of the descriptor-driven control. A thin skin
- * over `useParamControl`: it owns look only (track, fill, thumb, readout),
- * while all behavior and the canonical-only contract live in the hook.
+ * The linear (fader) presentation of the descriptor-driven control: the
+ * hand-built hardware track and thumb driven by `useParamControl`. The body
+ * owns look only (recessed track, raised thumb); all behaviour and the
+ * canonical-only contract live in the hook.
  *
- * The drag reads whichever axis the orientation names (up / right increases),
- * always in normalized space, so `dragSensitivity`, fine drag, and detents work
- * identically to the knob. FUTURE seams (modulation-range arc, drag mode,
- * context menu) are declared on the props but intentionally not implemented.
+ * The resting fader shows no number - the value surfaces in a wrap-around
+ * tooltip only while dragging, exactly as the original. The drag reads whichever
+ * axis the orientation names (up / right increases), always in normalized space,
+ * so `dragSensitivity`, fine drag, and detents work identically to the knob.
+ * FUTURE seams are declared on the props but intentionally not implemented.
  */
 function LinearSlider<T>({
   descriptor,
@@ -55,11 +62,11 @@ function LinearSlider<T>({
   tabbable = true,
   id,
   orientation = "horizontal",
-  length = 140,
+  length,
   thickness = 12,
   thumbSize = 16,
   hideLabel = false,
-  hideValue = false,
+  dragSensitivity = KNOB_DRAG_SENSITIVITY,
   className,
   // Declared future seams; not wired yet.
   modulationRange: _modulationRange,
@@ -77,23 +84,18 @@ function LinearSlider<T>({
     tabbable,
     id,
     dragAxis: orientation === "vertical" ? "vertical" : "horizontal",
+    dragThreshold: DRAG_THRESHOLD_PX,
+    tapOpensEdit: true,
+    dragSensitivity,
   });
 
-  const { position, bipolar } = control;
+  const { position } = control;
   const isVertical = orientation === "vertical";
 
-  // Fill spans from the origin (bottom / left, or centre for bipolar) to the thumb.
-  const fillStart = bipolar ? 0.5 : 0;
-  const lo = Math.min(fillStart, position);
-  const hi = Math.max(fillStart, position);
-
+  // The track fills its axis by default (mirroring the original `flex-1` fader).
   const trackStyle: CSSProperties = isVertical
-    ? { width: thickness, height: length }
-    : { width: length, height: thickness };
-
-  const fillStyle: CSSProperties = isVertical
-    ? { bottom: `${lo * 100}%`, height: `${(hi - lo) * 100}%`, width: "100%" }
-    : { left: `${lo * 100}%`, width: `${(hi - lo) * 100}%`, height: "100%" };
+    ? { width: thickness, height: length ?? "100%" }
+    : { width: length ?? "100%", height: thickness };
 
   const thumbStyle: CSSProperties = isVertical
     ? {
@@ -118,75 +120,62 @@ function LinearSlider<T>({
       data-disabled={disabled || undefined}
       data-dragging={control.isDragging || undefined}
       className={cn(
-        "flex flex-col items-center gap-2 select-none",
+        "flex select-none",
+        isVertical
+          ? "h-full w-fit flex-col items-center gap-2"
+          : "w-full flex-col gap-2",
         disabled && "opacity-50",
         className,
       )}
     >
-      <div
-        {...control.handlers}
-        {...control.ariaProps}
-        aria-orientation={orientation}
-        aria-labelledby={hideLabel ? undefined : `${control.id}-label`}
-        className={cn(
-          "relative touch-none rounded-full outline-none",
-          "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
-          isVertical ? "cursor-ns-resize" : "cursor-ew-resize",
-        )}
-        style={{ ...trackStyle, touchAction: "none" }}
-      >
-        {/* Track */}
-        <div
-          className="absolute inset-0 rounded-full bg-(--slider-track-bg) shadow-(--slider-track-shadow)"
-          aria-hidden="true"
-        />
-        {/* Fill */}
-        <div
-          className="bg-primary absolute rounded-full"
-          style={fillStyle}
-          aria-hidden="true"
-        />
-        {/* Thumb */}
-        <div
-          className="bg-surface absolute rounded-full border shadow-sm"
-          style={thumbStyle}
-          aria-hidden="true"
-        />
-      </div>
-
-      {!hideValue &&
-        (control.isEditing ? (
-          <input
-            {...control.editProps}
-            aria-label={`${label} value`}
+      <Tooltip open={control.isDragging}>
+        <TooltipTrigger asChild>
+          <div
+            {...control.handlers}
+            {...control.ariaProps}
+            aria-orientation={orientation}
+            aria-labelledby={hideLabel ? undefined : `${control.id}-label`}
             className={cn(
-              "bg-surface text-foreground w-16 rounded-sm px-1 text-center text-xs",
-              "outline-none",
+              "relative touch-none rounded-lg outline-none",
+              "bg-(--slider-track-bg) shadow-(--slider-track-shadow)",
+              "focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2",
+              isVertical ? "flex-1 cursor-ns-resize" : "cursor-ew-resize",
             )}
-          />
-        ) : (
-          <button
-            type="button"
-            data-slot="linear-slider-value"
-            disabled={disabled || !descriptor.parse}
-            onClick={control.beginEdit}
-            className={cn(
-              "text-foreground-muted text-xs tabular-nums",
-              descriptor.parse && "hover:text-foreground cursor-text",
-            )}
+            style={{ ...trackStyle, touchAction: "none" }}
           >
-            {control.displayValue}
-          </button>
-        ))}
+            {/* Thumb */}
+            <div
+              className="bg-surface font-pixel absolute block rounded-full border"
+              style={thumbStyle}
+              aria-hidden="true"
+            />
+
+            {/* Type-in editor - overlays the track centre while editing. */}
+            {control.isEditing && (
+              <input
+                {...control.editProps}
+                aria-label={`${label} value`}
+                onFocus={(event) => event.target.select()}
+                className={cn(
+                  "bg-surface text-foreground absolute top-1/2 left-1/2 z-10 w-14 -translate-x-1/2 -translate-y-1/2",
+                  "rounded-sm px-1 text-center text-xs leading-none outline-none",
+                )}
+              />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side={isVertical ? "right" : "top"}>
+          {control.displayValue}
+        </TooltipContent>
+      </Tooltip>
 
       {!hideLabel && (
-        <span
+        <Label
           id={`${control.id}-label`}
-          data-slot="linear-slider-label"
-          className="text-foreground-muted text-xs"
+          className={cn("text-center", !isVertical && "mt-2")}
         >
           {label}
-        </span>
+        </Label>
       )}
     </div>
   );

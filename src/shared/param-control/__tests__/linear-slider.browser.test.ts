@@ -84,6 +84,9 @@ async function mount(
       value,
       label: "Test",
       orientation,
+      // Pin the default sensitivity so the drag math is independent of the
+      // component's hardware-feel default.
+      dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
         setValue(v);
@@ -143,27 +146,27 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
   it("horizontal drag: right increases, in normalized space", async () => {
     await mount(50, "horizontal");
     await pointer("pointerdown", { x: 0 });
-    // drag right 20px: default sensitivity 1/200 -> +0.1 pos -> 60
-    await pointer("pointermove", { x: 20 });
-    await pointer("pointerup", { x: 20 });
+    await pointer("pointermove", { x: 5 }); // 5px > threshold: promotes, no change yet
+    await pointer("pointermove", { x: 25 }); // +20px from 5 -> +0.1 pos -> 60
+    await pointer("pointerup", { x: 25 });
     expect(last()).toBeCloseTo(60, 6);
   });
 
   it("vertical drag: up increases, in normalized space", async () => {
     await mount(50, "vertical");
     await pointer("pointerdown", { y: 100 });
-    // drag up 20px -> +0.1 pos -> 60
-    await pointer("pointermove", { y: 80 });
-    await pointer("pointerup", { y: 80 });
+    await pointer("pointermove", { y: 95 }); // promote (no change)
+    await pointer("pointermove", { y: 75 }); // +20px up -> +0.1 pos -> 60
+    await pointer("pointerup", { y: 75 });
     expect(last()).toBeCloseTo(60, 6);
   });
 
   it("halves the delta while Shift (fine) is held", async () => {
     await mount(50, "horizontal");
     await pointer("pointerdown", { x: 0 });
-    // shift-drag right 20px: +0.1 * 0.25 fine factor -> +0.025 pos -> 52.5
-    await pointer("pointermove", { x: 20 }, true);
-    await pointer("pointerup", { x: 20 }, true);
+    await pointer("pointermove", { x: 5 }, true); // promote (no change)
+    await pointer("pointermove", { x: 25 }, true); // +20px * 0.25 fine factor -> +0.025 pos -> 52.5
+    await pointer("pointerup", { x: 25 }, true);
     expect(last()).toBeCloseTo(52.5, 6);
   });
 
@@ -191,8 +194,9 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
     await mount(0, "horizontal", panDescriptor);
     // nudge just off centre; within the 0.05 detent radius -> snaps back to 0
     await pointer("pointerdown", { x: 0 });
-    await pointer("pointermove", { x: 4 }); // +0.02 pos, inside radius
-    await pointer("pointerup", { x: 4 });
+    await pointer("pointermove", { x: 4 }); // promote (no change)
+    await pointer("pointermove", { x: 8 }); // +4px from 4 -> +0.02 pos, inside radius
+    await pointer("pointerup", { x: 8 });
     expect(last()).toBe(0);
   });
 
@@ -222,12 +226,9 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
 
   it("accepts type-in entry parsed through the descriptor", async () => {
     await mount(50, "horizontal");
-    const valueButton = container?.querySelector(
-      '[data-slot="linear-slider-value"]',
-    ) as HTMLButtonElement;
-    await act(async () => {
-      valueButton.click();
-    });
+    // A tap (press released without movement) opens the type-in editor.
+    await pointer("pointerdown", { x: 0 });
+    await pointer("pointerup", { x: 0 });
     const input = container?.querySelector("input") as HTMLInputElement;
     await act(async () => {
       // Defeat React's controlled-input value tracker so onChange fires.

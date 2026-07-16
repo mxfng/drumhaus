@@ -37,6 +37,7 @@ function MasterCompressor() {
         onChange={setRatio}
         label="ratio"
         descriptor={masterCompRatioDescriptor}
+        outerTickCount={8}
       />
       <RotaryKnob
         value={mix}

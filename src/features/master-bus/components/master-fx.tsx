@@ -25,6 +25,7 @@ function MasterFX() {
         descriptor={splitFilterDescriptor}
         value={filter}
         onChange={setFilter}
+        outerTickCount={3}
       />
       <RotaryKnob
         label="saturation"
@@ -37,12 +38,14 @@ function MasterFX() {
         descriptor={masterReverbDescriptor}
         value={reverb}
         onChange={setReverb}
+        outerTickCount={5}
       />
       <RotaryKnob
         label="phaser"
         descriptor={masterPhaserDescriptor}
         value={phaser}
         onChange={setPhaser}
+        outerTickCount={5}
       />
     </>
   );

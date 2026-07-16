@@ -11,7 +11,8 @@ function MasterVolume() {
       value={masterVolume}
       onChange={setMasterVolume}
       label="output level"
-      size={96}
+      size="lg"
+      outerTickCount={13}
     />
   );
 }

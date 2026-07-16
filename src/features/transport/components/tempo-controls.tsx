@@ -84,16 +84,20 @@ const TempoControls = () => {
           descriptor={transportBpmDescriptor}
           value={bpm}
           onChange={setBpm}
-          label=""
+          label="bpm"
           hideLabel
+          outerTickCount={0}
+          showTickIndicator={false}
         />
       ) : (
         <RotaryKnob
           descriptor={transportSwingDescriptor}
           value={swing}
           onChange={setSwing}
-          label=""
+          label="swing"
           hideLabel
+          outerTickCount={0}
+          showTickIndicator={false}
         />
       )}
       <div className="grid grid-cols-3 place-items-center gap-2">
