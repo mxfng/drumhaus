@@ -1,6 +1,6 @@
-import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
 import type { PresetFileV1 } from "@/features/preset/types/preset";
+import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 
 /**
  * Deterministic "dense" knob-space (v1.5) preset used by the share-URL
@@ -12,42 +12,16 @@ import type { PresetFileV1 } from "@/features/preset/types/preset";
  * this preset with the v1.5 share codec. Changing this builder desyncs it
  * from those frozen payloads; regenerate the fixtures if it ever changes
  * deliberately.
+ *
+ * Built as a legacy PresetFileV1 (0-100 knob space) directly, never from the
+ * canonical init() document: the v1.5 codec reads and writes this knob shape,
+ * and the fixture must reproduce the exact bytes the pre-flip builder emitted.
  */
 function buildDenseSharePreset(): PresetFileV1 {
-  // Deep-clone: the tolerant v1 schema passes nested sections through by
-  // reference, so init()'s pattern aliases the module-level init.dh JSON.
-  // Mutating it un-cloned would leak dense pattern data into every later
-  // init() call in the same process.
-  const preset = structuredClone(init());
-
   const kit = loadKit("kit-3");
   if (!kit) throw new Error("kit-3 missing from registry");
 
-  preset.meta = {
-    id: "6f9b1c22-0d4e-4b9a-9c33-7d1a2e5b8f40",
-    name: "Dense Fixture",
-    createdAt: "2026-07-14T00:00:00.000Z",
-    updatedAt: "2026-07-14T00:00:00.000Z",
-  };
-
-  preset.kit = {
-    ...kit,
-    instruments: kit.instruments.map((instrument, i) => ({
-      ...instrument,
-      params: {
-        decay: 5 + i * 12,
-        filter: 12 + i * 11,
-        // Channel 0 at knob 0 pins the null (silence) volume spelling.
-        volume: i === 0 ? 0 : 20 + i * 9,
-        pan: 4 + i * 13,
-        tune: 6 + i * 12,
-        solo: i === 2,
-        mute: i === 5,
-      },
-    })),
-  };
-
-  const pattern = preset.sequencer.pattern;
+  const pattern = createEmptyPattern();
   for (let v = 0; v < 8; v++) {
     for (let q = 0; q < 4; q++) {
       const seq = pattern.voices[v].variations[q];
@@ -70,32 +44,60 @@ function buildDenseSharePreset(): PresetFileV1 {
     }
   }
 
-  preset.sequencer.chain = {
-    steps: [
-      { variation: 0, repeats: 2 },
-      { variation: 1, repeats: 1 },
-      { variation: 3, repeats: 3 },
-    ],
+  return {
+    kind: "drumhaus.preset",
+    version: 1.5,
+    meta: {
+      id: "6f9b1c22-0d4e-4b9a-9c33-7d1a2e5b8f40",
+      name: "Dense Fixture",
+      createdAt: "2026-07-14T00:00:00.000Z",
+      updatedAt: "2026-07-14T00:00:00.000Z",
+    },
+    kit: {
+      kind: "drumhaus.kit",
+      version: 2,
+      meta: kit.meta,
+      instruments: kit.instruments.map((instrument, i) => ({
+        meta: instrument.meta,
+        role: instrument.role,
+        sample: instrument.sample,
+        params: {
+          decay: 5 + i * 12,
+          filter: 12 + i * 11,
+          // Channel 0 at knob 0 pins the null (silence) volume spelling.
+          volume: i === 0 ? 0 : 20 + i * 9,
+          pan: 4 + i * 13,
+          tune: 6 + i * 12,
+          solo: i === 2,
+          mute: i === 5,
+        },
+      })),
+    },
+    transport: { bpm: 137, swing: 64 },
+    sequencer: {
+      pattern,
+      chain: {
+        steps: [
+          { variation: 0, repeats: 2 },
+          { variation: 1, repeats: 1 },
+          { variation: 3, repeats: 3 },
+        ],
+      },
+      chainEnabled: true,
+    },
+    masterChain: {
+      filter: 31,
+      saturation: 22,
+      phaser: 45,
+      reverb: 61,
+      compThreshold: 40,
+      compRatio: 70,
+      compAttack: 35,
+      compMix: 55,
+      // Knob 0 pins the null (silence) master volume spelling.
+      masterVolume: 0,
+    },
   };
-  preset.sequencer.chainEnabled = true;
-
-  preset.transport.bpm = 137;
-  preset.transport.swing = 64;
-
-  preset.masterChain = {
-    filter: 31,
-    saturation: 22,
-    phaser: 45,
-    reverb: 61,
-    compThreshold: 40,
-    compRatio: 70,
-    compAttack: 35,
-    compMix: 55,
-    // Knob 0 pins the null (silence) master volume spelling.
-    masterVolume: 0,
-  };
-
-  return preset;
 }
 
 export { buildDenseSharePreset };

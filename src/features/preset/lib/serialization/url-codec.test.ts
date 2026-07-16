@@ -14,14 +14,12 @@ import { init } from "@/core/dh";
 import {
   CorruptFieldError,
   decodePresetFileText,
-  documentToV1,
   InvalidFileError,
   migrateV1ToDocument,
   UnknownKitError,
   UnsupportedVersionError,
   type PresetDocument,
 } from "@/features/preset/document";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
 import { buildDenseSharePreset } from "./__fixtures__/dense-preset";
 import { encodeCompactDocument, type CompactPresetV2 } from "./compact-v2";
 import { compress } from "./compress";
@@ -53,20 +51,11 @@ function stripTimestamps(document: PresetDocument) {
  * Half the 0.1 knob display step: the codec's quantization contract
  * (see the precision table in compact-v2.ts).
  */
-const KNOB_TOLERANCE = 0.05;
-
-const NUMERIC_PARAM_KEYS = [
-  "decay",
-  "filter",
-  "volume",
-  "pan",
-  "tune",
-] as const;
-
 /**
- * Assert that two documents are knob-equivalent: their documentToV1 knob
- * values differ by less than KNOB_TOLERANCE, with pattern, chain, kit, and
- * identity data exact (velocities within the shared 0-100 quantization).
+ * Assert two documents survive a v2 round trip within the codec's declared
+ * precision: pattern, chain, kit, and identity data exact (velocities within
+ * the shared 0-100 quantization), and every canonical numeric field within
+ * one decimal grid step of compact-v2.ts PRECISION.
  */
 function expectKnobEquivalent(
   actual: PresetDocument,
@@ -101,39 +90,67 @@ function expectKnobEquivalent(
     expected.pattern.variationMetadata,
   );
 
-  // Knob-space comparison through the live inverse mappings.
-  const actualV1 = documentToV1(actual);
-  const expectedV1 = documentToV1(expected);
+  // Domain-unit comparison: the v2 codec quantizes each field to a fixed
+  // decimal precision (compact-v2.ts PRECISION), so a round trip perturbs it
+  // by at most half a grid step. Compare canonical values within one step.
+  const closeTo = (a: number, b: number, decimals: number, label: string) =>
+    expect(Math.abs(a - b), label).toBeLessThanOrEqual(10 ** -decimals);
 
-  actualV1.kit.instruments.forEach((instrument, i) => {
-    const expectedParams = expectedV1.kit.instruments[i].params;
-    for (const key of NUMERIC_PARAM_KEYS) {
-      expect(
-        Math.abs(instrument.params[key] - expectedParams[key]),
-        `channel ${i} ${key}`,
-      ).toBeLessThan(KNOB_TOLERANCE);
+  actual.channels.forEach((channel, i) => {
+    const expectedChannel = expected.channels[i];
+    closeTo(
+      channel.decaySeconds,
+      expectedChannel.decaySeconds,
+      7,
+      `channel ${i} decay`,
+    );
+    expect(channel.filter.side, `channel ${i} filter side`).toBe(
+      expectedChannel.filter.side,
+    );
+    closeTo(
+      channel.filter.cutoffHz,
+      expectedChannel.filter.cutoffHz,
+      3,
+      `channel ${i} cutoff`,
+    );
+    if (expectedChannel.volumeDb === null) {
+      expect(channel.volumeDb, `channel ${i} volume`).toBeNull();
+    } else {
+      closeTo(
+        channel.volumeDb!,
+        expectedChannel.volumeDb,
+        2,
+        `channel ${i} volume`,
+      );
     }
-    expect(instrument.params.solo).toBe(expectedParams.solo);
-    expect(instrument.params.mute).toBe(expectedParams.mute);
+    closeTo(channel.pan, expectedChannel.pan, 4, `channel ${i} pan`);
+    closeTo(
+      channel.tuneSemitones,
+      expectedChannel.tuneSemitones,
+      3,
+      `channel ${i} tune`,
+    );
+    expect(channel.solo, `channel ${i} solo`).toBe(expectedChannel.solo);
+    expect(channel.mute, `channel ${i} mute`).toBe(expectedChannel.mute);
   });
 
-  const masterKeys = Object.keys(
-    expectedV1.masterChain,
-  ) as (keyof PresetFileV1["masterChain"])[];
-  for (const key of masterKeys) {
-    const actualValue = actualV1.masterChain[key];
-    const expectedValue = expectedV1.masterChain[key];
-    if (typeof expectedValue !== "number") continue;
-    expect(
-      Math.abs((actualValue as number) - expectedValue),
-      `master ${key}`,
-    ).toBeLessThan(KNOB_TOLERANCE);
+  const am = actual.master;
+  const em = expected.master;
+  expect(am.filter.side, "master filter side").toBe(em.filter.side);
+  closeTo(am.filter.cutoffHz, em.filter.cutoffHz, 3, "master cutoff");
+  closeTo(am.saturation, em.saturation, 4, "master saturation");
+  closeTo(am.phaser, em.phaser, 4, "master phaser");
+  closeTo(am.reverb, em.reverb, 4, "master reverb");
+  closeTo(am.compThresholdDb, em.compThresholdDb, 2, "master compThreshold");
+  closeTo(am.compAttackSeconds, em.compAttackSeconds, 8, "master compAttack");
+  closeTo(am.compMix, em.compMix, 4, "master compMix");
+  if (em.masterVolumeDb === null) {
+    expect(am.masterVolumeDb, "master volume").toBeNull();
+  } else {
+    closeTo(am.masterVolumeDb!, em.masterVolumeDb, 2, "master volume");
   }
 
-  expect(
-    Math.abs(actualV1.transport.swing - expectedV1.transport.swing),
-    "swing knob",
-  ).toBeLessThan(KNOB_TOLERANCE);
+  closeTo(actual.transport.swing, expected.transport.swing, 4, "swing");
 }
 
 /** A schema-valid dense synthetic document exercising v2-only spellings. */
@@ -200,7 +217,7 @@ describe("v1.5 share fixtures keep decoding", () => {
     expect(document.transport.bpm).toBe(100);
     expect(document.transport.swing).toBe(0);
 
-    const expected = migrateV1ToDocument(init());
+    const expected = init();
     expect(stripTimestamps(document)).toEqual(stripTimestamps(expected));
   });
 
@@ -391,7 +408,7 @@ describe("encoded size report", () => {
   it("logs v1.5 vs v2 payload lengths (informational, no assertion)", () => {
     const initV15 = shareFixture("share-v1_5-init.txt");
     const denseV15 = shareFixture("share-v1_5-dense.txt");
-    const initV2 = shareableDocumentToUrl(migrateV1ToDocument(init()));
+    const initV2 = shareableDocumentToUrl(init());
     const denseV2 = shareableDocumentToUrl(
       migrateV1ToDocument(buildDenseSharePreset()),
     );
