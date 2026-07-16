@@ -1,7 +1,7 @@
 # .dh preset fixture corpus
 
 Historical and synthetic `.dh` preset files for schema and migration tests.
-All real fixtures are the `init` preset extracted from git history, so diffs between eras are meaningful.
+The v1-era real fixtures are the `init` preset extracted from git history, so diffs between eras are meaningful; the document-era fixtures (`v2-*`, `v2_1-*`) are a factory preset chosen for its varied filter positions (see below).
 The `.dh` JSON format was born at commit `78fe632b` (2025-11-18); before that, presets were TypeScript modules under `src/lib/presets/*.ts` and there is no earlier file era to capture.
 Truncated or otherwise invalid JSON should be tested inline as a string literal in the test, not as a fixture file, because editors and formatters will not preserve broken JSON on disk.
 
@@ -69,3 +69,17 @@ Exercises structural validation: the envelope (`kind`, `version`, `meta`) is val
 
 Source: synthetic (modern `v1-current.json` with `sequencer.pattern.voices` replaced by the string `"corrupted"`).
 Exercises `migratePatternUnsafe` / `isValidPattern` rejection paths: `voices` exists but is not an array, so pattern migration must throw rather than crash downstream.
+
+## v2-super-dream-haus.json
+
+Source: real, git-mined. Emitted by the version-2-era migration (`migrateV1ToDocument` + `encodePresetDocument` at commit `78c98823`, 2026-07-16, the last commit before the canonical-filter flip `6af95dd5`) applied to that era's factory preset `src/core/dh/defaults/Super Dream Haus.dh`.
+Era: 2026-07-15 (document epic, #350-#354) to 2026-07-16 (the 2.1 canonical-filter flip, #357/#361).
+Primary trait: a version-2 domain document - every field is already domain-space (dB, seconds, semitones, -1..1 pan) EXCEPT the split filter, which is still persisted as its scalar 0-100 position (channels `[13, 54, 53, 37, 58, 39, 65, 26]`, master `51`). Handled by `migrate-v2.ts`, which converts each position to canonical `{ side, cutoffHz }` with the frozen curve and re-validates against the strict v2.1 schema.
+Chosen over `init` deliberately: `init` (and most factory presets) sit at filter position 50, which converts to a single degenerate cutoff; "Super Dream Haus" spans both the low-pass (13, 37, 39, 26) and high-pass (54, 53, 58, 65, 51) sides, so the conversion is meaningfully exercised across the split. Its expected canonical values are pinned as literals in `corpus.test.ts`.
+This same document-era pair gates the #382 session/library adoption ladder.
+
+## v2_1-super-dream-haus.json
+
+Source: real, git-mined. The v2.1 target of `v2-super-dream-haus.json`: the same document after the frozen position -> `{ side, cutoffHz }` filter conversion, with `version` bumped to 2.1. Every non-filter field is byte-identical to the v2 fixture.
+Era: 2026-07-16 (the 2.1 flip, #357/#361) to present.
+Primary trait: the current, strictly-parsed document shape - the split filter is canonical `{ side, cutoffHz }`, so this file is read by the strict v2.1 schema with no migration. `corpus.test.ts` asserts it decodes to exactly the document `v2-super-dream-haus.json` migrates to, so the pair cannot drift apart.
