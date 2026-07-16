@@ -4,8 +4,8 @@
  * The apply -> snapshot round trip is a bit-exact identity (stores hold
  * canonical units, JSON preserves doubles), so the hash is stable across the
  * round trip for every era fixture. The smallest-real-edit guard is still
- * pinned here (a 0.1 knob step on the flattest mapping in the app, master
- * compAttack at the bottom of its exponential curve, must change the hash).
+ * pinned here (the finest edit the flattest mapping in the app resolves, master
+ * compAttack near the bottom of its exponential curve, must change the hash).
  *
  * The engine module is mocked so the store-backed round-trip tests run in
  * the node project.
@@ -126,20 +126,19 @@ describe("hashPresetDocument", () => {
     expect(hashPresetDocument(reordered)).toBe(hashPresetDocument(document));
   });
 
-  it("does not swallow the smallest real edit (0.1 knob of compAttack at the flat end)", () => {
-    // Master compAttack has the smallest domain delta per knob step in the
-    // app: exponential over 0.001..0.1 s, so a 0.1 knob step at the flat end
-    // (0.001 s) moves the canonical value by (0.1/100)^2 * 0.099 s ~= 9.9e-8 s.
-    // The hash is bit-exact, so any nonzero edit changes it; this guard pins
-    // that the smallest musical edit still round-trips as a real difference.
+  it("does not swallow the smallest real edit (compAttack at the flat end)", () => {
+    // Master compAttack is the flattest mapping in the app (exponential over
+    // 0.001..0.1 s), so near its 0.001 s floor the finest edit it resolves is
+    // ~9.9e-8 s in canonical units. The hash is bit-exact, so any nonzero edit
+    // changes it; this guard pins that even that smallest musical edit still
+    // round-trips as a real difference.
+    const SMALLEST_EDIT_SECONDS = 9.9e-8;
     applyPresetDocument(migrateFixture("v1-current.json"));
 
     useMasterChainStore.getState().setCompAttack(0.001);
     const flat = snapshotCurrent();
 
-    useMasterChainStore
-      .getState()
-      .setCompAttack(0.001 + Math.pow(0.1 / 100, 2) * 0.099);
+    useMasterChainStore.getState().setCompAttack(0.001 + SMALLEST_EDIT_SECONDS);
     const nudged = snapshotCurrent();
 
     const domainDelta =
