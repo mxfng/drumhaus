@@ -16,7 +16,11 @@ type KnobSize = "default" | "lg";
 const START_ANGLE_DEG = -135;
 const ROTATION_RANGE_DEG = 270;
 
-/** Movement (px) before a press counts as a drag rather than a tap-to-type. */
+/**
+ * Movement (px) before a press on the body counts as a drag. Below it the press
+ * is a no-op: the body is drag-only, so a click that never moves changes
+ * nothing and opens no editor (type-in lives on the label, see below).
+ */
 const DRAG_THRESHOLD_PX = 3;
 
 type RotaryKnobProps<T> = {
@@ -53,8 +57,11 @@ type RotaryKnobProps<T> = {
  *
  * The resting knob shows no number - the value surfaces in a wrap-around
  * tooltip only while dragging (viewport-aware side), exactly as the original.
- * A tap (press without drag) opens the type-in editor over the dial; a
- * horizontal drag triggers the first-use guidance coachmark.
+ * The dial body is drag-only: a press without drag changes nothing. Type-in is
+ * a deliberate, out-of-the-way gesture - a double-click on the caption label
+ * swaps the word for an input (Enter/blur commits, Esc cancels), and only when
+ * the descriptor can `parse`. A horizontal drag triggers the first-use
+ * guidance coachmark.
  *
  * FUTURE seams (modulation-range arc, circular drag mode, context menu) are
  * declared on the props but intentionally not implemented (docs/knob-primitive.md).
@@ -91,7 +98,6 @@ function RotaryKnob<T>({
     tabbable,
     id,
     dragThreshold: DRAG_THRESHOLD_PX,
-    tapOpensEdit: true,
     dragSensitivity,
   });
 
@@ -215,19 +221,6 @@ function RotaryKnob<T>({
             {outerTickCount > 0 && (
               <KnobTicks outerTickCount={outerTickCount} />
             )}
-
-            {/* Type-in editor - overlays the dial centre while editing. */}
-            {control.isEditing && (
-              <input
-                {...control.editProps}
-                aria-label={`${label} value`}
-                onFocus={(event) => event.target.select()}
-                className={cn(
-                  "bg-surface text-foreground absolute top-1/2 left-1/2 z-10 w-4/5 -translate-x-1/2 -translate-y-1/2",
-                  "rounded-sm px-1 text-center text-xs leading-none outline-none",
-                )}
-              />
-            )}
           </div>
         </TooltipTrigger>
         <TooltipContent side={tooltipSide}>
@@ -237,9 +230,26 @@ function RotaryKnob<T>({
 
       {!hideLabel && (
         <div className="flex items-center justify-center">
-          <Label id={`${control.id}-label`} className="text-xs">
-            {label}
-          </Label>
+          {control.isEditing ? (
+            // Type-in editor - the caption label becomes an input in place.
+            <input
+              {...control.editProps}
+              aria-label={`${label} value`}
+              onFocus={(event) => event.target.select()}
+              className={cn(
+                "bg-surface text-foreground w-16 rounded-sm px-1 text-center",
+                "text-xs leading-none outline-none",
+              )}
+            />
+          ) : (
+            <Label
+              id={`${control.id}-label`}
+              className={cn("text-xs", descriptor.parse && "cursor-text")}
+              onDoubleClick={descriptor.parse ? control.beginEdit : undefined}
+            >
+              {label}
+            </Label>
+          )}
         </div>
       )}
     </div>

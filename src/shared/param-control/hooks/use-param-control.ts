@@ -391,20 +391,43 @@ function useParamControl<T>({
           event.preventDefault();
           commitDiscrete(endpointValue(descriptor, "max"));
           break;
+        // Reset keys differ by presentation. Where a tap opens the editor (the
+        // screen-bar value field), type-in is the primary gesture, so reset is
+        // Delete/Backspace and Enter opens the editor. Otherwise (knobs and
+        // faders, whose type-in is a deliberate double-click on the label),
+        // the body is a button-like control: Enter and Space reset to default.
         case "Delete":
         case "Backspace":
-          event.preventDefault();
-          commitDiscrete(resetValue(descriptor));
+          if (tapOpensEdit) {
+            event.preventDefault();
+            commitDiscrete(resetValue(descriptor));
+          }
           break;
         case "Enter":
-          if (descriptor.parse) {
+          event.preventDefault();
+          if (tapOpensEdit) {
+            if (descriptor.parse) beginEdit();
+          } else {
+            commitDiscrete(resetValue(descriptor));
+          }
+          break;
+        case " ":
+          if (!tapOpensEdit) {
             event.preventDefault();
-            beginEdit();
+            commitDiscrete(resetValue(descriptor));
           }
           break;
       }
     },
-    [disabled, isEditing, descriptor, value, commitDiscrete, beginEdit],
+    [
+      disabled,
+      isEditing,
+      descriptor,
+      value,
+      commitDiscrete,
+      beginEdit,
+      tapOpensEdit,
+    ],
   );
 
   const handleDoubleClick = useCallback(

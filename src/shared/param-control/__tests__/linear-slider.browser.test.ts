@@ -110,6 +110,12 @@ function slider(): HTMLElement {
   return el;
 }
 
+function label(): HTMLElement {
+  const el = container?.querySelector('[data-slot="label"]');
+  if (!(el instanceof HTMLElement)) throw new Error("label not found");
+  return el;
+}
+
 function last(): number {
   return recorded.changes[recorded.changes.length - 1];
 }
@@ -180,7 +186,7 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
     expect(recorded.gestureEnds).toBe(1);
   });
 
-  it("resets to default on double-click", async () => {
+  it("resets to default on double-click of the track", async () => {
     await mount(20, "horizontal");
     await act(async () => {
       slider().dispatchEvent(
@@ -188,6 +194,23 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
       );
     });
     expect(last()).toBe(50);
+  });
+
+  it("a press without drag on the track does nothing (no change, no editor)", async () => {
+    await mount(50, "horizontal");
+    await pointer("pointerdown", { x: 0 });
+    await pointer("pointerup", { x: 0 }); // released below the drag threshold
+    expect(recorded.changes).toHaveLength(0);
+    expect(container?.querySelector("input")).toBeNull();
+  });
+
+  it("resets to default on Enter and on Space", async () => {
+    await mount(20, "horizontal");
+    await keydown("Enter");
+    expect(last()).toBe(50);
+    await keydown(" ");
+    expect(last()).toBe(50);
+    expect(container?.querySelector("input")).toBeNull();
   });
 
   it("snaps to the centre detent under a coarse drag, bipolar", async () => {
@@ -224,11 +247,14 @@ describe("LinearSlider interactions (canonical-only public API)", () => {
     expect(slider().getAttribute("aria-orientation")).toBe("vertical");
   });
 
-  it("accepts type-in entry parsed through the descriptor", async () => {
+  it("accepts type-in entry opened by a double-click on the label", async () => {
     await mount(50, "horizontal");
-    // A tap (press released without movement) opens the type-in editor.
-    await pointer("pointerdown", { x: 0 });
-    await pointer("pointerup", { x: 0 });
+    // A double-click on the caption label opens the type-in editor.
+    await act(async () => {
+      label().dispatchEvent(
+        new MouseEvent("dblclick", { bubbles: true, cancelable: true }),
+      );
+    });
     const input = container?.querySelector("input") as HTMLInputElement;
     await act(async () => {
       // Defeat React's controlled-input value tracker so onChange fires.

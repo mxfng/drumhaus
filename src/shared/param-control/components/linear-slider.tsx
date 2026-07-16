@@ -8,7 +8,11 @@ import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
 
 type SliderOrientation = "horizontal" | "vertical";
 
-/** Movement (px) before a press counts as a drag rather than a tap-to-type. */
+/**
+ * Movement (px) before a press on the track counts as a drag. Below it the
+ * press is a no-op: the track is drag-only, so a click that never moves changes
+ * nothing and opens no editor (type-in lives on the label).
+ */
 const DRAG_THRESHOLD_PX = 3;
 
 type LinearSliderProps<T> = {
@@ -46,7 +50,10 @@ type LinearSliderProps<T> = {
  * canonical-only contract live in the hook.
  *
  * The resting fader shows no number - the value surfaces in a wrap-around
- * tooltip only while dragging, exactly as the original. The drag reads whichever
+ * tooltip only while dragging, exactly as the original. The track is drag-only:
+ * a press without drag changes nothing. Type-in is a deliberate double-click on
+ * the caption label (swaps the word for an input; Enter/blur commits, Esc
+ * cancels), and only when the descriptor can `parse`. The drag reads whichever
  * axis the orientation names (up / right increases), always in normalized space,
  * so `dragSensitivity`, fine drag, and detents work identically to the knob.
  * FUTURE seams are declared on the props but intentionally not implemented.
@@ -85,7 +92,6 @@ function LinearSlider<T>({
     id,
     dragAxis: orientation === "vertical" ? "vertical" : "horizontal",
     dragThreshold: DRAG_THRESHOLD_PX,
-    tapOpensEdit: true,
     dragSensitivity,
   });
 
@@ -149,19 +155,6 @@ function LinearSlider<T>({
               style={thumbStyle}
               aria-hidden="true"
             />
-
-            {/* Type-in editor - overlays the track centre while editing. */}
-            {control.isEditing && (
-              <input
-                {...control.editProps}
-                aria-label={`${label} value`}
-                onFocus={(event) => event.target.select()}
-                className={cn(
-                  "bg-surface text-foreground absolute top-1/2 left-1/2 z-10 w-14 -translate-x-1/2 -translate-y-1/2",
-                  "rounded-sm px-1 text-center text-xs leading-none outline-none",
-                )}
-              />
-            )}
           </div>
         </TooltipTrigger>
         <TooltipContent side={isVertical ? "right" : "top"}>
@@ -169,14 +162,32 @@ function LinearSlider<T>({
         </TooltipContent>
       </Tooltip>
 
-      {!hideLabel && (
-        <Label
-          id={`${control.id}-label`}
-          className={cn("text-center", !isVertical && "mt-2")}
-        >
-          {label}
-        </Label>
-      )}
+      {!hideLabel &&
+        (control.isEditing ? (
+          // Type-in editor - the caption label becomes an input in place.
+          <input
+            {...control.editProps}
+            aria-label={`${label} value`}
+            onFocus={(event) => event.target.select()}
+            className={cn(
+              "bg-surface text-foreground w-14 rounded-sm px-1 text-center",
+              "text-xs leading-none outline-none",
+              !isVertical && "mt-2",
+            )}
+          />
+        ) : (
+          <Label
+            id={`${control.id}-label`}
+            className={cn(
+              "text-center",
+              !isVertical && "mt-2",
+              descriptor.parse && "cursor-text",
+            )}
+            onDoubleClick={descriptor.parse ? control.beginEdit : undefined}
+          >
+            {label}
+          </Label>
+        ))}
     </div>
   );
 }

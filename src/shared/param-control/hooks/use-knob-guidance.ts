@@ -20,9 +20,10 @@ interface Point {
  * dismisses the hint. Kept isolated from the descriptor-driven interaction core
  * in `useParamControl` so the knob stays a thin presentation skin.
  *
- * Ported from the original hand-built knob. The tap heuristic was dropped: on
- * the descriptor-driven knob a tap opens the type-in editor, so a tap is no
- * longer an ambiguous gesture worth coaching.
+ * Ported from the original hand-built knob. The tap heuristic was dropped: the
+ * descriptor-driven knob body is drag-only, so a press without drag changes
+ * nothing and is no longer an ambiguous gesture worth coaching (type-in moved
+ * to a double-click on the caption label).
  */
 function useKnobGuidance() {
   const { showCoachmark, triggerCoachmark, dismissCoachmark } = useCoachmark({
