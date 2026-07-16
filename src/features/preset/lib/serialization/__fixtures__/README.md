@@ -1,15 +1,9 @@
-# Share-URL fixture corpus
+# Share-URL fixtures
 
-Frozen `?p=` payload strings for the compact share codec, used by `url-codec.test.ts` to prove that links shared by older builds keep decoding after codec changes.
+The share codec is latest-only: it reads and writes exactly the single current `COMPACT_CODEC_VERSION` and refuses every other `v` (older v1.5 links and versionless pre-#269 links) with `UnsupportedVersionError` (#373).
+Because no legacy share payload is decoded anymore, there are no frozen legacy `?p=` fixtures to pin; a current-version round trip is exercised directly in `url-codec.test.ts`.
 
-## v1.5 fixtures
+## `dense-preset.ts`
 
-Generated on branch `feat/compact-codec-v2` at commit `71282c816f4c5ce76d2490e7f9437b12d154ce89` (2026-07-14), by passing the presets below through the then-current `shareablePresetToUrl` (v1.5 knob-space compact codec, gzip, base64url).
-Do not regenerate casually: their whole value is that the bytes are what a v1.5 build actually emitted.
-
-- `share-v1_5-init.txt` - `init()` (the bundled `init.dh`) encoded as-is.
-  Must decode to the migrated init document: kit `kit-0`, bpm 100, swing fraction 0, default channels (volumeDb 0 dB, pan 0, tune 0 semitones), single-step chain A1 with chain disabled.
-- `share-v1_5-dense.txt` - the preset built by `dense-preset.ts` (`buildDenseSharePreset()`), which sets every channel param, every master param, bpm 137, swing knob 64, a 3-step chain (A2 B1 D3) with chain enabled, kit-3, and per-step velocities/nudges/ratchets/flams/accents.
-  Must decode to `migrateV1ToDocument(buildDenseSharePreset())`: kit `kit-3`, bpm 137, swing fraction 0.24 (v1.5 knob 64 through the v1.5 interpretation), channel 0 volumeDb null, master volume null, compRatio 6.
-
-`dense-preset.ts` is the frozen source of the dense fixture; see the warning in its doc comment.
+`buildDenseSharePreset()` builds a deterministic dense `PresetFileV1` (0-100 knob space) with every channel param, every master param, bpm 137, swing knob 64, a 3-step chain (A2 B1 D3) with chain enabled, kit-3, and per-step velocities/nudges/ratchets/flams/accents.
+It is a synthetic legacy document, not a frozen fixture: `url-codec.test.ts` migrates it to a canonical document to seed dense round-trip and KIT_ORDER-independence cases, and `library/adoption.test.ts` uses it to exercise the document migration ladder.

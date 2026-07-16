@@ -188,11 +188,12 @@ function usePresetLoading(): UsePresetLoadingResult {
     try {
       const { urlToDocument } =
         await import("@/features/preset/lib/serialization");
-      // urlToDocument runs the full decode half of the pipeline: v2
-      // payloads decode straight to a document, v1.5 payloads run the same
-      // validate -> migrate rung as library presets, and versionless
-      // (pre-#269) links are refused with a typed error. Decode before the
-      // guard so an invalid link never prompts.
+      // urlToDocument runs the full decode half of the pipeline. The share
+      // codec is latest-only: a current-version payload decodes straight to a
+      // document, and every other `v` (older v1.5 links and versionless
+      // pre-#269 links) is refused with a typed error (#373). Decode before
+      // the guard so an invalid link never prompts; a refused link falls
+      // through to onSharedPresetError and keeps the current session.
       let document: PresetDocument;
       try {
         document = urlToDocument(presetParam);
