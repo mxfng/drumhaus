@@ -33,16 +33,20 @@ const STEP = 60 / BPM / 4; // 0.125s
 const TOL = 0.005;
 
 /**
- * Swing offset applied to odd 16th steps at swing knob 50.
- * Engine (#269 retune): transport.swing = (50 / 100) *
- * TRANSPORT_SWING_MAX(0.375) = 0.1875 (MPC 56.25%).
+ * Canonical Tone.Transport swing fraction used by the swing spec: 0.1875, which
+ * is MPC 56.25% and the midpoint of the range (TRANSPORT_SWING_MAX = 0.375).
+ */
+const SWING = 0.1875;
+
+/**
+ * Swing offset applied to odd 16th steps at swing 0.1875.
  * Tone Transport._processTick (tone@15.5.25): for ticks halfway between
  * swing subdivision pairs, offset = sin(pi * 0.5) * swing * Ticks((swingTicks * 2) / 3).
  * With 16n subdivision (48 ticks at PPQ 192): (48 * 2) / 3 = 32 ticks
  * = (32 / 192) beats = (1 / 6) * (60 / BPM) seconds.
  * At 120 BPM: 0.1875 * (1 / 6) * 0.5 = 0.0156250s.
  */
-const SWING_50_OFFSET = 0.1875 * (1 / 6) * (60 / BPM);
+const SWING_OFFSET = SWING * (1 / 6) * (60 / BPM);
 
 /** FLAM_OFFSET_SECONDS in engine/sequencer/sequencer.ts. */
 const FLAM_OFFSET = 0.015;
@@ -57,10 +61,10 @@ const RATCHET_OFFSET = 0.125 * (60 / BPM); // 0.0625s
 const NUDGE_PLUS_2_OFFSET = (2 / 96) * (60 / BPM); // 0.0104167s
 
 /**
- * Master params that disable parallel compression for stable peak
- * comparisons (compMix 0 = fully dry, compThreshold 100 = knob fully open).
+ * Canonical master params that disable parallel compression for stable peak
+ * comparisons (compMix 0 = fully dry, compThreshold 0 dB = fully open).
  */
-const NO_COMP = { compMix: 0, compThreshold: 100 };
+const NO_COMP = { compMix: 0, compThreshold: 0 };
 
 let clickUrl: string;
 let toneUrl: string;
@@ -118,13 +122,13 @@ describe("golden render: swing", () => {
       steps: Array.from({ length: 16 }, (_, step) => ({ voice: 0, step })),
     });
 
-  it("alternates long/short 16ths at swing 50 and stays uniform at swing 0", async () => {
+  it("alternates long/short 16ths at swing 0.1875 and stays uniform at swing 0", async () => {
     const swungBuffer = await renderFixture({
       pattern: pattern(),
       instruments: [makeInstrument(0, "hat")],
       sampleUrls: [clickUrl],
       bpm: BPM,
-      swing: 50,
+      swing: SWING,
     });
 
     const onsets = findOnsets(swungBuffer);
@@ -134,8 +138,7 @@ describe("golden render: swing", () => {
     // Odd steps are pushed late: even->odd gaps are long, odd->even short.
     expect(swungDeltas[0]).toBeGreaterThan(0.13);
     for (let i = 0; i < swungDeltas.length; i++) {
-      const expected =
-        i % 2 === 0 ? STEP + SWING_50_OFFSET : STEP - SWING_50_OFFSET;
+      const expected = i % 2 === 0 ? STEP + SWING_OFFSET : STEP - SWING_OFFSET;
       expect(swungDeltas[i]).toBeGreaterThan(expected - TOL);
       expect(swungDeltas[i]).toBeLessThan(expected + TOL);
     }
