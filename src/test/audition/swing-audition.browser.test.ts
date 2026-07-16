@@ -25,7 +25,6 @@ import { getContext } from "tone/build/esm/index";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { server } from "vitest/browser";
 
-import { transportSwingKnobToDomain } from "@/core/audio/bridge/knob-to-domain";
 import type { AudioEngine } from "@/core/audio/engine";
 import { TRANSPORT_SWING_MAX } from "@/core/audio/engine/constants";
 import { encodeWav } from "@/core/audio/export/wav-encoder";
@@ -180,7 +179,9 @@ describe.runIf(!!import.meta.env.VITE_AUDITION)(
       `renders the shipped curve at knob ${KNOBS.join("/")}`,
       async () => {
         for (const k of KNOBS) {
-          const s = transportSwingKnobToDomain(k);
+          // Knob (0-100) to the canonical Tone swing fraction, matching the
+          // retired transportSwingKnobToDomain exactly.
+          const s = (k / 100) * TRANSPORT_SWING_MAX;
           await renderToFile(
             s,
             `swing-shipped-knob${k}-mpc${mpcLabel(s)}-${BPM}bpm.wav`,

@@ -19,20 +19,23 @@ import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 const FIXTURE_SAMPLE_RATE = 44100;
 
 /**
- * Neutral instrument knob values: tune centered, full decay, filter centered,
- * unity volume, centered pan.
+ * Neutral instrument params in CANONICAL units: tune centered (0 semitones),
+ * full decay (5s), filter at its open extreme, unity volume (0 dB), centered
+ * pan (0).
  *
  * Deliberately hand-pinned rather than derived from init(): these are
  * golden-stability snapshots, so golden renders cannot silently shift when
- * the app's default preset changes. Any edit here invalidates the golden
- * baselines - change these values only on purpose.
+ * the app's default preset changes. The values are the exact canonical
+ * equivalents of the historical knob pins (tune 50, decay 100, filter 50,
+ * volume 92, pan 50), so the engine hears the same inputs. Any edit here
+ * invalidates the golden baselines - change these values only on purpose.
  */
 const DEFAULT_INSTRUMENT_PARAMS: InstrumentParams = {
-  tune: 50,
-  decay: 100,
-  filter: 50,
-  volume: 92,
-  pan: 50,
+  tune: 0,
+  decay: 5,
+  filter: { side: "highpass", cutoffHz: 0 },
+  volume: 0,
+  pan: 0,
   solo: false,
   mute: false,
 };

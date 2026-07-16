@@ -6,37 +6,72 @@
  * is the stable contract across the audio engine refactor - only the
  * internals of this file will be rewritten as engine phases land.
  *
- * Since phase 5, rendering goes through the REAL production path: fixture
- * state is pushed into a throwaway AudioEngine via the engine's command API
- * (with knob-to-domain conversion at the boundary, exactly like the bridge)
- * and rendered with engine.renderWav. Every golden test therefore exercises
- * the actual export pipeline end to end.
+ * Rendering goes through the REAL production path: fixture state is pushed
+ * into a throwaway AudioEngine via the engine's command API and rendered with
+ * engine.renderWav. Instruments are CANONICAL (the store-facing units), so
+ * they cross the boundary through the canonical-to-engine bridge
+ * (engine-params.ts) exactly like production. The master chain and swing are
+ * still supplied to this harness as 0-100 knob positions - the golden and
+ * stem specs pin knob values that must not change - so this file owns a small
+ * frozen knob-to-canonical conversion (the pre-flip bridge's master math) and
+ * then routes through the same canonical bridge. The engine inputs it
+ * produces are byte-identical to the pre-flip harness.
  */
 
 import { getContext } from "tone/build/esm/index";
 
-import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
 import {
-  instrumentKnobsToContinuousParams,
-  instrumentKnobsToPlayParams,
-  mapParamsToSettings,
-  transportSwingKnobToDomain,
-  type MasterChainParams,
-} from "@/core/audio/bridge/knob-to-domain";
+  instrumentContinuousParams,
+  instrumentPlayParams,
+  mapMasterToSettings,
+  type MasterChainCanonical,
+} from "@/core/audio/bridge/engine-params";
+import { toKitSampleDescriptors } from "@/core/audio/bridge/kit-descriptors";
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import { AudioEngine } from "@/core/audio/engine";
+import {
+  MASTER_COMP_ATTACK_RANGE,
+  MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_THRESHOLD_RANGE,
+  MASTER_FILTER_RANGE,
+  MASTER_VOLUME_RANGE,
+  TRANSPORT_SWING_MAX,
+} from "@/core/audio/engine/constants";
 import type {
   Pattern,
   PatternChain,
   VariationId,
 } from "@/core/audio/engine/pattern-types";
 import type { InstrumentData } from "@/features/instrument/types/instrument";
+import { lerp } from "@/shared/lib/utils";
 
 /**
  * Historical extra render time after the last bar. Kept exported for
- * interface stability: since phase 5 renders go through engine.renderWav
- * with includeTail=false, so buffers end exactly on the bar line.
+ * interface stability: renders go through engine.renderWav with
+ * includeTail=false, so buffers end exactly on the bar line.
  */
 const RENDER_TAIL_SECONDS = 0.3;
+
+/**
+ * Master chain as the 0-100 knob positions the golden and stem specs pin.
+ *
+ * The stores hold canonical master units now; this knob shape is a FROZEN
+ * test-harness boundary that keeps the pinned golden values (NO_COMP,
+ * { reverb: 100 }, ...) meaning what they meant pre-flip. masterKnobsToCanonical
+ * converts it back to canonical before the engine sees it.
+ */
+interface MasterChainParams {
+  /** Split-filter position (0-100). */
+  filter: number;
+  saturation: number;
+  phaser: number;
+  reverb: number;
+  compThreshold: number;
+  compRatio: number;
+  compAttack: number;
+  compMix: number;
+  masterVolume: number;
+}
 
 /**
  * Neutral master chain knob values: filter centered, all sends off,
@@ -61,6 +96,82 @@ const DEFAULT_MASTER_PARAMS: MasterChainParams = {
   masterVolume: 92,
 };
 
+// --- Frozen knob-to-canonical master math (the pre-flip bridge) -------------
+//
+// Reproduces the deleted knob-to-domain/transform curves for the master chain
+// exactly, so the engine sees the same values the golden baselines were
+// captured against. Confined to this test harness; no live store, bridge, or
+// engine holds a 0-100 knob value.
+
+/** Exponent of the pre-flip perceptual knob curve (compressor attack). */
+const KNOB_EXPONENTIAL_CURVE_POWER = 2;
+/** Split-filter geometry from the retired widget curve. */
+const SPLIT_FILTER_CURVE_POWER = 2;
+const KNOB_ROTATION_THRESHOLD_L = 49;
+const KNOB_ROTATION_THRESHOLD_R = 50;
+
+/**
+ * Split-filter position (0-100) to the canonical `{ side, cutoffHz }`, using
+ * the pre-flip curve: 0-49 sweeps the low-pass side, 50-100 the high-pass
+ * side, each rescaled to 0-1 and shaped with a power-2 curve over
+ * MASTER_FILTER_RANGE. Position 50 is the open extreme (highpass at 0 Hz).
+ */
+function splitFilterPositionToCanonical(position: number): CanonicalFilter {
+  const lowPass = position <= KNOB_ROTATION_THRESHOLD_L;
+  const [min, max] = MASTER_FILTER_RANGE;
+  const sidePosition =
+    ((lowPass ? position : position - KNOB_ROTATION_THRESHOLD_R) /
+      KNOB_ROTATION_THRESHOLD_L) *
+    100;
+  const t = sidePosition / 100;
+  const cutoffHz = min + Math.pow(t, SPLIT_FILTER_CURVE_POWER) * (max - min);
+  return { side: lowPass ? "lowpass" : "highpass", cutoffHz };
+}
+
+/**
+ * Maps the harness knob master params to the canonical master chain the
+ * engine bridge consumes. Linear knob curves rescale to their canonical
+ * range; the compressor attack keeps its power-2 curve; masterVolume treats
+ * knob 0 as silence (-Infinity); the two macros stay 0-1 wet fractions that
+ * engine-params expands to their engine companions.
+ */
+function masterKnobsToCanonical(
+  params: MasterChainParams,
+): MasterChainCanonical {
+  return {
+    filter: splitFilterPositionToCanonical(params.filter),
+    saturation: params.saturation / 100,
+    phaser: params.phaser / 100,
+    reverb: params.reverb / 100,
+    compThreshold: lerp(
+      params.compThreshold / 100,
+      MASTER_COMP_THRESHOLD_RANGE[0],
+      MASTER_COMP_THRESHOLD_RANGE[1],
+    ),
+    compRatio: Math.round(
+      lerp(
+        params.compRatio / 100,
+        MASTER_COMP_RATIO_RANGE[0],
+        MASTER_COMP_RATIO_RANGE[1],
+      ),
+    ),
+    compAttack: lerp(
+      Math.pow(params.compAttack / 100, KNOB_EXPONENTIAL_CURVE_POWER),
+      MASTER_COMP_ATTACK_RANGE[0],
+      MASTER_COMP_ATTACK_RANGE[1],
+    ),
+    compMix: params.compMix / 100,
+    masterVolume:
+      params.masterVolume === 0
+        ? -Infinity
+        : lerp(
+            params.masterVolume / 100,
+            MASTER_VOLUME_RANGE[0],
+            MASTER_VOLUME_RANGE[1],
+          ),
+  };
+}
+
 interface RenderFixtureOptions {
   pattern: Pattern;
   instruments: InstrumentData[];
@@ -79,8 +190,8 @@ interface RenderFixtureOptions {
 /**
  * Constructs a fresh (non-singleton) AudioEngine and pushes the fixture
  * state through the real engine commands: pattern, playback config,
- * per-channel play/continuous params (knob values converted to domain at
- * the boundary), master settings, tempo, swing, and the kit.
+ * per-channel canonical play/continuous params, master settings, tempo,
+ * swing, and the kit.
  *
  * The caller owns the returned engine and MUST dispose() it. Note that
  * loadKit creates live-context channels as a side effect; dispose() cleans
@@ -131,17 +242,21 @@ async function createFixtureEngine(
     instruments.forEach((instrument, index) => {
       engine.setChannelPlayParams(
         index,
-        instrumentKnobsToPlayParams(instrument.params),
+        instrumentPlayParams(instrument.params),
       );
       engine.setChannelContinuousParams(
         index,
-        instrumentKnobsToContinuousParams(instrument.params),
+        instrumentContinuousParams(instrument.params),
       );
     });
 
-    engine.setMasterSettings(mapParamsToSettings(mergedMasterParams));
+    engine.setMasterSettings(
+      mapMasterToSettings(masterKnobsToCanonical(mergedMasterParams)),
+    );
     engine.setTempo(bpm);
-    engine.setSwing(transportSwingKnobToDomain(swing));
+    // Knob (0-100) to the canonical Tone swing fraction (0-TRANSPORT_SWING_MAX),
+    // matching the retired transportSwingKnobToDomain exactly.
+    engine.setSwing((swing / 100) * TRANSPORT_SWING_MAX);
 
     await engine.loadKit(
       toKitSampleDescriptors(instruments),
@@ -179,4 +294,4 @@ export {
   DEFAULT_MASTER_PARAMS,
   RENDER_TAIL_SECONDS,
 };
-export type { RenderFixtureOptions };
+export type { RenderFixtureOptions, MasterChainParams };
