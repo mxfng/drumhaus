@@ -104,7 +104,7 @@ engine.rebuild()                     // teardown + reconstruct graph from last-p
 
 Update (2026-07-16): this is the phase-3 target sketch, not the shipped command surface.
 On the shipped facade (`src/core/audio/engine/audio-engine.ts`), `setChannelParams` shipped as `setChannelContinuousParams`, and `setMasterParams` shipped as `setMasterSettings`.
-`onStep` and `getAnalyser` never shipped; the events out are `onPlaybackVariationChange`, `onKitLoaded`, and `onPlaybackStateChange`, and the read-only taps are `getChannelMeter`, `getMasterLevelDb` (issue #268), and `getCurrentStep`.
+`onStep` and the per-channel `getAnalyser(i)` never shipped; the events out are `onPlaybackVariationChange`, `onKitLoaded`, and `onPlaybackStateChange`, and the read-only taps are `getChannelMeter`, `getMasterLevelDb` (issue #268), `getMasterAnalyser` (issue #384), and `getCurrentStep`.
 
 Key properties:
 
