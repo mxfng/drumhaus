@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Analyser } from "tone";
 
 import { semitonesToRatio } from "@/core/audio/canonical/tune";
-import {
-  createFrequencyAnalyzer,
-  disposeFrequencyAnalyzer,
-} from "@/core/audio/frequency-analyzer";
+import { getAudioEngine } from "@/core/audio/engine";
 import { subscribeToPlaybackAnimation } from "@/shared/lib/animation";
 import { clamp, normalize } from "@/shared/lib/utils";
 import { usePerformanceStore } from "@/shared/store/use-performance-store";
@@ -30,7 +26,6 @@ function FrequencyAnalyzer({
   height,
   numBars = NUM_BARS,
 }: FrequencyAnalyzerProps = {}) {
-  const analyzerRef = useRef<Analyser | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const potatoMode = usePerformanceStore((state) => state.potatoMode);
@@ -60,22 +55,21 @@ function FrequencyAnalyzer({
   }, [width, height]);
 
   useEffect(() => {
-    createFrequencyAnalyzer(analyzerRef);
+    // Engine-owned spectrum analyser tap: the instance is stable across kit
+    // swaps and rebuilds (the engine reconnects it to each replacement master
+    // bus), so we hold it for the subscription lifetime and never dispose it
+    // here. Disposal is the engine's responsibility.
+    const analyzer = getAudioEngine().getMasterAnalyser();
 
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
 
     if (!canvas || !ctx) {
       console.error("Canvas or context not available.");
-      return () => {
-        disposeFrequencyAnalyzer(analyzerRef);
-      };
+      return;
     }
 
     const drawFrame = () => {
-      const analyzer = analyzerRef.current;
-      if (!analyzer) return;
-
       const effectiveBars = potatoMode ? Math.min(numBars, 64) : numBars;
       const dataArray = analyzer.getValue();
       const length = dataArray.length;
@@ -145,10 +139,7 @@ function FrequencyAnalyzer({
     // Subscribe to playback animation (only runs when playing)
     const unsubscribe = subscribeToPlaybackAnimation(drawFrame);
 
-    return () => {
-      unsubscribe();
-      disposeFrequencyAnalyzer(analyzerRef);
-    };
+    return unsubscribe;
   }, [numBars, potatoMode]);
 
   return (

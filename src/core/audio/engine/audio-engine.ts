@@ -15,6 +15,7 @@
  */
 
 import {
+  Analyser,
   getContext,
   getDestination,
   getTransport,
@@ -161,6 +162,12 @@ const CHANNEL_METER_SMOOTHING = 0.8;
  */
 const MASTER_METER_SMOOTHING = 0;
 
+/**
+ * FFT size for the master spectrum analyser tap (getMasterAnalyser). Matches
+ * what the frequency-analyzer visualizer polls: 512 bins of "fft" data.
+ */
+const MASTER_ANALYSER_SIZE = 512;
+
 // -----------------------------------------------------------------------------
 // AudioEngine
 // -----------------------------------------------------------------------------
@@ -182,6 +189,12 @@ class AudioEngine {
    * rebuild) so polling consumers survive graph reconstruction.
    */
   private masterMeter: Meter | null = null;
+  /**
+   * Engine-owned master spectrum analyser, created lazily by
+   * getMasterAnalyser and reconnected to each new master bus (init and
+   * rebuild) so the frequency visualizer survives graph reconstruction.
+   */
+  private masterAnalyser: Analyser | null = null;
 
   // --- Kit metadata (derived at loadKit time) ---
   private roles: InstrumentRole[] = [];
@@ -280,10 +293,14 @@ class AudioEngine {
 
     this.masterBus = bus;
 
-    // Reattach the master level tap to the new bus (init after dispose,
-    // or a rebuild's re-init) so polling consumers keep reading levels.
+    // Reattach the master level tap and spectrum analyser to the new bus
+    // (init after dispose, or a rebuild's re-init) so polling consumers keep
+    // reading levels and the visualizer keeps its live signal.
     if (this.masterMeter) {
       bus.connectOutputTap(this.masterMeter);
+    }
+    if (this.masterAnalyser) {
+      bus.connectOutputTap(this.masterAnalyser);
     }
 
     // Settings may have been pushed while the bus was being built.
@@ -319,6 +336,9 @@ class AudioEngine {
 
     this.masterMeter?.dispose();
     this.masterMeter = null;
+
+    this.masterAnalyser?.dispose();
+    this.masterAnalyser = null;
 
     this.masterBus?.dispose();
     this.masterBus = null;
@@ -872,6 +892,27 @@ class AudioEngine {
     }
     const value = this.masterMeter.getValue();
     return typeof value === "number" ? value : value[0];
+  }
+
+  /**
+   * Returns the engine-owned spectrum analyser tapping the live master bus
+   * output AFTER the limiter, so it observes exactly what reaches the
+   * destination (the offline renderWav path is untouched). Consumers poll
+   * its getValue() from their own animation loops (the frequency
+   * visualizer).
+   *
+   * Mirrors getMasterLevelDb: the analyser is created lazily on the first
+   * call (so the tap costs nothing until something reads it), is stable
+   * across calls, and survives rebuild() because doInit reconnects the
+   * retained analyser to each replacement bus. Disposed with the engine.
+   * Configured with "fft" data and MASTER_ANALYSER_SIZE bins.
+   */
+  getMasterAnalyser(): Analyser {
+    if (!this.masterAnalyser) {
+      this.masterAnalyser = new Analyser("fft", MASTER_ANALYSER_SIZE);
+      this.masterBus?.connectOutputTap(this.masterAnalyser);
+    }
+    return this.masterAnalyser;
   }
 
   /**
