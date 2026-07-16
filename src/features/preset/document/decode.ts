@@ -47,7 +47,20 @@ function decodePresetFileText(text: string): PresetDocument {
   } catch {
     throw new InvalidFileError("Invalid preset file: not valid JSON");
   }
+  return decodePresetObject(data);
+}
 
+/**
+ * Decode an already-parsed preset value of any supported version into the
+ * current (v2.1) document. The version dispatch shared by file reads and the
+ * legacy-library adoption; the only difference from decodePresetFileText is
+ * that the caller has already done JSON.parse.
+ *
+ * @throws {InvalidFileError} If the value is not an object or not a preset
+ * @throws {UnsupportedVersionError} If the version is not 1, 1.5, 2, or 2.1
+ * @throws {CorruptFieldError} If a field inside the envelope is corrupt
+ */
+function decodePresetObject(data: unknown): PresetDocument {
   if (typeof data !== "object" || data === null) {
     throw new InvalidFileError("Invalid preset file: expected an object");
   }
@@ -77,4 +90,4 @@ function decodePresetFileText(text: string): PresetDocument {
   throw new UnsupportedVersionError(raw.version);
 }
 
-export { decodePresetFileText };
+export { decodePresetFileText, decodePresetObject };

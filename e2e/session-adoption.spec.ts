@@ -145,9 +145,11 @@ test.describe("legacy session adoption", () => {
     );
     await expect(page.getByRole("combobox", { name: "Kit" })).toHaveText("808");
     await expect(step(page, 3)).toHaveAttribute("data-active", "true");
-    await expect(page.getByRole("slider", { name: "bpm" })).toContainText(
-      "128",
-    );
+    // Scope to the screen value field: the hardware tempo knob is also a slider
+    // named "bpm" (it defaults to bpm mode), so the plain role query is ambiguous.
+    await expect(
+      page.locator('[data-slot="value-field"][aria-label="bpm"]'),
+    ).toContainText("128");
 
     // Post-flip the control is canonical: aria-valuenow is the Tone swing
     // fraction, not the old 0-100 knob value. The adopted swing round-trips

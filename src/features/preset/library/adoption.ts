@@ -8,9 +8,9 @@
  * - The raw legacy payload is copied UNTOUCHED to drumhaus-library-backup
  *   before anything else (the pre-adoption escape hatch; this PR never
  *   deletes it).
- * - Entries migrate individually through the standard
- *   validate -> migrate pipeline; a failing entry quarantines to its own
- *   key and never blocks the others.
+ * - Entries decode individually through the version-dispatching reader
+ *   (decodePresetObject: v1 through v2.1); a failing entry quarantines to
+ *   its own key and never blocks the others.
  * - The legacy key is deleted ONLY after every entry is written or
  *   quarantined. Any quota failure stops adoption with the legacy key (and
  *   backup) intact.
@@ -26,9 +26,8 @@
  */
 
 import {
-  migrateV1ToDocument,
+  decodePresetObject,
   StorageFullError,
-  validatePresetFileV1,
 } from "@/features/preset/document";
 import { LEGACY_PRESET_META_STORAGE_KEY } from "@/features/preset/session/legacy-adopter";
 import { captureLegacyPresetMeta } from "@/features/preset/session/legacy-preset-meta-capture";
@@ -132,7 +131,10 @@ function adoptLegacyPresetLibrary(): void {
     }
 
     try {
-      const document = migrateV1ToDocument(validatePresetFileV1(entry));
+      // Decode through the version-dispatching reader: a legacy customPresets
+      // array is normally v1, but may carry entries from any build (v1 through
+      // v2.1); each adopts to the current document, only corrupt entries fail.
+      const document = decodePresetObject(entry);
       putLibraryEntrySync(document);
       adoptedIds.add(document.meta.id);
       adoptedRows.push({ id: document.meta.id, name: document.meta.name });
