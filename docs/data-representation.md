@@ -197,12 +197,15 @@ Everything born after this work is canonical.
 
 ### The split-filter has two position curves, by design (2026-07-15)
 
-The split filter is stored canonically as `{ side, cutoffHz }` (P2), so its sound is set by `cutoffHz`, not by any 0-100 position.
-Two position curves therefore coexist, and this divergence is intentional and signed off.
-The frozen migration curve (`frozen-split-filter.ts`, quadratic over `[0, 15000]`) reads OLD and factory data: it preserves each old preset's exact `cutoffHz`, so existing and factory presets sound identical.
-The live widget curve (`param-control/descriptors/filter.ts`, exponential over `[20, 15000]`) is used only for live knob editing, and is the deliberate new filter feel.
-A migrated preset can therefore display at a different knob position than it was authored at, and can carry a `cutoffHz` outside the descriptor's `[20, 15000]` range (0 Hz at the old centre, ~15618 Hz at the old high-pass extreme).
-That is accepted: `filterToPosition` clamps out-of-range cutoffs for display only, and the engine consumes the exact stored `cutoffHz`, so the sound never changes.
+The split filter is stored canonically as `{ side, cutoffHz }` (P2), so its sound is set by `cutoffHz`, not by any control position.
+Two position-to-cutoff curves coexist at DIFFERENT layers, and the divergence is intentional and signed off.
+The frozen migration curve (`frozen-split-filter.ts`, quadratic) converts LEGACY 0-100 knob space to `{ side, cutoffHz }`, and that 0-100 input is fine because the curve lives only in the legacy-read island, reading old data.
+It preserves each old preset's exact `cutoffHz`, so existing and factory presets stay byte-identical.
+The live widget curve (`param-control/descriptors/filter.ts`, exponential over `[20, 15000]`) converts the normalized `[0, 1]` control position (layer 3, private to the widget - 0-100 is dead here) and is the deliberate new filter feel.
+So the mapping is: legacy 0-100 -> frozen curve (island only); normalized `[0, 1]` -> descriptor (live editing).
+A migrated preset can therefore display at a different knob position than it was authored at, and can carry a `cutoffHz` outside the descriptor's `[20, 15000]` range: 0 Hz at the old centre and ~15618 Hz at the old high-pass extreme.
+Those out-of-range values are the old quadratic curve's inherent artifacts (the 0 Hz floor and the `/49` high-pass overshoot), preserved deliberately under the adopt-new-curve decision so old and factory presets stay byte-identical - a chosen consequence, not a defect.
+`filterToPosition` clamps them into `[0, 1]` for display only, and the engine consumes the exact stored `cutoffHz`, so the sound never changes.
 
 ## Coverage and verification
 
