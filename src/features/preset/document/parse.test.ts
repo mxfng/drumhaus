@@ -283,11 +283,14 @@ describe("validatePresetFileV1", () => {
     expect(String(warnSpy.mock.calls[0][0])).toContain("futureFeature");
   });
 
-  it("accepts every bundled default preset", () => {
+  it("rejects the canonical bundled defaults as an unsupported version", () => {
+    // The bundled defaults are canonical v2.1 documents now, so the v1
+    // validator must refuse them cleanly rather than mis-reading them.
     for (const preset of [...getDefaultPresets(), init()]) {
-      expect(() => validatePresetFileV1(preset)).not.toThrow();
+      expect(() => validatePresetFileV1(preset)).toThrow(
+        UnsupportedVersionError,
+      );
     }
-    expect(warnSpy).not.toHaveBeenCalled();
   });
 });
 

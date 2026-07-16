@@ -137,15 +137,17 @@ describe("hashPresetDocument", () => {
 
   it("does not swallow the smallest real edit (0.1 knob of compAttack at the flat end)", () => {
     // Master compAttack has the smallest domain delta per knob step in the
-    // app: exponential over 0.001..0.1 s, so a 0.1 knob step at the bottom
-    // moves the domain value by (0.1/100)^2 * 0.099 s ~= 9.9e-8 s. That is
-    // still two orders of magnitude above the 1e-9 canonical resolution.
+    // app: exponential over 0.001..0.1 s, so a 0.1 knob step at the flat end
+    // (0.001 s) moves the canonical value by (0.1/100)^2 * 0.099 s ~= 9.9e-8 s.
+    // That is still two orders of magnitude above the 1e-9 canonical resolution.
     applyPresetDocument(migrateFixture("v1-current.json"));
 
-    useMasterChainStore.getState().setCompAttack(0);
+    useMasterChainStore.getState().setCompAttack(0.001);
     const flat = snapshotCurrent();
 
-    useMasterChainStore.getState().setCompAttack(0.1);
+    useMasterChainStore
+      .getState()
+      .setCompAttack(0.001 + Math.pow(0.1 / 100, 2) * 0.099);
     const nudged = snapshotCurrent();
 
     const domainDelta =
