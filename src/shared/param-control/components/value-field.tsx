@@ -95,14 +95,14 @@ function ValueField<T>({
           <span
             id={`${control.id}-label`}
             data-slot="value-field-label"
-            className={cn("text-foreground-muted", labelClassName)}
+            className={labelClassName}
           >
             {label}{" "}
           </span>
         )}
         <span
           data-slot="value-field-value"
-          className={cn("tabular-nums", valueClassName)}
+          className={cn("tabular-nums", showLabel && "pl-0.5", valueClassName)}
         >
           {control.displayValue}
         </span>
