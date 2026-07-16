@@ -11,8 +11,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { init } from "@/core/dh";
+import { loadKit } from "@/core/dhkit";
 import {
-  migrateV1ToDocument,
   StorageFullError,
   type PresetDocument,
 } from "@/features/preset/document";
@@ -71,7 +71,7 @@ function createMemoryStorage(): MemoryStorage {
 }
 
 function makeDocument(id: string, name: string): PresetDocument {
-  const document = migrateV1ToDocument(init());
+  const document = init();
   return { ...document, meta: { ...document.meta, id, name } };
 }
 
@@ -88,7 +88,7 @@ beforeEach(() => {
   usePresetMetaStore.setState({
     customPresets: [],
     currentPresetMeta: init().meta,
-    currentKitMeta: init().kit.meta,
+    currentKitMeta: loadKit(init().kit.id)!.meta,
     cleanHash: null,
   });
 });
