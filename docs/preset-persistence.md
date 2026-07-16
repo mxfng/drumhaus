@@ -277,6 +277,7 @@ A typed error taxonomy (`InvalidFile`, `UnsupportedVersion`, `CorruptField`, `Un
 
 ### Versioning
 
+The living versioning policy (the canonical version list, the ordered checklist for adding a version, the bump-vs-fix rule, and the frozen-island sunset seam) is docs/preset-versioning.md; this section is the original design narrative and predates the shipped fractional `2.1`.
 The envelope is `kind` plus an integer `version`; migration is a ladder (`MIGRATIONS[version]` steps up to `CURRENT_VERSION = 2`), followed by a strict parse of the result, and every accepted legacy shape is pinned by a fixture generated from a real historical file.
 The 1-to-2 migration is where the entire legacy is absorbed in one step: the field-presence heuristics (param renames, `lowPass`/`highPass`, `variationCycle`, array-shaped patterns), the knob-to-domain conversion under the frozen v1 curves (decision 11), the embedded-kit dereference (decision 12), the swing knob-to-fraction conversion, and the macro folding.
 Newer versions hard-refuse on older builds with a clean "unsupported version" error (decision 2), and after v2 a knob-curve retune is a pure UI change that can never alter how a saved preset sounds.
