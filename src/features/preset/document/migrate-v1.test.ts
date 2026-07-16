@@ -2,18 +2,24 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 
+import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
-  instrumentKnobsToContinuousParams,
-  mapParamsToSettings,
-  transportSwingKnobToDomain,
-} from "@/core/audio/bridge/knob-to-domain";
-import { INSTRUMENT_TUNE_BASE_FREQUENCY } from "@/core/audio/engine/constants";
-import {
-  instrumentDecayMapping,
-  instrumentPanMapping,
-  instrumentVolumeMapping,
-  tuneMapping,
-} from "@/shared/knob/lib/mapping";
+  INSTRUMENT_DECAY_RANGE,
+  INSTRUMENT_PAN_RANGE,
+  INSTRUMENT_TUNE_BASE_FREQUENCY,
+  INSTRUMENT_TUNE_SEMITONE_RANGE,
+  INSTRUMENT_VOLUME_RANGE,
+  MASTER_COMP_ATTACK_RANGE,
+  MASTER_COMP_MIX_RANGE,
+  MASTER_COMP_RATIO_RANGE,
+  MASTER_COMP_THRESHOLD_RANGE,
+  MASTER_FILTER_RANGE,
+  MASTER_PHASER_WET_RANGE,
+  MASTER_REVERB_WET_RANGE,
+  MASTER_SATURATION_WET_RANGE,
+  MASTER_VOLUME_RANGE,
+  TRANSPORT_SWING_MAX,
+} from "@/core/audio/engine/constants";
 import { UnknownKitError } from "./errors";
 import { frozenV1Curves, migrateV1ToDocument } from "./migrate-v1";
 import { GOLDEN_SURFACES } from "./migrate-v1.golden";
@@ -50,22 +56,46 @@ const ERA_FIXTURES = [
 const KNOB_VALUES = Array.from({ length: 101 }, (_, i) => i);
 const EPSILON = 1e-9;
 
-// RETUNE POLICY: this suite asserts the migration's frozen v1 curves equal
-// the app's live bridge mappings, which is true today by construction. If it
-// ever fails because the live curves were deliberately retuned, update THIS
-// TEST to pin the frozen values as literals - never "fix" migrate-v1.ts to
-// track the new curves. Decision 11 (docs/preset-persistence.md): v1 files
-// are permanently interpreted with the curves their authors heard.
-describe("frozen v1 curves match the live bridge mappings", () => {
+// RETUNE POLICY: this suite asserts the migration's frozen v1 curves equal the
+// original knob-to-domain curves. The canonical flip retired the live knob
+// module, so those curves are reimplemented here from the engine range
+// constants (the source the retired mappings read). If this ever fails because
+// a range was deliberately retuned, update THIS TEST to pin the frozen values
+// as literals - never "fix" migrate-v1.ts to track a new curve. Decision 11
+// (docs/preset-persistence.md): v1 files are permanently interpreted with the
+// curves their authors heard.
+type Range = readonly [number, number];
+const linear = (knob: number, [min, max]: Range): number =>
+  min + (knob / 100) * (max - min);
+const exponential = (knob: number, [min, max]: Range): number =>
+  min + Math.pow(knob / 100, 2) * (max - min);
+
+/** The retired split-filter position -> `{ side, cutoffHz }` curve. */
+function liveFilter(knob: number): CanonicalFilter {
+  const lowPass = knob <= 49;
+  const [min, max] = MASTER_FILTER_RANGE;
+  const sidePosition = ((lowPass ? knob : knob - 50) / 49) * 100;
+  const cutoffHz = min + Math.pow(sidePosition / 100, 2) * (max - min);
+  return { side: lowPass ? "lowpass" : "highpass", cutoffHz };
+}
+
+/** The retired tune mapping: knob geometry through equal temperament to Hz. */
+function liveTuneHz(knob: number): number {
+  const semitones = ((knob - 50) / 50) * INSTRUMENT_TUNE_SEMITONE_RANGE;
+  return INSTRUMENT_TUNE_BASE_FREQUENCY * Math.pow(2, semitones / 12);
+}
+
+describe("frozen v1 curves match the retired knob-to-domain curves", () => {
   it.each(KNOB_VALUES)("channel conversions at knob %i", (knob) => {
     expect(
       Math.abs(
         frozenV1Curves.decaySeconds(knob) -
-          instrumentDecayMapping.knobToDomain(knob),
+          exponential(knob, INSTRUMENT_DECAY_RANGE),
       ),
     ).toBeLessThanOrEqual(EPSILON);
 
-    const liveVolume = instrumentVolumeMapping.knobToDomain(knob);
+    const liveVolume =
+      knob === 0 ? -Infinity : linear(knob, INSTRUMENT_VOLUME_RANGE);
     const frozenVolume = frozenV1Curves.volumeDb(knob);
     if (knob === 0) {
       // null is the document's JSON-safe spelling of the live -Infinity.
@@ -78,9 +108,7 @@ describe("frozen v1 curves match the live bridge mappings", () => {
     }
 
     expect(
-      Math.abs(
-        frozenV1Curves.pan(knob) - instrumentPanMapping.knobToDomain(knob),
-      ),
+      Math.abs(frozenV1Curves.pan(knob) - linear(knob, INSTRUMENT_PAN_RANGE)),
     ).toBeLessThanOrEqual(EPSILON);
 
     // The live tune mapping emits Hz; the document stores the semitone
@@ -88,36 +116,25 @@ describe("frozen v1 curves match the live bridge mappings", () => {
     const frozenHz =
       INSTRUMENT_TUNE_BASE_FREQUENCY *
       Math.pow(2, frozenV1Curves.tuneSemitones(knob) / 12);
-    expect(
-      Math.abs(frozenHz - tuneMapping.knobToDomain(knob)),
-    ).toBeLessThanOrEqual(EPSILON);
+    expect(Math.abs(frozenHz - liveTuneHz(knob))).toBeLessThanOrEqual(EPSILON);
 
     // The split-filter position converts to the same canonical
-    // { side, cutoffHz } as the live bridge.
-    const continuous = instrumentKnobsToContinuousParams({
-      decay: knob,
-      filter: knob,
-      volume: knob,
-      pan: knob,
-      tune: knob,
-      solo: false,
-      mute: false,
-    });
-    expect(frozenV1Curves.filter(knob)).toEqual(continuous.filter);
+    // { side, cutoffHz } as the retired bridge curve.
+    expect(frozenV1Curves.filter(knob)).toEqual(liveFilter(knob));
   });
 
   it.each(KNOB_VALUES)("master conversions at knob %i", (knob) => {
-    const settings = mapParamsToSettings({
-      filter: knob,
-      saturation: knob,
-      phaser: knob,
-      reverb: knob,
-      compThreshold: knob,
-      compRatio: knob,
-      compAttack: knob,
-      compMix: knob,
-      masterVolume: knob,
-    });
+    const settings = {
+      filter: liveFilter(knob),
+      saturationWet: linear(knob, MASTER_SATURATION_WET_RANGE),
+      phaserWet: linear(knob, MASTER_PHASER_WET_RANGE),
+      reverbWet: linear(knob, MASTER_REVERB_WET_RANGE),
+      compThreshold: linear(knob, MASTER_COMP_THRESHOLD_RANGE),
+      compRatio: Math.round(linear(knob, MASTER_COMP_RATIO_RANGE)),
+      compAttack: exponential(knob, MASTER_COMP_ATTACK_RANGE),
+      compMix: linear(knob, MASTER_COMP_MIX_RANGE),
+      masterVolume: knob === 0 ? -Infinity : linear(knob, MASTER_VOLUME_RANGE),
+    };
 
     expect(frozenV1Curves.filter(knob)).toEqual(settings.filter);
     // The macro amount is the wet fraction; the companion fields
@@ -155,7 +172,7 @@ describe("frozen v1 curves match the live bridge mappings", () => {
 
     expect(
       Math.abs(
-        frozenV1Curves.swingFraction(knob) - transportSwingKnobToDomain(knob),
+        frozenV1Curves.swingFraction(knob) - (knob / 100) * TRANSPORT_SWING_MAX,
       ),
     ).toBeLessThanOrEqual(EPSILON);
   });
