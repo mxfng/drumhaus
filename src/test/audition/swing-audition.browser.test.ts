@@ -40,8 +40,13 @@ const OUT_DIR = "audition-out";
 /** Per-render timeout headroom: offline render of ~10s of audio + sampler loads. */
 const RENDER_TIMEOUT = 300_000;
 
-/** Knob positions to audition on the shipped curve. */
-const KNOBS = [0, 25, 50, 67, 85, 100];
+/**
+ * Shipped-curve swing values to audition (canonical Tone fractions), spanning
+ * the production range evenly. These are the exact canonical equivalents of the
+ * old 0-100 audition ladder [0, 25, 50, 67, 85, 100] on the shipped linear
+ * curve (s = knob/100 * TRANSPORT_SWING_MAX, TRANSPORT_SWING_MAX = 0.375).
+ */
+const SHIPPED_SWINGS = [0, 0.09375, 0.1875, 0.25125, 0.31875, 0.375];
 
 /**
  * MPC reference ladder: fixed domain swing values. Values above the
@@ -176,15 +181,12 @@ describe.runIf(!!import.meta.env.VITE_AUDITION)(
     }
 
     it(
-      `renders the shipped curve at knob ${KNOBS.join("/")}`,
+      `renders the shipped curve at swing ${SHIPPED_SWINGS.join("/")}`,
       async () => {
-        for (const k of KNOBS) {
-          // Knob (0-100) to the canonical Tone swing fraction, matching the
-          // retired transportSwingKnobToDomain exactly.
-          const s = (k / 100) * TRANSPORT_SWING_MAX;
+        for (const s of SHIPPED_SWINGS) {
           await renderToFile(
             s,
-            `swing-shipped-knob${k}-mpc${mpcLabel(s)}-${BPM}bpm.wav`,
+            `swing-shipped-s${s}-mpc${mpcLabel(s)}-${BPM}bpm.wav`,
           );
         }
       },
