@@ -103,20 +103,27 @@ function LinearSlider<T>({
     ? { width: thickness, height: length ?? "100%" }
     : { width: length ?? "100%", height: thickness };
 
+  // The thumb is inset so it never overhangs the track ends: its edge travels
+  // from 0 to `length - thumbSize`, keeping the thumb fully within the track at
+  // both extremes (center range `thumbSize/2` -> `length - thumbSize/2`). This
+  // matches the geometry of the original Radix-backed fader pixel-for-pixel; a
+  // raw `position * 100%` center would let the thumb spill half its size past
+  // each end. Only the cross-axis uses `translate` to center the thumb.
+  const insetOffset = `calc(${position} * (100% - ${thumbSize}px))`;
   const thumbStyle: CSSProperties = isVertical
     ? {
         width: thumbSize,
         height: thumbSize,
-        bottom: `${position * 100}%`,
+        bottom: insetOffset,
         left: "50%",
-        transform: "translate(-50%, 50%)",
+        transform: "translateX(-50%)",
       }
     : {
         width: thumbSize,
         height: thumbSize,
-        left: `${position * 100}%`,
+        left: insetOffset,
         top: "50%",
-        transform: "translate(-50%, -50%)",
+        transform: "translateY(-50%)",
       };
 
   return (
