@@ -130,6 +130,28 @@ describe("split-filter descriptor (generic-T custom taper)", () => {
     }
   });
 
+  it("clamps an out-of-range cutoffHz into a valid display position", () => {
+    // A migrated old/factory preset can carry a cutoffHz outside the
+    // descriptor's [20, 15000] audible range: the frozen curve reaches 0 Hz at
+    // the old centre and ~15618 Hz at its closed high-pass extreme. The live
+    // descriptor may DISPLAY such a preset at a shifted knob position (that is
+    // the accepted two-curve trade-off), but filterToPosition must stay finite
+    // and inside [0, 1] rather than produce NaN or overflow. The engine still
+    // consumes the exact stored cutoffHz (engine/fx/split-filter.ts).
+    const outOfRange: CanonicalFilter[] = [
+      { side: "lowpass", cutoffHz: 0 },
+      { side: "highpass", cutoffHz: 0 },
+      { side: "lowpass", cutoffHz: 15618.49 },
+      { side: "highpass", cutoffHz: 15618.49 },
+    ];
+    for (const filter of outOfRange) {
+      const pos = filterToPosition(filter);
+      expect(Number.isFinite(pos)).toBe(true);
+      expect(pos).toBeGreaterThanOrEqual(0);
+      expect(pos).toBeLessThanOrEqual(1);
+    }
+  });
+
   it("places the open extreme (fully open LP) at knob-centre", () => {
     const centre = positionToFilter(0.5);
     expect(centre.side).toBe("lowpass");
