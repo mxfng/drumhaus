@@ -37,6 +37,14 @@ type ValueFieldProps<T> = {
  * moves is a vertical drag (up increases), a press that does not is a tap that
  * opens the type-in editor. Because a tap is the type-in affordance, reset is
  * Delete / Backspace (the hook) rather than double-click.
+ *
+ * Unlike `RotaryKnob` / `LinearSlider`, this presentation is NOT composed on the
+ * `Knob` primitive: its interactive surface is fused with the value readout (one
+ * element is both the `role="slider"` and the display), and it deliberately
+ * omits the double-click-to-reset that `Knob.Track` wires by default (a
+ * double-click here is two taps on a tap-to-edit field). Routing it through
+ * `Knob.Track` would either change that behaviour or need a special-case opt-out,
+ * so it stays a direct, thin skin over `useParamControl` - the shared engine.
  */
 function ValueField<T>({
   descriptor,
