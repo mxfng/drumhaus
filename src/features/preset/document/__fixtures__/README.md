@@ -6,7 +6,7 @@ The `.dh` JSON format was born at commit `78fe632b` (2025-11-18); before that, p
 Truncated or otherwise invalid JSON should be tested inline as a string literal in the test, not as a fixture file, because editors and formatters will not preserve broken JSON on disk.
 
 Migrators referenced below live in `src/features/sequencer/lib/migrations.ts` unless noted otherwise.
-`legacyCycleToChain` lives in `src/features/sequencer/lib/chain.ts` and is applied by `src/features/preset/hooks/use-preset-loading.ts`.
+`legacyCycleToChain` lives in `src/features/sequencer/lib/chain.ts` and is applied by `src/features/preset/document/migrate-v1.ts` (the 1-to-2 document migration) and `src/features/preset/session/legacy-adopter.ts` (one-time adoption of pre-document session state).
 
 ## v1-current.json
 
@@ -36,7 +36,7 @@ Notably its instrument params are already modern (`decay`/`tune`), making this a
 
 Source: synthetic (modern `v1-current.json` with `sequencer.chain`/`chainEnabled` replaced by `variationCycle: "AB"`).
 Era for the primary trait: 2025-11-18 to 2025-12-11 in committed files, but this exact combination (modern pattern plus `variationCycle`) never existed as a factory `.dh` file and could only arise from mid-migration user state.
-Primary trait: `sequencer.variationCycle` instead of `chain`/`chainEnabled`, handled by `legacyCycleToChain` in `src/features/sequencer/lib/chain.ts` via `use-preset-loading.ts`.
+Primary trait: `sequencer.variationCycle` instead of `chain`/`chainEnabled`, handled by `legacyCycleToChain` in `src/features/sequencer/lib/chain.ts`.
 The `"AB"` value is chosen deliberately because it maps to a non-trivial two-step chain with `chainEnabled: true`, unlike `"A"` which degenerates to the default chain.
 All other sections are fully modern so this fixture isolates the cycle-to-chain migration.
 
