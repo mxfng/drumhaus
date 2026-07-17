@@ -10,8 +10,12 @@
  * sample set changes.
  *
  * Assertions read the engine's onPlaybackVariationChange emissions, which
- * fire at sequence creation and at every bar start. Live meters read
- * silence in this headless harness, so audio levels are not asserted.
+ * fire at sequence creation and at every bar start. The engine runs with a
+ * live master bus (initLiveGraph), so the master level tap is asserted
+ * non-silent during playback: live meters DO read signal under automation
+ * once the graph is initialized and the pattern has hits (issue #348 - the
+ * earlier "meters read silence in this harness" observation was this
+ * harness skipping engine.init(), not an environment limit).
  */
 
 import { getContext } from "tone/build/esm/index";
@@ -76,6 +80,7 @@ describe("kit hot swap during chain playback (issue #241)", () => {
         ],
       },
       chainEnabled: true,
+      initLiveGraph: true,
     });
 
     const emissions: number[] = [];
@@ -92,6 +97,15 @@ describe("kit hot swap during chain playback (issue #241)", () => {
         () => emissions.includes(1),
         8000,
         "the chain to reach variation B",
+      );
+
+      // The live graph is audible to the engine's own meters under
+      // automation (issue #348): with clicks playing every quarter note,
+      // the post-limiter master tap must catch a non-silent RMS window.
+      await waitFor(
+        () => engine.getMasterLevelDb() > -60,
+        8000,
+        "the master level tap to read signal",
       );
 
       // Hot swap the kit mid-playback (fresh descriptor array, same
