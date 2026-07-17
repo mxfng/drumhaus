@@ -2,7 +2,8 @@
  * Master bus audio processing.
  *
  * Cohesive class owning the master bus graph: parallel compression, split
- * filter, phaser/reverb sends, saturation, EQ, and output limiting.
+ * filter, phaser/reverb sends, saturation, EQ, output limiting, and a hard
+ * output ceiling.
  * All methods take MasterChainSettings in canonical units; the stores already
  * hold canonical values, so the bridge (core/audio/bridge) forwards them
  * directly with no knob mapping.
@@ -18,6 +19,7 @@ import {
   Limiter,
   Phaser,
   Reverb,
+  WaveShaper,
   type DestinationInstance,
   type ToneAudioNode,
 } from "tone/build/esm/index";
@@ -32,6 +34,8 @@ import {
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
   MASTER_LIMITER_THRESHOLD,
+  MASTER_OUTPUT_CEILING,
+  MASTER_OUTPUT_CEILING_CURVE_LENGTH,
   MASTER_PHASER_BASE_FREQUENCY,
   MASTER_PHASER_FREQUENCY,
   MASTER_PHASER_OCTAVES,
@@ -95,6 +99,7 @@ interface MasterBusNodes {
   presenceDip: BiquadFilter; // Tames harsh 3-5kHz range
   highShelf: BiquadFilter; // Rolls off harsh highs
   limiter: Limiter;
+  outputCeiling: WaveShaper; // Hard clamp at MASTER_OUTPUT_CEILING (see #346)
 }
 
 /**
@@ -238,13 +243,13 @@ class MasterBus {
 
   /**
    * Connects a read-only tap (e.g. a meter) to the bus output, AFTER the
-   * limiter, so the tap observes exactly the signal that reaches the
-   * destination. Disposing the bus disconnects the tap along with the
-   * limiter; callers that keep tap nodes alive across rebuilds must
-   * reconnect them to the replacement bus.
+   * limiter and output ceiling, so the tap observes exactly the signal that
+   * reaches the destination. Disposing the bus disconnects the tap along
+   * with the ceiling; callers that keep tap nodes alive across rebuilds
+   * must reconnect them to the replacement bus.
    */
   connectOutputTap(tap: ToneAudioNode): void {
-    this.nodes.limiter.connect(tap);
+    this.nodes.outputCeiling.connect(tap);
   }
 
   /**
@@ -272,6 +277,7 @@ class MasterBus {
       { name: "presenceDip", node: nodes.presenceDip },
       { name: "highShelf", node: nodes.highShelf },
       { name: "limiter", node: nodes.limiter },
+      { name: "outputCeiling", node: nodes.outputCeiling },
     ];
 
     for (const { name, node } of nodesToDispose) {
@@ -409,7 +415,27 @@ async function createReverbSection(settings: MasterChainSettings) {
 }
 
 /**
- * Creates output processing chain: saturation -> EQ -> limiting.
+ * Builds the output ceiling's WaveShaper curve: exact identity below
+ * +/-MASTER_OUTPUT_CEILING, hard clamp above. The curve length puts the
+ * ceiling exactly on the curve's sample grid, so the node's linear
+ * interpolation reproduces clamp(x) exactly and signal below the ceiling is
+ * mathematically untouched (see MASTER_OUTPUT_CEILING_CURVE_LENGTH).
+ */
+function createOutputCeilingCurve(): Float32Array {
+  const length = MASTER_OUTPUT_CEILING_CURVE_LENGTH;
+  const curve = new Float32Array(length);
+  for (let i = 0; i < length; i++) {
+    const x = (i / (length - 1)) * 2 - 1;
+    curve[i] = Math.min(
+      MASTER_OUTPUT_CEILING,
+      Math.max(-MASTER_OUTPUT_CEILING, x),
+    );
+  }
+  return curve;
+}
+
+/**
+ * Creates output processing chain: saturation -> EQ -> limiting -> ceiling.
  * Tames harsh frequencies and prevents clipping.
  */
 function createOutputSection(settings: MasterChainSettings) {
@@ -437,7 +463,16 @@ function createOutputSection(settings: MasterChainSettings) {
 
   const limiter = new Limiter(MASTER_LIMITER_THRESHOLD);
 
-  return { saturation, presenceDip, highShelf, limiter };
+  // Hard output ceiling (#346): the Limiter above is a ratio-20
+  // DynamicsCompressorNode with a 30 dB default soft knee and a 3ms attack,
+  // NOT a brickwall - transient-heavy material overshoots 0 dBFS and used
+  // to clip at the 16-bit PCM encode in exports (and at the DAC live). The
+  // ceiling deterministically clamps those overshoot peaks; everything
+  // below it passes through untouched. Shared by the live and offline
+  // graphs, so exports stay sonically identical to playback.
+  const outputCeiling = new WaveShaper(createOutputCeilingCurve());
+
+  return { saturation, presenceDip, highShelf, limiter, outputCeiling };
 }
 
 // -----------------------------------------------------------------------------
@@ -477,12 +512,14 @@ function connectMasterBusNodes(
   nodes.reverbPreFilter.chain(nodes.reverb, nodes.reverbSendGain);
   nodes.reverbSendGain.connect(nodes.saturation);
 
-  // Output chain: drum saturation (user-controllable) -> EQ -> limiter
+  // Output chain: drum saturation (user-controllable) -> EQ -> limiter ->
+  // hard output ceiling (#346)
   nodes.highPassFilter.connect(nodes.saturation);
   nodes.saturation.chain(
     nodes.presenceDip,
     nodes.highShelf,
     nodes.limiter,
+    nodes.outputCeiling,
     destination,
   );
 }

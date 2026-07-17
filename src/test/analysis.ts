@@ -87,6 +87,22 @@ function peakInWindow(
 }
 
 /**
+ * Peak absolute sample amplitude across ALL channels of the buffer (linear,
+ * 1.0 = 0 dBFS). Unlike peakInWindow this does not mix to mono: PCM encoding
+ * clips per channel, so clipping headroom must be measured per channel.
+ */
+function peakAmplitude(buffer: AudioBuffer): number {
+  let peak = 0;
+  for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
+    const data = buffer.getChannelData(ch);
+    for (let i = 0; i < data.length; i++) {
+      peak = Math.max(peak, Math.abs(data[i]));
+    }
+  }
+  return peak;
+}
+
+/**
  * RMS of the mono mix within [startSec, endSec).
  */
 function rmsInWindow(
@@ -104,5 +120,5 @@ function rmsInWindow(
   return Math.sqrt(sumSquares / (end - start));
 }
 
-export { findOnsets, peakInWindow, rmsInWindow };
+export { findOnsets, peakAmplitude, peakInWindow, rmsInWindow };
 export type { FindOnsetsOptions };
