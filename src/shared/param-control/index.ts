@@ -2,7 +2,7 @@ export type {
   Taper,
   Detent,
   ParamDescriptor,
-  RotaryKnobFutureSeams,
+  ParamControlFutureSeams,
 } from "./types";
 export {
   clamp01,

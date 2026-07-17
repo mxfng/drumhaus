@@ -1,10 +1,11 @@
 /**
  * Registry of the readable document version literals.
  *
- * The decode ladder (decode.ts) and the v1-family read helpers (migrate.ts,
- * file-v1.ts) reference this one list instead of scattering bare literals, so
- * the ladder is self-documenting and adding a readable version is a single
- * registry edit (#380, docs/preset-versioning.md section 1). Every version
+ * The decode ladder (decode.ts) and the v1-family read helpers
+ * (legacy-file-version.ts, file-v1.ts) reference this one list instead of
+ * scattering bare literals, so the ladder is self-documenting and adding a
+ * readable version is a single registry edit (#380,
+ * docs/preset-versioning.md section 1). Every version
  * here is read-only ingress; the sole WRITABLE version is
  * PRESET_DOCUMENT_VERSION (document.ts), which stays the single source of
  * truth for "current".

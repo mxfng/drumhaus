@@ -4,7 +4,7 @@ import { cn } from "@/shared/lib/utils";
 import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
 import { Knob, useKnob } from "../primitives/knob";
-import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
+import type { ParamControlFutureSeams, ParamDescriptor } from "../types";
 
 type SliderOrientation = "horizontal" | "vertical";
 
@@ -41,7 +41,7 @@ type LinearSliderProps<T> = {
   /** Per-instance override for the normalized drag delta per pixel. */
   dragSensitivity?: number;
   className?: string;
-} & RotaryKnobFutureSeams;
+} & ParamControlFutureSeams;
 
 /** The styling-only props threaded from `LinearSlider` down to its body. */
 type LinearSliderBodyProps = {

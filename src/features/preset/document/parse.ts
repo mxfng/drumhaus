@@ -8,7 +8,7 @@ import { collectStrippedKeyPaths, presetFileV1Schema } from "./file-v1";
 import {
   isReadablePresetFileVersion,
   migratePresetFileVersion,
-} from "./migrate";
+} from "./legacy-file-version";
 import { warnStrippedKeyPaths } from "./stripped-keys";
 
 /**
@@ -63,7 +63,8 @@ function validatePresetFileV1(data: unknown): PresetFileV1 {
   warnStrippedKeyPaths("Preset file", collectStrippedKeyPaths(raw));
 
   // The schema is intentionally looser than the compile-time type; the
-  // migrators invoked by loadPreset normalize the remaining legacy variance.
+  // migrators invoked by migrateV1ToDocument normalize the remaining legacy
+  // variance.
   return migratePresetFileVersion(result.data as unknown as PresetFileV1);
 }
 

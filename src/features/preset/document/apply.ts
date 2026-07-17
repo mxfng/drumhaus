@@ -97,8 +97,8 @@ function applyPresetDocument(document: PresetDocument): void {
     (preset) => preset.meta.id === document.meta.id,
   );
 
-  // Commit phase: the same setters in the same order as the legacy
-  // loadPreset; the bridge's push order to the engine depends on it.
+  // Commit phase: this order is load-bearing - the bridge's push order to
+  // the engine depends on it.
 
   // Stop playback first: committing instruments below kicks off the async
   // engine kit reload (samples will reload).
@@ -115,7 +115,7 @@ function applyPresetDocument(document: PresetDocument): void {
   }
 
   // Update metadata (the clean dirty baseline is set post-commit below)
-  presetMeta.loadPreset(document.meta, kit.meta);
+  presetMeta.setLoadedPresetMeta(document.meta, kit.meta);
 
   // Update sequencer
   const pattern = usePatternStore.getState();

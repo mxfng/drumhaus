@@ -47,14 +47,16 @@ interface PresetMetaState {
   setKitMeta: (meta: Meta) => void;
 
   /**
-   * Load a preset's metadata (current preset and kit meta).
+   * Record a loaded preset's identity metadata (current preset and kit
+   * meta). This is identity bookkeeping only, not a load pipeline - it does
+   * not decode, migrate, or apply anything.
    *
    * Deliberately does NOT touch the clean baseline: this runs at the start
    * of applyPresetDocument's commit phase, before the musical stores are
    * written, and the baseline must hash the APPLIED state (the post-apply
    * snapshot), which applyPresetDocument sets via markPresetClean.
    */
-  loadPreset: (presetMeta: Meta, kitMeta: Meta) => void;
+  setLoadedPresetMeta: (presetMeta: Meta, kitMeta: Meta) => void;
 
   /**
    * Reset the clean baseline to the current store state: hash the live
@@ -189,7 +191,7 @@ const usePresetMetaStore = create<PresetMetaState>()(
           });
         },
 
-        loadPreset: (presetMeta, kitMeta) => {
+        setLoadedPresetMeta: (presetMeta, kitMeta) => {
           set((state) => {
             state.currentPresetMeta = presetMeta;
             state.currentKitMeta = kitMeta;
@@ -217,9 +219,10 @@ const usePresetMetaStore = create<PresetMetaState>()(
 
           if (cleanHash === null) return false;
 
-          // The canonical hash rounds away knob<->domain float noise and
-          // excludes meta.updatedAt (minted fresh on every snapshot), so
-          // this comparison is exactly "did the user edit anything".
+          // The canonical hash compares raw numbers bit-exact (no rounding
+          // needed - see canonical-hash.ts) and excludes meta.updatedAt
+          // (minted fresh on every snapshot), so this comparison is exactly
+          // "did the user edit anything".
           const currentHash = hashPresetDocument(
             snapshotPresetDocument(currentPresetMeta, currentKitMeta),
           );
