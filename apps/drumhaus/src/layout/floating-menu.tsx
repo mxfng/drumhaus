@@ -1,17 +1,13 @@
 import { useState } from "react";
 import {
-  DropdownMenu,
+  platformShortcutLabel,
+  FloatingMenu as ShellFloatingMenu,
+} from "@haus/shell";
+import {
   DropdownMenuCheckboxItem,
-  DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from "@haus/ui";
 
 import { useDebugStore } from "@/features/debug/store/use-debug-store";
@@ -20,20 +16,11 @@ import { redo, undo } from "@/features/preset/history/history";
 import { useHistoryStore } from "@/features/preset/history/use-history-store";
 import { AboutDialog } from "@/shared/dialogs/about-dialog";
 import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
-import {
-  SCALE_OPTIONS,
-  useLayoutScaleStore,
-} from "@/shared/store/use-layout-scale-store";
+import { layoutScale } from "@/shared/store/layout-scale";
 import { usePerformanceStore } from "@/shared/store/use-performance-store";
 
-const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
-  value,
-  label: `${value}%`,
-}));
-
-const IS_MAC_LIKE = /Mac|iPhone|iPad|iPod/.test(window.navigator.platform);
-const UNDO_SHORTCUT_LABEL = IS_MAC_LIKE ? "⌘Z" : "Ctrl+Z";
-const REDO_SHORTCUT_LABEL = IS_MAC_LIKE ? "⇧⌘Z" : "Ctrl+Shift+Z";
+const UNDO_SHORTCUT_LABEL = platformShortcutLabel("⌘Z", "Ctrl+Z");
+const REDO_SHORTCUT_LABEL = platformShortcutLabel("⇧⌘Z", "Ctrl+Shift+Z");
 
 function FloatingMenu() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -50,15 +37,6 @@ function FloatingMenu() {
   const nightMode = useNightModeStore((state) => state.nightMode);
   const toggleNightMode = useNightModeStore((state) => state.toggleNightMode);
 
-  const scale = useLayoutScaleStore((state) => state.scale);
-  const setScale = useLayoutScaleStore((state) => state.setScale);
-  const fitToScreen = useLayoutScaleStore((state) => state.fitToScreen);
-  const zoomIn = useLayoutScaleStore((state) => state.zoomIn);
-  const zoomOut = useLayoutScaleStore((state) => state.zoomOut);
-
-  const isAtMinScale = scale <= SCALE_OPTIONS[0];
-  const isAtMaxScale = scale >= SCALE_OPTIONS[SCALE_OPTIONS.length - 1];
-
   const handleTogglePotatoMode = () => {
     if (nightMode) {
       toggleNightMode();
@@ -73,102 +51,66 @@ function FloatingMenu() {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button
-            aria-label="Menu"
-            className="text-primary border-primary hover:bg-accent/20 focus-ring fixed top-2 left-2 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent backdrop-blur-xl transition-all duration-500"
-          >
-            <DrumhausLogo size={20} fill="currentColor" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onSelect={() => setIsAboutOpen(true)}>
-            About Drumhaus
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              window.open(
-                "https://ko-fi.com/maxfung",
-                "_blank",
-                "noopener,noreferrer",
-              );
-            }}
-          >
-            Donate
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              window.open(
-                "https://github.com/mxfng/drumhaus/issues",
-                "_blank",
-                "noopener,noreferrer",
-              );
-            }}
-          >
-            Report an Issue
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={undo} disabled={!canUndo}>
-            Undo
-            <DropdownMenuShortcut>{UNDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={redo} disabled={!canRedo}>
-            Redo
-            <DropdownMenuShortcut>{REDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuCheckboxItem
-            checked={nightMode}
-            onCheckedChange={toggleNightMode}
-            disabled={potatoMode}
-          >
-            Night Mode
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={debugMode}
-            onCheckedChange={toggleDebugMode}
-            disabled={potatoMode}
-          >
-            Debug Mode
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={potatoMode}
-            onCheckedChange={handleTogglePotatoMode}
-          >
-            Potato Mode
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Resize App</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem onSelect={fitToScreen}>
-                Fit to Screen
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={zoomOut} disabled={isAtMinScale}>
-                Zoom Out
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={zoomIn} disabled={isAtMaxScale}>
-                Zoom In
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup
-                value={scale.toString()}
-                onValueChange={(value) => setScale(parseInt(value))}
-              >
-                {SCALE_MENU_OPTIONS.map((option) => (
-                  <DropdownMenuRadioItem
-                    key={option.value}
-                    value={option.value.toString()}
-                  >
-                    {option.label}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <ShellFloatingMenu
+        layoutScale={layoutScale}
+        trigger={<DrumhausLogo size={20} fill="currentColor" />}
+      >
+        <DropdownMenuItem onSelect={() => setIsAboutOpen(true)}>
+          About Drumhaus
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            window.open(
+              "https://ko-fi.com/maxfung",
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }}
+        >
+          Donate
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            window.open(
+              "https://github.com/mxfng/drumhaus/issues",
+              "_blank",
+              "noopener,noreferrer",
+            );
+          }}
+        >
+          Report an Issue
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={undo} disabled={!canUndo}>
+          Undo
+          <DropdownMenuShortcut>{UNDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={redo} disabled={!canRedo}>
+          Redo
+          <DropdownMenuShortcut>{REDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuCheckboxItem
+          checked={nightMode}
+          onCheckedChange={toggleNightMode}
+          disabled={potatoMode}
+        >
+          Night Mode
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={debugMode}
+          onCheckedChange={toggleDebugMode}
+          disabled={potatoMode}
+        >
+          Debug Mode
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem
+          checked={potatoMode}
+          onCheckedChange={handleTogglePotatoMode}
+        >
+          Potato Mode
+        </DropdownMenuCheckboxItem>
+      </ShellFloatingMenu>
 
       <AboutDialog isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </>
