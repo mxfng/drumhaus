@@ -1,36 +1,22 @@
+import { ShellRoot, ShellScaleWrapper } from "@haus/shell";
 import { Separator } from "@haus/ui";
 
 import { InstrumentGrid } from "@/features/instrument/components/instrument-grid";
 import { Sequencer } from "@/features/sequencer/components/sequencer";
 import { LinkControl } from "@/features/session/components/link-control";
-import { useLayoutScale } from "@/shared/hooks/use-layout-scale";
+import { layoutScale } from "@/shared/store/layout-scale";
 import { ControlsPanel } from "./controls-panel";
 import { FloatingMenu } from "./floating-menu";
 import { Footer } from "./footer";
 import { Header } from "./header";
 
 const Drumhaus = () => {
-  // --- Layout ---
-  const { scale } = useLayoutScale();
-
   return (
-    <div
-      className="drumhaus-root"
-      style={{
-        // @ts-expect-error - CSS custom property
-        "--layout-scale": scale / 100,
-      }}
-    >
+    <ShellRoot layoutScale={layoutScale}>
       <FloatingMenu />
       {/* LINK ships dark: build-time flag, so off means fully absent. */}
       {__ENABLE_LINK__ && <LinkControl />}
-      <div
-        className="drumhaus-scale-wrapper"
-        style={{
-          transform: `translate(-50%, -50%) scale(${scale / 100})`,
-          transformOrigin: "center center",
-        }}
-      >
+      <ShellScaleWrapper layoutScale={layoutScale}>
         {/* Header buffer */}
         <div className="h-10" />
 
@@ -56,8 +42,8 @@ const Drumhaus = () => {
 
         {/* Footer */}
         <Footer />
-      </div>
-    </div>
+      </ShellScaleWrapper>
+    </ShellRoot>
   );
 };
 

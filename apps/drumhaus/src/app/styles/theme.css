@@ -2,17 +2,16 @@
  * Drumhaus Theme
  *
  * Drumhaus-specific design tokens, layered on top of @haus/tokens:
- * app layout dimensions, track colors, variation colors, sequencer
+ * chassis control dimensions, track colors, variation colors, sequencer
  * indicators, and the night-mode background.
+ *
+ * The app's layout dimensions (design box) live in TypeScript as the
+ * @haus/shell layout-scale config (src/shared/store/layout-scale.ts); the
+ * shell injects them as CSS variables.
  */
 
 :root {
   /* ==================== Layout ==================== */
-  --app-width: 90rem; /* w-360 in Tailwind, 1440px */
-  --app-height: 56.25rem; /* h-225 in Tailwind, 900px */
-  --app-footer-height: 2.5rem; /* h-18 in Tailwind, 72px */
-  --app-header-height: 2.5rem; /* h-18 in Tailwind, 72px */
-  --app-padding: 5rem; /* p-12 in Tailwind, 48px */
   --app-play-button: 9rem;
   --app-play-button-inner: 7.5rem;
 
@@ -41,11 +40,6 @@
 
 @theme {
   /* ==================== Layout ==================== */
-  --app-width: var(--app-width);
-  --app-height: var(--app-height);
-  --app-footer-height: var(--app-footer-height);
-  --app-header-height: var(--app-header-height);
-  --app-padding: var(--app-padding);
   --app-play-button: var(--app-play-button);
   --app-play-button-inner: var(--app-play-button-inner);
 

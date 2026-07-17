@@ -38,6 +38,9 @@ importers:
       '@haus/param-control':
         specifier: workspace:*
         version: link:../../packages/param-control
+      '@haus/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
       '@haus/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
@@ -294,6 +297,34 @@ importers:
       react-dom:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
+      typescript:
+        specifier: ^6
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@25.9.3)(@vitest/browser-playwright@4.1.10)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+
+  packages/shell:
+    dependencies:
+      '@haus/tokens':
+        specifier: workspace:*
+        version: link:../tokens
+      '@haus/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+      zustand:
+        specifier: ^5.0.14
+        version: 5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      oxlint:
+        specifier: ^1.71.0
+        version: 1.71.0
       typescript:
         specifier: ^6
         version: 6.0.3

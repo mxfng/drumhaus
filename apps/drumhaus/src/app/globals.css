@@ -20,7 +20,7 @@
 @import "@haus/tokens/utilities.css";
 
 /* ==================== Layout ==================== */
-@import "./styles/layout.css";
+@import "@haus/shell/shell.css";
 
 /* ==================== Animations ==================== */
 @import "./styles/animations.css";
@@ -36,3 +36,4 @@
    would be dropped from the built CSS. */
 @source "../../../../packages/ui/src";
 @source "../../../../packages/param-control/src";
+@source "../../../../packages/shell/src";

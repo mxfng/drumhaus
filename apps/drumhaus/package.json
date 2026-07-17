@@ -20,6 +20,7 @@
     "@haus/bridge": "workspace:*",
     "@haus/bridge-react": "workspace:*",
     "@haus/param-control": "workspace:*",
+    "@haus/shell": "workspace:*",
     "@haus/tokens": "workspace:*",
     "@haus/ui": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
