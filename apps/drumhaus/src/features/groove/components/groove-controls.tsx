@@ -1,18 +1,18 @@
+import {
+  Button,
+  HardwareModule,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@haus/ui";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { TimingNudgeMeter } from "@/features/groove/components/timing-nudge-meter";
 import { useGrooveStore } from "@/features/groove/store/use-groove-store";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
-import { HardwareModule } from "@/shared/components/hardware-module";
 import { buttonActive } from "@/shared/lib/button-active";
 import { cn } from "@/shared/lib/utils";
-import {
-  Button,
-  Label,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/shared/ui";
 
 // Tooltip constants
 const TOOLTIPS = {

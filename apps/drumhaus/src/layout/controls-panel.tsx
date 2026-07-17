@@ -1,3 +1,4 @@
+import { HardwareModuleLabel } from "@haus/ui";
 import { AudioWaveform, PlusIcon } from "lucide-react";
 
 import { GrooveControls } from "@/features/groove/components/groove-controls";
@@ -5,7 +6,6 @@ import { MasterBusControls } from "@/features/master-bus/components/master-bus-c
 import { SequencerControl } from "@/features/sequencer/components/sequencer-control";
 import { PlayPauseButton } from "@/features/transport/components/play-pause-button";
 import { TempoControls } from "@/features/transport/components/tempo-controls";
-import { HardwareModuleLabel } from "@/shared/components/hardware-module";
 
 const ControlsPanel = () => {
   return (

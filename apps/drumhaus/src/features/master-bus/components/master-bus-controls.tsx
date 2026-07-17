@@ -1,7 +1,8 @@
+import { HardwareModule } from "@haus/ui";
+
 import { MasterCompressor } from "@/features/master-bus/components/master-compressor";
 import { MasterFX } from "@/features/master-bus/components/master-fx";
 import { MasterVolume } from "@/features/master-bus/components/master-volume";
-import { HardwareModule } from "@/shared/components/hardware-module";
 
 function MasterBusControls() {
   return (

@@ -1,7 +1,7 @@
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 import { Pause, Play } from "lucide-react";
 
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 const PlayPauseButton = () => {
   const isPlaying = useTransportStore((state) => state.isPlaying);

@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import * as ToastPrimitive from "@radix-ui/react-toast";
 
-import "@/app/styles/toast.css";
+import "./toast.css";
 
 import { ToastContext, type ToastData } from "./toast-context";
 

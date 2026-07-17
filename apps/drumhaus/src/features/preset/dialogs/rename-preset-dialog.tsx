@@ -1,10 +1,4 @@
 import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
@@ -19,7 +13,13 @@ import {
   FieldLabel,
   Input,
   useToast,
-} from "@/shared/ui";
+} from "@haus/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { presetNameSchema } from "@/shared/lib/schemas";
 
 interface RenamePresetDialogProps {
   isOpen: boolean;

@@ -1,6 +1,3 @@
-import { init } from "@/core/dh";
-import { useDrumhaus } from "@/core/providers/drumhaus-provider";
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 import {
   Button,
   Dialog,
@@ -10,7 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
   useToast,
-} from "@/shared/ui";
+} from "@haus/ui";
+
+import { init } from "@/core/dh";
+import { useDrumhaus } from "@/core/providers/drumhaus-provider";
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean;

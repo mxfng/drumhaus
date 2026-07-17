@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect, useMemo } from "react";
 
 import "@haus/tokens/fonts.css";
 
+import { ToastProvider, TooltipProvider } from "@haus/ui";
+
 import { useKitVersion } from "@/core/audio/bridge/use-kit-version";
 import { AppErrorBoundary } from "@/core/providers/app-error-boundary";
 import { DrumhausProvider } from "@/core/providers/drumhaus-provider";
@@ -22,8 +24,6 @@ import { useUndoRedoShortcuts } from "@/shared/hooks/use-undo-redo-shortcuts";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { LightRigProvider } from "@/shared/lightshow/light-rig-provider";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
-import { ToastProvider } from "@/shared/ui/toast";
-import { TooltipProvider } from "@/shared/ui/tooltip";
 import { useWaveform, WaveformProvider } from "@/shared/waveform";
 
 const Drumhaus = lazy(() => import("../layout/drumhaus"));

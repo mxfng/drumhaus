@@ -4,7 +4,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui";
+} from "@haus/ui";
+
 import { KitFile } from "../types/kit";
 
 interface KitSelectProps {

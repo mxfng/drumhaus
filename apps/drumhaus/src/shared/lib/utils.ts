@@ -1,9 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export { cn } from "@haus/ui";
 
 /**
  * Clamps a value between a minimum and maximum bound.
@@ -49,4 +44,4 @@ const quantize = (value: number, resolution: number): number => {
   return Math.round(value / normalizedStep) * normalizedStep;
 };
 
-export { cn, clamp, normalize, normalizeCentered, lerp, quantize };
+export { clamp, normalize, normalizeCentered, lerp, quantize };

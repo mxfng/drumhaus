@@ -2,7 +2,7 @@ import * as React from "react";
 import * as SeparatorPrimitive from "@radix-ui/react-separator";
 import { cva, VariantProps } from "class-variance-authority";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "./lib/cn";
 
 const separatorVariants = cva(
   "shrink-0  data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full ",

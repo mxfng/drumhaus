@@ -1,16 +1,4 @@
 import { useEffect, useMemo } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
-
-import {
-  exportToMidi,
-  getSuggestedBars,
-} from "@/core/audio/export/midi-exporter";
-import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
-import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import {
   Button,
   DialogDescription,
@@ -26,7 +14,19 @@ import {
   Input,
   Slider,
   useToast,
-} from "@/shared/ui";
+} from "@haus/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+
+import {
+  exportToMidi,
+  getSuggestedBars,
+} from "@/core/audio/export/midi-exporter";
+import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
+import { useTransportStore } from "@/features/transport/store/use-transport-store";
 
 interface MidiExportFormProps {
   onClose: () => void;

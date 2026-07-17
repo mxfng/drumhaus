@@ -1,8 +1,7 @@
 // Global handler for errors that React error boundaries cannot catch,
 
 import { useEffect } from "react";
-
-import { useToast } from "@/shared/ui";
+import { useToast } from "@haus/ui";
 
 // such as event handler errors and unhandled promise rejections.
 function GlobalErrorHandler() {

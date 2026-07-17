@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
+import { useToast } from "@haus/ui";
 
 import { getAudioEngine } from "@/core/audio/engine";
-import { useToast } from "@/shared/ui";
 import { ensureAudioContextIsRunning } from "../engine/context/manager";
 import { recordRecoveryEvent } from "./recovery-stats";
 

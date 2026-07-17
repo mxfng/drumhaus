@@ -3,7 +3,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { XIcon } from "lucide-react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "./lib/cn";
 
 // max-h + overflow keep tall content (e.g. the Bounce tab with stems on)
 // reachable on short viewports: the dialog caps at the viewport minus the

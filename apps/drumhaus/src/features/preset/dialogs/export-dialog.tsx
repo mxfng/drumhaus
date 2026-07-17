@@ -1,8 +1,4 @@
 import { useState } from "react";
-
-import { BounceExportForm } from "@/features/preset/forms/bounce-export-form";
-import { MidiExportForm } from "@/features/preset/forms/midi-export-form";
-import { PresetFileExportForm } from "@/features/preset/forms/preset-file-export-form";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +9,11 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/shared/ui";
+} from "@haus/ui";
+
+import { BounceExportForm } from "@/features/preset/forms/bounce-export-form";
+import { MidiExportForm } from "@/features/preset/forms/midi-export-form";
+import { PresetFileExportForm } from "@/features/preset/forms/preset-file-export-form";
 
 interface ExportDialogProps {
   isOpen: boolean;

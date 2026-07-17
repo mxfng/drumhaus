@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 
 import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
@@ -18,7 +19,6 @@ import {
   splitFilterDescriptor,
 } from "@/shared/param-control";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { GainMeter } from "./gain-meter";
 
 interface InstrumentParamsProps {

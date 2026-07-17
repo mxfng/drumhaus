@@ -1,6 +1,6 @@
 import { useEffect } from "react";
+import { useToast } from "@haus/ui";
 
-import { useToast } from "@/shared/ui";
 import { onKitLoadFailure } from "./kit-subscription";
 
 /**

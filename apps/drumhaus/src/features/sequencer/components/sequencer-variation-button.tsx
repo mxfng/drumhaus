@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
+import { Button } from "@haus/ui";
 
 import { VariationId } from "@/core/audio/engine/pattern-types";
 import { isSameAsSource } from "@/features/sequencer/lib/clipboard";
@@ -8,7 +9,6 @@ import {
   interactableHighlight,
 } from "@/shared/lib/interactable-highlight";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui";
 import { VARIATION_CHAIN_COLORS } from "../lib/colors";
 import { usePatternStore } from "../store/use-pattern-store";
 import { VARIATION_LABELS } from "../types/sequencer";

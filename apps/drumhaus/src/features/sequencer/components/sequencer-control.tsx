@@ -1,11 +1,17 @@
+import {
+  Button,
+  HardwareModule,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@haus/ui";
+
 import { redo, undo } from "@/features/preset/history/history";
 import { useHistoryStore } from "@/features/preset/history/use-history-store";
-import { HardwareModule } from "@/shared/components/hardware-module";
 import { useShiftHeld } from "@/shared/hooks/use-shift-held";
 import { buttonActive } from "@/shared/lib/button-active";
 import { interactableHighlight } from "@/shared/lib/interactable-highlight";
 import { cn } from "@/shared/lib/utils";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { usePatternStore } from "../store/use-pattern-store";
 import { SequencerVariationButton } from "./sequencer-variation-button";
 import { SequencerVariationPreview } from "./sequencer-variation-preview";
