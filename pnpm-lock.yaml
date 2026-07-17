@@ -171,6 +171,12 @@ importers:
       '@haus/bridge-react':
         specifier: workspace:*
         version: link:../../packages/bridge-react
+      '@haus/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
+      '@haus/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -178,6 +184,9 @@ importers:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
     devDependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.3.1
+        version: 4.3.1(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
@@ -190,6 +199,9 @@ importers:
       oxlint:
         specifier: ^1.71.0
         version: 1.71.0
+      tailwindcss:
+        specifier: ^4.3.1
+        version: 4.3.1
       typescript:
         specifier: ^6
         version: 6.0.3

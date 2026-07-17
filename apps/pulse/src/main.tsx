@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import "@haus/tokens/fonts.css";
+
 import { App } from "./app";
 import { createPulseSession } from "./session";
 

@@ -1,141 +1,43 @@
-/* Pulse wears plain CSS until sprint 2 extracts the shared design packages.
-   Dark, monospace, generous negative space; one accent for anything lit. */
+/* Pulse wears the family design language: @haus/tokens supplies the theme
+   and neumorphic utilities, @haus/ui the components. Only layout glue that
+   has no token or utility equivalent lives here. */
+
+/* ==================== Core ==================== */
+@import "tailwindcss";
+
+/* ==================== Theme & Configuration ==================== */
+@import "@haus/tokens/theme.css";
+
+/* ==================== Utilities ==================== */
+@import "@haus/tokens/utilities.css";
+
+/* ==================== Content Scanning ==================== */
+/* Workspace packages live outside this app's Vite root, so Tailwind's
+   automatic content detection never scans them. Register their component
+   source explicitly or every utility class used only inside the package
+   would be dropped from the built CSS. */
+@source "../../../packages/ui/src";
+
+/* ==================== Base Elements ==================== */
 
 :root {
-  color-scheme: dark;
-  --bg: #0e0e11;
-  --ink: #e6e4dd;
-  --dim: #58575f;
-  --accent: #f5c04e;
-}
-
-* {
-  box-sizing: border-box;
+  color-scheme: light;
 }
 
 html,
 body,
 #root {
   height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
+/* Default border color (Tailwind preflight defaults to currentColor) */
+*:not([class*="border-"]) {
+  border-color: var(--color-border);
 }
 
-.app {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3rem 2rem;
-}
-
-.wordmark {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0.5em;
-  text-indent: 0.5em; /* recenters the tracked-out glyphs */
-  color: var(--ink);
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3rem;
-}
-
-button {
-  font: inherit;
-  color: var(--ink);
-  background: none;
-  border: 1px solid var(--dim);
-  border-radius: 2px;
-  padding: 0.5rem 1rem;
+button:not(:disabled) {
   cursor: pointer;
-}
-
-button:hover {
-  border-color: var(--ink);
-}
-
-button:focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.transport {
-  width: 9rem;
-  padding: 1.25rem 0;
-  letter-spacing: 0.3em;
-  text-indent: 0.3em;
-}
-
-.transport[data-playing="true"] {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.tempo {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.tempo button {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-}
-
-.bpm {
-  min-width: 6rem;
-  text-align: center;
-  font-size: 3rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.scenes {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.scenes button {
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  color: var(--dim);
-}
-
-.scenes button[aria-pressed="true"] {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.status {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: var(--dim);
-  letter-spacing: 0.1em;
-}
-
-.conductor {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  border: 1px solid var(--dim);
-}
-
-.conductor[data-conductor="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
 }

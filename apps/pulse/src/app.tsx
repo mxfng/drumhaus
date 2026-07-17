@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { SceneId } from "@haus/bridge";
 import { useSession, type SessionController } from "@haus/bridge-react";
+import { Button, cn } from "@haus/ui";
 
 import { createMetronome, type Metronome } from "./metronome";
 
@@ -45,58 +46,80 @@ function App({ controller }: AppProps) {
   const bpm = Math.round(state.bpm);
 
   return (
-    <main className="app">
-      <h1 className="wordmark">pulse</h1>
+    <main className="app flex h-full flex-col items-center justify-between px-8 py-12">
+      <h1 className="wordmark font-pixel text-primary indent-[0.5em] text-xl tracking-[0.5em]">
+        pulse
+      </h1>
 
-      <div className="controls">
-        <button
+      <div className="controls neu-medium-raised surface flex flex-col items-center gap-10 rounded-xl border p-10">
+        <Button
           type="button"
-          className="transport"
+          variant="hardware"
+          size="lg"
+          className={cn(
+            "transport w-36 indent-[0.3em] tracking-[0.3em]",
+            state.playing && "border-primary text-primary border-2",
+          )}
           data-playing={state.playing}
           onClick={() => (state.playing ? stop() : play())}
         >
           {state.playing ? "stop" : "play"}
-        </button>
+        </Button>
 
-        <div className="tempo">
-          <button
+        <div className="tempo flex items-center gap-6">
+          <Button
             type="button"
+            variant="hardware"
+            size="icon-lg"
             aria-label="tempo down"
             onClick={() => setBpm(bpm - 1)}
           >
             -
-          </button>
-          <output className="bpm" aria-label="tempo">
+          </Button>
+          <output
+            className="bpm bg-screen text-screen-foreground shadow-inset font-pixel min-w-28 rounded-xl px-4 py-2 text-center text-4xl tabular-nums"
+            aria-label="tempo"
+          >
             {bpm}
           </output>
-          <button
+          <Button
             type="button"
+            variant="hardware"
+            size="icon-lg"
             aria-label="tempo up"
             onClick={() => setBpm(bpm + 1)}
           >
             +
-          </button>
+          </Button>
         </div>
 
-        <div className="scenes" role="group" aria-label="scene">
+        <div className="scenes flex gap-3" role="group" aria-label="scene">
           {SCENES.map((scene) => (
-            <button
+            <Button
               key={scene}
               type="button"
+              variant="hardware"
+              size="icon-lg"
               aria-label={`scene ${scene}`}
               aria-pressed={state.scene === scene}
+              className={cn(
+                state.scene === scene && "border-primary text-primary border-2",
+              )}
               onClick={() => setScene(scene)}
             >
               {scene}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
 
-      <footer className="status">
+      <footer className="status text-foreground-muted flex items-center gap-4 text-sm tracking-widest">
         <span className="peers">peers {peerCount}</span>
         <span
-          className="conductor"
+          className={cn(
+            "conductor size-2 rounded-full border",
+            isConductor && "bg-primary border-primary",
+          )}
           data-conductor={isConductor}
           title="conductor"
         />
