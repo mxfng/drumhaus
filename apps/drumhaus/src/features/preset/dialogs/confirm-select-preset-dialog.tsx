@@ -1,4 +1,3 @@
-import type { PendingPresetLoadSource } from "@/features/preset/store/use-pending-preset-load-store";
 import {
   Button,
   Dialog,
@@ -7,7 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui";
+} from "@haus/ui";
+
+import type { PendingPresetLoadSource } from "@/features/preset/store/use-pending-preset-load-store";
 
 /**
  * Copy per guarded ingress (use-pending-preset-load-store.ts); the warning

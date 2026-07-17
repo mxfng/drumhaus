@@ -1,4 +1,11 @@
 import { useState } from "react";
+import {
+  Button,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@haus/ui";
 import { ArrowDownToDot, Music3, Timer } from "lucide-react";
 
 import { TRANSPORT_BPM_RANGE } from "@/core/audio/engine/constants";
@@ -11,13 +18,6 @@ import {
   transportBpmDescriptor,
   transportSwingDescriptor,
 } from "@/shared/param-control";
-import {
-  Button,
-  Label,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/shared/ui";
 
 type TempoMode = "bpm" | "swing";
 

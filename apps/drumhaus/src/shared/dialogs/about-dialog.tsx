@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { ArrowUpRight } from "lucide-react";
-
-import { getAudioEngine } from "@/core/audio/engine";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui";
+} from "@haus/ui";
+import { ArrowUpRight } from "lucide-react";
+
+import { getAudioEngine } from "@/core/audio/engine";
 import { DrumhausLogo } from "../../shared/icon/drumhaus-logo";
 import { DrumhausTypographyLogo } from "../../shared/icon/drumhaus-typography-logo";
 

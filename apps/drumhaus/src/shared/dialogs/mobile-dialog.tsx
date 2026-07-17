@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui";
+} from "@haus/ui";
 
 interface MobileDialogProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { cva, VariantProps } from "class-variance-authority";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "./lib/cn";
 
 /* HardwareModule Root */
 function HardwareModule({

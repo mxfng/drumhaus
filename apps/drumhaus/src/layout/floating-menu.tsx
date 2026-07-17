@@ -1,16 +1,4 @@
 import { useState } from "react";
-
-import { useDebugStore } from "@/features/debug/store/use-debug-store";
-import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
-import { redo, undo } from "@/features/preset/history/history";
-import { useHistoryStore } from "@/features/preset/history/use-history-store";
-import { AboutDialog } from "@/shared/dialogs/about-dialog";
-import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
-import {
-  SCALE_OPTIONS,
-  useLayoutScaleStore,
-} from "@/shared/store/use-layout-scale-store";
-import { usePerformanceStore } from "@/shared/store/use-performance-store";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -24,7 +12,19 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/shared/ui";
+} from "@haus/ui";
+
+import { useDebugStore } from "@/features/debug/store/use-debug-store";
+import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
+import { redo, undo } from "@/features/preset/history/history";
+import { useHistoryStore } from "@/features/preset/history/use-history-store";
+import { AboutDialog } from "@/shared/dialogs/about-dialog";
+import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
+import {
+  SCALE_OPTIONS,
+  useLayoutScaleStore,
+} from "@/shared/store/use-layout-scale-store";
+import { usePerformanceStore } from "@/shared/store/use-performance-store";
 
 const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
   value,

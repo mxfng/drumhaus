@@ -1,8 +1,4 @@
 import { useState } from "react";
-import { MoreVertical } from "lucide-react";
-
-import { PresetActionsDialog } from "@/features/preset/dialogs/preset-actions-dialog";
-import type { PresetListItem } from "@/features/preset/types/preset";
 import {
   Button,
   Select,
@@ -13,7 +9,11 @@ import {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-} from "@/shared/ui";
+} from "@haus/ui";
+import { MoreVertical } from "lucide-react";
+
+import { PresetActionsDialog } from "@/features/preset/dialogs/preset-actions-dialog";
+import type { PresetListItem } from "@/features/preset/types/preset";
 
 interface PresetSelectProps {
   selectedPresetId: string;

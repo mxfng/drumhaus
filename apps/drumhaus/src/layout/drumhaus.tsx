@@ -1,8 +1,9 @@
+import { Separator } from "@haus/ui";
+
 import { InstrumentGrid } from "@/features/instrument/components/instrument-grid";
 import { Sequencer } from "@/features/sequencer/components/sequencer";
 import { LinkControl } from "@/features/session/components/link-control";
 import { useLayoutScale } from "@/shared/hooks/use-layout-scale";
-import { Separator } from "@/shared/ui";
 import { ControlsPanel } from "./controls-panel";
 import { FloatingMenu } from "./floating-menu";
 import { Footer } from "./footer";

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useToast, type ToastContextValue } from "@haus/ui";
 
 import {
   decodePresetFileText,
@@ -6,7 +7,6 @@ import {
 } from "@/features/preset/document";
 import { applyPresetDocument } from "@/features/preset/document/apply";
 import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
-import { useToast, type ToastContextValue } from "@/shared/ui";
 
 type ShowToast = ToastContextValue["toast"];
 

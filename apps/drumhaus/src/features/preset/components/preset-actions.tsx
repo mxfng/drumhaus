@@ -1,14 +1,14 @@
-import { AudioLines, FolderOpen, Save, Share2 } from "lucide-react";
-
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import { useDialogStore } from "@/shared/store/use-dialog-store";
 import {
   Button,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   useToast,
-} from "@/shared/ui";
+} from "@haus/ui";
+import { AudioLines, FolderOpen, Save, Share2 } from "lucide-react";
+
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { useDialogStore } from "@/shared/store/use-dialog-store";
 
 type PresetActionsProps = {
   onOpenFromFile: () => void;

@@ -1,10 +1,10 @@
 import { useEffect, useEffectEvent, useState } from "react";
+import { Button } from "@haus/ui";
 import { Check } from "lucide-react";
 import { createPortal } from "react-dom";
 
 import { usePerformanceStore } from "@/shared/store/use-performance-store";
 import { cn } from "../lib/utils";
-import { Button } from "../ui";
 
 interface CoachmarkProps {
   visible: boolean;

@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useToast } from "@haus/ui";
 
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
 import { getAllKits } from "@/features/kit/lib/constants";
@@ -8,7 +9,6 @@ import { getDefaultPresets } from "@/features/preset/lib/constants";
 import { generateShareUrl } from "@/features/preset/lib/operations";
 import { requestGuardedPresetLoad } from "@/features/preset/store/use-pending-preset-load-store";
 import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import { useToast } from "@/shared/ui";
 
 interface UsePresetManagerProps {
   /**

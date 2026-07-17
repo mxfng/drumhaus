@@ -1,6 +1,5 @@
 import { Component } from "react";
-
-import { useToast } from "@/shared/ui";
+import { useToast } from "@haus/ui";
 
 type AppErrorBoundaryProps = {
   children: React.ReactNode;

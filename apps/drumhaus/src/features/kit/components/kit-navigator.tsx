@@ -1,6 +1,5 @@
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 
 type KitNavigatorProps = {
   onPrevious: () => void;

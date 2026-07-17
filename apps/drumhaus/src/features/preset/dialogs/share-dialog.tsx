@@ -1,9 +1,4 @@
 import { useState } from "react";
-
-import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
-import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
-import { useClipboard } from "@/shared/hooks/use-clipboard";
-import { presetNameSchema } from "@/shared/lib/schemas";
 import {
   Button,
   Dialog,
@@ -15,7 +10,12 @@ import {
   Input,
   Label,
   useToast,
-} from "@/shared/ui";
+} from "@haus/ui";
+
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
+import { useClipboard } from "@/shared/hooks/use-clipboard";
+import { presetNameSchema } from "@/shared/lib/schemas";
 
 type ShareStep = "input" | "result";
 
