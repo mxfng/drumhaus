@@ -104,9 +104,19 @@ interface BridgeAudioContext {
   };
 }
 
+/**
+ * Which clock source produced an anchor: "outputTimestamp" is the preferred
+ * speaker-aligned branch (output latency compensated); "currentTime" is the
+ * documented fallback, which loses output-latency compensation (audio lands
+ * late at the speaker by the context's whole output latency).
+ */
+type ClockAnchorKind = "outputTimestamp" | "currentTime";
+
 interface ClockAnchor {
   contextTimeS: number;
   epochMs: number;
+  /** The branch that produced this (contextTime, epoch) pair. */
+  kind: ClockAnchorKind;
 }
 
 /**
@@ -122,6 +132,11 @@ interface ClockAnchor {
  * directly. The fallback ignores output latency but keeps the mapping honest
  * to within a few milliseconds, consistent with the library's
  * musically-tight-not-sample-locked contract.
+ *
+ * The returned kind names the branch taken, so instruments and tests can
+ * observe a mapping that silently degraded onto the fallback (issue #429) -
+ * the ~30ms constant error of #425 was invisible precisely because nothing
+ * reported which branch anchored the mapping.
  */
 function contextClockAnchor(
   ctx: BridgeAudioContext,
@@ -137,9 +152,14 @@ function contextClockAnchor(
     return {
       contextTimeS: ts.contextTime,
       epochMs: performance.timeOrigin + ts.performanceTime,
+      kind: "outputTimestamp",
     };
   }
-  return { contextTimeS: ctx.currentTime, epochMs: epochNow() };
+  return {
+    contextTimeS: ctx.currentTime,
+    epochMs: epochNow(),
+    kind: "currentTime",
+  };
 }
 
 /**
@@ -172,10 +192,11 @@ export {
   beatsAt,
   BEATS_PER_BAR,
   clampBpm,
+  contextClockAnchor,
   contextTimeToEpochMs,
   epochNowMs,
   epochToContextTime,
   nextBarStartEpochMs,
   rebaseTempo,
 };
-export type { BridgeAudioContext };
+export type { BridgeAudioContext, ClockAnchor, ClockAnchorKind };

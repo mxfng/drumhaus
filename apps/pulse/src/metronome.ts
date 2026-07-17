@@ -16,8 +16,10 @@
 import {
   beatMs,
   BEATS_PER_BAR,
+  contextClockAnchor,
   epochNowMs,
   epochToContextTime,
+  type ClockAnchorKind,
   type SessionState,
 } from "@haus/bridge";
 
@@ -46,7 +48,19 @@ interface Click {
   gain: GainNode;
 }
 
+/** Window slot for the anchor-kind diagnostic; read by the family e2e. */
+interface ClockAnchorDiagnostics {
+  __clockAnchorKind?: () => ClockAnchorKind;
+}
+
 function createMetronome(ctx: AudioContext): Metronome {
+  // Non-UI diagnostic hook: which branch anchors the epoch<->context mapping
+  // for the SAME context the clicks are scheduled on. The family e2e asserts
+  // the speaker-aligned "outputTimestamp" branch here - the currentTime
+  // fallback silently loses output-latency compensation (issues #425/#429).
+  (window as unknown as ClockAnchorDiagnostics).__clockAnchorKind = () =>
+    contextClockAnchor(ctx).kind;
+
   /** The grid currently being scheduled; null while stopped. */
   let grid: { startEpochMs: number; bpm: number } | null = null;
   /** Next absolute session beat index (counted from bar 0 beat 0). */
