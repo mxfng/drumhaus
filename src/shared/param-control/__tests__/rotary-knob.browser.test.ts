@@ -68,8 +68,8 @@ async function mount(initial = 50) {
       descriptor: testDescriptor,
       value,
       label: "Test",
-      // Pin the default sensitivity so the drag math is independent of the
-      // component's hardware-feel default.
+      // Pin the sensitivity so the drag math is independent of the
+      // component's default feel.
       dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
@@ -104,7 +104,12 @@ function last(): number {
   return recorded.changes[recorded.changes.length - 1];
 }
 
-async function pointer(type: string, clientY: number, shiftKey = false) {
+async function pointer(
+  type: string,
+  clientY: number,
+  shiftKey = false,
+  init: PointerEventInit = {},
+) {
   await act(async () => {
     const target = type === "pointerdown" ? slider() : window;
     target.dispatchEvent(
@@ -115,6 +120,10 @@ async function pointer(type: string, clientY: number, shiftKey = false) {
         bubbles: true,
         cancelable: true,
         shiftKey,
+        // Match a real left-button gesture: bit 0 of `buttons` is held through
+        // down and move and cleared on up. Chord tests override via `init`.
+        buttons: type === "pointerup" ? 0 : 1,
+        ...init,
       }),
     );
   });
@@ -155,6 +164,58 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     await pointer("pointerup", 80);
     expect(recorded.gestureStarts).toBe(1);
     expect(recorded.gestureEnds).toBe(1);
+  });
+
+  it("ends the drag when the primary button releases mid-chord (#402)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100);
+    await pointer("pointermove", 95); // promote (no change)
+    await pointer("pointermove", 75); // +20px -> 60
+    // Chord: right button pressed, then left released. Per the pointer events
+    // spec neither transition fires pointerdown/pointerup on this pointer;
+    // the left release arrives as a pointermove with buttons=2.
+    await pointer("pointermove", 70, false, { buttons: 2 });
+    expect(recorded.gestureEnds).toBe(1);
+    const settled = last();
+    expect(settled).toBeCloseTo(60, 6);
+    // Further movement with no button held must not turn the knob.
+    await pointer("pointermove", 40, false, { buttons: 0 });
+    expect(last()).toBe(settled);
+    expect(recorded.gestureStarts).toBe(1);
+    expect(recorded.gestureEnds).toBe(1);
+  });
+
+  it("a right-button press never starts a drag (#402)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100, false, { button: 2, buttons: 2 });
+    await pointer("pointermove", 80, false, { buttons: 2 });
+    await pointer("pointerup", 80, false, { button: 2 });
+    expect(recorded.changes).toHaveLength(0);
+    expect(recorded.gestureStarts).toBe(0);
+    expect(recorded.gestureEnds).toBe(0);
+  });
+
+  it("suppresses the context menu while a drag is live (#402)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100);
+    await pointer("pointermove", 90);
+    const during = new MouseEvent("contextmenu", {
+      bubbles: true,
+      cancelable: true,
+    });
+    await act(async () => {
+      window.dispatchEvent(during);
+    });
+    expect(during.defaultPrevented).toBe(true);
+    await pointer("pointerup", 90);
+    const after = new MouseEvent("contextmenu", {
+      bubbles: true,
+      cancelable: true,
+    });
+    await act(async () => {
+      window.dispatchEvent(after);
+    });
+    expect(after.defaultPrevented).toBe(false);
   });
 
   it("resets to default on double-click of the body", async () => {

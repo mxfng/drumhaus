@@ -2,15 +2,18 @@ import { clamp } from "@/shared/lib/utils";
 import type { ParamDescriptor } from "../types";
 import { clamp01, taperFromNormalized, taperToNormalized } from "./taper";
 
-/** Default interaction tuning, used when a descriptor omits a field. */
-const DEFAULT_DRAG_SENSITIVITY = 1 / 200; // normalized units per pixel (~200px full sweep)
 /**
- * The hand-tuned knob/fader feel from the original hardware controls: the legacy
- * `KNOB_SENSITIVITY = 0.7` on a 0..100 scale is 0.007 in normalized units per
- * pixel. Applied as the default drag feel for the rotary knob and linear fader
- * (the screen-bar value fields override this with their own tighter ratios).
+ * Default interaction tuning, used when a descriptor omits a field.
+ *
+ * Drag: normalized units per pixel, so ~300px of travel for a full sweep.
+ * DAW/soft-synth knobs sit around 250-400px per sweep, and hardware-emulation
+ * UIs lean toward the slower end because the knobs are visually small and
+ * precision matters more than speed (#403). The rotary knob and linear fader
+ * default to this same feel at the instance level (rotary-knob.tsx,
+ * linear-slider.tsx); the screen-bar value fields override it with their own
+ * tighter per-descriptor ratios (canonical-scalars.ts).
  */
-const KNOB_DRAG_SENSITIVITY = 0.007;
+const DEFAULT_DRAG_SENSITIVITY = 1 / 300;
 const DEFAULT_FINE_DRAG_FACTOR = 0.25;
 const DEFAULT_KEY_STEP = 0.01; // normalized, for continuous params
 const DEFAULT_KEY_STEP_LARGE = 0.1; // normalized, for continuous params
@@ -224,7 +227,6 @@ function parseValue<T>(descriptor: ParamDescriptor<T>, text: string): T | null {
 
 export {
   DEFAULT_DRAG_SENSITIVITY,
-  KNOB_DRAG_SENSITIVITY,
   DEFAULT_FINE_DRAG_FACTOR,
   DEFAULT_KEY_STEP,
   DEFAULT_KEY_STEP_LARGE,
