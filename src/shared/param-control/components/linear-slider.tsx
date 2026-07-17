@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 
 import { cn } from "@/shared/lib/utils";
 import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
-import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
+import { DEFAULT_DRAG_SENSITIVITY } from "../lib/descriptor";
 import { Knob, useKnob } from "../primitives/knob";
 import type { ParamControlFutureSeams, ParamDescriptor } from "../types";
 
@@ -204,7 +204,10 @@ function LinearSlider<T>({
   thickness = 12,
   thumbSize = 16,
   hideLabel = false,
-  dragSensitivity = KNOB_DRAG_SENSITIVITY,
+  // Pinned at the instance level so a descriptor's `dragSensitivity` (tuned
+  // for the tighter screen-bar value fields, e.g. bpm/swing) never changes
+  // the fader feel; pass the prop to retune a specific fader.
+  dragSensitivity = DEFAULT_DRAG_SENSITIVITY,
   className,
   // Declared future seams; not wired yet.
   modulationRange: _modulationRange,

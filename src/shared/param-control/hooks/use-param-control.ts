@@ -257,54 +257,6 @@ function useParamControl<T>({
 
   // --- Drag ---
 
-  const handlePointerMove = useCallback((event: PointerEvent) => {
-    event.preventDefault();
-    const {
-      descriptor: d,
-      onChange: emit,
-      dragAxis: axis,
-      dragThreshold: threshold,
-    } = latest.current;
-
-    const x = event.clientX;
-    const y = event.clientY;
-
-    // Pending press: promote to a drag only once movement clears the threshold.
-    if (phaseRef.current === "pending") {
-      const moved =
-        axis === "horizontal"
-          ? Math.abs(x - startPointRef.current.x)
-          : Math.abs(y - startPointRef.current.y);
-      if (moved < threshold) return;
-      phaseRef.current = "dragging";
-      lastPointRef.current = { x, y };
-      setIsDragging(true);
-      latest.current.onGestureStart?.();
-      return;
-    }
-
-    if (phaseRef.current !== "dragging") return;
-
-    // Up (vertical) or right (horizontal) increases the value.
-    const increment =
-      axis === "horizontal"
-        ? x - lastPointRef.current.x
-        : lastPointRef.current.y - y;
-    lastPointRef.current = { x, y };
-
-    const sensitivity =
-      latest.current.dragSensitivity ??
-      d.dragSensitivity ??
-      DEFAULT_DRAG_SENSITIVITY;
-    const fine = event.shiftKey;
-    const factor = fine ? (d.fineDragFactor ?? DEFAULT_FINE_DRAG_FACTOR) : 1;
-
-    rawPositionRef.current = clamp01(
-      rawPositionRef.current + increment * sensitivity * factor,
-    );
-    emit(normalizedToCanonical(d, rawPositionRef.current, { fine }));
-  }, []);
-
   const endGesture = useCallback((cancelled: boolean) => {
     const phase = phaseRef.current;
     phaseRef.current = "idle";
@@ -322,9 +274,76 @@ function useParamControl<T>({
     }
   }, []);
 
+  const handlePointerMove = useCallback(
+    (event: PointerEvent) => {
+      // Chorded button presses on one pointer don't fire pointerdown/pointerup
+      // per the pointer events spec: only the first button down and the last
+      // button up do. Releasing the primary button while another is held (e.g.
+      // a right-click chord) arrives as a pointermove with bit 0 of `buttons`
+      // cleared, so end the gesture here or the drag outlives the button
+      // (#402). This also self-heals any other missed-pointerup path. Touch
+      // and pen keep bit 0 set while in contact, so they are unaffected.
+      // Cancelled (not a tap): a chorded press should never open the editor.
+      if ((event.buttons & 1) === 0) {
+        endGesture(true);
+        return;
+      }
+
+      event.preventDefault();
+      const {
+        descriptor: d,
+        onChange: emit,
+        dragAxis: axis,
+        dragThreshold: threshold,
+      } = latest.current;
+
+      const x = event.clientX;
+      const y = event.clientY;
+
+      // Pending press: promote to a drag only once movement clears the threshold.
+      if (phaseRef.current === "pending") {
+        const moved =
+          axis === "horizontal"
+            ? Math.abs(x - startPointRef.current.x)
+            : Math.abs(y - startPointRef.current.y);
+        if (moved < threshold) return;
+        phaseRef.current = "dragging";
+        lastPointRef.current = { x, y };
+        setIsDragging(true);
+        latest.current.onGestureStart?.();
+        return;
+      }
+
+      if (phaseRef.current !== "dragging") return;
+
+      // Up (vertical) or right (horizontal) increases the value.
+      const increment =
+        axis === "horizontal"
+          ? x - lastPointRef.current.x
+          : lastPointRef.current.y - y;
+      lastPointRef.current = { x, y };
+
+      const sensitivity =
+        latest.current.dragSensitivity ??
+        d.dragSensitivity ??
+        DEFAULT_DRAG_SENSITIVITY;
+      const fine = event.shiftKey;
+      const factor = fine ? (d.fineDragFactor ?? DEFAULT_FINE_DRAG_FACTOR) : 1;
+
+      rawPositionRef.current = clamp01(
+        rawPositionRef.current + increment * sensitivity * factor,
+      );
+      emit(normalizedToCanonical(d, rawPositionRef.current, { fine }));
+    },
+    [endGesture],
+  );
+
   const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
       if (disabled) return;
+      // Only the primary button (or touch/pen contact, also button 0) starts a
+      // gesture: a right- or middle-click never begins a drag or edit (#402).
+      if (event.button !== 0) return;
       event.preventDefault();
       rawPositionRef.current = canonicalToNormalized(descriptor, value);
       startPointRef.current = { x: event.clientX, y: event.clientY };
@@ -353,15 +372,20 @@ function useParamControl<T>({
     const onMove = (event: PointerEvent) => handlePointerMove(event);
     const onUp = () => endGesture(false);
     const onCancel = () => endGesture(true);
+    // While a gesture is live, a right-click is part of the chord, not a menu
+    // request: suppress the context menu, matching hardware feel (#402).
+    const onContextMenu = (event: Event) => event.preventDefault();
     const options: AddEventListenerOptions = { passive: false };
 
     window.addEventListener("pointermove", onMove, options);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onCancel);
+    window.addEventListener("contextmenu", onContextMenu);
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onCancel);
+      window.removeEventListener("contextmenu", onContextMenu);
     };
   }, [tracking, handlePointerMove, endGesture]);
 

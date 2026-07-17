@@ -83,15 +83,6 @@ function FloatingMenu() {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onSelect={undo} disabled={!canUndo}>
-            Undo
-            <DropdownMenuShortcut>{UNDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={redo} disabled={!canRedo}>
-            Redo
-            <DropdownMenuShortcut>{REDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setIsAboutOpen(true)}>
             About Drumhaus
           </DropdownMenuItem>
@@ -116,6 +107,15 @@ function FloatingMenu() {
             }}
           >
             Report an Issue
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={undo} disabled={!canUndo}>
+            Undo
+            <DropdownMenuShortcut>{UNDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={redo} disabled={!canRedo}>
+            Redo
+            <DropdownMenuShortcut>{REDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem

@@ -84,8 +84,8 @@ async function mount(
       value,
       label: "Test",
       orientation,
-      // Pin the default sensitivity so the drag math is independent of the
-      // component's hardware-feel default.
+      // Pin the sensitivity so the drag math is independent of the
+      // component's default feel.
       dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
@@ -135,6 +135,9 @@ async function pointer(
         bubbles: true,
         cancelable: true,
         shiftKey,
+        // Match a real left-button gesture: bit 0 of `buttons` is held
+        // through down and move and cleared on up.
+        buttons: type === "pointerup" ? 0 : 1,
       }),
     );
   });
