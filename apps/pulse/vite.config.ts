@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -6,7 +7,7 @@ import { defineConfig } from "vite";
 // built on - are same-origin only.
 export default defineConfig({
   base: "/pulse/",
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
     port: 4445,
   },
