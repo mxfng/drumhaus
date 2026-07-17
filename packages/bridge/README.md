@@ -109,6 +109,8 @@ The mapping anchors on `ctx.getOutputTimestamp()`, which pairs a context time wi
 Fallback: when `getOutputTimestamp` is unavailable (older WebKit) or returns zeros (a context that has not produced output yet, e.g. suspended), the anchor is `ctx.currentTime` sampled against the epoch clock directly.
 The fallback ignores output latency but stays within a few milliseconds, consistent with the library's contract below.
 
+The anchor itself is observable via `contextClockAnchor(ctx)`, whose `kind` (`"outputTimestamp"` or `"currentTime"`) names the branch taken - so instruments and tests can detect a mapping that silently degraded onto the fallback instead of discovering it by ear.
+
 ## Roles and election
 
 Conductor election uses the Web Locks API: every connected peer requests the `haus:conductor` lock and holds it for the session instance's lifetime once granted.

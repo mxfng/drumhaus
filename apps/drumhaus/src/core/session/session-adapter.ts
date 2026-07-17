@@ -43,11 +43,13 @@
  */
 
 import {
+  contextClockAnchor,
   createSession as createBridgeSession,
   epochNowMs,
   epochToContextTime,
   nextBarStartEpochMs,
   type BridgeAudioContext,
+  type ClockAnchorKind,
   type Session,
   type SessionState,
 } from "@haus/bridge";
@@ -119,11 +121,24 @@ function stateGrid(state: SessionState): SharedGrid | null {
     : null;
 }
 
+/** Window slot for the anchor-kind diagnostic; read by the family e2e. */
+interface ClockAnchorDiagnostics {
+  __clockAnchorKind?: () => ClockAnchorKind;
+}
+
 function createSessionAdapter(
   options: SessionAdapterOptions = {},
 ): SessionAdapter {
   const engine = options.engine ?? getAudioEngine();
   const now = options.now ?? epochNowMs;
+
+  // Non-UI diagnostic hook: which branch anchors the epoch<->context mapping
+  // for the SAME live context this adapter schedules aligned starts on. The
+  // family e2e asserts the speaker-aligned "outputTimestamp" branch here -
+  // the currentTime fallback silently loses output-latency compensation
+  // (issues #425/#429).
+  (window as unknown as ClockAnchorDiagnostics).__clockAnchorKind = () =>
+    contextClockAnchor(engine.getLiveAudioContext()).kind;
   const createSession =
     options.createSession ??
     (() => createBridgeSession({ instrument: "drumhaus" }));
