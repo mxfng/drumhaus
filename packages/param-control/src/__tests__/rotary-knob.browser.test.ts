@@ -190,6 +190,19 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     expect(recorded.gestureEnds).toBe(1);
   });
 
+  it("ends an active gesture when the control unmounts (#438)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100);
+    await pointer("pointermove", 90);
+    expect(recorded.gestureStarts).toBe(1);
+
+    await act(async () => {
+      root?.unmount();
+    });
+
+    expect(recorded.gestureEnds).toBe(1);
+  });
+
   it("ends the drag when the primary button releases mid-chord (#402)", async () => {
     await mount(50);
     await pointer("pointerdown", 100);

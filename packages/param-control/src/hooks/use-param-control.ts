@@ -386,6 +386,7 @@ function useParamControl<T>({
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onCancel);
       window.removeEventListener("contextmenu", onContextMenu);
+      endGesture(true);
     };
   }, [tracking, handlePointerMove, endGesture]);
 
