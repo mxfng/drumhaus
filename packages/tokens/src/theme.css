@@ -1,0 +1,216 @@
+/**
+ * Shared Design Tokens
+ *
+ * The generic design-token layer for the instrument family: colors,
+ * neumorphic shadows, control (knob/slider) variables, typography, and
+ * animation tokens. Instrument-specific tokens live in each app.
+ *
+ * The @theme block mirrors every token so Tailwind v4 generates the
+ * matching utilities; runtime values stay on :root.
+ */
+
+:root {
+  /* ==================== Colors ==================== */
+  /* Base colors */
+  --color-background: oklch(0.852 0.0163 73.66);
+  --color-foreground: oklch(0.6434 0.054 60.72);
+  --color-foreground-muted: oklch(0.7607 0.0398 67.17);
+  --color-foreground-emphasis: oklch(0.4479 0.0397 62.14);
+
+  /* Primary colors */
+  --color-primary: oklch(0.7245 0.189 50.94);
+  --color-primary-muted: var(--color-accent);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-primary-shadow: oklch(0.7245 0.189 50.94 / 60%);
+
+  /* Accent colors */
+  --color-accent: oklch(0.7687 0.1641 58.66);
+  --color-accent-foreground: var(--color-primary-foreground);
+
+  /* Secondary colors */
+  --color-secondary: oklch(0.931 0.0104 67.7);
+  --color-secondary-foreground: var(--color-foreground);
+
+  /* Screen colors */
+  --color-screen: var(--color-secondary);
+  --color-screen-foreground: oklch(0.4479 0.0397 62.14 / 80%);
+
+  /* Popover colors */
+  --color-popover: var(--color-primary);
+  --color-popover-foreground: var(--color-primary-foreground);
+
+  /* Destructive colors */
+  --color-destructive: oklch(0.5677 0.211 26.44);
+  --color-destructive-foreground: var(--color-primary-foreground);
+
+  /* Muted colors */
+  --color-muted: var(--color-shadow-10);
+  --color-muted-foreground: var(--color-foreground);
+
+  /* Surface colors */
+  --color-surface: oklch(0.9474 0.0098 9.54);
+  --color-knob: #efe6de;
+
+  /* Border and focus colors */
+  --color-border: var(--color-shadow-60);
+  --color-ring: oklch(0.7607 0.0398 67.17);
+
+  /* ==================== Neumorphic Colors ==================== */
+  --color-shadow: oklch(0.6818 0.0555 68.55);
+  --color-shadow-10: oklch(0.6818 0.0555 68.55 / 10%);
+  --color-shadow-30: oklch(0.6818 0.0555 68.55 / 30%);
+  --color-shadow-50: oklch(0.6818 0.0555 68.55 / 50%);
+  --color-shadow-60: oklch(0.6818 0.0555 68.55 / 60%);
+  --color-highlight: oklch(0.9776 0.0146 312.25);
+  --color-highlight-17: oklch(0.9776 0.0146 312.25 / 17%);
+  --color-highlight-20: oklch(0.9776 0.0146 312.25 / 20%);
+  --color-highlight-30: oklch(0.9776 0.0146 312.25 / 30%);
+  --color-highlight-40: oklch(0.9776 0.0146 312.25 / 40%);
+  --color-gradient-light: var(--color-highlight);
+  --color-gradient-dark: oklch(0.9246 0.019 67.59);
+
+  /* ==================== Shadows ==================== */
+  --shadow-neu:
+    3px 3px 9px var(--color-shadow-60), -3px -3px 9px var(--color-highlight-30);
+  --shadow-neu-md:
+    6px 6px 9px var(--color-shadow-30),
+    -10px -10px 24px var(--color-highlight-20);
+  --shadow-neu-tall:
+    10px 12px 18px var(--color-shadow-30),
+    -10px -20px 20px var(--color-highlight-30);
+  --shadow-neu-xl:
+    20px 20px 50px var(--color-shadow-30),
+    -30px -30px 60px var(--color-highlight-40);
+  --shadow-neu-raised:
+    2px 2px 6px var(--color-shadow-10), -2px -2px 6px var(--color-highlight-17);
+  --shadow-neu-tall-raised:
+    12px 12px 18px var(--color-shadow-10),
+    -16px -16px 24px var(--color-highlight-20);
+  --shadow-inset:
+    inset 2px 2px 4px var(--color-shadow-60),
+    inset -1px -1px 3px var(--color-highlight-30);
+
+  /* ==================== Typography ==================== */
+  --font-sans: "Albert Sans Variable", system-ui, sans-serif;
+  --font-pixel: "Fusion Pixel 12px Monospaced SC", sans-serif;
+  --font-family-pixel: var(--font-pixel);
+
+  /* ==================== Animation ==================== */
+  --animate-duration: 150ms;
+  --animate-brightness-pulse: brightness-pulse 2s cubic-bezier(0.4, 0, 0.6, 1)
+    infinite;
+  --animate-brightness-blink: brightness-blink 0.5s steps(2, jump-none) infinite;
+
+  /* ==================== Components: Knob ==================== */
+  --knob-gradient: linear-gradient(
+    120deg,
+    var(--color-gradient-light),
+    var(--color-gradient-dark)
+  );
+  --knob-shadow-ring: 0 0 2px 4px var(--color-shadow-10);
+  --knob-shadow-inset:
+    inset 2px 2px 4px var(--color-highlight-30),
+    inset -2px -2px 4px var(--color-shadow-30);
+  --knob-shadow:
+    var(--shadow-neu-tall-raised), var(--knob-shadow-ring),
+    var(--knob-shadow-inset);
+  --knob-shadow-center:
+    var(--shadow-neu), var(--knob-shadow-ring), var(--knob-shadow-inset);
+
+  /* ==================== Components: Slider ==================== */
+  --slider-track-bg: var(--color-foreground-emphasis);
+  --slider-track-shadow:
+    inset 0 2px 4px var(--color-shadow),
+    inset 0 -1px 2px var(--color-highlight-20), 0 0 0 2px var(--color-shadow-30);
+}
+
+@theme {
+  /* ==================== Colors ==================== */
+  /* Base colors */
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-foreground-muted: var(--color-foreground-muted);
+  --color-foreground-emphasis: var(--color-foreground-emphasis);
+
+  /* Primary colors */
+  --color-primary: var(--color-primary);
+  --color-primary-muted: var(--color-primary-muted);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-primary-shadow: var(--color-primary-shadow);
+
+  /* Accent colors */
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  /* Secondary colors */
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+
+  /* Screen colors */
+  --color-screen: var(--color-screen);
+  --color-screen-foreground: var(--color-screen-foreground);
+
+  /* Popover colors */
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+
+  /* Destructive colors */
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+
+  /* Muted colors */
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+
+  /* Surface colors */
+  --color-surface: var(--color-surface);
+  --color-knob: var(--color-knob);
+
+  /* Border and focus colors */
+  --color-border: var(--color-border);
+  --color-ring: var(--color-ring);
+
+  /* ==================== Neumorphic Colors ==================== */
+  --color-shadow: var(--color-shadow);
+  --color-shadow-10: var(--color-shadow-10);
+  --color-shadow-30: var(--color-shadow-30);
+  --color-shadow-50: var(--color-shadow-50);
+  --color-shadow-60: var(--color-shadow-60);
+  --color-highlight: var(--color-highlight);
+  --color-highlight-17: var(--color-highlight-17);
+  --color-highlight-20: var(--color-highlight-20);
+  --color-highlight-30: var(--color-highlight-30);
+  --color-highlight-40: var(--color-highlight-40);
+  --color-gradient-light: var(--color-gradient-light);
+  --color-gradient-dark: var(--color-gradient-dark);
+
+  /* ==================== Shadows ==================== */
+  --shadow-neu: var(--shadow-neu);
+  --shadow-neu-md: var(--shadow-neu-md);
+  --shadow-neu-tall: var(--shadow-neu-tall);
+  --shadow-neu-xl: var(--shadow-neu-xl);
+  --shadow-neu-raised: var(--shadow-neu-raised);
+  --shadow-neu-tall-raised: var(--shadow-neu-tall-raised);
+  --shadow-inset: var(--shadow-inset);
+
+  /* ==================== Typography ==================== */
+  --font-sans: var(--font-sans);
+  --font-pixel: var(--font-pixel);
+  --font-family-pixel: var(--font-family-pixel);
+
+  /* ==================== Animation ==================== */
+  --animate-duration: var(--animate-duration);
+  --animate-brightness-pulse: var(--animate-brightness-pulse);
+  --animate-brightness-blink: var(--animate-brightness-blink);
+
+  /* ==================== Components: Knob ==================== */
+  --knob-gradient: var(--knob-gradient);
+  --knob-shadow-ring: var(--knob-shadow-ring);
+  --knob-shadow-inset: var(--knob-shadow-inset);
+  --knob-shadow: var(--knob-shadow);
+  --knob-shadow-center: var(--knob-shadow-center);
+
+  /* ==================== Components: Slider ==================== */
+  --slider-track-bg: var(--slider-track-bg);
+  --slider-track-shadow: var(--slider-track-shadow);
+}

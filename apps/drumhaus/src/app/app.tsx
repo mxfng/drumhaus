@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo } from "react";
 
-import "@fontsource-variable/albert-sans";
-import "@/assets/fonts/fusion-pixel.css";
+import "@haus/tokens/fonts.css";
 
 import { useKitVersion } from "@/core/audio/bridge/use-kit-version";
 import { AppErrorBoundary } from "@/core/providers/app-error-boundary";
