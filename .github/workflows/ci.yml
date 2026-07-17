@@ -52,6 +52,9 @@ jobs:
       - name: Run E2E tests
         run: pnpm test:e2e
 
+      - name: Run family E2E tests
+        run: pnpm test:e2e:family
+
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
@@ -60,4 +63,6 @@ jobs:
           path: |
             apps/drumhaus/playwright-report/
             apps/drumhaus/test-results/
+            e2e/playwright-report/
+            e2e/test-results/
           retention-days: 7
