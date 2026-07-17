@@ -1,5 +1,5 @@
-import { clamp } from "@/shared/lib/utils";
 import type { ParamDescriptor } from "../types";
+import { clamp } from "./math";
 import { clamp01, taperFromNormalized, taperToNormalized } from "./taper";
 
 /**

@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 
-import { useCoachmark } from "@/shared/hooks/use-coachmark";
+import { useCoachmark } from "./use-coachmark";
 
 const HORIZONTAL_RATIO_THRESHOLD = 1.5;
 const HORIZONTAL_MIN_DELTA = 10;

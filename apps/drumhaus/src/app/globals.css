@@ -35,3 +35,4 @@
    source explicitly or every utility class used only inside the package
    would be dropped from the built CSS. */
 @source "../../../../packages/ui/src";
+@source "../../../../packages/param-control/src";

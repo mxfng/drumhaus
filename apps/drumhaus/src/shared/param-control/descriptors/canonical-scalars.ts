@@ -8,6 +8,8 @@
  * They are `ParamDescriptor<number>`.
  */
 
+import { clamp01, type ParamDescriptor, type Taper } from "@haus/param-control";
+
 import {
   INSTRUMENT_DECAY_RANGE,
   INSTRUMENT_PAN_RANGE,
@@ -25,8 +27,6 @@ import {
   TRANSPORT_BPM_RANGE,
   TRANSPORT_SWING_MAX,
 } from "@/core/audio/engine/constants";
-import { clamp01 } from "../lib/taper";
-import type { ParamDescriptor, Taper } from "../types";
 
 /**
  * Skew equivalent to the legacy `t^2` exponential knob curve. The legacy

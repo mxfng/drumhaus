@@ -14,8 +14,9 @@
  * Not wired into the engine or a store here; the model is unit-tested only.
  */
 
+import type { ParamDescriptor } from "@haus/param-control";
+
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
-import type { ParamDescriptor } from "../types";
 
 /** Audible sweep bounds for the split filter, in Hz. */
 const FILTER_MIN_HZ = 20;

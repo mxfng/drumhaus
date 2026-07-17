@@ -1,12 +1,11 @@
 import { useCallback, useRef, useState } from "react";
-import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
+import { cn, Label, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 
-import { Coachmark } from "@/shared/components/coachmark";
-import { cn } from "@/shared/lib/utils";
 import { useKnobGuidance } from "../hooks/use-knob-guidance";
 import { DEFAULT_DRAG_SENSITIVITY } from "../lib/descriptor";
 import { Knob, useKnob } from "../primitives/knob";
 import type { ParamControlFutureSeams, ParamDescriptor } from "../types";
+import { Coachmark } from "./coachmark";
 import { KnobTicks } from "./knob-ticks";
 
 /** Diameter presets, matching the original hardware knob: 90px / 180px cells. */

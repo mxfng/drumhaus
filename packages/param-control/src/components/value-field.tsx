@@ -1,4 +1,5 @@
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@haus/ui";
+
 import { useParamControl } from "../hooks/use-param-control";
 import type { ParamDescriptor } from "../types";
 

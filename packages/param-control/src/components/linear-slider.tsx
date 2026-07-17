@@ -1,7 +1,6 @@
 import type { CSSProperties } from "react";
-import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
+import { cn, Label, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 
-import { cn } from "@/shared/lib/utils";
 import { DEFAULT_DRAG_SENSITIVITY } from "../lib/descriptor";
 import { Knob, useKnob } from "../primitives/knob";
 import type { ParamControlFutureSeams, ParamDescriptor } from "../types";

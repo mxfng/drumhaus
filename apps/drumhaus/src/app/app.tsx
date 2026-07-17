@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo, type ReactNode } from "react";
 
 import "@haus/tokens/fonts.css";
 
+import { CoachmarkProvider } from "@haus/param-control";
 import { ToastProvider, TooltipProvider } from "@haus/ui";
 
 import { useKitVersion } from "@/core/audio/bridge/use-kit-version";
@@ -24,9 +25,22 @@ import { useUndoRedoShortcuts } from "@/shared/hooks/use-undo-redo-shortcuts";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { LightRigProvider } from "@/shared/lightshow/light-rig-provider";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
+import { usePerformanceStore } from "@/shared/store/use-performance-store";
 import { useWaveform, WaveformProvider } from "@/shared/waveform";
 
 const Drumhaus = lazy(() => import("../layout/drumhaus"));
+
+/**
+ * Wires the app's performance store into the package-level coachmark seam:
+ * potato mode turns the knobs' first-use guidance off, exactly as before the
+ * coachmark moved into @haus/param-control.
+ */
+function AppCoachmarkProvider({ children }: { children: ReactNode }) {
+  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+  return (
+    <CoachmarkProvider enabled={!potatoMode}>{children}</CoachmarkProvider>
+  );
+}
 
 function DrumhausFallback() {
   return (
@@ -130,13 +144,15 @@ function App() {
           <AppErrorBoundary>
             <GlobalErrorHandler />
             <TooltipProvider>
-              <LightRigProvider>
-                <DrumhausProvider>
-                  <WaveformProvider>
-                    <AppOrchestrator />
-                  </WaveformProvider>
-                </DrumhausProvider>
-              </LightRigProvider>
+              <AppCoachmarkProvider>
+                <LightRigProvider>
+                  <DrumhausProvider>
+                    <WaveformProvider>
+                      <AppOrchestrator />
+                    </WaveformProvider>
+                  </DrumhausProvider>
+                </LightRigProvider>
+              </AppCoachmarkProvider>
             </TooltipProvider>
           </AppErrorBoundary>
         </ToastProvider>

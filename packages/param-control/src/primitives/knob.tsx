@@ -4,10 +4,10 @@
  * A Radix-style, unstyled composition around the descriptor-driven interaction
  * engine (`useParamControl`). `Knob.Root` runs the engine and shares its state
  * through context; the part slots (`Knob.Track`, `Knob.Indicator`, `Knob.Value`)
- * are unstyled and carry no look of their own. Drumhaus's neumorphic controls
- * (`RotaryKnob`, `LinearSlider`) compose their styling on top; a future
- * standalone instrument can reuse the same primitive with its own skin, or reuse
- * the whole styled control.
+ * are unstyled and carry no look of their own. The neumorphic styled controls
+ * (`RotaryKnob`, `LinearSlider`) compose their styling on top; a sibling
+ * instrument can reuse the same primitive with its own skin, or reuse the
+ * whole styled control.
  *
  *   <Knob.Root descriptor value onChange>
  *     <Knob.Track>          // interactive surface: role/aria + all handlers
