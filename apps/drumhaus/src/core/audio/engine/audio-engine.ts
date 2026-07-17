@@ -69,6 +69,7 @@ import {
   configureTransportTiming,
   getCurrentStepFromTransport,
   getCurrentTime,
+  getLiveRawContext,
   setTransportBpm,
   setTransportSwing,
   startTransport,
@@ -148,6 +149,22 @@ interface RenderWavOptions {
    * master-bus-level) and plays at unity master volume.
    */
   masterTap?: "master" | "preMaster";
+}
+
+/**
+ * Options for starting playback.
+ */
+interface PlayOptions {
+  /**
+   * Absolute time on the live context's clock (seconds) at which the
+   * transport starts, with position 0 landing exactly at that instant. If
+   * playback is already running, it is stopped and restarted at that same
+   * instant (a scheduled realign; the bar in flight keeps sounding from
+   * already-scheduled hits). Omitted: the transport starts immediately,
+   * exactly as before. Used by the session adapter (core/session) to start
+   * on the shared session grid.
+   */
+  atContextTime?: number;
 }
 
 /**
@@ -767,8 +784,13 @@ class AudioEngine {
    * the live sequence from pushed state, and starts the transport. Emits
    * onPlaybackStateChange. If a stop() (or newer play()) lands while the
    * context is unlocking, this play stands down as a no-op.
+   *
+   * With options.atContextTime the transport start is scheduled at that
+   * live-context instant instead of now (see PlayOptions); if the context
+   * cannot start (suspended without a user gesture), the returned promise
+   * rejects and playback state is left untouched.
    */
-  async play(): Promise<void> {
+  async play(options?: PlayOptions): Promise<void> {
     const intent = ++this.intentSeq;
     await ensureAudioContextIsRunning("transport");
     if (intent !== this.intentSeq) return;
@@ -777,7 +799,7 @@ class AudioEngine {
     setTransportSwing(this.swing);
 
     this.createLiveSequence();
-    startTransport();
+    startTransport(options?.atContextTime);
     this.setIsPlayingAndNotify(true);
   }
 
@@ -922,6 +944,17 @@ class AudioEngine {
    */
   getCurrentStep(): number {
     return getCurrentStepFromTransport();
+  }
+
+  /**
+   * The LIVE context's underlying AudioContext, via Tone's public
+   * Context.rawContext and the retained live transport (never the offline
+   * one). Read-only clock access for callers that map external clocks onto
+   * the audio clock - the session adapter's epoch-to-context-time mapping
+   * (core/session) is the consumer. Not a mutation surface.
+   */
+  getLiveAudioContext(): BaseAudioContext {
+    return getLiveRawContext();
   }
 
   /**
@@ -1154,5 +1187,6 @@ export type {
   KitLoadResult,
   KitSampleDescriptor,
   PlaybackConfig,
+  PlayOptions,
   RenderWavOptions,
 };
