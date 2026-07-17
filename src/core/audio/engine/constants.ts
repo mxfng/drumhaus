@@ -116,7 +116,37 @@ const MASTER_COMP_LATENCY = 0.006; // 6 ms - lookahead latency compensation
 // Master FX: Limiter
 // ============================================================================
 
-const MASTER_LIMITER_THRESHOLD = -1; // dB - brickwall
+/**
+ * Threshold of the musical limiter stage. NOT a brickwall: Tone's Limiter is
+ * a DynamicsCompressorNode with ratio 20, a 3ms attack, and the node's
+ * default 30 dB soft knee, whose curve spans [threshold, threshold + 30 dB] -
+ * so around 0 dBFS it applies almost no gain reduction and transient-heavy
+ * material overshoots by a couple of dB (issue #346). The hard output
+ * ceiling below is what actually guarantees the bus never exceeds full
+ * scale.
+ */
+const MASTER_LIMITER_THRESHOLD = -1; // dB
+
+/**
+ * Hard output ceiling applied as the FINAL master-bus stage (issue #346), in
+ * linear amplitude: 0.988 ~ -0.105 dBFS. A memoryless clamp - exactly
+ * identity below the ceiling - so it only touches the rare limiter-overshoot
+ * peaks that previously clipped anyway (at the DAC live, at the 16-bit PCM
+ * encode in exports), and it guarantees offline renders never exceed
+ * 0 dBFS. Sits above the limiter's working range (threshold -1 dB = 0.891)
+ * so normally-limited program material passes untouched.
+ */
+const MASTER_OUTPUT_CEILING = 0.988;
+
+/**
+ * Sample count of the ceiling's WaveShaper curve. 2001 points over [-1, 1]
+ * put a grid point every 0.001, so +/-MASTER_OUTPUT_CEILING (0.988) falls
+ * EXACTLY on the grid: every curve segment is then a straight piece of the
+ * true clamp function and the WaveShaperNode's linear interpolation
+ * reproduces clamp(x) exactly (identity below the knee, ceiling above),
+ * instead of smearing the knee across a segment.
+ */
+const MASTER_OUTPUT_CEILING_CURVE_LENGTH = 2001;
 
 // ============================================================================
 // Master FX: Analog coloration / EQ
@@ -246,6 +276,8 @@ export {
   MASTER_COMP_MAKEUP_GAIN,
   MASTER_COMP_LATENCY,
   MASTER_LIMITER_THRESHOLD,
+  MASTER_OUTPUT_CEILING,
+  MASTER_OUTPUT_CEILING_CURVE_LENGTH,
   MASTER_SATURATION_OVERSAMPLE,
   MASTER_HIGH_SHELF_FREQ,
   MASTER_HIGH_SHELF_GAIN,
