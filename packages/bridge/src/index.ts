@@ -11,13 +11,14 @@ export {
   beatsAt,
   BEATS_PER_BAR,
   clampBpm,
+  contextClockAnchor,
   contextTimeToEpochMs,
   epochNowMs,
   epochToContextTime,
   nextBarStartEpochMs,
   rebaseTempo,
 } from "./clock";
-export type { BridgeAudioContext } from "./clock";
+export type { BridgeAudioContext, ClockAnchor, ClockAnchorKind } from "./clock";
 export { createConductorElection } from "./election";
 export type {
   ConductorElection,

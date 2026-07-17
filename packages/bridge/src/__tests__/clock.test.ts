@@ -12,6 +12,7 @@ import {
   beatMs,
   beatsAt,
   clampBpm,
+  contextClockAnchor,
   contextTimeToEpochMs,
   epochNowMs,
   epochToContextTime,
@@ -165,6 +166,41 @@ describe("AudioContext clock mapping", () => {
     };
     const epochNow = () => 10_000;
     expect(epochToContextTime(ctx, 10_500, epochNow)).toBeCloseTo(1.5, 9);
+  });
+
+  it("reports the outputTimestamp kind when the timestamp anchors", () => {
+    const ctx: BridgeAudioContext = {
+      currentTime: 99,
+      getOutputTimestamp: () => ({ contextTime: 1.5, performanceTime: 2500 }),
+    };
+    const anchor = contextClockAnchor(ctx);
+    expect(anchor.kind).toBe("outputTimestamp");
+    expect(anchor.contextTimeS).toBe(1.5);
+    expect(anchor.epochMs).toBe(performance.timeOrigin + 2500);
+  });
+
+  it("reports the currentTime kind when getOutputTimestamp is unavailable", () => {
+    const ctx: BridgeAudioContext = { currentTime: 3 };
+    const anchor = contextClockAnchor(ctx, () => 50_000);
+    expect(anchor.kind).toBe("currentTime");
+    expect(anchor.contextTimeS).toBe(3);
+    expect(anchor.epochMs).toBe(50_000);
+  });
+
+  it("reports the currentTime kind on the zeros fallback (no output yet)", () => {
+    const ctx: BridgeAudioContext = {
+      currentTime: 0.25,
+      getOutputTimestamp: () => ({ contextTime: 0, performanceTime: 0 }),
+    };
+    expect(contextClockAnchor(ctx, () => 10_000).kind).toBe("currentTime");
+  });
+
+  it("reports the currentTime kind on the empty-timestamp fallback", () => {
+    const ctx: BridgeAudioContext = {
+      currentTime: 1,
+      getOutputTimestamp: () => ({}),
+    };
+    expect(contextClockAnchor(ctx, () => 10_000).kind).toBe("currentTime");
   });
 
   it("round-trips epoch to context time and back", () => {

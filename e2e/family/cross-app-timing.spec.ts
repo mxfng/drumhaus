@@ -17,9 +17,13 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
  *
  * Asserted for both start-from-drumhaus and start-from-pulse:
  * - at least MIN_ALIGNED_BEATS consecutive beats where the two apps'
- *   onsets agree within TOLERANCE_MS, and
+ *   onsets agree within TOLERANCE_MS,
  * - no drumhaus double-fire: no scheduled hit audibly ahead of the shared
- *   downbeat (the "misfire then restart" stutter of #425).
+ *   downbeat (the "misfire then restart" stutter of #425), and
+ * - both apps' epoch mappings anchored on the speaker-aligned
+ *   outputTimestamp branch, via each app's __clockAnchorKind diagnostic
+ *   (#429): the currentTime fallback silently loses output-latency
+ *   compensation.
  */
 
 /** Cross-app onset agreement tolerance. Musically tight, not sample-locked. */
@@ -51,6 +55,8 @@ declare global {
   interface Window {
     __onsets: CapturedOnset[];
     __sessionStates: CapturedState[];
+    /** App-registered diagnostic: which branch anchors its epoch mapping. */
+    __clockAnchorKind?: () => "outputTimestamp" | "currentTime";
   }
 }
 
@@ -258,6 +264,24 @@ function expectAligned(drumhaus: PageCapture, pulse: PageCapture): void {
   ).toEqual([]);
 }
 
+/**
+ * Assert each app's epoch mapping runs on the speaker-aligned
+ * outputTimestamp branch. The currentTime fallback silently drops
+ * output-latency compensation - the constant ~30ms error of #425 - so a
+ * regression here (e.g. the mapping fed a context without a usable
+ * getOutputTimestamp again) must fail loudly even if both apps happen to
+ * still align with each other. Queried after playback, when every context
+ * has produced output and the fallback would only mean degradation.
+ */
+async function expectSpeakerAnchored(...pages: Page[]): Promise<void> {
+  for (const page of pages) {
+    const kind = await page.evaluate(
+      () => window.__clockAnchorKind?.() ?? "missing",
+    );
+    expect(kind).toBe("outputTimestamp");
+  }
+}
+
 // --- scenarios ---
 
 test.describe("cross-app beat alignment", () => {
@@ -280,6 +304,7 @@ test.describe("cross-app beat alignment", () => {
     await drumhaus.waitForTimeout(PLAY_MS);
 
     expectAligned(await capture(drumhaus), await capture(pulse));
+    await expectSpeakerAnchored(drumhaus, pulse);
   });
 
   test("starting from pulse, both apps sound the same beats", async ({
@@ -297,5 +322,6 @@ test.describe("cross-app beat alignment", () => {
     await pulse.waitForTimeout(PLAY_MS);
 
     expectAligned(await capture(drumhaus), await capture(pulse));
+    await expectSpeakerAnchored(drumhaus, pulse);
   });
 });
