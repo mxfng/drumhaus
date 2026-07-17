@@ -1,5 +1,5 @@
 /**
- * The framework-free core behind useSession: wraps one HausSession in
+ * The framework-free core behind useSession: wraps one Session in
  * an external-store shape (cached snapshot + single change signal, the
  * useSyncExternalStore contract) and owns the deferred-command readiness
  * handling every instrument would otherwise reimplement.
@@ -28,9 +28,9 @@ import {
   epochNowMs,
   rebaseTempo,
   START_LEAD_MS,
-  type HausPeer,
-  type HausSession,
+  type Peer,
   type SceneId,
+  type Session,
   type SessionState,
 } from "@haus/bridge";
 
@@ -39,7 +39,7 @@ interface SessionSnapshot {
   /** Session state; optimistic while commands are deferred. */
   state: SessionState;
   /** Other currently-known peers (self excluded). */
-  peers: HausPeer[];
+  peers: Peer[];
   /** Whether this tab currently conducts the session. */
   isConductor: boolean;
   /** Whether this controller is currently connected to the session. */
@@ -67,7 +67,7 @@ interface SessionControllerOptions {
 }
 
 function createSessionController(
-  session: HausSession,
+  session: Session,
   options: SessionControllerOptions = {},
 ): SessionController {
   const now = options.now ?? epochNowMs;
@@ -80,7 +80,7 @@ function createSessionController(
   /** Local view of deferred commands; null once the session speaks. */
   let optimistic: SessionState | null = null;
 
-  let peers: HausPeer[] = [];
+  let peers: Peer[] = [];
   let isConductor = false;
 
   const listeners = new Set<() => void>();

@@ -3,14 +3,19 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * UI-driving end-to-end suite (issue #271).
  *
- * Runs against a production build served by `vite preview` on port 4444 for
- * CI fidelity. In CI the build step has already produced `dist/`, so the web
+ * Runs against a production build served by `vite preview` (port 4444;
+ * PORT overrides so parallel checkouts can pick a free one) for CI
+ * fidelity. In CI the build step has already produced `dist/`, so the web
  * server only needs to serve it; locally the suite rebuilds first so it
  * always exercises the current source.
  *
  * Kept fully separate from vitest: vitest only picks up `.test.ts` files
  * under `src`, and this runner only picks up `.spec.ts` files under `e2e`.
  */
+/** Server port; PORT overrides so parallel checkouts can pick a free one. */
+const port = Number(process.env.PORT ?? 4444);
+const preview = `pnpm exec vite preview --port ${port} --strictPort`;
+
 export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
@@ -31,7 +36,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   use: {
-    baseURL: "http://localhost:4444",
+    baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",
   },
   projects: [
@@ -41,8 +46,12 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? "pnpm preview" : "pnpm build && pnpm preview",
-    port: 4444,
+    command: process.env.CI ? preview : `pnpm build && ${preview}`,
+    // The suite covers LINK (link.spec), which ships dark: the local build
+    // here needs the flag; in CI the workflow rebuilds with it before this
+    // suite runs.
+    env: { VITE_ENABLE_LINK: "true" },
+    port,
     reuseExistingServer: false,
     timeout: 180_000,
   },

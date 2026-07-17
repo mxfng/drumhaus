@@ -1,5 +1,5 @@
 /**
- * Real-browser integration: multiple createHausSession instances in one page
+ * Real-browser integration: multiple createSession instances in one page
  * over a real BroadcastChannel and real Web Locks. BroadcastChannel delivers
  * between channel instances in the same context and Web Locks queue within
  * one context exactly as across tabs, so this exercises the production code
@@ -10,8 +10,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { beatMs, beatsAt, epochNowMs } from "../clock";
-import type { HausLockManager } from "../election";
-import { createHausSession, type HausSession } from "../session";
+import type { LockManager } from "../election";
+import { createSession, type Session } from "../session";
 import { broadcastChannelTransport } from "../transport";
 import type { SessionState } from "../types";
 
@@ -22,18 +22,18 @@ afterEach(() => {
 });
 
 /** Scope the real Web Locks to this test so suites cannot interfere. */
-function scopedLocks(scope: string): HausLockManager {
+function scopedLocks(scope: string): LockManager {
   return {
     request: (name, options, callback) =>
       navigator.locks.request(`${scope}:${name}`, options, callback),
   };
 }
 
-function createScope(): (instrument: string, label?: string) => HausSession {
-  const scope = `haus-bridge-test-${crypto.randomUUID()}`;
+function createScope(): (instrument: string, label?: string) => Session {
+  const scope = `bridge-test-${crypto.randomUUID()}`;
   return (instrument, label) => {
     const transport = broadcastChannelTransport(`${scope}:channel`);
-    const session = createHausSession({
+    const session = createSession({
       instrument,
       ...(label !== undefined ? { label } : {}),
       transport,
@@ -69,11 +69,11 @@ function until(
   });
 }
 
-describe("haus session in a real browser", () => {
+describe("session in a real browser", () => {
   it("converges two sessions over a real BroadcastChannel", async () => {
     const create = createScope();
     const a = create("drumhaus", "left");
-    const b = create("basshaus", "right");
+    const b = create("bass", "right");
     a.connect();
     await until(() => a.isConductor, "first session conducting");
     b.connect();
@@ -88,7 +88,7 @@ describe("haus session in a real browser", () => {
       "peer discovery",
     );
     expect(a.peers[0]).toMatchObject({
-      instrument: "basshaus",
+      instrument: "bass",
       label: "right",
     });
     expect(b.peers[0]).toMatchObject({ instrument: "drumhaus", label: "left" });
@@ -97,7 +97,7 @@ describe("haus session in a real browser", () => {
   it("elects via real Web Locks and hands off on disconnect with state intact", async () => {
     const create = createScope();
     const a = create("drumhaus");
-    const b = create("basshaus");
+    const b = create("bass");
     a.connect();
     await until(() => a.isConductor, "first session conducting");
     b.connect();
@@ -121,7 +121,7 @@ describe("haus session in a real browser", () => {
     a.setBpm(150);
     a.setScene(3);
 
-    const c = create("synthhaus");
+    const c = create("synth");
     c.connect();
     await until(() => c.state.bpm === 150, "late joiner adopting state");
     expect(c.state).toEqual(a.state);
@@ -130,7 +130,7 @@ describe("haus session in a real browser", () => {
   it("round-trips a follower's setBpm intent through the conductor", async () => {
     const create = createScope();
     const a = create("drumhaus");
-    const b = create("basshaus");
+    const b = create("bass");
     a.connect();
     await until(() => a.isConductor, "conductor ready");
     b.connect();
@@ -148,7 +148,7 @@ describe("haus session in a real browser", () => {
   it("keeps the derived grid continuous across peers through a mid-play rebase", async () => {
     const create = createScope();
     const a = create("drumhaus");
-    const b = create("basshaus");
+    const b = create("bass");
     a.connect();
     await until(() => a.isConductor, "conductor ready");
     b.connect();

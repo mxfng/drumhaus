@@ -5,7 +5,7 @@
  * relies on.
  */
 
-import type { HausLockManager } from "../../election";
+import type { LockManager } from "../../election";
 
 interface Waiter {
   granted: boolean;
@@ -13,7 +13,7 @@ interface Waiter {
   run: () => void;
 }
 
-function memoryLocks(): HausLockManager {
+function memoryLocks(): LockManager {
   const held = new Set<string>();
   const queues = new Map<string, Waiter[]>();
 

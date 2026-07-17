@@ -15,6 +15,10 @@ import { getSessionAdapter } from "./session-adapter";
  */
 function useSessionBridge(): void {
   useEffect(() => {
+    // LINK ships dark: with the build-time flag off this hook is a no-op
+    // and no session objects are ever created (the whole session graph
+    // dead-code-eliminates out of the bundle).
+    if (!__ENABLE_LINK__) return;
     const adapter = getSessionAdapter();
 
     const handlePageHide = () => {

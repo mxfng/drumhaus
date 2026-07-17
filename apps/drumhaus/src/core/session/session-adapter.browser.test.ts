@@ -13,13 +13,13 @@
  */
 
 import {
-  createHausSession,
+  createSession as createBridgeSession,
   memoryHub,
   START_LEAD_MS,
   type BridgeMessage,
   type BridgeTransport,
-  type HausLockManager,
-  type HausSession,
+  type LockManager,
+  type Session,
 } from "@haus/bridge";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -46,7 +46,7 @@ interface LockWaiter {
  * FIFO grant order, held until the callback's promise settles, abortable
  * while pending.
  */
-function memoryLocks(): HausLockManager {
+function memoryLocks(): LockManager {
   const held = new Set<string>();
   const queues = new Map<string, LockWaiter[]>();
 
@@ -148,18 +148,18 @@ interface Rig {
   nowMs: { value: number };
   engine: FakeEngine;
   /** The session instance the adapter currently wraps (fresh per link). */
-  adapterSession: () => HausSession;
+  adapterSession: () => Session;
   adapter: SessionAdapter;
   /** A raw peer session on the same hub/locks (auto-tracked for cleanup). */
-  createPeer(instrument?: string): HausSession;
+  createPeer(instrument?: string): Session;
   /** A bare wire on the hub, for observing raw protocol traffic. */
   createWire(): BridgeTransport;
-  locks: HausLockManager;
+  locks: LockManager;
 }
 
 const cleanups: (() => void)[] = [];
 
-function createRig(locks: HausLockManager = memoryLocks()): Rig {
+function createRig(locks: LockManager = memoryLocks()): Rig {
   const hub = memoryHub();
   const nowMs = { value: 1_000_000 };
   const now = () => nowMs.value;
@@ -167,12 +167,12 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
 
   // The adapter creates a FRESH session per link(); track them so tests can
   // address the current one.
-  const sessions: HausSession[] = [];
+  const sessions: Session[] = [];
   const adapter = createSessionAdapter({
     engine,
     now,
     createSession: () => {
-      const session = createHausSession({
+      const session = createBridgeSession({
         instrument: "drumhaus",
         transport: hub.createTransport(),
         locks,
@@ -190,7 +190,7 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
     adapter,
     adapterSession: () => sessions[sessions.length - 1],
     createPeer(instrument = "peer") {
-      const peer = createHausSession({
+      const peer = createBridgeSession({
         instrument,
         transport: hub.createTransport(),
         locks,

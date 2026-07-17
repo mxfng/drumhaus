@@ -7,18 +7,22 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createHausSession, reduceIntent, type HausSession } from "../session";
+import {
+  createSession as createBridgeSession,
+  reduceIntent,
+  type Session,
+} from "../session";
 import { memoryHub, type BridgeTransport } from "../transport";
 import { START_LEAD_MS, type SessionState } from "../types";
 import { flushMicrotasks, memoryLocks } from "./helpers/memory-locks";
 
 interface Rig {
   nowMs: { value: number };
-  createSession(instrument: string, label?: string): HausSession;
+  createSession(instrument: string, label?: string): Session;
   createWire(): BridgeTransport;
 }
 
-const sessions: HausSession[] = [];
+const sessions: Session[] = [];
 
 /** One shared hub + lock manager + fake clock per test. */
 function createRig(): Rig {
@@ -28,7 +32,7 @@ function createRig(): Rig {
   return {
     nowMs,
     createSession(instrument, label) {
-      const session = createHausSession({
+      const session = createBridgeSession({
         instrument,
         ...(label !== undefined ? { label } : {}),
         transport: hub.createTransport(),
@@ -174,9 +178,9 @@ describe("standalone (never connected)", () => {
 });
 
 describe("conductor and follower", () => {
-  async function connectPair(rig: Rig): Promise<[HausSession, HausSession]> {
+  async function connectPair(rig: Rig): Promise<[Session, Session]> {
     const a = rig.createSession("drumhaus", "a");
-    const b = rig.createSession("basshaus", "b");
+    const b = rig.createSession("bass", "b");
     a.connect();
     await flushMicrotasks();
     b.connect();
@@ -214,7 +218,7 @@ describe("conductor and follower", () => {
     a.setBpm(150);
     a.setScene(3);
 
-    const c = rig.createSession("synthhaus");
+    const c = rig.createSession("synth");
     c.connect();
     await flushMicrotasks();
     expect(c.state).toEqual(a.state);
@@ -240,7 +244,7 @@ describe("conductor and follower", () => {
   it("tracks peers symmetrically and honors goodbye", async () => {
     const rig = createRig();
     const [a, b] = await connectPair(rig);
-    expect(a.peers.map((p) => p.instrument)).toEqual(["basshaus"]);
+    expect(a.peers.map((p) => p.instrument)).toEqual(["bass"]);
     expect(b.peers.map((p) => p.instrument)).toEqual(["drumhaus"]);
 
     b.disconnect();
@@ -314,7 +318,7 @@ describe("peer timeout bookkeeping", () => {
         v: 1,
         type: "hello",
         from: peerId,
-        peer: { id: peerId, instrument: "basshaus" },
+        peer: { id: peerId, instrument: "bass" },
       });
     };
     const heartbeat = (peerId: string) => {
@@ -322,7 +326,7 @@ describe("peer timeout bookkeeping", () => {
         v: 1,
         type: "heartbeat",
         from: peerId,
-        peer: { id: peerId, instrument: "basshaus" },
+        peer: { id: peerId, instrument: "bass" },
       });
     };
 

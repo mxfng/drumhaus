@@ -4,7 +4,7 @@
  * promise settles, abortable while pending, abort ignored after grant.
  */
 
-import type { HausLockManager } from "@haus/bridge";
+import type { LockManager } from "@haus/bridge";
 
 interface Waiter {
   granted: boolean;
@@ -12,7 +12,7 @@ interface Waiter {
   run: () => void;
 }
 
-function memoryLocks(): HausLockManager {
+function memoryLocks(): LockManager {
   const held = new Set<string>();
   const queues = new Map<string, Waiter[]>();
 

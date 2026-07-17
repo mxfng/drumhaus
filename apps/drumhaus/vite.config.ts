@@ -18,8 +18,20 @@ const getGitHash = () => {
 const appVersion = getGitHash();
 const nodeVersion = process.version;
 
+/**
+ * LINK (the shared cross-instrument session) ships dark for now: on in dev,
+ * on when VITE_ENABLE_LINK is explicitly truthy at build time (CI and the
+ * e2e suites), off otherwise. Production builds set nothing, so deployed
+ * builds exclude the feature entirely; enabling it later is a build-config
+ * env var, not a code change. Build-time constant so the off path
+ * dead-code-eliminates.
+ */
+const enableLink = (command: "build" | "serve") =>
+  command === "serve" ||
+  ["1", "true"].includes(process.env.VITE_ENABLE_LINK ?? "");
+
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     react(),
     babel({
@@ -32,6 +44,7 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(appVersion),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     __NODE_VERSION__: JSON.stringify(nodeVersion),
+    __ENABLE_LINK__: JSON.stringify(enableLink(command)),
   },
   resolve: {
     tsconfigPaths: true,
@@ -43,4 +56,4 @@ export default defineConfig({
   build: {
     outDir: "dist",
   },
-});
+}));

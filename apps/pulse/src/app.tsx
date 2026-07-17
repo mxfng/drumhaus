@@ -1,30 +1,26 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
 import type { SceneId } from "@haus/bridge";
+import { useSession, type SessionController } from "@haus/bridge-react";
 
 import { createMetronome, type Metronome } from "./metronome";
-import type { PulseSession } from "./session";
 
 const SCENES: SceneId[] = [0, 1, 2, 3];
 
 type AppProps = {
-  session: PulseSession;
+  controller: SessionController;
 };
 
-function App({ session }: AppProps) {
-  const state = useSyncExternalStore(session.subscribe, session.getState);
-  const peerCount = useSyncExternalStore(
-    session.subscribe,
-    session.getPeerCount,
-  );
-  const isConductor = useSyncExternalStore(
-    session.subscribe,
-    session.getIsConductor,
-  );
+function App({ controller }: AppProps) {
+  const { state, peers, isConductor, play, stop, setBpm, setScene } =
+    useSession(controller);
+  const peerCount = peers.length + 1;
 
   // The session is connected from load, but the AudioContext (autoplay
   // policy) exists only after a user gesture. Any pointerdown qualifies -
   // pressing play covers a fresh start, and any click at all covers joining
-  // a session that is already mid-playback.
+  // a session that is already mid-playback. The metronome follows the
+  // controller directly (not the render cycle): audio scheduling has no
+  // reason to wait for React.
   useEffect(() => {
     let ctx: AudioContext | null = null;
     let metronome: Metronome | null = null;
@@ -32,11 +28,11 @@ function App({ session }: AppProps) {
       ctx = new AudioContext();
       void ctx.resume();
       metronome = createMetronome(ctx);
-      metronome.update(session.getState());
+      metronome.update(controller.getSnapshot().state);
     }
     window.addEventListener("pointerdown", startAudio, { once: true });
-    const unsubscribe = session.subscribe(() => {
-      metronome?.update(session.getState());
+    const unsubscribe = controller.subscribe(() => {
+      metronome?.update(controller.getSnapshot().state);
     });
     return () => {
       window.removeEventListener("pointerdown", startAudio);
@@ -44,7 +40,7 @@ function App({ session }: AppProps) {
       metronome?.dispose();
       void ctx?.close();
     };
-  }, [session]);
+  }, [controller]);
 
   const bpm = Math.round(state.bpm);
 
@@ -57,7 +53,7 @@ function App({ session }: AppProps) {
           type="button"
           className="transport"
           data-playing={state.playing}
-          onClick={() => (state.playing ? session.stop() : session.play())}
+          onClick={() => (state.playing ? stop() : play())}
         >
           {state.playing ? "stop" : "play"}
         </button>
@@ -66,7 +62,7 @@ function App({ session }: AppProps) {
           <button
             type="button"
             aria-label="tempo down"
-            onClick={() => session.setBpm(bpm - 1)}
+            onClick={() => setBpm(bpm - 1)}
           >
             -
           </button>
@@ -76,7 +72,7 @@ function App({ session }: AppProps) {
           <button
             type="button"
             aria-label="tempo up"
-            onClick={() => session.setBpm(bpm + 1)}
+            onClick={() => setBpm(bpm + 1)}
           >
             +
           </button>
@@ -89,7 +85,7 @@ function App({ session }: AppProps) {
               type="button"
               aria-label={`scene ${scene}`}
               aria-pressed={state.scene === scene}
-              onClick={() => session.setScene(scene)}
+              onClick={() => setScene(scene)}
             >
               {scene}
             </button>

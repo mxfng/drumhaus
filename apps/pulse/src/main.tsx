@@ -6,19 +6,19 @@ import { createPulseSession } from "./session";
 
 import "./styles.css";
 
-// One session for the app's lifetime, connected on load: pulse is always
+// One controller for the app's lifetime, connected on load: pulse is always
 // linked - that is its purpose. Audio waits for a user gesture (see app.tsx);
 // the session does not.
-const session = createPulseSession();
-session.connect();
+const controller = createPulseSession();
+controller.connect();
 
 // A clean goodbye lets peers drop this tab immediately instead of waiting
 // out the heartbeat timeout; pageshow rejoins after a bfcache restore.
-window.addEventListener("pagehide", () => session.disconnect());
-window.addEventListener("pageshow", () => session.connect());
+window.addEventListener("pagehide", () => controller.disconnect());
+window.addEventListener("pageshow", () => controller.connect());
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App session={session} />
+    <App controller={controller} />
   </StrictMode>,
 );

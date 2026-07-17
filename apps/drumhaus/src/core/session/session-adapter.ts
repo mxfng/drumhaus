@@ -1,5 +1,5 @@
 /**
- * The adapter between the Zustand stores / AudioEngine and the shared haus
+ * The adapter between the Zustand stores / AudioEngine and the shared
  * session (issue #417, epic #414). Mirrors core/audio/bridge: store
  * subscriptions feed session commands, session changes flow back into the
  * stores, and an applying-guard keeps inbound state from echoing back out
@@ -34,12 +34,12 @@
  */
 
 import {
-  createHausSession,
+  createSession as createBridgeSession,
   epochNowMs,
   epochToContextTime,
   nextBarStartEpochMs,
   type BridgeAudioContext,
-  type HausSession,
+  type Session,
   type SessionState,
 } from "@haus/bridge";
 import {
@@ -77,7 +77,7 @@ interface SessionAdapterOptions {
    * Session factory, invoked once per linked period (every link() wraps a
    * fresh session); defaults to a real BroadcastChannel-backed session.
    */
-  createSession?: () => HausSession;
+  createSession?: () => Session;
   /** Epoch clock; defaults to epochNowMs. Injectable for tests. */
   now?: () => number;
 }
@@ -115,7 +115,7 @@ function createSessionAdapter(
   const now = options.now ?? epochNowMs;
   const createSession =
     options.createSession ??
-    (() => createHausSession({ instrument: "drumhaus" }));
+    (() => createBridgeSession({ instrument: "drumhaus" }));
 
   // Every linked period wraps a FRESH session. The bridge's disconnect()
   // deliberately never resets state or rev, so reusing one instance across

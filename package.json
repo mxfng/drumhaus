@@ -9,7 +9,7 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "test:e2e": "pnpm -r test:e2e",
-    "test:e2e:family": "pnpm --filter drumhaus build && pnpm --filter pulse build && playwright test --config e2e/playwright.config.ts",
+    "test:e2e:family": "VITE_ENABLE_LINK=true pnpm --filter drumhaus build && pnpm --filter pulse build && playwright test --config e2e/playwright.config.ts",
     "lint": "pnpm -r lint",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

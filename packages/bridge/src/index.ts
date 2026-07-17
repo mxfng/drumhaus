@@ -1,6 +1,7 @@
 /**
- * @haus/bridge - serverless cross-instrument session sync for the haus
- * family. See README.md for the protocol specification (document of record).
+ * @haus/bridge - serverless cross-instrument session sync for the
+ * instrument family. See README.md for the protocol specification
+ * (document of record).
  */
 
 export {
@@ -21,10 +22,10 @@ export { createConductorElection } from "./election";
 export type {
   ConductorElection,
   ConductorElectionOptions,
-  HausLockManager,
+  LockManager,
 } from "./election";
-export { createHausSession } from "./session";
-export type { CreateHausSessionOptions, HausSession } from "./session";
+export { createSession } from "./session";
+export type { CreateSessionOptions, Session } from "./session";
 export { broadcastChannelTransport, memoryHub } from "./transport";
 export type { BridgeTransport, MemoryHub } from "./transport";
 export {
@@ -41,7 +42,7 @@ export {
 } from "./types";
 export type {
   BridgeMessage,
-  HausPeer,
+  Peer,
   SceneId,
   SessionIntent,
   SessionState,
