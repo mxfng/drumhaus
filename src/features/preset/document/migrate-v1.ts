@@ -29,7 +29,7 @@ import {
   presetDocumentSchema,
   type PresetDocument,
 } from "./document";
-import { UnknownKitError } from "./errors";
+import { CorruptFieldError, UnknownKitError } from "./errors";
 import { frozenSplitFilterPositionToCanonical } from "./frozen-split-filter";
 
 /**
@@ -239,8 +239,14 @@ function metaFromV1(meta: PresetFileV1["meta"]) {
  *
  * @throws {UnknownKitError} If the embedded kit's id does not resolve in the
  * registry (after legacy-id aliasing)
- * @throws {z.ZodError} If the migrated result violates presetDocumentSchema;
- * a migration bug should fail loudly, not emit garbage
+ * @throws {CorruptFieldError} If the migrated result violates
+ * presetDocumentSchema. This final gate guards two cases at once: a migration
+ * bug (which should fail loudly, not emit garbage) and out-of-range user data
+ * the deliberately tolerant v1 schema let through (file-v1.ts leaves e.g.
+ * transport.bpm a bare number, so a hand-edited bpm outside [40, 300] reaches
+ * here). Either way the first schema issue is mapped to a typed
+ * CorruptFieldError carrying its field path, mirroring migrate-v2, so the UI
+ * boundary sees a typed error rather than a raw ZodError.
  */
 function migrateV1ToDocument(file: PresetFileV1): PresetDocument {
   const kitId = resolveKitId(file.kit);
@@ -256,7 +262,7 @@ function migrateV1ToDocument(file: PresetFileV1): PresetDocument {
     channelFromKnobParams(instrument.params),
   );
 
-  return presetDocumentSchema.parse({
+  const result = presetDocumentSchema.safeParse({
     kind: PRESET_DOCUMENT_KIND,
     version: PRESET_DOCUMENT_VERSION,
     meta: metaFromV1(file.meta),
@@ -270,6 +276,11 @@ function migrateV1ToDocument(file: PresetFileV1): PresetDocument {
     },
     master: masterFromV1(file.masterChain),
   });
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    throw new CorruptFieldError(issue.path.join("."), issue.message);
+  }
+  return result.data;
 }
 
 export { frozenV1Curves, migrateV1ToDocument };

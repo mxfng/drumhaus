@@ -43,6 +43,7 @@ import {
   type Pattern,
 } from "@/core/audio/engine/pattern-types";
 import { SPLIT_FILTER_MAX_CUTOFF_HZ } from "./frozen-split-filter";
+import { collectStrippedKeyPaths, type StrippedSection } from "./stripped-keys";
 
 const PRESET_DOCUMENT_KIND = "drumhaus.preset";
 /**
@@ -217,11 +218,15 @@ const metaSchema = z.object({
   author: z.string().optional(),
 });
 
+// The registry reference that survives a preset; the embedded kit copy is
+// dropped on read (decision 12). Named so the strip walker can read its shape.
+const kitReferenceSchema = z.object({ id: z.string() });
+
 const presetDocumentSchema = z.object({
   kind: z.literal(PRESET_DOCUMENT_KIND),
   version: z.literal(PRESET_DOCUMENT_VERSION),
   meta: metaSchema,
-  kit: z.object({ id: z.string() }),
+  kit: kitReferenceSchema,
   channels: channelsSchema,
   pattern: patternSchema,
   playback: playbackSchema,
@@ -231,5 +236,65 @@ const presetDocumentSchema = z.object({
 
 type PresetDocument = z.infer<typeof presetDocumentSchema>;
 
-export { PRESET_DOCUMENT_KIND, PRESET_DOCUMENT_VERSION, presetDocumentSchema };
+/**
+ * The key paths a strict presetDocumentSchema parse silently strips from a raw
+ * document (docs/preset-persistence.md, decision 3: strip at load with a
+ * warning). Mirrors the v1 reader's collectStrippedKeyPaths in scope: the
+ * envelope, each object section, and each channel are inspected one level deep;
+ * the pattern's nested tuples are left to the strict parse to reject. Callers
+ * warn on the result via warnStrippedKeyPaths.
+ */
+function collectDocumentStrippedKeyPaths(raw: unknown): string[] {
+  if (typeof raw !== "object" || raw === null) return [];
+  const doc = raw as Record<string, unknown>;
+  const channelKeys = Object.keys(channelSchema.shape);
+  const channelSections: StrippedSection[] = Array.isArray(doc.channels)
+    ? doc.channels.map((channel, index) => ({
+        value: channel,
+        prefix: `channels.${index}`,
+        knownKeys: channelKeys,
+      }))
+    : [];
+  return collectStrippedKeyPaths([
+    {
+      value: doc,
+      prefix: "",
+      knownKeys: Object.keys(presetDocumentSchema.shape),
+    },
+    {
+      value: doc.meta,
+      prefix: "meta",
+      knownKeys: Object.keys(metaSchema.shape),
+    },
+    {
+      value: doc.kit,
+      prefix: "kit",
+      knownKeys: Object.keys(kitReferenceSchema.shape),
+    },
+    {
+      value: doc.transport,
+      prefix: "transport",
+      knownKeys: Object.keys(transportSchema.shape),
+    },
+    {
+      value: doc.playback,
+      prefix: "playback",
+      knownKeys: Object.keys(playbackSchema.shape),
+    },
+    {
+      value: doc.master,
+      prefix: "master",
+      knownKeys: Object.keys(masterSchema.shape),
+    },
+    ...channelSections,
+  ]);
+}
+
+export {
+  PRESET_DOCUMENT_KIND,
+  PRESET_DOCUMENT_VERSION,
+  canonicalFilterSchema,
+  collectDocumentStrippedKeyPaths,
+  presetDocumentSchema,
+};
 export type { PresetDocument };
