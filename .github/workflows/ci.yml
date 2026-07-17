@@ -27,5 +27,8 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
       - name: Test
         run: pnpm test
