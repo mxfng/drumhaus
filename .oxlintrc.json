@@ -1,4 +1,4 @@
 {
-  "$schema": "./apps/drumhaus/node_modules/oxlint/configuration_schema.json",
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["eslint", "typescript", "unicorn", "oxc", "react"]
 }

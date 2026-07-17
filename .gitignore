@@ -25,6 +25,9 @@ build/
 .tool-versions
 *.pem
 
+# agent worktrees + local agent config
+.claude/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -1,0 +1,156 @@
+import { useEffect, useMemo } from "react";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  Input,
+  useToast,
+} from "@/design/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { usePresetMetaStore } from "@/features/preset/store/use-preset-meta-store";
+import { presetNameSchema } from "@/shared/lib/schemas";
+
+interface DuplicatePresetDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  presetId: string;
+  suggestedName: string;
+}
+
+const duplicateSchema = z.object({
+  presetName: presetNameSchema.trim(),
+});
+
+type DuplicateFormValues = z.infer<typeof duplicateSchema>;
+
+function DuplicatePresetDialog({
+  isOpen,
+  onClose,
+  presetId,
+  suggestedName,
+}: DuplicatePresetDialogProps) {
+  const duplicateCustomPreset = usePresetMetaStore(
+    (state) => state.duplicateCustomPreset,
+  );
+  const renameCustomPreset = usePresetMetaStore(
+    (state) => state.renameCustomPreset,
+  );
+  const { toast } = useToast();
+
+  const defaultValues = useMemo(
+    () => ({ presetName: suggestedName }),
+    [suggestedName],
+  );
+
+  const form = useForm<DuplicateFormValues>({
+    resolver: zodResolver(duplicateSchema),
+    defaultValues,
+    mode: "onChange",
+  });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    trigger,
+    formState: { errors, isValid, isSubmitting },
+  } = form;
+
+  const handleClose = () => {
+    reset({ presetName: suggestedName });
+    onClose();
+  };
+
+  useEffect(() => {
+    reset(defaultValues);
+    // Trigger validation to show error immediately if name is invalid
+    trigger("presetName");
+  }, [defaultValues, reset, trigger]);
+
+  const onSubmit = handleSubmit(async ({ presetName }) => {
+    const trimmedName = presetName.trim();
+
+    try {
+      // Duplicate the preset (writes a library entry, so it can reject with
+      // StorageFullError; await before touching its meta).
+      const duplicatedPreset = await duplicateCustomPreset(presetId);
+
+      // Apply the (possibly edited) name to the duplicated preset.
+      await renameCustomPreset(duplicatedPreset.meta.id, trimmedName);
+
+      toast({
+        title: "Preset duplicated",
+        description: `Created "${trimmedName}"`,
+        duration: 3000,
+      });
+
+      handleClose();
+    } catch (error) {
+      toast({
+        title: "Failed to duplicate preset",
+        description:
+          error instanceof Error ? error.message : "Please try again",
+        status: "error",
+        duration: 3000,
+      });
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent key={presetId}>
+        <DialogHeader>
+          <DialogTitle>Duplicate Preset</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={onSubmit}>
+          <div className="space-y-6 pb-6">
+            <DialogDescription>
+              Create a copy of this preset with a new name.
+            </DialogDescription>
+
+            <FieldGroup>
+              <Field data-invalid={Boolean(errors.presetName)}>
+                <FieldLabel htmlFor="presetName">Preset name</FieldLabel>
+                <Input
+                  id="presetName"
+                  autoFocus
+                  aria-invalid={Boolean(errors.presetName)}
+                  {...register("presetName")}
+                />
+                <FieldError errors={[errors.presetName]} />
+              </Field>
+            </FieldGroup>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={handleClose}
+              type="button"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!isValid || isSubmitting}>
+              Duplicate
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export { DuplicatePresetDialog };

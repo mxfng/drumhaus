@@ -3,5 +3,5 @@ build
 coverage
 
 # Auto-generated files:
-apps/drumhaus/public/waveforms
+public/waveforms
 pnpm-lock.yaml
