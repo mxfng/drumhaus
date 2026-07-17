@@ -47,6 +47,10 @@ export default defineConfig({
   ],
   webServer: {
     command: process.env.CI ? preview : `pnpm build && ${preview}`,
+    // The suite covers LINK (link.spec), which ships dark: the local build
+    // here needs the flag; in CI the workflow rebuilds with it before this
+    // suite runs.
+    env: { VITE_ENABLE_LINK: "true" },
     port,
     reuseExistingServer: false,
     timeout: 180_000,

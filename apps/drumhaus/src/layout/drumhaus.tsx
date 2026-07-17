@@ -21,7 +21,8 @@ const Drumhaus = () => {
       }}
     >
       <FloatingMenu />
-      <LinkControl />
+      {/* LINK ships dark: build-time flag, so off means fully absent. */}
+      {__ENABLE_LINK__ && <LinkControl />}
       <div
         className="drumhaus-scale-wrapper"
         style={{

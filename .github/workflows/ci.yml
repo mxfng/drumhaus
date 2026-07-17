@@ -46,8 +46,20 @@ jobs:
       - name: Build project
         run: pnpm build
 
+      - name: Verify default build ships without LINK
+        # LINK ships dark: a build without VITE_ENABLE_LINK must exclude the
+        # session code path entirely (the wire key only exists inside it).
+        run: |
+          if grep -rq "haus:conductor" apps/drumhaus/dist/assets; then
+            echo "LINK code path leaked into a default (flag-off) build"
+            exit 1
+          fi
+
       - name: Lightshow cold-load smoke check
         run: pnpm smoke:lightshow
+
+      - name: Rebuild drumhaus with LINK for E2E
+        run: VITE_ENABLE_LINK=true pnpm --filter drumhaus build
 
       - name: Run E2E tests
         run: pnpm test:e2e
