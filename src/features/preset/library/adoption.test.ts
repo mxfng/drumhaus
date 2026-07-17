@@ -16,7 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
 import { buildDenseSharePreset } from "@/features/preset/lib/serialization/__fixtures__/dense-preset";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type { PresetFileV1 } from "@/features/preset/types/legacy-v1";
 import { adoptLegacyPresetLibrary, LIBRARY_BACKUP_KEY } from "./adoption";
 import {
   hydrateLibrarySync,

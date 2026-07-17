@@ -250,7 +250,7 @@ function scheduleVoice(
 
   // Check for flam: trigger grace note before main hit.
   // flams/ratchets are non-optional on the Pattern type and backfilled for
-  // legacy data by features/sequencer/lib/migrations.ts (migrateStepSequence);
+  // legacy data by preset/document/legacy-knob-migrators.ts (migrateStepSequence);
   // the optional chaining is belt-and-braces without allocating a fallback
   // array on this hot path.
   const hasFlam = variation.flams?.[step] ?? false;

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { collectStrippedKeyPaths as collectSectionStrippedKeyPaths } from "./stripped-keys";
+import { READABLE_V1_FILE_VERSIONS } from "./versions";
 
 /**
  * Zod schemas for the knob-space .dh preset file format (versions 1 and 1.5;
@@ -8,10 +9,10 @@ import { collectStrippedKeyPaths as collectSectionStrippedKeyPaths } from "./str
  * reinterpretation handled by migratePresetFileVersion).
  *
  * Deliberately tolerant: these schemas must accept every legacy shape the
- * runtime migrators (src/features/sequencer/lib/migrations.ts) accept, so
- * value-level coercion stays in the migrators and the schema only rejects
- * inputs that would crash loadPreset today. Tightening a field here is a
- * behavior change and needs a fixture proving no in-the-wild file relied
+ * runtime migrators (src/features/preset/document/legacy-knob-migrators.ts)
+ * accept, so value-level coercion stays in the migrators and the schema only
+ * rejects inputs that would crash loadPreset today. Tightening a field here is
+ * a behavior change and needs a fixture proving no in-the-wild file relied
  * on the old leniency.
  */
 
@@ -91,7 +92,7 @@ const sequencerSchema = z.object({
 
 const presetFileV1Schema = z.object({
   kind: z.literal("drumhaus.preset"),
-  version: z.union([z.literal(1), z.literal(1.5)]),
+  version: z.literal(READABLE_V1_FILE_VERSIONS),
   meta: metaSchema,
   kit: kitSchema,
   transport: transportSchema,

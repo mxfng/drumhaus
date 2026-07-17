@@ -7,7 +7,6 @@ import {
   sanitizeChain,
   VariationId,
 } from "@/core/audio/engine/pattern-types";
-import { VariationCycle } from "../types/sequencer";
 
 function appendChainDraftStep(
   chainDraft: PatternChain,
@@ -40,53 +39,4 @@ function appendChainDraftStep(
   );
 }
 
-function legacyCycleToChain(
-  variationCycle: VariationCycle | undefined,
-  fallbackVariation: number,
-): {
-  chain: PatternChain;
-  chainEnabled: boolean;
-  variation: VariationId;
-} {
-  const baseVariation = clampVariationId(fallbackVariation);
-
-  switch (variationCycle) {
-    case "B":
-      return {
-        chain: { steps: [{ variation: 1, repeats: 1 }] },
-        chainEnabled: false,
-        variation: 1,
-      };
-    case "AB":
-      return {
-        chain: {
-          steps: [
-            { variation: 0, repeats: 1 },
-            { variation: 1, repeats: 1 },
-          ],
-        },
-        chainEnabled: true,
-        variation: baseVariation,
-      };
-    case "AAAB":
-      return {
-        chain: {
-          steps: [
-            { variation: 0, repeats: 3 },
-            { variation: 1, repeats: 1 },
-          ],
-        },
-        chainEnabled: true,
-        variation: baseVariation,
-      };
-    case "A":
-    default:
-      return {
-        chain: { steps: [{ variation: baseVariation, repeats: 1 }] },
-        chainEnabled: false,
-        variation: baseVariation,
-      };
-  }
-}
-
-export { appendChainDraftStep, legacyCycleToChain };
+export { appendChainDraftStep };

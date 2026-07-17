@@ -1,3 +1,12 @@
+/**
+ * Legacy-read island: the runtime migrators for the knob-space v1 `.dh` file
+ * family (docs/preset-versioning.md section 4). They rewrite 0-100 knob-space
+ * v1 data only; nothing born after the canonical flip is a caller. Relocated
+ * out of features/sequencer/lib/migrations.ts so the innocuous name can no
+ * longer be mistaken for "the sequencer's migrations" and the module sits
+ * physically inside the island.
+ */
+
 import { STEP_COUNT } from "@/core/audio/engine/constants";
 import {
   Pattern,
@@ -11,9 +20,8 @@ import type {
 } from "@/features/preset/types/legacy-v1";
 import { clampNudge } from "@/features/sequencer/lib/timing";
 
-// Legacy-read island: these migrators rewrite 0-100 knob-space v1 data only
-// (docs/data-representation.md). The knob defaults below are frozen at the v1
-// values; they are NOT the app's live defaults (which are canonical now).
+// The knob defaults below are frozen at the v1 values; they are NOT the app's
+// live defaults (which are canonical now).
 const LEGACY_MASTER_FILTER_DEFAULT = 50;
 const LEGACY_MASTER_SATURATION_DEFAULT = 0;
 const LEGACY_MASTER_COMP_DEFAULT_ATTACK = 50;

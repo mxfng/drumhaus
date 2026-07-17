@@ -1,19 +1,19 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
-import {
-  migrateInstruments,
-  migrateMasterChainParams,
-  migratePattern,
-} from "@/features/sequencer/lib/migrations";
+import type { PresetFileV1 } from "@/features/preset/types/legacy-v1";
 import { decodePresetObject } from "./decode";
 import {
   CorruptFieldError,
   InvalidFileError,
   UnsupportedVersionError,
 } from "./errors";
+import { legacyCycleToChain } from "./legacy-cycle-to-chain";
+import {
+  migrateInstruments,
+  migrateMasterChainParams,
+  migratePattern,
+} from "./legacy-knob-migrators";
 import { parsePresetFileV1 } from "./parse";
 
 function readFixture(name: string): string {

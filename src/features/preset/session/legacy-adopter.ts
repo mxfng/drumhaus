@@ -39,18 +39,18 @@ import {
 } from "@/core/audio/engine/pattern-types";
 import { init } from "@/core/dh";
 import { loadKit } from "@/core/dhkit";
-import { PRESET_FILE_VERSION } from "@/features/preset/document";
+import { legacyCycleToChain } from "@/features/preset/document/legacy-cycle-to-chain";
+import { migratePatternUnsafe } from "@/features/preset/document/legacy-knob-migrators";
+import { migrateLegacySwingKnob } from "@/features/preset/document/legacy-swing";
+import { PRESET_FILE_VERSION } from "@/features/preset/document/versions";
 import type {
   LegacyKnobInstrumentData,
   LegacyKnobInstrumentParams,
   LegacyKnobMasterChainParams,
+  LegacyVariationCycle,
+  PresetFileV1,
 } from "@/features/preset/types/legacy-v1";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
-import { migratePatternUnsafe } from "@/features/sequencer/lib/migrations";
-import type { VariationCycle } from "@/features/sequencer/types/sequencer";
-import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
 import { getCapturedLegacyPresetMeta } from "./legacy-preset-meta-capture";
 
 const LEGACY_INSTRUMENTS_STORAGE_KEY = "drumhaus-instruments-storage";
@@ -273,7 +273,7 @@ function replaySequencerEnvelope(
     variation: number;
     chain: PatternChain;
     chainEnabled: boolean;
-    variationCycle: VariationCycle;
+    variationCycle: LegacyVariationCycle;
   }>;
 
   const pattern = migratePatternUnsafe(state.pattern ?? createEmptyPattern());

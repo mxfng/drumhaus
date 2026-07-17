@@ -1,19 +1,9 @@
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { migrateLegacySwingKnob } from "@/features/transport/lib/legacy-swing";
-
-/**
- * Current version of the knob-space .dh preset file format.
- *
- * v1 and v1.5 share the exact same shape; the bump marks the #269 swing
- * retune, which reinterpreted the persisted 0-100 swing knob value (old
- * curve: Tone swing = knob / 200; new curve: knob * 0.00375). The bump is
- * fractional so version 2 stays reserved for the domain-unit preset document
- * (docs/preset-persistence.md, src/features/preset/document/document.ts).
- */
-const PRESET_FILE_VERSION = 1.5;
+import type { PresetFileV1 } from "@/features/preset/types/legacy-v1";
+import { migrateLegacySwingKnob } from "./legacy-swing";
+import { PRESET_FILE_VERSION, READABLE_V1_FILE_VERSIONS } from "./versions";
 
 function isReadablePresetFileVersion(version: unknown): boolean {
-  return version === 1 || version === PRESET_FILE_VERSION;
+  return (READABLE_V1_FILE_VERSIONS as readonly unknown[]).includes(version);
 }
 
 /**
@@ -40,8 +30,4 @@ function migratePresetFileVersion(preset: PresetFileV1): PresetFileV1 {
   };
 }
 
-export {
-  PRESET_FILE_VERSION,
-  isReadablePresetFileVersion,
-  migratePresetFileVersion,
-};
+export { isReadablePresetFileVersion, migratePresetFileVersion };

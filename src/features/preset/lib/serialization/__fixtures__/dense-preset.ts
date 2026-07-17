@@ -1,5 +1,5 @@
 import { loadKit } from "@/core/dhkit";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type { PresetFileV1 } from "@/features/preset/types/legacy-v1";
 import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 
 /**
