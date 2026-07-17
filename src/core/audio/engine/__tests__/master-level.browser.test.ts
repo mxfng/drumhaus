@@ -1,11 +1,22 @@
 /**
  * Browser tests for the master output level tap (issue #268).
  *
- * Live meters read silence in this headless harness (see the note in
- * kit-swap-chain.browser.test.ts), so loudness itself is not asserted.
- * These tests pin the tap's contract instead: silence reporting, lazy
- * creation before init, and staying functional across rebuild(), which
- * exercises the doInit reattachment path.
+ * These tests pin the tap's contract: silence reporting, lazy creation
+ * before init, and staying functional across rebuild(), which exercises
+ * the doInit reattachment path.
+ *
+ * HARNESS NOTE (issue #348): loudness itself is deliberately not asserted
+ * in vitest browser mode. The taps DO read real loudness under automation
+ * once the live graph is initialized (initLiveGraph) and the pattern has
+ * hits - the old belief that they cannot was a harness gap (no
+ * engine.init(), so channels fed nothing). But this suite runs every
+ * browser test file against ONE shared chromium, and on CI runners a
+ * realtime context created mid-run intermittently renders silent (context
+ * "running", clock advancing, rendered output all zeros) depending on
+ * which files ran before it - an audio-stack limitation of the shared
+ * browser, not an engine defect. Loudness is therefore asserted in the
+ * Playwright e2e suite instead (night-visualizer.spec.ts), where each
+ * test gets a fresh page with a single AudioContext.
  */
 
 import { describe, expect, it } from "vitest";
