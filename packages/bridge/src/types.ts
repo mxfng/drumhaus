@@ -44,7 +44,7 @@ const DEFAULT_BPM = 120;
 type SceneId = 0 | 1 | 2 | 3;
 
 /** Identity of one session participant (one instrument in one tab). */
-interface HausPeer {
+interface Peer {
   /** Random per-session-instance id (crypto.randomUUID). */
   id: string;
   /** Instrument name, e.g. "drumhaus". */
@@ -103,13 +103,13 @@ interface StateMessage extends EnvelopeBase {
 /** Any peer: announce joining; triggers heartbeat and state replies. */
 interface HelloMessage extends EnvelopeBase {
   type: "hello";
-  peer: HausPeer;
+  peer: Peer;
 }
 
 /** Any peer: periodic liveness, carrying the peer descriptor. */
 interface HeartbeatMessage extends EnvelopeBase {
   type: "heartbeat";
-  peer: HausPeer;
+  peer: Peer;
 }
 
 /** Any peer: leaving cleanly. */
@@ -136,7 +136,7 @@ function isSceneId(value: unknown): value is SceneId {
   return value === 0 || value === 1 || value === 2 || value === 3;
 }
 
-function isHausPeer(value: unknown): value is HausPeer {
+function isPeer(value: unknown): value is Peer {
   if (!isRecord(value)) return false;
   if (typeof value.id !== "string" || value.id.length === 0) return false;
   if (typeof value.instrument !== "string") return false;
@@ -192,7 +192,7 @@ function parseBridgeMessage(data: unknown): BridgeMessage | null {
   switch (data.type) {
     case "hello":
     case "heartbeat":
-      if (!isHausPeer(data.peer) || data.peer.id !== data.from) return null;
+      if (!isPeer(data.peer) || data.peer.id !== data.from) return null;
       return data as unknown as HelloMessage | HeartbeatMessage;
     case "goodbye":
       return data as unknown as GoodbyeMessage;
@@ -223,7 +223,7 @@ export {
 export type {
   BridgeMessage,
   GoodbyeMessage,
-  HausPeer,
+  Peer,
   HeartbeatMessage,
   HelloMessage,
   IntentMessage,

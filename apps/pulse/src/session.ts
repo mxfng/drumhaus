@@ -2,7 +2,7 @@
  * Pulse's session hookup: how an instrument integrates @haus/bridge.
  *
  * Pulse is always linked - that is its purpose - so this wraps one
- * createHausSession instance in exactly the surface the UI needs: a snapshot
+ * createSession instance in exactly the surface the UI needs: a snapshot
  * getter per value plus a single change signal (the useSyncExternalStore
  * contract), and the four session commands.
  *
@@ -18,7 +18,7 @@
  */
 
 import {
-  createHausSession,
+  createSession,
   epochNowMs,
   rebaseTempo,
   START_LEAD_MS,
@@ -46,7 +46,7 @@ interface PulseSession {
 }
 
 function createPulseSession(): PulseSession {
-  const session = createHausSession({ instrument: "pulse" });
+  const session = createSession({ instrument: "pulse" });
 
   /** True once a conductor exists: us, or one whose state we have seen. */
   let ready = false;

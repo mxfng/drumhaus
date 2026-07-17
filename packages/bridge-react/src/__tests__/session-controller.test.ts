@@ -7,15 +7,15 @@
  */
 
 import {
-  createHausSession,
+  createSession,
   DEFAULT_BPM,
   LOCK_NAME,
   memoryHub,
   START_LEAD_MS,
   type BridgeMessage,
   type BridgeTransport,
-  type HausLockManager,
-  type HausSession,
+  type LockManager,
+  type Session,
 } from "@haus/bridge";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -28,20 +28,20 @@ import { flushMicrotasks, memoryLocks } from "./helpers/memory-locks";
 interface Rig {
   nowMs: { value: number };
   controller: SessionController;
-  session: HausSession;
-  createPeer(instrument?: string): HausSession;
+  session: Session;
+  createPeer(instrument?: string): Session;
   createWire(): BridgeTransport;
-  locks: HausLockManager;
+  locks: LockManager;
 }
 
 const cleanups: (() => void)[] = [];
 
-function createRig(locks: HausLockManager = memoryLocks()): Rig {
+function createRig(locks: LockManager = memoryLocks()): Rig {
   const hub = memoryHub();
   const nowMs = { value: 1_000_000 };
   const now = () => nowMs.value;
 
-  const session = createHausSession({
+  const session = createSession({
     instrument: "test",
     transport: hub.createTransport(),
     locks,
@@ -55,7 +55,7 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
     controller,
     session,
     createPeer(instrument = "peer") {
-      const peer = createHausSession({
+      const peer = createSession({
         instrument,
         transport: hub.createTransport(),
         locks,
@@ -70,7 +70,7 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
 }
 
 /** Hold the conductor lock externally; returns the release function. */
-async function blockConductorLock(locks: HausLockManager): Promise<() => void> {
+async function blockConductorLock(locks: LockManager): Promise<() => void> {
   let release!: () => void;
   void locks.request(
     LOCK_NAME,

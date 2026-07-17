@@ -16,7 +16,7 @@ import { epochNowMs, rebaseTempo } from "./clock";
 import {
   createConductorElection,
   type ConductorElection,
-  type HausLockManager,
+  type LockManager,
 } from "./election";
 import { broadcastChannelTransport, type BridgeTransport } from "./transport";
 import {
@@ -27,13 +27,13 @@ import {
   PEER_TIMEOUT_MS,
   PROTOCOL_VERSION,
   START_LEAD_MS,
-  type HausPeer,
+  type Peer,
   type SceneId,
   type SessionIntent,
   type SessionState,
 } from "./types";
 
-interface CreateHausSessionOptions {
+interface CreateSessionOptions {
   /** Instrument name announced to peers, e.g. "drumhaus". */
   instrument: string;
   /** Optional human-facing label to distinguish multiple instances. */
@@ -43,14 +43,14 @@ interface CreateHausSessionOptions {
   /** Epoch clock; defaults to epochNowMs. */
   now?: () => number;
   /** Lock manager for conductor election; defaults to navigator.locks. */
-  locks?: HausLockManager;
+  locks?: LockManager;
 }
 
-interface HausSession {
+interface Session {
   /** Current session state (immutable snapshot; never mutated in place). */
   readonly state: SessionState;
   /** Other currently-known peers (self excluded). */
-  readonly peers: HausPeer[];
+  readonly peers: Peer[];
   /** Whether this instance currently holds conductorship. */
   readonly isConductor: boolean;
   /** Join the shared session. Idempotent. */
@@ -66,7 +66,7 @@ interface HausSession {
   /** Request a scene change (0-3). */
   setScene(scene: SceneId): void;
   onStateChange(fn: (state: SessionState) => void): () => void;
-  onPeersChange(fn: (peers: HausPeer[]) => void): () => void;
+  onPeersChange(fn: (peers: Peer[]) => void): () => void;
   onConductorChange(fn: (isConductor: boolean) => void): () => void;
 }
 
@@ -107,8 +107,8 @@ function reduceIntent(
 type OutgoingBody =
   | { type: "intent"; intent: SessionIntent }
   | { type: "state"; state: SessionState }
-  | { type: "hello"; peer: HausPeer }
-  | { type: "heartbeat"; peer: HausPeer }
+  | { type: "hello"; peer: Peer }
+  | { type: "heartbeat"; peer: Peer }
   | { type: "goodbye" };
 
 function statesEqual(a: SessionState, b: SessionState): boolean {
@@ -121,10 +121,10 @@ function statesEqual(a: SessionState, b: SessionState): boolean {
   );
 }
 
-function createHausSession(options: CreateHausSessionOptions): HausSession {
+function createSession(options: CreateSessionOptions): Session {
   const now = options.now ?? epochNowMs;
   const id = crypto.randomUUID();
-  const self: HausPeer = {
+  const self: Peer = {
     id,
     instrument: options.instrument,
     ...(options.label !== undefined ? { label: options.label } : {}),
@@ -138,9 +138,9 @@ function createHausSession(options: CreateHausSessionOptions): HausSession {
     scene: 0,
   };
 
-  const peerEntries = new Map<string, { peer: HausPeer; lastSeenMs: number }>();
+  const peerEntries = new Map<string, { peer: Peer; lastSeenMs: number }>();
   const stateListeners = new Set<(state: SessionState) => void>();
-  const peersListeners = new Set<(peers: HausPeer[]) => void>();
+  const peersListeners = new Set<(peers: Peer[]) => void>();
   const conductorListeners = new Set<(isConductor: boolean) => void>();
 
   let connected = false;
@@ -161,7 +161,7 @@ function createHausSession(options: CreateHausSessionOptions): HausSession {
     };
   }
 
-  function peersSnapshot(): HausPeer[] {
+  function peersSnapshot(): Peer[] {
     return [...peerEntries.values()].map((entry) => entry.peer);
   }
 
@@ -206,7 +206,7 @@ function createHausSession(options: CreateHausSessionOptions): HausSession {
     if (conductor) broadcastState();
   }
 
-  function upsertPeer(peer: HausPeer): void {
+  function upsertPeer(peer: Peer): void {
     const existing = peerEntries.get(peer.id);
     peerEntries.set(peer.id, { peer, lastSeenMs: now() });
     if (
@@ -332,5 +332,5 @@ function createHausSession(options: CreateHausSessionOptions): HausSession {
   };
 }
 
-export { createHausSession, reduceIntent };
-export type { CreateHausSessionOptions, HausSession };
+export { createSession, reduceIntent };
+export type { CreateSessionOptions, Session };

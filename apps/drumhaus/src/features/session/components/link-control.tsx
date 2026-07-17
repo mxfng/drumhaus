@@ -4,7 +4,7 @@ import { getSessionAdapter } from "@/core/session/session-adapter";
 import { cn } from "@/shared/lib/utils";
 
 /**
- * The floating LINK control: opt this tab into the shared haus session
+ * The floating LINK control: opt this tab into the shared session
  * (#417). Lives on the window edge in the floating-menu family - never on
  * the hardware chassis - fixed next to the menu button with the same
  * circular, bordered, backdrop-blurred idiom. Filled while linked, with

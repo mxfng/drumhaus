@@ -4,7 +4,7 @@
  */
 
 import { StrictMode } from "react";
-import { createHausSession, memoryHub, type HausSession } from "@haus/bridge";
+import { createSession, memoryHub, type Session } from "@haus/bridge";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -13,8 +13,8 @@ import { useSession } from "../use-session";
 import { memoryLocks } from "./helpers/memory-locks";
 
 interface Harness {
-  session: HausSession;
-  peer: HausSession;
+  session: Session;
+  peer: Session;
   container: HTMLElement;
   root: Root;
 }
@@ -24,12 +24,12 @@ const harnesses: Harness[] = [];
 function renderHarness(): Harness {
   const hub = memoryHub();
   const locks = memoryLocks();
-  const session = createHausSession({
+  const session = createSession({
     instrument: "test",
     transport: hub.createTransport(),
     locks,
   });
-  const peer = createHausSession({
+  const peer = createSession({
     instrument: "peer",
     transport: hub.createTransport(),
     locks,

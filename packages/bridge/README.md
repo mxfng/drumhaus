@@ -1,6 +1,6 @@
 # @haus/bridge
 
-Serverless cross-instrument session sync for the haus family.
+Serverless cross-instrument session sync for the instrument family.
 A framework-free, zero-runtime-dependency TypeScript library that lets multiple browser instruments open on the same origin share a musical session: tempo, transport, and scene.
 This README is the protocol's document of record (protocol v1).
 
@@ -11,9 +11,9 @@ One tab, elected via the Web Locks API, is the conductor and owns the session st
 The session's musical grid is fully determined by `(startEpochMs, bpm)`: no position or phase messages exist, every tab derives the grid deterministically from the shared epoch clock and self-corrects locally.
 
 ```ts
-import { createHausSession, epochToContextTime } from "@haus/bridge";
+import { createSession, epochToContextTime } from "@haus/bridge";
 
-const session = createHausSession({ instrument: "drumhaus" });
+const session = createSession({ instrument: "drumhaus" });
 session.connect();
 
 session.onStateChange((state) => {
@@ -167,9 +167,9 @@ These are design decisions, not omissions:
 | `clock.ts`     | pure grid math, tempo rebase, epoch and AudioContext time mapping              |
 | `transport.ts` | the `BridgeTransport` seam: `broadcastChannelTransport`, `memoryHub` for tests |
 | `election.ts`  | conductor election over Web Locks                                              |
-| `session.ts`   | `createHausSession`, the facade wiring all of the above together               |
+| `session.ts`   | `createSession`, the facade wiring all of the above together                   |
 
-`createHausSession({ instrument, label?, transport?, now?, locks? })` accepts injectable transport, clock, and locks, so the whole session is deterministic under test; the defaults are the real `BroadcastChannel`, `epochNowMs`, and `navigator.locks`.
+`createSession({ instrument, label?, transport?, now?, locks? })` accepts injectable transport, clock, and locks, so the whole session is deterministic under test; the defaults are the real `BroadcastChannel`, `epochNowMs`, and `navigator.locks`.
 
 ## Testing
 

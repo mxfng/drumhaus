@@ -21,7 +21,7 @@ import { LOCK_NAME } from "./types";
  * The subset of navigator.locks the election needs; injectable for
  * deterministic tests and for lock-name scoping.
  */
-interface HausLockManager {
+interface LockManager {
   request(
     name: string,
     options: { signal?: AbortSignal },
@@ -35,7 +35,7 @@ interface ConductorElectionOptions {
   /** Lock name; defaults to LOCK_NAME. */
   name?: string;
   /** Lock manager; defaults to navigator.locks (with the fallback above). */
-  locks?: HausLockManager;
+  locks?: LockManager;
 }
 
 interface ConductorElection {
@@ -49,7 +49,7 @@ interface ConductorElection {
 }
 
 /** Immediate-grant stand-in for environments without Web Locks. */
-function soloLocks(): HausLockManager {
+function soloLocks(): LockManager {
   return {
     async request(_name, _options, callback) {
       return await callback();
@@ -57,7 +57,7 @@ function soloLocks(): HausLockManager {
   };
 }
 
-function defaultLocks(): HausLockManager {
+function defaultLocks(): LockManager {
   const locks = globalThis.navigator?.locks;
   return locks ?? soloLocks();
 }
@@ -102,4 +102,4 @@ function createConductorElection(
 }
 
 export { createConductorElection };
-export type { ConductorElection, ConductorElectionOptions, HausLockManager };
+export type { ConductorElection, ConductorElectionOptions, LockManager };
