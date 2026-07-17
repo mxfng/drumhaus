@@ -176,7 +176,10 @@ describe("session in a real browser", () => {
     const b2 = beatMs(after.bpm);
     const s1 = before.startEpochMs!;
     const s2 = after.startEpochMs!;
-    const decisionInstant = (s1 * b2 - s2 * b1) / (b2 - b1);
+    // Stable form of (s1 * b2 - s2 * b1) / (b2 - b1): the raw products are
+    // ~5e14 (epoch ms times beat ms), where double cancellation costs ~2e-3ms
+    // and pushes the beat comparison below past its 1e-6 tolerance.
+    const decisionInstant = s1 - (b1 * (s2 - s1)) / (b2 - b1);
     expect(decisionInstant).toBeGreaterThanOrEqual(tBefore - 10);
     expect(decisionInstant).toBeLessThanOrEqual(tAfter + 10);
     expect(beatsAt(after, decisionInstant)!).toBeCloseTo(

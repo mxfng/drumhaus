@@ -1,3 +1,11 @@
+/**
+ * Shared Fonts
+ *
+ * Albert Sans Variable (sans) and Fusion Pixel 12px Monospaced SC (pixel).
+ */
+
+@import "@fontsource-variable/albert-sans";
+
 /* fusion-pixel-12px-monospaced-sc-latin-400-normal */
 /* woff2 only - saves 1.4 MB by dropping .woff fallback */
 @font-face {
@@ -5,6 +13,6 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url("./fusion-pixel-12px-monospaced-sc-latin-400-normal.woff2")
+  src: url("./fonts/fusion-pixel-12px-monospaced-sc-latin-400-normal.woff2")
     format("woff2");
 }

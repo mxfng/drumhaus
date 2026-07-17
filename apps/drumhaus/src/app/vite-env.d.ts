@@ -7,10 +7,6 @@ declare const __NODE_VERSION__: string;
 // LINK feature flag: on in dev, opt-in per build via VITE_ENABLE_LINK
 declare const __ENABLE_LINK__: boolean;
 
-// Side-effect imports for non-standard packages
-// e.g. main is a CSS file (no .ts/.js.d.ts entry)
-declare module "@fontsource-variable/*";
-
 // Custom file type declarations
 declare module "*.dhkit" {
   const content: import("@/features/kit/types/kit").KitFile;

@@ -10,13 +10,14 @@
 @import "tw-animate-css";
 
 /* ==================== Theme & Configuration ==================== */
+@import "@haus/tokens/theme.css";
 @import "./styles/theme.css";
 
 /* ==================== Base Styles ==================== */
 @import "./styles/base.css";
 
 /* ==================== Utilities ==================== */
-@import "./styles/utilities.css";
+@import "@haus/tokens/utilities.css";
 
 /* ==================== Layout ==================== */
 @import "./styles/layout.css";
