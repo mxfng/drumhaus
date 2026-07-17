@@ -23,13 +23,6 @@
     /* Resolution */
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
-    /* Paths */
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src", "vite.config.ts", "dh-files-plugin.ts"],
-  "exclude": ["node_modules"]
+    "allowSyntheticDefaultImports": true
+  }
 }
