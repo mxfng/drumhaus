@@ -158,8 +158,8 @@ test.describe("legacy session adoption", () => {
     // and pin the user-visible MPC swing display.
     const swingControl = page.getByRole("slider", { name: "swing" });
     await expect(swingControl).toHaveText(/swing\s+60/);
-    const swingKnobValue = await swingControl.getAttribute("aria-valuenow");
-    expect(Number(swingKnobValue)).toBeCloseTo(0.3, 9);
+    const swingValue = await swingControl.getAttribute("aria-valuenow");
+    expect(Number(swingValue)).toBeCloseTo(0.3, 9);
 
     // Storage after adoption: one session document, the four retired keys
     // deleted (only after the write landed). The legacy preset-meta key is

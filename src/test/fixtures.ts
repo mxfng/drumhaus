@@ -4,17 +4,17 @@
  */
 
 import type { InstrumentRole } from "@/core/audio/engine/instrument/types";
-import type {
-  Pattern,
-  TimingNudge,
-  VariationId,
+import {
+  createEmptyPattern,
+  type Pattern,
+  type TimingNudge,
+  type VariationId,
 } from "@/core/audio/engine/pattern-types";
 import { encodeWav } from "@/core/audio/export/wav-encoder";
 import type {
   InstrumentData,
   InstrumentParams,
 } from "@/features/instrument/types/instrument";
-import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 
 const FIXTURE_SAMPLE_RATE = 44100;
 

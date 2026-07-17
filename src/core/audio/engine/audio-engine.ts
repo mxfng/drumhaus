@@ -112,14 +112,15 @@ interface PlaybackConfig {
 
 /**
  * Read-only transport/context diagnostics for debug displays and the
- * context guards: transport state, the context clock, and the resume
- * guard's context health, in one snapshot.
+ * context guards: transport state, the context clock, the resume guard's
+ * context health, and the context's sample rate, in one snapshot.
  */
 interface EngineDiagnostics {
   transportState: string;
   transportPosition: string;
   contextTime: number;
   contextHealth: AudioContextHealth;
+  sampleRate: number;
 }
 
 /**
@@ -223,7 +224,7 @@ class AudioEngine {
   private anySolos = false;
   private masterSettings: MasterChainSettings | null = null;
   private bpm = 120;
-  /** Transport swing in Tone units (0-TRANSPORT_SWING_MAX); the bridge converts from knobs. */
+  /** Transport swing in Tone units (0-TRANSPORT_SWING_MAX); canonical end to end, the store calls setSwing directly. */
   private swing = 0;
 
   // --- Lifecycle & playback state ---
@@ -748,8 +749,8 @@ class AudioEngine {
 
   /**
    * Sets the transport swing in DOMAIN units, clamped to the valid Tone
-   * swing range [0, TRANSPORT_SWING_MAX]; the bridge converts from the
-   * 0-100 knob value.
+   * swing range [0, TRANSPORT_SWING_MAX]. Swing is canonical end to end;
+   * the store calls setSwing directly with no knob conversion.
    */
   setSwing(swing: number): void {
     const clamped = Math.max(0, Math.min(TRANSPORT_SWING_MAX, swing));
@@ -935,6 +936,9 @@ class AudioEngine {
       transportPosition: transport.position.toString(),
       contextTime: getContext().currentTime,
       contextHealth: getAudioContextHealth(),
+      // Sourced from the transport's own context reference (stable for the
+      // context's lifetime), not a fresh ambient getContext() call.
+      sampleRate: transport.context.sampleRate,
     };
   }
 

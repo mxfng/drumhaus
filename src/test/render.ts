@@ -34,13 +34,6 @@ import type {
 import type { InstrumentData } from "@/features/instrument/types/instrument";
 
 /**
- * Historical extra render time after the last bar. Kept exported for
- * interface stability: renders go through engine.renderWav with
- * includeTail=false, so buffers end exactly on the bar line.
- */
-const RENDER_TAIL_SECONDS = 0.3;
-
-/**
  * Neutral canonical master chain: filter fully open (high-pass at 0 Hz), all
  * sends off, compressor threshold fully open (0 dB), unity volume (0 dB).
  *
@@ -184,10 +177,5 @@ async function renderFixture(opts: RenderFixtureOptions): Promise<AudioBuffer> {
   }
 }
 
-export {
-  createFixtureEngine,
-  renderFixture,
-  DEFAULT_MASTER_PARAMS,
-  RENDER_TAIL_SECONDS,
-};
+export { createFixtureEngine, renderFixture, DEFAULT_MASTER_PARAMS };
 export type { RenderFixtureOptions };

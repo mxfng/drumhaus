@@ -11,11 +11,6 @@ import FrequencyAnalyzer from "@/shared/components/frequency-analyzer";
 import { LogoSweep } from "@/shared/components/logo-sweep";
 import { ScreenFlashOverlay } from "@/shared/components/screen-flash-overlay";
 
-/*
-TODO: Add remaining features
-
-- Dynamic screen right column changes based on current mode (pattern, groove, etc.)
- */
 function Screen() {
   const mode = usePatternStore((state) => state.mode);
 

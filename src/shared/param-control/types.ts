@@ -84,7 +84,7 @@ interface ParamDescriptor<T = number> {
  * These are declared so the presentation can grow into them without reworking
  * the primitive. They are intentionally NOT implemented yet.
  */
-interface RotaryKnobFutureSeams {
+interface ParamControlFutureSeams {
   /**
    * FUTURE: a modulation-range arc, rendered decoupled from the value
    * indicator so it can layer in later. Not rendered.
@@ -101,4 +101,4 @@ interface RotaryKnobFutureSeams {
   onContextMenuRequest?: () => void;
 }
 
-export type { Taper, Detent, ParamDescriptor, RotaryKnobFutureSeams };
+export type { Taper, Detent, ParamDescriptor, ParamControlFutureSeams };

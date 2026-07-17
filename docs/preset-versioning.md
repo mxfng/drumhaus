@@ -24,13 +24,13 @@ The rest of this doc is about namespaces 1 and 2.
 
 Document versions (the `version` field of a `.dh` file / `PresetDocument`):
 
-| version       | shape                             | readable | writable | notes                                                                                             |
-| ------------- | --------------------------------- | -------- | -------- | ------------------------------------------------------------------------------------------------- |
-| 1             | knob-space file (0-100 positions) | yes      | no       | legacy `.dh`; migrates 1 -> 1.5 swing on read (`migrate.ts`), then 1.x -> 2.1 (`migrate-v1.ts`)   |
-| 1.5           | knob-space file                   | yes      | no       | #269 swing retune; identical shape to v1                                                          |
-| 2             | first domain document             | yes      | no       | domain-space except the split filter, still a 0-100 position; migrates 2 -> 2.1 (`migrate-v2.ts`) |
-| 2.1           | canonical domain document         | yes      | yes      | current; split filter is canonical `{ side, cutoffHz }`; the only writable version                |
-| anything else | -                                 | no       | no       | hard-refused with `UnsupportedVersionError` (decision 2)                                          |
+| version       | shape                             | readable | writable | notes                                                                                                       |
+| ------------- | --------------------------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| 1             | knob-space file (0-100 positions) | yes      | no       | legacy `.dh`; migrates 1 -> 1.5 swing on read (`legacy-file-version.ts`), then 1.x -> 2.1 (`migrate-v1.ts`) |
+| 1.5           | knob-space file                   | yes      | no       | #269 swing retune; identical shape to v1                                                                    |
+| 2             | first domain document             | yes      | no       | domain-space except the split filter, still a 0-100 position; migrates 2 -> 2.1 (`migrate-v2.ts`)           |
+| 2.1           | canonical domain document         | yes      | yes      | current; split filter is canonical `{ side, cutoffHz }`; the only writable version                          |
+| anything else | -                                 | no       | no       | hard-refused with `UnsupportedVersionError` (decision 2)                                                    |
 
 Compact share-codec versions (the `v` field of a `?p=` payload; a separate namespace).
 Unlike documents, share links are latest-only: exactly one codec version is readable, and it is the same version that is written.
@@ -51,7 +51,7 @@ Where each is read or written:
 - Read dispatch (documents): `decode.ts` `decodePresetObject` routes `1`/`1.5` -> `migrateV1ToDocument(validatePresetFileV1(...))`, `2` -> `migrateV2ToDocument`, `2.1` -> strict `presetDocumentSchema` parse, else `UnsupportedVersionError`.
   The version is dispatched BEFORE the strict parse so a v2 position-filter can never be mis-read as a v2.1 canonical filter.
 - Read dispatch (shares): `serialization/index.ts` `urlToDocument` routes `v === COMPACT_CODEC_VERSION` -> `decodeCompactDocument` and refuses every other `v` with `UnsupportedVersionError` (latest-only, #373); there is no legacy share branch.
-- v1-family reader: `parse.ts` + `file-v1.ts` (tolerant schema) + `migrate.ts` (`isReadablePresetFileVersion`, `migratePresetFileVersion`).
+- v1-family reader: `parse.ts` + `file-v1.ts` (tolerant schema) + `legacy-file-version.ts` (`isReadablePresetFileVersion`, `migratePresetFileVersion`).
 - Write (egress), always v2.1: `snapshot.ts` and `encode.ts` both stamp `PRESET_DOCUMENT_VERSION`, and `presetDocumentSchema` pins `version` to `z.literal(2.1)`; the compact encoder stamps `COMPACT_CODEC_VERSION`.
 - There is no production downgrade path: `toV1` exists only in `migrate-v1.test.ts` as a round-trip helper.
 
@@ -96,7 +96,7 @@ The boundary is physical, not a comment: every member lives under `src/features/
 Its members:
 
 - `document/migrate-v1.ts` (`frozenV1Curves`: v1 knob -> canonical) and `document/frozen-split-filter.ts` (position -> canonical), the frozen curves.
-- `document/file-v1.ts`, `document/parse.ts`, `document/migrate.ts`, the tolerant v1-family read and normalization.
+- `document/file-v1.ts`, `document/parse.ts`, `document/legacy-file-version.ts`, the tolerant v1-family read and normalization.
 - `document/legacy-knob-migrators.ts`, the runtime knob-space v1 migrators (pattern / instrument / master-chain), relocated from `features/sequencer/lib/migrations.ts` so its innocuous name can no longer be mistaken for the sequencer's own migrations (#387).
 - `document/legacy-swing.ts`, the pre-#269 swing knob migrator, relocated from `features/transport/lib/legacy-swing.ts` (#387).
 - `document/legacy-cycle-to-chain.ts`, the v1 `variationCycle` -> canonical chain conversion, extracted from `features/sequencer/lib/chain.ts` so it no longer shares a module with the live `appendChainDraftStep` (#387).
@@ -118,7 +118,7 @@ Stores, the engine, egress, and every newly written file or link are canonical o
 The frozen curves never read a live UI curve; the parity tests assert frozen equals live today, and on a deliberate retune the TEST is updated to pin the frozen values, never the frozen module.
 
 The sunset seam: the island is deletable as one unit at the moment the product accepts breaking a legacy generation.
-The v1.x sub-island (`migrate-v1.ts`, `file-v1.ts`, `parse.ts`, `migrate.ts`, `legacy-knob-migrators.ts`, `legacy-swing.ts`, `legacy-cycle-to-chain.ts`, `frozenV1Curves`, `types/legacy-v1.ts`, and the v1 fixtures) can be deleted together once no v1 / v1.5 `.dh` files need to load AND the one-time localStorage adopters have run everywhere and their legacy keys are gone.
+The v1.x sub-island (`migrate-v1.ts`, `file-v1.ts`, `parse.ts`, `legacy-file-version.ts`, `legacy-knob-migrators.ts`, `legacy-swing.ts`, `legacy-cycle-to-chain.ts`, `frozenV1Curves`, `types/legacy-v1.ts`, and the v1 fixtures) can be deleted together once no v1 / v1.5 `.dh` files need to load AND the one-time localStorage adopters have run everywhere and their legacy keys are gone.
 The share side of that seam is already cut: #373 removed the `v: 1.5` share decoder ahead of the rest, since share links are ephemeral and safe to break early.
 Deleting the remaining sub-island means removing the `1` / `1.5` rungs from `document/decode.ts`, dropping `READABLE_V1_FILE_VERSIONS` and `PRESET_FILE_VERSION` from `document/versions.ts`, deleting those modules and fixtures, and letting `decode` reject those versions with `UnsupportedVersionError`.
 `frozen-split-filter.ts` OUTLIVES the v1 sub-island because `migrate-v2.ts` also depends on it; it retires only when both v1 AND v2 documents are no longer read.
@@ -137,7 +137,7 @@ No live correctness bug was found that warranted halting the audit.
   Severity was low: the change happened inside the unreleased #357 epic across a ~1-day window, share links are ephemeral, and the failure was fail-safe.
   #373 resolved it by collapsing to a single share codec and giving its sole canonical shape a fresh, honest version (`3`): version now maps 1:1 to shape, and any `v: 2` payload (scalar or canonical) is refused uniformly with `UnsupportedVersionError` rather than decoded, so the shape collision can never resurface.
 - Readable-version literals were decentralized: issue [#380](https://github.com/mxfng/drumhaus/issues/380) - RESOLVED (folded into #387).
-  The readable-but-not-writable versions (`1`, `1.5`, `2`) once appeared as bare literals across `decode.ts` (`PRESET_DOCUMENT_VERSION_V2 = 2`), `migrate.ts`, and `file-v1.ts` rather than a single shared registry.
+  The readable-but-not-writable versions (`1`, `1.5`, `2`) once appeared as bare literals across `decode.ts` (`PRESET_DOCUMENT_VERSION_V2 = 2`), `legacy-file-version.ts`, and `file-v1.ts` rather than a single shared registry.
   This was not a correctness gap; the shared `document/versions.ts` registry now backs the decode ladder and the v1 read helpers, so the readable set lives in one self-documenting place.
 - The Versioning and Migration-path sections of docs/preset-persistence.md are a past-tense design narrative that predates the shipped outcome (no issue filed).
   They describe an integer `CURRENT_VERSION = 2` and a `MIGRATIONS[]` ladder, whereas the code shipped a fractional `2.1` and an explicit if-ladder in `decode.ts`.

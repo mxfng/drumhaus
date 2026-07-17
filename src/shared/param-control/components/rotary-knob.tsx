@@ -6,7 +6,7 @@ import { Label, Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui";
 import { useKnobGuidance } from "../hooks/use-knob-guidance";
 import { KNOB_DRAG_SENSITIVITY } from "../lib/descriptor";
 import { Knob, useKnob } from "../primitives/knob";
-import type { ParamDescriptor, RotaryKnobFutureSeams } from "../types";
+import type { ParamControlFutureSeams, ParamDescriptor } from "../types";
 import { KnobTicks } from "./knob-ticks";
 
 /** Diameter presets, matching the original hardware knob: 90px / 180px cells. */
@@ -47,7 +47,7 @@ type RotaryKnobProps<T> = {
   /** Per-instance override for the normalized drag delta per pixel. */
   dragSensitivity?: number;
   className?: string;
-} & RotaryKnobFutureSeams;
+} & ParamControlFutureSeams;
 
 /** The styling-only props threaded from `RotaryKnob` down to its body. */
 type RotaryKnobBodyProps = {

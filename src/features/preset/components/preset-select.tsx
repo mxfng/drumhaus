@@ -18,8 +18,8 @@ import {
 interface PresetSelectProps {
   selectedPresetId: string;
   // Both lists are read for identity only (meta.id/meta.name), so they take
-  // the minimal PresetListItem shape: factory presets (PresetFileV1) and
-  // library entries (PresetDocument) both satisfy it.
+  // the minimal PresetListItem shape: factory presets and library entries
+  // are both PresetDocument (2.1) values.
   defaultPresets: PresetListItem[];
   customPresets: PresetListItem[];
   onSelect: (value: string) => void;

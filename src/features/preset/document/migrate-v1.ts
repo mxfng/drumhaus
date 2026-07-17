@@ -183,8 +183,8 @@ function channelFromKnobParams(params: LegacyKnobInstrumentParams) {
 }
 
 function masterFromV1(masterChain: PresetFileV1["masterChain"]) {
-  // The declared type is knob-space MasterChainParams, but the tolerant v1
-  // schema lets legacy key sets through; inspect the raw keys.
+  // The declared type is knob-space LegacyKnobMasterChainParams, but the
+  // tolerant v1 schema lets legacy key sets through; inspect the raw keys.
   const raw = masterChain as unknown as Record<string, unknown>;
   // The earliest era (2025-11-18 to 2025-11-20) spelled the high-pass knob
   // "hiPass"; migrateMasterChainParams only ever learned "highPass", so

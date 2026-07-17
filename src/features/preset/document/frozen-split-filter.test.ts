@@ -17,6 +17,7 @@ import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import {
   FROZEN_SPLIT_FILTER_RANGE,
   frozenSplitFilterPositionToCanonical,
+  SPLIT_FILTER_MAX_CUTOFF_HZ,
 } from "./frozen-split-filter";
 
 // Local inverse of the frozen curve (the retired transform.ts
@@ -96,4 +97,10 @@ describe("frozen split-filter curve inverts through the frozen inverse", () => {
       frozenSplitFilterPositionToCanonical(100),
     );
   });
+});
+
+it("the frozen curve maximum is the HP-side overshoot of the 15 kHz range", () => {
+  // 15000 * (50/49)^2, the closed-high-pass extreme at position 100 - the
+  // same value pinned above at position 100.
+  expect(SPLIT_FILTER_MAX_CUTOFF_HZ).toBeCloseTo(15618.49, 2);
 });

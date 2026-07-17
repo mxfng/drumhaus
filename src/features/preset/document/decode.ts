@@ -11,7 +11,7 @@ import {
   PresetDocumentError,
   UnsupportedVersionError,
 } from "./errors";
-import { isReadablePresetFileVersion } from "./migrate";
+import { isReadablePresetFileVersion } from "./legacy-file-version";
 import { migrateV1ToDocument } from "./migrate-v1";
 import { migrateV2ToDocument } from "./migrate-v2";
 import { validatePresetFileV1 } from "./parse";

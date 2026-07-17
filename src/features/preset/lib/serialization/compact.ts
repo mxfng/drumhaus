@@ -72,52 +72,44 @@ const CHANNEL_COUNT = 8;
  * Per-field quantization (decimal places written to the payload).
  *
  * Requirement: decode(encode(doc)) must yield a document whose canonical
- * knob values differ from the original's by less than 0.05 knob units (half
- * the 0.1 knob display step).
+ * fields differ from the original's by no more than one quantization grid
+ * step, each measured in that field's OWN canonical unit - there is no
+ * further conversion downstream of this table.
  *
- * Derivation: quantizing to `p` decimals perturbs the domain value by at
- * most one grid step q = 10^-p (q/2 from rounding; up to q when a
- * near-default value is omitted as sparse and decodes to the default). The
- * knob error is that domain perturbation times the slope of the INVERSE
- * (domain -> knob) mapping, so each field's precision is set by the inverse
- * mapping's steepest region:
+ * Derivation: quantizing a value to `p` decimals (see `quantize` below) rounds
+ * it to the nearest multiple of q = 10^-p, so it can move the value by at
+ * most q. `sparse`/`sparseFilter` compare the quantized value against the
+ * quantized default and omit the field when they're equal, so a near-default
+ * original can also decode to the raw (unquantized) default - which, by the
+ * same equality, lands within that same q of the original. Either path is
+ * bounded by q, so p alone sets each field's worst-case round-trip error:
+ * err <= 10^-p in the field's own unit. This is exactly what
+ * `expectCanonicalRoundTrip` in url-codec.test.ts asserts.
  *
- * - Linear fields have a constant inverse slope of 100/span knob units per
- *   domain unit, so the bound is uniform: err <= q * 100 / span.
- * - Exponential fields (decay, compAttack; forward domain =
- *   min + (knob/100)^2 * span) have inverse knob = 100 * sqrt((d - min) /
- *   span). The FORWARD curve is steepest at knob 100, which means the
- *   inverse is steepest at the opposite end: d(knob)/d(domain) =
- *   50 / sqrt((d - min) * span) diverges as d -> min (knob 0), so the
- *   binding region is the domain floor, not knob 100. Worst case over a
- *   grid step at the floor: err <= 100 * sqrt(q / span).
+ * The split filter's cutoffHz is carried directly in Hz (no widget position
+ * involved in this codec - that curve lives in the param-control filter
+ * descriptor, src/shared/param-control/descriptors/filter.ts, which shapes
+ * position exponentially over [20, 15000] Hz and is irrelevant to this
+ * table). p = 3 leaves sub-Hz precision, far finer than the ear resolves.
  *
- * The split filter is carried as a `[sideCode, cutoffHz]` pair (sideCode
- * 0 = lowpass, 1 = highpass); its widget position is recovered downstream by
- * the filter descriptor's filterToPosition (position = 49 * sqrt(cutoffHz /
- * 15000) per side). That inverse is steepest at the cutoff floor, so like the
- * exponential
- * fields the bound is worst at cutoffHz -> 0: err <= 49 * sqrt(q / 15000);
- * p = 3 keeps it at ~0.013 knob units, well under 0.05.
- *
- * | field             | key | mapping (inverse slope, worst)       | p | worst knob err |
- * |-------------------|-----|--------------------------------------|---|----------------|
- * | decaySeconds      | d   | exp, span 4.995 s; 100*sqrt(q/span)  | 7 | 0.015          |
- * | filter (cutoffHz) | f   | 49*sqrt(q/15000) at the floor        | 3 | 0.013          |
- * | volumeDb          | v   | linear, span 50 dB; 2 knob/dB        | 2 | 0.02           |
- * | pan               | p   | linear, span 2; 50 knob/unit         | 4 | 0.005          |
- * | tuneSemitones     | t   | linear, span 14 st; 50/7 knob/st     | 3 | 0.008          |
- * | saturation        | s   | linear, span 1; 100 knob/unit        | 4 | 0.01           |
- * | phaser            | ph  | linear, span 1; 100 knob/unit        | 4 | 0.01           |
- * | reverb            | rv  | linear, span 1; 100 knob/unit        | 4 | 0.01           |
- * | compThresholdDb   | ct  | linear, span 40 dB; 2.5 knob/dB      | 2 | 0.025          |
- * | compRatio         | cr  | integer 1..8, carried exactly        | - | 0              |
- * | compAttackSeconds | ca  | exp, span 0.099 s; 100*sqrt(q/span)  | 8 | 0.032          |
- * | compMix           | cm  | linear, span 1; 100 knob/unit        | 4 | 0.01           |
- * | masterVolumeDb    | mv  | linear, span 50 dB; 2 knob/dB        | 2 | 0.02           |
- * | swing (fraction)  | sw  | linear, span 0.375; 266.7 knob/unit  | 4 | 0.027          |
- * | bpm               | bpm | raw domain value in both spaces      | - | 0              |
- * | velocities        |     | sparse ints 0-100 (not a knob)       | - | 0.005 velocity |
+ * | field             | key | canonical unit                | p | tolerance |
+ * |-------------------|-----|--------------------------------|---|-----------|
+ * | decaySeconds      | d   | seconds                        | 7 | 1e-7 s    |
+ * | filter (cutoffHz) | f   | Hz                             | 3 | 1e-3 Hz   |
+ * | volumeDb          | v   | dB                             | 2 | 1e-2 dB   |
+ * | pan               | p   | fraction, -1..1                | 4 | 1e-4      |
+ * | tuneSemitones     | t   | semitones                      | 3 | 1e-3 st   |
+ * | saturation        | s   | fraction, 0..1                 | 4 | 1e-4      |
+ * | phaser            | ph  | fraction, 0..1                 | 4 | 1e-4      |
+ * | reverb            | rv  | fraction, 0..1                 | 4 | 1e-4      |
+ * | compThresholdDb   | ct  | dB                             | 2 | 1e-2 dB   |
+ * | compRatio         | cr  | integer 1..8, carried exactly  | - | 0         |
+ * | compAttackSeconds | ca  | seconds                        | 8 | 1e-8 s    |
+ * | compMix           | cm  | fraction, 0..1                 | 4 | 1e-4      |
+ * | masterVolumeDb    | mv  | dB                             | 2 | 1e-2 dB   |
+ * | swing (fraction)  | sw  | fraction, 0..0.375             | 4 | 1e-4      |
+ * | bpm               | bpm | raw domain value, carried exactly | - | 0      |
+ * | velocities        |     | sparse ints 0-100 (pattern-codec, not this table) | - | 0.005 fraction |
  */
 const PRECISION = {
   decaySeconds: 7,
@@ -316,7 +308,7 @@ function encodeMaster(
 const DEFAULT_CHAIN_STRING = stringifyChain(INIT_DOCUMENT.playback.chain);
 
 /**
- * Encode a preset document as the v2 compact share payload.
+ * Encode a preset document as the compact share payload (`v: 3`).
  *
  * @throws {UnknownKitError} If the document's kit id does not resolve in the
  * registry (nothing in the app can currently produce one)
@@ -513,7 +505,7 @@ function decodeMaster(
 }
 
 /**
- * Decode a parsed v2 compact payload into a validated PresetDocument.
+ * Decode a parsed compact payload (`v: 3`) into a validated PresetDocument.
  *
  * @throws {InvalidFileError} If the payload is not an object
  * @throws {UnsupportedVersionError} If the payload's `v` is not the single

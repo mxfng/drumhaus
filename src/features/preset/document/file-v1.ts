@@ -11,9 +11,9 @@ import { READABLE_V1_FILE_VERSIONS } from "./versions";
  * Deliberately tolerant: these schemas must accept every legacy shape the
  * runtime migrators (src/features/preset/document/legacy-knob-migrators.ts)
  * accept, so value-level coercion stays in the migrators and the schema only
- * rejects inputs that would crash loadPreset today. Tightening a field here is
- * a behavior change and needs a fixture proving no in-the-wild file relied
- * on the old leniency.
+ * rejects inputs that would crash migrateV1ToDocument today. Tightening a
+ * field here is a behavior change and needs a fixture proving no in-the-wild
+ * file relied on the old leniency.
  */
 
 // migrateInstrumentParams and migrateMasterChainParams only gate on
@@ -55,7 +55,7 @@ const kitSchema = z.object({
   instruments: z.array(instrumentSchema),
 });
 
-// loadPreset passes bpm/swing straight to setBpm/setSwing.
+// applyPresetDocument passes bpm/swing straight to setBpm/setSwing.
 const transportSchema = z.object({
   bpm: z.number(),
   swing: z.number(),
@@ -80,8 +80,8 @@ const patternSchema = z.unknown().superRefine((value, ctx) => {
   });
 });
 
-// chain/chainEnabled/variationCycle are all defaulted by loadPreset and
-// sanitized downstream (sanitizeChain, legacyCycleToChain), so they stay
+// chain/chainEnabled/variationCycle are all defaulted by migrateV1ToDocument
+// and sanitized downstream (sanitizeChain, legacyCycleToChain), so they stay
 // loose here.
 const sequencerSchema = z.object({
   pattern: patternSchema,

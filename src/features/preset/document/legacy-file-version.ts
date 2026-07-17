@@ -14,9 +14,11 @@ function isReadablePresetFileVersion(version: unknown): boolean {
  * (the shape is identical across the two versions). Idempotent: current
  * version presets pass through by reference.
  *
- * Every ingress must run this: file import and share URLs get it via
- * validatePresetFileV1, while presets stored verbatim in localStorage
- * (customPresets) get it in usePresetLoading.loadPreset.
+ * Every v1-family ingress must run this via validatePresetFileV1: file import
+ * (decode.ts), legacy-library adoption (library/adoption.ts), and session
+ * adoption (session/bootstrap.ts) all reach it through validatePresetFileV1.
+ * Share URLs are unrelated - they use the separate compact codec (`v: 3`)
+ * and never carry a v1-family payload.
  */
 function migratePresetFileVersion(preset: PresetFileV1): PresetFileV1 {
   if (preset.version >= PRESET_FILE_VERSION) return preset;
