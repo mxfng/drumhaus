@@ -51,11 +51,10 @@ const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
 
 type StemTapOption = "preMaster" | "master";
 
-const stemTapOptions: { value: StemTapOption; label: string; hint: string }[] =
-  [
-    { value: "preMaster", label: "Pre-master", hint: "sums to mix" },
-    { value: "master", label: "Master chain", hint: "full FX, won't sum" },
-  ];
+const stemTapOptions: { value: StemTapOption; label: string }[] = [
+  { value: "preMaster", label: "Pre-master" },
+  { value: "master", label: "Master chain" },
+];
 
 const bounceExportSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
@@ -332,7 +331,7 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                     htmlFor="bounce-includeTail"
                     className="font-normal"
                   >
-                    Preserve reverb tail in export
+                    Preserve reverb tail
                   </FieldLabel>
                 </Field>
 
@@ -346,7 +345,7 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                     disabled={isSubmitting}
                   />
                   <FieldLabel htmlFor="bounce-stems" className="font-normal">
-                    Export stems
+                    Export as stems
                   </FieldLabel>
                 </Field>
               </FieldGroup>
@@ -378,9 +377,6 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                         >
                           {option.label}
                         </FieldLabel>
-                        <span className="text-muted-foreground text-sm">
-                          {option.hint}
-                        </span>
                       </div>
                     ))}
                   </RadioGroup>
