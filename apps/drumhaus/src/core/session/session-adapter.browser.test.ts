@@ -147,8 +147,8 @@ function createFakeEngine(): FakeEngine {
 interface Rig {
   nowMs: { value: number };
   engine: FakeEngine;
-  /** The session instance the adapter wraps. */
-  adapterSession: HausSession;
+  /** The session instance the adapter currently wraps (fresh per link). */
+  adapterSession: () => HausSession;
   adapter: SessionAdapter;
   /** A raw peer session on the same hub/locks (auto-tracked for cleanup). */
   createPeer(instrument?: string): HausSession;
@@ -165,16 +165,22 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
   const now = () => nowMs.value;
   const engine = createFakeEngine();
 
-  const session = createHausSession({
-    instrument: "drumhaus",
-    transport: hub.createTransport(),
-    locks,
-    now,
-  });
+  // The adapter creates a FRESH session per link(); track them so tests can
+  // address the current one.
+  const sessions: HausSession[] = [];
   const adapter = createSessionAdapter({
     engine,
     now,
-    createSession: () => session,
+    createSession: () => {
+      const session = createHausSession({
+        instrument: "drumhaus",
+        transport: hub.createTransport(),
+        locks,
+        now,
+      });
+      sessions.push(session);
+      return session;
+    },
   });
   cleanups.push(() => adapter.unlink());
 
@@ -182,7 +188,7 @@ function createRig(locks: HausLockManager = memoryLocks()): Rig {
     nowMs,
     engine,
     adapter,
-    adapterSession: session,
+    adapterSession: () => sessions[sessions.length - 1],
     createPeer(instrument = "peer") {
       const peer = createHausSession({
         instrument,
@@ -221,8 +227,8 @@ describe("seed then connect", () => {
     await flushMicrotasks();
 
     expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
-    expect(rig.adapterSession.state.bpm).toBe(128);
-    expect(rig.adapterSession.state.scene).toBe(2);
+    expect(rig.adapterSession().state.bpm).toBe(128);
+    expect(rig.adapterSession().state.scene).toBe(2);
 
     // A late joiner adopts the seeded state.
     const joiner = rig.createPeer();
@@ -327,12 +333,12 @@ describe("chain-driven scenes", () => {
     // Chain disabled: bar-boundary variation changes stay local.
     rig.engine.emitVariation(1);
     await flushMicrotasks();
-    expect(rig.adapterSession.state.scene).toBe(0);
+    expect(rig.adapterSession().state.scene).toBe(0);
 
     usePatternStore.setState({ chainEnabled: true });
     rig.engine.emitVariation(1);
     await flushMicrotasks();
-    expect(rig.adapterSession.state.scene).toBe(1);
+    expect(rig.adapterSession().state.scene).toBe(1);
     expect(follower.state.scene).toBe(1);
   });
 
@@ -394,7 +400,7 @@ describe("deferred-command window", () => {
     releaseBlocker();
     await flushMicrotasks();
     expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
-    expect(rig.adapterSession.state.bpm).toBe(133);
+    expect(rig.adapterSession().state.bpm).toBe(133);
   });
 });
 
@@ -482,5 +488,84 @@ describe("unlink", () => {
     conductor.setBpm(180);
     await flushAll();
     expect(useTransportStore.getState().bpm).toBe(100);
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Re-link (fresh session per linked period)
+// -----------------------------------------------------------------------------
+
+describe("re-link", () => {
+  it("re-linking solo after link/play/unlink/stop does not auto-start", async () => {
+    const rig = createRig();
+    rig.adapter.link();
+    await flushMicrotasks();
+
+    // Play while linked: the session carries a grid.
+    useTransportStore.setState({ isPlaying: true });
+    await flushAll();
+    expect(rig.adapterSession().state.playing).toBe(true);
+    const playCallsWhileLinked = rig.engine.playCalls.length;
+
+    // Unlink (local playback keeps running), then the user stops locally.
+    rig.adapter.unlink();
+    useTransportStore.setState({ isPlaying: false });
+
+    // Re-link solo: the fresh session must reflect the local stopped
+    // state, not the previous period's playing:true grid - conducting it
+    // must neither restart the engine nor broadcast an ancient grid.
+    rig.adapter.link();
+    await flushAll();
+
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
+    expect(rig.adapterSession().state.playing).toBe(false);
+    expect(rig.adapterSession().state.startEpochMs).toBeNull();
+    expect(rig.engine.playCalls.length).toBe(playCallsWhileLinked);
+  });
+
+  it("re-linking after conducting at a high rev adopts a younger live session", async () => {
+    const rig = createRig();
+    rig.adapter.link();
+    await flushMicrotasks();
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
+
+    // Conduct several changes so the first period's rev climbs well above
+    // a fresh session's.
+    useTransportStore.setState({ bpm: 110 });
+    useTransportStore.setState({ bpm: 120 });
+    useTransportStore.setState({ bpm: 130 });
+    await flushAll();
+    const staleSession = rig.adapterSession();
+    expect(staleSession.state.rev).toBeGreaterThanOrEqual(3);
+
+    rig.adapter.unlink();
+
+    // A fresh session forms elsewhere at a low rev.
+    const conductor = rig.createPeer();
+    conductor.setBpm(90);
+    conductor.connect();
+    await flushMicrotasks();
+    expect(conductor.state.rev).toBe(0);
+
+    // Re-linking must adopt the live conductor's state (a stale-high rev
+    // would make the follower deaf to every broadcast).
+    rig.adapter.link();
+    await flushMicrotasks();
+    expect(rig.adapterSession()).not.toBe(staleSession);
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(false);
+    expect(useTransportStore.getState().bpm).toBe(90);
+
+    // Still listening: later conductor changes keep landing.
+    conductor.setBpm(95);
+    await flushAll();
+    expect(useTransportStore.getState().bpm).toBe(95);
+
+    // Handover: winning conductorship must rebroadcast the live state, not
+    // time-travel the session back to the stale first period.
+    conductor.disconnect();
+    await flushMicrotasks();
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
+    expect(rig.adapterSession().state.bpm).toBe(95);
+    expect(useTransportStore.getState().bpm).toBe(95);
   });
 });

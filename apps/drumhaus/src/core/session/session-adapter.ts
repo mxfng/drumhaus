@@ -73,7 +73,10 @@ interface SessionEngine {
 interface SessionAdapterOptions {
   /** Engine command surface; defaults to the AudioEngine singleton. */
   engine?: SessionEngine;
-  /** Session factory; defaults to a real BroadcastChannel-backed session. */
+  /**
+   * Session factory, invoked once per linked period (every link() wraps a
+   * fresh session); defaults to a real BroadcastChannel-backed session.
+   */
   createSession?: () => HausSession;
   /** Epoch clock; defaults to epochNowMs. Injectable for tests. */
   now?: () => number;
@@ -85,7 +88,11 @@ interface SessionAdapter {
   /** Leave the session and restore fully local behavior. Idempotent. */
   unlink(): void;
   isLinked(): boolean;
-  /** The shared controller; the LINK control reads it via useSession. */
+  /**
+   * The controller the LINK control reads via useSession. A stable facade:
+   * its identity (and subscriptions to it) survive the per-link controller
+   * swaps underneath.
+   */
   controller: SessionController;
 }
 
@@ -106,9 +113,45 @@ function createSessionAdapter(
 ): SessionAdapter {
   const engine = options.engine ?? getAudioEngine();
   const now = options.now ?? epochNowMs;
-  const session =
-    options.createSession?.() ?? createHausSession({ instrument: "drumhaus" });
-  const controller = createSessionController(session, { now });
+  const createSession =
+    options.createSession ??
+    (() => createHausSession({ instrument: "drumhaus" }));
+
+  // Every linked period wraps a FRESH session. The bridge's disconnect()
+  // deliberately never resets state or rev, so reusing one instance across
+  // link cycles would leak the previous period into the next: a stale
+  // playing grid auto-starts playback on re-link, and a stale-high rev
+  // makes a re-linked follower deaf to a younger conductor (and
+  // time-travels the session if it later wins a handover). The controller
+  // is recreated with the session; the facade below keeps a stable
+  // identity for UI subscribers (useSession) across swaps.
+  let controller = createSessionController(createSession(), { now });
+  const facadeListeners = new Set<() => void>();
+  const notifyFacade = () => facadeListeners.forEach((listener) => listener());
+  let forwardUnsubscribe = controller.subscribe(notifyFacade);
+
+  function swapInFreshController(): void {
+    forwardUnsubscribe();
+    controller = createSessionController(createSession(), { now });
+    forwardUnsubscribe = controller.subscribe(notifyFacade);
+    notifyFacade();
+  }
+
+  const facade: SessionController = {
+    getSnapshot: () => controller.getSnapshot(),
+    subscribe(listener) {
+      facadeListeners.add(listener);
+      return () => {
+        facadeListeners.delete(listener);
+      };
+    },
+    connect: () => controller.connect(),
+    disconnect: () => controller.disconnect(),
+    play: () => controller.play(),
+    stop: () => controller.stop(),
+    setBpm: (bpm) => controller.setBpm(bpm),
+    setScene: (scene) => controller.setScene(scene),
+  };
 
   /** Applying-guard: inbound store writes must not echo back as intents. */
   let applying = false;
@@ -280,6 +323,9 @@ function createSessionAdapter(
 
   function link(): void {
     if (linked()) return;
+    // A fresh session (and controller) for this linked period - see the
+    // comment at the top of the factory.
+    swapInFreshController();
     appliedGrid = null;
 
     // Seed BEFORE connecting: pre-connect commands apply locally without a
@@ -347,7 +393,7 @@ function createSessionAdapter(
     link,
     unlink,
     isLinked: linked,
-    controller,
+    controller: facade,
   };
 }
 

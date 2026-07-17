@@ -152,6 +152,47 @@ test.describe("session link", () => {
     await expect(screenBpm(pageB)).toContainText("132");
   });
 
+  test("re-linking after unlink joins from the current local state", async ({
+    page,
+  }) => {
+    const pageB = await openTwoPages(page);
+
+    await enableLink(page);
+    await enableLink(pageB);
+    await expect(linkControl(page)).toHaveAttribute("data-peers", "1");
+
+    // Play while linked: both transports run.
+    await startPlayback(page);
+    await expect(
+      pageB.getByRole("button", { name: "Pause", exact: true }),
+    ).toBeVisible();
+
+    // A leaves the session; its local playback keeps running.
+    await linkControl(page).click();
+    await expect(linkControl(page)).toHaveAttribute("data-linked", "false");
+    await expect(
+      page.getByRole("button", { name: "Pause", exact: true }),
+    ).toBeVisible();
+
+    // Stop everywhere: A locally, B (still linked) through the session.
+    await stopPlayback(page);
+    await stopPlayback(pageB);
+
+    // Re-link A: the fresh join must not resurrect the previous period's
+    // playing grid - both pages stay stopped.
+    await enableLink(page);
+    await expect(linkControl(page)).toHaveAttribute("data-peers", "1");
+    await page.waitForTimeout(500);
+    await expect(
+      page.getByRole("button", { name: "Play", exact: true }),
+    ).toBeVisible();
+    await expect(
+      pageB.getByRole("button", { name: "Play", exact: true }),
+    ).toBeVisible();
+    expect(await litIndicatorIndex(page)).toBe(-1);
+    expect(await litIndicatorIndex(pageB)).toBe(-1);
+  });
+
   test("an unlinked tab is never affected by (and never affects) the session", async ({
     page,
   }) => {
