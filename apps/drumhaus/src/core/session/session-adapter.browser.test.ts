@@ -14,7 +14,9 @@
 
 import {
   createSession as createBridgeSession,
+  LOCK_NAME,
   memoryHub,
+  PROTOCOL_VERSION,
   START_LEAD_MS,
   type BridgeMessage,
   type BridgeTransport,
@@ -25,6 +27,11 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
+import {
+  beginBpmGesture,
+  endBpmGesture,
+  isBpmGestureActive,
+} from "./bpm-gesture";
 import { isSessionLinked } from "./link-state";
 import {
   createSessionAdapter,
@@ -115,6 +122,12 @@ interface FakeEngine extends SessionEngine {
   playCalls: ({ atContextTime?: number } | undefined)[];
   stopCalls: number;
   contextTime: number;
+  /**
+   * When true, play() returns a promise the test settles by hand via
+   * pendingPlays - for exercising late start rejections (#424).
+   */
+  manualPlay: boolean;
+  pendingPlays: { resolve: () => void; reject: (reason?: unknown) => void }[];
   emitVariation(variation: number): void;
 }
 
@@ -124,9 +137,14 @@ function createFakeEngine(): FakeEngine {
     playCalls: [],
     stopCalls: 0,
     contextTime: 5,
+    manualPlay: false,
+    pendingPlays: [],
     play(options) {
       engine.playCalls.push(options);
-      return Promise.resolve();
+      if (!engine.manualPlay) return Promise.resolve();
+      return new Promise<void>((resolve, reject) => {
+        engine.pendingPlays.push({ resolve, reject });
+      });
     },
     stop() {
       engine.stopCalls += 1;
@@ -208,6 +226,8 @@ function createRig(locks: LockManager = memoryLocks()): Rig {
 beforeEach(() => {
   useTransportStore.setState({ bpm: 100, isPlaying: false });
   usePatternStore.setState({ variation: 0, chainEnabled: false });
+  // A test that failed mid-gesture must not leak an open bracket.
+  while (isBpmGestureActive()) endBpmGesture();
 });
 
 afterEach(() => {
@@ -581,5 +601,258 @@ describe("re-link", () => {
     expect(rig.adapter.controller.getSnapshot().isConductor).toBe(true);
     expect(rig.adapterSession().state.bpm).toBe(95);
     expect(useTransportStore.getState().bpm).toBe(95);
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Session adapter follow-ups (#424)
+// -----------------------------------------------------------------------------
+
+describe("follower bpm drag (#424)", () => {
+  it("inbound acks do not snap the store back during a local drag", async () => {
+    const rig = createRig();
+    const conductor = rig.createPeer();
+    // Same tempo as the local store so linking itself changes nothing.
+    conductor.setBpm(100);
+    conductor.connect();
+    await flushMicrotasks();
+
+    rig.adapter.link();
+    await flushMicrotasks();
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(false);
+
+    // Record every store bpm write, as the knob would observe them.
+    const bpmWrites: number[] = [];
+    const unsubscribe = useTransportStore.subscribe((state, prev) => {
+      if (state.bpm !== prev.bpm) bpmWrites.push(state.bpm);
+    });
+
+    // A continuous drag (bracketed by the knob's gesture handlers): two
+    // moves land before the first intent's ack returns. Each conductor
+    // state broadcast would snap the store back to the last-acked value
+    // until the final intent lands.
+    beginBpmGesture();
+    useTransportStore.getState().setBpm(120);
+    useTransportStore.getState().setBpm(125);
+    await flushAll();
+    endBpmGesture();
+    await flushAll();
+
+    unsubscribe();
+    // No snap-back: the local drag values are the only store writes.
+    expect(bpmWrites).toEqual([120, 125]);
+    expect(useTransportStore.getState().bpm).toBe(125);
+    // And the session converged on the drag's final value.
+    expect(conductor.state.bpm).toBe(125);
+  });
+
+  it("a suppressed foreign bpm is adopted when a gesture that posted nothing ends", async () => {
+    const rig = createRig();
+    const conductor = rig.createPeer();
+    conductor.setBpm(100);
+    conductor.connect();
+    await flushMicrotasks();
+
+    rig.adapter.link();
+    await flushMicrotasks();
+
+    // A grab that never moves: the gesture opens, a foreign bpm change
+    // arrives, and no outbound intent is ever posted.
+    beginBpmGesture();
+    conductor.setBpm(140);
+    await flushAll();
+    expect(useTransportStore.getState().bpm).toBe(100);
+
+    // Gesture end reconciles from the session.
+    endBpmGesture();
+    expect(useTransportStore.getState().bpm).toBe(140);
+    // And without echoing an intent back (the conductor stays at 140).
+    await flushAll();
+    expect(conductor.state.bpm).toBe(140);
+  });
+
+  it("inbound bpm applies normally once the gesture is over", async () => {
+    const rig = createRig();
+    const conductor = rig.createPeer();
+    conductor.setBpm(100);
+    conductor.connect();
+    await flushMicrotasks();
+
+    rig.adapter.link();
+    await flushMicrotasks();
+
+    beginBpmGesture();
+    endBpmGesture();
+
+    conductor.setBpm(90);
+    await flushAll();
+    expect(useTransportStore.getState().bpm).toBe(90);
+  });
+});
+
+describe("stop-echo window (#424)", () => {
+  /** Post a conductor state broadcast onto the wire by hand. */
+  function postState(
+    wire: BridgeTransport,
+    state: {
+      rev: number;
+      bpm: number;
+      playing: boolean;
+      startEpochMs: number | null;
+      scene: 0 | 1 | 2 | 3;
+    },
+  ): void {
+    wire.post({
+      v: PROTOCOL_VERSION,
+      from: "fake-conductor",
+      type: "state",
+      state,
+    });
+  }
+
+  it("an interleaved stopped-state broadcast does not stop the engine while a local play intent is in flight", async () => {
+    // Hold the conductor lock externally so the adapter stays a follower
+    // whose intents the test answers by hand - the only way to hold the
+    // round-trip open across the adapter's deferred playback sync.
+    const locks = memoryLocks();
+    void locks.request(LOCK_NAME, {}, () => new Promise<void>(() => {}));
+    await flushMicrotasks();
+
+    const rig = createRig(locks);
+    const wire = rig.createWire();
+    const intents: BridgeMessage[] = [];
+    wire.subscribe((data) => {
+      const message = data as BridgeMessage;
+      if (message.type === "intent") intents.push(message);
+    });
+
+    rig.adapter.link();
+    await flushMicrotasks();
+    expect(rig.adapter.controller.getSnapshot().isConductor).toBe(false);
+
+    // The fake conductor speaks: a stopped session at rev 1.
+    postState(wire, {
+      rev: 1,
+      bpm: 100,
+      playing: false,
+      startEpochMs: null,
+      scene: 0,
+    });
+    await flushAll();
+
+    // The user taps play: togglePlay flips isPlaying synchronously and the
+    // adapter posts a play intent (the engine start waits for the grid).
+    useTransportStore.setState({ isPlaying: true });
+    await flushMicrotasks();
+    expect(
+      intents.some(
+        (message) =>
+          message.type === "intent" && message.intent.kind === "play",
+      ),
+    ).toBe(true);
+
+    // An unrelated stopped-state broadcast interleaves before the play
+    // intent's ack (e.g. a bpm change applied just ahead of it).
+    postState(wire, {
+      rev: 2,
+      bpm: 100,
+      playing: false,
+      startEpochMs: null,
+      scene: 0,
+    });
+    await flushAll();
+
+    // The echo must not stop the engine mid round-trip.
+    expect(rig.engine.stopCalls).toBe(0);
+
+    // The ack lands: playback starts aligned to the shared grid.
+    postState(wire, {
+      rev: 3,
+      bpm: 100,
+      playing: true,
+      startEpochMs: rig.nowMs.value + START_LEAD_MS,
+      scene: 0,
+    });
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(1);
+
+    // A genuine stop afterwards still stops the engine.
+    postState(wire, {
+      rev: 4,
+      bpm: 100,
+      playing: false,
+      startEpochMs: null,
+      scene: 0,
+    });
+    await flushAll();
+    expect(rig.engine.stopCalls).toBe(1);
+  });
+});
+
+describe("late start rejection (#424)", () => {
+  it("a rejection from a superseded grid does not force a redundant realign restart", async () => {
+    const rig = createRig();
+    const conductor = rig.createPeer();
+    conductor.setBpm(100);
+    conductor.connect();
+    await flushMicrotasks();
+
+    rig.adapter.link();
+    await flushMicrotasks();
+    rig.engine.manualPlay = true;
+
+    // Grid A: the start is issued but its promise stays pending (a
+    // suspended context deciding whether it can start).
+    conductor.play();
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(1);
+    const gridAStart = rig.engine.pendingPlays[0];
+
+    conductor.stop();
+    await flushAll();
+    expect(rig.engine.stopCalls).toBe(1);
+
+    // Grid B at a different origin; this start succeeds.
+    rig.nowMs.value += 10_000;
+    conductor.play();
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(2);
+    rig.engine.pendingPlays[1].resolve();
+    // The engine reports the start; the bridge mirror would set this.
+    useTransportStore.setState({ isPlaying: true });
+    await flushAll();
+
+    // Grid A's start finally rejects - long after grid B took over.
+    gridAStart.reject(new Error("context could not start"));
+    await flushAll();
+
+    // A state broadcast carrying the same grid B (a scene change) must not
+    // trigger a realign restart of playback that is already on grid B.
+    conductor.setScene(1);
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(2);
+  });
+
+  it("a rejection of the live start attempt still clears the grid so a rebroadcast retries", async () => {
+    const rig = createRig();
+    const conductor = rig.createPeer();
+    conductor.setBpm(100);
+    conductor.connect();
+    await flushMicrotasks();
+
+    rig.adapter.link();
+    await flushMicrotasks();
+    rig.engine.manualPlay = true;
+
+    conductor.play();
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(1);
+    rig.engine.pendingPlays[0].reject(new Error("context could not start"));
+    await flushAll();
+
+    // The next broadcast of the same grid retries the aligned start.
+    conductor.setScene(1);
+    await flushAll();
+    expect(rig.engine.playCalls).toHaveLength(2);
   });
 });

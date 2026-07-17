@@ -5,6 +5,7 @@ import { historyGestureHandlers } from "@/features/preset/history/history";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
+import { bpmGestureHandlers } from "@/features/transport/lib/bpm-gesture-handlers";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { ScreenBar } from "@/layout/screen-bar";
 import { cn } from "@/shared/lib/utils";
@@ -34,7 +35,7 @@ function TempoControlsScreen() {
           ch, tabular digits) so neighbors don't shift while dragging. */}
       <div className="flex w-full items-center justify-between gap-1 whitespace-nowrap tabular-nums">
         <ValueField
-          {...historyGestureHandlers}
+          {...bpmGestureHandlers}
           descriptor={transportBpmDescriptor}
           value={bpm}
           onChange={setBpm}
