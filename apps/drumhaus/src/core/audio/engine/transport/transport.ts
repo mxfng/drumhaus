@@ -22,9 +22,39 @@ const liveTransport = getTransport();
 
 /**
  * Start the live transport and all sources synced to it.
+ *
+ * With no argument the transport starts immediately (the local path). With
+ * atContextTime (absolute seconds on the live context's clock) it starts -
+ * or restarts - exactly at that instant: the transport is first stopped at
+ * that same instant, which cancels any pending scheduled start and resets
+ * the position, so the downbeat lands at atContextTime with position 0
+ * whether the transport was running or not. This is the session adapter's
+ * grid-aligned start (core/session); Tone's Clock.stop is a safe no-op on
+ * a stopped transport.
  */
-function startTransport(): void {
-  liveTransport.start();
+function startTransport(atContextTime?: number): void {
+  if (atContextTime === undefined) {
+    liveTransport.start();
+    return;
+  }
+  liveTransport.stop(atContextTime);
+  liveTransport.start(atContextTime);
+}
+
+/**
+ * The LIVE context's underlying AudioContext, reached through the retained
+ * live transport (so a call landing mid-offline-render can never hand out
+ * the offline context) and Tone's public Context.rawContext surface - no
+ * private internals involved (tone-internals.ts keeps its monopoly).
+ *
+ * Used by the session adapter to map the shared epoch clock onto the audio
+ * clock for grid-aligned starts. Note: Tone's default context is a
+ * standardized-audio-context wrapper without getOutputTimestamp, so epoch
+ * mapping consumers fall back to currentTime anchoring (a few ms, uniform
+ * across same-machine tabs - see @haus/bridge clock.ts).
+ */
+function getLiveRawContext(): BaseAudioContext {
+  return liveTransport.context.rawContext;
 }
 
 /**
@@ -99,4 +129,5 @@ export {
   configureTransportTiming,
   getCurrentTime,
   getCurrentStepFromTransport,
+  getLiveRawContext,
 };

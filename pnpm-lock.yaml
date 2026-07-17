@@ -32,6 +32,12 @@ importers:
       '@fontsource-variable/albert-sans':
         specifier: ^5.2.8
         version: 5.2.8
+      '@haus/bridge':
+        specifier: workspace:*
+        version: link:../../packages/bridge
+      '@haus/bridge-react':
+        specifier: workspace:*
+        version: link:../../packages/bridge-react
       '@hookform/resolvers':
         specifier: ^5.4.0
         version: 5.4.0(react-hook-form@7.80.0(react@19.2.7))
@@ -238,6 +244,40 @@ importers:
       playwright:
         specifier: ^1.61.1
         version: 1.61.1
+      typescript:
+        specifier: ^6
+        version: 6.0.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@25.9.3)(@vitest/browser-playwright@4.1.10)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))
+
+  packages/bridge-react:
+    dependencies:
+      '@haus/bridge':
+        specifier: workspace:*
+        version: link:../bridge
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitest/browser-playwright':
+        specifier: ^4.1.10
+        version: 4.1.10(playwright@1.61.1)(vite@8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0))(vitest@4.1.10)
+      oxlint:
+        specifier: ^1.71.0
+        version: 1.71.0
+      playwright:
+        specifier: ^1.61.1
+        version: 1.61.1
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
       typescript:
         specifier: ^6
         version: 6.0.3

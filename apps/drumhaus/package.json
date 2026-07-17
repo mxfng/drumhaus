@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@fontsource-variable/albert-sans": "^5.2.8",
+    "@haus/bridge": "workspace:*",
+    "@haus/bridge-react": "workspace:*",
     "@hookform/resolvers": "^5.4.0",
     "@radix-ui/react-checkbox": "^1.3.5",
     "@radix-ui/react-dialog": "^1.1.17",
