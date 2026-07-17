@@ -13,6 +13,9 @@ import { defineConfig, devices } from "@playwright/test";
  * `pnpm test:e2e:family` at the repo root builds drumhaus and pulse first,
  * then runs this suite against the static server.
  */
+/** Server port; PORT overrides so parallel checkouts can pick a free one. */
+const port = Number(process.env.PORT ?? 4446);
+
 export default defineConfig({
   testDir: "./family",
   testMatch: "**/*.spec.ts",
@@ -26,7 +29,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   use: {
-    baseURL: "http://localhost:4446",
+    baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",
   },
   projects: [
@@ -37,7 +40,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "node ../scripts/family-server.mjs",
-    port: 4446,
+    port,
     reuseExistingServer: false,
     timeout: 30_000,
   },
