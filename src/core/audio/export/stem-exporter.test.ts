@@ -188,6 +188,7 @@ describe("buildStemReadme", () => {
     bpm: 95,
     bars: 4,
     sampleRate: 48000,
+    stemTap: "preMaster" as const,
   };
 
   it("lists preset facts, the pre-master note, and rendered stems", () => {
@@ -203,6 +204,19 @@ describe("buildStemReadme", () => {
     expect(readme).toContain(FULL_MIX_FILENAME);
     expect(readme).toContain("PRE-MASTER");
     expect(readme).toContain("  01-kick.wav");
+  });
+
+  it("describes master-chain stems and their non-summing tradeoff", () => {
+    const lanes = planStemLanes(
+      makePlanOptions(makePattern([{ voice: 0, step: 0 }])),
+    );
+    const readme = buildStemReadme({ ...meta, stemTap: "master" }, lanes);
+
+    expect(readme).toContain("MASTER-CHAIN");
+    expect(readme).toContain("do NOT sum back to the mix");
+    expect(readme).not.toContain("PRE-MASTER");
+    // The full mix note is tap-independent.
+    expect(readme).toContain(FULL_MIX_FILENAME);
   });
 
   it("lists every skipped lane with its reason", () => {

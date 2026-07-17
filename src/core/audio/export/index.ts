@@ -17,5 +17,6 @@ export {
   type StemExportOptions,
   type StemExportProgress,
   type StemExportSummary,
+  type StemTapPoint,
   type StemVoiceDescriptor,
 } from "./stem-exporter";

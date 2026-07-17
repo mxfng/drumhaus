@@ -1,10 +1,13 @@
-// --- Stem export: one pre-master WAV per channel + the full mix, zipped ---
+// --- Stem export: one WAV per channel + the full mix, zipped ---
 //
 // Rendering rides the single renderWav path (issue #308): each stem is a
-// render with soloChannelIndex isolating one channel and masterTap
-// "preMaster", so stems carry channel-level processing only and recombine
-// linearly in a DAW. The full mix is rendered through the master chain (the
-// production export sound) so the pack is self-contained.
+// render with soloChannelIndex isolating one channel, tapped at the caller's
+// chosen point (issue #347). "preMaster" stems carry channel-level
+// processing only and recombine linearly in a DAW; "master" stems run each
+// solo'd channel through the full master chain, so they capture the
+// processed sound but don't sum back to the mix. The full mix is always
+// rendered through the master chain (the production export sound) so the
+// pack is self-contained.
 //
 // Lane planning is store-free like midi-exporter.ts: the feature layer
 // passes the pattern, chain arrangement, and per-slot voice descriptors in
@@ -40,6 +43,13 @@ interface StemVoiceDescriptor {
   solo: boolean;
 }
 
+/**
+ * Where each stem is tapped (the engine's renderWav masterTap):
+ * "preMaster" stems sum back to the un-mastered mix; "master" stems run
+ * each solo'd channel through the full master chain.
+ */
+type StemTapPoint = "preMaster" | "master";
+
 interface StemExportOptions {
   /** Zip filename without extension; the download is `{filename}-stems.zip`. */
   filename: string;
@@ -47,6 +57,8 @@ interface StemExportOptions {
   sampleRate: number;
   /** Append the reverb/release tail after the last bar of every render. */
   includeTail: boolean;
+  /** Where each stem is tapped. The full mix always renders post-master. */
+  stemTap: StemTapPoint;
   /** Written to the pack's README. */
   presetName: string;
   /** Written to the pack's README. */
@@ -185,13 +197,34 @@ const SKIP_REASON_TEXT: Record<StemSkipReason, string> = {
 };
 
 /**
- * The pack's README: what the stems are (pre-master), what the mix is,
- * and which lanes were skipped and why.
+ * What the numbered stems are, by tap point: how they were processed and
+ * whether they sum back to the mix.
+ */
+const STEM_TAP_README_TEXT: Record<StemTapPoint, string[]> = {
+  preMaster: [
+    "The numbered stems are PRE-MASTER: each channel is rendered with its",
+    "own tune, decay, filter, pan, and volume, but without the master-chain",
+    "compression, saturation, EQ, limiting, or reverb/phaser sends, and at",
+    "unity master volume. Summed together they reproduce the un-mastered",
+    "mix exactly, so they rebalance cleanly under your own bus processing.",
+  ],
+  master: [
+    "The numbered stems are MASTER-CHAIN: each channel is solo'd and",
+    "rendered through the full master chain - compression, saturation, EQ,",
+    "limiting, and the reverb/phaser sends. That processing reacts to each",
+    "channel alone, so these stems do NOT sum back to the mix, but each one",
+    "captures the fully processed sound of its channel.",
+  ],
+};
+
+/**
+ * The pack's README: what the stems are (per the chosen tap point), what
+ * the mix is, and which lanes were skipped and why.
  */
 function buildStemReadme(
   options: Pick<
     StemExportOptions,
-    "presetName" | "bpm" | "bars" | "sampleRate"
+    "presetName" | "bpm" | "bars" | "sampleRate" | "stemTap"
   >,
   lanes: StemLanePlan[],
 ): string {
@@ -210,11 +243,7 @@ function buildStemReadme(
     `${FULL_MIX_FILENAME} is the full mix, rendered through the master`,
     "chain (the production Drumhaus sound).",
     "",
-    "The numbered stems are PRE-MASTER: each channel is rendered with its",
-    "own tune, decay, filter, pan, and volume, but without the master-chain",
-    "compression, saturation, EQ, limiting, or reverb/phaser sends, and at",
-    "unity master volume. Summed together they reproduce the un-mastered",
-    "mix exactly, so they rebalance cleanly under your own bus processing.",
+    ...STEM_TAP_README_TEXT[options.stemTap],
     "",
     "Stems:",
     ...rendered.map((lane) => `  ${lane.fileName}`),
@@ -239,10 +268,11 @@ function buildStemReadme(
 // -----------------------------------------------------------------------------
 
 /**
- * Exports the current pattern as a zip of per-channel pre-master stems plus
- * the master-chain full mix and a README. Renders sequentially through the
- * engine's single render path, reporting per-stem progress. Returns a
- * summary of rendered and skipped lanes for the UI to surface.
+ * Exports the current pattern as a zip of per-channel stems (tapped at
+ * options.stemTap) plus the master-chain full mix and a README. Renders
+ * sequentially through the engine's single render path, reporting per-stem
+ * progress. Returns a summary of rendered and skipped lanes for the UI to
+ * surface.
  */
 async function exportStems(
   options: StemExportOptions,
@@ -287,7 +317,7 @@ async function exportStems(
     const stemBuffer = await engine.renderWav({
       ...renderOptions,
       soloChannelIndex: lane.slot,
-      masterTap: "preMaster",
+      masterTap: options.stemTap,
     });
     files[lane.fileName] = new Uint8Array(encodeWav(stemBuffer));
   }
@@ -327,5 +357,6 @@ export type {
   StemExportSummary,
   StemLanePlan,
   StemSkipReason,
+  StemTapPoint,
   StemVoiceDescriptor,
 };

@@ -49,12 +49,27 @@ const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
   { value: "48000", label: "48 kHz" },
 ];
 
+type StemTapOption = "preMaster" | "master";
+
+const stemTapOptions: { value: StemTapOption; label: string }[] = [
+  { value: "preMaster", label: "Pre-master" },
+  { value: "master", label: "Master chain" },
+];
+
+const stemTapDescriptions: Record<StemTapOption, string> = {
+  preMaster:
+    "Stems carry channel-level processing only, so they sum back to the un-mastered mix and rebalance cleanly in a DAW.",
+  master:
+    "Each solo'd channel renders through the full master chain - compression, saturation, reverb, the works. These stems don't sum back to the mix, but capture the processed sound of each channel.",
+};
+
 const bounceExportSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
   bars: z.number().int().min(1, "At least 1 bar").max(8, "Maximum 8 bars"),
   sampleRate: z.enum(["system", "44100", "48000"]),
   includeTail: z.boolean(),
   stems: z.boolean(),
+  stemTap: z.enum(["preMaster", "master"]),
 });
 
 type BounceExportFormValues = z.infer<typeof bounceExportSchema>;
@@ -94,6 +109,7 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
       sampleRate: "system" as const,
       includeTail: false,
       stems: false,
+      stemTap: "preMaster" as const,
     }),
     [presetName, recommendedBars],
   );
@@ -124,6 +140,7 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
   const includeTail = useWatch({ control, name: "includeTail" });
   const sampleRate = useWatch({ control, name: "sampleRate" });
   const stems = useWatch({ control, name: "stems" });
+  const stemTap = useWatch({ control, name: "stemTap" });
 
   const baseDuration = calculateExportDuration(bars ?? recommendedBars, bpm);
   const duration = baseDuration + ((includeTail ?? false) ? 2 : 0);
@@ -153,6 +170,7 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
         bars: values.bars,
         sampleRate: rate,
         includeTail: values.includeTail,
+        stemTap: values.stemTap,
         presetName,
         bpm,
         pattern,
@@ -339,10 +357,48 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                 </Field>
                 <FieldDescription>
                   {stems
-                    ? "Bounces a zip of pre-master stems (dry of master-chain processing, so they recombine cleanly in a DAW) plus the full mix. Silent channels are skipped."
+                    ? "Bounces a zip of per-channel stems plus the full mix. Silent channels are skipped."
                     : "Bounces a single WAV rendered through the master chain."}
                 </FieldDescription>
               </FieldGroup>
+
+              {stems && (
+                <Field data-invalid={Boolean(errors.stemTap)}>
+                  <FieldLabel>Stem processing</FieldLabel>
+                  <FieldDescription>
+                    {stemTapDescriptions[stemTap]}
+                  </FieldDescription>
+                  <RadioGroup
+                    value={stemTap}
+                    onValueChange={(value) =>
+                      setValue("stemTap", value as StemTapOption, {
+                        shouldValidate: true,
+                      })
+                    }
+                    disabled={isSubmitting}
+                  >
+                    {stemTapOptions.map((option) => (
+                      <div
+                        key={option.value}
+                        className="flex items-center gap-2"
+                      >
+                        <RadioGroupItem
+                          value={option.value}
+                          id={`bounce-stemTap-${option.value}`}
+                        />
+                        <FieldLabel
+                          htmlFor={`bounce-stemTap-${option.value}`}
+                          className="font-normal"
+                        >
+                          {option.label}
+                        </FieldLabel>
+                      </div>
+                    ))}
+                  </RadioGroup>
+
+                  <FieldError errors={[errors.stemTap]} />
+                </Field>
+              )}
             </FieldGroup>
           </FieldSet>
         </FieldGroup>
