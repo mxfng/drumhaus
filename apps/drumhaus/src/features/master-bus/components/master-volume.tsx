@@ -1,6 +1,8 @@
+import { RotaryKnob } from "@haus/param-control";
+
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
 import { historyGestureHandlers } from "@/features/preset/history/history";
-import { masterVolumeDescriptor, RotaryKnob } from "@/shared/param-control";
+import { masterVolumeDescriptor } from "@/shared/param-control/descriptors/canonical-scalars";
 
 function MasterVolume() {
   const masterVolume = useMasterChainStore((state) => state.masterVolume);

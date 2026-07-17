@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RotaryKnob } from "@haus/param-control";
 import {
   Button,
   Label,
@@ -14,10 +15,9 @@ import { useTransportStore } from "@/features/transport/store/use-transport-stor
 import { buttonActive } from "@/shared/lib/button-active";
 import { clamp, cn } from "@/shared/lib/utils";
 import {
-  RotaryKnob,
   transportBpmDescriptor,
   transportSwingDescriptor,
-} from "@/shared/param-control";
+} from "@/shared/param-control/descriptors/canonical-scalars";
 
 type TempoMode = "bpm" | "swing";
 

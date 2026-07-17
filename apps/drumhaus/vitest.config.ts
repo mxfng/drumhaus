@@ -25,7 +25,9 @@ export default defineConfig({
         // Pre-bundle the browser suites' bare-specifier dependencies up front.
         // Vitest browser mode runs each *.browser.test.ts in a real Vite dev
         // server (chromium). Left to on-the-fly discovery, Vite optimizes
-        // `tone`, `zod`, and `zustand/shallow` mid-run and then reloads the
+        // `react-dom` (reached through @haus/param-control's coachmark, which
+        // is served as workspace source), `tone`, `zod`, and `zustand/shallow`
+        // mid-run and then reloads the
         // page ("Vite unexpectedly reloaded a test... may cause flaky
         // behaviour"), which on a cold cache (CI, fresh clones) can drop a
         // dynamically imported module and fail the render suites. Declaring
@@ -33,7 +35,13 @@ export default defineConfig({
         // reload never happens. This is the vite-level optimizeDeps on the
         // project config (alongside `test`), which feeds the browser server.
         optimizeDeps: {
-          include: ["tone", "zod", "zustand/shallow"],
+          include: [
+            "react-dom",
+            "react-dom/client",
+            "tone",
+            "zod",
+            "zustand/shallow",
+          ],
         },
         test: {
           name: "browser",

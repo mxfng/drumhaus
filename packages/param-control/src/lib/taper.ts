@@ -1,5 +1,5 @@
-import { clamp } from "@/shared/lib/utils";
 import type { Taper } from "../types";
+import { clamp } from "./math";
 
 /** Clamp a raw position into the normalized [0, 1] transport range. */
 function clamp01(position: number): number {

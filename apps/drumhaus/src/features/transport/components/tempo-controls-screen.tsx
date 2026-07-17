@@ -1,3 +1,5 @@
+import { ValueField } from "@haus/param-control";
+
 import { MAX_CHAIN_STEPS } from "@/core/audio/engine/pattern-types";
 import { historyGestureHandlers } from "@/features/preset/history/history";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
@@ -9,8 +11,7 @@ import { cn } from "@/shared/lib/utils";
 import {
   transportBpmDescriptor,
   transportSwingDescriptor,
-  ValueField,
-} from "@/shared/param-control";
+} from "@/shared/param-control/descriptors/canonical-scalars";
 
 function TempoControlsScreen() {
   const bpm = useTransportStore((state) => state.bpm);

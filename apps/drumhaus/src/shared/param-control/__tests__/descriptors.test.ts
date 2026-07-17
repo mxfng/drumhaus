@@ -1,3 +1,9 @@
+import {
+  canonicalToNormalized,
+  endpointValue,
+  normalizedToCanonical,
+  parseValue,
+} from "@haus/param-control";
 import { describe, expect, it } from "vitest";
 
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
@@ -22,12 +28,6 @@ import {
   positionToFilter,
   splitFilterDescriptor,
 } from "../descriptors/filter";
-import {
-  canonicalToNormalized,
-  endpointValue,
-  normalizedToCanonical,
-  parseValue,
-} from "../lib/descriptor";
 
 describe("volume descriptor", () => {
   it("shows -infinity only for true silence, not the -46 dB floor", () => {

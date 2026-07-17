@@ -19,4 +19,4 @@ The consuming app must import the token CSS in its Tailwind entry stylesheet (se
 ## What belongs here
 
 Presentation-only primitives a sibling instrument would want: generic controls, overlays, and form fields with no instrument-domain logic or app-store dependencies.
-Instrument-specific controls (sequencer, transport, param controls) stay in each app.
+Instrument-specific controls (sequencer, transport) stay in each app; the descriptor-driven knob/fader layer lives in `@haus/param-control`.

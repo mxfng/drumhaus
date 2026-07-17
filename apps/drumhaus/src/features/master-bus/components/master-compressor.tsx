@@ -1,3 +1,5 @@
+import { RotaryKnob } from "@haus/param-control";
+
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
 import { historyGestureHandlers } from "@/features/preset/history/history";
 import {
@@ -5,8 +7,7 @@ import {
   masterCompMixDescriptor,
   masterCompRatioDescriptor,
   masterCompThresholdDescriptor,
-  RotaryKnob,
-} from "@/shared/param-control";
+} from "@/shared/param-control/descriptors/canonical-scalars";
 
 function MasterCompressor() {
   const attack = useMasterChainStore((state) => state.compAttack);

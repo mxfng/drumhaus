@@ -10,9 +10,8 @@ import { act, createElement, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { INSTRUMENT_VOLUME_RANGE } from "@/core/audio/engine/constants";
 import { RotaryKnob } from "../components/rotary-knob";
-import { instrumentVolumeDescriptor } from "../descriptors/canonical-scalars";
+import { clamp01 } from "../lib/taper";
 import type { ParamDescriptor } from "../types";
 
 declare global {
@@ -21,6 +20,31 @@ declare global {
 }
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+/**
+ * A volume-style descriptor mirroring the app catalogs' `volumeTaper` shape:
+ * position 0 is the -Infinity silence sentinel, positions above 0 map linearly
+ * across the finite dB range. The catalog descriptors themselves are covered
+ * by the app's own descriptor tests; this local copy keeps the component test
+ * on the same non-finite edge case without coupling to the app.
+ */
+const VOLUME_RANGE: readonly [number, number] = [-46, 4];
+const VOLUME_SPAN = VOLUME_RANGE[1] - VOLUME_RANGE[0];
+
+const volumeDescriptor: ParamDescriptor<number> = {
+  min: VOLUME_RANGE[0],
+  max: VOLUME_RANGE[1],
+  taper: {
+    kind: "custom",
+    to01: (db) =>
+      db === -Infinity ? 0 : clamp01((db - VOLUME_RANGE[0]) / VOLUME_SPAN),
+    from01: (position) =>
+      position <= 0 ? -Infinity : VOLUME_RANGE[0] + position * VOLUME_SPAN,
+  },
+  default: 0,
+  unit: "dB",
+  format: (db) => (db === -Infinity ? "-∞ dB" : `${db.toFixed(1)} dB`),
+};
 
 /** Linear 0..100, display carries a unit so aria-valuetext != the raw number. */
 const testDescriptor: ParamDescriptor<number> = {
@@ -276,7 +300,7 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     await act(async () => {
       root?.render(
         createElement(RotaryKnob<number>, {
-          descriptor: instrumentVolumeDescriptor,
+          descriptor: volumeDescriptor,
           value: -Infinity,
           label: "Volume",
           onChange: () => {},
@@ -293,12 +317,8 @@ describe("RotaryKnob interactions (canonical-only public API)", () => {
     expect(Number.isFinite(Number(el.getAttribute("aria-valuenow")))).toBe(
       true,
     );
-    expect(Number(el.getAttribute("aria-valuemin"))).toBe(
-      INSTRUMENT_VOLUME_RANGE[0],
-    );
-    expect(Number(el.getAttribute("aria-valuenow"))).toBe(
-      INSTRUMENT_VOLUME_RANGE[0],
-    );
+    expect(Number(el.getAttribute("aria-valuemin"))).toBe(VOLUME_RANGE[0]);
+    expect(Number(el.getAttribute("aria-valuenow"))).toBe(VOLUME_RANGE[0]);
     expect(el.getAttribute("aria-valuetext")).toBe("-∞ dB");
   });
 

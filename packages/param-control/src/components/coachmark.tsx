@@ -1,10 +1,35 @@
-import { useEffect, useEffectEvent, useState } from "react";
-import { Button } from "@haus/ui";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useState,
+  type ReactNode,
+} from "react";
+import { Button, cn } from "@haus/ui";
 import { Check } from "lucide-react";
 import { createPortal } from "react-dom";
 
-import { usePerformanceStore } from "@/shared/store/use-performance-store";
-import { cn } from "../lib/utils";
+/**
+ * Host-app seam for coachmark visibility. Coachmarks are a decorative,
+ * animated affordance; an app running in a degraded-performance mode can turn
+ * them off wholesale by rendering `CoachmarkProvider` with `enabled={false}`.
+ * Without a provider they are enabled - the non-degraded default.
+ */
+const CoachmarkEnabledContext = createContext(true);
+
+interface CoachmarkProviderProps {
+  enabled: boolean;
+  children: ReactNode;
+}
+
+function CoachmarkProvider({ enabled, children }: CoachmarkProviderProps) {
+  return (
+    <CoachmarkEnabledContext.Provider value={enabled}>
+      {children}
+    </CoachmarkEnabledContext.Provider>
+  );
+}
 
 interface CoachmarkProps {
   visible: boolean;
@@ -24,7 +49,7 @@ function Coachmark({ visible, message, anchorRef, onDismiss }: CoachmarkProps) {
 
   const dismissable = !!onDismiss;
 
-  const potatoMode = usePerformanceStore((state) => state.potatoMode);
+  const coachmarksDisabled = !useContext(CoachmarkEnabledContext);
 
   const show = useEffectEvent(() => {
     setRender(true);
@@ -36,7 +61,7 @@ function Coachmark({ visible, message, anchorRef, onDismiss }: CoachmarkProps) {
   });
 
   useEffect(() => {
-    if (potatoMode) return;
+    if (coachmarksDisabled) return;
 
     let showTimeout: number | undefined;
     let hideTimeout: number | undefined;
@@ -58,10 +83,10 @@ function Coachmark({ visible, message, anchorRef, onDismiss }: CoachmarkProps) {
       if (hideTimeout) window.clearTimeout(hideTimeout);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [visible, potatoMode]);
+  }, [visible, coachmarksDisabled]);
 
   useEffect(() => {
-    if (!render || potatoMode) return;
+    if (!render || coachmarksDisabled) return;
 
     const updatePosition = () => {
       const el = anchorRef.current;
@@ -81,9 +106,9 @@ function Coachmark({ visible, message, anchorRef, onDismiss }: CoachmarkProps) {
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [render, anchorRef, potatoMode]);
+  }, [render, anchorRef, coachmarksDisabled]);
 
-  if (!render || !position || potatoMode) return null;
+  if (!render || !position || coachmarksDisabled) return null;
 
   return createPortal(
     <div
@@ -166,4 +191,10 @@ function CoachmarkDismissButton({ onDismiss }: CoachmarkDismissButtonProps) {
   );
 }
 
-export { Coachmark, CoachmarkDismissTitle, CoachmarkContent };
+export {
+  Coachmark,
+  CoachmarkDismissTitle,
+  CoachmarkContent,
+  CoachmarkProvider,
+};
+export type { CoachmarkProviderProps };

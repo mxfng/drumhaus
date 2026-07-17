@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from "react";
+import { LinearSlider, RotaryKnob } from "@haus/param-control";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@haus/ui";
 import { Headphones, Volume, VolumeX } from "lucide-react";
 
@@ -14,10 +15,8 @@ import {
   instrumentPanDescriptor,
   instrumentTuneDescriptor,
   instrumentVolumeDescriptor,
-  LinearSlider,
-  RotaryKnob,
-  splitFilterDescriptor,
-} from "@/shared/param-control";
+} from "@/shared/param-control/descriptors/canonical-scalars";
+import { splitFilterDescriptor } from "@/shared/param-control/descriptors/filter";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 import { GainMeter } from "./gain-meter";
 
