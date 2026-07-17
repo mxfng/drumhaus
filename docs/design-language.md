@@ -217,7 +217,7 @@ Chips are lowercase except acronyms (`FX`, `LINK`).
 
 `RotaryKnob` (`packages/param-control/src/components/rotary-knob.tsx`) is the neumorphic skin over the headless `Knob` primitive and the descriptor engine.
 
-Anatomy, inside a square cell (`size="default"` is `h-20` for a 90 px cell, `size="lg"` is `h-44` for 180 px):
+Anatomy, inside a square cell (`size="default"` is `h-20`, `size="lg"` is `h-44` - 80 px and 176 px, though the code comment names the original hardware cells as 90 px and 180 px):
 
 - A motionless base stack, so the shadows read as fixed light: outer disc (80% of cell, `--knob-gradient`, `--shadow-neu-tall`, `border-shadow-30`), raised edge ring (60% of that, `--shadow-neu-tall-raised`), and the cap (80% of that, `bg-knob`, `--knob-shadow-center`).
 - A rotating invisible hitbox over the stack carrying the interaction and a single indicator tick: a 2-unit-wide SVG line in `stroke-foreground-muted` at the top edge.
@@ -225,7 +225,7 @@ Anatomy, inside a square cell (`size="default"` is `h-20` for a 90 px cell, `siz
 - Fixed outer ticks: `0.5 x 0.5` `bg-shadow` dots on the cell edge, count per parameter (odd for a centered mark), default 2.
 - The caption `Label` below, `text-xs`, bare lowercase.
 
-Observed tick conventions in Drumhaus: 15 for `tune`, 3 for `filter` and `pan`, 5 for `reverb` and `phaser`, 8 for `ratio`, 13 for the `lg` `output level`, 0 (and no indicator) for the tempo knob whose value lives on the screen instead.
+Observed tick conventions in Drumhaus: 15 for `tune`, 3 for `filter` and `pan`, 5 for `reverb` and `phaser`, 8 for `ratio`, 13 for the `lg` `output level`, 0 (and no indicator) for the tempo knobs (`bpm` and `swing`) whose values live on the screen instead.
 
 Interaction contract (the engine, `useParamControl`): the resting knob shows no number; the value appears in a wrap-around tooltip only while dragging, on whichever side has viewport room.
 The body is drag-only with a 3 px threshold; default sensitivity is 1/300 normalized units per pixel (a full sweep in ~300 px).
@@ -284,6 +284,7 @@ Dot pitch is `gap-1.5`.
 ### Screens
 
 A screen is a recessed display area: `bg-screen` (the light secondary tone), `text-screen-foreground`, pixel font for content, and either an `outline outline-border rounded-2xl` frame (the Drumhaus header screen, `apps/drumhaus/src/layout/screen.tsx`) or `shadow-inset rounded-xl` for small wells (the pulse bpm readout: `bg-screen text-screen-foreground shadow-inset font-pixel tabular-nums`).
+The header screen's frame sets `text-foreground` on the container; the screen tones come from the children (the inverted tabs and readouts inside apply `text-screen` / `text-screen-foreground` themselves).
 
 Screen idioms observed in Drumhaus:
 
@@ -317,7 +318,8 @@ A cap within a cap: the square base is the socket, the circle is the button.
 
 ### Overlays
 
-Overlays wear the brand: tooltips, toasts, and coachmarks are `bg-popover text-popover-foreground` (popover derives from primary), `rounded-md`, with neu shadows.
+Overlays wear the brand: tooltips, toasts, and coachmarks are all `bg-popover text-popover-foreground` (popover derives from primary), but each carries its own shape.
+Tooltips are `rounded-md` with no shadow (`packages/ui/src/tooltip.tsx`); toasts take the diagonal motif, `rounded-tr-md rounded-bl-md` with `shadow-neu` (`packages/ui/src/toast.tsx`); coachmarks are `rounded-md` with `--shadow-neu-tall` (`packages/param-control/src/components/coachmark.tsx`).
 Dialogs are neutral panels reserved for file-level acts, per the no-nested-menus law.
 The floating system menu is the single dropdown tree in the product, and it lives off-chassis.
 
@@ -340,7 +342,7 @@ An instrument must design for itself:
 
 Pulse (`apps/pulse`) is the worked example of a minimal sibling.
 Its entire chrome is package-supplied: the chassis panel is the same `neu-medium-raised surface rounded-xl border` recipe, transport and scenes are `variant="hardware"` buttons with the `border-primary border-2 text-primary` active convention, the bpm readout is the `bg-screen shadow-inset font-pixel` well, and the wordmark is pixel-font with letter-spacing.
-Its own stylesheet (`apps/pulse/src/styles.css`) is under thirty lines of layout glue: token imports, an `@source` registration, base element wiring, and focus rules.
+Its own stylesheet (`apps/pulse/src/styles.css`) is about forty lines of layout glue: token imports, an `@source` registration, base element wiring, and focus rules.
 It declares no brand and inherits the family orange.
 That ratio - packages carrying the look, the app carrying meaning and placement - is the 80/20 target for every future sibling.
 

@@ -107,7 +107,7 @@ Places where the code contradicts the language, found while writing it down.
 Each is small; together they are the punch list that keeps the brand layer honest.
 
 1. Canvas surfaces bypass the brand layer.
-   `frequency-analyzer.tsx` and `waveform.tsx` hardcode `#ff7b00` (canvas `fillStyle` cannot take `var()` strings), and `pixelated-spinner.tsx` defaults to the same literal.
+   `frequency-analyzer.tsx` and `waveform.tsx` hardcode `#ff7b00` (canvas `fillStyle` cannot take `var()` strings), and `pixelated-spinner.tsx` and `pixelated-frowny.tsx` default to the same literal.
    A brand-overridden sibling reusing these would still draw orange; the lift should resolve the computed token once per draw instead.
 2. `GainMeter` uses stock Tailwind palette colors (`bg-green-500`, `bg-yellow-500`, `bg-red-500`) and rgba shadow literals - the only stock-palette usage on the chassis.
    Legible as a traffic-light meter, but the colors are not tokens.
