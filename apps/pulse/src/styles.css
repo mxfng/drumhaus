@@ -41,3 +41,20 @@ body,
 button:not(:disabled) {
   cursor: pointer;
 }
+
+/* ==================== Focus Indicators ==================== */
+
+/* All focusable elements get consistent focus ring (the @haus/ui Button
+   base carries outline-none; this restores visible keyboard focus, same
+   as drumhaus's base rule) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="slider"]:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 0px;
+}
