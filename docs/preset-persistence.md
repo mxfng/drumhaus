@@ -5,7 +5,7 @@ Author: Max, July 2026.
 Tracking issue: #329.
 
 Update (2026-07-14, #269): the swing retune landed before this design's document model shipped, as `.dh` version 1.5.
-Version 1.5 is a knob-space revision of the v1 shape (identical fields; `transport.swing` knob values written under the old curve are rescaled by 4/3 on load, see `src/features/preset/document/migrate.ts`), the share codec gained a `v` field mirroring the file version (absent = legacy URL, swing migrated on decode), and the transport persist is now versioned (v1, with a swing migrate).
+Version 1.5 is a knob-space revision of the v1 shape (identical fields; `transport.swing` knob values written under the old curve are rescaled by 4/3 on load, see `src/features/preset/document/legacy-file-version.ts`), the share codec gained a `v` field mirroring the file version (absent = legacy URL, swing migrated on decode), and the transport persist is now versioned (v1, with a swing migrate).
 Version 2 remains the domain-unit document described below, unchanged; its 1-to-2 migration must now also accept 1.5 as input (the swing rescale is already applied there).
 The audit sections still describe the pre-#269 state where they mention an unversioned codec and transport persist.
 

@@ -5,8 +5,8 @@ The v1-era real fixtures are the `init` preset extracted from git history, so di
 The `.dh` JSON format was born at commit `78fe632b` (2025-11-18); before that, presets were TypeScript modules under `src/lib/presets/*.ts` and there is no earlier file era to capture.
 Truncated or otherwise invalid JSON should be tested inline as a string literal in the test, not as a fixture file, because editors and formatters will not preserve broken JSON on disk.
 
-Migrators referenced below live in `src/features/sequencer/lib/migrations.ts` unless noted otherwise.
-`legacyCycleToChain` lives in `src/features/sequencer/lib/chain.ts` and is applied by `src/features/preset/document/migrate-v1.ts` (the 1-to-2 document migration) and `src/features/preset/session/legacy-adopter.ts` (one-time adoption of pre-document session state).
+Migrators referenced below live in `src/features/preset/document/legacy-knob-migrators.ts` unless noted otherwise.
+`legacyCycleToChain` lives in `src/features/preset/document/legacy-cycle-to-chain.ts` and is applied by `src/features/preset/document/migrate-v1.ts` (the 1-to-2 document migration) and `src/features/preset/session/legacy-adopter.ts` (one-time adoption of pre-document session state).
 
 ## v1-current.json
 

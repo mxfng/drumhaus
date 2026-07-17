@@ -10,18 +10,19 @@ import {
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
 
 /**
- * Pattern-data helpers shared by every version of the compact share codec:
- * bit-packed trigger/ratchet/flam/accent strings, sparse quantized
- * velocities, and the chain string grammar. Pattern data is already musical
- * (booleans, 0..1 velocities, nudge steps), so these encodings are identical
- * in the knob-space v1.5 codec and the domain-space v2 codec.
+ * Pattern-data helpers for the compact share codec (compact.ts, the single
+ * current `v: 3` shape): bit-packed trigger/ratchet/flam/accent strings,
+ * sparse quantized velocities, and the chain string grammar. Pattern data is
+ * already musical (booleans, 0..1 velocities, nudge steps), so this encoding
+ * was unchanged across the now-retired knob-space and domain-space codec
+ * generations that preceded it.
  */
 
 const PACKED_TRIGGER_HEX_LENGTH = Math.ceil(STEP_COUNT / 4);
 
 /**
  * Exactly one bit-packed step-flag string: 4 lowercase/uppercase hex chars
- * (16 steps). Used by the v2 decoder to reject corrupt payloads before
+ * (16 steps). Used by the current decoder to reject corrupt payloads before
  * unpacking (parseInt would silently produce NaN -> all-false).
  */
 const PACKED_TRIGGER_PATTERN = new RegExp(
@@ -69,8 +70,8 @@ function unpackTriggers(hex: string): boolean[] {
 
 /**
  * Strict chain grammar: 1-8 pairs of variation label (A-D) + repeat digit
- * (1-8), e.g. "A2B1D3". The v1.5 decoder predates this and parses leniently;
- * the v2 decoder validates against it before parsing.
+ * (1-8), e.g. "A2B1D3". The retired v1.5 share decoder predated this and
+ * parsed leniently; the current decoder validates against it before parsing.
  */
 const CHAIN_STRING_PATTERN = /^([A-D][1-8]){1,8}$/;
 
@@ -85,8 +86,9 @@ function stringifyChain(chain: PatternChain): string {
 /**
  * Parse a chain string back into a sanitized PatternChain. Lenient by
  * design (unknown labels skipped, malformed repeats default to 1): the
- * v1.5 decoder has always behaved this way. v2 rejects malformed strings
- * up front via CHAIN_STRING_PATTERN, so leniency never engages there.
+ * retired v1.5 share decoder always behaved this way. The current decoder
+ * rejects malformed strings up front via CHAIN_STRING_PATTERN, so leniency
+ * never engages there.
  */
 function parseChainString(chainString: string): PatternChain {
   const steps: PatternChain["steps"] = [];

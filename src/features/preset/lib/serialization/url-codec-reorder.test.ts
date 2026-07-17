@@ -1,12 +1,12 @@
 /**
- * KIT_ORDER independence: the hazard the v2 codec kills.
+ * KIT_ORDER independence: the hazard the compact share codec (v: 3) kills.
  *
  * v1.5 payloads reference kits by their positional index in KIT_ORDER, so
  * inserting the reserved kit-1/kit-2 (or any reorder) silently repoints
- * every old link. v2 payloads carry the stable kit id string; the decoder
+ * every old link. v3 payloads carry the stable kit id string; the decoder
  * never consults KIT_ORDER. This file simulates a reorder by mocking the
  * positional code lookups while leaving the id-keyed loaders intact, and
- * proves a v2 link's kit survives while a positional lookup would not.
+ * proves a v3 link's kit survives while a positional lookup would not.
  */
 
 import { describe, expect, it, vi } from "vitest";
@@ -50,8 +50,8 @@ vi.mock("@/core/dhkit", async (importOriginal) => {
   };
 });
 
-describe("v2 kit references survive a KIT_ORDER reorder", () => {
-  it("decodes a v2 payload to the same kit id under the reordered registry", () => {
+describe("v3 kit references survive a KIT_ORDER reorder", () => {
+  it("decodes a v3 payload to the same kit id under the reordered registry", () => {
     const document = migrateV1ToDocument(buildDenseSharePreset());
     expect(document.kit.id).toBe("kit-3");
 
@@ -61,7 +61,7 @@ describe("v2 kit references survive a KIT_ORDER reorder", () => {
     expect(decoded.kit.id).toBe("kit-3");
   });
 
-  it("demonstrates the positional hazard the v2 format removes", async () => {
+  it("demonstrates the positional hazard the v3 format removes", async () => {
     // The reordered registry resolves the dense fixture's positional code
     // "1" (kit-3's index today) to a different kit: exactly the silent
     // corruption that v1.5 links in the wild remain exposed to.

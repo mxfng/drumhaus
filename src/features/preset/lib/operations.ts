@@ -5,8 +5,8 @@ import { MAX_PRESET_NAME_LENGTH } from "./constants";
 
 /**
  * Generate a shareable URL for a preset: the standard egress,
- * snapshot() -> encode. The payload is the v2 compact document encoding
- * (share links write version 2, decision 1).
+ * snapshot() -> encode. The payload is the compact share codec; share
+ * links write codec `v: 3` (see compact.ts, decision 1).
  */
 async function generateShareUrl(
   presetMeta: Meta,
@@ -72,8 +72,8 @@ function normalizePresetName(name: string): string {
 
 /**
  * Create a Blob for downloading the current store state as a .dh file:
- * the standard egress, snapshot() -> encode. The payload is the v2 document
- * encoding: exports write version 2 (decision 1).
+ * the standard egress, snapshot() -> encode. The payload is the preset
+ * document encoding; exports write document version 2.1 (decision 1).
  */
 function createPresetExportBlob(presetMeta: Meta, kitMeta: Meta): Blob {
   const json = encodePresetDocument(

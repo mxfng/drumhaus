@@ -7,8 +7,8 @@
  * inferred from it.
  *
  * Version history:
- * - 1 / 1.5: the knob-space `.dh` file shape (migrate.ts); 1.5 marks the
- *   #269 swing retune.
+ * - 1 / 1.5: the knob-space `.dh` file shape (legacy-file-version.ts); 1.5
+ *   marks the #269 swing retune.
  * - 2: the first domain document; every field domain-space EXCEPT the split
  *   filter, which was still persisted as its 0-100 position.
  * - 2.1 (this version): a refinement of the v2 domain document - the split
@@ -49,9 +49,9 @@ const PRESET_DOCUMENT_KIND = "drumhaus.preset";
 /**
  * Current preset document version. Fractional minor (2.1) marks a refinement
  * of the v2 domain document - the canonical split filter - not a new
- * generation, mirroring the `.dh` file's v1.5 (migrate.ts). Everything that
- * dispatches on this value must treat versions as fractional, never
- * integer-only.
+ * generation, mirroring the `.dh` file's v1.5 (legacy-file-version.ts).
+ * Everything that dispatches on this value must treat versions as
+ * fractional, never integer-only.
  */
 const PRESET_DOCUMENT_VERSION = 2.1;
 
@@ -135,7 +135,7 @@ const channelSchema = z.object({
     .max(INSTRUMENT_DECAY_RANGE[1]),
   // Canonical split filter `{ side, cutoffHz }`.
   filter: canonicalFilterSchema,
-  // null is the JSON-safe spelling of -Infinity (knob 0 = silence).
+  // null is the JSON-safe spelling of -Infinity (silence).
   volumeDb: z
     .number()
     .min(INSTRUMENT_VOLUME_RANGE[0])
@@ -200,7 +200,7 @@ const masterSchema = z.object({
     .min(MASTER_COMP_ATTACK_RANGE[0])
     .max(MASTER_COMP_ATTACK_RANGE[1]),
   compMix: z.number().min(0).max(1),
-  // null is the JSON-safe spelling of -Infinity (knob 0 = silence).
+  // null is the JSON-safe spelling of -Infinity (silence).
   masterVolumeDb: z
     .number()
     .min(MASTER_VOLUME_RANGE[0])

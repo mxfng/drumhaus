@@ -24,9 +24,6 @@ const TOOLTIPS = {
   FLAM_MODE: "Toggle flam mode (a quick pre-hit)",
 } as const;
 /**
- * Work in progress
- * TODO: Add the remaining features
- *
  * Flam — “Human grace-note before the main hit.”
  * A flam adds a quiet pre-hit just before the step, giving snares, claps, and percussion a natural, human feel. It mimics the way a drummer strikes slightly early with one stick, creating expressive accents and groove variation.
  *

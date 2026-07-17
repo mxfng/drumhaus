@@ -69,7 +69,7 @@ function useEngineBridge(): void {
       }),
     );
 
-    // --- Instrument params (continuous + play params, knob -> domain) ---
+    // --- Instrument params (continuous + play params, canonical pass-through) ---
     unsubscribers.push(subscribeInstrumentParamsToEngine(engine));
 
     // --- Kit (descriptor-keyed loads + failure rollback, decision 5) ---

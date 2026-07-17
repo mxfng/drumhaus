@@ -6,11 +6,11 @@
  * two raw node frequencies. This is one of the two principled musical
  * exceptions to "canonical equals engine-native".
  *
- * This type is the SHARED seam between two epics:
- *   - the knob primitive (Epic 2) maps a normalized position to and from this
- *     value inside the filter descriptor's custom taper, and
- *   - the engine refactor (Epic 1 PR B) will consume this same type when the
- *     split filter becomes Tone-native (the engine takes derived frequencies).
+ * This type is the SHARED seam between two consumers:
+ *   - the knob primitive maps a normalized position to and from this value
+ *     inside the filter descriptor's custom taper, and
+ *   - the engine (fx/split-filter.ts, master-bus.ts) consumes this same type
+ *     directly, deriving Tone-native node frequencies from side + cutoffHz.
  *
  * Keep both consumers pointed at THIS definition so the widget and the engine
  * cannot drift.

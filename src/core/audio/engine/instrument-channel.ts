@@ -219,8 +219,9 @@ class InstrumentChannel {
    * This ensures consistent behavior across manual playback, sequencer
    * playback, and any other trigger sources.
    *
-   * Note that the inputs are domain values, not knob values. Be sure to
-   * convert knob values from state with mapping functions before calling.
+   * Note that the inputs are domain values (seconds, gain, semitones), not
+   * knob values - state is canonical end to end, so no conversion is needed
+   * before calling.
    */
   trigger(time: number, hit: InstrumentHit): void {
     // Enforce monophonic behavior - stop any previous notes for all pitches

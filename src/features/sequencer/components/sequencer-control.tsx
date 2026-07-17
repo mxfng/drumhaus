@@ -33,7 +33,8 @@ const TOOLTIPS = {
 } as const;
 
 /*
-TODO: Add the remaining control features
+TODO: Undo is not built yet - the button below is a "coming soon" tooltip
+placeholder (see ComingSoonTooltipContent).
  */
 function SequencerControl() {
   const variation = usePatternStore((state) => state.variation);
