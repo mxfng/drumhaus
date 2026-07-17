@@ -34,6 +34,12 @@
  * restart on the boundary) happens only when adopting a grid this tab is
  * not already playing on. Same-machine context drift is negligible in v1;
  * there is no correction loop.
+ *
+ * Round-trip smoothing (#424): inbound bpm is held while a local bpm
+ * gesture is open (bpm-gesture.ts) so conductor acks cannot fight an
+ * active drag, and the follower stop path is gated while a local play
+ * intent is in flight so a stopped-state broadcast interleaved into the
+ * round-trip cannot stop-then-restart the engine.
  */
 
 import {
@@ -56,6 +62,7 @@ import { getAudioEngine } from "@/core/audio/engine";
 import { clampVariationId } from "@/core/audio/engine/pattern-types";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
+import { isBpmGestureActive, onBpmGestureEnd } from "./bpm-gesture";
 import { setSessionLinked } from "./link-state";
 
 /**
@@ -177,6 +184,18 @@ function createSessionAdapter(
   /** Grid the local transport is (or is being) aligned to; null while the
    * local engine is not playing on a shared grid. */
   let appliedGrid: SharedGrid | null = null;
+  /** Monotonic id of the latest aligned start issued; a superseded start's
+   * late rejection must not clear the grid a newer start applied (#424). */
+  let startAttempt = 0;
+  /** True while a locally-posted play intent awaits its ack (an inbound
+   * playing state). togglePlay flips isPlaying before the round-trip, so
+   * an interleaved stopped-state broadcast would otherwise momentarily
+   * stop (then restart) the engine - the stop-echo window of #424. */
+  let playIntentInFlight = false;
+  /** An inbound bpm arrived while a local bpm gesture was open (#424). */
+  let inboundBpmSuppressed = false;
+  /** The open bpm gesture posted at least one outbound bpm intent. */
+  let bpmPostedDuringGesture = false;
   /** Latest inbound playback target, coalesced into one deferred sync.
    * undefined = nothing pending; null = stop. */
   let pendingGrid: SharedGrid | null | undefined;
@@ -188,6 +207,7 @@ function createSessionAdapter(
   // --- Playback alignment (session grid -> engine) ---
 
   function startAlignedToGrid(grid: SharedGrid): void {
+    const attempt = ++startAttempt;
     // During the start lead window the "next bar boundary" is bar 0's
     // downbeat itself, so fresh starts and mid-playback joins share one
     // formula. Drumhaus patterns loop one bar, so starting at a bar
@@ -211,7 +231,12 @@ function createSessionAdapter(
     void engine.play({ atContextTime }).catch(() => {
       // The context could not start (suspended with no usable gesture):
       // stay stopped locally and let a later state or user gesture retry.
-      appliedGrid = null;
+      // Only the live attempt may clear: a superseded start's late
+      // rejection would otherwise wipe the grid a newer start already
+      // applied and force one redundant realign restart (#424).
+      if (attempt === startAttempt) {
+        appliedGrid = null;
+      }
     });
   }
 
@@ -220,8 +245,15 @@ function createSessionAdapter(
 
     if (grid === null) {
       // Follower stop is immediate. Skipped when already idle so a stop
-      // echo can never cancel an in-flight user play().
-      if (useTransportStore.getState().isPlaying || appliedGrid !== null) {
+      // echo can never cancel an in-flight user play(), and skipped while
+      // a local play intent is in flight: isPlaying is already optimistic
+      // then, so a stopped-state broadcast interleaved into the round-trip
+      // would momentarily stop (then restart) the engine (#424). The
+      // intent's ack - or a local stop - resolves the flag either way.
+      if (
+        !playIntentInFlight &&
+        (useTransportStore.getState().isPlaying || appliedGrid !== null)
+      ) {
         engine.stop();
       }
       appliedGrid = null;
@@ -270,13 +302,26 @@ function createSessionAdapter(
     const snapshot = controller.getSnapshot();
     if (!snapshot.linked) return;
 
+    // Playing state (from any peer) acknowledges a local play intent.
+    if (snapshot.state.playing) playIntentInFlight = false;
+
     applying = true;
     try {
       const transport = useTransportStore.getState();
       if (transport.bpm !== snapshot.state.bpm) {
-        // setBpm also pushes engine.setTempo, so a playing transport
-        // glides onto a rebased grid within the same synchronous dispatch.
-        transport.setBpm(snapshot.state.bpm);
+        if (isBpmGestureActive()) {
+          // A local bpm gesture is open: the local value is authoritative
+          // and every move already posts an outbound intent, so applying
+          // the conductor's lagging acks here would snap the knob back on
+          // every broadcast - the follower drag jitter of #424. The
+          // gesture-end handler reconciles.
+          inboundBpmSuppressed = true;
+        } else {
+          // setBpm also pushes engine.setTempo, so a playing transport
+          // glides onto a rebased grid within the same synchronous
+          // dispatch.
+          transport.setBpm(snapshot.state.bpm);
+        }
       }
       const pattern = usePatternStore.getState();
       if (pattern.variation !== snapshot.state.scene) {
@@ -296,7 +341,30 @@ function createSessionAdapter(
   function handleBpmChange(bpm: number): void {
     if (applying || !linked()) return;
     if (controller.getSnapshot().state.bpm === bpm) return;
+    if (isBpmGestureActive()) bpmPostedDuringGesture = true;
     controller.setBpm(bpm);
+  }
+
+  /**
+   * Reconcile after a bpm gesture: a gesture that posted intents converges
+   * through its final ack (resyncing here would snap to a stale value), so
+   * resync from the session only when a foreign bpm change was suppressed
+   * by a gesture that itself sent nothing (a grab that never moved).
+   */
+  function handleBpmGestureEnd(): void {
+    const suppressed = inboundBpmSuppressed;
+    const posted = bpmPostedDuringGesture;
+    inboundBpmSuppressed = false;
+    bpmPostedDuringGesture = false;
+    if (!linked() || !suppressed || posted) return;
+    applying = true;
+    try {
+      const transport = useTransportStore.getState();
+      const bpm = controller.getSnapshot().state.bpm;
+      if (transport.bpm !== bpm) transport.setBpm(bpm);
+    } finally {
+      applying = false;
+    }
   }
 
   function handleVariationChange(variation: number): void {
@@ -320,8 +388,10 @@ function createSessionAdapter(
       return;
     }
     if (isPlaying) {
+      playIntentInFlight = true;
       controller.play();
     } else {
+      playIntentInFlight = false;
       controller.stop();
     }
   }
@@ -346,6 +416,9 @@ function createSessionAdapter(
     // comment at the top of the factory.
     swapInFreshController();
     appliedGrid = null;
+    playIntentInFlight = false;
+    inboundBpmSuppressed = false;
+    bpmPostedDuringGesture = false;
     // Published for the transport store: while linked, togglePlay leaves
     // starting the engine to this adapter's grid-aligned path (#425).
     setSessionLinked(true);
@@ -395,6 +468,7 @@ function createSessionAdapter(
     unsubscribers.push(
       engine.onPlaybackVariationChange(handlePlaybackVariationChange),
     );
+    unsubscribers.push(onBpmGestureEnd(handleBpmGestureEnd));
   }
 
   function unlink(): void {
@@ -408,6 +482,9 @@ function createSessionAdapter(
     unsubscribers = [];
     controller.disconnect();
     appliedGrid = null;
+    playIntentInFlight = false;
+    inboundBpmSuppressed = false;
+    bpmPostedDuringGesture = false;
     setSessionLinked(false);
     // Fully local from here: playback (if any) keeps running untouched.
   }

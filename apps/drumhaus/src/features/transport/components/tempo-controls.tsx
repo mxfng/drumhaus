@@ -11,6 +11,7 @@ import { ArrowDownToDot, Music3, Timer } from "lucide-react";
 
 import { TRANSPORT_BPM_RANGE } from "@/core/audio/engine/constants";
 import { historyGestureHandlers } from "@/features/preset/history/history";
+import { bpmGestureHandlers } from "@/features/transport/lib/bpm-gesture-handlers";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
 import { buttonActive } from "@/shared/lib/button-active";
 import { clamp, cn } from "@/shared/lib/utils";
@@ -82,7 +83,7 @@ const TempoControls = () => {
     <div className="mx-auto flex w-5/6 flex-col items-center justify-center gap-4 px-4">
       {mode === "bpm" ? (
         <RotaryKnob
-          {...historyGestureHandlers}
+          {...bpmGestureHandlers}
           descriptor={transportBpmDescriptor}
           value={bpm}
           onChange={setBpm}
