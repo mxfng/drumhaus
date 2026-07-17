@@ -5,8 +5,12 @@ import { XIcon } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 
+// max-h + overflow keep tall content (e.g. the Bounce tab with stems on)
+// reachable on short viewports: the dialog caps at the viewport minus the
+// same 2rem margin as max-w and scrolls internally. No effect when the
+// content already fits.
 const dialogVariants = cva(
-  "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+  "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 overflow-y-auto rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
   {
     variants: {
       variant: {

@@ -92,10 +92,12 @@ test.describe("bounce export", () => {
 
     const dialog = await openBounceTab(page, "e2e-export");
 
-    // The stems toggle defaults to off: a plain bounce is one WAV.
+    // The stems toggle defaults to off: a plain bounce is one WAV, and the
+    // stem tap-point control stays hidden.
     await expect(
-      dialog.getByLabel("Export stems (one WAV per channel)"),
+      dialog.getByLabel("Export as stems", { exact: true }),
     ).not.toBeChecked();
+    await expect(dialog.getByText("Stem processing")).not.toBeVisible();
 
     const expectedDuration = await promisedDuration(dialog);
 
@@ -144,7 +146,12 @@ test.describe("bounce export", () => {
     await toggleStep(page, 4, "true");
 
     const dialog = await openBounceTab(page, "e2e-stems");
-    await dialog.getByLabel("Export stems (one WAV per channel)").check();
+    await dialog.getByLabel("Export as stems", { exact: true }).check();
+
+    // Checking stems reveals the tap-point control, defaulting to
+    // pre-master (the summing, DAW-friendly mode).
+    await expect(dialog.getByText("Stem processing")).toBeVisible();
+    await expect(dialog.getByLabel("Pre-master")).toBeChecked();
 
     const expectedDuration = await promisedDuration(dialog);
 
@@ -203,5 +210,60 @@ test.describe("bounce export", () => {
     await expect(
       page.getByText(/Skipped silent lanes: .*Kick2/).first(),
     ).toBeVisible();
+  });
+
+  test("master-chain stems render through the master chain and differ from pre-master", async ({
+    page,
+  }) => {
+    await gotoApp(page);
+
+    // A single kick lane keeps this two-export test to four renders.
+    await toggleStep(page, 0, "true");
+    await toggleStep(page, 8, "true");
+
+    const exportStemsZip = async (
+      filename: string,
+      tap: "Pre-master" | "Master chain",
+    ) => {
+      const dialog = await openBounceTab(page, filename);
+      await dialog.getByLabel("Export as stems", { exact: true }).check();
+      await dialog.getByLabel(tap).check();
+
+      const downloadPromise = page.waitForEvent("download", {
+        timeout: 45_000,
+      });
+      await dialog.getByRole("button", { name: "Export", exact: true }).click();
+      const download = await downloadPromise;
+      const path = await download.path();
+      await expect(dialog).not.toBeVisible();
+      return unzipSync(new Uint8Array(fs.readFileSync(path)));
+    };
+
+    const pre = await exportStemsZip("e2e-tap-pre", "Pre-master");
+    const master = await exportStemsZip("e2e-tap-master", "Master chain");
+
+    // Both packs hold the same entries; the README states each contract.
+    for (const entries of [pre, master]) {
+      expect(Object.keys(entries).sort()).toEqual([
+        "00-full-mix.wav",
+        "01-kick.wav",
+        "README.txt",
+      ]);
+    }
+    expect(Buffer.from(pre["README.txt"]).toString("utf-8")).toContain(
+      "PRE-MASTER",
+    );
+    const masterReadme = Buffer.from(master["README.txt"]).toString("utf-8");
+    expect(masterReadme).toContain("MASTER-CHAIN");
+    expect(masterReadme).toContain("do NOT sum back to the mix");
+
+    // Both kick stems carry real audio, but the master-chain render is a
+    // different signal: the solo'd channel picked up the master chain's
+    // compression, saturation, and sends.
+    const prePcm = Buffer.from(pre["01-kick.wav"]);
+    const masterPcm = Buffer.from(master["01-kick.wav"]);
+    expect(parseWav(prePcm).peak).toBeGreaterThan(0.05);
+    expect(parseWav(masterPcm).peak).toBeGreaterThan(0.05);
+    expect(prePcm.equals(masterPcm)).toBe(false);
   });
 });
