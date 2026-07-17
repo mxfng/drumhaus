@@ -43,10 +43,12 @@ The audio engine is built on [Tone.js](https://tonejs.github.io/) with a custom 
 
 ## Repository layout
 
-This repo is a pnpm workspace:
+This repo is the Drumhaus instrument, source available under [CC BY-NC-SA 4.0](./LICENSE). It's a small pnpm workspace:
 
 - `apps/drumhaus` - the Drumhaus app: source, tests, and build config
-- `packages/` - shared packages, split out over time
+- `packages/` - shared packages the app is built from, split out over time
+
+Further instruments in the family are developed privately.
 
 Run `pnpm install` at the root, then `pnpm dev` to start the app at `localhost:4444`.
 
