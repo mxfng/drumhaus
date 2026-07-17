@@ -1,0 +1,30 @@
+{
+  "name": "@haus/shell",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./shell.css": "./src/shell.css"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "oxlint src --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@haus/tokens": "workspace:*",
+    "@haus/ui": "workspace:*",
+    "zustand": "^5.0.14"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "oxlint": "^1.71.0",
+    "typescript": "^6",
+    "vitest": "^4.1.10"
+  }
+}
