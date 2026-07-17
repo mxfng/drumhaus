@@ -1,0 +1,28 @@
+{
+  "name": "haus",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "scripts": {
+    "dev": "pnpm --filter drumhaus dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm -r test:e2e",
+    "lint": "pnpm -r lint",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "smoke:lightshow": "pnpm --filter drumhaus smoke:lightshow",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "3.8.4",
+    "prettier-plugin-tailwindcss": "^0.8.0"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}

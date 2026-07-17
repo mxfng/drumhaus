@@ -26,7 +26,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check formatting
-        run: pnpm prettier . --check
+        run: pnpm format:check
 
       - name: Run linter
         run: pnpm lint
@@ -38,7 +38,7 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium --with-deps
+        run: pnpm --filter drumhaus exec playwright install chromium --with-deps
 
       - name: Run tests
         run: pnpm test
@@ -58,6 +58,6 @@ jobs:
         with:
           name: playwright-report
           path: |
-            playwright-report/
-            test-results/
+            apps/drumhaus/playwright-report/
+            apps/drumhaus/test-results/
           retention-days: 7

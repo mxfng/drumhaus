@@ -41,6 +41,15 @@ Drumhaus is a drum machine for the browser. It's sample-based, performant, and b
 
 The audio engine is built on [Tone.js](https://tonejs.github.io/) with a custom sequencing layer that precomputes patterns on every update, keeping playback tight and timing-consistent between live and offline rendering. Preset sharing uses a custom serialization pipeline with bit-packing, [pako](https://github.com/nodeca/pako) compression, and base64url encoding to compress full rig snapshots into ~200 character URL parameters. A centralized animation clock synchronizes all visual feedback (step indicators, gain meters, frequency analysis, intro lightshow) to a shared frame timeline, bypassing React renders in favor of direct DOM writes via data attributes.
 
+## Repository layout
+
+This repo is a pnpm workspace:
+
+- `apps/drumhaus` - the Drumhaus app: source, tests, and build config
+- `packages/` - shared packages, split out over time
+
+Run `pnpm install` at the root, then `pnpm dev` to start the app at `localhost:4444`.
+
 ## Writing
 
 - [A Drum Machine for the Browser](https://maxfu.ng/writing/a-drum-machine-for-the-browser) — the original build
