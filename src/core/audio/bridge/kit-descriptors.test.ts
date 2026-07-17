@@ -54,10 +54,10 @@ describe("kitDescriptorsChanged", () => {
     expect(kitDescriptorsChanged(kit, instruments)).toBe(false);
   });
 
-  it("ignores params-only changes (knob drags)", () => {
+  it("ignores params-only changes (a volume edit)", () => {
     const tweaked = instruments.map((instrument) => ({
       ...instrument,
-      params: { ...instrument.params, volume: 30 },
+      params: { ...instrument.params, volume: -12 },
     }));
     expect(kitDescriptorsChanged(kit, tweaked)).toBe(false);
   });

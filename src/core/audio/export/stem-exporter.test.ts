@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
-import type {
-  Pattern,
-  PatternChain,
-  VariationId,
+import {
+  createEmptyPattern,
+  type Pattern,
+  type PatternChain,
+  type VariationId,
 } from "../engine/pattern-types";
 import {
   buildStemReadme,

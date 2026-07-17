@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { createEmptyPattern } from "@/features/sequencer/lib/helpers";
 import {
   ACCENT_BOOST,
   ACCENT_DAMPEN,
@@ -10,6 +9,7 @@ import {
   TRANSPORT_SWING_MAX,
 } from "../engine/constants";
 import type { InstrumentRole } from "../engine/instrument/types";
+import { createEmptyPattern } from "../engine/pattern-types";
 import {
   assignDrumNotes,
   BAKE_SWING_INTO_EXPORT,
@@ -83,7 +83,7 @@ describe("tick math", () => {
   it.runIf(BAKE_SWING_INTO_EXPORT)(
     "delays offbeat 16ths by swing * 2/3 of an 8th, like Tone.js",
     () => {
-      // Max app swing (knob 100) is Tone swing 0.375 -> 30 ticks (#269).
+      // Max canonical swing (0.375, TRANSPORT_SWING_MAX) is 30 ticks (#269).
       expect(swingDelayTicks(1, TRANSPORT_SWING_MAX)).toBe(30);
       expect(swingDelayTicks(3, 0.25)).toBe(20);
       // Even steps sit on 8th boundaries and never swing.

@@ -11,7 +11,6 @@
 
 import { describe, expect, it } from "vitest";
 
-import { SPLIT_FILTER_MAX_CUTOFF_HZ } from "@/features/preset/document/frozen-split-filter";
 import {
   INSTRUMENT_FILTER_RANGE,
   MASTER_FILTER_RANGE,
@@ -21,6 +20,14 @@ import {
   deriveSplitFilterFrequencies,
   type SplitFilterConfig,
 } from "./split-filter";
+
+// The frozen curve's HP-side overshoot of the 15 kHz range (15000 *
+// (50/49)^2), an out-of-range Hz value above the live [0, 15000] range this
+// module derives from. Inlined rather than imported from the legacy-read
+// island (frozen-split-filter.ts): this engine module must never depend on
+// that island, and the curve's own literal is pinned there
+// (frozen-split-filter.test.ts).
+const OUT_OF_RANGE_CUTOFF_HZ = 15618.4922949;
 
 // Configs built exactly as the two call sites build them (instrument-channel.ts
 // and master-bus.ts): the range endpoints, no explicit bypass floor.
@@ -90,22 +97,17 @@ describe.each([
     });
   });
 
-  it("deep high-pass: LP opens to the range max, HP tracks the frozen curve maximum", () => {
+  it("deep high-pass: LP opens to the range max, HP tracks an out-of-range cutoff unclamped", () => {
     expect(
       deriveSplitFilterFrequencies(
-        { side: "highpass", cutoffHz: SPLIT_FILTER_MAX_CUTOFF_HZ },
+        { side: "highpass", cutoffHz: OUT_OF_RANGE_CUTOFF_HZ },
         config,
       ),
     ).toEqual({
       lowPassTarget: rangeMax,
-      highPassTarget: SPLIT_FILTER_MAX_CUTOFF_HZ,
+      highPassTarget: OUT_OF_RANGE_CUTOFF_HZ,
     });
   });
-});
-
-it("the frozen curve maximum is the HP-side overshoot of the 15 kHz range", () => {
-  // 15000 * (50/49)^2, the closed-high-pass extreme at position 100.
-  expect(SPLIT_FILTER_MAX_CUTOFF_HZ).toBeCloseTo(15618.49, 2);
 });
 
 it("the bypass floor stays at 10 Hz so the HP node never clamps to 0 Hz", () => {
