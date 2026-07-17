@@ -4,6 +4,7 @@ import { Headphones, Volume, VolumeX } from "lucide-react";
 import { useChannelReady } from "@/core/audio/bridge/use-kit-version";
 import type { CanonicalFilter } from "@/core/audio/canonical/filter";
 import { useInstrumentsStore } from "@/features/instrument/store/use-instruments-store";
+import { historyGestureHandlers } from "@/features/preset/history/history";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { buttonActive } from "@/shared/lib/button-active";
 import { cn } from "@/shared/lib/utils";
@@ -132,12 +133,14 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
     >
       {/* Top knobs - 2x2 grid */}
       <RotaryKnob
+        {...historyGestureHandlers}
         value={decay}
         onChange={setDecay}
         label="decay"
         descriptor={instrumentDecayDescriptor}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={tune}
         onChange={setTune}
         label="tune"
@@ -145,6 +148,7 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
         outerTickCount={15}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={filter}
         onChange={setFilter}
         label="filter"
@@ -152,6 +156,7 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
         outerTickCount={3}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={pan}
         onChange={setPan}
         label="pan"
@@ -166,6 +171,7 @@ function InstrumentParamsControl({ index }: InstrumentParamsProps) {
       <div className="col-span-2 grid h-24 w-5/6 grid-cols-3 place-items-center">
         <GainMeter index={index} />
         <LinearSlider
+          {...historyGestureHandlers}
           descriptor={instrumentVolumeDescriptor}
           value={volume}
           onChange={setVolume}

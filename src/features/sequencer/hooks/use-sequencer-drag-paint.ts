@@ -2,6 +2,10 @@ import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { STEP_COUNT } from "@/core/audio/engine/constants";
+import {
+  beginHistoryGesture,
+  endHistoryGesture,
+} from "@/features/preset/history/history";
 
 interface UseSequencerDragPaintProps {
   triggers: boolean[];
@@ -22,17 +26,36 @@ const useSequencerDragPaint = ({
   const activeInputRef = useRef<"pointer" | "touch" | null>(null);
   const activePointerIdRef = useRef<number | null>(null);
 
-  const stopDragging = () => {
+  // A whole drag-paint is one undo unit (features/preset/history). The ref
+  // guards pairing: overlapping start events (multi-touch, synthetic pointer
+  // + touch) must not open a second gesture that nothing closes.
+  const historyGestureOpenRef = useRef(false);
+
+  const openHistoryGesture = () => {
+    if (historyGestureOpenRef.current) return;
+    historyGestureOpenRef.current = true;
+    beginHistoryGesture();
+  };
+
+  const closeHistoryGesture = useCallback(() => {
+    if (!historyGestureOpenRef.current) return;
+    historyGestureOpenRef.current = false;
+    endHistoryGesture();
+  }, []);
+
+  const stopDragging = useCallback(() => {
     setIsDragging(false);
     activeInputRef.current = null;
     activePointerIdRef.current = null;
-  };
+    closeHistoryGesture();
+  }, [closeHistoryGesture]);
 
   useEffect(() => {
     return () => {
       setIsDragging(false);
+      closeHistoryGesture();
     };
-  }, []);
+  }, [closeHistoryGesture]);
 
   const handleStepMove = useCallback(
     (clientX: number, clientY: number) => {
@@ -66,6 +89,7 @@ const useSequencerDragPaint = ({
     activePointerIdRef.current = event.pointerId ?? null;
     setIsDragging(true);
     setDragWriteTargetOn(!isActive);
+    openHistoryGesture();
     onToggleStep(stepIndex);
   };
 
@@ -80,6 +104,7 @@ const useSequencerDragPaint = ({
     activePointerIdRef.current = null;
     setIsDragging(true);
     setDragWriteTargetOn(!isActive);
+    openHistoryGesture();
     onToggleStep(stepIndex);
   };
 
@@ -170,7 +195,7 @@ const useSequencerDragPaint = ({
       window.removeEventListener("touchend", handleWindowTouchEnd);
       window.removeEventListener("touchcancel", handleWindowTouchEnd);
     };
-  }, [dragWriteTargetOn, isDragging, triggers, handleStepMove]);
+  }, [dragWriteTargetOn, isDragging, triggers, handleStepMove, stopDragging]);
 
   return {
     isDragging,

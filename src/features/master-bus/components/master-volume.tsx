@@ -1,4 +1,5 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
+import { historyGestureHandlers } from "@/features/preset/history/history";
 import { masterVolumeDescriptor, RotaryKnob } from "@/shared/param-control";
 
 function MasterVolume() {
@@ -7,6 +8,7 @@ function MasterVolume() {
 
   return (
     <RotaryKnob
+      {...historyGestureHandlers}
       descriptor={masterVolumeDescriptor}
       value={masterVolume}
       onChange={setMasterVolume}

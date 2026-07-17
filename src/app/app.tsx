@@ -10,6 +10,7 @@ import { GlobalErrorHandler } from "@/core/providers/global-error-handler";
 import { DebugOverlay } from "@/features/debug/components/debug-overlay";
 import { NightSky } from "@/features/night/components/night-sky";
 import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
+import { useHistoryCapture } from "@/features/preset/history/history";
 import { useSessionAutosave } from "@/features/preset/session/use-session-autosave";
 import { PixelatedSpinner } from "@/shared/components/pixelated-spinner";
 import { AboutDialog } from "@/shared/dialogs/about-dialog";
@@ -18,6 +19,7 @@ import { useMobileWarning } from "@/shared/hooks/use-mobile-warning";
 import { useSequencerEscToVoice } from "@/shared/hooks/use-sequencer-esc-to-voice";
 import { useServiceWorker } from "@/shared/hooks/use-service-worker";
 import { useSpacebarTogglePlay } from "@/shared/hooks/use-spacebar-toggle-play";
+import { useUndoRedoShortcuts } from "@/shared/hooks/use-undo-redo-shortcuts";
 import { useLightShowIntro } from "@/shared/lightshow";
 import { LightRigProvider } from "@/shared/lightshow/light-rig-provider";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
@@ -69,6 +71,8 @@ function AppOrchestrator() {
 
   useSequencerEscToVoice();
 
+  useUndoRedoShortcuts();
+
   // --- Lightshow ---
   useLightShowIntro(kitVersion > 0 && areWaveformsReady, 320);
 
@@ -97,6 +101,10 @@ function App() {
   // Session autosave: the debounced session-document writer that replaced
   // the per-store persists (docs/preset-persistence.md, PR 5).
   useSessionAutosave();
+
+  // Undo/redo capture: seeds the baseline from the boot-restored session
+  // and records store changes as history entries (#240).
+  useHistoryCapture();
 
   // Night Mode
   const nightMode = useNightModeStore((state) => state.nightMode);

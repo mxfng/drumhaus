@@ -1,6 +1,7 @@
 import { useEffect, useEffectEvent } from "react";
 
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
+import { isTextInputFocused } from "@/shared/lib/is-text-input-focused";
 import { useDialogStore } from "@/shared/store/use-dialog-store";
 
 /**
@@ -21,15 +22,7 @@ function useSequencerEscToVoice(): void {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
 
-      // Ignore when typing in inputs/content-editables
-      const activeElement = document.activeElement;
-      const isTextInput =
-        activeElement instanceof HTMLInputElement ||
-        activeElement instanceof HTMLTextAreaElement ||
-        activeElement instanceof HTMLSelectElement ||
-        (activeElement instanceof HTMLElement &&
-          activeElement.isContentEditable);
-      if (isTextInput) return;
+      if (isTextInputFocused()) return;
 
       if (isAnyDialogOpen()) return;
 

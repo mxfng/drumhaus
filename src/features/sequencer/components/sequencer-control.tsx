@@ -1,5 +1,7 @@
-import { ComingSoonTooltipContent } from "@/shared/components/coming-soon-tooltip-content";
+import { redo, undo } from "@/features/preset/history/history";
+import { useHistoryStore } from "@/features/preset/history/use-history-store";
 import { HardwareModule } from "@/shared/components/hardware-module";
+import { useShiftHeld } from "@/shared/hooks/use-shift-held";
 import { buttonActive } from "@/shared/lib/button-active";
 import { interactableHighlight } from "@/shared/lib/interactable-highlight";
 import { cn } from "@/shared/lib/utils";
@@ -29,13 +31,10 @@ const TOOLTIPS = {
   CLEAR_TOGGLE_ON: "Enter clear mode and select a target",
   CLEAR_TOGGLE_OFF: "Exit clear mode",
 
-  UNDO: "Undo the last change",
+  UNDO: "Undo the last change - hold shift to redo",
+  REDO: "Redo the last undone change",
 } as const;
 
-/*
-TODO: Undo is not built yet - the button below is a "coming soon" tooltip
-placeholder (see ComingSoonTooltipContent).
- */
 function SequencerControl() {
   const variation = usePatternStore((state) => state.variation);
   const chainEnabled = usePatternStore((state) => state.chainEnabled);
@@ -53,6 +52,12 @@ function SequencerControl() {
   const togglePasteMode = usePatternStore((state) => state.togglePasteMode);
   const exitCopyPasteMode = usePatternStore((state) => state.exitCopyPasteMode);
   const toggleClearMode = usePatternStore((state) => state.toggleClearMode);
+
+  // Undo/redo: the single hardware button follows the MPC/Push convention -
+  // holding shift flips it to redo (#240).
+  const canUndo = useHistoryStore((state) => state.past.length > 0);
+  const canRedo = useHistoryStore((state) => state.future.length > 0);
+  const isShiftHeld = useShiftHeld();
 
   const isChainEdit = mode.type === "variationChain";
   const isCopyMode = mode.type === "copy";
@@ -223,14 +228,25 @@ function SequencerControl() {
             {isClearMode ? TOOLTIPS.CLEAR_TOGGLE_OFF : TOOLTIPS.CLEAR_TOGGLE_ON}
           </TooltipContent>
         </Tooltip>
-        <Tooltip delayDuration={0}>
+        <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="hardware" size="sm" className="*:opacity-50">
-              <span>undo</span>
+            <Button
+              variant="hardware"
+              size="sm"
+              onClick={(event) => {
+                if (event.shiftKey) {
+                  redo();
+                } else {
+                  undo();
+                }
+              }}
+              disabled={isShiftHeld ? !canRedo : !canUndo}
+            >
+              <span>{isShiftHeld ? "redo" : "undo"}</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            <ComingSoonTooltipContent tooltip={TOOLTIPS.UNDO} />
+            {isShiftHeld ? TOOLTIPS.REDO : TOOLTIPS.UNDO}
           </TooltipContent>
         </Tooltip>
       </div>

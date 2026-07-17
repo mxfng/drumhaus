@@ -1,4 +1,5 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
+import { historyGestureHandlers } from "@/features/preset/history/history";
 import {
   masterCompAttackDescriptor,
   masterCompMixDescriptor,
@@ -21,18 +22,21 @@ function MasterCompressor() {
   return (
     <>
       <RotaryKnob
+        {...historyGestureHandlers}
         value={attack}
         onChange={setAttack}
         label="punch"
         descriptor={masterCompAttackDescriptor}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={threshold}
         onChange={setThreshold}
         label="threshold"
         descriptor={masterCompThresholdDescriptor}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={ratio}
         onChange={setRatio}
         label="ratio"
@@ -40,6 +44,7 @@ function MasterCompressor() {
         outerTickCount={8}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         value={mix}
         onChange={setMix}
         label="mix"
