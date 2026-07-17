@@ -135,6 +135,9 @@ async function pointer(
         bubbles: true,
         cancelable: true,
         shiftKey,
+        // Match a real left-button gesture: bit 0 of `buttons` is held
+        // through down and move and cleared on up.
+        buttons: type === "pointerup" ? 0 : 1,
       }),
     );
   });
