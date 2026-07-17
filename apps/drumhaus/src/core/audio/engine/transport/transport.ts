@@ -1,6 +1,7 @@
 import { getTransport, Ticks } from "tone/build/esm/index";
 
 import { SEQUENCE_SUBDIVISION, STEP_COUNT } from "../constants";
+import { getNativeAudioContext } from "../tone-internals";
 
 /**
  * The LIVE transport, captured once at module evaluation.
@@ -44,17 +45,21 @@ function startTransport(atContextTime?: number): void {
 /**
  * The LIVE context's underlying AudioContext, reached through the retained
  * live transport (so a call landing mid-offline-render can never hand out
- * the offline context) and Tone's public Context.rawContext surface - no
- * private internals involved (tone-internals.ts keeps its monopoly).
+ * the offline context).
  *
  * Used by the session adapter to map the shared epoch clock onto the audio
- * clock for grid-aligned starts. Note: Tone's default context is a
- * standardized-audio-context wrapper without getOutputTimestamp, so epoch
- * mapping consumers fall back to currentTime anchoring (a few ms, uniform
- * across same-machine tabs - see @haus/bridge clock.ts).
+ * clock for grid-aligned starts. Tone's public Context.rawContext is a
+ * standardized-audio-context wrapper WITHOUT getOutputTimestamp, and an
+ * epoch mapping anchored on its currentTime lands audio late at the
+ * speaker by the context's whole output latency (tens of ms - issue #425).
+ * So this hands out the NATIVE context beneath the wrapper (same clock,
+ * real getOutputTimestamp; via tone-internals.ts, which keeps its monopoly
+ * on internals), falling back to the wrapper if the internals ever change
+ * shape - degrading to uncompensated anchoring, never breaking the clock.
  */
 function getLiveRawContext(): BaseAudioContext {
-  return liveTransport.context.rawContext;
+  const rawContext = liveTransport.context.rawContext;
+  return getNativeAudioContext(rawContext) ?? rawContext;
 }
 
 /**

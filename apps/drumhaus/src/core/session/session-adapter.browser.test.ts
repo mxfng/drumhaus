@@ -25,6 +25,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
+import { isSessionLinked } from "./link-state";
 import {
   createSessionAdapter,
   type SessionAdapter,
@@ -488,6 +489,19 @@ describe("unlink", () => {
     conductor.setBpm(180);
     await flushAll();
     expect(useTransportStore.getState().bpm).toBe(100);
+  });
+
+  it("publishes the linked flag for the transport store (#425)", () => {
+    const rig = createRig();
+    expect(isSessionLinked()).toBe(false);
+
+    // While linked, togglePlay consults this flag and leaves starting the
+    // engine to the adapter's grid-aligned path.
+    rig.adapter.link();
+    expect(isSessionLinked()).toBe(true);
+
+    rig.adapter.unlink();
+    expect(isSessionLinked()).toBe(false);
   });
 });
 

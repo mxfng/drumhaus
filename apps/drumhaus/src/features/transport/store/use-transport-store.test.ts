@@ -8,7 +8,17 @@
  * separately by the browser tests.
  */
 
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+
+import { setSessionLinked } from "@/core/session/link-state";
 
 const engineMock = vi.hoisted(() => ({
   play: vi.fn<() => Promise<void>>(() => Promise.resolve()),
@@ -31,6 +41,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   engineMock.play.mockImplementation(() => Promise.resolve());
   useTransportStore.setState({ isPlaying: false });
+});
+
+afterEach(() => {
+  setSessionLinked(false);
 });
 
 describe("togglePlay", () => {
@@ -79,5 +93,22 @@ describe("togglePlay", () => {
     expect(engineMock.play).toHaveBeenCalledTimes(1);
     expect(engineMock.setTempo).not.toHaveBeenCalled();
     expect(engineMock.setSwing).not.toHaveBeenCalled();
+  });
+
+  it("while linked, leaves starting the engine to the session adapter (#425)", async () => {
+    setSessionLinked(true);
+
+    // Play: the store flips optimistically (the adapter sees the flip via
+    // its subscription and schedules the grid-aligned start), but the
+    // immediate engine start is suppressed - it would sound ahead of the
+    // shared downbeat and then be restarted onto it.
+    await useTransportStore.getState().togglePlay();
+    expect(useTransportStore.getState().isPlaying).toBe(true);
+    expect(engineMock.play).not.toHaveBeenCalled();
+
+    // Stop stays immediate while linked.
+    await useTransportStore.getState().togglePlay();
+    expect(useTransportStore.getState().isPlaying).toBe(false);
+    expect(engineMock.stop).toHaveBeenCalledTimes(1);
   });
 });

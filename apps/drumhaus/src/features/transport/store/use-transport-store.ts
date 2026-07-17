@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { getAudioEngine } from "@/core/audio/engine";
+import { isSessionLinked } from "@/core/session/link-state";
 
 // No persist middleware: bpm/swing persist inside the session document
 // (features/preset/session), restored by bootstrapSession() before React
@@ -45,6 +46,17 @@ const useTransportStore = create<TransportState>()(
 
         if (!shouldPlay) {
           engine.stop();
+          return;
+        }
+
+        // While linked, the session adapter owns starting the engine: the
+        // store flip above just reached it (synchronous subscription), and
+        // it starts playback aligned to the shared grid's downbeat. An
+        // immediate start here would sound ahead of that downbeat and then
+        // be restarted onto it - the double-fire stutter of issue #425.
+        // The UI is already optimistic via the flip; engine playback-state
+        // events reconcile it if the aligned start cannot run.
+        if (isSessionLinked()) {
           return;
         }
 

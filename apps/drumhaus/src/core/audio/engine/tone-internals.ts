@@ -28,6 +28,16 @@ interface ToneSamplerInternal {
 }
 
 /**
+ * Tone's live Context.rawContext is a standardized-audio-context wrapper
+ * (tone's pinned dependency), which keeps the browser AudioContext it
+ * wraps in _nativeAudioContext (its base class uses _nativeContext).
+ */
+interface StandardizedAudioContextInternal {
+  _nativeAudioContext?: unknown;
+  _nativeContext?: unknown;
+}
+
+/**
  * Safely access internal envelope signal for cancellation.
  * Returns undefined if the internal structure doesn't match expectations.
  */
@@ -49,4 +59,37 @@ function getSamplerActiveSources(
   return internal._activeSources;
 }
 
-export { getEnvelopeInternalSignal, getSamplerActiveSources };
+/**
+ * Safely reach the NATIVE AudioContext beneath Tone's rawContext.
+ *
+ * The standardized-audio-context wrapper does not implement
+ * getOutputTimestamp, so an epoch<->context clock mapping anchored on it
+ * falls back to currentTime and cannot compensate for output latency -
+ * grid-aligned playback then lands late at the speaker by exactly that
+ * latency (issue #425). The native context underneath carries the real
+ * getOutputTimestamp; scheduling times are interchangeable because the
+ * wrapper's currentTime IS the native context's clock.
+ *
+ * Returns undefined when the internal structure doesn't match
+ * expectations, so callers can fall back to the wrapper (losing only the
+ * latency compensation, not correctness of the clock).
+ */
+function getNativeAudioContext(
+  context: BaseAudioContext,
+): AudioContext | undefined {
+  const internal = context as unknown as StandardizedAudioContextInternal;
+  const candidate = internal._nativeAudioContext ?? internal._nativeContext;
+  if (
+    candidate instanceof AudioContext &&
+    typeof candidate.getOutputTimestamp === "function"
+  ) {
+    return candidate;
+  }
+  return undefined;
+}
+
+export {
+  getEnvelopeInternalSignal,
+  getNativeAudioContext,
+  getSamplerActiveSources,
+};

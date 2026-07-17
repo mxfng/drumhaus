@@ -22,10 +22,13 @@
  * Grid alignment: playback starts at the shared grid's next bar boundary
  * (during the start lead window that is bar 0's downbeat itself), mapped
  * onto the live AudioContext with @haus/bridge's epoch clock helpers.
- * Alignment is deferred one macrotask so a user gesture's own
- * store-driven engine.play() lands first and the aligned start supersedes
- * it (the engine's playback intent sequencing guarantees the later call
- * wins). A tempo rebase while playing is applied as a glide - the protocol
+ * While linked this adapter is the ONLY engine starter: togglePlay
+ * suppresses its immediate engine.play() (see link-state.ts), because an
+ * unaligned start would sound ahead of the shared downbeat and then be
+ * restarted onto it - the double-fire stutter of issue #425. Alignment is
+ * still deferred one macrotask, coalescing state bursts (latest wins) and
+ * keeping engine commands out of store-notification stacks. A tempo
+ * rebase while playing is applied as a glide - the protocol
  * rebases phase-continuously and the transport bpm change preserves phase,
  * so no restart (and no chain reset) is needed; realignment (a scheduled
  * restart on the boundary) happens only when adopting a grid this tab is
@@ -51,6 +54,7 @@ import { getAudioEngine } from "@/core/audio/engine";
 import { clampVariationId } from "@/core/audio/engine/pattern-types";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { useTransportStore } from "@/features/transport/store/use-transport-store";
+import { setSessionLinked } from "./link-state";
 
 /**
  * Lead added ahead of "now" when picking the bar boundary to start on, so
@@ -229,10 +233,10 @@ function createSessionAdapter(
 
   /**
    * Defer playback alignment one macrotask, coalescing bursts (latest
-   * wins). The deferral is load-bearing: when the local user pressed play,
-   * togglePlay's own engine.play() is issued synchronously after its store
-   * write; running the aligned play after it makes the aligned start the
-   * newest playback intent, so the immediate unaligned start stands down.
+   * wins). togglePlay never starts the engine while linked (#425 - see
+   * link-state.ts), so nothing here races a user start; the deferral
+   * keeps engine commands out of synchronous store-notification stacks
+   * and collapses rapid state changes into one aligned start.
    */
   function schedulePlaybackSync(grid: SharedGrid | null): void {
     pendingGrid = grid;
@@ -327,6 +331,9 @@ function createSessionAdapter(
     // comment at the top of the factory.
     swapInFreshController();
     appliedGrid = null;
+    // Published for the transport store: while linked, togglePlay leaves
+    // starting the engine to this adapter's grid-aligned path (#425).
+    setSessionLinked(true);
 
     // Seed BEFORE connecting: pre-connect commands apply locally without a
     // rev bump, so if this tab becomes conductor its seeded state
@@ -386,6 +393,7 @@ function createSessionAdapter(
     unsubscribers = [];
     controller.disconnect();
     appliedGrid = null;
+    setSessionLinked(false);
     // Fully local from here: playback (if any) keeps running untouched.
   }
 
