@@ -17,16 +17,6 @@
   --color-foreground-muted: oklch(0.7607 0.0398 67.17);
   --color-foreground-emphasis: oklch(0.4479 0.0397 62.14);
 
-  /* Primary colors */
-  --color-primary: oklch(0.7245 0.189 50.94);
-  --color-primary-muted: var(--color-accent);
-  --color-primary-foreground: oklch(1 0 0);
-  --color-primary-shadow: oklch(0.7245 0.189 50.94 / 60%);
-
-  /* Accent colors */
-  --color-accent: oklch(0.7687 0.1641 58.66);
-  --color-accent-foreground: var(--color-primary-foreground);
-
   /* Secondary colors */
   --color-secondary: oklch(0.931 0.0104 67.7);
   --color-secondary-foreground: var(--color-foreground);
@@ -34,10 +24,6 @@
   /* Screen colors */
   --color-screen: var(--color-secondary);
   --color-screen-foreground: oklch(0.4479 0.0397 62.14 / 80%);
-
-  /* Popover colors */
-  --color-popover: var(--color-primary);
-  --color-popover-foreground: var(--color-primary-foreground);
 
   /* Destructive colors */
   --color-destructive: oklch(0.5677 0.211 26.44);
@@ -54,6 +40,27 @@
   /* Border and focus colors */
   --color-border: var(--color-shadow-60);
   --color-ring: oklch(0.7607 0.0398 67.17);
+
+  /* ==================== Brand Colors ==================== */
+  /* The instrument brand surface. These values are the shipped defaults;
+     an instrument re-declares any subset of the base tokens (primary,
+     primary-foreground, primary-shadow, accent) on its own :root after
+     importing this theme to pin its brand (see README). The alias tokens
+     follow their base token automatically. */
+
+  /* Primary colors */
+  --color-primary: oklch(0.7245 0.189 50.94);
+  --color-primary-muted: var(--color-accent);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-primary-shadow: oklch(0.7245 0.189 50.94 / 60%);
+
+  /* Accent colors */
+  --color-accent: oklch(0.7687 0.1641 58.66);
+  --color-accent-foreground: var(--color-primary-foreground);
+
+  /* Popover colors */
+  --color-popover: var(--color-primary);
+  --color-popover-foreground: var(--color-primary-foreground);
 
   /* ==================== Neumorphic Colors ==================== */
   --color-shadow: oklch(0.6818 0.0555 68.55);
@@ -132,16 +139,6 @@
   --color-foreground-muted: var(--color-foreground-muted);
   --color-foreground-emphasis: var(--color-foreground-emphasis);
 
-  /* Primary colors */
-  --color-primary: var(--color-primary);
-  --color-primary-muted: var(--color-primary-muted);
-  --color-primary-foreground: var(--color-primary-foreground);
-  --color-primary-shadow: var(--color-primary-shadow);
-
-  /* Accent colors */
-  --color-accent: var(--color-accent);
-  --color-accent-foreground: var(--color-accent-foreground);
-
   /* Secondary colors */
   --color-secondary: var(--color-secondary);
   --color-secondary-foreground: var(--color-secondary-foreground);
@@ -149,10 +146,6 @@
   /* Screen colors */
   --color-screen: var(--color-screen);
   --color-screen-foreground: var(--color-screen-foreground);
-
-  /* Popover colors */
-  --color-popover: var(--color-popover);
-  --color-popover-foreground: var(--color-popover-foreground);
 
   /* Destructive colors */
   --color-destructive: var(--color-destructive);
@@ -169,6 +162,21 @@
   /* Border and focus colors */
   --color-border: var(--color-border);
   --color-ring: var(--color-ring);
+
+  /* ==================== Brand Colors ==================== */
+  /* Primary colors */
+  --color-primary: var(--color-primary);
+  --color-primary-muted: var(--color-primary-muted);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-primary-shadow: var(--color-primary-shadow);
+
+  /* Accent colors */
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+
+  /* Popover colors */
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
 
   /* ==================== Neumorphic Colors ==================== */
   --color-shadow: var(--color-shadow);

@@ -1,8 +1,11 @@
 /* Lightshow: generic "LED" glow state shared by the rig */
 
 [data-light-node] {
-  --lightshow-color: oklch(0.7245 0.189 50.94);
-  --lightshow-color-overlay: oklch(0.7245 0.189 50.94 / 68%);
+  /* Both derive from the brand token. The overlay reads the token
+     directly (not --lightshow-color) so a per-node glowColor override
+     keeps leaving the overlay untouched. */
+  --lightshow-color: var(--color-primary);
+  --lightshow-color-overlay: oklch(from var(--color-primary) l c h / 68%);
   --lightshow-brightness: 1.08;
   --lightshow-saturation: 1.04;
   --lightshow-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
