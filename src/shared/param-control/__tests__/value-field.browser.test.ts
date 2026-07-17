@@ -68,6 +68,9 @@ async function mount(initial = 50) {
       descriptor: testDescriptor,
       value,
       label: "level",
+      // Pin the sensitivity so the drag math is independent of the
+      // global default feel.
+      dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
         setValue(v);

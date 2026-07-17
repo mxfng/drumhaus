@@ -84,8 +84,8 @@ async function mount(
       value,
       label: "Test",
       orientation,
-      // Pin the default sensitivity so the drag math is independent of the
-      // component's hardware-feel default.
+      // Pin the sensitivity so the drag math is independent of the
+      // component's default feel.
       dragSensitivity: 1 / 200,
       onChange: (v: number) => {
         recorded.changes.push(v);
