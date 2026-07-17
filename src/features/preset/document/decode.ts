@@ -16,6 +16,7 @@ import { migrateV1ToDocument } from "./migrate-v1";
 import { migrateV2ToDocument } from "./migrate-v2";
 import { validatePresetFileV1 } from "./parse";
 import { warnStrippedKeyPaths } from "./stripped-keys";
+import { READABLE_DOCUMENT_VERSION_V2 } from "./versions";
 
 /**
  * Decode raw `.dh` file text into the current (v2.1) preset document.
@@ -30,9 +31,6 @@ import { warnStrippedKeyPaths } from "./stripped-keys";
  * routed through its migration and can never be mis-read as a v2.1 canonical
  * filter.
  */
-
-/** The v2 domain document, whose split filter was still a 0-100 position. */
-const PRESET_DOCUMENT_VERSION_V2 = 2;
 
 /**
  * Parse preset file text of any supported version into a PresetDocument.
@@ -77,7 +75,7 @@ function decodePresetObject(data: unknown): PresetDocument {
     return migrateV1ToDocument(validatePresetFileV1(raw));
   }
 
-  if (raw.version === PRESET_DOCUMENT_VERSION_V2) {
+  if (raw.version === READABLE_DOCUMENT_VERSION_V2) {
     return migrateV2ToDocument(raw);
   }
 

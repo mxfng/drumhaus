@@ -14,14 +14,10 @@ import {
   sanitizeChain,
 } from "@/core/audio/engine/pattern-types";
 import { getKitLoader } from "@/core/dhkit";
-import type { LegacyKnobInstrumentParams } from "@/features/preset/types/legacy-v1";
-import type { PresetFileV1 } from "@/features/preset/types/preset";
-import { legacyCycleToChain } from "@/features/sequencer/lib/chain";
-import {
-  migrateInstruments,
-  migrateMasterChainParams,
-  migratePattern,
-} from "@/features/sequencer/lib/migrations";
+import type {
+  LegacyKnobInstrumentParams,
+  PresetFileV1,
+} from "@/features/preset/types/legacy-v1";
 import { clamp } from "@/shared/lib/utils";
 import {
   PRESET_DOCUMENT_KIND,
@@ -31,6 +27,12 @@ import {
 } from "./document";
 import { CorruptFieldError, UnknownKitError } from "./errors";
 import { frozenSplitFilterPositionToCanonical } from "./frozen-split-filter";
+import { legacyCycleToChain } from "./legacy-cycle-to-chain";
+import {
+  migrateInstruments,
+  migrateMasterChainParams,
+  migratePattern,
+} from "./legacy-knob-migrators";
 
 /**
  * Deterministic stand-in for v1 timestamps that were missing or not strings,

@@ -1,4 +1,4 @@
-import type { PresetFileV1 } from "@/features/preset/types/preset";
+import type { PresetFileV1 } from "@/features/preset/types/legacy-v1";
 import {
   CorruptFieldError,
   InvalidFileError,
