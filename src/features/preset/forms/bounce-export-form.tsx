@@ -51,17 +51,11 @@ const sampleRateOptions: { value: SampleRateOption; label: string }[] = [
 
 type StemTapOption = "preMaster" | "master";
 
-const stemTapOptions: { value: StemTapOption; label: string }[] = [
-  { value: "preMaster", label: "Pre-master" },
-  { value: "master", label: "Master chain" },
-];
-
-const stemTapDescriptions: Record<StemTapOption, string> = {
-  preMaster:
-    "Stems carry channel-level processing only, so they sum back to the un-mastered mix and rebalance cleanly in a DAW.",
-  master:
-    "Each solo'd channel renders through the full master chain - compression, saturation, reverb, the works. These stems don't sum back to the mix, but capture the processed sound of each channel.",
-};
+const stemTapOptions: { value: StemTapOption; label: string; hint: string }[] =
+  [
+    { value: "preMaster", label: "Pre-master", hint: "sums to mix" },
+    { value: "master", label: "Master chain", hint: "full FX, won't sum" },
+  ];
 
 const bounceExportSchema = z.object({
   filename: z.string().trim().min(1, "Filename is required"),
@@ -352,22 +346,14 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                     disabled={isSubmitting}
                   />
                   <FieldLabel htmlFor="bounce-stems" className="font-normal">
-                    Export stems (one WAV per channel)
+                    Export stems
                   </FieldLabel>
                 </Field>
-                <FieldDescription>
-                  {stems
-                    ? "Bounces a zip of per-channel stems plus the full mix. Silent channels are skipped."
-                    : "Bounces a single WAV rendered through the master chain."}
-                </FieldDescription>
               </FieldGroup>
 
               {stems && (
                 <Field data-invalid={Boolean(errors.stemTap)}>
                   <FieldLabel>Stem processing</FieldLabel>
-                  <FieldDescription>
-                    {stemTapDescriptions[stemTap]}
-                  </FieldDescription>
                   <RadioGroup
                     value={stemTap}
                     onValueChange={(value) =>
@@ -392,6 +378,9 @@ function BounceExportForm({ onClose }: BounceExportFormProps) {
                         >
                           {option.label}
                         </FieldLabel>
+                        <span className="text-muted-foreground text-sm">
+                          {option.hint}
+                        </span>
                       </div>
                     ))}
                   </RadioGroup>

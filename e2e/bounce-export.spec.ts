@@ -95,7 +95,7 @@ test.describe("bounce export", () => {
     // The stems toggle defaults to off: a plain bounce is one WAV, and the
     // stem tap-point control stays hidden.
     await expect(
-      dialog.getByLabel("Export stems (one WAV per channel)"),
+      dialog.getByLabel("Export stems", { exact: true }),
     ).not.toBeChecked();
     await expect(dialog.getByText("Stem processing")).not.toBeVisible();
 
@@ -146,7 +146,7 @@ test.describe("bounce export", () => {
     await toggleStep(page, 4, "true");
 
     const dialog = await openBounceTab(page, "e2e-stems");
-    await dialog.getByLabel("Export stems (one WAV per channel)").check();
+    await dialog.getByLabel("Export stems", { exact: true }).check();
 
     // Checking stems reveals the tap-point control, defaulting to
     // pre-master (the summing, DAW-friendly mode).
@@ -226,7 +226,7 @@ test.describe("bounce export", () => {
       tap: "Pre-master" | "Master chain",
     ) => {
       const dialog = await openBounceTab(page, filename);
-      await dialog.getByLabel("Export stems (one WAV per channel)").check();
+      await dialog.getByLabel("Export stems", { exact: true }).check();
       await dialog.getByLabel(tap).check();
 
       const downloadPromise = page.waitForEvent("download", {
