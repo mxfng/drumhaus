@@ -99,7 +99,12 @@ function last(): number {
   return recorded.changes[recorded.changes.length - 1];
 }
 
-async function pointer(type: string, clientY: number, shiftKey = false) {
+async function pointer(
+  type: string,
+  clientY: number,
+  shiftKey = false,
+  init: PointerEventInit = {},
+) {
   await act(async () => {
     const target = type === "pointerdown" ? field() : window;
     target.dispatchEvent(
@@ -110,6 +115,10 @@ async function pointer(type: string, clientY: number, shiftKey = false) {
         bubbles: true,
         cancelable: true,
         shiftKey,
+        // Match a real left-button gesture: bit 0 of `buttons` is held through
+        // down and move and cleared on up. Chord tests override via `init`.
+        buttons: type === "pointerup" ? 0 : 1,
+        ...init,
       }),
     );
   });
@@ -149,6 +158,23 @@ describe("ValueField interactions (canonical-only public API)", () => {
     expect(input()).not.toBeNull();
     // No value change on a pure tap.
     expect(recorded.changes).toHaveLength(0);
+  });
+
+  it("a chorded release of the primary button is not a tap: no editor (#402)", async () => {
+    await mount(50);
+    await pointer("pointerdown", 100);
+    // Right button pressed, then left released before any movement: the
+    // release arrives as a pointermove with buttons=2 and cancels the press
+    // rather than opening the type-in editor.
+    await pointer("pointermove", 100, false, { buttons: 2 });
+    expect(input()).toBeNull();
+    // The press is already over, so the right button's eventual pointerup
+    // (the last button up on this pointer) must not read as a tap either.
+    await pointer("pointerup", 100, false, { button: 2 });
+    expect(input()).toBeNull();
+    expect(recorded.changes).toHaveLength(0);
+    expect(recorded.gestureStarts).toBe(0);
+    expect(recorded.gestureEnds).toBe(0);
   });
 
   it("fires onGestureStart / onGestureEnd exactly once per drag", async () => {

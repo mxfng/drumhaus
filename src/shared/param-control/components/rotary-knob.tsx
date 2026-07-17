@@ -102,6 +102,9 @@ function RotaryKnobBody({
   const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
       if (disabled) return;
+      // Mirror the engine: non-primary presses never start a gesture (#402),
+      // so guidance must not track one either.
+      if (event.button !== 0) return;
       updateTooltipSide();
 
       guidance.handleStart({ x: event.clientX, y: event.clientY });
