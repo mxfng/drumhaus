@@ -214,3 +214,29 @@
   --slider-track-bg: var(--slider-track-bg);
   --slider-track-shadow: var(--slider-track-shadow);
 }
+
+/* ==================== Animation Keyframes ==================== */
+/* Top-level on purpose: the @theme mirror above carries var() references,
+   so Tailwind cannot tie these names to the animate utilities and would
+   prune them if they lived inside @theme. */
+
+@keyframes brightness-pulse {
+  0%,
+  100% {
+    filter: brightness(1.03);
+  }
+  50% {
+    filter: brightness(1.09);
+  }
+}
+
+@keyframes brightness-blink {
+  0%,
+  49% {
+    filter: brightness(1.03);
+  }
+  50%,
+  100% {
+    filter: brightness(1);
+  }
+}

@@ -5,7 +5,7 @@ Plain CSS, consumed as source: OKLCH color tokens, neumorphic shadows, control (
 
 ## Usage
 
-In an app's Tailwind entry stylesheet, import the theme right after Tailwind itself, and the utilities after the app's base styles:
+In an app's Tailwind entry stylesheet, import the theme after Tailwind and any Tailwind plugin CSS, and the utilities after the app's base styles:
 
 ```css
 @import "tailwindcss";
