@@ -77,6 +77,16 @@ interface RenderFixtureOptions {
   chainEnabled?: boolean;
   variation?: VariationId;
   masterParams?: Partial<MasterChainCanonical>;
+  /**
+   * Also initialize the LIVE audio graph (master bus against the global
+   * destination), exactly like the production bridge does on mount. Live
+   * playback is silent without it: channels are only chained internally and
+   * connected onward when a master bus exists, so an uninitialized engine
+   * plays into nothing and every meter reads -Infinity (the harness gap
+   * behind issue #348). Offline rendering never needs this - renderWav
+   * builds its own offline graph from pushed state.
+   */
+  initLiveGraph?: boolean;
 }
 
 /**
@@ -102,6 +112,7 @@ async function createFixtureEngine(
     chainEnabled = false,
     variation = 0,
     masterParams = {},
+    initLiveGraph = false,
   } = opts;
 
   if (sampleUrls.length !== instruments.length) {
@@ -146,6 +157,10 @@ async function createFixtureEngine(
     engine.setTempo(bpm);
     // swing is already the canonical Tone.Transport fraction the engine holds.
     engine.setSwing(swing);
+
+    if (initLiveGraph) {
+      await engine.init(mapMasterToSettings(mergedMasterParams));
+    }
 
     await engine.loadKit(
       toKitSampleDescriptors(instruments),

@@ -10,8 +10,11 @@
  * sample set changes.
  *
  * Assertions read the engine's onPlaybackVariationChange emissions, which
- * fire at sequence creation and at every bar start. Live meters read
- * silence in this headless harness, so audio levels are not asserted.
+ * fire at sequence creation and at every bar start. The engine runs with a
+ * live master bus (initLiveGraph) so playback exercises the production
+ * graph, including live-bus reconnection during the hot swap. Loudness is
+ * deliberately NOT asserted here - see the harness note in
+ * master-level.browser.test.ts (issue #348).
  */
 
 import { getContext } from "tone/build/esm/index";
@@ -76,6 +79,7 @@ describe("kit hot swap during chain playback (issue #241)", () => {
         ],
       },
       chainEnabled: true,
+      initLiveGraph: true,
     });
 
     const emissions: number[] = [];

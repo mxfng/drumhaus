@@ -2,11 +2,14 @@
  * Browser tests for the master spectrum analyser tap (issue #384).
  *
  * The visualizer polls getMasterAnalyser().getValue() from its animation
- * loop. Live meters read silence in this headless harness (see the note in
- * kit-swap-chain.browser.test.ts), so spectrum content itself is not
- * asserted. These tests pin the tap's contract instead: it returns a working
- * "fft" analyser, the instance is stable across calls, and it survives
+ * loop. These tests pin the tap's contract: it returns a working "fft"
+ * analyser, the instance is stable across calls, and it survives
  * rebuild(), which exercises the doInit reattachment path.
+ *
+ * Spectrum content is deliberately not asserted in vitest browser mode -
+ * see the harness note in master-level.browser.test.ts (issue #348).
+ * Live loudness reaching the taps is covered end to end by the Playwright
+ * suite (night-visualizer.spec.ts).
  */
 
 import { describe, expect, it } from "vitest";
