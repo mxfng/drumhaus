@@ -1,4 +1,5 @@
 import { MAX_CHAIN_STEPS } from "@/core/audio/engine/pattern-types";
+import { historyGestureHandlers } from "@/features/preset/history/history";
 import { VariationBadge } from "@/features/sequencer/components/variation-badge";
 import { usePatternStore } from "@/features/sequencer/store/use-pattern-store";
 import { VARIATION_LABELS } from "@/features/sequencer/types/sequencer";
@@ -32,6 +33,7 @@ function TempoControlsScreen() {
           ch, tabular digits) so neighbors don't shift while dragging. */}
       <div className="flex w-full items-center justify-between gap-1 whitespace-nowrap tabular-nums">
         <ValueField
+          {...historyGestureHandlers}
           descriptor={transportBpmDescriptor}
           value={bpm}
           onChange={setBpm}
@@ -40,6 +42,7 @@ function TempoControlsScreen() {
           valueClassName="inline-block min-w-[3.5ch]"
         />
         <ValueField
+          {...historyGestureHandlers}
           descriptor={transportSwingDescriptor}
           value={swing}
           onChange={setSwing}

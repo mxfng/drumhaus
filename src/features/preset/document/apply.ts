@@ -66,13 +66,34 @@ function masterFromDocument(
   };
 }
 
+interface ApplyPresetOptions {
+  /**
+   * How the document reaches the stores.
+   *
+   * - "load" (default): a user-initiated preset load. Stops playback for
+   *   the kit reload, registers custom presets in the library, resets the
+   *   variation selection to the chain's entry point, and resets the clean
+   *   dirty baseline (a just-loaded preset reads clean).
+   * - "restore": an undo/redo step (features/preset/history). Keeps
+   *   playback running unless the kit changed, preserves the performance
+   *   selection (variation, sequencer mode), and leaves the library and the
+   *   clean baseline alone, so dirty detection keeps comparing against the
+   *   last real save rather than the restored snapshot.
+   */
+  intent?: "load" | "restore";
+}
+
 /**
  * Commit a preset document to the stores, all-or-nothing.
  *
  * @throws {UnknownKitError} If the document's kit id does not resolve in
  * the registry; nothing has been written when this fires
  */
-function applyPresetDocument(document: PresetDocument): void {
+function applyPresetDocument(
+  document: PresetDocument,
+  options?: ApplyPresetOptions,
+): void {
+  const intent = options?.intent ?? "load";
   // Conversion phase: derive every store payload up front (registry kit
   // rehydration plus the document's canonical channel params), so a failure
   // throws before the first store write and the session is untouched.
@@ -100,27 +121,34 @@ function applyPresetDocument(document: PresetDocument): void {
   // Commit phase: this order is load-bearing - the bridge's push order to
   // the engine depends on it.
 
-  // Stop playback first: committing instruments below kicks off the async
-  // engine kit reload (samples will reload).
+  // Stop playback first when committing instruments will kick off the async
+  // engine kit reload (samples will reload). A restore with an unchanged kit
+  // writes identical descriptors - no reload (see kit-subscription's
+  // kitDescriptorsChanged) - so playback keeps running through undo/redo.
+  const presetMeta = usePresetMetaStore.getState();
+  const kitChanged = presetMeta.currentKitMeta.id !== document.kit.id;
   const transport = useTransportStore.getState();
-  if (transport.isPlaying) {
+  if (transport.isPlaying && (intent === "load" || kitChanged)) {
     void transport.togglePlay();
   }
 
   // Register a non-factory preset in the library (dedupe by id; the entry
-  // write is best-effort, see addCustomPreset)
-  const presetMeta = usePresetMetaStore.getState();
-  if (isCustomPreset) {
+  // write is best-effort, see addCustomPreset). A restore never registers:
+  // undoing back across a load is not an import.
+  if (intent === "load" && isCustomPreset) {
     presetMeta.addCustomPreset(document);
   }
 
   // Update metadata (the clean dirty baseline is set post-commit below)
   presetMeta.setLoadedPresetMeta(document.meta, kit.meta);
 
-  // Update sequencer
+  // Update sequencer. The selection resets are load-only: undo/redo changes
+  // the machine's state, not the performer's view (decision in #240).
   const pattern = usePatternStore.getState();
-  pattern.setVoiceMode(0);
-  pattern.setVariation(initialVariation);
+  if (intent === "load") {
+    pattern.setVoiceMode(0);
+    pattern.setVariation(initialVariation);
+  }
   pattern.setPattern(document.pattern);
   pattern.setChain(document.playback.chain);
   pattern.setChainEnabled(document.playback.chainEnabled);
@@ -137,8 +165,12 @@ function applyPresetDocument(document: PresetDocument): void {
 
   // Dirty baseline LAST, from the POST-APPLY snapshot: apply -> snapshot is
   // now an identity round trip (canonical throughout), so a just-applied
-  // preset (or restored session) reads clean.
-  presetMeta.markPresetClean();
+  // preset (or restored session) reads clean. Restores skip this: dirty
+  // means "differs from the last save", which undo does not change.
+  if (intent === "load") {
+    presetMeta.markPresetClean();
+  }
 }
 
 export { applyPresetDocument };
+export type { ApplyPresetOptions };

@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { useDebugStore } from "@/features/debug/store/use-debug-store";
 import { useNightModeStore } from "@/features/night/store/use-night-mode-store";
+import { redo, undo } from "@/features/preset/history/history";
+import { useHistoryStore } from "@/features/preset/history/use-history-store";
 import { AboutDialog } from "@/shared/dialogs/about-dialog";
 import { DrumhausLogo } from "@/shared/icon/drumhaus-logo";
 import {
@@ -17,6 +19,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -28,8 +31,15 @@ const SCALE_MENU_OPTIONS = SCALE_OPTIONS.map((value) => ({
   label: `${value}%`,
 }));
 
+const IS_MAC_LIKE = /Mac|iPhone|iPad|iPod/.test(window.navigator.platform);
+const UNDO_SHORTCUT_LABEL = IS_MAC_LIKE ? "⌘Z" : "Ctrl+Z";
+const REDO_SHORTCUT_LABEL = IS_MAC_LIKE ? "⇧⌘Z" : "Ctrl+Shift+Z";
+
 function FloatingMenu() {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+
+  const canUndo = useHistoryStore((state) => state.past.length > 0);
+  const canRedo = useHistoryStore((state) => state.future.length > 0);
 
   const debugMode = useDebugStore((state) => state.debugMode);
   const toggleDebugMode = useDebugStore((state) => state.toggleDebugMode);
@@ -73,6 +83,15 @@ function FloatingMenu() {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
+          <DropdownMenuItem onSelect={undo} disabled={!canUndo}>
+            Undo
+            <DropdownMenuShortcut>{UNDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={redo} disabled={!canRedo}>
+            Redo
+            <DropdownMenuShortcut>{REDO_SHORTCUT_LABEL}</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setIsAboutOpen(true)}>
             About Drumhaus
           </DropdownMenuItem>

@@ -1,4 +1,5 @@
 import { useMasterChainStore } from "@/features/master-bus/store/use-master-chain-store";
+import { historyGestureHandlers } from "@/features/preset/history/history";
 import {
   masterPhaserDescriptor,
   masterReverbDescriptor,
@@ -21,6 +22,7 @@ function MasterFX() {
   return (
     <>
       <RotaryKnob
+        {...historyGestureHandlers}
         label="filter"
         descriptor={splitFilterDescriptor}
         value={filter}
@@ -28,12 +30,14 @@ function MasterFX() {
         outerTickCount={3}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         label="saturation"
         descriptor={masterSaturationDescriptor}
         value={saturation}
         onChange={setSaturation}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         label="reverb"
         descriptor={masterReverbDescriptor}
         value={reverb}
@@ -41,6 +45,7 @@ function MasterFX() {
         outerTickCount={5}
       />
       <RotaryKnob
+        {...historyGestureHandlers}
         label="phaser"
         descriptor={masterPhaserDescriptor}
         value={phaser}

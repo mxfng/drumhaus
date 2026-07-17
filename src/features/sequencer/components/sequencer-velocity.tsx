@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 
+import {
+  beginHistoryGesture,
+  endHistoryGesture,
+} from "@/features/preset/history/history";
 import { clampVelocity } from "@/features/sequencer/lib/helpers";
 import { cn } from "@/shared/lib/utils";
 import { useLightRig } from "@/shared/lightshow";
@@ -69,6 +73,16 @@ function SequencerVelocity({
       window.removeEventListener("pointerup", handlePointerUp);
       window.removeEventListener("pointercancel", handlePointerUp);
     };
+  }, [isAdjusting]);
+
+  // A whole velocity scrub is one undo unit (features/preset/history). The
+  // effect pairing guarantees the gesture closes on unmount mid-scrub; the
+  // pointer-down write that lands before this effect runs is folded into the
+  // gesture's end-commit by the history module.
+  useEffect(() => {
+    if (!isAdjusting) return;
+    beginHistoryGesture();
+    return () => endHistoryGesture();
   }, [isAdjusting]);
 
   const velocityWidth = Math.max(value * 100, 12);
