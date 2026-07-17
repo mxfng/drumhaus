@@ -48,6 +48,7 @@ Four derived aliases follow their base token automatically, so an instrument ove
 | `--color-popover`            | `--color-primary`            |
 | `--color-popover-foreground` | `--color-primary-foreground` |
 
+Overrides must live on `:root` because the aliases substitute their `var()` references at `:root` and inherit as computed values: a descendant-scoped override retints direct consumers but not the derived aliases (`popover`, `primary-muted`).
 Note that `--color-primary-shadow` is a literal (primary at 60% alpha), not an alias: an instrument changing `--color-primary` must re-declare the shadow to match.
 Drumhaus pins the shipped orange explicitly in its own theme; an instrument that wants the family default can simply declare nothing.
 
