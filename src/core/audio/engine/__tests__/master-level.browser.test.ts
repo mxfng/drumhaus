@@ -71,6 +71,10 @@ describe("master output level tap", () => {
   });
 
   it("reads loudness during live playback", async () => {
+    // TEMP CI INSTRUMENTATION for the #348 fix - dumps a stage-by-stage
+    // bisection when the graph wedges silent on CI.
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const stateAtCreate = getContext().state;
     // A sustained tone (not a 10ms click) so every unsmoothed RMS window
     // during playback is loud - the assertion cannot miss the signal.
     const engine = await createFixtureEngine({
@@ -80,7 +84,16 @@ describe("master output level tap", () => {
       bpm: 120,
       initLiveGraph: true,
     });
+    // Count channel triggers.
+    const ch = (engine as any).channels[0];
+    let triggerCount = 0;
+    const origTrigger = ch.trigger.bind(ch);
+    ch.trigger = (time: number, hit: unknown) => {
+      triggerCount++;
+      return origTrigger(time, hit);
+    };
     try {
+      const stateBeforeClick = getContext().state;
       // Trusted user gesture so the AudioContext is allowed to start.
       await userEvent.click(document.body);
       await engine.play();
@@ -90,11 +103,47 @@ describe("master output level tap", () => {
       let level = -Infinity;
       while (level <= SILENCE_DB) {
         if (performance.now() - start > 8000) {
-          // Include transport/context diagnostics so a failure here is
-          // self-describing (running-but-silent vs stalled clock).
+          const cs = ch?.envelopeNode?._sig?._constantSource;
+          const raw: AudioContext = (getContext() as any).rawContext
+            ._nativeAudioContext;
+          const tap = () => {
+            const a = raw.createAnalyser();
+            a.fftSize = 2048;
+            return a;
+          };
+          const taps: Record<string, AnalyserNode> = {
+            sampler: tap(),
+            envelope: tap(),
+            panner: tap(),
+          };
+          ch.samplerNode.connect(taps.sampler);
+          ch.envelopeNode.connect(taps.envelope);
+          ch.pannerNode.connect(taps.panner);
+          const maxRms: Record<string, number> = {};
+          const buf = new Float32Array(2048);
+          const tapStart = performance.now();
+          while (performance.now() - tapStart < 2600) {
+            for (const [name, a] of Object.entries(taps)) {
+              a.getFloatTimeDomainData(buf);
+              let sum = 0;
+              for (const v of buf) sum += v * v;
+              const rms = Math.sqrt(sum / buf.length);
+              if (!(name in maxRms) || rms > maxRms[name]) maxRms[name] = rms;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 20));
+          }
           throw new Error(
             `timed out waiting for the master tap to read signal (last ${level} dB; ` +
-              `diagnostics ${JSON.stringify(engine.getDiagnostics())})`,
+              `diagnostics ${JSON.stringify({
+                ...engine.getDiagnostics(),
+                stateAtCreate,
+                stateBeforeClick,
+                triggerCount,
+                samplerLoaded: ch.samplerNode.loaded,
+                envConstHasNative: !!cs?._source,
+                envConstState: cs?.state,
+                maxRms,
+              })})`,
           );
         }
         await new Promise((resolve) => setTimeout(resolve, 25));
