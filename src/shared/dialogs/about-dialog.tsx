@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { getContext } from "tone";
 
+import { getAudioEngine } from "@/core/audio/engine";
 import {
   Dialog,
   DialogContent,
@@ -27,10 +27,10 @@ const getBrowserInfo = () => {
 };
 
 const getAudioContextInfo = () => {
-  const ctx = getContext();
+  const { sampleRate } = getAudioEngine().getDiagnostics();
 
   return {
-    sampleRate: ctx.sampleRate,
+    sampleRate,
     // can always add more later
   };
 };
